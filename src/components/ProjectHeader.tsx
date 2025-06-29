@@ -1,15 +1,26 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
+import { EditProjectForm } from "./EditProjectForm";
 
 interface ProjectHeaderProps {
   project: Project;
   getStatusColor: (status: string) => string;
   getStatusText: (status: string) => string;
+  onProjectUpdate?: (updatedProject: Project) => void;
 }
 
-export const ProjectHeader = ({ project, getStatusColor, getStatusText }: ProjectHeaderProps) => {
+export const ProjectHeader = ({ project, getStatusColor, getStatusText, onProjectUpdate }: ProjectHeaderProps) => {
+  const [showEditForm, setShowEditForm] = useState(false);
+
+  const handleProjectUpdate = (updatedProject: Project) => {
+    if (onProjectUpdate) {
+      onProjectUpdate(updatedProject);
+    }
+  };
+
   return (
     <>
       {/* Header with Edit Button */}
@@ -18,7 +29,10 @@ export const ProjectHeader = ({ project, getStatusColor, getStatusText }: Projec
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.name}</h1>
           <p className="text-gray-600">{project.location}</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={() => setShowEditForm(true)}
+        >
           Edit
         </Button>
       </div>
@@ -33,6 +47,15 @@ export const ProjectHeader = ({ project, getStatusColor, getStatusText }: Projec
           </div>
         </div>
       </div>
+
+      {/* Edit Form Modal */}
+      {showEditForm && (
+        <EditProjectForm
+          project={project}
+          onClose={() => setShowEditForm(false)}
+          onUpdate={handleProjectUpdate}
+        />
+      )}
     </>
   );
 };

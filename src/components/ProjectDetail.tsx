@@ -48,6 +48,10 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
   const currentProject = project || fallbackProject;
 
+  const handleProjectUpdate = (updatedProject: Project) => {
+    setProject(updatedProject);
+  };
+
   const getProgress = (status: string) => {
     switch (status) {
       case "completed":
@@ -127,6 +131,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
             project={currentProject}
             getStatusColor={getStatusColor}
             getStatusText={getStatusText}
+            onProjectUpdate={handleProjectUpdate}
           />
 
           <ProjectInfo
