@@ -17,7 +17,7 @@ interface FinancePageProps {
 export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <FinanceHeader />
+      <FinanceHeader onNavigate={onNavigate} />
       <FinanceAlerts />
       <CashFlowSection />
       <ProfitabilitySection />

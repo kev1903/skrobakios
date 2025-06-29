@@ -2,7 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, Download, Plus } from "lucide-react";
 
-export const FinanceHeader = () => {
+interface FinanceHeaderProps {
+  onNavigate?: (page: string) => void;
+}
+
+export const FinanceHeader = ({ onNavigate }: FinanceHeaderProps) => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -19,7 +23,10 @@ export const FinanceHeader = () => {
             <Download className="w-4 h-4" />
             <span>Export Report</span>
           </Button>
-          <Button className="flex items-center space-x-2">
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={() => onNavigate?.("cashflow")}
+          >
             <Plus className="w-4 h-4" />
             <span>CASHFLOW</span>
           </Button>
