@@ -9,6 +9,7 @@ import { AuthPage } from "@/components/AuthPage";
 import { SupportPage } from "@/components/SupportPage";
 import { CreateProject } from "@/components/CreateProject";
 import { ProjectList } from "@/components/ProjectList";
+import { FilePage } from "@/components/FilePage";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState("tasks");
@@ -28,6 +29,8 @@ const Index = () => {
         return <ProjectDetail projectId={selectedProject} onNavigate={setCurrentPage} />;
       case "upload":
         return <UploadProject onNavigate={setCurrentPage} />;
+      case "files":
+        return <FilePage onNavigate={setCurrentPage} />;
       case "auth":
         return <AuthPage onNavigate={setCurrentPage} />;
       case "support":
