@@ -27,7 +27,7 @@ export const InvoicesHeader = ({ onNavigate }: InvoicesHeaderProps) => {
         </div>
         <div className="flex items-center space-x-3">
           <Button className="flex items-center space-x-2">
-            <span>Create Invoice</span>
+            <span>Sync Invoices</span>
           </Button>
         </div>
       </div>
