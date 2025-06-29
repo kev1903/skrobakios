@@ -32,6 +32,8 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
       onNavigate("project-files");
     } else if (itemId === "setting") {
       onNavigate("project-settings");
+    } else if (itemId === "schedule") {
+      onNavigate("project-schedule");
     } else {
       // Handle other navigation items as needed
       console.log(`Navigate to ${itemId}`);

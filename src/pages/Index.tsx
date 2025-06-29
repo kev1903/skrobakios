@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
@@ -5,6 +6,7 @@ import { ProjectDashboard } from "@/components/ProjectDashboard";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
+import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/AuthPage";
 import { SupportPage } from "@/components/SupportPage";
@@ -88,6 +90,14 @@ const Index = () => {
             <p className="text-gray-500">Project not found</p>
           </div>
         );
+      case "project-schedule":
+        return currentProject ? (
+          <ProjectSchedulePage project={currentProject} onNavigate={setCurrentPage} />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Project not found</p>
+          </div>
+        );
       case "upload":
         return <UploadProject onNavigate={setCurrentPage} />;
       case "files":
@@ -114,7 +124,7 @@ const Index = () => {
   };
 
   // Hide main sidebar for project-specific pages
-  const showMainSidebar = !["project-detail", "project-files", "project-settings"].includes(currentPage);
+  const showMainSidebar = !["project-detail", "project-files", "project-settings", "project-schedule"].includes(currentPage);
 
   return (
     <div className="min-h-screen flex">
