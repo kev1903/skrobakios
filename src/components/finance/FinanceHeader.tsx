@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 interface FinanceHeaderProps {
   onNavigate?: (page: string) => void;
@@ -19,7 +18,6 @@ export const FinanceHeader = ({ onNavigate }: FinanceHeaderProps) => {
             className="flex items-center space-x-2"
             onClick={() => onNavigate?.("cashflow")}
           >
-            <Plus className="w-4 h-4" />
             <span>CASHFLOW</span>
           </Button>
         </div>
