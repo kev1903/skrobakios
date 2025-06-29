@@ -30,6 +30,8 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
   const handleItemClick = (itemId: string) => {
     if (itemId === "files") {
       onNavigate("project-files");
+    } else if (itemId === "setting") {
+      onNavigate("project-settings");
     } else {
       // Handle other navigation items as needed
       console.log(`Navigate to ${itemId}`);
