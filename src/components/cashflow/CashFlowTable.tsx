@@ -55,51 +55,60 @@ export const CashFlowTable = ({
       {isExpanded && (
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-fixed">
+              <colgroup>
+                <col className="w-1/4" />
+                <col className="w-1/8" />
+                <col className="w-1/8" />
+                <col className="w-1/8" />
+                <col className="w-1/8" />
+                <col className="w-1/8" />
+                <col className="w-1/8" />
+              </colgroup>
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-2 font-medium text-gray-700"></th>
+                  <th className="text-left py-2 font-medium text-gray-700 px-2"></th>
                   {monthHeaders.map((month, index) => (
-                    <th key={index} className="text-right py-2 font-medium text-gray-700">{month}</th>
+                    <th key={index} className="text-right py-2 font-medium text-gray-700 px-2 min-w-[100px]">{month}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {data.map((item, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50/50">
-                    <td className="py-2 font-medium text-gray-900">{item.name}</td>
+                    <td className="py-2 font-medium text-gray-900 px-2">{item.name}</td>
                     <td 
-                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]"
                       onClick={() => onCellClick(item.name, monthHeaders[0], item.may)}
                     >
                       {formatCellValue(item.may)}
                     </td>
                     <td 
-                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]"
                       onClick={() => onCellClick(item.name, monthHeaders[1], item.jun)}
                     >
                       {formatCellValue(item.jun)}
                     </td>
                     <td 
-                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]"
                       onClick={() => onCellClick(item.name, monthHeaders[2], item.jul)}
                     >
                       {formatCellValue(item.jul)}
                     </td>
                     <td 
-                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]"
                       onClick={() => onCellClick(item.name, monthHeaders[3], item.aug)}
                     >
                       {formatCellValue(item.aug)}
                     </td>
                     <td 
-                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]"
                       onClick={() => onCellClick(item.name, monthHeaders[4], item.sep)}
                     >
                       {formatCellValue(item.sep)}
                     </td>
                     <td 
-                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                      className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]"
                       onClick={() => onCellClick(item.name, monthHeaders[5], item.oct)}
                     >
                       {formatCellValue(item.oct)}
