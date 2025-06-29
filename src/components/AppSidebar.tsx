@@ -42,11 +42,11 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
   ];
 
   return (
-    <div className="w-64 glass-sidebar flex flex-col h-full animate-slide-in">
+    <div className="w-64 bg-white/95 backdrop-blur-sm border-r border-white/20 flex flex-col h-full animate-slide-in">
       {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-sm font-poppins">K</span>
           </div>
           <div>
@@ -74,8 +74,8 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
                     isActive
-                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium shadow-md backdrop-blur-sm border border-gray-500/20"
-                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-sm"
+                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium backdrop-blur-sm border border-gray-500/20"
+                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm"
                   )}
                 >
                   <Icon className={cn(
@@ -105,8 +105,8 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
                     isActive
-                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium shadow-md backdrop-blur-sm border border-gray-500/20"
-                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-sm"
+                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium backdrop-blur-sm border border-gray-500/20"
+                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm"
                   )}
                 >
                   <Icon className={cn(
@@ -136,8 +136,8 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
                     isActive
-                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium shadow-md backdrop-blur-sm border border-gray-500/20"
-                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-sm"
+                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium backdrop-blur-sm border border-gray-500/20"
+                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm"
                   )}
                 >
                   <Icon className={cn(
@@ -155,7 +155,7 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
       {/* User Profile */}
       <div className="p-4 border-t border-white/10">
         <button className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/10 transition-all duration-200 group backdrop-blur-sm">
-          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center shadow-lg">
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
