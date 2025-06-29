@@ -1,162 +1,171 @@
 
 import { useState, useEffect } from "react";
-import { Upload, Download, Search, Grid, List, File, Eye, Trash2, Users, ExternalLink, Folder, ArrowLeft, RefreshCw } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { 
+  Folder, 
+  File, 
+  Download, 
+  Eye, 
+  Plus, 
+  Search, 
+  Filter,
+  Grid,
+  List,
+  Calendar,
+  User,
+  FileText,
+  Image,
+  Archive,
+  Share2,
+  Upload,
+  RefreshCw,
+  ExternalLink
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ProjectSidebar } from "./ProjectSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Project } from "@/hooks/useProjects";
-
-interface FileItem {
-  id: string;
-  name: string;
-  type: "file";
-  size: number;
-  createdAt: string;
-  fileType: string;
-  source: "local" | "sharepoint";
-}
 
 interface ProjectFilePageProps {
   project: Project;
   onNavigate: (page: string) => void;
 }
 
+type FileType = "pdf" | "dwg" | "jpg" | "doc" | "xls" | "all";
+
+interface FileItem {
+  id: string;
+  name: string;
+  type: FileType;
+  size: string;
+  modified: string;
+  author: string;
+  isFolder?: boolean;
+  path: string;
+}
+
 export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) => {
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sharePointLink, setSharePointLink] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFileType, setSelectedFileType] = useState<FileType>("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<"all" | "local" | "sharepoint" | "pdf" | "dwg" | "jpg">("all");
-  
-  const [projectFiles] = useState<FileItem[]>([
+  const [sharePointFiles, setSharePointFiles] = useState<FileItem[]>([]);
+  const { toast } = useToast();
+
+  // Sample project files data
+  const projectFiles: FileItem[] = [
     {
       id: "1",
-      name: `${project.project_id} - Architectural Plans.pdf`,
-      type: "file",
-      size: 2450000,
-      createdAt: "25 Jun, 2025",
-      fileType: "pdf",
-      source: "local"
+      name: "Architectural Plans",
+      type: "pdf",
+      size: "2.4 MB",
+      modified: "2024-06-20",
+      author: "John Smith",
+      isFolder: false,
+      path: "/project/architectural"
     },
     {
       id: "2",
-      name: `${project.project_id} - Site Survey.dwg`,
-      type: "file",
-      size: 1850000,
-      createdAt: "24 Jun, 2025",
-      fileType: "dwg",
-      source: "local"
+      name: "Site Survey",
+      type: "dwg",
+      size: "5.1 MB",
+      modified: "2024-06-18",
+      author: "Mike Johnson",
+      isFolder: false,
+      path: "/project/survey"
     },
     {
       id: "3",
-      name: `${project.project_id} - Foundation Plans.pdf`,
-      type: "file",
-      size: 1200000,
-      createdAt: "23 Jun, 2025",
-      fileType: "pdf",
-      source: "local"
+      name: "Photos",
+      type: "jpg",
+      size: "Folder",
+      modified: "2024-06-22",
+      author: "Various",
+      isFolder: true,
+      path: "/project/photos"
     },
     {
       id: "4",
-      name: `${project.project_id} - Elevation Views.jpg`,
-      type: "file",
-      size: 3400000,
-      createdAt: "22 Jun, 2025",
-      fileType: "jpg",
-      source: "local"
+      name: "Contract Documents",
+      type: "doc",
+      size: "1.2 MB",
+      modified: "2024-06-15",
+      author: "Legal Team",
+      isFolder: false,
+      path: "/project/contracts"
+    }
+  ];
+
+  // Sample SharePoint files
+  const sampleSharePointFiles: FileItem[] = [
+    {
+      id: "sp1",
+      name: "Project Specifications.docx",
+      type: "doc",
+      size: "3.2 MB",
+      modified: "2024-06-25",
+      author: "SharePoint User",
+      path: "/sharepoint/specs"
     },
     {
-      id: "5",
-      name: `${project.project_id} - Structural Details.dwg`,
-      type: "file",
-      size: 2100000,
-      createdAt: "21 Jun, 2025",
-      fileType: "dwg",
-      source: "local"
+      id: "sp2",
+      name: "Budget Analysis.xlsx",
+      type: "xls",
+      size: "1.8 MB",
+      modified: "2024-06-24",
+      author: "Finance Team",
+      path: "/sharepoint/finance"
+    },
+    {
+      id: "sp3",
+      name: "Meeting Notes Q2.pdf",
+      type: "pdf",
+      size: "890 KB",
+      modified: "2024-06-23",
+      author: "Project Manager",
+      path: "/sharepoint/meetings"
     }
-  ]);
-
-  // SharePoint files - dynamically generated based on project
-  const [sharePointFiles, setSharePointFiles] = useState<FileItem[]>([]);
+  ];
 
   useEffect(() => {
-    // Load SharePoint link from localStorage
-    const savedLink = localStorage.getItem(`project_sharepoint_${project.id}`);
-    if (savedLink) {
-      setSharePointLink(savedLink);
-      syncSharePointFiles();
-    }
-  }, [project.id]);
+    // Simulate loading SharePoint files
+    const timer = setTimeout(() => {
+      setSharePointFiles(sampleSharePointFiles);
+    }, 1000);
 
-  const syncSharePointFiles = async () => {
+    return () => clearTimeout(timer);
+  }, []);
+
+  const allFiles = [...projectFiles, ...sharePointFiles];
+
+  const filteredFiles = allFiles.filter(file => {
+    const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedFileType === "all" || file.type === selectedFileType;
+    return matchesSearch && matchesType;
+  });
+
+  const handleFileSelect = (fileId: string) => {
+    const newSelected = new Set(selectedFiles);
+    if (newSelected.has(fileId)) {
+      newSelected.delete(fileId);
+    } else {
+      newSelected.add(fileId);
+    }
+    setSelectedFiles(newSelected);
+  };
+
+  const handleSyncSharePoint = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call to fetch SharePoint files
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate SharePoint files based on project
-      const sharePointFilesList = [
-        {
-          id: "sp1",
-          name: `${project.project_id} - Architectural Plans.pdf`,
-          type: "file" as const,
-          size: 2300000,
-          createdAt: "25 Jun, 2025",
-          fileType: "pdf",
-          source: "sharepoint" as const
-        },
-        {
-          id: "sp2",
-          name: `${project.project_id} - Site Survey.dwg`,
-          type: "file" as const,
-          size: 1800000,
-          createdAt: "24 Jun, 2025",
-          fileType: "dwg",
-          source: "sharepoint" as const
-        },
-        {
-          id: "sp3",
-          name: `${project.project_id} - Foundation Plans.pdf`,
-          type: "file" as const,
-          size: 1100000,
-          createdAt: "23 Jun, 2025",
-          fileType: "pdf",
-          source: "sharepoint" as const
-        },
-        {
-          id: "sp4",
-          name: `${project.project_id} - Elevation Views.jpg`,
-          type: "file" as const,
-          size: 3200000,
-          createdAt: "22 Jun, 2025",
-          fileType: "jpg",
-          source: "sharepoint" as const
-        },
-        {
-          id: "sp5",
-          name: `${project.project_id} - Structural Details.dwg`,
-          type: "file" as const,
-          size: 2000000,
-          createdAt: "21 Jun, 2025",
-          fileType: "dwg",
-          source: "sharepoint" as const
-        }
-      ];
-
-      setSharePointFiles(sharePointFilesList);
-      
+      // Simulate SharePoint sync
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSharePointFiles(sampleSharePointFiles);
       toast({
-        title: "SharePoint Synced",
-        description: `Successfully synced ${sharePointFilesList.length} files from SharePoint.`,
+        title: "SharePoint Sync Complete",
+        description: "Successfully synced files from SharePoint.",
       });
     } catch (error) {
       toast({
@@ -169,521 +178,258 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "in_progress":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "on_hold":
-        return "bg-red-100 text-red-800 border-red-200";
+  const getFileIcon = (type: FileType, isFolder?: boolean) => {
+    if (isFolder) return <Folder className="w-4 h-4 text-blue-500" />;
+    
+    switch (type) {
+      case "pdf":
+        return <FileText className="w-4 h-4 text-red-500" />;
+      case "dwg":
+        return <Archive className="w-4 h-4 text-green-500" />;
+      case "jpg":
+        return <Image className="w-4 h-4 text-purple-500" />;
+      case "doc":
+        return <FileText className="w-4 h-4 text-blue-500" />;
+      case "xls":
+        return <FileText className="w-4 h-4 text-green-600" />;
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return <File className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "in_progress":
-        return "In Progress";
-      case "pending":
-        return "Pending";
-      case "on_hold":
-        return "On Hold";
-      default:
-        return "Active";
+  const getFileBadgeColor = (path: string) => {
+    if (path.includes('sharepoint')) {
+      return 'bg-blue-100 text-blue-800';
     }
+    return 'bg-gray-100 text-gray-800';
   };
 
-  const handleSharePointAccess = () => {
-    if (sharePointLink) {
-      window.open(sharePointLink, "_blank");
-    } else {
-      window.open("https://enassee.sharepoint.com/:f:/s/SkrobakiProjects/Emw1CavunZZGqup2TMoIcd0BdA8uQDzqHGoqX4x4TI22qg?e=Ey0bOj", "_blank");
-    }
-  };
-
-  const allFiles = [...projectFiles, ...sharePointFiles];
-  
-  const getFilteredFiles = () => {
-    let files = allFiles;
-    
-    // Apply source filter
-    if (activeFilter === "local") {
-      files = files.filter(f => f.source === "local");
-    } else if (activeFilter === "sharepoint") {
-      files = files.filter(f => f.source === "sharepoint");
-    } else if (activeFilter === "pdf") {
-      files = files.filter(f => f.fileType === "pdf");
-    } else if (activeFilter === "dwg") {
-      files = files.filter(f => f.fileType === "dwg");
-    } else if (activeFilter === "jpg") {
-      files = files.filter(f => f.fileType === "jpg");
-    }
-    
-    // Apply search filter
-    if (searchTerm) {
-      files = files.filter(file =>
-        file.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    return files;
-  };
-
-  const filteredFiles = getFilteredFiles();
-  const sharePointFilteredFiles = filteredFiles.filter(f => f.source === "sharepoint");
-  const localFilteredFiles = filteredFiles.filter(f => f.source === "local");
-
-  return (
-    <div className="h-screen flex bg-gray-50">
-      {/* Project Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <Button
-            variant="ghost"
-            onClick={() => onNavigate("project-detail")}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Project</span>
-          </Button>
-          
-          <div className="mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Badge variant="outline" className={getStatusColor(project.status)}>
-                {getStatusText(project.status)}
-              </Badge>
-              <span>Project Files</span>
+  const renderFileGrid = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {filteredFiles.map((file) => (
+        <Card 
+          key={file.id} 
+          className={`cursor-pointer transition-all hover:shadow-md ${
+            selectedFiles.has(file.id) ? 'ring-2 ring-blue-500' : ''
+          }`}
+          onClick={() => handleFileSelect(file.id)}
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3 mb-3">
+              {getFileIcon(file.type, file.isFolder)}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {file.name}
+                </p>
+                <p className="text-xs text-gray-500">{file.size}</p>
+              </div>
             </div>
+            <div className="flex items-center justify-between">
+              <Badge className={`text-xs ${getFileBadgeColor(file.path)}`}>
+                {file.path.includes('sharepoint') ? 'SharePoint' : 'Local'}
+              </Badge>
+              <div className="flex items-center space-x-1">
+                <Button variant="ghost" size="sm">
+                  <Eye className="w-3 h-3" />
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <Download className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+
+  const renderFileList = () => (
+    <div className="space-y-2">
+      {filteredFiles.map((file) => (
+        <div 
+          key={file.id}
+          className={`flex items-center space-x-4 p-3 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors ${
+            selectedFiles.has(file.id) ? 'bg-blue-50 border-blue-200' : ''
+          }`}
+          onClick={() => handleFileSelect(file.id)}
+        >
+          <div className="flex-shrink-0">
+            {getFileIcon(file.type, file.isFolder)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {file.name}
+            </p>
+            <div className="flex items-center space-x-4 mt-1">
+              <span className="text-xs text-gray-500">{file.size}</span>
+              <span className="text-xs text-gray-500">Modified: {file.modified}</span>
+              <span className="text-xs text-gray-500">By: {file.author}</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Badge className={`text-xs ${getFileBadgeColor(file.path)}`}>
+              {file.path.includes('sharepoint') ? 'SharePoint' : 'Local'}
+            </Badge>
+            <Button variant="ghost" size="sm">
+              <Eye className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Download className="w-4 h-4" />
+            </Button>
+            {file.path.includes('sharepoint') && (
+              <Button variant="ghost" size="sm">
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
+      ))}
+    </div>
+  );
 
-        <nav className="flex-1 p-4">
-          <div className="space-y-1">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-              File Sources
-            </div>
-            
-            <button 
-              onClick={() => setActiveFilter("all")}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                activeFilter === "all" 
-                  ? "bg-blue-50 text-blue-700 border border-blue-200"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              <File className="w-4 h-4" />
-              <span className="text-sm font-medium">All Files</span>
-              <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {allFiles.length}
-              </span>
-            </button>
-            
-            <button 
-              onClick={() => setActiveFilter("local")}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                activeFilter === "local" 
-                  ? "bg-blue-50 text-blue-700 border border-blue-200"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              <File className="w-4 h-4" />
-              <span className="text-sm font-medium">Local Files</span>
-              <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {projectFiles.length}
-              </span>
-            </button>
-            
-            <button 
-              onClick={() => setActiveFilter("sharepoint")}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                activeFilter === "sharepoint" 
-                  ? "bg-blue-50 text-blue-700 border border-blue-200"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              <Folder className="w-4 h-4" />
-              <span className="text-sm font-medium">SharePoint</span>
-              <span className="ml-auto text-xs bg-blue-200 text-blue-700 px-2 py-1 rounded-full">
-                {sharePointFiles.length}
-              </span>
-            </button>
-            
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 mt-4">
-              File Categories
-            </div>
-            
-            <button 
-              onClick={() => setActiveFilter("pdf")}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                activeFilter === "pdf" 
-                  ? "bg-blue-50 text-blue-700 border border-blue-200"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              <File className="w-4 h-4" />
-              <span className="text-sm font-medium">PDFs</span>
-              <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {allFiles.filter(f => f.fileType === 'pdf').length}
-              </span>
-            </button>
-            
-            <button 
-              onClick={() => setActiveFilter("dwg")}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                activeFilter === "dwg" 
-                  ? "bg-blue-50 text-blue-700 border border-blue-200"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              <File className="w-4 h-4" />
-              <span className="text-sm font-medium">CAD Files</span>
-              <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {allFiles.filter(f => f.fileType === 'dwg').length}
-              </span>
-            </button>
-            
-            <button 
-              onClick={() => setActiveFilter("jpg")}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                activeFilter === "jpg" 
-                  ? "bg-blue-50 text-blue-700 border border-blue-200"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-            >
-              <File className="w-4 h-4" />
-              <span className="text-sm font-medium">Images</span>
-              <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {allFiles.filter(f => f.fileType === 'jpg').length}
-              </span>
-            </button>
+  return (
+    <div className="min-h-screen flex bg-gray-50">
+      <ProjectSidebar 
+        project={project} 
+        currentPage="project-files" 
+        onNavigate={onNavigate} 
+      />
+      
+      <main className="flex-1 overflow-hidden">
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Files</h1>
+            <p className="text-gray-600">Manage and organize all project documents and files</p>
           </div>
-        </nav>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-white border-b border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{project.name} - Files</h1>
-              <p className="text-gray-600">Project ID: {project.project_id}</p>
-              {sharePointLink && (
-                <p className="text-sm text-blue-600 mt-1">
-                  Connected to SharePoint folder
-                </p>
-              )}
-            </div>
-            <div className="flex items-center space-x-4">
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Search project files..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64"
+                  placeholder="Search files..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" className="text-gray-600">
-                  <Users className="w-4 h-4 mr-2" />
-                  Share
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <select
+                value={selectedFileType}
+                onChange={(e) => setSelectedFileType(e.target.value as FileType)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="all">All Files</option>
+                <option value="pdf">PDF</option>
+                <option value="dwg">DWG</option>
+                <option value="jpg">Images</option>
+                <option value="doc">Documents</option>
+                <option value="xls">Spreadsheets</option>
+              </select>
+              
+              <div className="flex items-center border border-gray-300 rounded-md">
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="rounded-r-none"
+                >
+                  <List className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" className="text-gray-600">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download All
-                </Button>
-                <Button className="bg-blue-600 text-white">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Files
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="rounded-l-none"
+                >
+                  <Grid className="w-4 h-4" />
                 </Button>
               </div>
+              
+              <Button 
+                onClick={handleSyncSharePoint}
+                disabled={isLoading}
+                className="flex items-center space-x-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>Sync SharePoint</span>
+              </Button>
+              
+              <Button className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Upload</span>
+              </Button>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 p-6 overflow-auto">
           {/* SharePoint Integration Section */}
-          {(activeFilter === "all" || activeFilter === "sharepoint") && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {sharePointLink ? 'Connected SharePoint Folder' : 'SharePoint Integration'}
-                </h3>
-                <div className="flex items-center space-x-2">
-                  {sharePointLink && (
-                    <Button 
-                      onClick={syncSharePointFiles}
-                      variant="outline"
-                      disabled={isLoading}
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                    >
-                      <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                      {isLoading ? 'Syncing...' : 'Sync'}
+          <Card className="mb-6 border-blue-200 bg-blue-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-2 text-blue-800">
+                <Share2 className="w-5 h-5" />
+                <span>SharePoint Integration</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-700 mb-1">
+                    Connected to SharePoint folder: <strong>Construction Projects/Gordon Street</strong>
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    {sharePointFiles.length} files synced • Last sync: Just now
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" className="text-blue-700 border-blue-300">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Open in SharePoint
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Files Display */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Files ({filteredFiles.length})</CardTitle>
+                {selectedFiles.size > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">
+                      {selectedFiles.size} selected
+                    </span>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download
                     </Button>
-                  )}
-                  <Button 
-                    onClick={handleSharePointAccess}
-                    variant="outline"
-                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Open in SharePoint
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-lg border">
-                <div className="p-4 border-b border-gray-200 bg-blue-50">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Folder className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
-                        {sharePointLink ? `${project.name} - SharePoint` : "Gordon Street - SharePoint"}
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        {sharePointLink 
-                          ? "Files from your configured SharePoint folder"
-                          : "Access project files stored in SharePoint"
-                        }
-                      </p>
-                      {sharePointLink && (
-                        <p className="text-xs text-blue-600 mt-1 font-mono truncate">
-                          {sharePointLink.length > 60 ? `${sharePointLink.substring(0, 60)}...` : sharePointLink}
-                        </p>
-                      )}
-                    </div>
-                    {!sharePointLink && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => onNavigate("project-settings")}
-                        className="text-blue-600 border-blue-200"
-                      >
-                        Configure SharePoint
-                      </Button>
-                    )}
+                    <Button variant="outline" size="sm">
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share
+                    </Button>
                   </div>
-                </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead className="w-12">
-                        <input type="checkbox" className="rounded" />
-                      </TableHead>
-                      <TableHead>File Name</TableHead>
-                      <TableHead>Size</TableHead>
-                      <TableHead>Last Modified</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sharePointFilteredFiles.length > 0 ? (
-                      sharePointFilteredFiles.map((file) => (
-                        <TableRow key={file.id} className="hover:bg-gray-50">
-                          <TableCell>
-                            <input type="checkbox" className="rounded" />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-3">
-                              <File className="w-4 h-4 text-blue-600" />
-                              <span className="text-sm font-medium">{file.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-600">
-                            {formatFileSize(file.size)}
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-600">
-                            {file.createdAt}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-xs">
-                              {file.fileType.toUpperCase()}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Button variant="ghost" size="sm">
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Download className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                          {sharePointLink ? "No SharePoint files found" : "Configure SharePoint to view files"}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                )}
               </div>
-            </div>
-          )}
-
-          {/* Local Project Files Section */}
-          {(activeFilter === "all" || activeFilter === "local" || (activeFilter !== "sharepoint" && activeFilter !== "all")) && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Local Project Files</h3>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Grid className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <List className="w-4 h-4" />
-                  </Button>
+            </CardHeader>
+            <CardContent>
+              {filteredFiles.length === 0 ? (
+                <div className="text-center py-12">
+                  <File className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No files found</h3>
+                  <p className="text-gray-600">Try adjusting your search or filter criteria</p>
                 </div>
-              </div>
-              
-              <div className="bg-white rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead className="w-12">
-                        <input type="checkbox" className="rounded" />
-                      </TableHead>
-                      <TableHead>File Name</TableHead>
-                      <TableHead>Size</TableHead>
-                      <TableHead>Last Modified</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {localFilteredFiles.length > 0 ? (
-                      localFilteredFiles.map((file) => (
-                        <TableRow key={file.id} className="hover:bg-gray-50">
-                          <TableCell>
-                            <input type="checkbox" className="rounded" />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-3">
-                              <File className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm font-medium">{file.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-600">
-                            {formatFileSize(file.size)}
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-600">
-                            {file.createdAt}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-xs">
-                              {file.fileType.toUpperCase()}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Button variant="ghost" size="sm">
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Download className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                          No local files found
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          )}
-
-          {/* File Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Folder className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{sharePointFiles.length}</h4>
-                  <p className="text-sm text-gray-500">SharePoint Files</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <File className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{projectFiles.length}</h4>
-                  <p className="text-sm text-gray-500">Local Files</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Folder className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">
-                    {formatFileSize(sharePointFiles.reduce((total, file) => total + file.size, 0))}
-                  </h4>
-                  <p className="text-sm text-gray-500">SharePoint Size</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg border p-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Eye className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900">
-                    {[...new Set(allFiles.map(f => f.fileType))].length}
-                  </h4>
-                  <p className="text-sm text-gray-500">File Types</p>
-                </div>
-              </div>
-            </div>
-          </div>
+              ) : (
+                <>
+                  {viewMode === "grid" ? renderFileGrid() : renderFileList()}
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
