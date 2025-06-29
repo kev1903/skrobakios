@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { CashFlowHeader } from "./cashflow/CashFlowHeader";
 import { CashFlowCards } from "./cashflow/CashFlowCards";
@@ -23,12 +24,24 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     }));
   };
 
+  // Opening balance (this would typically come from your data source)
+  const openingBalance = { may: 22543, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0 };
+
   const cashInData: CashFlowItem[] = [
     { name: "Construction Revenue", may: 12645, jun: 5049, jul: 33927, aug: 0, sep: 0, oct: 0 },
     { name: "Consulting Revenue", may: 426587, jun: 426587, jul: 33970, aug: 291, sep: 0, oct: 0 },
     { name: "Other Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
     { name: "Returns & Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
   ];
+
+  // Create opening balance item for Cash In table
+  const openingBalanceItem: CashFlowItem = {
+    name: "Opening Balance",
+    ...openingBalance
+  };
+
+  // Combine opening balance with cash in data
+  const cashInDataWithOpening = [openingBalanceItem, ...cashInData];
 
   const cashOutData: CashFlowItem[] = [
     { name: "ATO - ICA", may: 500, jun: 1703, jul: 868, aug: 2501, sep: 2501, oct: 2501 },
@@ -55,9 +68,6 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
 
   const cashInTotals = calculateTotals(cashInData);
   const cashOutTotals = calculateTotals(cashOutData);
-
-  // Opening balance (this would typically come from your data source)
-  const openingBalance = { may: 22543, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0 };
 
   // Calculate net movement (Cash In - Cash Out)
   const netMovement = {
@@ -151,10 +161,11 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
       <div className="space-y-6">
         <CashFlowTable
           title="Cash In"
-          data={cashInData}
+          data={cashInDataWithOpening}
           isExpanded={expandedSections.cashIn}
           onToggle={() => toggleSection('cashIn')}
           onCellClick={handleCellClick}
+          hasOpeningBalance={true}
         />
 
         <CashFlowTable
