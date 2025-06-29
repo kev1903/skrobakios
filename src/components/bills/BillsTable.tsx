@@ -20,6 +20,7 @@ const billData = [
     overdue: true,
     hasWarning: true,
     includedInCashFlow: true,
+    linkedCashInAccount: "",
   },
   {
     id: "2",
@@ -31,6 +32,7 @@ const billData = [
     overdue: false,
     hasWarning: false,
     includedInCashFlow: true,
+    linkedCashInAccount: "construction-revenue",
   },
   {
     id: "3",
@@ -42,6 +44,7 @@ const billData = [
     overdue: false,
     hasWarning: false,
     includedInCashFlow: true,
+    linkedCashInAccount: "",
   },
   {
     id: "4",
@@ -53,16 +56,18 @@ const billData = [
     overdue: false,
     hasWarning: false,
     includedInCashFlow: true,
+    linkedCashInAccount: "consulting-revenue",
   },
 ];
 
 export const BillsTable = () => {
   const [selectedBills, setSelectedBills] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [bills, setBills] = useState(billData);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedBills(billData.map(bill => bill.id));
+      setSelectedBills(bills.map(bill => bill.id));
     } else {
       setSelectedBills([]);
     }
@@ -76,6 +81,17 @@ export const BillsTable = () => {
     }
   };
 
+  const handleAccountLinkChange = (billId: string, accountId: string) => {
+    setBills(prevBills =>
+      prevBills.map(bill =>
+        bill.id === billId
+          ? { ...bill, linkedCashInAccount: accountId }
+          : bill
+      )
+    );
+    console.log(`Bill ${billId} linked to account: ${accountId}`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       <BillsTableControls 
@@ -86,16 +102,17 @@ export const BillsTable = () => {
       <Table>
         <BillsTableHeader
           selectedCount={selectedBills.length}
-          totalCount={billData.length}
+          totalCount={bills.length}
           onSelectAll={handleSelectAll}
         />
         <TableBody>
-          {billData.map((bill) => (
+          {bills.map((bill) => (
             <BillsTableRow
               key={bill.id}
               bill={bill}
               isSelected={selectedBills.includes(bill.id)}
               onSelect={handleSelectBill}
+              onAccountLinkChange={handleAccountLinkChange}
             />
           ))}
         </TableBody>

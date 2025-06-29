@@ -2,6 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AlertTriangle, MoreHorizontal } from "lucide-react";
 
 interface Bill {
@@ -14,15 +21,24 @@ interface Bill {
   overdue: boolean;
   hasWarning: boolean;
   includedInCashFlow: boolean;
+  linkedCashInAccount: string;
 }
 
 interface BillsTableRowProps {
   bill: Bill;
   isSelected: boolean;
   onSelect: (billId: string, checked: boolean) => void;
+  onAccountLinkChange: (billId: string, accountId: string) => void;
 }
 
-export const BillsTableRow = ({ bill, isSelected, onSelect }: BillsTableRowProps) => {
+const cashInAccounts = [
+  { id: "construction-revenue", name: "Construction Revenue" },
+  { id: "consulting-revenue", name: "Consulting Revenue" },
+  { id: "other-revenue", name: "Other Revenue" },
+  { id: "returns-revenue", name: "Returns & Revenue" },
+];
+
+export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange }: BillsTableRowProps) => {
   return (
     <TableRow key={bill.id}>
       <TableCell>
@@ -49,6 +65,24 @@ export const BillsTableRow = ({ bill, isSelected, onSelect }: BillsTableRowProps
       </TableCell>
       <TableCell className="text-center">
         <div className="w-3 h-3 bg-red-500 rounded-full mx-auto"></div>
+      </TableCell>
+      <TableCell className="min-w-[200px]">
+        <Select
+          value={bill.linkedCashInAccount}
+          onValueChange={(value) => onAccountLinkChange(bill.id, value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select account" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">No account linked</SelectItem>
+            {cashInAccounts.map((account) => (
+              <SelectItem key={account.id} value={account.id}>
+                {account.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </TableCell>
       <TableCell>
         <Button variant="ghost" size="sm">
