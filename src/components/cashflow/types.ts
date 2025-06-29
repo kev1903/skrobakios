@@ -29,3 +29,9 @@ export interface CashFlowItem {
   sep: number | string;
   oct: number | string;
 }
+
+export interface CashFlowSummary {
+  openingBalance: CashFlowItem;
+  netMovement: CashFlowItem;
+  endingBalance: CashFlowItem;
+}

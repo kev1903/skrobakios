@@ -5,7 +5,7 @@ import { CashFlowCards } from "./cashflow/CashFlowCards";
 import { CashFlowChart } from "./cashflow/CashFlowChart";
 import { CashFlowTable } from "./cashflow/CashFlowTable";
 import { CashFlowBreakdownDialog } from "./cashflow/CashFlowBreakdownDialog";
-import { CashFlowPageProps, BreakdownData, CashFlowItem } from "./cashflow/types";
+import { CashFlowPageProps, BreakdownData, CashFlowItem, CashFlowSummary } from "./cashflow/types";
 
 export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   const [selectedScenario, setSelectedScenario] = useState("base");
@@ -24,19 +24,66 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   };
 
   const cashInData: CashFlowItem[] = [
-    { name: "Construction Revenue", may: 12645, jun: 5049, jul: "33927 of 0", aug: 0, sep: 0, oct: 0 },
-    { name: "Consulting Revenue", may: 426587, jun: 426587, jul: "33970 of 0", aug: 291, sep: 0, oct: 0 },
-    { name: "Other Revenue", may: 426587, jun: 426587, jul: "0 of 0", aug: 0, sep: 0, oct: 0 },
-    { name: "Returns & Revenue", may: 426587, jun: 426587, jul: "0 of 0", aug: 0, sep: 0, oct: 0 },
+    { name: "Construction Revenue", may: 12645, jun: 5049, jul: 33927, aug: 0, sep: 0, oct: 0 },
+    { name: "Consulting Revenue", may: 426587, jun: 426587, jul: 33970, aug: 291, sep: 0, oct: 0 },
+    { name: "Other Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
+    { name: "Returns & Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
   ];
 
   const cashOutData: CashFlowItem[] = [
-    { name: "ATO - ICA", may: 500, jun: 1703, jul: "868 of 501", aug: 2501, sep: 2501, oct: 2501 },
+    { name: "ATO - ICA", may: 500, jun: 1703, jul: 868, aug: 2501, sep: 2501, oct: 2501 },
     { name: "ATO - BAS Payment", may: 0, jun: 0, jul: 250, aug: 250, sep: 250, oct: 250 },
     { name: "ATO Initial Payment Plan", may: 0, jun: 1700, jul: 400, aug: 600, sep: 600, oct: 600 },
     { name: "Tax - Wage - Kevin", may: 0, jun: 0, jul: 1650, aug: 1650, sep: 1650, oct: 1650 },
-    { name: "Other Expenses", may: 363, jun: 0, jul: "632 of 632", aug: 0, sep: 0, oct: 363 },
+    { name: "Other Expenses", may: 363, jun: 0, jul: 632, aug: 0, sep: 0, oct: 363 },
   ];
+
+  // Calculate totals for each month
+  const calculateTotals = (data: CashFlowItem[]) => {
+    return data.reduce((totals, item) => {
+      const getValue = (val: number | string) => typeof val === 'number' ? val : 0;
+      return {
+        may: totals.may + getValue(item.may),
+        jun: totals.jun + getValue(item.jun),
+        jul: totals.jul + getValue(item.jul),
+        aug: totals.aug + getValue(item.aug),
+        sep: totals.sep + getValue(item.sep),
+        oct: totals.oct + getValue(item.oct),
+      };
+    }, { may: 0, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0 });
+  };
+
+  const cashInTotals = calculateTotals(cashInData);
+  const cashOutTotals = calculateTotals(cashOutData);
+
+  // Opening balance (this would typically come from your data source)
+  const openingBalance = { may: 22543, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0 };
+
+  // Calculate net movement (Cash In - Cash Out)
+  const netMovement = {
+    may: cashInTotals.may - cashOutTotals.may,
+    jun: cashInTotals.jun - cashOutTotals.jun,
+    jul: cashInTotals.jul - cashOutTotals.jul,
+    aug: cashInTotals.aug - cashOutTotals.aug,
+    sep: cashInTotals.sep - cashOutTotals.sep,
+    oct: cashInTotals.oct - cashOutTotals.oct,
+  };
+
+  // Calculate ending balance (Opening Balance + Net Movement)
+  const endingBalance = {
+    may: openingBalance.may + netMovement.may,
+    jun: endingBalance.may + netMovement.jun,
+    jul: endingBalance.jun + netMovement.jul,
+    aug: endingBalance.jul + netMovement.aug,
+    sep: endingBalance.aug + netMovement.sep,
+    oct: endingBalance.sep + netMovement.oct,
+  };
+
+  const summary: CashFlowSummary = {
+    openingBalance: { name: "Opening Balance", ...openingBalance },
+    netMovement: { name: "Net cash movement", ...netMovement },
+    endingBalance: { name: "Ending balance", ...endingBalance },
+  };
 
   // Sample breakdown data for demonstration
   const getBreakdownData = (itemName: string, month: string): BreakdownData => {
@@ -109,6 +156,8 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
           isExpanded={expandedSections.cashOut}
           onToggle={() => toggleSection('cashOut')}
           onCellClick={handleCellClick}
+          showSummary={true}
+          summary={summary}
         />
       </div>
 
