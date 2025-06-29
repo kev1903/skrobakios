@@ -46,11 +46,11 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
       {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-lg font-poppins">K</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-sm font-poppins">K</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gradient heading-modern">KAKSIK</h1>
+            <h1 className="text-lg font-bold text-gradient heading-modern">KAKSIK</h1>
             <p className="text-xs text-gray-500 font-inter">Modern Workspace</p>
           </div>
         </div>
@@ -72,15 +72,15 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
                   className={cn(
-                    "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition-all duration-200 text-sm font-inter group",
+                    "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
                     isActive
-                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-600 font-medium shadow-lg backdrop-blur-sm border border-blue-500/20"
-                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-md"
+                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium shadow-md backdrop-blur-sm border border-gray-500/20"
+                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-sm"
                   )}
                 >
                   <Icon className={cn(
-                    "w-5 h-5 transition-all duration-200",
-                    isActive ? "text-blue-500" : "text-gray-500 group-hover:text-gray-700"
+                    "w-4 h-4 transition-all duration-200",
+                    isActive ? "text-gray-600" : "text-gray-500 group-hover:text-gray-700"
                   )} />
                   <span>{item.label}</span>
                 </button>
@@ -103,15 +103,15 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
                   className={cn(
-                    "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition-all duration-200 text-sm font-inter group",
+                    "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
                     isActive
-                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-600 font-medium shadow-lg backdrop-blur-sm border border-blue-500/20"
-                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-md"
+                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium shadow-md backdrop-blur-sm border border-gray-500/20"
+                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-sm"
                   )}
                 >
                   <Icon className={cn(
-                    "w-5 h-5 transition-all duration-200",
-                    isActive ? "text-blue-500" : "text-gray-500 group-hover:text-gray-700"
+                    "w-4 h-4 transition-all duration-200",
+                    isActive ? "text-gray-600" : "text-gray-500 group-hover:text-gray-700"
                   )} />
                   <span>{item.label}</span>
                 </button>
@@ -134,15 +134,15 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
                   className={cn(
-                    "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl transition-all duration-200 text-sm font-inter group",
+                    "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
                     isActive
-                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-600 font-medium shadow-lg backdrop-blur-sm border border-blue-500/20"
-                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-md"
+                      ? "bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-700 font-medium shadow-md backdrop-blur-sm border border-gray-500/20"
+                      : "text-gray-600 hover:bg-white/10 hover:text-gray-800 hover:backdrop-blur-sm hover:shadow-sm"
                   )}
                 >
                   <Icon className={cn(
-                    "w-5 h-5 transition-all duration-200",
-                    isActive ? "text-blue-500" : "text-gray-500 group-hover:text-gray-700"
+                    "w-4 h-4 transition-all duration-200",
+                    isActive ? "text-gray-600" : "text-gray-500 group-hover:text-gray-700"
                   )} />
                   <span>{item.label}</span>
                 </button>
@@ -154,16 +154,16 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
 
       {/* User Profile */}
       <div className="p-4 border-t border-white/10">
-        <button className="w-full flex items-center space-x-3 px-4 py-3 text-left rounded-xl hover:bg-white/10 transition-all duration-200 group backdrop-blur-sm">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-            <User className="w-5 h-5 text-white" />
+        <button className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/10 transition-all duration-200 group backdrop-blur-sm">
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center shadow-lg">
+            <User className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-800 truncate font-poppins">Wade Warren</p>
             <p className="text-xs text-gray-500 truncate font-inter">UI UX Designer</p>
           </div>
         </button>
-        <button className="w-full flex items-center space-x-3 px-4 py-2 mt-2 text-left rounded-xl hover:bg-red-50/50 transition-all duration-200 text-gray-500 hover:text-red-600 group backdrop-blur-sm">
+        <button className="w-full flex items-center space-x-3 px-3 py-2 mt-2 text-left rounded-lg hover:bg-red-50/50 transition-all duration-200 text-gray-500 hover:text-red-600 group backdrop-blur-sm">
           <LogOut className="w-4 h-4" />
           <span className="text-sm font-inter">Logout</span>
         </button>
