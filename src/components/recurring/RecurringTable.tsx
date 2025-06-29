@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -225,6 +224,226 @@ export const RecurringTable = () => {
       status: "Active",
       category: "Insurance",
       priority: "High"
+    },
+    {
+      id: 21,
+      name: "Revo Fitness",
+      type: "Expense",
+      amount: -42.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-18",
+      status: "Active",
+      category: "Health",
+      priority: "Medium"
+    },
+    {
+      id: 22,
+      name: "ATO - Activity Balance (2)",
+      type: "Expense",
+      amount: -500.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-19",
+      status: "Active",
+      category: "Tax",
+      priority: "High"
+    },
+    {
+      id: 23,
+      name: "VBA - DBU - Renewal",
+      type: "Expense",
+      amount: -491.30,
+      frequency: "Yearly",
+      nextDate: "2025-06-21",
+      status: "Active",
+      category: "Registration",
+      priority: "High"
+    },
+    {
+      id: 24,
+      name: "Microsoft Store (2)",
+      type: "Expense",
+      amount: -100.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-22",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 25,
+      name: "Ford Loan",
+      type: "Expense",
+      amount: -1565.74,
+      frequency: "Monthly",
+      nextDate: "2025-06-25",
+      status: "Active",
+      category: "Finance",
+      priority: "High"
+    },
+    {
+      id: 26,
+      name: "Optus (2)",
+      type: "Expense",
+      amount: -120.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-25",
+      status: "Active",
+      category: "Utilities",
+      priority: "High"
+    },
+    {
+      id: 27,
+      name: "VicRoads - Rego (Grey Ford)",
+      type: "Expense",
+      amount: -907.70,
+      frequency: "Yearly",
+      nextDate: "2025-06-28",
+      status: "Active",
+      category: "Registration",
+      priority: "High"
+    },
+    {
+      id: 28,
+      name: "VBA - CBU - Renewal",
+      type: "Expense",
+      amount: -600.00,
+      frequency: "Yearly",
+      nextDate: "2025-06-28",
+      status: "Active",
+      category: "Registration",
+      priority: "High"
+    },
+    {
+      id: 29,
+      name: "Apple - SiteScape",
+      type: "Expense",
+      amount: -79.99,
+      frequency: "Monthly",
+      nextDate: "2025-06-30",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 30,
+      name: "PROGRAMA",
+      type: "Expense",
+      amount: -53.90,
+      frequency: "Monthly",
+      nextDate: "2025-06-30",
+      status: "Active",
+      category: "Software",
+      priority: "Low"
+    },
+    {
+      id: 31,
+      name: "ClickUp",
+      type: "Expense",
+      amount: -38.00,
+      frequency: "Monthly",
+      nextDate: "2025-07-02",
+      status: "Active",
+      category: "Software",
+      priority: "Medium"
+    },
+    {
+      id: 32,
+      name: "Amazon Web",
+      type: "Expense",
+      amount: -8.00,
+      frequency: "Monthly",
+      nextDate: "2025-07-04",
+      status: "Active",
+      category: "Software",
+      priority: "Medium"
+    },
+    {
+      id: 33,
+      name: "ATO - Activity Balance (1)",
+      type: "Expense",
+      amount: -480.00,
+      frequency: "Monthly",
+      nextDate: "2025-07-04",
+      status: "Active",
+      category: "Tax",
+      priority: "High"
+    },
+    {
+      id: 34,
+      name: "Dailpad",
+      type: "Expense",
+      amount: -32.00,
+      frequency: "Monthly",
+      nextDate: "2025-07-04",
+      status: "Active",
+      category: "Software",
+      priority: "Medium"
+    },
+    {
+      id: 35,
+      name: "Sector Services - Rent",
+      type: "Expense",
+      amount: -66.00,
+      frequency: "Monthly",
+      nextDate: "2025-07-04",
+      status: "Active",
+      category: "Rent",
+      priority: "High"
+    },
+    {
+      id: 36,
+      name: "Apple - iCloud+",
+      type: "Expense",
+      amount: -14.99,
+      frequency: "Monthly",
+      nextDate: "2025-07-05",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 37,
+      name: "Anytrack",
+      type: "Expense",
+      amount: -16.50,
+      frequency: "Monthly",
+      nextDate: "2025-07-06",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 38,
+      name: "Budget Direct - Insurance (Grey Ford)",
+      type: "Expense",
+      amount: -247.57,
+      frequency: "Monthly",
+      nextDate: "2025-07-07",
+      status: "Active",
+      category: "Insurance",
+      priority: "High"
+    },
+    {
+      id: 39,
+      name: "Ignition",
+      type: "Expense",
+      amount: -163.90,
+      frequency: "Monthly",
+      nextDate: "2025-07-08",
+      status: "Active",
+      category: "Software",
+      priority: "Medium"
+    },
+    {
+      id: 40,
+      name: "Loom",
+      type: "Expense",
+      amount: -223.58,
+      frequency: "Yearly",
+      nextDate: "2025-07-10",
+      status: "Active",
+      category: "Software",
+      priority: "Low"
     }
   ];
 
