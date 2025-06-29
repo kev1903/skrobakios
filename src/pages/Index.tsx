@@ -7,6 +7,7 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/AuthPage";
 import { SupportPage } from "@/components/SupportPage";
+import { CreateProject } from "@/components/CreateProject";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState("tasks");
@@ -26,6 +27,8 @@ const Index = () => {
         return <AuthPage onNavigate={setCurrentPage} />;
       case "support":
         return <SupportPage />;
+      case "create-project":
+        return <CreateProject onNavigate={setCurrentPage} />;
       default:
         return <TaskManagement onNavigate={setCurrentPage} />;
     }
