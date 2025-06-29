@@ -36,12 +36,12 @@ export const CashFlowTable = ({
 }: CashFlowTableProps) => {
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
-      return value === 0 ? '$0' : `$${value.toLocaleString()}`;
+      return value === 0 ? '$0.00' : `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
     if (typeof value === 'string') {
       const parsed = parseFloat(value);
       if (!isNaN(parsed)) {
-        return parsed === 0 ? '$0' : `$${parsed.toLocaleString()}`;
+        return parsed === 0 ? '$0.00' : `$${parsed.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       }
     }
     return value;
