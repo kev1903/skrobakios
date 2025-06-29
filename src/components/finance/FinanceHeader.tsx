@@ -21,7 +21,7 @@ export const FinanceHeader = () => {
           </Button>
           <Button className="flex items-center space-x-2">
             <Plus className="w-4 h-4" />
-            <span>Add Transaction</span>
+            <span>CASHFLOW</span>
           </Button>
         </div>
       </div>
