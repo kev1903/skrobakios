@@ -7,6 +7,8 @@ import { ProjectInfo } from "./ProjectInfo";
 import { ProjectProgress } from "./ProjectProgress";
 import { ProjectMetrics } from "./ProjectMetrics";
 import { LatestUpdates } from "./LatestUpdates";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "lucide-react";
 
 interface ProjectDetailProps {
   projectId: string | null;
@@ -127,6 +129,17 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-8">
+          {/* Schedule Button */}
+          <div className="mb-6">
+            <Button 
+              onClick={() => onNavigate("project-schedule")}
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Schedule</span>
+            </Button>
+          </div>
+
           <ProjectHeader
             project={currentProject}
             getStatusColor={getStatusColor}
