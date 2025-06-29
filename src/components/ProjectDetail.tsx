@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useProjects, Project } from "@/hooks/useProjects";
+import { useState, useEffect } from "react";
 
 interface ProjectDetailProps {
   projectId: string | null;
@@ -11,78 +13,72 @@ interface ProjectDetailProps {
 }
 
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
-  // Match the project data from other components
-  const projects = [
-    {
-      id: "1",
-      name: "Gordon Street, Balwyn",
-      fullName: "SK 23003 - Gordon Street, Balwyn",
-      location: "Balwyn, VIC",
-      dateCreated: "2024-06-15",
-      status: "completed",
-      wbsCount: 12,
-      totalCost: "$2,450,000",
-      progress: 100,
-      projectId: "#SK23003",
-      assignedTo: "John Cooper",
-      timeline: "15 Jun, 2024 - 30 Aug, 2024",
-      milestone: "Development",
-      type: "Residential"
-    },
-    {
-      id: "2",
-      name: "Mountain View Residential",
-      fullName: "SK 23004 - Mountain View Residential",
-      location: "Boulder, CO",
-      dateCreated: "2024-06-20",
-      status: "processing",
-      wbsCount: 8,
-      totalCost: "$1,850,000",
-      progress: 65,
-      projectId: "#SK23004",
-      assignedTo: "Sarah Wilson",
-      timeline: "20 Jun, 2024 - 15 Sep, 2024",
-      milestone: "Construction",
-      type: "Residential"
-    },
-    {
-      id: "3",
-      name: "Downtown Retail Center",
-      fullName: "SK 23005 - Downtown Retail Center",
-      location: "Austin, TX",
-      dateCreated: "2024-06-25",
-      status: "pending",
-      wbsCount: 15,
-      totalCost: "Pending",
-      progress: 0,
-      projectId: "#SK23005",
-      assignedTo: "Mike Johnson",
-      timeline: "25 Jun, 2024 - 20 Oct, 2024",
-      milestone: "Planning",
-      type: "Commercial"
-    }
-  ];
+  const [project, setProject] = useState<Project | null>(null);
+  const { getProjects, loading } = useProjects();
 
-  // Find the current project or default to first one
-  const project = projects.find(p => p.id === projectId) || projects[0];
+  useEffect(() => {
+    const fetchProject = async () => {
+      const projects = await getProjects();
+      const foundProject = projects.find(p => p.id === projectId);
+      if (foundProject) {
+        setProject(foundProject);
+      }
+    };
+
+    if (projectId) {
+      fetchProject();
+    }
+  }, [projectId]);
+
+  // Fallback project data if no project is found
+  const fallbackProject = {
+    id: "1",
+    project_id: "SK23003",
+    name: "Gordon Street, Balwyn",
+    location: "Balwyn, VIC",
+    created_at: "2024-06-15T00:00:00Z",
+    status: "completed",
+    contract_price: "$2,450,000",
+    start_date: "2024-06-15",
+    deadline: "2024-08-30",
+    updated_at: "2024-06-15T00:00:00Z"
+  };
+
+  const currentProject = project || fallbackProject;
 
   const summaryMetrics = [
-    { label: "Contract Price", value: project.totalCost !== "Pending" ? project.totalCost : "$0", trend: "up" },
-    { label: "Paid To Date", value: project.totalCost !== "Pending" ? `$${(parseInt(project.totalCost.replace(/[$,]/g, '')) * 0.65 / 1000000).toFixed(1)}M` : "$0", trend: "up" },
-    { label: "Payment Received", value: project.totalCost !== "Pending" ? `$${(parseInt(project.totalCost.replace(/[$,]/g, '')) * 0.2 / 1000000).toFixed(1)}M` : "$0", trend: "up" }
+    { label: "Contract Price", value: currentProject.contract_price || "$0", trend: "up" },
+    { label: "Paid To Date", value: currentProject.contract_price ? `$${(parseInt(currentProject.contract_price.replace(/[$,]/g, '')) * 0.65 / 1000000).toFixed(1)}M` : "$0", trend: "up" },
+    { label: "Payment Received", value: currentProject.contract_price ? `$${(parseInt(currentProject.contract_price.replace(/[$,]/g, '')) * 0.2 / 1000000).toFixed(1)}M` : "$0", trend: "up" }
   ];
 
+  const getProgress = (status: string) => {
+    switch (status) {
+      case "completed":
+        return 100;
+      case "running":
+        return 65;
+      case "pending":
+        return 0;
+      default:
+        return 0;
+    }
+  };
+
+  const progress = getProgress(currentProject.status);
+  const wbsCount = Math.floor(Math.random() * 10) + 8; // Random WBS count for demo
+
   const latestUpdates = [
-    { icon: FileCheck, label: "Incomplete Task", count: Math.max(20 - project.progress / 5, 0) },
-    { icon: MessageSquare, label: "Unread Messages", count: project.status === "pending" ? 12 : 5 },
-    { icon: FileText, label: "Unread Documents", count: project.wbsCount - Math.floor(project.progress / 10) }
+    { icon: FileCheck, label: "Incomplete Task", count: Math.max(20 - progress / 5, 0) },
+    { icon: MessageSquare, label: "Unread Messages", count: currentProject.status === "pending" ? 12 : 5 },
+    { icon: FileText, label: "Unread Documents", count: wbsCount - Math.floor(progress / 10) }
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
         return "bg-green-100 text-green-800 border-green-200";
-      case "processing":
+      case "running":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "pending":
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -95,7 +91,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     switch (status) {
       case "completed":
         return "Completed";
-      case "processing":
+      case "running":
         return "In Progress";
       case "pending":
         return "Pending";
@@ -104,7 +100,16 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     }
   };
 
-  // ... keep existing code (sidebarItems array)
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   const sidebarItems = [
     { id: "insights", label: "Insights", icon: BarChart3, active: true },
     { id: "tasks", label: "Tasks", icon: FileCheck, active: false },
@@ -118,6 +123,16 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     { id: "documents", label: "Documents", icon: FileText, active: false },
     { id: "setting", label: "Setting", icon: Settings, active: false }
   ];
+
+  if (loading) {
+    return (
+      <div className="h-screen flex bg-gray-50">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-gray-500">Loading project details...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex bg-gray-50">
@@ -134,10 +149,10 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           </Button>
           
           <div className="mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">{project.fullName}</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{currentProject.name}</h2>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Badge variant="outline" className={getStatusColor(project.status)}>
-                {getStatusText(project.status)}
+              <Badge variant="outline" className={getStatusColor(currentProject.status)}>
+                {getStatusText(currentProject.status)}
               </Badge>
               <span>Last Updated 12h Ago</span>
             </div>
@@ -169,8 +184,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           {/* Header with Edit Button */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.fullName}</h1>
-              <p className="text-gray-600">{project.location}</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">{currentProject.name}</h1>
+              <p className="text-gray-600">{currentProject.location}</p>
             </div>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               Edit
@@ -196,7 +211,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700">Project ID</p>
-                <p className="text-sm text-gray-600">{project.projectId}</p>
+                <p className="text-sm text-gray-600">#{currentProject.project_id}</p>
               </div>
             </div>
 
@@ -206,7 +221,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700">Assigned</p>
-                <p className="text-sm text-gray-600">{project.assignedTo}</p>
+                <p className="text-sm text-gray-600">Project Manager</p>
               </div>
             </div>
 
@@ -216,7 +231,9 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700">Timeline</p>
-                <p className="text-sm text-gray-600">{project.timeline}</p>
+                <p className="text-sm text-gray-600">
+                  {formatDate(currentProject.start_date || currentProject.created_at)} - {formatDate(currentProject.deadline || currentProject.created_at)}
+                </p>
               </div>
             </div>
 
@@ -225,8 +242,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
                 <Clock className="w-4 h-4 text-gray-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700">Milestone</p>
-                <p className="text-sm text-gray-600">{project.milestone}</p>
+                <p className="text-sm font-medium text-gray-700">Status</p>
+                <p className="text-sm text-gray-600">{getStatusText(currentProject.status)}</p>
               </div>
             </div>
 
@@ -235,14 +252,14 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
                 <FileText className="w-4 h-4 text-gray-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700">Type</p>
-                <p className="text-sm text-gray-600">{project.type}</p>
+                <p className="text-sm font-medium text-gray-700">Priority</p>
+                <p className="text-sm text-gray-600">{currentProject.priority || 'Medium'}</p>
               </div>
             </div>
           </div>
 
           {/* Progress Bar for Active Projects */}
-          {project.progress > 0 && project.progress < 100 && (
+          {progress > 0 && progress < 100 && (
             <Card className="mb-8">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Project Progress</CardTitle>
@@ -251,10 +268,10 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Overall Progress</span>
-                    <span>{project.progress}%</span>
+                    <span>{progress}%</span>
                   </div>
-                  <Progress value={project.progress} className="w-full" />
-                  <p className="text-xs text-gray-500">{project.wbsCount} WBS components tracked</p>
+                  <Progress value={progress} className="w-full" />
+                  <p className="text-xs text-gray-500">{wbsCount} WBS components tracked</p>
                 </div>
               </CardContent>
             </Card>
