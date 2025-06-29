@@ -30,7 +30,7 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
   const businessNavigation = [
     { id: "dashboard", label: "Dashboard", icon: BarChart3 },
     { id: "files", label: "Files", icon: File },
-    { id: "create-project", label: "Projects", icon: Briefcase },
+    { id: "projects", label: "Projects", icon: Briefcase },
     { id: "asset", label: "Asset", icon: DollarSign },
     { id: "finance", label: "Finance", icon: TrendingUp },
     { id: "sales", label: "Sales", icon: TrendingUp },
