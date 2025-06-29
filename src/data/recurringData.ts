@@ -1,4 +1,3 @@
-
 export interface RecurringItem {
   id: number;
   name: string;
@@ -451,5 +450,115 @@ export const recurringItems: RecurringItem[] = [
     status: "Active",
     category: "Software",
     priority: "Low"
+  },
+  {
+    id: 41,
+    name: "Name Cheap - Courtscapes.com.au",
+    type: "Expense",
+    amount: -4.88,
+    frequency: "Yearly",
+    nextDate: "2025-09-10",
+    status: "Active",
+    category: "Domain",
+    priority: "High"
+  },
+  {
+    id: 42,
+    name: "MIDJOURNEY",
+    type: "Expense",
+    amount: -143.63,
+    frequency: "Yearly",
+    nextDate: "2025-09-10",
+    status: "Active",
+    category: "Software",
+    priority: "Medium"
+  },
+  {
+    id: 43,
+    name: "Apple - Paper",
+    type: "Expense",
+    amount: -13.99,
+    frequency: "Yearly",
+    nextDate: "2025-09-12",
+    status: "Active",
+    category: "Software",
+    priority: "Medium"
+  },
+  {
+    id: 44,
+    name: "VicRoads - Rego (White Ford)",
+    type: "Expense",
+    amount: -468.60,
+    frequency: "Semi-Annually",
+    nextDate: "2025-10-15",
+    status: "Active",
+    category: "Registration",
+    priority: "High"
+  },
+  {
+    id: 45,
+    name: "Amazon Prime",
+    type: "Expense",
+    amount: -79.00,
+    frequency: "Yearly",
+    nextDate: "2026-02-26",
+    status: "Active",
+    category: "Software",
+    priority: "Medium"
+  },
+  {
+    id: 46,
+    name: "Norton - Antivirus",
+    type: "Expense",
+    amount: -179.99,
+    frequency: "Yearly",
+    nextDate: "2026-03-06",
+    status: "Active",
+    category: "Software",
+    priority: "High"
+  },
+  {
+    id: 47,
+    name: "Name Cheap - Ardelle.com.au",
+    type: "Expense",
+    amount: -18.98,
+    frequency: "Yearly",
+    nextDate: "2026-03-09",
+    status: "Active",
+    category: "Domain",
+    priority: "High"
+  },
+  {
+    id: 48,
+    name: "Apple - NordPass",
+    type: "Expense",
+    amount: -52.99,
+    frequency: "Yearly",
+    nextDate: "2026-04-11",
+    status: "Active",
+    category: "Software",
+    priority: "High"
+  },
+  {
+    id: 49,
+    name: "Apple - Story Art",
+    type: "Expense",
+    amount: -29.49,
+    frequency: "Yearly",
+    nextDate: "2026-05-13",
+    status: "Active",
+    category: "Software",
+    priority: "Low"
+  },
+  {
+    id: 50,
+    name: "Coohom",
+    type: "Expense",
+    amount: -468.28,
+    frequency: "Yearly",
+    nextDate: "2026-05-27",
+    status: "Active",
+    category: "Software",
+    priority: "Medium"
   }
 ];
