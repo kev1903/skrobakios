@@ -75,6 +75,8 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     }));
   };
 
+  const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"];
+
   const projectData = [
     { name: "Active Projects", may: -2292, jun: 4500, jul: 54667, aug: 283672, sep: 311691, oct: -4230, nov: 0, dec: 0 },
     { name: "Proposed Projects", may: 0, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0, nov: 0, dec: 0 },
@@ -231,6 +233,14 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-2 font-medium text-gray-700">Starting Balance</th>
+                      {monthHeaders.map((month, index) => (
+                        <th key={index} className="text-right py-2 font-medium text-gray-700">{month}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 font-medium text-gray-700"></th>
                       <th className="text-right py-2 font-medium text-gray-700">15,254</th>
                       <th className="text-right py-2 font-medium text-gray-700">6,703</th>
                       <th className="text-right py-2 font-medium text-gray-700">10</th>
@@ -286,6 +296,14 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 font-medium text-gray-700"></th>
+                      {monthHeaders.map((month, index) => (
+                        <th key={index} className="text-right py-2 font-medium text-gray-700">{month}</th>
+                      ))}
+                    </tr>
+                  </thead>
                   <tbody>
                     {cashInData.map((item, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50/50">
@@ -333,6 +351,14 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 font-medium text-gray-700"></th>
+                      {monthHeaders.map((month, index) => (
+                        <th key={index} className="text-right py-2 font-medium text-gray-700">{month}</th>
+                      ))}
+                    </tr>
+                  </thead>
                   <tbody>
                     {cashOutData.map((item, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50/50">
