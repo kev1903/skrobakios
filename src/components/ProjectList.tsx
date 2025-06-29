@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Filter, MoreHorizontal, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useProjects, Project } from "@/hooks/useProjects";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectListProps {
   onNavigate: (page: string) => void;
@@ -25,81 +27,18 @@ interface ProjectListProps {
 
 export const ProjectList = ({ onNavigate }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const { getProjects, loading } = useProjects();
+  const { toast } = useToast();
 
-  const projects = [
-    {
-      id: "216587",
-      name: "SK 23003 - Gordon Street, Balwyn",
-      client: "Cody Fisher",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "completed",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216588",
-      name: "SK 23004 - Mountain View Project",
-      client: "Jenny Wilson",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "running",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216589",
-      name: "SK 23005 - Downtown Development",
-      client: "Esther Howard",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "pending",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216590",
-      name: "SK 23006 - Riverside Complex",
-      client: "Jerome Bell",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "completed",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216591",
-      name: "SK 23007 - Heritage Restoration",
-      client: "Ralph Edwards",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "pending",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216592",
-      name: "SK 23008 - Modern Office Tower",
-      client: "Courtney Henry",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "pending",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216593",
-      name: "SK 23009 - Retail Shopping Center",
-      client: "Annette Black",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "completed",
-      avatar: "/placeholder.svg"
-    },
-    {
-      id: "216594",
-      name: "SK 23010 - Luxury Apartments",
-      client: "Robert Fox",
-      startDate: "20 Aug, 2023",
-      dueDate: "20 Aug, 2023",
-      status: "completed",
-      avatar: "/placeholder.svg"
-    }
-  ];
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const fetchedProjects = await getProjects();
+      setProjects(fetchedProjects);
+    };
+
+    fetchProjects();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -127,6 +66,16 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedProjects(projects.map(p => p.id));
@@ -147,8 +96,20 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
     onNavigate("project-detail");
   };
 
-  const isAllSelected = selectedProjects.length === projects.length;
+  const isAllSelected = selectedProjects.length === projects.length && projects.length > 0;
   const isIndeterminate = selectedProjects.length > 0 && selectedProjects.length < projects.length;
+
+  if (loading) {
+    return (
+      <div className="h-full overflow-auto bg-gray-50/30 backdrop-blur-sm">
+        <div className="p-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-500">Loading projects...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-auto bg-gray-50/30 backdrop-blur-sm">
@@ -169,7 +130,7 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2 font-poppins">Projects</h1>
-            <p className="text-gray-600 font-inter">Manage your construction projects</p>
+            <p className="text-gray-600 font-inter">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
             <Button
@@ -185,95 +146,99 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
 
         {/* Projects Table */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50/50">
-                <TableHead className="w-12">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                </TableHead>
-                <TableHead className="font-medium text-gray-700">ID</TableHead>
-                <TableHead className="font-medium text-gray-700">Project Name</TableHead>
-                <TableHead className="font-medium text-gray-700">Client</TableHead>
-                <TableHead className="font-medium text-gray-700">Start Date</TableHead>
-                <TableHead className="font-medium text-gray-700">Due Date</TableHead>
-                <TableHead className="font-medium text-gray-700">Status</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.map((project, index) => (
-                <TableRow key={`${project.id}-${index}`} className="hover:bg-gray-50/50">
-                  <TableCell>
+          {projects.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="text-gray-500 mb-4">No projects found</div>
+              <Button
+                onClick={() => onNavigate("create-project")}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Create Your First Project
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50/50">
+                  <TableHead className="w-12">
                     <input
                       type="checkbox"
-                      checked={selectedProjects.includes(project.id)}
-                      onChange={(e) => handleSelectProject(project.id, e.target.checked)}
+                      checked={isAllSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = isIndeterminate;
+                      }}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
                       className="rounded border-gray-300"
                     />
-                  </TableCell>
-                  <TableCell className="font-mono text-sm text-gray-600">
-                    #{project.id}
-                  </TableCell>
-                  <TableCell className="font-medium text-gray-900">
-                    <button
-                      onClick={() => handleProjectClick(project.id)}
-                      className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
-                    >
-                      {project.name}
-                    </button>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={project.avatar} />
-                        <AvatarFallback className="bg-gray-200 text-gray-600 text-sm">
-                          {project.client.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-gray-900">{project.client}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {project.startDate}
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {project.dueDate}
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant="outline" 
-                      className={getStatusColor(project.status)}
-                    >
-                      {getStatusText(project.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="flex items-center space-x-2">
-                          <Eye className="w-4 h-4" />
-                          <span>View Details</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  </TableHead>
+                  <TableHead className="font-medium text-gray-700">ID</TableHead>
+                  <TableHead className="font-medium text-gray-700">Project Name</TableHead>
+                  <TableHead className="font-medium text-gray-700">Location</TableHead>
+                  <TableHead className="font-medium text-gray-700">Start Date</TableHead>
+                  <TableHead className="font-medium text-gray-700">Due Date</TableHead>
+                  <TableHead className="font-medium text-gray-700">Status</TableHead>
+                  <TableHead className="w-12"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {projects.map((project) => (
+                  <TableRow key={project.id} className="hover:bg-gray-50/50">
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedProjects.includes(project.id)}
+                        onChange={(e) => handleSelectProject(project.id, e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                    </TableCell>
+                    <TableCell className="font-mono text-sm text-gray-600">
+                      #{project.project_id}
+                    </TableCell>
+                    <TableCell className="font-medium text-gray-900">
+                      <button
+                        onClick={() => handleProjectClick(project.id)}
+                        className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                      >
+                        {project.name}
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {project.location || '-'}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {project.start_date ? formatDate(project.start_date) : '-'}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {project.deadline ? formatDate(project.deadline) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant="outline" 
+                        className={getStatusColor(project.status)}
+                      >
+                        {getStatusText(project.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem className="flex items-center space-x-2">
+                            <Eye className="w-4 h-4" />
+                            <span>View Details</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </div>
     </div>

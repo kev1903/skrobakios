@@ -10,6 +10,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useProjects } from "@/hooks/useProjects";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreateProjectProps {
   onNavigate: (page: string) => void;
@@ -22,11 +24,52 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   const [projectName, setProjectName] = useState("");
   const [contractPrice, setContractPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("pending");
+  const [selectedPriority, setSelectedPriority] = useState("");
+  const [location, setLocation] = useState("");
 
-  const handleSave = () => {
+  const { createProject, loading } = useProjects();
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    if (!projectName.trim()) {
+      toast({
+        title: "Error",
+        description: "Project name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
     console.log("Saving project...");
-    // Here you would typically save the project data
-    onNavigate("dashboard");
+    
+    const projectData = {
+      project_id: projectId,
+      name: projectName,
+      description: description || undefined,
+      contract_price: contractPrice || undefined,
+      start_date: startDate,
+      deadline: deadline,
+      status: selectedStatus,
+      priority: selectedPriority || undefined,
+      location: location || undefined,
+    };
+
+    const result = await createProject(projectData);
+    
+    if (result) {
+      toast({
+        title: "Success",
+        description: "Project created successfully",
+      });
+      onNavigate("projects");
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to create project",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -54,8 +97,8 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              Save
+            <Button onClick={handleSave} disabled={loading}>
+              {loading ? "Saving..." : "Save"}
             </Button>
             <Button variant="outline" className="flex items-center space-x-2">
               <span>3D View</span>
@@ -111,13 +154,28 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                 {/* Project Name */}
                 <div>
                   <Label htmlFor="projectName" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Project Name
+                    Project Name *
                   </Label>
                   <Input
                     id="projectName"
                     placeholder="Enter Project Name..."
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
+                    className="w-full"
+                    required
+                  />
+                </div>
+
+                {/* Location */}
+                <div>
+                  <Label htmlFor="location" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Location
+                  </Label>
+                  <Input
+                    id="location"
+                    placeholder="Enter Location..."
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
                     className="w-full"
                   />
                 </div>
@@ -152,19 +210,6 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                   </Popover>
                 </div>
 
-                {/* Project Status */}
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Project Status
-                  </Label>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal text-muted-foreground"
-                  >
-                    Select Status
-                  </Button>
-                </div>
-
                 {/* Contract Price */}
                 <div>
                   <Label htmlFor="contractPrice" className="text-sm font-medium text-gray-700 mb-2 block">
@@ -182,19 +227,6 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
               {/* Right Column */}
               <div className="space-y-6">
-                {/* Invite */}
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Invite
-                  </Label>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal text-muted-foreground"
-                  >
-                    Invite People
-                  </Button>
-                </div>
-
                 {/* Deadline */}
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -225,16 +257,50 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                   </Popover>
                 </div>
 
+                {/* Project Status */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Project Status
+                  </Label>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="running">Running</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+
                 {/* Project Priority */}
                 <div>
                   <Label className="text-sm font-medium text-gray-700 mb-2 block">
                     Project Priority
                   </Label>
+                  <select
+                    value={selectedPriority}
+                    onChange={(e) => setSelectedPriority(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+
+                {/* Invite */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Invite
+                  </Label>
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left font-normal text-muted-foreground"
                   >
-                    Select Priority
+                    Invite People
                   </Button>
                 </div>
 
