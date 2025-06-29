@@ -13,8 +13,8 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
   const projects = [
     {
       id: "1",
-      name: "Riverside Office Complex",
-      location: "Portland, OR",
+      name: "SK 23003 - Gordon Street, Balwyn",
+      location: "Balwyn, VIC",
       dateCreated: "2024-06-15",
       status: "completed",
       wbsCount: 12,
@@ -23,7 +23,7 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
     },
     {
       id: "2",
-      name: "Mountain View Residential",
+      name: "SK 23004 - Mountain View Residential",
       location: "Boulder, CO",
       dateCreated: "2024-06-20",
       status: "processing",
@@ -33,7 +33,7 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
     },
     {
       id: "3",
-      name: "Downtown Retail Center",
+      name: "SK 23005 - Downtown Retail Center",
       location: "Austin, TX",
       dateCreated: "2024-06-25",
       status: "pending",

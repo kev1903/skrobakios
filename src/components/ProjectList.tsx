@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus, Filter, MoreHorizontal, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
   const projects = [
     {
       id: "216587",
-      name: "Project 01",
+      name: "SK 23003 - Gordon Street, Balwyn",
       client: "Cody Fisher",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -36,8 +37,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 02",
+      id: "216588",
+      name: "SK 23004 - Mountain View Project",
       client: "Jenny Wilson",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -45,8 +46,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 03",
+      id: "216589",
+      name: "SK 23005 - Downtown Development",
       client: "Esther Howard",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -54,8 +55,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 04",
+      id: "216590",
+      name: "SK 23006 - Riverside Complex",
       client: "Jerome Bell",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -63,8 +64,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 05",
+      id: "216591",
+      name: "SK 23007 - Heritage Restoration",
       client: "Ralph Edwards",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -72,8 +73,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 06",
+      id: "216592",
+      name: "SK 23008 - Modern Office Tower",
       client: "Courtney Henry",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -81,8 +82,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 07",
+      id: "216593",
+      name: "SK 23009 - Retail Shopping Center",
       client: "Annette Black",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
@@ -90,8 +91,8 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
       avatar: "/placeholder.svg"
     },
     {
-      id: "216587",
-      name: "Project 08",
+      id: "216594",
+      name: "SK 23010 - Luxury Apartments",
       client: "Robert Fox",
       startDate: "20 Aug, 2023",
       dueDate: "20 Aug, 2023",
