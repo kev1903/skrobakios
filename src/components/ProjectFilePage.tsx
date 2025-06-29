@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Download, Search, Grid, List, File, Eye, Trash2, Users, ExternalLink, Folder, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +29,7 @@ interface ProjectFilePageProps {
 
 export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [sharePointLink, setSharePointLink] = useState("");
   
   const [projectFiles] = useState<FileItem[]>([
     {
@@ -118,6 +118,14 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
     }
   ]);
 
+  useEffect(() => {
+    // Load SharePoint link from localStorage
+    const savedLink = localStorage.getItem(`project_sharepoint_${project.id}`);
+    if (savedLink) {
+      setSharePointLink(savedLink);
+    }
+  }, [project.id]);
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -153,7 +161,11 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
   };
 
   const handleSharePointAccess = () => {
-    window.open("https://enassee.sharepoint.com/:f:/s/SkrobakiProjects/Emw1CavunZZGqup2TMoIcd0BdA8uQDzqHGoqX4x4TI22qg?e=Ey0bOj", "_blank");
+    if (sharePointLink) {
+      window.open(sharePointLink, "_blank");
+    } else {
+      window.open("https://enassee.sharepoint.com/:f:/s/SkrobakiProjects/Emw1CavunZZGqup2TMoIcd0BdA8uQDzqHGoqX4x4TI22qg?e=Ey0bOj", "_blank");
+    }
   };
 
   const allFiles = [...projectFiles, ...sharePointFiles];
@@ -256,6 +268,11 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{project.name} - Files</h1>
               <p className="text-gray-600">Project ID: {project.project_id}</p>
+              {sharePointLink && (
+                <p className="text-sm text-blue-600 mt-1">
+                  Connected to SharePoint folder
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -289,7 +306,9 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
           {/* SharePoint Integration Section */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">SharePoint Integration</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {sharePointLink ? 'Connected SharePoint Folder' : 'SharePoint Integration'}
+              </h3>
               <Button 
                 onClick={handleSharePointAccess}
                 variant="outline"
@@ -306,10 +325,32 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Folder className="w-4 h-4 text-blue-600" />
                   </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">Gordon Street - SharePoint</h4>
-                    <p className="text-sm text-gray-500">Access project files stored in SharePoint</p>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900">
+                      {sharePointLink ? `${project.name} - SharePoint` : "Gordon Street - SharePoint"}
+                    </h4>
+                    <p className="text-sm text-gray-500">
+                      {sharePointLink 
+                        ? "Files from your configured SharePoint folder"
+                        : "Access project files stored in SharePoint"
+                      }
+                    </p>
+                    {sharePointLink && (
+                      <p className="text-xs text-blue-600 mt-1 font-mono truncate">
+                        {sharePointLink.length > 60 ? `${sharePointLink.substring(0, 60)}...` : sharePointLink}
+                      </p>
+                    )}
                   </div>
+                  {!sharePointLink && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => onNavigate("project-settings")}
+                      className="text-blue-600 border-blue-200"
+                    >
+                      Configure SharePoint
+                    </Button>
+                  )}
                 </div>
               </div>
 

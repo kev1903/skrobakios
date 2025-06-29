@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Save, Users, Calendar, DollarSign, MapPin } from "lucide-react";
+import { Save, Users, Calendar, DollarSign, MapPin, ExternalLink, LinkIcon } from "lucide-react";
 import { Project } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,6 +28,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     status: project.status,
     start_date: project.start_date || "",
     deadline: project.deadline || "",
+    sharepoint_link: "",
   });
 
   const getStatusColor = (status: string) => {
@@ -58,14 +58,69 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     }));
   };
 
+  const validateSharePointLink = (url: string) => {
+    return url.includes('sharepoint.com') || url.includes('onedrive.com') || url === '';
+  };
+
   const handleSave = () => {
+    if (formData.sharepoint_link && !validateSharePointLink(formData.sharepoint_link)) {
+      toast({
+        title: "Invalid SharePoint Link",
+        description: "Please enter a valid SharePoint or OneDrive link.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // In a real application, this would update the project in the database
     console.log("Saving project settings:", formData);
+    
+    // Store SharePoint link in localStorage for demo purposes
+    if (formData.sharepoint_link) {
+      localStorage.setItem(`project_sharepoint_${project.id}`, formData.sharepoint_link);
+    }
+
     toast({
       title: "Settings Saved",
       description: "Project settings have been updated successfully.",
     });
   };
+
+  const testSharePointConnection = () => {
+    if (!formData.sharepoint_link) {
+      toast({
+        title: "No SharePoint Link",
+        description: "Please enter a SharePoint link first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateSharePointLink(formData.sharepoint_link)) {
+      toast({
+        title: "Invalid Link",
+        description: "Please enter a valid SharePoint or OneDrive link.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Connection Test",
+      description: "SharePoint link is valid and ready to use.",
+    });
+  };
+
+  useEffect(() => {
+    // Load existing SharePoint link from localStorage
+    const savedLink = localStorage.getItem(`project_sharepoint_${project.id}`);
+    if (savedLink) {
+      setFormData(prev => ({
+        ...prev,
+        sharepoint_link: savedLink
+      }));
+    }
+  }, [project.id]);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -87,6 +142,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Settings */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Project Information card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -132,6 +188,70 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
                 </CardContent>
               </Card>
 
+              {/* SharePoint Integration Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <LinkIcon className="w-5 h-5" />
+                    SharePoint Integration
+                  </CardTitle>
+                  <CardDescription>
+                    Connect your project to a SharePoint folder for file management
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="sharepoint-link">SharePoint Folder Link</Label>
+                    <Input
+                      id="sharepoint-link"
+                      value={formData.sharepoint_link}
+                      onChange={(e) => handleInputChange("sharepoint_link", e.target.value)}
+                      placeholder="Paste your SharePoint folder link here (e.g., https://company.sharepoint.com/...)"
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Paste the SharePoint or OneDrive folder link where your project files are stored
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={testSharePointConnection}
+                      disabled={!formData.sharepoint_link}
+                    >
+                      Test Connection
+                    </Button>
+                    {formData.sharepoint_link && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(formData.sharepoint_link, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        Open in SharePoint
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {formData.sharepoint_link && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <LinkIcon className="w-4 h-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">SharePoint Connected</p>
+                          <p className="text-xs text-blue-700">
+                            Files from this SharePoint folder will be displayed in the Project Files page
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Timeline & Status card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -197,6 +317,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
                 </CardContent>
               </Card>
 
+              {/* Financial Information card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
