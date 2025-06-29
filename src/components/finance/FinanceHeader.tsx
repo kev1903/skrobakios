@@ -1,5 +1,4 @@
 
-
 import { Button } from "@/components/ui/button";
 
 interface FinanceHeaderProps {
@@ -33,9 +32,14 @@ export const FinanceHeader = ({ onNavigate }: FinanceHeaderProps) => {
           >
             <span>BILLS</span>
           </Button>
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={() => onNavigate?.("recurring")}
+          >
+            <span>RECURRING</span>
+          </Button>
         </div>
       </div>
     </div>
   );
 };
-
