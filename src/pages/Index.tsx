@@ -16,6 +16,7 @@ import { FinancePage } from "@/components/FinancePage";
 import { CashFlowPage } from "@/components/CashFlowPage";
 import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
+import { RecurringPage } from "@/components/RecurringPage";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useEffect } from "react";
 
@@ -99,6 +100,8 @@ const Index = () => {
         return <InvoicesPage onNavigate={setCurrentPage} />;
       case "bills":
         return <BillsPage onNavigate={setCurrentPage} />;
+      case "recurring":
+        return <RecurringPage onNavigate={setCurrentPage} />;
       case "auth":
         return <AuthPage onNavigate={setCurrentPage} />;
       case "support":
