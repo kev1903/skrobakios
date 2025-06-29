@@ -253,6 +253,7 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
           isExpanded={expandedSections.cashOut}
           onToggle={() => toggleSection('cashOut')}
           onCellClick={handleCellClick}
+          totals={cashOutTotals}
         />
 
         {/* Summary Table */}
