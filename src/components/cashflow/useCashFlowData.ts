@@ -1,4 +1,3 @@
-
 import { CashFlowItem } from "./types";
 
 export const useCashFlowData = () => {
@@ -64,25 +63,29 @@ export const useCashFlowData = () => {
     oct: cashInTotals.oct - cashOutTotals.oct,
   };
 
-  // Helper function to get numeric value
-  const getValue = (val: number | string): number => {
-    if (typeof val === 'number') return val;
-    if (typeof val === 'string') {
-      const parsed = parseFloat(val);
-      return isNaN(parsed) ? 0 : parsed;
-    }
-    return 0;
-  };
+  // Starting opening balance (this would typically come from your data source)
+  const initialOpeningBalance = 22543;
 
-  // Calculate ending balance sequentially to avoid temporal dead zone
-  const mayEndingBalance = getValue(openingBalance.may) + netMovement.may;
+  // Calculate ending balance sequentially and opening balance for each month
+  const mayEndingBalance = initialOpeningBalance + netMovement.may;
   const junEndingBalance = mayEndingBalance + netMovement.jun;
   const julEndingBalance = junEndingBalance + netMovement.jul;
   const augEndingBalance = julEndingBalance + netMovement.aug;
   const sepEndingBalance = augEndingBalance + netMovement.sep;
   const octEndingBalance = sepEndingBalance + netMovement.oct;
 
-  // Create the ending balance object after all calculations are done
+  // Opening balance object - each month's opening balance is the previous month's ending balance
+  const openingBalance: CashFlowItem = {
+    name: "Opening Balance",
+    may: initialOpeningBalance,
+    jun: mayEndingBalance,
+    jul: junEndingBalance,
+    aug: julEndingBalance,
+    sep: augEndingBalance,
+    oct: sepEndingBalance
+  };
+
+  // Create the ending balance object
   const endingBalance = {
     may: mayEndingBalance,
     jun: junEndingBalance,
