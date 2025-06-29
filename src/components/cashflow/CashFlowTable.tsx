@@ -11,6 +11,14 @@ interface CashFlowTableProps {
   onToggle: () => void;
   onCellClick: (itemName: string, month: string, value: any) => void;
   openingBalance?: CashFlowItem;
+  totals?: {
+    may: number;
+    jun: number;
+    jul: number;
+    aug: number;
+    sep: number;
+    oct: number;
+  };
 }
 
 const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"];
@@ -21,7 +29,8 @@ export const CashFlowTable = ({
   isExpanded, 
   onToggle, 
   onCellClick,
-  openingBalance
+  openingBalance,
+  totals
 }: CashFlowTableProps) => {
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
@@ -106,6 +115,34 @@ export const CashFlowTable = ({
     );
   };
 
+  const renderTotalsRow = () => {
+    if (!totals) return null;
+    
+    return (
+      <tr className="border-t-2 border-gray-400 bg-gray-100 font-bold">
+        <td className="py-3 font-bold text-gray-900 px-2">Total</td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(totals.may)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(totals.jun)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(totals.jul)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(totals.aug)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(totals.sep)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(totals.oct)}
+        </td>
+      </tr>
+    );
+  };
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
       <CardHeader className="pb-3">
@@ -154,6 +191,7 @@ export const CashFlowTable = ({
               <tbody>
                 {renderOpeningBalanceRow()}
                 {data.map((item, index) => renderRow(item, index))}
+                {renderTotalsRow()}
               </tbody>
             </table>
           </div>
