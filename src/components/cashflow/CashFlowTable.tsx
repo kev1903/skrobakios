@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { CashFlowItem } from "./types";
+import { CashFlowTableHeader } from "./CashFlowTableHeader";
+import { CashFlowTableOpeningBalanceRow } from "./CashFlowTableOpeningBalanceRow";
+import { CashFlowTableRow } from "./CashFlowTableRow";
+import { CashFlowTableTotalsRow } from "./CashFlowTableTotalsRow";
 
 interface CashFlowTableProps {
   title: string;
@@ -20,8 +24,6 @@ interface CashFlowTableProps {
     oct: number;
   };
 }
-
-const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"];
 
 export const CashFlowTable = ({ 
   title, 
@@ -43,110 +45,6 @@ export const CashFlowTable = ({
       }
     }
     return value;
-  };
-
-  const renderOpeningBalanceRow = () => {
-    if (!openingBalance) return null;
-    
-    return (
-      <tr className="border-b-2 border-gray-300 bg-gray-50">
-        <td className="py-3 font-bold text-gray-900 px-2">{openingBalance.name}</td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(openingBalance.may)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(openingBalance.jun)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(openingBalance.jul)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(openingBalance.aug)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(openingBalance.sep)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(openingBalance.oct)}
-        </td>
-      </tr>
-    );
-  };
-
-  const renderRow = (item: CashFlowItem, index: number) => {
-    const rowClass = "border-b hover:bg-gray-50/50";
-    const cellClass = "text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]";
-    const nameClass = "py-2 font-medium text-gray-900 px-2";
-
-    return (
-      <tr key={index} className={rowClass}>
-        <td className={nameClass}>{item.name}</td>
-        <td 
-          className={cellClass}
-          onClick={() => onCellClick(item.name, monthHeaders[0], item.may)}
-        >
-          {formatCellValue(item.may)}
-        </td>
-        <td 
-          className={cellClass}
-          onClick={() => onCellClick(item.name, monthHeaders[1], item.jun)}
-        >
-          {formatCellValue(item.jun)}
-        </td>
-        <td 
-          className={cellClass}
-          onClick={() => onCellClick(item.name, monthHeaders[2], item.jul)}
-        >
-          {formatCellValue(item.jul)}
-        </td>
-        <td 
-          className={cellClass}
-          onClick={() => onCellClick(item.name, monthHeaders[3], item.aug)}
-        >
-          {formatCellValue(item.aug)}
-        </td>
-        <td 
-          className={cellClass}
-          onClick={() => onCellClick(item.name, monthHeaders[4], item.sep)}
-        >
-          {formatCellValue(item.sep)}
-        </td>
-        <td 
-          className={cellClass}
-          onClick={() => onCellClick(item.name, monthHeaders[5], item.oct)}
-        >
-          {formatCellValue(item.oct)}
-        </td>
-      </tr>
-    );
-  };
-
-  const renderTotalsRow = () => {
-    if (!totals) return null;
-    
-    return (
-      <tr className="border-t-2 border-gray-400 bg-gray-100 font-bold">
-        <td className="py-3 font-bold text-gray-900 px-2">Total</td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(totals.may)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(totals.jun)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(totals.jul)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(totals.aug)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(totals.sep)}
-        </td>
-        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
-          {formatCellValue(totals.oct)}
-        </td>
-      </tr>
-    );
   };
 
   return (
@@ -186,18 +84,28 @@ export const CashFlowTable = ({
                 <col className="w-1/8" />
                 <col className="w-1/8" />
               </colgroup>
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 font-medium text-gray-700 px-2"></th>
-                  {monthHeaders.map((month, index) => (
-                    <th key={index} className="text-right py-2 font-medium text-gray-700 px-2 min-w-[100px]">{month}</th>
-                  ))}
-                </tr>
-              </thead>
+              <CashFlowTableHeader />
               <tbody>
-                {renderOpeningBalanceRow()}
-                {data.map((item, index) => renderRow(item, index))}
-                {renderTotalsRow()}
+                {openingBalance && (
+                  <CashFlowTableOpeningBalanceRow 
+                    openingBalance={openingBalance}
+                    formatCellValue={formatCellValue}
+                  />
+                )}
+                {data.map((item, index) => (
+                  <CashFlowTableRow
+                    key={index}
+                    item={item}
+                    onCellClick={onCellClick}
+                    formatCellValue={formatCellValue}
+                  />
+                ))}
+                {totals && (
+                  <CashFlowTableTotalsRow 
+                    totals={totals}
+                    formatCellValue={formatCellValue}
+                  />
+                )}
               </tbody>
             </table>
           </div>
