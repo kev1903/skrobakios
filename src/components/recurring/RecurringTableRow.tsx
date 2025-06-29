@@ -7,9 +7,10 @@ import { getPriorityColor } from "@/utils/recurringUtils";
 
 interface RecurringTableRowProps {
   item: RecurringItem;
+  onEdit: (item: RecurringItem) => void;
 }
 
-export const RecurringTableRow = ({ item }: RecurringTableRowProps) => {
+export const RecurringTableRow = ({ item, onEdit }: RecurringTableRowProps) => {
   return (
     <TableRow key={item.id}>
       <TableCell className="font-medium">{item.name}</TableCell>
@@ -35,7 +36,7 @@ export const RecurringTableRow = ({ item }: RecurringTableRowProps) => {
         </Badge>
       </TableCell>
       <TableCell>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>
           Edit
         </Button>
       </TableCell>
