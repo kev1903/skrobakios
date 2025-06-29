@@ -1,5 +1,5 @@
 
-import { ArrowLeft, Download, Eye, FileText } from "lucide-react";
+import { ArrowLeft, Download, Eye, FileText, BarChart3, Users, Calendar, Clock, AlertCircle, FileCheck, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,134 +12,207 @@ interface ProjectDetailProps {
 
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
   const project = {
-    id: "1",
-    name: "Riverside Office Complex",
-    location: "Portland, OR",
-    dateCreated: "2024-06-15",
-    totalCost: "$2,450,000",
-    status: "completed"
+    id: "SK 23003",
+    name: "Gordon Street, Balwyn",
+    status: "Active",
+    lastUpdated: "12h Ago",
+    projectId: "#245985",
+    assignedTo: "John Cooper",
+    timeline: "20 Aug, 2023 - 30 Aug, 2023",
+    milestone: "Development",
+    type: "Type 1"
   };
 
-  const wbsComponents = [
-    { id: "1", name: "Site Preparation", status: "completed", cost: "$180,000", progress: 100 },
-    { id: "2", name: "Foundation & Slab", status: "completed", cost: "$320,000", progress: 100 },
-    { id: "3", name: "Structural Framing", status: "completed", cost: "$580,000", progress: 100 },
-    { id: "4", name: "Roofing System", status: "completed", cost: "$240,000", progress: 100 },
-    { id: "5", name: "Exterior Walls", status: "completed", cost: "$380,000", progress: 100 },
-    { id: "6", name: "HVAC System", status: "completed", cost: "$290,000", progress: 100 },
-    { id: "7", name: "Electrical Systems", status: "completed", cost: "$195,000", progress: 100 },
-    { id: "8", name: "Plumbing", status: "completed", cost: "$135,000", progress: 100 },
-    { id: "9", name: "Interior Finishes", status: "completed", cost: "$120,000", progress: 100 }
+  const summaryMetrics = [
+    { label: "Contract Price", value: "$20", trend: "up" },
+    { label: "Paid To Date", value: "$16", trend: "up" },
+    { label: "Payment Received", value: "$04", trend: "up" }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "processing":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "pending":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+  const latestUpdates = [
+    { icon: FileCheck, label: "Incomplete Task", count: 20 },
+    { icon: MessageSquare, label: "Unread Messages", count: 5 },
+    { icon: FileText, label: "Unread Documents", count: 8 }
+  ];
+
+  const sidebarItems = [
+    { id: "insights", label: "Insights", icon: BarChart3, active: true },
+    { id: "tasks", label: "Tasks", icon: FileCheck, active: false },
+    { id: "sections", label: "Sections", icon: FileText, active: false },
+    { id: "cost", label: "Cost", icon: BarChart3, active: false },
+    { id: "schedule", label: "Schedule", icon: Calendar, active: false },
+    { id: "issues", label: "Issues", icon: AlertCircle, active: false },
+    { id: "audit", label: "Audit", icon: FileCheck, active: false },
+    { id: "files", label: "Files", icon: FileText, active: false },
+    { id: "media", label: "Media", icon: Eye, active: false },
+    { id: "documents", label: "Documents", icon: FileText, active: false },
+    { id: "setting", label: "Setting", icon: Settings, active: false }
+  ];
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="p-8">
-        <div className="flex items-center space-x-4 mb-6">
+    <div className="h-full flex bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-200">
           <Button
-            variant="outline"
-            onClick={() => onNavigate("dashboard")}
-            className="flex items-center space-x-2"
+            variant="ghost"
+            onClick={() => onNavigate("projects")}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Projects</span>
+            <span>Back</span>
           </Button>
-        </div>
-
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
-              <p className="text-gray-600">{project.location} • Created {new Date(project.dateCreated).toLocaleDateString()}</p>
-            </div>
-            <Badge variant="outline" className={getStatusColor(project.status)}>
-              {project.status}
-            </Badge>
-          </div>
           
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">{wbsComponents.length}</p>
-                  <p className="text-sm text-gray-600">WBS Components</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">{project.totalCost}</p>
-                  <p className="text-sm text-gray-600">Total Estimated Cost</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600">100%</p>
-                  <p className="text-sm text-gray-600">Complete</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mb-2">
+            <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                {project.status}
+              </Badge>
+              <span>Last Updated {project.lastUpdated}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">WBS Components</h2>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2">
-              <Download className="w-4 h-4" />
-              <span>Export All</span>
+        <nav className="flex-1 p-4">
+          <div className="space-y-1">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                  item.active
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+              >
+                <item.icon className="w-4 h-4" />
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-8">
+          {/* Header with Edit Button */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.id} - {project.name}</h1>
+            </div>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              Edit
             </Button>
           </div>
 
-          <div className="space-y-4">
-            {wbsComponents.map((component) => (
-              <Card key={component.id} className="border border-gray-200 hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-2">
-                        <h3 className="font-semibold text-gray-900">{component.name}</h3>
-                        <Badge variant="outline" className={getStatusColor(component.status)}>
-                          {component.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center space-x-6">
-                        <div>
-                          <p className="text-sm text-gray-600">Estimated Cost</p>
-                          <p className="font-bold text-gray-900">{component.cost}</p>
-                        </div>
-                        <div className="flex-1 max-w-xs">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs text-gray-500">Progress</span>
-                            <span className="text-xs text-gray-500">{component.progress}%</span>
-                          </div>
-                          <Progress value={component.progress} className="h-2" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 ml-6">
-                      <Button variant="outline" size="sm" className="flex items-center space-x-1">
-                        <Eye className="w-4 h-4" />
-                        <span>View PDF</span>
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex items-center space-x-1">
-                        <Download className="w-4 h-4" />
-                        <span>CSV</span>
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          {/* Hero Image */}
+          <div className="mb-8">
+            <div className="w-full h-48 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg flex items-center justify-center text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="relative text-center">
+                <h2 className="text-4xl font-bold mb-2 tracking-wider">SALFORD</h2>
+                <p className="text-sm tracking-widest opacity-90">YOUR PREMIER REAL ESTATE AGENCY</p>
+              </div>
+            </div>
           </div>
+
+          {/* Project Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <FileText className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Project ID</p>
+                <p className="text-sm text-gray-600">{project.projectId}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <Users className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Assigned</p>
+                <p className="text-sm text-gray-600">{project.assignedTo}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Timeline</p>
+                <p className="text-sm text-gray-600">{project.timeline}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <Clock className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Milestone</p>
+                <p className="text-sm text-gray-600">{project.milestone}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <FileText className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Type</p>
+                <p className="text-sm text-gray-600">{project.type}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Project Summary Cost */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Project Summary Cost</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {summaryMetrics.map((metric, index) => (
+                  <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-medium text-gray-600">{metric.label}</h3>
+                      <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+                        <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Latest Update */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Latest Update</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {latestUpdates.map((update, index) => (
+                  <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <update.icon className="w-4 h-4 text-gray-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">{update.label}</span>
+                    </div>
+                    <span className="text-lg font-bold text-gray-900">{update.count.toString().padStart(2, '0')}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
