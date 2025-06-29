@@ -5,6 +5,7 @@ import { CashFlowChart } from "./cashflow/CashFlowChart";
 import { CashFlowTable } from "./cashflow/CashFlowTable";
 import { CashFlowBreakdownDialog } from "./cashflow/CashFlowBreakdownDialog";
 import { CashFlowPageProps, BreakdownData, CashFlowItem, CashFlowSummary } from "./cashflow/types";
+import { CashFlowSummaryTable } from "./cashflow/CashFlowSummaryTable";
 
 export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   const [selectedScenario, setSelectedScenario] = useState("base");
@@ -162,8 +163,12 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
           isExpanded={expandedSections.cashOut}
           onToggle={() => toggleSection('cashOut')}
           onCellClick={handleCellClick}
-          showSummary={true}
-          summary={summary}
+        />
+
+        {/* Summary Table */}
+        <CashFlowSummaryTable
+          netMovement={summary.netMovement}
+          endingBalance={summary.endingBalance}
         />
       </div>
 

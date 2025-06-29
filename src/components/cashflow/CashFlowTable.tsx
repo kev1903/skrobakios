@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Plus } from "lucide-react";
-import { CashFlowItem, CashFlowSummary } from "./types";
+import { CashFlowItem } from "./types";
 
 interface CashFlowTableProps {
   title: string;
@@ -10,8 +10,6 @@ interface CashFlowTableProps {
   isExpanded: boolean;
   onToggle: () => void;
   onCellClick: (itemName: string, month: string, value: any) => void;
-  showSummary?: boolean;
-  summary?: CashFlowSummary;
 }
 
 const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"];
@@ -21,9 +19,7 @@ export const CashFlowTable = ({
   data, 
   isExpanded, 
   onToggle, 
-  onCellClick,
-  showSummary = false,
-  summary
+  onCellClick
 }: CashFlowTableProps) => {
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
@@ -31,18 +27,6 @@ export const CashFlowTable = ({
     }
     return value;
   };
-
-  const renderSummaryRow = (item: CashFlowItem, isLast: boolean = false) => (
-    <tr className={`${isLast ? 'border-b-2 border-gray-300' : 'border-b'} bg-gray-50 font-semibold`}>
-      <td className="py-3 font-bold text-gray-900">{item.name}</td>
-      <td className="text-right py-3 text-gray-900">{formatCellValue(item.may)}</td>
-      <td className="text-right py-3 text-gray-900">{formatCellValue(item.jun)}</td>
-      <td className="text-right py-3 text-gray-900">{formatCellValue(item.jul)}</td>
-      <td className="text-right py-3 text-gray-900">{formatCellValue(item.aug)}</td>
-      <td className="text-right py-3 text-gray-900">{formatCellValue(item.sep)}</td>
-      <td className="text-right py-3 text-gray-900">{formatCellValue(item.oct)}</td>
-    </tr>
-  );
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
@@ -122,12 +106,6 @@ export const CashFlowTable = ({
                     </td>
                   </tr>
                 ))}
-                {showSummary && summary && (
-                  <>
-                    {renderSummaryRow(summary.netMovement)}
-                    {renderSummaryRow(summary.endingBalance, true)}
-                  </>
-                )}
               </tbody>
             </table>
           </div>
