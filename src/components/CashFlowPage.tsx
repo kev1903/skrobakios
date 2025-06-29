@@ -50,10 +50,18 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     { name: "Other Expenses", may: 363, jun: 0, jul: 632, aug: 0, sep: 0, oct: 363 },
   ];
 
-  // Calculate totals for each month
+  // Calculate totals for each month with proper type conversion
   const calculateTotals = (data: CashFlowItem[]) => {
     return data.reduce((totals, item) => {
-      const getValue = (val: number | string) => typeof val === 'number' ? val : 0;
+      const getValue = (val: number | string): number => {
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') {
+          const parsed = parseFloat(val);
+          return isNaN(parsed) ? 0 : parsed;
+        }
+        return 0;
+      };
+      
       return {
         may: totals.may + getValue(item.may),
         jun: totals.jun + getValue(item.jun),
@@ -79,7 +87,16 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   };
 
   // Calculate ending balance (Opening Balance + Net Movement) - done sequentially
-  const mayEndingBalance = openingBalance.may + netMovement.may;
+  const getValue = (val: number | string): number => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') {
+      const parsed = parseFloat(val);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
+  const mayEndingBalance = getValue(openingBalance.may) + netMovement.may;
   const junEndingBalance = mayEndingBalance + netMovement.jun;
   const julEndingBalance = junEndingBalance + netMovement.jul;
   const augEndingBalance = julEndingBalance + netMovement.aug;
