@@ -58,7 +58,7 @@ export const EditRecurringDialog = ({ item, open, onOpenChange, onSave }: EditRe
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">Account</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => handleInputChange('type', value)}
@@ -67,8 +67,12 @@ export const EditRecurringDialog = ({ item, open, onOpenChange, onSave }: EditRe
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Income">Income</SelectItem>
-                  <SelectItem value="Expense">Expense</SelectItem>
+                  <SelectItem value="Operating Account">Operating Account</SelectItem>
+                  <SelectItem value="Payroll Account">Payroll Account</SelectItem>
+                  <SelectItem value="Tax Reserve Account">Tax Reserve Account</SelectItem>
+                  <SelectItem value="Equipment Account">Equipment Account</SelectItem>
+                  <SelectItem value="Emergency Fund">Emergency Fund</SelectItem>
+                  <SelectItem value="Project Account">Project Account</SelectItem>
                 </SelectContent>
               </Select>
             </div>
