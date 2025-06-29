@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, Filter, MoreHorizontal, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -149,6 +148,18 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
   return (
     <div className="h-full overflow-auto bg-gray-50/30 backdrop-blur-sm">
       <div className="p-8">
+        {/* Create New Project Button - Prominent at top */}
+        <div className="mb-6">
+          <Button
+            onClick={() => onNavigate("create-project")}
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 px-6 py-3 text-base font-medium"
+            size="lg"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Create New Project</span>
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -163,14 +174,6 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
             >
               <Filter className="w-4 h-4" />
               <span>Filter</span>
-            </Button>
-            <Button
-              onClick={() => onNavigate("create-project")}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2"
-              size="sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add New Project</span>
             </Button>
           </div>
         </div>
