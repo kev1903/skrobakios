@@ -15,61 +15,38 @@ interface AddAccountDialogProps {
 
 export const AddAccountDialog = ({ isOpen, onClose, onAddAccount, sectionTitle }: AddAccountDialogProps) => {
   const [accountName, setAccountName] = useState("");
-  const [mayValue, setMayValue] = useState("");
-  const [junValue, setJunValue] = useState("");
-  const [julValue, setJulValue] = useState("");
-  const [augValue, setAugValue] = useState("");
-  const [sepValue, setSepValue] = useState("");
-  const [octValue, setOctValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!accountName.trim()) return;
 
-    const parseValue = (value: string): number => {
-      const parsed = parseFloat(value) || 0;
-      return parsed;
-    };
-
     const newAccount: CashFlowItem = {
       name: accountName.trim(),
-      may: parseValue(mayValue),
-      jun: parseValue(junValue),
-      jul: parseValue(julValue),
-      aug: parseValue(augValue),
-      sep: parseValue(sepValue),
-      oct: parseValue(octValue),
+      may: 0,
+      jun: 0,
+      jul: 0,
+      aug: 0,
+      sep: 0,
+      oct: 0,
     };
 
     onAddAccount(newAccount);
     
     // Reset form
     setAccountName("");
-    setMayValue("");
-    setJunValue("");
-    setJulValue("");
-    setAugValue("");
-    setSepValue("");
-    setOctValue("");
     
     onClose();
   };
 
   const handleCancel = () => {
     setAccountName("");
-    setMayValue("");
-    setJunValue("");
-    setJulValue("");
-    setAugValue("");
-    setSepValue("");
-    setOctValue("");
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add New Account to {sectionTitle}</DialogTitle>
         </DialogHeader>
@@ -84,75 +61,6 @@ export const AddAccountDialog = ({ isOpen, onClose, onAddAccount, sectionTitle }
               placeholder="Enter account name"
               required
             />
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div>
-              <Label htmlFor="may">May 25</Label>
-              <Input
-                id="may"
-                type="number"
-                step="0.01"
-                value={mayValue}
-                onChange={(e) => setMayValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="jun">Jun 25</Label>
-              <Input
-                id="jun"
-                type="number"
-                step="0.01"
-                value={junValue}
-                onChange={(e) => setJunValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="jul">Jul 25</Label>
-              <Input
-                id="jul"
-                type="number"
-                step="0.01"
-                value={julValue}
-                onChange={(e) => setJulValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="aug">Aug 25</Label>
-              <Input
-                id="aug"
-                type="number"
-                step="0.01"
-                value={augValue}
-                onChange={(e) => setAugValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="sep">Sep 25</Label>
-              <Input
-                id="sep"
-                type="number"
-                step="0.01"
-                value={sepValue}
-                onChange={(e) => setSepValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="oct">Oct 25</Label>
-              <Input
-                id="oct"
-                type="number"
-                step="0.01"
-                value={octValue}
-                onChange={(e) => setOctValue(e.target.value)}
-                placeholder="0.00"
-              />
-            </div>
           </div>
           
           <div className="flex justify-end space-x-2 pt-4">
