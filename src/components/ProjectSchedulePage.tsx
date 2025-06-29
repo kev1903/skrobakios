@@ -1,4 +1,3 @@
-
 import { ArrowLeft, Calendar, Clock, Users, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,8 +119,11 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               <Calendar className="w-4 h-4" />
               <span className="text-sm font-medium">Timeline View</span>
             </div>
-            <button className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-              <Clock className="w-4 h-4" />
+            <button 
+              onClick={() => onNavigate("gantt-chart")}
+              className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            >
+              <Calendar className="w-4 h-4" />
               <span className="text-sm font-medium">Gantt Chart</span>
             </button>
             <button className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
@@ -145,6 +147,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               <Button variant="outline">
                 <Calendar className="w-4 h-4 mr-2" />
                 Export Schedule
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => onNavigate("gantt-chart")}
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                View Gantt Chart
               </Button>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Clock className="w-4 h-4 mr-2" />
