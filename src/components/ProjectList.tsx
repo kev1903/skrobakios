@@ -142,6 +142,10 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
     }
   };
 
+  const handleProjectClick = (projectId: string) => {
+    onNavigate("project-detail");
+  };
+
   const isAllSelected = selectedProjects.length === projects.length;
   const isIndeterminate = selectedProjects.length > 0 && selectedProjects.length < projects.length;
 
@@ -218,7 +222,12 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
                     #{project.id}
                   </TableCell>
                   <TableCell className="font-medium text-gray-900">
-                    {project.name}
+                    <button
+                      onClick={() => handleProjectClick(project.id)}
+                      className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                    >
+                      {project.name}
+                    </button>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-3">
