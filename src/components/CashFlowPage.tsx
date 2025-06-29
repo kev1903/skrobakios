@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,6 @@ interface BreakdownData {
 export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   const [selectedScenario, setSelectedScenario] = useState("base");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    projects: true,
     cashIn: true,
     cashOut: true
   });
@@ -101,12 +101,6 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   };
 
   const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"];
-
-  const projectData = [
-    { name: "Active Projects", may: -2292, jun: 4500, jul: 54667, aug: 283672, sep: 311691, oct: -4230, nov: 0, dec: 0 },
-    { name: "Proposed Projects", may: 0, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0, nov: 0, dec: 0 },
-    { name: "Completed Projects", may: 0, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0, nov: 0, dec: 0 },
-  ];
 
   const cashInData = [
     { name: "Construction Revenue", may: 12645, jun: 5049, jul: "33927 of 0", aug: 0, sep: 0, oct: 0 },
@@ -271,102 +265,6 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
 
       {/* Cash Flow Tables */}
       <div className="space-y-6">
-        {/* Projects Section */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleSection('projects')}
-                  className="p-0 h-auto"
-                >
-                  {expandedSections.projects ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
-                </Button>
-                <CardTitle className="text-lg text-gray-900">Projects</CardTitle>
-              </div>
-              <Button variant="ghost" size="sm">
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          {expandedSections.projects && (
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 font-medium text-gray-700">Starting Balance</th>
-                      {monthHeaders.map((month, index) => (
-                        <th key={index} className="text-right py-2 font-medium text-gray-700">{month}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 font-medium text-gray-700"></th>
-                      <th className="text-right py-2 font-medium text-gray-700">15,254</th>
-                      <th className="text-right py-2 font-medium text-gray-700">6,703</th>
-                      <th className="text-right py-2 font-medium text-gray-700">10</th>
-                      <th className="text-right py-2 font-medium text-gray-700">95,554</th>
-                      <th className="text-right py-2 font-medium text-gray-700">363,634</th>
-                      <th className="text-right py-2 font-medium text-gray-700">690,573</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projectData.map((project, index) => (
-                      <tr key={index} className="border-b hover:bg-gray-50/50">
-                        <td className="py-2 font-medium text-gray-900">{project.name}</td>
-                        <td 
-                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => handleCellClick(project.name, monthHeaders[0], project.may)}
-                        >
-                          {project.may.toLocaleString()}
-                        </td>
-                        <td 
-                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => handleCellClick(project.name, monthHeaders[1], project.jun)}
-                        >
-                          {project.jun.toLocaleString()}
-                        </td>
-                        <td 
-                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => handleCellClick(project.name, monthHeaders[2], project.jul)}
-                        >
-                          {project.jul.toLocaleString()}
-                        </td>
-                        <td 
-                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => handleCellClick(project.name, monthHeaders[3], project.aug)}
-                        >
-                          {project.aug.toLocaleString()}
-                        </td>
-                        <td 
-                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => handleCellClick(project.name, monthHeaders[4], project.sep)}
-                        >
-                          {project.sep.toLocaleString()}
-                        </td>
-                        <td 
-                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
-                          onClick={() => handleCellClick(project.name, monthHeaders[5], project.oct)}
-                        >
-                          {project.oct.toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          )}
-        </Card>
-
         {/* Cash In Section */}
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
           <CardHeader className="pb-3">
