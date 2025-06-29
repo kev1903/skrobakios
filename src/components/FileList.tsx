@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Upload, Download, Search, Grid, List, File, Eye, Trash2, Users } from "lucide-react";
+import { Upload, Download, Search, Grid, List, File, Eye, Trash2, Users, ExternalLink, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -107,6 +106,10 @@ export const FileList = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
+  const handleSharePointAccess = () => {
+    window.open("https://enassee.sharepoint.com/:f:/s/SkrobakiProjects/Emw1CavunZZGqup2TMoIcd0BdA8uQDzqHGoqX4x4TI22qg?e=Ey0bOj", "_blank");
+  };
+
   return (
     <div className="flex-1 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -140,6 +143,32 @@ export const FileList = () => {
             <Upload className="w-4 h-4 mr-2" />
             Upload Files
           </Button>
+        </div>
+      </div>
+
+      {/* SharePoint Integration Section */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">SharePoint Integration</h3>
+        
+        <div className="bg-white rounded-lg border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Folder className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900">Skrobaki Projects</h4>
+                <p className="text-sm text-gray-500">SharePoint folder with project files and documents</p>
+              </div>
+            </div>
+            <Button 
+              onClick={handleSharePointAccess}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open in SharePoint
+            </Button>
+          </div>
         </div>
       </div>
 
