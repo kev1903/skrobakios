@@ -13,24 +13,19 @@ export const FilePageHeader = ({ activeTab, onTabChange }: FilePageHeaderProps) 
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-900">SK 23003 - Gordon Street, Balwyn</h1>
-          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-            Active
+          <h1 className="text-2xl font-bold text-gray-900">Business File Storage</h1>
+          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+            General Storage
           </Badge>
-          <span className="text-sm text-gray-500">Last Updated 12h Ago</span>
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" className="text-gray-600">
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
-          </Button>
-          <Button variant="outline" className="text-gray-600">
             <Settings className="w-4 h-4 mr-2" />
-            Setting
+            Settings
           </Button>
           <Button variant="outline" className="text-gray-600">
             <Eye className="w-4 h-4 mr-2" />
-            3D View
+            View Options
           </Button>
         </div>
       </div>

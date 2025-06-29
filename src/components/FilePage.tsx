@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { FilePageHeader } from "./FilePageHeader";
-import { FileProjectSidebar } from "./FileProjectSidebar";
 import { FolderTree } from "./FolderTree";
 import { FileList } from "./FileList";
 import {
@@ -26,9 +25,6 @@ export const FilePage = ({ onNavigate }: FilePageProps) => {
 
   return (
     <div className="h-screen flex bg-gray-50">
-      {/* Project Sidebar */}
-      <FileProjectSidebar onNavigate={onNavigate} />
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
