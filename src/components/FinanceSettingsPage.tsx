@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -237,10 +236,10 @@ export const FinanceSettingsPage = ({ onNavigate }: FinanceSettingsPageProps) =>
 
           <Separator />
 
-          {/* Accounts Section */}
+          {/* Transaction Accounts Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Company Accounts</h3>
+              <h3 className="text-lg font-semibold">Transaction Accounts</h3>
               <Button 
                 onClick={() => setIsAddingAccount(true)}
                 className="flex items-center gap-2"
