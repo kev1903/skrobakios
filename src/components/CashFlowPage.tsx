@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,12 @@ import {
   ChartTooltip, 
   ChartTooltipContent 
 } from "@/components/ui/chart";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   DollarSign, 
   TrendingUp, 
@@ -26,7 +31,8 @@ import {
   Settings,
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  X
 } from "lucide-react";
 import { 
   AreaChart,
@@ -41,6 +47,23 @@ interface CashFlowPageProps {
   onNavigate?: (page: string) => void;
 }
 
+interface BreakdownItem {
+  date: string;
+  description: string;
+  invoiceNumber: string;
+  amount: number;
+  status: string;
+}
+
+interface BreakdownData {
+  title: string;
+  month: string;
+  items: BreakdownItem[];
+  total: number;
+  expected: number;
+  overExpected: number;
+}
+
 export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   const [selectedScenario, setSelectedScenario] = useState("base");
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -48,6 +71,8 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     cashIn: true,
     cashOut: true
   });
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const [selectedBreakdown, setSelectedBreakdown] = useState<BreakdownData | null>(null);
 
   const forecastData = [
     { month: "May 23", value: 35000 },
@@ -97,6 +122,50 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     { name: "Tax - Wage - Kevin", may: 0, jun: 0, jul: 1650, aug: 1650, sep: 1650, oct: 1650 },
     { name: "Other Expenses", may: 363, jun: 0, jul: "632 of 632", aug: 0, sep: 0, oct: 363 },
   ];
+
+  // Sample breakdown data for demonstration
+  const getBreakdownData = (itemName: string, month: string): BreakdownData => {
+    if (itemName === "Construction Revenue" && month === "May 25") {
+      return {
+        title: "Construction Revenue",
+        month: "May '25",
+        items: [
+          { date: "Paid - 01 May", description: "Ben Holst & Jacqui Junkeer", invoiceNumber: "INV-0277", amount: 3500.00, status: "Paid" },
+          { date: "Paid - 12 May", description: "CourtScopes", invoiceNumber: "INV-0275", amount: 2050.06, status: "Paid" },
+          { date: "Paid - 19 May", description: "Vista Plastering", invoiceNumber: "INV-0281", amount: 2090.00, status: "Paid" },
+          { date: "Paid - 23 May", description: "Kings Cut Concrete Pty Ltd", invoiceNumber: "INV-0279", amount: 3025.00, status: "Paid" },
+          { date: "Paid - 26 May", description: "Lyall Johaan", invoiceNumber: "INV-0283", amount: 907.50, status: "Paid" },
+          { date: "Paid - 26 May", description: "Patrick & Nomsa", invoiceNumber: "INV-0285", amount: 3498.00, status: "Paid" },
+          { date: "Paid - 27 May", description: "Vista Plastering", invoiceNumber: "INV-0284", amount: 2974.40, status: "Paid" },
+        ],
+        total: 18044.96,
+        expected: 0.00,
+        overExpected: 0.00
+      };
+    }
+
+    // Default breakdown for other items
+    return {
+      title: itemName,
+      month: month,
+      items: [
+        { date: "Paid - 15 " + month.split(' ')[0], description: "Sample Transaction 1", invoiceNumber: "INV-001", amount: 1200.00, status: "Paid" },
+        { date: "Paid - 28 " + month.split(' ')[0], description: "Sample Transaction 2", invoiceNumber: "INV-002", amount: 850.00, status: "Paid" },
+      ],
+      total: 2050.00,
+      expected: 500.00,
+      overExpected: 0.00
+    };
+  };
+
+  const handleCellClick = (itemName: string, month: string, value: any) => {
+    // Only show breakdown for cells with actual values
+    if (value !== 0 && value !== "" && value !== "0 of 0") {
+      const breakdown = getBreakdownData(itemName, month);
+      setSelectedBreakdown(breakdown);
+      setShowBreakdown(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
@@ -253,12 +322,42 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
                     {projectData.map((project, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50/50">
                         <td className="py-2 font-medium text-gray-900">{project.name}</td>
-                        <td className="text-right py-2 text-gray-700">{project.may.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{project.jun.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{project.jul.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{project.aug.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{project.sep.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{project.oct.toLocaleString()}</td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(project.name, monthHeaders[0], project.may)}
+                        >
+                          {project.may.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(project.name, monthHeaders[1], project.jun)}
+                        >
+                          {project.jun.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(project.name, monthHeaders[2], project.jul)}
+                        >
+                          {project.jul.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(project.name, monthHeaders[3], project.aug)}
+                        >
+                          {project.aug.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(project.name, monthHeaders[4], project.sep)}
+                        >
+                          {project.sep.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(project.name, monthHeaders[5], project.oct)}
+                        >
+                          {project.oct.toLocaleString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -308,12 +407,42 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
                     {cashInData.map((item, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50/50">
                         <td className="py-2 font-medium text-gray-900">{item.name}</td>
-                        <td className="text-right py-2 text-gray-700">{item.may.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{item.jun.toLocaleString()}</td>
-                        <td className="text-right py-2 text-gray-700">{item.jul}</td>
-                        <td className="text-right py-2 text-gray-700">{item.aug}</td>
-                        <td className="text-right py-2 text-gray-700">{item.sep}</td>
-                        <td className="text-right py-2 text-gray-700">{item.oct}</td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[0], item.may)}
+                        >
+                          {item.may.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[1], item.jun)}
+                        >
+                          {item.jun.toLocaleString()}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[2], item.jul)}
+                        >
+                          {item.jul}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[3], item.aug)}
+                        >
+                          {item.aug}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[4], item.sep)}
+                        >
+                          {item.sep}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[5], item.oct)}
+                        >
+                          {item.oct}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -363,12 +492,42 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
                     {cashOutData.map((item, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50/50">
                         <td className="py-2 font-medium text-gray-900">{item.name}</td>
-                        <td className="text-right py-2 text-gray-700">{item.may}</td>
-                        <td className="text-right py-2 text-gray-700">{item.jun}</td>
-                        <td className="text-right py-2 text-gray-700">{item.jul}</td>
-                        <td className="text-right py-2 text-gray-700">{item.aug}</td>
-                        <td className="text-right py-2 text-gray-700">{item.sep}</td>
-                        <td className="text-right py-2 text-gray-700">{item.oct}</td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[0], item.may)}
+                        >
+                          {item.may}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[1], item.jun)}
+                        >
+                          {item.jun}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[2], item.jul)}
+                        >
+                          {item.jul}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[3], item.aug)}
+                        >
+                          {item.aug}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[4], item.sep)}
+                        >
+                          {item.sep}
+                        </td>
+                        <td 
+                          className="text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => handleCellClick(item.name, monthHeaders[5], item.oct)}
+                        >
+                          {item.oct}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -378,6 +537,97 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
           )}
         </Card>
       </div>
+
+      {/* Breakdown Dialog */}
+      <Dialog open={showBreakdown} onOpenChange={setShowBreakdown}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader className="flex flex-row items-center justify-between bg-gray-900 text-white p-4 -m-6 mb-4">
+            <DialogTitle className="text-lg font-medium">
+              {selectedBreakdown?.title} {selectedBreakdown?.month}
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowBreakdown(false)}
+              className="text-white hover:bg-gray-800 p-1 h-auto"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </DialogHeader>
+
+          {selectedBreakdown && (
+            <div className="space-y-4">
+              {/* Tabs */}
+              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                <button className="px-4 py-2 bg-gray-800 text-white rounded text-sm font-medium">
+                  Paid ({selectedBreakdown.items.length})
+                </button>
+                <button className="px-4 py-2 text-gray-600 rounded text-sm">
+                  Budgets (0)
+                </button>
+                <div className="ml-auto">
+                  <button className="px-4 py-2 text-gray-600 text-sm">
+                    Notes
+                  </button>
+                </div>
+              </div>
+
+              {/* Section Title */}
+              <div className="mb-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Full invoice payments ({selectedBreakdown.items.length})
+                </h3>
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-2">
+                {selectedBreakdown.items.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm text-blue-600 font-medium min-w-[80px]">
+                          {item.date}
+                        </span>
+                        <span className="text-sm font-medium text-gray-900 flex-1">
+                          {item.description}
+                        </span>
+                        <span className="text-sm text-gray-600 min-w-[80px]">
+                          {item.invoiceNumber}
+                        </span>
+                        <span className="text-sm font-medium text-gray-900 min-w-[80px] text-right">
+                          ${item.amount.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary */}
+              <div className="mt-6 grid grid-cols-3 gap-4 pt-4 border-t">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-900">
+                    ${selectedBreakdown.total.toFixed(2)}
+                  </div>
+                  <div className="text-sm text-gray-600">Paid this month</div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-900">
+                    ${selectedBreakdown.expected.toFixed(2)}
+                  </div>
+                  <div className="text-sm text-gray-600">Expected this month</div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-900">
+                    ${selectedBreakdown.overExpected.toFixed(2)}
+                  </div>
+                  <div className="text-sm text-gray-600">Over expected</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
