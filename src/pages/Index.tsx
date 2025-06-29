@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { Sidebar } from "@/components/Sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { TaskManagement } from "@/components/TaskManagement";
 import { ProjectDashboard } from "@/components/ProjectDashboard";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { UploadProject } from "@/components/UploadProject";
@@ -8,11 +9,13 @@ import { AuthPage } from "@/components/AuthPage";
 import { SupportPage } from "@/components/SupportPage";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [currentPage, setCurrentPage] = useState("tasks");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   const renderContent = () => {
     switch (currentPage) {
+      case "tasks":
+        return <TaskManagement onNavigate={setCurrentPage} />;
       case "dashboard":
         return <ProjectDashboard onSelectProject={setSelectedProject} onNavigate={setCurrentPage} />;
       case "project-detail":
@@ -24,13 +27,13 @@ const Index = () => {
       case "support":
         return <SupportPage />;
       default:
-        return <ProjectDashboard onSelectProject={setSelectedProject} onNavigate={setCurrentPage} />;
+        return <TaskManagement onNavigate={setCurrentPage} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+      <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
       <main className="flex-1 overflow-hidden">
         {renderContent()}
       </main>
