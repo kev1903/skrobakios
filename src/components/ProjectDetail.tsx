@@ -1,4 +1,3 @@
-
 import { ArrowLeft, Download, Eye, FileText, BarChart3, Users, Calendar, Clock, AlertCircle, FileCheck, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,30 +10,100 @@ interface ProjectDetailProps {
 }
 
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
-  const project = {
-    id: "SK 23003",
-    name: "Gordon Street, Balwyn",
-    status: "Active",
-    lastUpdated: "12h Ago",
-    projectId: "#245985",
-    assignedTo: "John Cooper",
-    timeline: "20 Aug, 2023 - 30 Aug, 2023",
-    milestone: "Development",
-    type: "Type 1"
-  };
+  // Match the project data from other components
+  const projects = [
+    {
+      id: "1",
+      name: "Gordon Street, Balwyn",
+      fullName: "SK 23003 - Gordon Street, Balwyn",
+      location: "Balwyn, VIC",
+      dateCreated: "2024-06-15",
+      status: "completed",
+      wbsCount: 12,
+      totalCost: "$2,450,000",
+      progress: 100,
+      projectId: "#SK23003",
+      assignedTo: "John Cooper",
+      timeline: "15 Jun, 2024 - 30 Aug, 2024",
+      milestone: "Development",
+      type: "Residential"
+    },
+    {
+      id: "2",
+      name: "Mountain View Residential",
+      fullName: "SK 23004 - Mountain View Residential",
+      location: "Boulder, CO",
+      dateCreated: "2024-06-20",
+      status: "processing",
+      wbsCount: 8,
+      totalCost: "$1,850,000",
+      progress: 65,
+      projectId: "#SK23004",
+      assignedTo: "Sarah Wilson",
+      timeline: "20 Jun, 2024 - 15 Sep, 2024",
+      milestone: "Construction",
+      type: "Residential"
+    },
+    {
+      id: "3",
+      name: "Downtown Retail Center",
+      fullName: "SK 23005 - Downtown Retail Center",
+      location: "Austin, TX",
+      dateCreated: "2024-06-25",
+      status: "pending",
+      wbsCount: 15,
+      totalCost: "Pending",
+      progress: 0,
+      projectId: "#SK23005",
+      assignedTo: "Mike Johnson",
+      timeline: "25 Jun, 2024 - 20 Oct, 2024",
+      milestone: "Planning",
+      type: "Commercial"
+    }
+  ];
+
+  // Find the current project or default to first one
+  const project = projects.find(p => p.id === projectId) || projects[0];
 
   const summaryMetrics = [
-    { label: "Contract Price", value: "$20", trend: "up" },
-    { label: "Paid To Date", value: "$16", trend: "up" },
-    { label: "Payment Received", value: "$04", trend: "up" }
+    { label: "Contract Price", value: project.totalCost !== "Pending" ? project.totalCost : "$0", trend: "up" },
+    { label: "Paid To Date", value: project.totalCost !== "Pending" ? `$${(parseInt(project.totalCost.replace(/[$,]/g, '')) * 0.65 / 1000000).toFixed(1)}M` : "$0", trend: "up" },
+    { label: "Payment Received", value: project.totalCost !== "Pending" ? `$${(parseInt(project.totalCost.replace(/[$,]/g, '')) * 0.2 / 1000000).toFixed(1)}M` : "$0", trend: "up" }
   ];
 
   const latestUpdates = [
-    { icon: FileCheck, label: "Incomplete Task", count: 20 },
-    { icon: MessageSquare, label: "Unread Messages", count: 5 },
-    { icon: FileText, label: "Unread Documents", count: 8 }
+    { icon: FileCheck, label: "Incomplete Task", count: Math.max(20 - project.progress / 5, 0) },
+    { icon: MessageSquare, label: "Unread Messages", count: project.status === "pending" ? 12 : 5 },
+    { icon: FileText, label: "Unread Documents", count: project.wbsCount - Math.floor(project.progress / 10) }
   ];
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "processing":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "pending":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "processing":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Active";
+    }
+  };
+
+  // ... keep existing code (sidebarItems array)
   const sidebarItems = [
     { id: "insights", label: "Insights", icon: BarChart3, active: true },
     { id: "tasks", label: "Tasks", icon: FileCheck, active: false },
@@ -66,10 +135,10 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           <div className="mb-2">
             <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                {project.status}
+              <Badge variant="outline" className={getStatusColor(project.status)}>
+                {getStatusText(project.status)}
               </Badge>
-              <span>Last Updated {project.lastUpdated}</span>
+              <span>Last Updated 12h Ago</span>
             </div>
           </div>
         </div>
@@ -99,7 +168,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           {/* Header with Edit Button */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.id} - {project.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.fullName}</h1>
+              <p className="text-gray-600">{project.location}</p>
             </div>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               Edit
@@ -169,6 +239,25 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
               </div>
             </div>
           </div>
+
+          {/* Progress Bar for Active Projects */}
+          {project.progress > 0 && project.progress < 100 && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Project Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Overall Progress</span>
+                    <span>{project.progress}%</span>
+                  </div>
+                  <Progress value={project.progress} className="w-full" />
+                  <p className="text-xs text-gray-500">{project.wbsCount} WBS components tracked</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Project Summary Cost */}
           <Card className="mb-8">
