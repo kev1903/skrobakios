@@ -9,22 +9,32 @@ interface ProjectSidebarProps {
   onNavigate: (page: string) => void;
   getStatusColor: (status: string) => string;
   getStatusText: (status: string) => string;
+  activeSection?: string;
 }
 
-export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusText }: ProjectSidebarProps) => {
+export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusText, activeSection = "insights" }: ProjectSidebarProps) => {
   const sidebarItems = [
-    { id: "insights", label: "Insights", icon: BarChart3, active: true },
-    { id: "tasks", label: "Tasks", icon: FileCheck, active: false },
-    { id: "sections", label: "Sections", icon: FileText, active: false },
-    { id: "cost", label: "Cost", icon: BarChart3, active: false },
-    { id: "schedule", label: "Schedule", icon: Calendar, active: false },
-    { id: "issues", label: "Issues", icon: AlertCircle, active: false },
-    { id: "audit", label: "Audit", icon: FileCheck, active: false },
-    { id: "files", label: "Files", icon: FileText, active: false },
-    { id: "media", label: "Media", icon: Eye, active: false },
-    { id: "documents", label: "Documents", icon: FileText, active: false },
-    { id: "setting", label: "Setting", icon: Settings, active: false }
+    { id: "insights", label: "Insights", icon: BarChart3, active: activeSection === "insights" },
+    { id: "tasks", label: "Tasks", icon: FileCheck, active: activeSection === "tasks" },
+    { id: "sections", label: "Sections", icon: FileText, active: activeSection === "sections" },
+    { id: "cost", label: "Cost", icon: BarChart3, active: activeSection === "cost" },
+    { id: "schedule", label: "Schedule", icon: Calendar, active: activeSection === "schedule" },
+    { id: "issues", label: "Issues", icon: AlertCircle, active: activeSection === "issues" },
+    { id: "audit", label: "Audit", icon: FileCheck, active: activeSection === "audit" },
+    { id: "files", label: "Files", icon: FileText, active: activeSection === "files" },
+    { id: "media", label: "Media", icon: Eye, active: activeSection === "media" },
+    { id: "documents", label: "Documents", icon: FileText, active: activeSection === "documents" },
+    { id: "setting", label: "Setting", icon: Settings, active: activeSection === "setting" }
   ];
+
+  const handleItemClick = (itemId: string) => {
+    if (itemId === "files") {
+      onNavigate("project-files");
+    } else {
+      // Handle other navigation items as needed
+      console.log(`Navigate to ${itemId}`);
+    }
+  };
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ boxShadow: 'none' }}>
@@ -54,6 +64,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
           {sidebarItems.map((item) => (
             <button
               key={item.id}
+              onClick={() => handleItemClick(item.id)}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
                 item.active
                   ? 'bg-blue-100 text-blue-700 border border-blue-200'

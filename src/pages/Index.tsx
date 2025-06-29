@@ -4,16 +4,50 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
 import { ProjectDashboard } from "@/components/ProjectDashboard";
 import { ProjectDetail } from "@/components/ProjectDetail";
+import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/AuthPage";
 import { SupportPage } from "@/components/SupportPage";
 import { CreateProject } from "@/components/CreateProject";
 import { ProjectList } from "@/components/ProjectList";
 import { FilePage } from "@/components/FilePage";
+import { useProjects, Project } from "@/hooks/useProjects";
+import { useEffect } from "react";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState("tasks");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const { getProjects } = useProjects();
+
+  useEffect(() => {
+    const fetchCurrentProject = async () => {
+      if (selectedProject) {
+        const projects = await getProjects();
+        const project = projects.find(p => p.id === selectedProject);
+        if (project) {
+          setCurrentProject(project);
+        } else {
+          // Fallback project for demo purposes
+          setCurrentProject({
+            id: "1",
+            project_id: "SK23003",
+            name: "Gordon Street, Balwyn",
+            location: "Balwyn, VIC",
+            created_at: "2024-06-15T00:00:00Z",
+            status: "completed",
+            contract_price: "$2,450,000",
+            start_date: "2024-06-15",
+            deadline: "2024-08-30",
+            updated_at: "2024-06-15T00:00:00Z",
+            priority: "Medium"
+          });
+        }
+      }
+    };
+
+    fetchCurrentProject();
+  }, [selectedProject]);
 
   const handleSelectProject = (projectId: string) => {
     console.log("Setting selected project:", projectId);
@@ -32,6 +66,14 @@ const Index = () => {
         return <ProjectList onNavigate={setCurrentPage} onSelectProject={handleSelectProject} />;
       case "project-detail":
         return <ProjectDetail projectId={selectedProject} onNavigate={setCurrentPage} />;
+      case "project-files":
+        return currentProject ? (
+          <ProjectFilePage project={currentProject} onNavigate={setCurrentPage} />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Project not found</p>
+          </div>
+        );
       case "upload":
         return <UploadProject onNavigate={setCurrentPage} />;
       case "files":
@@ -45,8 +87,8 @@ const Index = () => {
     }
   };
 
-  // Hide main sidebar only when on project detail page
-  const showMainSidebar = currentPage !== "project-detail";
+  // Hide main sidebar for project-specific pages
+  const showMainSidebar = !["project-detail", "project-files"].includes(currentPage);
 
   return (
     <div className="min-h-screen flex">
