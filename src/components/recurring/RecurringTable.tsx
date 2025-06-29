@@ -8,55 +8,238 @@ export const RecurringTable = () => {
   const recurringItems = [
     {
       id: 1,
-      name: "Office Rent",
+      name: "VicRoads - Fine",
       type: "Expense",
-      amount: -2500,
-      frequency: "Monthly",
-      nextDate: "2024-07-01",
+      amount: -296.56,
+      frequency: "One-Off",
+      nextDate: "2025-06-05",
       status: "Active",
-      category: "Facilities"
+      category: "Fines",
+      priority: "High"
     },
     {
       id: 2,
-      name: "Project Retainer - ABC Corp",
-      type: "Income",
-      amount: 15000,
+      name: "Optus (1)",
+      type: "Expense",
+      amount: -296.56,
       frequency: "Monthly",
-      nextDate: "2024-07-05",
+      nextDate: "2025-06-05",
       status: "Active",
-      category: "Contracts"
+      category: "Utilities",
+      priority: "High"
     },
     {
       id: 3,
-      name: "Software Subscriptions",
+      name: "Adobe Suite",
       type: "Expense",
-      amount: -850,
+      amount: -149.00,
       frequency: "Monthly",
-      nextDate: "2024-07-15",
+      nextDate: "2025-06-08",
       status: "Active",
-      category: "Technology"
+      category: "Software",
+      priority: "Medium"
     },
     {
       id: 4,
-      name: "Insurance Premium",
+      name: "iQumulate - Annual Contract Works Insurance",
       type: "Expense",
-      amount: -1200,
-      frequency: "Quarterly",
-      nextDate: "2024-09-01",
+      amount: -463.44,
+      frequency: "Monthly",
+      nextDate: "2025-06-08",
       status: "Active",
-      category: "Insurance"
+      category: "Insurance",
+      priority: "High"
     },
     {
       id: 5,
-      name: "Maintenance Contract",
-      type: "Income",
-      amount: 5000,
-      frequency: "Quarterly",
-      nextDate: "2024-07-30",
-      status: "Pending",
-      category: "Services"
+      name: "Microsoft Store (1)",
+      type: "Expense",
+      amount: -9.90,
+      frequency: "Monthly",
+      nextDate: "2025-06-08",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 6,
+      name: "7-ELEVEN",
+      type: "Expense",
+      amount: -200.00,
+      frequency: "Weekly",
+      nextDate: "2025-06-09",
+      status: "Active",
+      category: "Fuel",
+      priority: "High"
+    },
+    {
+      id: 7,
+      name: "Apple - ChatGPT",
+      type: "Expense",
+      amount: -29.99,
+      frequency: "Monthly",
+      nextDate: "2025-06-09",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 8,
+      name: "Name Cheap - See.com.au",
+      type: "Expense",
+      amount: -19.98,
+      frequency: "Yearly",
+      nextDate: "2025-06-09",
+      status: "Active",
+      category: "Domain",
+      priority: "Low"
+    },
+    {
+      id: 9,
+      name: "Bunnings - Credit Account",
+      type: "Expense",
+      amount: -500.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-10",
+      status: "Active",
+      category: "Supplies",
+      priority: "High"
+    },
+    {
+      id: 10,
+      name: "Optus (3)",
+      type: "Expense",
+      amount: -84.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-11",
+      status: "Active",
+      category: "Utilities",
+      priority: "High"
+    },
+    {
+      id: 11,
+      name: "Xero",
+      type: "Expense",
+      amount: -85.50,
+      frequency: "Monthly",
+      nextDate: "2025-06-11",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 12,
+      name: "Budget Direct - Insurance (White Ford)",
+      type: "Expense",
+      amount: -179.44,
+      frequency: "Monthly",
+      nextDate: "2025-06-12",
+      status: "Active",
+      category: "Insurance",
+      priority: "High"
+    },
+    {
+      id: 13,
+      name: "Apple - Concepts",
+      type: "Expense",
+      amount: -6.99,
+      frequency: "Monthly",
+      nextDate: "2025-06-13",
+      status: "Active",
+      category: "Software",
+      priority: "High"
+    },
+    {
+      id: 14,
+      name: "Harvest",
+      type: "Expense",
+      amount: -57.54,
+      frequency: "Monthly",
+      nextDate: "2025-06-13",
+      status: "Active",
+      category: "Software",
+      priority: "Medium"
+    },
+    {
+      id: 15,
+      name: "Aim Hire - Temp Power Pole",
+      type: "Expense",
+      amount: -154.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-15",
+      status: "Active",
+      category: "Equipment",
+      priority: "High"
+    },
+    {
+      id: 16,
+      name: "Wages - Kevin",
+      type: "Expense",
+      amount: -4100.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-15",
+      status: "Active",
+      category: "Payroll",
+      priority: "High"
+    },
+    {
+      id: 17,
+      name: "Wages - Zayra",
+      type: "Expense",
+      amount: -1000.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-15",
+      status: "Active",
+      category: "Payroll",
+      priority: "High"
+    },
+    {
+      id: 18,
+      name: "Credit Card - Min Payment",
+      type: "Expense",
+      amount: -200.00,
+      frequency: "Monthly",
+      nextDate: "2025-06-15",
+      status: "Active",
+      category: "Finance",
+      priority: "High"
+    },
+    {
+      id: 19,
+      name: "ATO - Activity Balance (3)",
+      type: "Expense",
+      amount: -921.35,
+      frequency: "Monthly",
+      nextDate: "2025-06-16",
+      status: "Active",
+      category: "Tax",
+      priority: "High"
+    },
+    {
+      id: 20,
+      name: "BizCover",
+      type: "Expense",
+      amount: -96.85,
+      frequency: "Monthly",
+      nextDate: "2025-06-17",
+      status: "Active",
+      category: "Insurance",
+      priority: "High"
     }
   ];
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "High":
+        return "bg-red-100 text-red-800";
+      case "Medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "Low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
     <Card>
@@ -73,6 +256,7 @@ export const RecurringTable = () => {
               <TableHead>Frequency</TableHead>
               <TableHead>Next Date</TableHead>
               <TableHead className="text-right">Amount</TableHead>
+              <TableHead>Priority</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -91,6 +275,11 @@ export const RecurringTable = () => {
                 <TableCell>{item.nextDate}</TableCell>
                 <TableCell className={`text-right font-medium ${item.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                   ${Math.abs(item.amount).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <Badge className={getPriorityColor(item.priority)}>
+                    {item.priority}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant={item.status === "Active" ? "default" : "outline"}>
