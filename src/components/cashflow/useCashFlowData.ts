@@ -1,17 +1,7 @@
+
 import { CashFlowItem } from "./types";
 
 export const useCashFlowData = () => {
-  // Opening balance (this would typically come from your data source)
-  const openingBalance: CashFlowItem = {
-    name: "Opening Balance",
-    may: 22543,
-    jun: 0,
-    jul: 0,
-    aug: 0,
-    sep: 0,
-    oct: 0
-  };
-
   const cashInData: CashFlowItem[] = [
     { name: "Construction Revenue", may: 12645, jun: 5049, jul: 33927, aug: 0, sep: 0, oct: 0 },
     { name: "Consulting Revenue", may: 426587, jun: 426587, jul: 33970, aug: 291, sep: 0, oct: 0 },
