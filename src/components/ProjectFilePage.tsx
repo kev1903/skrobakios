@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -204,6 +203,32 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
     return 'bg-gray-100 text-gray-800';
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "in-progress":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "in-progress":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Unknown";
+    }
+  };
+
   const renderFileGrid = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {filteredFiles.map((file) => (
@@ -291,8 +316,10 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
     <div className="min-h-screen flex bg-gray-50">
       <ProjectSidebar 
         project={project} 
-        currentPage="project-files" 
-        onNavigate={onNavigate} 
+        activeSection="files"
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
       />
       
       <main className="flex-1 overflow-hidden">
