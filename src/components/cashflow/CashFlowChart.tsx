@@ -15,18 +15,12 @@ import {
 } from "recharts";
 
 const forecastData = [
-  { month: "May 23", value: 35000 },
-  { month: "Jun 23", value: 42000 },
-  { month: "Jul 23", value: 38000 },
-  { month: "Aug 23", value: 45000 },
-  { month: "Sep 23", value: 52000 },
-  { month: "Oct 23", value: 48000 },
-  { month: "Nov 23", value: 55000 },
-  { month: "Dec 23", value: 62000 },
-  { month: "Jan 24", value: 58000 },
-  { month: "Feb 24", value: 65000 },
-  { month: "Mar 24", value: 72000 },
-  { month: "Apr 24", value: 78000 },
+  { month: "May 25", value: 35000 },
+  { month: "Jun 25", value: 42000 },
+  { month: "Jul 25", value: 38000 },
+  { month: "Aug 25", value: 45000 },
+  { month: "Sep 25", value: 52000 },
+  { month: "Oct 25", value: 48000 },
 ];
 
 const chartConfig = {
