@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { CashFlowHeader } from "./cashflow/CashFlowHeader";
 import { CashFlowCards } from "./cashflow/CashFlowCards";
@@ -69,14 +68,21 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     oct: cashInTotals.oct - cashOutTotals.oct,
   };
 
-  // Calculate ending balance (Opening Balance + Net Movement)
+  // Calculate ending balance (Opening Balance + Net Movement) - done sequentially
+  const mayEndingBalance = openingBalance.may + netMovement.may;
+  const junEndingBalance = mayEndingBalance + netMovement.jun;
+  const julEndingBalance = junEndingBalance + netMovement.jul;
+  const augEndingBalance = julEndingBalance + netMovement.aug;
+  const sepEndingBalance = augEndingBalance + netMovement.sep;
+  const octEndingBalance = sepEndingBalance + netMovement.oct;
+
   const endingBalance = {
-    may: openingBalance.may + netMovement.may,
-    jun: endingBalance.may + netMovement.jun,
-    jul: endingBalance.jun + netMovement.jul,
-    aug: endingBalance.jul + netMovement.aug,
-    sep: endingBalance.aug + netMovement.sep,
-    oct: endingBalance.sep + netMovement.oct,
+    may: mayEndingBalance,
+    jun: junEndingBalance,
+    jul: julEndingBalance,
+    aug: augEndingBalance,
+    sep: sepEndingBalance,
+    oct: octEndingBalance,
   };
 
   const summary: CashFlowSummary = {
