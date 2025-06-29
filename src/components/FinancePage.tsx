@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { FinanceHeader } from "./finance/FinanceHeader";
 import { FinanceAlerts } from "./finance/FinanceAlerts";
 import { CashFlowSection } from "./finance/CashFlowSection";
@@ -9,15 +10,21 @@ import { ExpensesSection } from "./finance/ExpensesSection";
 import { FinancialRatiosSection } from "./finance/FinancialRatiosSection";
 import { RevenuePipelineSection } from "./finance/RevenuePipelineSection";
 import { ComplianceSection } from "./finance/ComplianceSection";
+import { FinanceSettingsDialog } from "./finance/FinanceSettingsDialog";
 
 interface FinancePageProps {
   onNavigate?: (page: string) => void;
 }
 
 export const FinancePage = ({ onNavigate }: FinancePageProps) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <FinanceHeader onNavigate={onNavigate} />
+      <FinanceHeader 
+        onNavigate={onNavigate} 
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
       <FinanceAlerts />
       <CashFlowSection />
       <ProfitabilitySection />
@@ -39,6 +46,11 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         <RevenuePipelineSection />
         <ComplianceSection />
       </div>
+
+      <FinanceSettingsDialog
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+      />
     </div>
   );
 };

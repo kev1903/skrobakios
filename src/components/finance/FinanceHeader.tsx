@@ -1,11 +1,13 @@
 
 import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
 
 interface FinanceHeaderProps {
   onNavigate?: (page: string) => void;
+  onOpenSettings?: () => void;
 }
 
-export const FinanceHeader = ({ onNavigate }: FinanceHeaderProps) => {
+export const FinanceHeader = ({ onNavigate, onOpenSettings }: FinanceHeaderProps) => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -37,6 +39,14 @@ export const FinanceHeader = ({ onNavigate }: FinanceHeaderProps) => {
             onClick={() => onNavigate?.("recurring")}
           >
             <span>RECURRING</span>
+          </Button>
+          <Button 
+            variant="outline"
+            className="flex items-center space-x-2"
+            onClick={onOpenSettings}
+          >
+            <Settings className="w-4 h-4" />
+            <span>SETTINGS</span>
           </Button>
         </div>
       </div>
