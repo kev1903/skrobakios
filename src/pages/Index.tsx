@@ -14,6 +14,7 @@ import { ProjectList } from "@/components/ProjectList";
 import { FilePage } from "@/components/FilePage";
 import { FinancePage } from "@/components/FinancePage";
 import { CashFlowPage } from "@/components/CashFlowPage";
+import { InvoicesPage } from "@/components/InvoicesPage";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useEffect } from "react";
 
@@ -93,6 +94,8 @@ const Index = () => {
         return <FinancePage onNavigate={setCurrentPage} />;
       case "cashflow":
         return <CashFlowPage onNavigate={setCurrentPage} />;
+      case "invoices":
+        return <InvoicesPage onNavigate={setCurrentPage} />;
       case "auth":
         return <AuthPage onNavigate={setCurrentPage} />;
       case "support":
