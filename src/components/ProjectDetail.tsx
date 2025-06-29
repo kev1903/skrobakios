@@ -1,3 +1,4 @@
+
 import { ArrowLeft, Download, Eye, FileText, BarChart3, Users, Calendar, Clock, AlertCircle, FileCheck, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,8 +51,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
   return (
     <div className="h-screen flex bg-gray-50">
-      {/* Project Sidebar - Full width to the left */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      {/* Project Sidebar - Remove shadow completely */}
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ boxShadow: 'none' }}>
         <div className="p-4 border-b border-gray-200">
           <Button
             variant="ghost"
