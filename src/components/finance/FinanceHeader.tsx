@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 
 interface FinanceHeaderProps {
@@ -20,8 +21,21 @@ export const FinanceHeader = ({ onNavigate }: FinanceHeaderProps) => {
           >
             <span>CASHFLOW</span>
           </Button>
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={() => onNavigate?.("invoices")}
+          >
+            <span>INVOICES</span>
+          </Button>
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={() => onNavigate?.("bills")}
+          >
+            <span>BILLS</span>
+          </Button>
         </div>
       </div>
     </div>
   );
 };
+
