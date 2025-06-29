@@ -37,10 +37,15 @@ const Index = () => {
     }
   };
 
+  // Hide main sidebar when on project detail page
+  const showMainSidebar = currentPage !== "project-detail";
+
   return (
     <div className="min-h-screen flex">
-      <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main className="flex-1 overflow-hidden glass-card animate-fade-in">
+      {showMainSidebar && (
+        <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+      )}
+      <main className={`flex-1 overflow-hidden glass-card animate-fade-in ${showMainSidebar ? '' : 'w-full'}`}>
         {renderContent()}
       </main>
     </div>

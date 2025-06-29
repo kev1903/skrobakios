@@ -50,8 +50,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   ];
 
   return (
-    <div className="h-full flex bg-gray-50">
-      {/* Sidebar */}
+    <div className="h-screen flex bg-gray-50">
+      {/* Project Sidebar - Full width to the left */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-4 border-b border-gray-200">
           <Button
@@ -93,7 +93,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         </nav>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Takes remaining space */}
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           {/* Header with Edit Button */}
