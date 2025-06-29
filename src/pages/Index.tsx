@@ -45,8 +45,8 @@ const Index = () => {
     }
   };
 
-  // Hide main sidebar when on project detail page
-  const showMainSidebar = currentPage !== "project-detail";
+  // Hide main sidebar when on project detail page or files page
+  const showMainSidebar = currentPage !== "project-detail" && currentPage !== "files";
 
   return (
     <div className="min-h-screen flex">
