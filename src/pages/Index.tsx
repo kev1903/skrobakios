@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
@@ -13,6 +12,7 @@ import { CreateProject } from "@/components/CreateProject";
 import { ProjectList } from "@/components/ProjectList";
 import { FilePage } from "@/components/FilePage";
 import { FinancePage } from "@/components/FinancePage";
+import { FinanceSettingsPage } from "@/components/FinanceSettingsPage";
 import { CashFlowPage } from "@/components/CashFlowPage";
 import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
@@ -94,6 +94,8 @@ const Index = () => {
         return <FilePage onNavigate={setCurrentPage} />;
       case "finance":
         return <FinancePage onNavigate={setCurrentPage} />;
+      case "finance-settings":
+        return <FinanceSettingsPage onNavigate={setCurrentPage} />;
       case "cashflow":
         return <CashFlowPage onNavigate={setCurrentPage} />;
       case "invoices":

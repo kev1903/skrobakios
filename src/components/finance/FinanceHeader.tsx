@@ -42,11 +42,10 @@ export const FinanceHeader = ({ onNavigate, onOpenSettings }: FinanceHeaderProps
           </Button>
           <Button 
             variant="outline"
-            className="flex items-center space-x-2"
-            onClick={onOpenSettings}
+            size="icon"
+            onClick={() => onNavigate?.("finance-settings")}
           >
             <Settings className="w-4 h-4" />
-            <span>SETTINGS</span>
           </Button>
         </div>
       </div>
