@@ -6,7 +6,7 @@ export const RecurringTableHeader = () => {
     <TableHeader>
       <TableRow>
         <TableHead>Name</TableHead>
-        <TableHead>Type</TableHead>
+        <TableHead>Account</TableHead>
         <TableHead>Category</TableHead>
         <TableHead>Frequency</TableHead>
         <TableHead>Next Date</TableHead>
