@@ -10,7 +10,7 @@ interface CashFlowTableProps {
   isExpanded: boolean;
   onToggle: () => void;
   onCellClick: (itemName: string, month: string, value: any) => void;
-  hasOpeningBalance?: boolean;
+  openingBalance?: CashFlowItem;
 }
 
 const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"];
@@ -21,7 +21,7 @@ export const CashFlowTable = ({
   isExpanded, 
   onToggle, 
   onCellClick,
-  hasOpeningBalance = false
+  openingBalance
 }: CashFlowTableProps) => {
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
@@ -30,56 +30,75 @@ export const CashFlowTable = ({
     return value;
   };
 
-  const renderRow = (item: CashFlowItem, index: number) => {
-    const isOpeningBalance = hasOpeningBalance && index === 0;
-    const rowClass = isOpeningBalance 
-      ? "border-b-2 border-gray-300 bg-gray-50 font-semibold" 
-      : "border-b hover:bg-gray-50/50";
+  const renderOpeningBalanceRow = () => {
+    if (!openingBalance) return null;
     
-    const cellClass = isOpeningBalance
-      ? "text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold"
-      : "text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]";
+    return (
+      <tr className="border-b-2 border-gray-300 bg-gray-50">
+        <td className="py-3 font-bold text-gray-900 px-2">{openingBalance.name}</td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(openingBalance.may)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(openingBalance.jun)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(openingBalance.jul)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(openingBalance.aug)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(openingBalance.sep)}
+        </td>
+        <td className="text-right py-3 text-gray-900 px-2 min-w-[100px] font-bold">
+          {formatCellValue(openingBalance.oct)}
+        </td>
+      </tr>
+    );
+  };
 
-    const nameClass = isOpeningBalance
-      ? "py-3 font-bold text-gray-900 px-2"
-      : "py-2 font-medium text-gray-900 px-2";
+  const renderRow = (item: CashFlowItem, index: number) => {
+    const rowClass = "border-b hover:bg-gray-50/50";
+    const cellClass = "text-right py-2 text-gray-700 cursor-pointer hover:bg-blue-50 hover:text-blue-600 px-2 min-w-[100px]";
+    const nameClass = "py-2 font-medium text-gray-900 px-2";
 
     return (
       <tr key={index} className={rowClass}>
         <td className={nameClass}>{item.name}</td>
         <td 
           className={cellClass}
-          onClick={() => !isOpeningBalance && onCellClick(item.name, monthHeaders[0], item.may)}
+          onClick={() => onCellClick(item.name, monthHeaders[0], item.may)}
         >
           {formatCellValue(item.may)}
         </td>
         <td 
           className={cellClass}
-          onClick={() => !isOpeningBalance && onCellClick(item.name, monthHeaders[1], item.jun)}
+          onClick={() => onCellClick(item.name, monthHeaders[1], item.jun)}
         >
           {formatCellValue(item.jun)}
         </td>
         <td 
           className={cellClass}
-          onClick={() => !isOpeningBalance && onCellClick(item.name, monthHeaders[2], item.jul)}
+          onClick={() => onCellClick(item.name, monthHeaders[2], item.jul)}
         >
           {formatCellValue(item.jul)}
         </td>
         <td 
           className={cellClass}
-          onClick={() => !isOpeningBalance && onCellClick(item.name, monthHeaders[3], item.aug)}
+          onClick={() => onCellClick(item.name, monthHeaders[3], item.aug)}
         >
           {formatCellValue(item.aug)}
         </td>
         <td 
           className={cellClass}
-          onClick={() => !isOpeningBalance && onCellClick(item.name, monthHeaders[4], item.sep)}
+          onClick={() => onCellClick(item.name, monthHeaders[4], item.sep)}
         >
           {formatCellValue(item.sep)}
         </td>
         <td 
           className={cellClass}
-          onClick={() => !isOpeningBalance && onCellClick(item.name, monthHeaders[5], item.oct)}
+          onClick={() => onCellClick(item.name, monthHeaders[5], item.oct)}
         >
           {formatCellValue(item.oct)}
         </td>
@@ -133,6 +152,7 @@ export const CashFlowTable = ({
                 </tr>
               </thead>
               <tbody>
+                {renderOpeningBalanceRow()}
                 {data.map((item, index) => renderRow(item, index))}
               </tbody>
             </table>

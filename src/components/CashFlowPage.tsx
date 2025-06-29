@@ -25,7 +25,15 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   };
 
   // Opening balance (this would typically come from your data source)
-  const openingBalance = { may: 22543, jun: 0, jul: 0, aug: 0, sep: 0, oct: 0 };
+  const openingBalance: CashFlowItem = {
+    name: "Opening Balance",
+    may: 22543,
+    jun: 0,
+    jul: 0,
+    aug: 0,
+    sep: 0,
+    oct: 0
+  };
 
   const cashInData: CashFlowItem[] = [
     { name: "Construction Revenue", may: 12645, jun: 5049, jul: 33927, aug: 0, sep: 0, oct: 0 },
@@ -33,15 +41,6 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
     { name: "Other Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
     { name: "Returns & Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
   ];
-
-  // Create opening balance item for Cash In table
-  const openingBalanceItem: CashFlowItem = {
-    name: "Opening Balance",
-    ...openingBalance
-  };
-
-  // Combine opening balance with cash in data
-  const cashInDataWithOpening = [openingBalanceItem, ...cashInData];
 
   const cashOutData: CashFlowItem[] = [
     { name: "ATO - ICA", may: 500, jun: 1703, jul: 868, aug: 2501, sep: 2501, oct: 2501 },
@@ -161,11 +160,11 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
       <div className="space-y-6">
         <CashFlowTable
           title="Cash In"
-          data={cashInDataWithOpening}
+          data={cashInData}
           isExpanded={expandedSections.cashIn}
           onToggle={() => toggleSection('cashIn')}
           onCellClick={handleCellClick}
-          hasOpeningBalance={true}
+          openingBalance={openingBalance}
         />
 
         <CashFlowTable
