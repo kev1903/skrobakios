@@ -23,9 +23,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ProjectListProps {
   onNavigate: (page: string) => void;
+  onSelectProject?: (projectId: string) => void;
 }
 
-export const ProjectList = ({ onNavigate }: ProjectListProps) => {
+export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const { getProjects, loading } = useProjects();
@@ -33,7 +34,9 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      console.log("Fetching projects from database...");
       const fetchedProjects = await getProjects();
+      console.log("Fetched projects:", fetchedProjects);
       setProjects(fetchedProjects);
     };
 
@@ -93,6 +96,10 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
   };
 
   const handleProjectClick = (projectId: string) => {
+    console.log("Project clicked:", projectId);
+    if (onSelectProject) {
+      onSelectProject(projectId);
+    }
     onNavigate("project-detail");
   };
 
@@ -181,61 +188,67 @@ export const ProjectList = ({ onNavigate }: ProjectListProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {projects.map((project) => (
-                  <TableRow key={project.id} className="hover:bg-gray-50/50">
-                    <TableCell>
-                      <input
-                        type="checkbox"
-                        checked={selectedProjects.includes(project.id)}
-                        onChange={(e) => handleSelectProject(project.id, e.target.checked)}
-                        className="rounded border-gray-300"
-                      />
-                    </TableCell>
-                    <TableCell className="font-mono text-sm text-gray-600">
-                      #{project.project_id}
-                    </TableCell>
-                    <TableCell className="font-medium text-gray-900">
-                      <button
-                        onClick={() => handleProjectClick(project.id)}
-                        className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
-                      >
-                        {project.name}
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {project.location || '-'}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {project.start_date ? formatDate(project.start_date) : '-'}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {project.deadline ? formatDate(project.deadline) : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant="outline" 
-                        className={getStatusColor(project.status)}
-                      >
-                        {getStatusText(project.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="flex items-center space-x-2">
-                            <Eye className="w-4 h-4" />
-                            <span>View Details</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {projects.map((project) => {
+                  console.log("Rendering project:", project.name, "with ID:", project.id);
+                  return (
+                    <TableRow key={project.id} className="hover:bg-gray-50/50">
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedProjects.includes(project.id)}
+                          onChange={(e) => handleSelectProject(project.id, e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                      </TableCell>
+                      <TableCell className="font-mono text-sm text-gray-600">
+                        #{project.project_id}
+                      </TableCell>
+                      <TableCell className="font-medium text-gray-900">
+                        <button
+                          onClick={() => handleProjectClick(project.id)}
+                          className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                        >
+                          {project.name}
+                        </button>
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {project.location || '-'}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {project.start_date ? formatDate(project.start_date) : '-'}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {project.deadline ? formatDate(project.deadline) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="outline" 
+                          className={getStatusColor(project.status)}
+                        >
+                          {getStatusText(project.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              className="flex items-center space-x-2"
+                              onClick={() => handleProjectClick(project.id)}
+                            >
+                              <Eye className="w-4 h-4" />
+                              <span>View Details</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

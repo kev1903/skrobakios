@@ -15,16 +15,21 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState("tasks");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
+  const handleSelectProject = (projectId: string) => {
+    console.log("Setting selected project:", projectId);
+    setSelectedProject(projectId);
+  };
+
   const renderContent = () => {
     switch (currentPage) {
       case "tasks":
         return <TaskManagement onNavigate={setCurrentPage} />;
       case "dashboard":
-        return <ProjectDashboard onSelectProject={setSelectedProject} onNavigate={setCurrentPage} />;
+        return <ProjectDashboard onSelectProject={handleSelectProject} onNavigate={setCurrentPage} />;
       case "create-project":
         return <CreateProject onNavigate={setCurrentPage} />;
       case "projects":
-        return <ProjectList onNavigate={setCurrentPage} />;
+        return <ProjectList onNavigate={setCurrentPage} onSelectProject={handleSelectProject} />;
       case "project-detail":
         return <ProjectDetail projectId={selectedProject} onNavigate={setCurrentPage} />;
       case "upload":
