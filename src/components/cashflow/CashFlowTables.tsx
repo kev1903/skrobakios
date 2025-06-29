@@ -4,6 +4,7 @@ import { CashFlowTable } from "./CashFlowTable";
 import { CashFlowSummaryTable } from "./CashFlowSummaryTable";
 import { OpeningBalanceTable } from "./OpeningBalanceTable";
 import { CashFlowBreakdownDialog } from "./CashFlowBreakdownDialog";
+import { AddAccountDialog } from "./AddAccountDialog";
 import { BreakdownData } from "./types";
 import { useCashFlowData } from "./useCashFlowData";
 import { useCashFlowBreakdown } from "./useCashFlowBreakdown";
@@ -15,6 +16,8 @@ export const CashFlowTables = () => {
   });
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [selectedBreakdown, setSelectedBreakdown] = useState<BreakdownData | null>(null);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [addAccountSection, setAddAccountSection] = useState<'cashIn' | 'cashOut'>('cashIn');
 
   const {
     openingBalance,
@@ -23,7 +26,9 @@ export const CashFlowTables = () => {
     cashInTotals,
     cashOutTotals,
     netMovement,
-    endingBalance
+    endingBalance,
+    addCashInAccount,
+    addCashOutAccount
   } = useCashFlowData();
 
   const { getBreakdownData } = useCashFlowBreakdown();
@@ -44,6 +49,24 @@ export const CashFlowTables = () => {
     }
   };
 
+  const handleAddCashInAccount = () => {
+    setAddAccountSection('cashIn');
+    setShowAddAccount(true);
+  };
+
+  const handleAddCashOutAccount = () => {
+    setAddAccountSection('cashOut');
+    setShowAddAccount(true);
+  };
+
+  const handleAccountAdded = (account: any) => {
+    if (addAccountSection === 'cashIn') {
+      addCashInAccount(account);
+    } else {
+      addCashOutAccount(account);
+    }
+  };
+
   const summary = {
     netMovement: { name: "Net cash movement", ...netMovement },
     endingBalance: { name: "Ending balance", ...endingBalance },
@@ -60,6 +83,7 @@ export const CashFlowTables = () => {
         isExpanded={expandedSections.cashIn}
         onToggle={() => toggleSection('cashIn')}
         onCellClick={handleCellClick}
+        onAddAccount={handleAddCashInAccount}
         totals={cashInTotals}
       />
 
@@ -69,6 +93,7 @@ export const CashFlowTables = () => {
         isExpanded={expandedSections.cashOut}
         onToggle={() => toggleSection('cashOut')}
         onCellClick={handleCellClick}
+        onAddAccount={handleAddCashOutAccount}
         totals={cashOutTotals}
       />
 
@@ -82,6 +107,13 @@ export const CashFlowTables = () => {
         isOpen={showBreakdown}
         onClose={() => setShowBreakdown(false)}
         breakdownData={selectedBreakdown}
+      />
+
+      <AddAccountDialog
+        isOpen={showAddAccount}
+        onClose={() => setShowAddAccount(false)}
+        onAddAccount={handleAccountAdded}
+        sectionTitle={addAccountSection === 'cashIn' ? 'Cash In' : 'Cash Out'}
       />
     </div>
   );

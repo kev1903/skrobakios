@@ -14,6 +14,7 @@ interface CashFlowTableProps {
   isExpanded: boolean;
   onToggle: () => void;
   onCellClick: (itemName: string, month: string, value: any) => void;
+  onAddAccount: () => void;
   openingBalance?: CashFlowItem;
   totals?: {
     may: number;
@@ -31,6 +32,7 @@ export const CashFlowTable = ({
   isExpanded, 
   onToggle, 
   onCellClick,
+  onAddAccount,
   openingBalance,
   totals
 }: CashFlowTableProps) => {
@@ -66,7 +68,12 @@ export const CashFlowTable = ({
             </Button>
             <CardTitle className="text-lg text-gray-900">{title}</CardTitle>
           </div>
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={onAddAccount}
+            className="hover:bg-blue-50 hover:text-blue-600"
+          >
             <Plus className="w-4 h-4" />
           </Button>
         </div>

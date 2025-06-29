@@ -1,21 +1,30 @@
 
+import { useState } from 'react';
 import { CashFlowItem } from "./types";
 
 export const useCashFlowData = () => {
-  const cashInData: CashFlowItem[] = [
+  const [cashInData, setCashInData] = useState<CashFlowItem[]>([
     { name: "Construction Revenue", may: 12645, jun: 5049, jul: 33927, aug: 0, sep: 0, oct: 0 },
     { name: "Consulting Revenue", may: 426587, jun: 426587, jul: 33970, aug: 291, sep: 0, oct: 0 },
     { name: "Other Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
     { name: "Returns & Revenue", may: 426587, jun: 426587, jul: 0, aug: 0, sep: 0, oct: 0 },
-  ];
+  ]);
 
-  const cashOutData: CashFlowItem[] = [
+  const [cashOutData, setCashOutData] = useState<CashFlowItem[]>([
     { name: "ATO - ICA", may: 500, jun: 1703, jul: 868, aug: 2501, sep: 2501, oct: 2501 },
     { name: "ATO - BAS Payment", may: 0, jun: 0, jul: 250, aug: 250, sep: 250, oct: 250 },
     { name: "ATO Initial Payment Plan", may: 0, jun: 1700, jul: 400, aug: 600, sep: 600, oct: 600 },
     { name: "Tax - Wage - Kevin", may: 0, jun: 0, jul: 1650, aug: 1650, sep: 1650, oct: 1650 },
     { name: "Other Expenses", may: 363, jun: 0, jul: 632, aug: 0, sep: 0, oct: 363 },
-  ];
+  ]);
+
+  const addCashInAccount = (account: CashFlowItem) => {
+    setCashInData(prev => [...prev, account]);
+  };
+
+  const addCashOutAccount = (account: CashFlowItem) => {
+    setCashOutData(prev => [...prev, account]);
+  };
 
   // Calculate totals for each month with proper type conversion
   const calculateTotals = (data: CashFlowItem[]) => {
@@ -92,6 +101,8 @@ export const useCashFlowData = () => {
     cashInTotals,
     cashOutTotals,
     netMovement,
-    endingBalance
+    endingBalance,
+    addCashInAccount,
+    addCashOutAccount
   };
 };
