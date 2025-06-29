@@ -35,9 +35,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex">
       <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden glass-card animate-fade-in">
         {renderContent()}
       </main>
     </div>
