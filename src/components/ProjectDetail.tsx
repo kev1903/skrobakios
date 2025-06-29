@@ -1,3 +1,4 @@
+
 import { ArrowLeft, Download, Eye, FileText, BarChart3, Users, Calendar, Clock, AlertCircle, FileCheck, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -133,7 +134,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           </Button>
           
           <div className="mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{project.fullName}</h2>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <Badge variant="outline" className={getStatusColor(project.status)}>
                 {getStatusText(project.status)}
