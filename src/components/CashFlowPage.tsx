@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { CashFlowHeader } from "./cashflow/CashFlowHeader";
 import { CashFlowCards } from "./cashflow/CashFlowCards";
@@ -166,7 +167,13 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
 
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
-      return value === 0 ? '0' : value.toLocaleString();
+      return value === 0 ? '$0' : `$${value.toLocaleString()}`;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      if (!isNaN(parsed)) {
+        return parsed === 0 ? '$0' : `$${parsed.toLocaleString()}`;
+      }
     }
     return value;
   };

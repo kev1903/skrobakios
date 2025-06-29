@@ -12,7 +12,13 @@ const monthHeaders = ["May 25", "Jun 25", "Jul 25", "Aug 25", "Sep 25", "Oct 25"
 export const CashFlowSummaryTable = ({ netMovement, endingBalance }: CashFlowSummaryTableProps) => {
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
-      return value === 0 ? '0' : value.toLocaleString();
+      return value === 0 ? '$0' : `$${value.toLocaleString()}`;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      if (!isNaN(parsed)) {
+        return parsed === 0 ? '$0' : `$${parsed.toLocaleString()}`;
+      }
     }
     return value;
   };

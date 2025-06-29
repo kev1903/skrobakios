@@ -34,7 +34,13 @@ export const CashFlowTable = ({
 }: CashFlowTableProps) => {
   const formatCellValue = (value: number | string) => {
     if (typeof value === 'number') {
-      return value === 0 ? '0' : value.toLocaleString();
+      return value === 0 ? '$0' : `$${value.toLocaleString()}`;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      if (!isNaN(parsed)) {
+        return parsed === 0 ? '$0' : `$${parsed.toLocaleString()}`;
+      }
     }
     return value;
   };
