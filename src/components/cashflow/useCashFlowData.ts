@@ -64,7 +64,7 @@ export const useCashFlowData = () => {
     oct: cashInTotals.oct - cashOutTotals.oct,
   };
 
-  // Calculate ending balance (Opening Balance + Net Movement) - done sequentially
+  // Helper function to get numeric value
   const getValue = (val: number | string): number => {
     if (typeof val === 'number') return val;
     if (typeof val === 'string') {
@@ -74,6 +74,7 @@ export const useCashFlowData = () => {
     return 0;
   };
 
+  // Calculate ending balance sequentially to avoid temporal dead zone
   const mayEndingBalance = getValue(openingBalance.may) + netMovement.may;
   const junEndingBalance = mayEndingBalance + netMovement.jun;
   const julEndingBalance = junEndingBalance + netMovement.jul;
@@ -81,6 +82,7 @@ export const useCashFlowData = () => {
   const sepEndingBalance = augEndingBalance + netMovement.sep;
   const octEndingBalance = sepEndingBalance + netMovement.oct;
 
+  // Create the ending balance object after all calculations are done
   const endingBalance = {
     may: mayEndingBalance,
     jun: junEndingBalance,
