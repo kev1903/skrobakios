@@ -74,6 +74,50 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
     }
   ]);
 
+  // SharePoint files based on the screenshot
+  const [sharePointFiles] = useState<FileItem[]>([
+    {
+      id: "sp1",
+      name: "SK 002 - Architectural Plans.pdf",
+      type: "file",
+      size: 2300000,
+      createdAt: "25 Jun, 2025",
+      fileType: "pdf"
+    },
+    {
+      id: "sp2",
+      name: "SK 002 - Site Survey.dwg",
+      type: "file",
+      size: 1800000,
+      createdAt: "24 Jun, 2025",
+      fileType: "dwg"
+    },
+    {
+      id: "sp3",
+      name: "SK 002 - Foundation Plans.pdf",
+      type: "file",
+      size: 1100000,
+      createdAt: "23 Jun, 2025",
+      fileType: "pdf"
+    },
+    {
+      id: "sp4",
+      name: "SK 002 - Elevation Views.jpg",
+      type: "file",
+      size: 3200000,
+      createdAt: "22 Jun, 2025",
+      fileType: "jpg"
+    },
+    {
+      id: "sp5",
+      name: "SK 002 - Structural Details.dwg",
+      type: "file",
+      size: 2000000,
+      createdAt: "21 Jun, 2025",
+      fileType: "dwg"
+    }
+  ]);
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -112,7 +156,16 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
     window.open("https://enassee.sharepoint.com/:f:/s/SkrobakiProjects/Emw1CavunZZGqup2TMoIcd0BdA8uQDzqHGoqX4x4TI22qg?e=Ey0bOj", "_blank");
   };
 
+  const allFiles = [...projectFiles, ...sharePointFiles];
+  const totalSharePointFiles = sharePointFiles.length;
+  const totalSharePointSize = sharePointFiles.reduce((total, file) => total + file.size, 0);
+  const sharePointFileTypes = [...new Set(sharePointFiles.map(f => f.fileType))].length;
+
   const filteredFiles = projectFiles.filter(file =>
+    file.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredSharePointFiles = sharePointFiles.filter(file =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -144,34 +197,52 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
         <nav className="flex-1 p-4">
           <div className="space-y-1">
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+              File Sources
+            </div>
+            <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+              <File className="w-4 h-4" />
+              <span className="text-sm font-medium">Local Files</span>
+              <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                {projectFiles.length}
+              </span>
+            </button>
+            <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left bg-blue-50 text-blue-700 border border-blue-200">
+              <Folder className="w-4 h-4" />
+              <span className="text-sm font-medium">SharePoint</span>
+              <span className="ml-auto text-xs bg-blue-200 text-blue-700 px-2 py-1 rounded-full">
+                {sharePointFiles.length}
+              </span>
+            </button>
+            
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 mt-4">
               File Categories
             </div>
             <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 hover:text-gray-900">
               <File className="w-4 h-4" />
               <span className="text-sm font-medium">All Files</span>
               <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {projectFiles.length}
+                {allFiles.length}
               </span>
             </button>
             <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 hover:text-gray-900">
               <File className="w-4 h-4" />
               <span className="text-sm font-medium">PDFs</span>
               <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {projectFiles.filter(f => f.fileType === 'pdf').length}
+                {allFiles.filter(f => f.fileType === 'pdf').length}
               </span>
             </button>
             <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 hover:text-gray-900">
               <File className="w-4 h-4" />
               <span className="text-sm font-medium">CAD Files</span>
               <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {projectFiles.filter(f => f.fileType === 'dwg').length}
+                {allFiles.filter(f => f.fileType === 'dwg').length}
               </span>
             </button>
             <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 hover:text-gray-900">
               <File className="w-4 h-4" />
               <span className="text-sm font-medium">Images</span>
               <span className="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
-                {projectFiles.filter(f => f.fileType === 'jpg').length}
+                {allFiles.filter(f => f.fileType === 'jpg').length}
               </span>
             </button>
           </div>
@@ -217,34 +288,91 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
         <div className="flex-1 p-6 overflow-auto">
           {/* SharePoint Integration Section */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">SharePoint Integration</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">SharePoint Integration</h3>
+              <Button 
+                onClick={handleSharePointAccess}
+                variant="outline"
+                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open in SharePoint
+              </Button>
+            </div>
             
-            <div className="bg-white rounded-lg border p-4">
-              <div className="flex items-center justify-between">
+            <div className="bg-white rounded-lg border">
+              <div className="p-4 border-b border-gray-200 bg-blue-50">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Folder className="w-5 h-5 text-blue-600" />
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Folder className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{project.name} - SharePoint</h4>
+                    <h4 className="font-medium text-gray-900">Gordon Street - SharePoint</h4>
                     <p className="text-sm text-gray-500">Access project files stored in SharePoint</p>
                   </div>
                 </div>
-                <Button 
-                  onClick={handleSharePointAccess}
-                  className="bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Open in SharePoint
-                </Button>
               </div>
+
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="w-12">
+                      <input type="checkbox" className="rounded" />
+                    </TableHead>
+                    <TableHead>File Name</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Last Modified</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSharePointFiles.map((file) => (
+                    <TableRow key={file.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <input type="checkbox" className="rounded" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <File className="w-4 h-4 text-blue-600" />
+                          <span className="text-sm font-medium">{file.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600">
+                        {formatFileSize(file.size)}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600">
+                        {file.createdAt}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          {file.fileType.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Button variant="ghost" size="sm">
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
 
-          {/* Project Files Section */}
+          {/* Local Project Files Section */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Project Files</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Local Project Files</h3>
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm">
                   <Grid className="w-4 h-4" />
@@ -313,15 +441,15 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
           </div>
 
           {/* File Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-white rounded-lg border p-6">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <File className="w-6 h-6 text-blue-600" />
+                  <Folder className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{projectFiles.length}</h4>
-                  <p className="text-sm text-gray-500">Total Files</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{totalSharePointFiles}</h4>
+                  <p className="text-sm text-gray-500">SharePoint Files</p>
                 </div>
               </div>
             </div>
@@ -329,13 +457,11 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
             <div className="bg-white rounded-lg border p-6">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Folder className="w-6 h-6 text-green-600" />
+                  <File className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">
-                    {formatFileSize(projectFiles.reduce((total, file) => total + file.size, 0))}
-                  </h4>
-                  <p className="text-sm text-gray-500">Total Size</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{projectFiles.length}</h4>
+                  <p className="text-sm text-gray-500">Local Files</p>
                 </div>
               </div>
             </div>
@@ -343,10 +469,24 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
             <div className="bg-white rounded-lg border p-6">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Eye className="w-6 h-6 text-purple-600" />
+                  <Folder className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">3</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">
+                    {formatFileSize(totalSharePointSize)}
+                  </h4>
+                  <p className="text-sm text-gray-500">SharePoint Size</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg border p-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Eye className="w-6 h-6 text-orange-600" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">{sharePointFileTypes}</h4>
                   <p className="text-sm text-gray-500">File Types</p>
                 </div>
               </div>
