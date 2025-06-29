@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowLeft, Calendar, Download, Users, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
       startDate: '2025-06-22',
       endDate: '2025-07-12',
       progress: 60,
-      color: '#10B981',
+      color: '#6B7280',
       level: 0,
       type: 'group' as const,
       children: [
@@ -29,7 +28,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-22',
           endDate: '2025-06-28',
           progress: 100,
-          color: '#3B82F6',
+          color: '#4B5563',
           level: 1,
           type: 'task' as const
         },
@@ -39,7 +38,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-23',
           endDate: '2025-06-27',
           progress: 100,
-          color: '#8B5CF6',
+          color: '#6B7280',
           level: 1,
           type: 'task' as const
         },
@@ -49,7 +48,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-26',
           endDate: '2025-06-30',
           progress: 80,
-          color: '#6366F1',
+          color: '#9CA3AF',
           level: 1,
           type: 'task' as const
         },
@@ -59,7 +58,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-30',
           endDate: '2025-07-05',
           progress: 40,
-          color: '#8B5CF6',
+          color: '#6B7280',
           level: 1,
           type: 'task' as const
         },
@@ -69,7 +68,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-25',
           endDate: '2025-06-25',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -79,7 +78,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-26',
           endDate: '2025-06-26',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -89,7 +88,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-27',
           endDate: '2025-06-27',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -99,7 +98,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-28',
           endDate: '2025-06-28',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -109,7 +108,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-29',
           endDate: '2025-06-29',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -119,7 +118,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-30',
           endDate: '2025-06-30',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -129,7 +128,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-01',
           endDate: '2025-07-01',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -139,7 +138,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-02',
           endDate: '2025-07-02',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -149,7 +148,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-03',
           endDate: '2025-07-03',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -159,7 +158,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-04',
           endDate: '2025-07-08',
           progress: 20,
-          color: '#8B5CF6',
+          color: '#6B7280',
           level: 1,
           type: 'task' as const
         },
@@ -169,7 +168,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-05',
           endDate: '2025-07-05',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         },
@@ -179,7 +178,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-04',
           endDate: '2025-07-08',
           progress: 0,
-          color: '#10B981',
+          color: '#9CA3AF',
           level: 1,
           type: 'task' as const
         }
@@ -201,7 +200,7 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-06',
           endDate: '2025-07-12',
           progress: 0,
-          color: '#F59E0B',
+          color: '#6B7280',
           level: 1,
           type: 'milestone' as const
         }

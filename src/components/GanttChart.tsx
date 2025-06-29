@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Calendar, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -141,7 +140,7 @@ export const GanttChart = ({ tasks, startDate, endDate }: GanttChartProps) => {
                   </button>
                 )}
                 {task.type === 'milestone' && (
-                  <div className="w-3 h-3 bg-orange-400 rotate-45 mr-2"></div>
+                  <div className="w-3 h-3 bg-gray-500 rotate-45 mr-2"></div>
                 )}
                 {task.type === 'task' && (
                   <div className="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
