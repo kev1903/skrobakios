@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AddAccountForm } from "./AddAccountForm";
+import { ImportAccountsDialog } from "./ImportAccountsDialog";
 
 interface Account {
   id: string;
@@ -63,6 +64,15 @@ export const TransactionAccountsSection = ({ accounts, setAccounts }: Transactio
     });
   };
 
+  const handleImportAccounts = (importedAccounts: Omit<Account, 'id'>[]) => {
+    const accountsWithIds = importedAccounts.map(account => ({
+      ...account,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+    }));
+
+    setAccounts(prev => [...prev, ...accountsWithIds]);
+  };
+
   const handleDeleteAccount = (accountId: string) => {
     setAccounts(prev => prev.filter(account => account.id !== accountId));
     toast({
@@ -101,13 +111,16 @@ export const TransactionAccountsSection = ({ accounts, setAccounts }: Transactio
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Transaction Accounts</h3>
-        <Button 
-          onClick={() => setIsAddingAccount(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add Account
-        </Button>
+        <div className="flex gap-2">
+          <ImportAccountsDialog onImportAccounts={handleImportAccounts} />
+          <Button 
+            onClick={() => setIsAddingAccount(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Account
+          </Button>
+        </div>
       </div>
 
       {isAddingAccount && (
