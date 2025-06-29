@@ -88,9 +88,9 @@ export const TaskManagement = ({ onNavigate }: TaskManagementProps) => {
   };
 
   return (
-    <div className="h-full bg-gray-50">
+    <div className="h-full bg-gray-50" style={{ boxShadow: 'none' }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-6 py-4" style={{ boxShadow: 'none' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
@@ -101,6 +101,7 @@ export const TaskManagement = ({ onNavigate }: TaskManagementProps) => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-80 bg-gray-50 border-gray-200"
+                style={{ boxShadow: 'none' }}
               />
             </div>
           </div>
@@ -108,19 +109,20 @@ export const TaskManagement = ({ onNavigate }: TaskManagementProps) => {
             <Button 
               onClick={() => onNavigate("upload")}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+              style={{ boxShadow: 'none' }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Task
             </Button>
-            <Button variant="outline" className="px-4 py-2">
+            <Button variant="outline" className="px-4 py-2" style={{ boxShadow: 'none' }}>
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" className="px-4 py-2">
+            <Button variant="outline" className="px-4 py-2" style={{ boxShadow: 'none' }}>
               <Filter className="w-4 h-4 mr-2" />
               Filter
             </Button>
-            <Button variant="outline" className="px-4 py-2">
+            <Button variant="outline" className="px-4 py-2" style={{ boxShadow: 'none' }}>
               <Eye className="w-4 h-4 mr-2" />
               3D View
             </Button>
@@ -130,7 +132,7 @@ export const TaskManagement = ({ onNavigate }: TaskManagementProps) => {
 
       {/* Table */}
       <div className="p-6">
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{ boxShadow: 'none' }}>
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
@@ -188,10 +190,10 @@ export const TaskManagement = ({ onNavigate }: TaskManagementProps) => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" style={{ boxShadow: 'none' }}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" style={{ boxShadow: 'none' }}>
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </div>
