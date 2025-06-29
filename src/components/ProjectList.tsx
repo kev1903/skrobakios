@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plus, Filter, MoreHorizontal, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -61,7 +60,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       case "completed":
         return "Completed";
       case "running":
-        return "Running";
+        return "In Progress";
       case "pending":
         return "Pending";
       default:

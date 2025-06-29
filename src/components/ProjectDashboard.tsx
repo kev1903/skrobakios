@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Upload, Calendar, MapPin, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +33,19 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
         return "bg-gray-100 text-gray-800 border-gray-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "running":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return status;
     }
   };
 
@@ -110,7 +122,7 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
                         variant="outline" 
                         className={getStatusColor(project.status)}
                       >
-                        {project.status}
+                        {getStatusText(project.status)}
                       </Badge>
                     </div>
                   </CardHeader>
