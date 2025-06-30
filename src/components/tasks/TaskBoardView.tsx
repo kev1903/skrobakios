@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +8,7 @@ import { Plus, Check, X } from 'lucide-react';
 import { useTaskContext } from './TaskContext';
 
 export const TaskBoardView = () => {
-  const { tasks, addTask } = useTaskContext();
+  const { tasks, addTask, setTasks } = useTaskContext();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
@@ -78,8 +77,7 @@ export const TaskBoardView = () => {
     };
 
     // Remove temporary task and add final task
-    const { tasks: currentTasks, setTasks } = useTaskContext();
-    const updatedTasks = currentTasks.filter(task => task.id !== taskId);
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
     setTasks([...updatedTasks, finalTask]);
 
     console.log(`Added new task: ${newTaskTitle} to ${status} column`);
@@ -88,8 +86,7 @@ export const TaskBoardView = () => {
   };
 
   const handleCancelEdit = (taskId: string) => {
-    const { tasks: currentTasks, setTasks } = useTaskContext();
-    const updatedTasks = currentTasks.filter(task => task.id !== taskId);
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
     setTasks(updatedTasks);
     
     setEditingTaskId(null);
@@ -102,6 +99,11 @@ export const TaskBoardView = () => {
     } else if (e.key === 'Escape') {
       handleCancelEdit(taskId);
     }
+  };
+
+  const handleBlur = (taskId: string, status: string) => {
+    // Save the task when user clicks outside the input field
+    handleSaveTask(taskId, status);
   };
 
   return (
@@ -129,6 +131,7 @@ export const TaskBoardView = () => {
                           className="text-sm"
                           autoFocus
                           onKeyDown={(e) => handleKeyPress(e, task.id, column.id)}
+                          onBlur={() => handleBlur(task.id, column.id)}
                         />
                         <Button
                           size="sm"
