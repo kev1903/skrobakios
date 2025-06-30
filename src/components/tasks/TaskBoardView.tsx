@@ -3,6 +3,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { useTaskContext } from './TaskContext';
 
 export const TaskBoardView = () => {
@@ -30,6 +32,11 @@ export const TaskBoardView = () => {
 
   const getTasksByStatus = (status: string) => {
     return tasks.filter(task => task.status === status);
+  };
+
+  const handleAddTask = (status: string) => {
+    console.log(`Adding new task to ${status} column`);
+    // TODO: Implement add task functionality
   };
 
   return (
@@ -90,6 +97,16 @@ export const TaskBoardView = () => {
                 </CardContent>
               </Card>
             ))}
+            
+            {/* Add Task Button */}
+            <Button
+              variant="ghost"
+              onClick={() => handleAddTask(column.id)}
+              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add task
+            </Button>
           </div>
         </div>
       ))}
