@@ -24,6 +24,19 @@ interface ProjectTasksPageProps {
 
 export const ProjectTasksPage = ({ project, onNavigate }: ProjectTasksPageProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("list");
+
+  const ribbonItems = [
+    { id: "overview", label: "Overview", icon: Eye },
+    { id: "list", label: "List", icon: null },
+    { id: "board", label: "Board", icon: null },
+    { id: "timeline", label: "Timeline", icon: null },
+    { id: "calendar", label: "Calendar", icon: null },
+    { id: "workflow", label: "Workflow", icon: null },
+    { id: "dashboard", label: "Dashboard", icon: null },
+    { id: "messages", label: "Messages", icon: null },
+    { id: "files", label: "Files", icon: null }
+  ];
 
   const projectTasks = [
     {
@@ -102,50 +115,58 @@ export const ProjectTasksPage = ({ project, onNavigate }: ProjectTasksPageProps)
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <Button
-            variant="ghost"
-            onClick={() => onNavigate("project-detail")}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Project</span>
-          </Button>
-          
-          <div className="mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
-            <p className="text-sm text-gray-500">Project Tasks</p>
+    <div className="h-screen flex flex-col bg-gray-50">
+      {/* Header with Project Info and Back Button */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => onNavigate("project-detail")}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </Button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">{project.name}</h1>
+              <p className="text-sm text-gray-500">{project.project_id}</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm">
+              Set status
+            </Button>
           </div>
         </div>
-
-        <nav className="flex-1 p-4">
-          <div className="space-y-2">
-            <div className="flex items-center space-x-3 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg border border-blue-200">
-              <span className="text-sm font-medium">All Tasks</span>
-            </div>
-            <button className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-              <span className="text-sm font-medium">In Progress</span>
-            </button>
-            <button className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-              <span className="text-sm font-medium">Completed</span>
-            </button>
-            <button className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-              <span className="text-sm font-medium">Overdue</span>
-            </button>
-          </div>
-        </nav>
       </div>
 
-      {/* Main Content */}
+      {/* Horizontal Ribbon Navigation */}
+      <div className="bg-white border-b border-gray-200 px-6">
+        <div className="flex items-center space-x-1 overflow-x-auto">
+          {ribbonItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                activeTab === item.id
+                  ? 'text-blue-600 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-300'
+              }`}
+            >
+              {item.icon && <item.icon className="w-4 h-4" />}
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Content Area */}
       <div className="flex-1 overflow-auto">
-        {/* Header */}
+        {/* Action Bar */}
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">Project Tasks</h1>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -173,127 +194,143 @@ export const ProjectTasksPage = ({ project, onNavigate }: ProjectTasksPageProps)
           </div>
         </div>
 
-        {/* Task Summary Cards */}
+        {/* Content based on active tab */}
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">5</p>
-                  <p className="text-sm text-gray-500">Total Tasks</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-600">2</p>
-                  <p className="text-sm text-gray-500">In Progress</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600">1</p>
-                  <p className="text-sm text-gray-500">Completed</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-red-600">0</p>
-                  <p className="text-sm text-gray-500">Overdue</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {activeTab === "list" && (
+            <>
+              {/* Task Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-gray-900">5</p>
+                      <p className="text-sm text-gray-500">Total Tasks</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-blue-600">2</p>
+                      <p className="text-sm text-gray-500">In Progress</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-green-600">1</p>
+                      <p className="text-sm text-gray-500">Completed</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-red-600">0</p>
+                      <p className="text-sm text-gray-500">Overdue</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-          {/* Tasks Table */}
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="w-12">
-                      <Checkbox />
-                    </TableHead>
-                    <TableHead>Task ID</TableHead>
-                    <TableHead>Task Name</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {projectTasks.map((task, index) => (
-                    <TableRow key={index} className="hover:bg-gray-50">
-                      <TableCell>
-                        <Checkbox />
-                      </TableCell>
-                      <TableCell className="font-medium text-blue-600">
-                        {task.id}
-                      </TableCell>
-                      <TableCell className="font-medium">{task.taskName}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={getPriorityColor(task.priority)}
-                        >
-                          {task.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={task.assignedTo.avatar} />
-                            <AvatarFallback>
-                              {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm">{task.assignedTo.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{task.dueDate}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={getStatusColor(task.status)}
-                        >
-                          {task.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-16 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${task.progress}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{task.progress}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+              {/* Tasks Table */}
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="w-12">
+                          <Checkbox />
+                        </TableHead>
+                        <TableHead>Task ID</TableHead>
+                        <TableHead>Task Name</TableHead>
+                        <TableHead>Priority</TableHead>
+                        <TableHead>Assigned To</TableHead>
+                        <TableHead>Due Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Progress</TableHead>
+                        <TableHead>Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {projectTasks.map((task, index) => (
+                        <TableRow key={index} className="hover:bg-gray-50">
+                          <TableCell>
+                            <Checkbox />
+                          </TableCell>
+                          <TableCell className="font-medium text-blue-600">
+                            {task.id}
+                          </TableCell>
+                          <TableCell className="font-medium">{task.taskName}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant="outline" 
+                              className={getPriorityColor(task.priority)}
+                            >
+                              {task.priority}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <Avatar className="w-8 h-8">
+                                <AvatarImage src={task.assignedTo.avatar} />
+                                <AvatarFallback>
+                                  {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm">{task.assignedTo.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>{task.dueDate}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant="outline" 
+                              className={getStatusColor(task.status)}
+                            >
+                              {task.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-16 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-blue-600 h-2 rounded-full" 
+                                  style={{ width: `${task.progress}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-sm text-gray-600">{task.progress}%</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <Button variant="ghost" size="sm">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {activeTab !== "list" && (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <p className="text-gray-500 text-lg">Coming Soon</p>
+                <p className="text-gray-400 text-sm mt-2">
+                  {ribbonItems.find(item => item.id === activeTab)?.label} view is under development
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
