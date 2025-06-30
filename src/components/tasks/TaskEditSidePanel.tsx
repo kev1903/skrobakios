@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User, Clock, Tag, FileText, X } from 'lucide-react';
+import { Calendar, User, Clock, Tag, FileText, X, Check, ThumbsUp, Paperclip, MessageSquare, Link, Maximize2, MoreHorizontal, ArrowRight } from 'lucide-react';
 import { Task, useTaskContext } from './TaskContext';
 
 interface TaskEditSidePanelProps {
@@ -57,9 +57,53 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose }: TaskEditSidePanelPr
     }
   };
 
+  const handleMarkComplete = () => {
+    handleFieldChange('status', 'Completed');
+    handleFieldChange('progress', 100);
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[500px] sm:w-[540px] overflow-y-auto">
+      <SheetContent className="w-[700px] sm:w-[740px] overflow-y-auto">
+        {/* Function Buttons Bar */}
+        <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={handleMarkComplete}
+              variant="outline"
+              size="sm"
+              className="flex items-center space-x-2"
+            >
+              <Check className="w-4 h-4" />
+              <span>Mark complete</span>
+            </Button>
+          </div>
+          
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="sm">
+              <ThumbsUp className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Paperclip className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <MessageSquare className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Link className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Maximize2 className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
         <SheetHeader className="space-y-4">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-xl font-semibold">
