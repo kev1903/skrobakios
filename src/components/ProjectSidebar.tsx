@@ -28,7 +28,9 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
   ];
 
   const handleItemClick = (itemId: string) => {
-    if (itemId === "files") {
+    if (itemId === "tasks") {
+      onNavigate("project-tasks");
+    } else if (itemId === "files") {
       onNavigate("project-files");
     } else if (itemId === "setting") {
       onNavigate("project-settings");

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
@@ -7,6 +6,7 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
+import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/AuthPage";
@@ -75,6 +75,14 @@ const Index = () => {
         return <ProjectList onNavigate={setCurrentPage} onSelectProject={handleSelectProject} />;
       case "project-detail":
         return <ProjectDetail projectId={selectedProject} onNavigate={setCurrentPage} />;
+      case "project-tasks":
+        return currentProject ? (
+          <ProjectTasksPage project={currentProject} onNavigate={setCurrentPage} />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Project not found</p>
+          </div>
+        );
       case "project-files":
         return currentProject ? (
           <ProjectFilePage project={currentProject} onNavigate={setCurrentPage} />
@@ -133,7 +141,7 @@ const Index = () => {
   };
 
   // Hide main sidebar for project-specific pages
-  const showMainSidebar = !["project-detail", "project-files", "project-settings", "project-schedule", "gantt-chart"].includes(currentPage);
+  const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "gantt-chart"].includes(currentPage);
 
   return (
     <div className="min-h-screen flex">
