@@ -102,8 +102,12 @@ export const TaskBoardView = () => {
   };
 
   const handleBlur = (taskId: string, status: string) => {
-    // Save the task when user clicks outside the input field
-    handleSaveTask(taskId, status);
+    // Only save if the task name is not empty, otherwise cancel the edit
+    if (newTaskTitle.trim()) {
+      handleSaveTask(taskId, status);
+    } else {
+      handleCancelEdit(taskId);
+    }
   };
 
   return (
