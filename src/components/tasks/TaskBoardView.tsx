@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Check, X } from 'lucide-react';
 import { useTaskContext } from './TaskContext';
-import { AddTaskDialog } from './AddTaskDialog';
 
 export const TaskBoardView = () => {
-  const { tasks } = useTaskContext();
-  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const { tasks, addTask } = useTaskContext();
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
 
   const statusColumns = [
     { id: 'Not Started', title: 'Not Started', color: 'bg-gray-50' },
@@ -38,32 +38,117 @@ export const TaskBoardView = () => {
   };
 
   const handleAddTask = (status: string) => {
+    const tempTaskId = `temp-${Date.now()}`;
     console.log(`Adding new task to ${status} column`);
-    setSelectedStatus(status);
-    setIsAddTaskDialogOpen(true);
+    
+    // Create a temporary task for inline editing
+    const tempTask = {
+      id: tempTaskId,
+      taskName: '',
+      priority: 'Medium' as const,
+      assignedTo: { name: 'Unassigned', avatar: '' },
+      dueDate: new Date().toISOString().split('T')[0],
+      status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+      progress: 0,
+      description: '',
+      category: 'General'
+    };
+
+    addTask(tempTask);
+    setEditingTaskId(tempTaskId);
+    setNewTaskTitle('');
   };
 
-  const handleCloseDialog = () => {
-    setIsAddTaskDialogOpen(false);
-    setSelectedStatus('');
+  const handleSaveTask = (taskId: string, status: string) => {
+    if (!newTaskTitle.trim()) {
+      handleCancelEdit(taskId);
+      return;
+    }
+
+    const finalTask = {
+      id: `#PT${String(Date.now()).slice(-3)}`,
+      taskName: newTaskTitle.trim(),
+      priority: 'Medium' as const,
+      assignedTo: { name: 'Unassigned', avatar: '' },
+      dueDate: new Date().toISOString().split('T')[0],
+      status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+      progress: 0,
+      description: '',
+      category: 'General'
+    };
+
+    // Remove temporary task and add final task
+    const { tasks: currentTasks, setTasks } = useTaskContext();
+    const updatedTasks = currentTasks.filter(task => task.id !== taskId);
+    setTasks([...updatedTasks, finalTask]);
+
+    console.log(`Added new task: ${newTaskTitle} to ${status} column`);
+    setEditingTaskId(null);
+    setNewTaskTitle('');
+  };
+
+  const handleCancelEdit = (taskId: string) => {
+    const { tasks: currentTasks, setTasks } = useTaskContext();
+    const updatedTasks = currentTasks.filter(task => task.id !== taskId);
+    setTasks(updatedTasks);
+    
+    setEditingTaskId(null);
+    setNewTaskTitle('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent, taskId: string, status: string) => {
+    if (e.key === 'Enter') {
+      handleSaveTask(taskId, status);
+    } else if (e.key === 'Escape') {
+      handleCancelEdit(taskId);
+    }
   };
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {statusColumns.map((column) => (
-          <div key={column.id} className={`${column.color} rounded-lg p-4`}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">{column.title}</h3>
-              <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
-                {getTasksByStatus(column.id).length}
-              </span>
-            </div>
-            
-            <div className="space-y-3">
-              {getTasksByStatus(column.id).map((task) => (
-                <Card key={task.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {statusColumns.map((column) => (
+        <div key={column.id} className={`${column.color} rounded-lg p-4`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-gray-900">{column.title}</h3>
+            <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
+              {getTasksByStatus(column.id).length}
+            </span>
+          </div>
+          
+          <div className="space-y-3">
+            {getTasksByStatus(column.id).map((task) => (
+              <Card key={task.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardContent className="p-4">
+                  {editingTaskId === task.id ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newTaskTitle}
+                          onChange={(e) => setNewTaskTitle(e.target.value)}
+                          placeholder="Enter task title..."
+                          className="text-sm"
+                          autoFocus
+                          onKeyDown={(e) => handleKeyPress(e, task.id, column.id)}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSaveTask(task.id, column.id)}
+                          className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        >
+                          <Check className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleCancelEdit(task.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <h4 className="font-medium text-sm">{task.taskName}</h4>
@@ -104,29 +189,23 @@ export const TaskBoardView = () => {
                         </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              {/* Add Task Button */}
-              <Button
-                variant="ghost"
-                onClick={() => handleAddTask(column.id)}
-                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add task
-              </Button>
-            </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            
+            {/* Add Task Button */}
+            <Button
+              variant="ghost"
+              onClick={() => handleAddTask(column.id)}
+              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add task
+            </Button>
           </div>
-        ))}
-      </div>
-
-      <AddTaskDialog
-        isOpen={isAddTaskDialogOpen}
-        onClose={handleCloseDialog}
-        status={selectedStatus}
-      />
-    </>
+        </div>
+      ))}
+    </div>
   );
 };
