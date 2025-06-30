@@ -1,14 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useTaskContext } from './TaskContext';
+import { AddTaskDialog } from './AddTaskDialog';
 
 export const TaskBoardView = () => {
   const { tasks } = useTaskContext();
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('');
 
   const statusColumns = [
     { id: 'Not Started', title: 'Not Started', color: 'bg-gray-50' },
@@ -36,80 +39,94 @@ export const TaskBoardView = () => {
 
   const handleAddTask = (status: string) => {
     console.log(`Adding new task to ${status} column`);
-    // TODO: Implement add task functionality
+    setSelectedStatus(status);
+    setIsAddTaskDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsAddTaskDialogOpen(false);
+    setSelectedStatus('');
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      {statusColumns.map((column) => (
-        <div key={column.id} className={`${column.color} rounded-lg p-4`}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">{column.title}</h3>
-            <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
-              {getTasksByStatus(column.id).length}
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            {getTasksByStatus(column.id).map((task) => (
-              <Card key={task.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <h4 className="font-medium text-sm">{task.taskName}</h4>
-                      <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
-                        {task.priority}
-                      </Badge>
-                    </div>
-                    
-                    {task.description && (
-                      <p className="text-xs text-gray-600">{task.description}</p>
-                    )}
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="w-6 h-6">
-                          <AvatarImage src={task.assignedTo.avatar} />
-                          <AvatarFallback className="text-xs">
-                            {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-xs text-gray-600">{task.assignedTo.name}</span>
-                      </div>
-                      <span className="text-xs text-gray-500">{task.dueDate}</span>
-                    </div>
-                    
-                    {task.progress > 0 && (
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>Progress</span>
-                          <span>{task.progress}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${task.progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {statusColumns.map((column) => (
+          <div key={column.id} className={`${column.color} rounded-lg p-4`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">{column.title}</h3>
+              <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
+                {getTasksByStatus(column.id).length}
+              </span>
+            </div>
             
-            {/* Add Task Button */}
-            <Button
-              variant="ghost"
-              onClick={() => handleAddTask(column.id)}
-              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add task
-            </Button>
+            <div className="space-y-3">
+              {getTasksByStatus(column.id).map((task) => (
+                <Card key={task.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-medium text-sm">{task.taskName}</h4>
+                        <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
+                          {task.priority}
+                        </Badge>
+                      </div>
+                      
+                      {task.description && (
+                        <p className="text-xs text-gray-600">{task.description}</p>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="w-6 h-6">
+                            <AvatarImage src={task.assignedTo.avatar} />
+                            <AvatarFallback className="text-xs">
+                              {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-xs text-gray-600">{task.assignedTo.name}</span>
+                        </div>
+                        <span className="text-xs text-gray-500">{task.dueDate}</span>
+                      </div>
+                      
+                      {task.progress > 0 && (
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span>Progress</span>
+                            <span>{task.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-600 h-2 rounded-full" 
+                              style={{ width: `${task.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {/* Add Task Button */}
+              <Button
+                variant="ghost"
+                onClick={() => handleAddTask(column.id)}
+                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add task
+              </Button>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <AddTaskDialog
+        isOpen={isAddTaskDialogOpen}
+        onClose={handleCloseDialog}
+        status={selectedStatus}
+      />
+    </>
   );
 };
