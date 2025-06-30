@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, Download, Filter, Search, Eye } from 'lucide-react';
+import { ArrowLeft, Download, Filter, Search, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Project } from '@/hooks/useProjects';
@@ -129,10 +129,6 @@ export const ProjectTasksPage = ({ project, onNavigate }: ProjectTasksPageProps)
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Task
-                </Button>
                 <Button variant="outline" className="px-4 py-2">
                   <Download className="w-4 h-4 mr-2" />
                   Export
