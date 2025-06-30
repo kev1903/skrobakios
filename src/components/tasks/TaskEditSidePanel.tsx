@@ -47,7 +47,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose }: TaskEditSidePanelPr
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[1000px] sm:w-[1040px] overflow-y-auto">
+      <SheetContent className="!w-[1000px] !max-w-[1000px] sm:!w-[1040px] sm:!max-w-[1040px] overflow-y-auto">
         <TaskEditHeader 
           task={editedTask} 
           onMarkComplete={handleMarkComplete} 
