@@ -20,6 +20,7 @@ interface TaskBoardColumnProps {
   onKeyPress: (e: React.KeyboardEvent, taskId: string, status: string) => void;
   onBlur: (taskId: string, status: string) => void;
   onAddTask: (status: string) => void;
+  onTaskClick: (task: Task) => void;
 }
 
 export const TaskBoardColumn = ({
@@ -32,7 +33,8 @@ export const TaskBoardColumn = ({
   onCancelEdit,
   onKeyPress,
   onBlur,
-  onAddTask
+  onAddTask,
+  onTaskClick
 }: TaskBoardColumnProps) => {
   return (
     <div className={`${column.color} rounded-lg p-4`}>
@@ -56,7 +58,7 @@ export const TaskBoardColumn = ({
                 onBlur={() => onBlur(task.id, column.id)}
               />
             ) : (
-              <TaskCard task={task} />
+              <TaskCard task={task} onClick={onTaskClick} />
             )}
           </div>
         ))}

@@ -7,9 +7,10 @@ import { Task } from './TaskContext';
 
 interface TaskCardProps {
   task: Task;
+  onClick?: (task: Task) => void;
 }
 
-export const TaskCard = ({ task }: TaskCardProps) => {
+export const TaskCard = ({ task, onClick }: TaskCardProps) => {
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case "high":
@@ -23,8 +24,14 @@ export const TaskCard = ({ task }: TaskCardProps) => {
     }
   };
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick(task);
+    }
+  };
+
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between">

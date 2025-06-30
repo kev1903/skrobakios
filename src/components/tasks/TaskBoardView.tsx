@@ -1,12 +1,15 @@
-
 import React, { useState } from 'react';
 import { useTaskContext } from './TaskContext';
 import { TaskBoardColumn } from './TaskBoardColumn';
+import { TaskEditSidePanel } from './TaskEditSidePanel';
+import { Task } from './TaskContext';
 
 export const TaskBoardView = () => {
   const { tasks, addTask, setTasks } = useTaskContext();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
   const statusColumns = [
     { id: 'Not Started', title: 'Not Started', color: 'bg-gray-50' },
@@ -17,6 +20,21 @@ export const TaskBoardView = () => {
 
   const getTasksByStatus = (status: string) => {
     return tasks.filter(task => task.status === status);
+  };
+
+  const handleTaskClick = (task: Task) => {
+    // Don't open side panel for temporary tasks being edited
+    if (task.id.startsWith('temp-')) {
+      return;
+    }
+    
+    setSelectedTask(task);
+    setIsSidePanelOpen(true);
+  };
+
+  const handleCloseSidePanel = () => {
+    setIsSidePanelOpen(false);
+    setSelectedTask(null);
   };
 
   const handleAddTask = (status: string) => {
@@ -94,22 +112,31 @@ export const TaskBoardView = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      {statusColumns.map((column) => (
-        <TaskBoardColumn
-          key={column.id}
-          column={column}
-          tasks={getTasksByStatus(column.id)}
-          editingTaskId={editingTaskId}
-          newTaskTitle={newTaskTitle}
-          onTaskTitleChange={setNewTaskTitle}
-          onSaveTask={handleSaveTask}
-          onCancelEdit={handleCancelEdit}
-          onKeyPress={handleKeyPress}
-          onBlur={handleBlur}
-          onAddTask={handleAddTask}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {statusColumns.map((column) => (
+          <TaskBoardColumn
+            key={column.id}
+            column={column}
+            tasks={getTasksByStatus(column.id)}
+            editingTaskId={editingTaskId}
+            newTaskTitle={newTaskTitle}
+            onTaskTitleChange={setNewTaskTitle}
+            onSaveTask={handleSaveTask}
+            onCancelEdit={handleCancelEdit}
+            onKeyPress={handleKeyPress}
+            onBlur={handleBlur}
+            onAddTask={handleAddTask}
+            onTaskClick={handleTaskClick}
+          />
+        ))}
+      </div>
+
+      <TaskEditSidePanel
+        task={selectedTask}
+        isOpen={isSidePanelOpen}
+        onClose={handleCloseSidePanel}
+      />
+    </>
   );
 };
