@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +7,14 @@ import { Label } from '@/components/ui/label';
 import { UserPlus, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Database } from '@/integrations/supabase/types';
+
+type UserRole = Database['public']['Enums']['user_role'];
 
 interface InvitationData {
   id: string;
   email: string;
-  invited_role: string;
+  invited_role: UserRole;
   expires_at: string;
   used_at: string | null;
 }
@@ -105,12 +107,12 @@ export const UserInvitationAcceptPage = () => {
       }
 
       if (authData.user) {
-        // Create user role
+        // Create user role with proper type casting
         const { error: roleError } = await supabase
           .from('user_roles')
           .insert({
             user_id: authData.user.id,
-            role: invitation!.invited_role,
+            role: invitation!.invited_role as UserRole,
           });
 
         if (roleError) {
