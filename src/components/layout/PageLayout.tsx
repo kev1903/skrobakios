@@ -23,7 +23,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin"}
     >
-      <div className="min-h-screen flex flex-col">
+      <div className="h-screen flex flex-col">
         <GlobalHeader onNavigate={onNavigate} currentPage={currentPage} />
         
         <main className="flex-1 overflow-hidden">
