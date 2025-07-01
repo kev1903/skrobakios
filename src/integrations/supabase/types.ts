@@ -9,6 +9,76 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      member_permissions: {
+        Row: {
+          allowed: boolean
+          created_at: string
+          id: string
+          member_id: string
+          permission_type: string
+        }
+        Insert: {
+          allowed?: boolean
+          created_at?: string
+          id?: string
+          member_id: string
+          permission_type: string
+        }
+        Update: {
+          allowed?: boolean
+          created_at?: string
+          id?: string
+          member_id?: string
+          permission_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_permissions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_access_settings: {
+        Row: {
+          access_level: Database["public"]["Enums"]["access_level"]
+          allow_member_invites: boolean | null
+          created_at: string
+          id: string
+          project_id: string
+          require_approval_for_join: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          allow_member_invites?: boolean | null
+          created_at?: string
+          id?: string
+          project_id: string
+          require_approval_for_join?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          allow_member_invites?: boolean | null
+          created_at?: string
+          id?: string
+          project_id?: string
+          require_approval_for_join?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_access_settings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           contract_price: string | null
@@ -54,6 +124,62 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          joined_at: string | null
+          name: string | null
+          notify_on_task_added: boolean | null
+          project_id: string
+          role: Database["public"]["Enums"]["member_role"]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          name?: string | null
+          notify_on_task_added?: boolean | null
+          project_id: string
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          name?: string | null
+          notify_on_task_added?: boolean | null
+          project_id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -62,7 +188,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      access_level: "private_to_members" | "public" | "restricted"
+      member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -177,6 +304,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      access_level: ["private_to_members", "public", "restricted"],
+      member_role: ["project_admin", "editor", "viewer", "guest"],
+    },
   },
 } as const
