@@ -130,7 +130,7 @@ export const useTeamActions = (
         .select('token')
         .eq('project_id', projectId)
         .eq('email', member.email)
-        .eq('used', false)
+        .eq('used_at', null)
         .single();
 
       if (invitationFetchError || !existingInvitation) {

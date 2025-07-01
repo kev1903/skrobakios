@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
     const acceptUrl = `${req.headers.get('origin') || 'http://localhost:8080'}/accept-invitation?token=${token}`;
 
     const emailResponse = await resend.emails.send({
-      from: "Team Invitations <onboarding@resend.dev>",
+      from: "Team Invitations <noreply@skrobaki.com>",
       to: [email],
       subject: `You're invited to join ${projectName}`,
       html: `
