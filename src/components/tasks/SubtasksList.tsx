@@ -5,8 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Task } from './TaskContext';
 
 interface Subtask {
   id: string;
@@ -71,6 +69,14 @@ export const SubtasksList = ({ taskId, projectMembers }: SubtasksListProps) => {
     ));
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      day: 'numeric',
+      month: 'short'
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -85,54 +91,47 @@ export const SubtasksList = ({ taskId, projectMembers }: SubtasksListProps) => {
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {subtasks.map((subtask) => (
-          <div key={subtask.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+          <div key={subtask.id} className="flex items-center space-x-3 p-3 rounded-lg border bg-gray-50 hover:bg-gray-100 transition-colors">
             <button
               onClick={() => toggleSubtaskComplete(subtask.id)}
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                 subtask.completed 
                   ? 'bg-green-500 border-green-500 text-white' 
                   : 'border-gray-300 hover:border-green-400'
               }`}
             >
-              {subtask.completed && <Check className="w-3 h-3" />}
+              {subtask.completed && <Check className="w-2.5 h-2.5" />}
             </button>
             
-            <div className="flex-1">
-              <p className={`text-sm ${subtask.completed ? 'line-through text-gray-500' : ''}`}>
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm font-medium truncate ${
+                subtask.completed ? 'line-through text-gray-500' : 'text-gray-900'
+              }`}>
                 {subtask.title}
               </p>
-              <div className="flex items-center space-x-4 mt-1">
-                <div className="flex items-center space-x-1">
-                  <Avatar className="w-4 h-4">
-                    <AvatarImage src={subtask.assignedTo.avatar} />
-                    <AvatarFallback className="text-xs">
-                      {subtask.assignedTo.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-xs text-gray-600">{subtask.assignedTo.name}</span>
-                </div>
-                {subtask.dueDate && (
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-3 h-3 text-gray-400" />
-                    <span className="text-xs text-gray-600">{subtask.dueDate}</span>
-                  </div>
-                )}
-              </div>
             </div>
             
-            {subtask.completed && (
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                Completed
-              </Badge>
-            )}
+            <div className="flex items-center space-x-3 flex-shrink-0">
+              {subtask.dueDate && (
+                <span className="text-xs text-gray-600 font-medium">
+                  {formatDate(subtask.dueDate)}
+                </span>
+              )}
+              <Avatar className="w-6 h-6">
+                <AvatarImage src={subtask.assignedTo.avatar} />
+                <AvatarFallback className="text-xs">
+                  {subtask.assignedTo.name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         ))}
       </div>
 
       {isAddingSubtask && (
-        <div className="p-4 border rounded-lg bg-gray-50">
+        <div className="p-4 border rounded-lg bg-white">
           <div className="space-y-3">
             <Input
               placeholder="Subtask title"
