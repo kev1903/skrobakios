@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,9 +15,23 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTaskContext } from './TaskContext';
+import { TaskEditSidePanel } from './TaskEditSidePanel';
+import { Task } from './TaskContext';
 
 export const TaskListView = () => {
   const { tasks } = useTaskContext();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsSidePanelOpen(true);
+  };
+
+  const handleCloseSidePanel = () => {
+    setIsSidePanelOpen(false);
+    setSelectedTask(null);
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -117,7 +131,12 @@ export const TaskListView = () => {
                   <TableCell className="font-medium text-blue-600">
                     {task.id}
                   </TableCell>
-                  <TableCell className="font-medium">{task.taskName}</TableCell>
+                  <TableCell 
+                    className="font-medium cursor-pointer hover:text-blue-600"
+                    onClick={() => handleTaskClick(task)}
+                  >
+                    {task.taskName}
+                  </TableCell>
                   <TableCell>
                     <Badge 
                       variant="outline" 
@@ -159,7 +178,11 @@ export const TaskListView = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleTaskClick(task)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <Button variant="ghost" size="sm">
@@ -173,6 +196,12 @@ export const TaskListView = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <TaskEditSidePanel
+        task={selectedTask}
+        isOpen={isSidePanelOpen}
+        onClose={handleCloseSidePanel}
+      />
     </>
   );
 };
