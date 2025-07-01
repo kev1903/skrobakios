@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
@@ -215,7 +214,6 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         <ProfessionalInfoSection 
           profileData={{
             jobTitle: profileData.jobTitle,
-            company: profileData.company,
             location: profileData.location,
             website: profileData.website,
             bio: profileData.bio,

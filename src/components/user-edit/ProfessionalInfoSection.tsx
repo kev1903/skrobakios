@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface ProfessionalInfoSectionProps {
   profileData: {
     jobTitle: string;
-    company: string;
     location: string;
     website: string;
     bio: string;
@@ -29,25 +28,14 @@ export const ProfessionalInfoSection = ({ profileData, onInputChange }: Professi
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="jobTitle" className="text-slate-700 font-medium">Job Title</Label>
-            <Input
-              id="jobTitle"
-              value={profileData.jobTitle}
-              onChange={(e) => onInputChange('jobTitle', e.target.value)}
-              className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="company" className="text-slate-700 font-medium">Company</Label>
-            <Input
-              id="company"
-              value={profileData.company}
-              onChange={(e) => onInputChange('company', e.target.value)}
-              className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-            />
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="jobTitle" className="text-slate-700 font-medium">Job Title</Label>
+          <Input
+            id="jobTitle"
+            value={profileData.jobTitle}
+            onChange={(e) => onInputChange('jobTitle', e.target.value)}
+            className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
+          />
         </div>
 
         <div className="space-y-2">
