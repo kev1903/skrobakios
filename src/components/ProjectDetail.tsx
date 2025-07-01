@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "./ProjectSidebar";
@@ -15,6 +14,8 @@ interface ProjectDetailProps {
 
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
   const [project, setProject] = useState<Project | null>(null);
+  const [bannerImage, setBannerImage] = useState<string>("");
+  const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
   const { getProjects, loading } = useProjects();
 
   useEffect(() => {
@@ -23,6 +24,23 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       const foundProject = projects.find(p => p.id === projectId);
       if (foundProject) {
         setProject(foundProject);
+        
+        // Load banner image from localStorage
+        const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
+        if (savedBanner) {
+          setBannerImage(savedBanner);
+        }
+
+        // Load banner position from localStorage
+        const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
+        if (savedBannerPosition) {
+          try {
+            const position = JSON.parse(savedBannerPosition);
+            setBannerPosition(position);
+          } catch (error) {
+            console.error('Error parsing saved banner position:', error);
+          }
+        }
       }
     };
 
@@ -102,7 +120,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   };
 
   const progress = getProgress(currentProject.status);
-  const wbsCount = Math.floor(Math.random() * 10) + 8; // Random WBS count for demo
+  const wbsCount = Math.floor(Math.random() * 10) + 8;
 
   if (loading) {
     return (
@@ -129,6 +147,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         <div className="p-8">
           <ProjectHeader
             project={currentProject}
+            bannerImage={bannerImage}
+            bannerPosition={bannerPosition}
             getStatusColor={getStatusColor}
             getStatusText={getStatusText}
             onProjectUpdate={handleProjectUpdate}
