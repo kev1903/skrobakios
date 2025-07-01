@@ -5,6 +5,7 @@ import { Task, useTaskContext } from './TaskContext';
 import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
 import { TaskEditActions } from './TaskEditActions';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TaskEditSidePanelProps {
   task: Task | null;
@@ -15,6 +16,7 @@ interface TaskEditSidePanelProps {
 export const TaskEditSidePanel = ({ task, isOpen, onClose }: TaskEditSidePanelProps) => {
   const { updateTask } = useTaskContext();
   const [editedTask, setEditedTask] = useState<Task | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (task) {
@@ -47,7 +49,14 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose }: TaskEditSidePanelPr
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="!w-[700px] !max-w-[700px] sm:!w-[700px] sm:!max-w-[700px] overflow-y-auto">
+      <SheetContent 
+        className={`${
+          isMobile 
+            ? '!w-full !max-w-full' 
+            : '!w-[700px] !max-w-[700px] sm:!w-[700px] sm:!max-w-[700px]'
+        } overflow-y-auto`}
+        side={isMobile ? "bottom" : "right"}
+      >
         <TaskEditHeader 
           task={editedTask} 
           onMarkComplete={handleMarkComplete} 
