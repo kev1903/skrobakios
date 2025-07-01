@@ -1,8 +1,13 @@
+
 import { ArrowLeft, Box, Upload, Download, Eye, Settings as SettingsIcon } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Project } from "@/hooks/useProjects";
+import { IFCModelViewer } from "@/components/bim/IFCModelViewer";
+import { BIMViewerControls } from "@/components/bim/BIMViewerControls";
 
 interface ProjectBIMPageProps {
   project: Project;
@@ -10,6 +15,11 @@ interface ProjectBIMPageProps {
 }
 
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
+  const [activeTab, setActiveTab] = useState("3d-view");
+  const [wireframeMode, setWireframeMode] = useState(false);
+  const [gridVisible, setGridVisible] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   // Mock BIM data for demonstration
   const bimModels = [
     {
@@ -54,6 +64,22 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
   };
 
+  const handleResetView = () => {
+    console.log("Reset view");
+  };
+
+  const handleToggleWireframe = () => {
+    setWireframeMode(!wireframeMode);
+  };
+
+  const handleToggleGrid = () => {
+    setGridVisible(!gridVisible);
+  };
+
+  const handleToggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -96,101 +122,161 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-8">
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card className="backdrop-blur-sm bg-white/60 border-white/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">Total Models</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-slate-900">{bimModels.length}</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="backdrop-blur-sm bg-white/60 border-white/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">Current Models</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {bimModels.filter(m => m.status === 'current').length}
-                </div>
-              </CardContent>
-            </Card>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="3d-view">3D Viewer</TabsTrigger>
+              <TabsTrigger value="models">Model Library</TabsTrigger>
+              <TabsTrigger value="properties">Properties</TabsTrigger>
+            </TabsList>
 
-            <Card className="backdrop-blur-sm bg-white/60 border-white/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">Total Size</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-slate-900">106.4 MB</div>
-              </CardContent>
-            </Card>
-
-            <Card className="backdrop-blur-sm bg-white/60 border-white/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">Last Updated</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-slate-900">Today</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* BIM Models List */}
-          <Card className="backdrop-blur-sm bg-white/60 border-white/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Box className="w-5 h-5" />
-                BIM Models
-              </CardTitle>
-              <CardDescription>
-                Manage your project's Building Information Models
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {bimModels.map((model) => (
-                  <div
-                    key={model.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Box className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-900">{model.name}</h3>
-                        <div className="flex items-center space-x-3 text-sm text-slate-600">
-                          <span>{model.type}</span>
-                          <span>•</span>
-                          <span>Version {model.version}</span>
-                          <span>•</span>
-                          <span>{model.size}</span>
-                        </div>
-                        <p className="text-sm text-slate-500">
-                          Last modified: {model.lastModified}
-                        </p>
-                      </div>
+            <TabsContent value="3d-view" className="space-y-6">
+              <div className="relative">
+                <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Box className="w-5 h-5" />
+                      3D Model Viewer
+                    </CardTitle>
+                    <CardDescription>
+                      Interactive 3D view of the building model with navigation controls
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="relative rounded-lg overflow-hidden border border-slate-200">
+                      <IFCModelViewer 
+                        modelId="1" 
+                        className="w-full h-[600px]"
+                      />
+                      <BIMViewerControls
+                        onResetView={handleResetView}
+                        onToggleWireframe={handleToggleWireframe}
+                        onToggleGrid={handleToggleGrid}
+                        onToggleFullscreen={handleToggleFullscreen}
+                        wireframeMode={wireframeMode}
+                        gridVisible={gridVisible}
+                        isFullscreen={isFullscreen}
+                      />
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge className={getStatusColor(model.status)}>
-                        {model.status}
-                      </Badge>
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
+
+            <TabsContent value="models" className="space-y-6">
+              {/* Statistics Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-600">Total Models</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-slate-900">{bimModels.length}</div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-600">Current Models</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">
+                      {bimModels.filter(m => m.status === 'current').length}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-600">Total Size</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-slate-900">106.4 MB</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-slate-600">Last Updated</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-slate-900">Today</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* BIM Models List */}
+              <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Box className="w-5 h-5" />
+                    BIM Models
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your project's Building Information Models
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {bimModels.map((model) => (
+                      <div
+                        key={model.id}
+                        className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Box className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-slate-900">{model.name}</h3>
+                            <div className="flex items-center space-x-3 text-sm text-slate-600">
+                              <span>{model.type}</span>
+                              <span>•</span>
+                              <span>Version {model.version}</span>
+                              <span>•</span>
+                              <span>{model.size}</span>
+                            </div>
+                            <p className="text-sm text-slate-500">
+                              Last modified: {model.lastModified}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Badge className={getStatusColor(model.status)}>
+                            {model.status}
+                          </Badge>
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="sm">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="properties" className="space-y-6">
+              <Card className="backdrop-blur-sm bg-white/60 border-white/20">
+                <CardHeader>
+                  <CardTitle>Model Properties</CardTitle>
+                  <CardDescription>
+                    View and edit properties of the selected model elements
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12 text-slate-500">
+                    <Box className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+                    <p>Select an element in the 3D viewer to view its properties</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
