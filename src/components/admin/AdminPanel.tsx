@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,8 @@ import { AdminHeader } from './AdminHeader';
 import { AdminAlerts } from './AdminAlerts';
 import { UserRoleManager } from './UserRoleManager';
 import { UsersList } from './UsersList';
+import { UserInvitationManager } from './UserInvitationManager';
+import { UserInvitationsList } from './UserInvitationsList';
 import { useAdminData } from './useAdminData';
 
 interface AdminPanelProps {
@@ -42,15 +43,17 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       <AdminAlerts error={error} success={success} />
       
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-1 space-y-6">
           <UserRoleManager 
             users={users} 
             onRoleUpdate={updateUserRole}
             loading={loading}
           />
+          <UserInvitationManager />
         </div>
-        <div className="xl:col-span-2">
+        <div className="xl:col-span-2 space-y-6">
           <UsersList users={users} loading={loading} />
+          <UserInvitationsList />
         </div>
       </div>
     </div>
