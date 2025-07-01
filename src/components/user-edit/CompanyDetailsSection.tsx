@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CompanyLogoUpload } from './CompanyLogoUpload';
 
 interface CompanyDetailsSectionProps {
   profileData: {
@@ -13,6 +14,7 @@ interface CompanyDetailsSectionProps {
     companyWebsite: string;
     companyAddress: string;
     companyMembers: string;
+    companyLogo: string;
   };
   onInputChange: (field: string, value: string) => void;
 }
@@ -29,6 +31,12 @@ export const CompanyDetailsSection = ({ profileData, onInputChange }: CompanyDet
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Company Logo Upload Section */}
+        <CompanyLogoUpload 
+          logoUrl={profileData.companyLogo}
+          onLogoChange={(logoUrl) => onInputChange('companyLogo', logoUrl)}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-slate-700 font-medium">Company Name</Label>

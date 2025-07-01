@@ -19,6 +19,7 @@ interface UserProfile {
   companyWebsite: string;
   companyAddress: string;
   companyMembers: string;
+  companyLogo: string;
 }
 
 interface UserContextType {
@@ -43,7 +44,8 @@ const defaultUserProfile: UserProfile = {
   abn: '12 345 678 901',
   companyWebsite: 'https://kaksik.design',
   companyAddress: '123 Design Street, San Francisco, CA 94105',
-  companyMembers: '15'
+  companyMembers: '15',
+  companyLogo: '',
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

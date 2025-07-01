@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
@@ -36,6 +37,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     companyWebsite: userProfile.companyWebsite,
     companyAddress: userProfile.companyAddress,
     companyMembers: userProfile.companyMembers,
+    companyLogo: userProfile.companyLogo || '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -122,6 +124,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
           companyWebsite: profileData.companyWebsite,
           companyAddress: profileData.companyAddress,
           companyMembers: profileData.companyMembers,
+          companyLogo: profileData.companyLogo,
         });
       }
     } catch (error) {
@@ -222,6 +225,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
             companyWebsite: profileData.companyWebsite,
             companyAddress: profileData.companyAddress,
             companyMembers: profileData.companyMembers,
+            companyLogo: profileData.companyLogo,
           }}
           onInputChange={handleInputChange}
         />
