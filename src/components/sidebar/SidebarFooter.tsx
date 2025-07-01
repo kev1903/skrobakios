@@ -3,7 +3,6 @@ import React from 'react';
 import { LogOut, User } from 'lucide-react';
 import { SidebarFooter as SidebarFooterBase } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -14,7 +13,7 @@ interface SidebarFooterProps {
 
 export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) => {
   const { userProfile } = useUser();
-  const { user, userRole, signOut, isSuperAdmin, isAdmin } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -22,6 +21,19 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
       onNavigate('auth');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  // Get the user's full name from the database profile
+  const getUserDisplayName = () => {
+    if (userProfile.firstName && userProfile.lastName) {
+      return `${userProfile.firstName} ${userProfile.lastName}`;
+    } else if (userProfile.firstName) {
+      return userProfile.firstName;
+    } else if (userProfile.lastName) {
+      return userProfile.lastName;
+    } else {
+      return user?.email || 'User';
     }
   };
 
@@ -45,16 +57,9 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
         </div>
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium text-slate-800 truncate font-poppins">
-                {user?.email || userProfile.firstName + ' ' + userProfile.lastName}
-              </p>
-              {userRole && (
-                <Badge variant={isSuperAdmin ? "destructive" : isAdmin ? "default" : "secondary"} className="text-xs">
-                  {userRole}
-                </Badge>
-              )}
-            </div>
+            <p className="text-sm font-medium text-slate-800 truncate font-poppins">
+              {getUserDisplayName()}
+            </p>
             <p className="text-xs text-slate-500 truncate font-inter">{userProfile.jobTitle}</p>
           </div>
         )}

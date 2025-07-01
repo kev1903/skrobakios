@@ -5,7 +5,6 @@ import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 interface MobileHeaderProps {
   onNavigate: (page: string) => void;
@@ -13,7 +12,20 @@ interface MobileHeaderProps {
 
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile } = useUser();
-  const { user, userRole, isSuperAdmin, isAdmin } = useAuth();
+  const { user } = useAuth();
+
+  // Get the user's display name from the database profile
+  const getUserDisplayName = () => {
+    if (userProfile.firstName && userProfile.lastName) {
+      return `${userProfile.firstName} ${userProfile.lastName}`;
+    } else if (userProfile.firstName) {
+      return userProfile.firstName;
+    } else if (userProfile.lastName) {
+      return userProfile.lastName;
+    } else {
+      return user?.email?.split('@')[0] || 'User';
+    }
+  };
 
   return (
     <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm md:hidden">
@@ -46,13 +58,8 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
         </div>
         <div className="flex flex-col items-start">
           <span className="text-xs font-medium text-slate-800 font-poppins">
-            {user?.email?.split('@')[0] || userProfile.firstName || 'User'}
+            {getUserDisplayName()}
           </span>
-          {userRole && (
-            <Badge variant={isSuperAdmin ? "destructive" : isAdmin ? "default" : "secondary"} className="text-xs h-4">
-              {userRole}
-            </Badge>
-          )}
         </div>
       </Button>
     </header>
