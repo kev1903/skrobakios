@@ -1,5 +1,4 @@
-
-import { ArrowLeft, Cube, Upload, Download, Eye, Settings as SettingsIcon } from "lucide-react";
+import { ArrowLeft, Box, Upload, Download, Eye, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -142,7 +141,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           <Card className="backdrop-blur-sm bg-white/60 border-white/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Cube className="w-5 h-5" />
+                <Box className="w-5 h-5" />
                 BIM Models
               </CardTitle>
               <CardDescription>
@@ -158,7 +157,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Cube className="w-5 h-5 text-blue-600" />
+                        <Box className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-slate-900">{model.name}</h3>
