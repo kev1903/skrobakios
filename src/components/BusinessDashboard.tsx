@@ -81,7 +81,12 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
                 Your Task
               </button>
               
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full"
+                onClick={() => onNavigate("settings")}
+              >
                 <Settings className="w-5 h-5" />
               </Button>
               <Button variant="ghost" size="icon" className="rounded-full">
