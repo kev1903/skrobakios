@@ -30,7 +30,7 @@ export const SalesRibbon = ({ activeTab, onTabChange }: SalesRibbonProps) => {
   ];
 
   return (
-    <div className="w-16 h-full bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2 shadow-sm">
+    <div className="fixed left-0 top-0 w-16 h-screen bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2 shadow-sm z-40">
       {ribbonItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;
