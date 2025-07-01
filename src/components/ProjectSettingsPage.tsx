@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ProjectInformationCard } from "./project-settings/ProjectInformationCard";
 import { SharePointIntegrationCard } from "./project-settings/SharePointIntegrationCard";
 import { TimelineStatusCard } from "./project-settings/TimelineStatusCard";
-import { FinancialInformationCard } from "./project-settings/FinancialInformationCard";
 import { DangerZoneCard } from "./project-settings/DangerZoneCard";
 import { ProjectOverviewSidebar } from "./project-settings/ProjectOverviewSidebar";
 
@@ -22,7 +21,6 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description || "",
-    contract_price: project.contract_price || "",
     location: project.location || "",
     coordinates: undefined as { lat: number; lng: number } | undefined,
     priority: project.priority || "Medium",
@@ -167,11 +165,6 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
               />
 
               <TimelineStatusCard 
-                formData={formData}
-                onInputChange={handleInputChange}
-              />
-
-              <FinancialInformationCard 
                 formData={formData}
                 onInputChange={handleInputChange}
               />
