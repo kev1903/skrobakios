@@ -11,11 +11,13 @@ interface MobileHeaderProps {
 }
 
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
-  const { userProfile } = useUser();
+  const { userProfile, loading } = useUser();
   const { user } = useAuth();
 
   // Get the user's display name from the database profile
   const getUserDisplayName = () => {
+    if (loading) return 'Loading...';
+    
     if (userProfile.firstName && userProfile.lastName) {
       return `${userProfile.firstName} ${userProfile.lastName}`;
     } else if (userProfile.firstName) {
@@ -25,6 +27,12 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
     } else {
       return user?.email?.split('@')[0] || 'User';
     }
+  };
+
+  // Get the user's role/job title from the database profile
+  const getUserRole = () => {
+    if (loading) return '';
+    return userProfile.jobTitle || '';
   };
 
   return (
@@ -60,6 +68,11 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           <span className="text-xs font-medium text-slate-800 font-poppins">
             {getUserDisplayName()}
           </span>
+          {getUserRole() && (
+            <span className="text-xs text-slate-500 font-inter">
+              {getUserRole()}
+            </span>
+          )}
         </div>
       </Button>
     </header>

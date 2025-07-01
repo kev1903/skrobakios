@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useProfile } from '@/hooks/useProfile';
 
 interface UserProfile {
   firstName: string;
@@ -25,26 +26,27 @@ interface UserProfile {
 interface UserContextType {
   userProfile: UserProfile;
   updateUserProfile: (updates: Partial<UserProfile>) => void;
+  loading: boolean;
 }
 
 const defaultUserProfile: UserProfile = {
-  firstName: 'Wade',
-  lastName: 'Warren',
-  email: 'wade.warren@example.com',
-  phone: '+1 (555) 123-4567',
-  jobTitle: 'UI UX Designer',
-  company: 'KAKSIK',
-  location: 'San Francisco, CA',
-  bio: 'Passionate UI/UX designer with 5+ years of experience creating user-centered digital experiences.',
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  jobTitle: '',
+  company: '',
+  location: '',
+  bio: '',
   avatarUrl: '',
-  birthDate: '1990-05-15',
-  website: 'https://wade-warren.design',
+  birthDate: '',
+  website: '',
   // Company Details
-  companyName: 'KAKSIK Design Studio',
-  abn: '12 345 678 901',
-  companyWebsite: 'https://kaksik.design',
-  companyAddress: '123 Design Street, San Francisco, CA 94105',
-  companyMembers: '15',
+  companyName: '',
+  abn: '',
+  companyWebsite: '',
+  companyAddress: '',
+  companyMembers: '',
   companyLogo: '',
 };
 
@@ -52,6 +54,33 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
+  const { profile, loading } = useProfile();
+
+  // Sync profile data when it loads from the database
+  useEffect(() => {
+    if (profile) {
+      setUserProfile({
+        firstName: profile.first_name || '',
+        lastName: profile.last_name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        jobTitle: profile.job_title || '',
+        company: profile.company || '',
+        location: profile.location || '',
+        bio: profile.bio || '',
+        avatarUrl: profile.avatar_url || '',
+        birthDate: profile.birth_date || '',
+        website: profile.website || '',
+        // Company Details - using defaults for now
+        companyName: profile.company || '',
+        abn: '',
+        companyWebsite: '',
+        companyAddress: '',
+        companyMembers: '',
+        companyLogo: '',
+      });
+    }
+  }, [profile]);
 
   const updateUserProfile = (updates: Partial<UserProfile>) => {
     setUserProfile(prev => ({
@@ -61,7 +90,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <UserContext.Provider value={{ userProfile, updateUserProfile }}>
+    <UserContext.Provider value={{ userProfile, updateUserProfile, loading }}>
       {children}
     </UserContext.Provider>
   );

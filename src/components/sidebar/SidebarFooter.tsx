@@ -12,7 +12,7 @@ interface SidebarFooterProps {
 }
 
 export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) => {
-  const { userProfile } = useUser();
+  const { userProfile, loading } = useUser();
   const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
@@ -26,6 +26,8 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
 
   // Get the user's full name from the database profile
   const getUserDisplayName = () => {
+    if (loading) return 'Loading...';
+    
     if (userProfile.firstName && userProfile.lastName) {
       return `${userProfile.firstName} ${userProfile.lastName}`;
     } else if (userProfile.firstName) {
@@ -35,6 +37,12 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
     } else {
       return user?.email || 'User';
     }
+  };
+
+  // Get the user's role/job title from the database profile
+  const getUserRole = () => {
+    if (loading) return '';
+    return userProfile.jobTitle || 'No role specified';
   };
 
   return (
@@ -60,7 +68,7 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
             <p className="text-sm font-medium text-slate-800 truncate font-poppins">
               {getUserDisplayName()}
             </p>
-            <p className="text-xs text-slate-500 truncate font-inter">{userProfile.jobTitle}</p>
+            <p className="text-xs text-slate-500 truncate font-inter">{getUserRole()}</p>
           </div>
         )}
       </Button>
