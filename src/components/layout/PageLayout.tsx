@@ -26,7 +26,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       <div className="h-screen w-full flex flex-col">
         <GlobalHeader onNavigate={onNavigate} currentPage={currentPage} />
         
-        <main className="flex-1 w-full overflow-hidden">
+        <main className="flex-1 w-full overflow-y-auto">
           {children}
         </main>
       </div>
