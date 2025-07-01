@@ -19,9 +19,10 @@ interface TeamMembersListProps {
   teamMembers: TeamMember[];
   onRemoveMember: (memberId: string) => void;
   onUpdateRole: (memberId: string, newRole: TeamMember['role']) => void;
+  onResendInvitation?: (memberId: string) => void;
 }
 
-export const TeamMembersList = ({ teamMembers, onRemoveMember, onUpdateRole }: TeamMembersListProps) => {
+export const TeamMembersList = ({ teamMembers, onRemoveMember, onUpdateRole, onResendInvitation }: TeamMembersListProps) => {
   return (
     <Card>
       <CardHeader>
@@ -41,6 +42,7 @@ export const TeamMembersList = ({ teamMembers, onRemoveMember, onUpdateRole }: T
                 member={member}
                 onRemove={onRemoveMember}
                 onUpdateRole={onUpdateRole}
+                onResendInvitation={onResendInvitation}
               />
             ))}
           </div>

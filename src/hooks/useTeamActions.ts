@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -108,6 +109,84 @@ export const useTeamActions = (
     }
   };
 
+  const resendInvitation = async (memberId: string) => {
+    try {
+      const member = teamMembers.find(m => m.id === memberId);
+      if (!member) throw new Error('Member not found');
+
+      // Get project details for the email
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('name')
+        .eq('id', projectId)
+        .single();
+
+      if (projectError) throw projectError;
+
+      // Get existing invitation token or create new one
+      let invitationToken;
+      const { data: existingInvitation, error: invitationFetchError } = await supabase
+        .from('team_invitations')
+        .select('token')
+        .eq('project_id', projectId)
+        .eq('email', member.email)
+        .eq('used', false)
+        .single();
+
+      if (invitationFetchError || !existingInvitation) {
+        // Create new invitation token
+        const { data: newInvitation, error: newInvitationError } = await supabase
+          .from('team_invitations')
+          .insert([{
+            project_id: projectId,
+            email: member.email,
+            invited_by_email: 'current-user@example.com' // TODO: Replace with actual user email when auth is implemented
+          }])
+          .select()
+          .single();
+
+        if (newInvitationError) throw newInvitationError;
+        invitationToken = newInvitation.token;
+      } else {
+        invitationToken = existingInvitation.token;
+      }
+
+      // Send the invitation email using the edge function
+      const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-invitation', {
+        body: {
+          email: member.email,
+          projectName: projectData.name,
+          inviterName: 'Project Admin', // TODO: Replace with actual inviter name when auth is implemented
+          token: invitationToken,
+          role: member.role
+        }
+      });
+
+      if (emailError) {
+        console.error('Email sending failed:', emailError);
+        toast({
+          title: "Email Failed",
+          description: `Failed to send invitation email. Share this link manually: ${window.location.origin}/accept-invitation?token=${invitationToken}`,
+          duration: 15000
+        });
+      } else {
+        console.log('Invitation email resent successfully:', emailResponse);
+        toast({
+          title: "Success",
+          description: `Invitation email resent to ${member.email} successfully!`,
+          duration: 5000
+        });
+      }
+    } catch (error: any) {
+      console.error('Error resending invitation:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend invitation",
+        variant: "destructive"
+      });
+    }
+  };
+
   const removeMember = async (memberId: string) => {
     try {
       const { error } = await supabase
@@ -191,6 +270,7 @@ export const useTeamActions = (
 
   return {
     handleInviteMember,
+    resendInvitation,
     removeMember,
     updateMemberRole,
     updateAccessSettings

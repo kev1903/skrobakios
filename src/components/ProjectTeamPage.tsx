@@ -23,6 +23,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
   const {
     handleInviteMember,
+    resendInvitation,
     removeMember,
     updateMemberRole,
     updateAccessSettings
@@ -89,6 +90,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
             teamMembers={teamMembers}
             onRemoveMember={removeMember}
             onUpdateRole={updateMemberRole}
+            onResendInvitation={resendInvitation}
           />
         </div>
       </div>

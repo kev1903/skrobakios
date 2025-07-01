@@ -1,5 +1,5 @@
 
-import { Mail, Clock, MoreVertical, Shield, User, Eye, FileText } from "lucide-react";
+import { Mail, Clock, MoreVertical, Shield, User, Eye, FileText, Send } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,10 @@ interface TeamMemberCardProps {
   member: TeamMember;
   onRemove: (memberId: string) => void;
   onUpdateRole: (memberId: string, newRole: TeamMember['role']) => void;
+  onResendInvitation?: (memberId: string) => void;
 }
 
-export const TeamMemberCard = ({ member, onRemove, onUpdateRole }: TeamMemberCardProps) => {
+export const TeamMemberCard = ({ member, onRemove, onUpdateRole, onResendInvitation }: TeamMemberCardProps) => {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'project_admin':
@@ -113,6 +114,12 @@ export const TeamMemberCard = ({ member, onRemove, onUpdateRole }: TeamMemberCar
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          {member.status === 'pending' && onResendInvitation && (
+            <DropdownMenuItem onClick={() => onResendInvitation(member.id)}>
+              <Send className="w-4 h-4 mr-2" />
+              Resend Invitation
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => onUpdateRole(member.id, 'project_admin')}>
             Make Project Admin
           </DropdownMenuItem>
