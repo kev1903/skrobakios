@@ -1,13 +1,9 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
-  Eye, 
-  Layers,
-  Settings,
   Zap,
   ZapOff
 } from "lucide-react";
@@ -24,9 +20,9 @@ export const BIMControls = ({
   performanceMode
 }: BIMControlsProps) => {
   return (
-    <Card className="absolute top-4 left-4 z-20 backdrop-blur-sm bg-white/90 border-white/60 shadow-lg">
+    <Card className="absolute top-4 left-4 z-20 backdrop-blur-sm bg-white/90 border-white/60 shadow-sm">
       <CardContent className="p-3">
-        <div className="flex flex-col space-y-3">
+        <div className="flex flex-col space-y-2">
           {/* Quick Controls */}
           <div className="flex space-x-2">
             <Button
@@ -43,15 +39,14 @@ export const BIMControls = ({
               size="sm"
               onClick={onTogglePerformance}
               className="p-2"
-              title={performanceMode ? "High Quality Mode" : "Performance Mode"}
+              title={performanceMode ? "Quality Mode" : "Performance Mode"}
             >
               {performanceMode ? <Zap className="w-4 h-4" /> : <ZapOff className="w-4 h-4" />}
             </Button>
           </div>
 
           {/* Status */}
-          <div className="border-t border-white/30 pt-3">
-            <div className="text-xs text-slate-600 mb-2 font-medium">Mode</div>
+          <div className="border-t border-white/30 pt-2">
             <Badge variant={performanceMode ? "secondary" : "default"} className="text-xs">
               {performanceMode ? "Performance" : "Quality"}
             </Badge>

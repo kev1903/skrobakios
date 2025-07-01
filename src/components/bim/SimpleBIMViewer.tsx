@@ -1,8 +1,6 @@
-
 import { useRef, useEffect, useState, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Box, Plane } from "@react-three/drei";
-import * as THREE from "three";
 
 interface SimpleBIMViewerProps {
   modelId: string;
@@ -10,80 +8,60 @@ interface SimpleBIMViewerProps {
   performanceMode?: boolean;
 }
 
-// Lightweight Building Component
+// Ultra-lightweight Building Component
 const SimpleBuilding = ({ performanceMode = false }: { performanceMode?: boolean }) => {
-  const buildingRef = useRef<THREE.Group>(null);
-
   return (
-    <group ref={buildingRef} position={[0, 0, 0]}>
+    <group position={[0, 0, 0]}>
       {/* Foundation */}
       <Box
-        args={[15, 0.3, 10]}
-        position={[0, -0.15, 0]}
+        args={[10, 0.2, 8]}
+        position={[0, -0.1, 0]}
         material-color="#A0A0A0"
       />
       
-      {/* Main Walls - Simplified */}
+      {/* Main Structure - Simplified to just 4 walls */}
       <Box
-        args={[0.2, 3, 10]}
-        position={[-7.5, 1.5, 0]}
+        args={[0.2, 2, 8]}
+        position={[-5, 1, 0]}
         material-color="#E0E0E0"
       />
       <Box
-        args={[0.2, 3, 10]}
-        position={[7.5, 1.5, 0]}
+        args={[0.2, 2, 8]}
+        position={[5, 1, 0]}
         material-color="#E0E0E0"
       />
       <Box
-        args={[15, 3, 0.2]}
-        position={[0, 1.5, -5]}
+        args={[10, 2, 0.2]}
+        position={[0, 1, -4]}
         material-color="#E0E0E0"
       />
       <Box
-        args={[15, 3, 0.2]}
-        position={[0, 1.5, 5]}
+        args={[10, 2, 0.2]}
+        position={[0, 1, 4]}
         material-color="#E0E0E0"
       />
 
-      {/* Roof */}
+      {/* Simple Roof */}
       <Box
-        args={[15.5, 0.2, 10.5]}
-        position={[0, 3.2, 0]}
+        args={[10.2, 0.1, 8.2]}
+        position={[0, 2.1, 0]}
         material-color="#8B4513"
       />
 
+      {/* Only add door in performance mode to keep it minimal */}
       {!performanceMode && (
-        <>
-          {/* Windows - Only in normal mode */}
-          <Box
-            args={[0.05, 1.5, 1]}
-            position={[-7.55, 2, -2]}
-            material-color="#87CEEB"
-            material-transparent
-            material-opacity={0.6}
-          />
-          <Box
-            args={[0.05, 1.5, 1]}
-            position={[7.55, 2, -2]}
-            material-color="#87CEEB"
-            material-transparent
-            material-opacity={0.6}
-          />
-
-          {/* Door */}
-          <Box
-            args={[1, 2.5, 0.05]}
-            position={[0, 1.25, 5.05]}
-            material-color="#8B4513"
-          />
-        </>
+        <Box
+          args={[0.8, 1.8, 0.05]}
+          position={[0, 0.9, 4.05]}
+          material-color="#654321"
+        />
       )}
     </group>
   );
 };
 
 const LoadingFallback = () => (
-  <div className="flex items-center justify-center h-full">
+  <div className="flex items-center justify-center h-full bg-slate-50">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
       <p className="text-sm text-slate-600">Loading 3D Model...</p>
@@ -91,13 +69,13 @@ const LoadingFallback = () => (
   </div>
 );
 
-export const SimpleBIMViewer = ({ modelId, className, performanceMode = false }: SimpleBIMViewerProps) => {
+export const SimpleBIMViewer = ({ modelId, className, performanceMode = true }: SimpleBIMViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 500); // Reduced loading time
 
     return () => clearTimeout(timer);
   }, [modelId]);
@@ -114,54 +92,47 @@ export const SimpleBIMViewer = ({ modelId, className, performanceMode = false }:
     <div className={className}>
       <Suspense fallback={<LoadingFallback />}>
         <Canvas
-          shadows={!performanceMode}
-          camera={{ position: [20, 12, 20], fov: 50 }}
+          shadows={false} // Disable shadows completely for stability
+          camera={{ position: [15, 8, 15], fov: 45 }}
           gl={{ 
-            antialias: !performanceMode, 
+            antialias: false, // Disable antialiasing for performance
             alpha: false,
-            powerPreference: "high-performance"
+            powerPreference: "default" // Use default instead of high-performance
           }}
-          style={{ background: 'linear-gradient(to bottom, #e0f2fe 0%, #f8fafc 100%)' }}
-          performance={{ min: 0.5 }}
+          style={{ background: '#f8fafc' }}
+          performance={{ min: 0.8 }} // Higher minimum performance threshold
+          frameloop="demand" // Only render when needed
         >
-          {/* Simplified Lighting */}
-          <ambientLight intensity={0.6} />
+          {/* Minimal Lighting */}
+          <ambientLight intensity={0.8} />
           <directionalLight
-            position={[10, 10, 5]}
-            intensity={0.8}
-            castShadow={!performanceMode}
-            shadow-mapSize-width={performanceMode ? 512 : 1024}
-            shadow-mapSize-height={performanceMode ? 512 : 1024}
+            position={[5, 5, 5]}
+            intensity={0.5}
+            castShadow={false}
           />
 
-          {/* Ground Plane */}
+          {/* Simple Ground */}
           <Plane
-            args={[50, 50]}
+            args={[30, 30]}
             rotation={[-Math.PI / 2, 0, 0]}
             position={[0, -0.2, 0]}
-            receiveShadow={!performanceMode}
             material-color="#f1f5f9"
           />
 
-          {/* Simple Grid Lines */}
-          {!performanceMode && (
-            <gridHelper args={[30, 10, "#cbd5e1", "#e2e8f0"]} position={[0, -0.1, 0]} />
-          )}
-
-          {/* Building Model */}
+          {/* Simple Building Model */}
           <SimpleBuilding performanceMode={performanceMode} />
 
-          {/* Orbit Controls */}
+          {/* Basic Orbit Controls */}
           <OrbitControls
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={8}
-            maxDistance={50}
+            minDistance={5}
+            maxDistance={30}
             minPolarAngle={0}
-            maxPolarAngle={Math.PI / 2.2}
-            enableDamping={true}
-            dampingFactor={0.1}
+            maxPolarAngle={Math.PI / 2.5}
+            enableDamping={false} // Disable damping to reduce calculations
+            autoRotate={false}
           />
         </Canvas>
       </Suspense>
