@@ -41,6 +41,60 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          birth_date: string | null
+          company: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          job_title: string | null
+          last_name: string | null
+          location: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          birth_date?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          job_title?: string | null
+          last_name?: string | null
+          location?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          birth_date?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          job_title?: string | null
+          last_name?: string | null
+          location?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       project_access_settings: {
         Row: {
           access_level: Database["public"]["Enums"]["access_level"]

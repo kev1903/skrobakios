@@ -1,5 +1,4 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Camera, User, Mail, Phone, MapPin, Briefcase, Calendar, Globe, Building, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
+import { useProfile } from '@/hooks/useProfile';
 
 interface UserEditPageProps {
   onNavigate: (page: string) => void;
@@ -17,9 +17,66 @@ interface UserEditPageProps {
 export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUser();
+  const { profile, loading, saveProfile } = useProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [profileData, setProfileData] = useState(userProfile);
+  const [profileData, setProfileData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    jobTitle: '',
+    company: '',
+    location: '',
+    bio: '',
+    avatarUrl: '',
+    birthDate: '',
+    website: '',
+    // Company Details - keeping these in context for now
+    companyName: userProfile.companyName,
+    abn: userProfile.abn,
+    companyWebsite: userProfile.companyWebsite,
+    companyAddress: userProfile.companyAddress,
+    companyMembers: userProfile.companyMembers,
+  });
+
+  const [saving, setSaving] = useState(false);
+
+  // Initialize form data when profile loads
+  useEffect(() => {
+    if (profile && !loading) {
+      setProfileData(prev => ({
+        ...prev,
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        email: profile.email,
+        phone: profile.phone,
+        jobTitle: profile.job_title,
+        company: profile.company,
+        location: profile.location,
+        bio: profile.bio,
+        avatarUrl: profile.avatar_url,
+        birthDate: profile.birth_date,
+        website: profile.website,
+      }));
+    } else if (!loading && !profile) {
+      // If no profile exists, use context data as fallback
+      setProfileData(prev => ({
+        ...prev,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        email: userProfile.email,
+        phone: userProfile.phone,
+        jobTitle: userProfile.jobTitle,
+        company: userProfile.company,
+        location: userProfile.location,
+        bio: userProfile.bio,
+        avatarUrl: userProfile.avatarUrl,
+        birthDate: userProfile.birthDate,
+        website: userProfile.website,
+      }));
+    }
+  }, [profile, loading, userProfile]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData(prev => ({
@@ -47,21 +104,87 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     }
   };
 
-  const handleSave = () => {
-    // Update the global user profile context
-    updateUserProfile(profileData);
+  const handleSave = async () => {
+    setSaving(true);
     
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated and changes are reflected throughout the application.",
-    });
+    try {
+      // Save to database
+      const success = await saveProfile({
+        first_name: profileData.firstName,
+        last_name: profileData.lastName,
+        email: profileData.email,
+        phone: profileData.phone,
+        job_title: profileData.jobTitle,
+        company: profileData.company,
+        location: profileData.location,
+        bio: profileData.bio,
+        avatar_url: profileData.avatarUrl,
+        birth_date: profileData.birthDate,
+        website: profileData.website,
+      });
+
+      if (success) {
+        // Update context for immediate UI updates
+        updateUserProfile({
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email,
+          phone: profileData.phone,
+          jobTitle: profileData.jobTitle,
+          company: profileData.company,
+          location: profileData.location,
+          bio: profileData.bio,
+          avatarUrl: profileData.avatarUrl,
+          birthDate: profileData.birthDate,
+          website: profileData.website,
+          // Company details from context
+          companyName: profileData.companyName,
+          abn: profileData.abn,
+          companyWebsite: profileData.companyWebsite,
+          companyAddress: profileData.companyAddress,
+          companyMembers: profileData.companyMembers,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile data",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
     // Reset to original profile data
-    setProfileData(userProfile);
+    if (profile) {
+      setProfileData(prev => ({
+        ...prev,
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        email: profile.email,
+        phone: profile.phone,
+        jobTitle: profile.job_title,
+        company: profile.company,
+        location: profile.location,
+        bio: profile.bio,
+        avatarUrl: profile.avatar_url,
+        birthDate: profile.birth_date,
+        website: profile.website,
+      }));
+    }
     onNavigate('tasks');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
+        <div className="text-slate-600">Loading profile...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
@@ -93,15 +216,17 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
               <Button 
                 variant="outline" 
                 onClick={handleCancel}
+                disabled={saving}
                 className="backdrop-blur-sm bg-white/60 border-white/30 hover:bg-white/80 text-slate-600 hover:text-slate-800 transition-all duration-200"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleSave}
+                disabled={saving}
                 className="backdrop-blur-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                Save Changes
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </div>
