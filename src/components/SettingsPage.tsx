@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Settings, Shield, User, Bell, Palette, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminPanel } from './admin/AdminPanel';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
@@ -15,12 +16,13 @@ interface SettingsPageProps {
 
 export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
   const { user, userRole, isSuperAdmin, isAdmin } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="relative backdrop-blur-xl bg-white/60 border-b border-white/20 shadow-sm">
+      <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
@@ -171,7 +173,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
             </TabsContent>
 
             <TabsContent value="appearance" className="space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+              <Card className="backdrop-blur-sm bg-white/60 dark:bg-slate-900/60 border-white/30 dark:border-slate-700/30">
                 <CardHeader>
                   <CardTitle>Appearance Settings</CardTitle>
                   <CardDescription>
@@ -182,9 +184,16 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-sm font-medium">Theme</h4>
-                      <p className="text-sm text-slate-500">Choose your preferred theme</p>
+                      <p className="text-sm text-slate-500">Choose between light and dark mode</p>
                     </div>
-                    <Button variant="outline" size="sm">Light</Button>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm text-slate-600 dark:text-slate-400">Light</span>
+                      <Switch
+                        checked={theme === 'dark'}
+                        onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                      />
+                      <span className="text-sm text-slate-600 dark:text-slate-400">Dark</span>
+                    </div>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between">
