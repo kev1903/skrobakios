@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
-import { ProjectSidebar } from "@/components/ProjectSidebar";
+import { ArrowLeft, Save, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Project, useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 import { ProjectInformationCard } from "./project-settings/ProjectInformationCard";
@@ -18,6 +19,7 @@ interface ProjectSettingsPageProps {
 export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPageProps) => {
   const { toast } = useToast();
   const { deleteProject, loading } = useProjects();
+  const [activeTab, setActiveTab] = useState('general');
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description || "",
@@ -135,63 +137,105 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   }, [project.id]);
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <ProjectSidebar 
-        project={project} 
-        onNavigate={onNavigate} 
-        getStatusColor={getStatusColor}
-        getStatusText={getStatusText}
-        activeSection="setting"
-      />
-      
-      <div className="flex-1 overflow-auto">
-        <div className="p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Project Settings</h1>
-            <p className="text-gray-600 mt-1">Manage your project configuration and details</p>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
+        <div className="px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onNavigate('dashboard')}
+                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="font-medium">Back</span>
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+                  Project Settings
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">Manage your project configuration and details</p>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Settings */}
-            <div className="lg:col-span-2 space-y-6">
-              <ProjectInformationCard 
-                formData={formData}
-                onInputChange={handleInputChange}
-              />
+      {/* Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-6xl mx-auto p-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-white/60">
+              <TabsTrigger value="general" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">General</span>
+              </TabsTrigger>
+              <TabsTrigger value="integration" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Integration</span>
+              </TabsTrigger>
+              <TabsTrigger value="timeline" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Timeline</span>
+              </TabsTrigger>
+              <TabsTrigger value="danger" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Danger Zone</span>
+              </TabsTrigger>
+            </TabsList>
 
-              <SharePointIntegrationCard 
-                formData={formData}
-                onInputChange={handleInputChange}
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Settings */}
+              <div className="lg:col-span-2 space-y-6">
+                <TabsContent value="general" className="space-y-6 mt-0">
+                  <ProjectInformationCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
 
-              <TimelineStatusCard 
-                formData={formData}
-                onInputChange={handleInputChange}
-              />
+                <TabsContent value="integration" className="space-y-6 mt-0">
+                  <SharePointIntegrationCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
 
-              <DangerZoneCard 
+                <TabsContent value="timeline" className="space-y-6 mt-0">
+                  <TimelineStatusCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
+
+                <TabsContent value="danger" className="space-y-6 mt-0">
+                  <DangerZoneCard 
+                    project={project}
+                    onDeleteProject={handleDeleteProject}
+                    loading={loading}
+                  />
+                </TabsContent>
+              </div>
+
+              {/* Project Overview Sidebar */}
+              <ProjectOverviewSidebar 
                 project={project}
-                onDeleteProject={handleDeleteProject}
-                loading={loading}
+                formData={formData}
+                getStatusColor={getStatusColor}
+                getStatusText={getStatusText}
               />
             </div>
 
-            {/* Project Overview Sidebar */}
-            <ProjectOverviewSidebar 
-              project={project}
-              formData={formData}
-              getStatusColor={getStatusColor}
-              getStatusText={getStatusText}
-            />
-          </div>
-
-          {/* Save Button */}
-          <div className="mt-8 flex justify-end">
-            <Button onClick={handleSave} className="flex items-center gap-2">
-              <Save className="w-4 h-4" />
-              Save Changes
-            </Button>
-          </div>
+            {/* Save Button */}
+            <div className="mt-8 flex justify-end">
+              <Button onClick={handleSave} className="flex items-center gap-2">
+                <Save className="w-4 h-4" />
+                Save Changes
+              </Button>
+            </div>
+          </Tabs>
         </div>
       </div>
     </div>
