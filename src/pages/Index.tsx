@@ -24,6 +24,7 @@ import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
+import { SalesPage } from "@/components/SalesPage";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -152,6 +153,8 @@ const Index = () => {
         return <BillsPage onNavigate={setCurrentPage} />;
       case "recurring":
         return <RecurringPage onNavigate={setCurrentPage} />;
+      case "sales":
+        return <SalesPage onNavigate={setCurrentPage} />;
       case "support":
         return <SupportPage />;
       case "user-edit":
