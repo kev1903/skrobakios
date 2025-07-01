@@ -8,6 +8,7 @@ import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { ProjectTeamPage } from "@/components/ProjectTeamPage";
+import { ProjectBIMPage } from "@/components/ProjectBIMPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
@@ -128,6 +129,14 @@ const Index = () => {
             <p className="text-slate-500">Project not found</p>
           </div>
         );
+      case "project-bim":
+        return currentProject ? (
+          <ProjectBIMPage project={currentProject} onNavigate={setCurrentPage} />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-slate-500">Project not found</p>
+          </div>
+        );
       case "gantt-chart":
         return currentProject ? (
           <GanttChartPage project={currentProject} onNavigate={setCurrentPage} />
@@ -162,7 +171,7 @@ const Index = () => {
   };
 
   // Hide main sidebar for auth page, project-specific pages and user edit page
-  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit"].includes(currentPage);
+  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "project-bim", "gantt-chart", "user-edit"].includes(currentPage);
 
   return (
     <AuthProvider>
