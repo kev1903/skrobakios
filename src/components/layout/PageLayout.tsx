@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { GlobalHeader } from "./GlobalHeader";
 
 interface PageLayoutProps {
   currentPage: string;
@@ -10,9 +10,6 @@ interface PageLayoutProps {
 }
 
 export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
-  // Hide main sidebar for auth page, project-specific pages, user edit page, and sales page
-  const showMainSidebar = false; // Main sidebar completely removed
-
   if (currentPage === "auth") {
     return (
       <main className="flex-1 overflow-hidden w-full">
@@ -26,17 +23,13 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin"}
     >
-      {showMainSidebar ? (
-        <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
-          <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/30 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
-            {children}
-          </main>
-        </AppSidebar>
-      ) : (
-        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/30 border border-white/20 shadow-xl transition-all duration-300 w-full">
+      <div className="min-h-screen flex flex-col">
+        <GlobalHeader onNavigate={onNavigate} currentPage={currentPage} />
+        
+        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/30 border-0 shadow-xl transition-all duration-300">
           {children}
         </main>
-      )}
+      </div>
     </ProtectedRoute>
   );
 };
