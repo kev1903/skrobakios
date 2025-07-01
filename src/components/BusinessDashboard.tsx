@@ -57,6 +57,19 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
                 {navigationItems.map((item, index) => (
                   <button
                     key={index}
+                    onClick={() => {
+                      if (item.label === "Projects") {
+                        onNavigate("project-dashboard");
+                      } else if (item.label === "Files") {
+                        onNavigate("files");
+                      } else if (item.label === "Finances") {
+                        onNavigate("finance");
+                      } else if (item.label === "Sales") {
+                        onNavigate("sales");
+                      } else if (item.label === "Calendar") {
+                        onNavigate("calendar");
+                      }
+                    }}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                       item.active 
                         ? "bg-gray-800 text-white" 
