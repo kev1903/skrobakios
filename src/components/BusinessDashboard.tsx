@@ -118,40 +118,6 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
           ))}
         </div>
 
-        {/* Progress Bars */}
-        <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-            {progressData.map((item, index) => (
-              <div key={index} className="flex flex-col items-center space-y-2">
-                <span className="text-sm font-medium text-gray-700">{item.label}</span>
-                <div className="w-16 h-16 bg-gray-200 rounded-lg relative overflow-hidden">
-                  <div 
-                    className={`${item.color} rounded-lg transition-all duration-500`}
-                    style={{ 
-                      height: `${Math.max(item.value, 5)}%`,
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                    }}
-                  />
-                </div>
-                <span className="text-xs font-bold text-gray-600">{item.value}%</span>
-              </div>
-            ))}
-            
-            {/* Output Section */}
-            <div className="flex flex-col items-center space-y-2">
-              <span className="text-sm font-medium text-gray-700">Overall</span>
-              <div className="bg-gray-200 px-4 py-2 rounded-full">
-                <span className="text-sm font-medium text-gray-700">
-                  {Math.round((progressData.reduce((sum, item) => sum + item.value, 0) / progressData.length))}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Main Content Grid */}
         <div className="grid grid-cols-12 gap-6">
           {/* Left Column - User Panel & Progress */}
