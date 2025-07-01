@@ -21,9 +21,11 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
     <div className="bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] border-b border-[#E8E3D3] p-6 shadow-sm w-full">
       <div className="w-full">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center">
             <h1 className="text-2xl font-bold text-gray-900 font-manrope">Crextio</h1>
-            
+          </div>
+          
+          <div className="flex items-center space-x-8">
             <div className="flex items-center bg-gray-800 rounded-full p-1">
               {navigationItems.map((item, index) => (
                 <button
