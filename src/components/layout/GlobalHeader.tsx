@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bell, Settings, User, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useProfile } from "@/hooks/useProfile";
 
 interface GlobalHeaderProps {
   onNavigate: (page: string) => void;
@@ -8,6 +9,12 @@ interface GlobalHeaderProps {
 }
 
 export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => {
+  const { profile } = useProfile();
+  
+  const getCompanyName = () => {
+    return profile?.company || "Company name";
+  };
+
   const navigationItems = [
     { label: "Dashboard", active: currentPage === "dashboard" || currentPage === "" },
     { label: "Files", active: currentPage === "files" },
@@ -22,7 +29,7 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-gray-900 font-manrope">Company name</h1>
+            <h1 className="text-2xl font-bold text-gray-900 font-manrope">{getCompanyName()}</h1>
           </div>
           
           <div className="flex items-center space-x-8">
