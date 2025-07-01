@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useProfile } from '@/hooks/useProfile';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { User } from 'lucide-react';
@@ -12,7 +13,12 @@ interface MobileHeaderProps {
 
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile, loading } = useUser();
+  const { profile } = useProfile();
   const { user } = useAuth();
+
+  const getCompanyName = () => {
+    return profile?.company || "Company name";
+  };
 
   // Get the user's display name from the database profile
   const getUserDisplayName = () => {
@@ -43,7 +49,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-blue-700 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xs font-poppins">K</span>
           </div>
-          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">KAKSIK</h1>
+          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">{getCompanyName()}</h1>
         </div>
       </div>
       
