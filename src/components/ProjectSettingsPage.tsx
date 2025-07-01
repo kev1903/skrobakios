@@ -9,7 +9,8 @@ import { ProjectInformationCard } from "./project-settings/ProjectInformationCar
 import { SharePointIntegrationCard } from "./project-settings/SharePointIntegrationCard";
 import { TimelineStatusCard } from "./project-settings/TimelineStatusCard";
 import { DangerZoneCard } from "./project-settings/DangerZoneCard";
-import { ProjectOverviewSidebar } from "./project-settings/ProjectOverviewSidebar";
+import { ProjectOverviewCard } from "./project-settings/ProjectOverviewCard";
+import { ProjectBannerCard } from "./project-settings/ProjectBannerCard";
 
 interface ProjectSettingsPageProps {
   project: Project;
@@ -30,6 +31,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     start_date: project.start_date || "",
     deadline: project.deadline || "",
     sharepoint_link: "",
+    banner_image: "",
   });
 
   const getStatusColor = (status: string) => {
@@ -86,6 +88,11 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       localStorage.setItem(`project_coordinates_${project.id}`, JSON.stringify(formData.coordinates));
     }
 
+    // Store banner image in localStorage for demo purposes
+    if (formData.banner_image) {
+      localStorage.setItem(`project_banner_${project.id}`, formData.banner_image);
+    }
+
     toast({
       title: "Settings Saved",
       description: "Project settings have been updated successfully.",
@@ -134,6 +141,15 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
         console.error('Error parsing saved coordinates:', error);
       }
     }
+
+    // Load existing banner image from localStorage
+    const savedBanner = localStorage.getItem(`project_banner_${project.id}`);
+    if (savedBanner) {
+      setFormData(prev => ({
+        ...prev,
+        banner_image: savedBanner
+      }));
+    }
   }, [project.id]);
 
   return (
@@ -165,7 +181,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto p-8">
+        <div className="max-w-4xl mx-auto p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-white/60">
               <TabsTrigger value="general" className="flex items-center space-x-2">
@@ -186,46 +202,46 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
               </TabsTrigger>
             </TabsList>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Settings */}
-              <div className="lg:col-span-2 space-y-6">
-                <TabsContent value="general" className="space-y-6 mt-0">
-                  <ProjectInformationCard 
-                    formData={formData}
-                    onInputChange={handleInputChange}
-                  />
-                </TabsContent>
+            <div className="space-y-6">
+              <TabsContent value="general" className="space-y-6 mt-0">
+                <ProjectBannerCard 
+                  formData={formData}
+                  onInputChange={handleInputChange}
+                />
+                <ProjectInformationCard 
+                  formData={formData}
+                  onInputChange={handleInputChange}
+                />
+                <ProjectOverviewCard 
+                  project={project}
+                  formData={formData}
+                  onInputChange={handleInputChange}
+                  getStatusColor={getStatusColor}
+                  getStatusText={getStatusText}
+                />
+              </TabsContent>
 
-                <TabsContent value="integration" className="space-y-6 mt-0">
-                  <SharePointIntegrationCard 
-                    formData={formData}
-                    onInputChange={handleInputChange}
-                  />
-                </TabsContent>
+              <TabsContent value="integration" className="space-y-6 mt-0">
+                <SharePointIntegrationCard 
+                  formData={formData}
+                  onInputChange={handleInputChange}
+                />
+              </TabsContent>
 
-                <TabsContent value="timeline" className="space-y-6 mt-0">
-                  <TimelineStatusCard 
-                    formData={formData}
-                    onInputChange={handleInputChange}
-                  />
-                </TabsContent>
+              <TabsContent value="timeline" className="space-y-6 mt-0">
+                <TimelineStatusCard 
+                  formData={formData}
+                  onInputChange={handleInputChange}
+                />
+              </TabsContent>
 
-                <TabsContent value="danger" className="space-y-6 mt-0">
-                  <DangerZoneCard 
-                    project={project}
-                    onDeleteProject={handleDeleteProject}
-                    loading={loading}
-                  />
-                </TabsContent>
-              </div>
-
-              {/* Project Overview Sidebar */}
-              <ProjectOverviewSidebar 
-                project={project}
-                formData={formData}
-                getStatusColor={getStatusColor}
-                getStatusText={getStatusText}
-              />
+              <TabsContent value="danger" className="space-y-6 mt-0">
+                <DangerZoneCard 
+                  project={project}
+                  onDeleteProject={handleDeleteProject}
+                  loading={loading}
+                />
+              </TabsContent>
             </div>
 
             {/* Save Button */}
