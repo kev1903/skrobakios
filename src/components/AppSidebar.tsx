@@ -154,7 +154,10 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
 
       {/* User Profile */}
       <div className="p-4 border-t border-white/10">
-        <button className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/10 transition-all duration-200 group backdrop-blur-sm">
+        <button 
+          onClick={() => onNavigate('user-edit')}
+          className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/10 transition-all duration-200 group backdrop-blur-sm"
+        >
           <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-white" />
           </div>

@@ -22,6 +22,7 @@ import { CashFlowPage } from "@/components/CashFlowPage";
 import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
+import { UserEditPage } from "@/components/UserEditPage";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useEffect } from "react";
 
@@ -145,13 +146,15 @@ const Index = () => {
         return <AuthPage onNavigate={setCurrentPage} />;
       case "support":
         return <SupportPage />;
+      case "user-edit":
+        return <UserEditPage onNavigate={setCurrentPage} />;
       default:
         return <TaskManagement onNavigate={setCurrentPage} />;
     }
   };
 
-  // Hide main sidebar for project-specific pages
-  const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart"].includes(currentPage);
+  // Hide main sidebar for project-specific pages and user edit page
+  const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit"].includes(currentPage);
 
   return (
     <div className="min-h-screen flex">
