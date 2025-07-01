@@ -16,6 +16,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTaskContext } from './TaskContext';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
+import { AddTaskButton } from './AddTaskButton';
+import { AddTaskDialog } from './AddTaskDialog';
 import { Task } from './TaskContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,6 +25,7 @@ export const TaskListView = () => {
   const { tasks } = useTaskContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const handleTaskClick = (task: Task) => {
@@ -33,6 +36,10 @@ export const TaskListView = () => {
   const handleCloseSidePanel = () => {
     setIsSidePanelOpen(false);
     setSelectedTask(null);
+  };
+
+  const handleAddTask = () => {
+    setIsAddTaskDialogOpen(true);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -65,52 +72,17 @@ export const TaskListView = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Task Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <Card>
-          <CardContent className="p-3 md:p-4">
-            <div className="text-center">
-              <p className="text-xl md:text-2xl font-bold text-gray-900">{tasks.length}</p>
-              <p className="text-xs md:text-sm text-gray-500">Total Tasks</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 md:p-4">
-            <div className="text-center">
-              <p className="text-xl md:text-2xl font-bold text-blue-600">
-                {tasks.filter(task => task.status === "In Progress").length}
-              </p>
-              <p className="text-xs md:text-sm text-gray-500">In Progress</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 md:p-4">
-            <div className="text-center">
-              <p className="text-xl md:text-2xl font-bold text-green-600">
-                {tasks.filter(task => task.status === "Completed").length}
-              </p>
-              <p className="text-xs md:text-sm text-gray-500">Completed</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 md:p-4">
-            <div className="text-center">
-              <p className="text-xl md:text-2xl font-bold text-red-600">0</p>
-              <p className="text-xs md:text-sm text-gray-500">Overdue</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Tasks Table */}
       <Card>
         <CardContent className="p-0">
           {isMobile ? (
             // Mobile Card View
             <div className="space-y-3 p-4">
+              {/* Add Task Button for Mobile */}
+              <div className="mb-4">
+                <AddTaskButton onAddTask={handleAddTask} />
+              </div>
+              
               {tasks.map((task, index) => (
                 <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleTaskClick(task)}>
                   <CardContent className="p-4">
@@ -172,6 +144,13 @@ export const TaskListView = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
+                  {/* Add Task Row */}
+                  <TableRow className="hover:bg-gray-50 cursor-pointer" onClick={handleAddTask}>
+                    <TableCell colSpan={9} className="p-4">
+                      <AddTaskButton onAddTask={handleAddTask} />
+                    </TableCell>
+                  </TableRow>
+                  
                   {tasks.map((task, index) => (
                     <TableRow key={index} className="hover:bg-gray-50">
                       <TableCell>
@@ -252,6 +231,11 @@ export const TaskListView = () => {
         task={selectedTask}
         isOpen={isSidePanelOpen}
         onClose={handleCloseSidePanel}
+      />
+
+      <AddTaskDialog
+        isOpen={isAddTaskDialogOpen}
+        onClose={() => setIsAddTaskDialogOpen(false)}
       />
     </div>
   );
