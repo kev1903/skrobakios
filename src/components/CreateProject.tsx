@@ -77,7 +77,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen glass-bg p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -91,13 +91,13 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Create Project</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent heading-modern">Create Project</h1>
           </div>
           <div className="flex items-center space-x-3">
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={loading}>
+            <Button onClick={handleSave} disabled={loading} className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white">
               {loading ? "Saving..." : "Save"}
             </Button>
             <Button variant="outline" className="flex items-center space-x-2">
@@ -107,23 +107,23 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
         </div>
 
         {/* Main Form */}
-        <Card className="bg-white">
+        <Card>
           <CardContent className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
               <div className="space-y-6">
                 {/* Project Image Upload */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">
                     Project Image
                   </Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                  <div className="border-2 border-dashed border-white/30 rounded-lg p-8 text-center bg-white/20 backdrop-blur-sm">
                     <div className="flex flex-col items-center">
-                      <Upload className="w-8 h-8 text-blue-500 mb-2" />
-                      <p className="text-sm text-gray-600">
+                      <Upload className="w-8 h-8 text-amber-500 mb-2" />
+                      <p className="text-sm text-slate-600">
                         Click to upload or drag and drop
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-slate-500 mt-1">
                         SVG, PNG or JPG (max 800x400)
                       </p>
                     </div>
@@ -140,20 +140,20 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project ID */}
                 <div>
-                  <Label htmlFor="projectId" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="projectId" className="text-sm font-medium text-slate-700 mb-2 block">
                     Project ID
                   </Label>
                   <Input
                     id="projectId"
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full"
+                    className="w-full input-glass"
                   />
                 </div>
 
                 {/* Project Name */}
                 <div>
-                  <Label htmlFor="projectName" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="projectName" className="text-sm font-medium text-slate-700 mb-2 block">
                     Project Name *
                   </Label>
                   <Input
@@ -161,14 +161,14 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                     placeholder="Enter Project Name..."
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
-                    className="w-full"
+                    className="w-full input-glass"
                     required
                   />
                 </div>
 
                 {/* Location */}
                 <div>
-                  <Label htmlFor="location" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="location" className="text-sm font-medium text-slate-700 mb-2 block">
                     Location
                   </Label>
                   <Input
@@ -176,13 +176,13 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                     placeholder="Enter Location..."
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full"
+                    className="w-full input-glass"
                   />
                 </div>
 
                 {/* Start Date */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">
                     Start Date
                   </Label>
                   <Popover>
@@ -212,7 +212,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Contract Price */}
                 <div>
-                  <Label htmlFor="contractPrice" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="contractPrice" className="text-sm font-medium text-slate-700 mb-2 block">
                     Contract Price
                   </Label>
                   <Input
@@ -220,7 +220,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                     placeholder="Contract Price"
                     value={contractPrice}
                     onChange={(e) => setContractPrice(e.target.value)}
-                    className="w-full"
+                    className="w-full input-glass"
                   />
                 </div>
               </div>
@@ -229,7 +229,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
               <div className="space-y-6">
                 {/* Deadline */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">
                     Deadline
                   </Label>
                   <Popover>
@@ -259,13 +259,13 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project Status */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">
                     Project Status
                   </Label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 backdrop-blur-sm bg-white/60 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-800"
                   >
                     <option value="pending">Pending</option>
                     <option value="running">Running</option>
@@ -275,13 +275,13 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project Priority */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">
                     Project Priority
                   </Label>
                   <select
                     value={selectedPriority}
                     onChange={(e) => setSelectedPriority(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 backdrop-blur-sm bg-white/60 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-800"
                   >
                     <option value="">Select Priority</option>
                     <option value="low">Low</option>
@@ -293,7 +293,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Invite */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">
                     Invite
                   </Label>
                   <Button
@@ -306,7 +306,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Description */}
                 <div>
-                  <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="description" className="text-sm font-medium text-slate-700 mb-2 block">
                     Description
                   </Label>
                   <Textarea
@@ -314,7 +314,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                     placeholder="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full min-h-[120px] resize-none"
+                    className="w-full min-h-[120px] resize-none input-glass"
                   />
                 </div>
               </div>

@@ -101,7 +101,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
       <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-4">
         {/* Header with refresh button */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-4xl font-bold text-gray-900 font-manrope-thin font-extralight">{getTimeBasedGreeting()}</h2>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent font-manrope-thin font-extralight heading-modern">{getTimeBasedGreeting()}</h2>
           <Button
             onClick={handleRefreshStats}
             variant="outline"
@@ -123,8 +123,8 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {statsData.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-6xl font-bold text-gray-900 mb-2">{stat.number}</div>
-              <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
+              <div className="text-6xl font-bold bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent mb-2">{stat.number}</div>
+              <div className="text-sm text-slate-600 font-medium">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -136,21 +136,21 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
             <UserWelcomePanel />
             
             {/* Weekly Progress Widget */}
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+            <div className="glass-card p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Weekly Progress</h3>
-                <span className="text-sm text-gray-500">📈</span>
+                <h3 className="text-lg font-semibold text-slate-900">Weekly Progress</h3>
+                <span className="text-sm text-slate-500">📈</span>
               </div>
               <div className="space-y-4">
                 <div>
-                  <div className="text-3xl font-bold text-gray-900">{getTotalWeeklyHours().toFixed(1)}h</div>
-                  <div className="text-sm text-gray-600">Work Time this week</div>
+                  <div className="text-3xl font-bold text-slate-900">{getTotalWeeklyHours().toFixed(1)}h</div>
+                  <div className="text-sm text-slate-600">Work Time this week</div>
                 </div>
                 
-                <div className="bg-yellow-100 rounded-lg p-3">
+                <div className="bg-amber-100 rounded-lg p-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-yellow-800">Target: 40h</span>
-                    <span className="text-sm font-medium text-yellow-800">
+                    <span className="text-sm text-amber-800">Target: 40h</span>
+                    <span className="text-sm font-medium text-amber-800">
                       {Math.round((getTotalWeeklyHours() / 40) * 100)}%
                     </span>
                   </div>
@@ -167,13 +167,13 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
 
           {/* Right Column - Onboarding Tasks */}
           <div className="col-span-12 lg:col-span-3">
-            <div className="bg-gray-800 rounded-2xl p-6 text-white">
+            <div className="glass-card p-6 bg-slate-800/80 text-white">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">Onboarding</h3>
                 <div className="text-2xl font-bold">{onboardingProgress}%</div>
               </div>
               
-              <div className="bg-yellow-400 text-gray-800 px-3 py-1 rounded-full text-sm font-medium mb-6 inline-block">
+              <div className="bg-amber-400 text-slate-800 px-3 py-1 rounded-full text-sm font-medium mb-6 inline-block">
                 Tasks
               </div>
               
@@ -190,8 +190,8 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
                         onClick={() => toggleTaskCompletion(task.id)}
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                           task.completed 
-                            ? 'bg-yellow-400 text-gray-800 hover:bg-yellow-500' 
-                            : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                            ? 'bg-amber-400 text-slate-800 hover:bg-amber-500' 
+                            : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
                         }`}
                       >
                         {task.completed ? '✓' : '○'}
@@ -200,7 +200,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
                         <div className={`text-sm font-medium ${task.completed ? 'line-through opacity-75' : ''}`}>
                           {task.name}
                         </div>
-                        <div className="text-xs text-gray-400">{task.date}</div>
+                        <div className="text-xs text-slate-400">{task.date}</div>
                       </div>
                     </div>
                   ))}

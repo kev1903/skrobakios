@@ -25,15 +25,15 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
   ];
 
   return (
-    <div className="bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] border-b border-[#E8E3D3] p-6 shadow-sm w-full">
+    <div className="glass-light border-b border-white/20 p-6 shadow-lg w-full">
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-gray-900 font-manrope">{getCompanyName()}</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent font-manrope heading-modern">{getCompanyName()}</h1>
           </div>
           
           <div className="flex items-center space-x-8">
-            <div className="flex items-center bg-gray-800 rounded-full p-1">
+            <div className="flex items-center bg-slate-800/80 backdrop-blur-sm rounded-full p-1 shadow-lg">
               {navigationItems.map((item, index) => (
                 <button
                   key={index}
@@ -54,8 +54,8 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
                   }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     item.active 
-                      ? "bg-gray-800 text-white" 
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "bg-amber-500 text-white shadow-lg" 
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {item.label}
@@ -68,7 +68,7 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full"
+              className="rounded-full hover:bg-white/20"
             >
               <CheckSquare className="w-5 h-5" />
             </Button>
@@ -76,18 +76,18 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full"
+              className="rounded-full hover:bg-white/20"
               onClick={() => onNavigate("settings")}
             >
               <Settings className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20">
               <Bell className="w-5 h-5" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full"
+              className="rounded-full hover:bg-white/20"
               onClick={() => onNavigate("user-edit")}
             >
               <User className="w-5 h-5" />

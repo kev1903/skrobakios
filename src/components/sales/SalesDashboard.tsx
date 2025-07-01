@@ -82,7 +82,7 @@ export const SalesDashboard = () => {
     <div className="space-y-6">
       {/* Quick Actions */}
       <div className="flex gap-4">
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white">
           <Plus className="w-4 h-4 mr-2" />
           Add New Lead
         </Button>
@@ -102,10 +102,10 @@ export const SalesDashboard = () => {
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <stat.icon className={`h-4 w-4 ${stat.color === 'text-blue-600' ? 'text-amber-600' : stat.color}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent">{stat.value}</div>
               <p className="text-xs text-muted-foreground">{stat.change}</p>
             </CardContent>
           </Card>
@@ -132,9 +132,9 @@ export const SalesDashboard = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-medium">{project.completion}%</div>
-                  <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                  <div className="w-20 bg-slate-200 rounded-full h-2 mt-1">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full" 
+                      className="bg-amber-500 h-2 rounded-full" 
                       style={{ width: `${project.completion}%` }}
                     ></div>
                   </div>
@@ -153,11 +153,11 @@ export const SalesDashboard = () => {
           <CardContent className="space-y-4">
             {recentActivity.map((activity, index) => (
               <div key={index} className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-sm text-gray-600">{activity.item}</p>
-                  <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                  <p className="text-sm text-slate-600">{activity.item}</p>
+                  <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
                 </div>
               </div>
             ))}
