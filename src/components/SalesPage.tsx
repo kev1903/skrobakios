@@ -51,11 +51,11 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
 
   return (
     <div className="flex h-screen bg-gray-50 w-full overflow-hidden">
-      {/* Side Ribbon - Fixed position, always visible */}
+      {/* Sales Ribbon - Always visible */}
       <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
       
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* Main Content Area - Properly offset to account for ribbon */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden ml-16">
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
