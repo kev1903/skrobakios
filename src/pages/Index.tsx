@@ -1,153 +1,14 @@
 
 import { useState } from "react";
-import { AppSidebar } from "@/components/AppSidebar";
-import { TaskManagement } from "@/components/TaskManagement";
-import { BusinessDashboard } from "@/components/BusinessDashboard";
-import { ProjectDetail } from "@/components/ProjectDetail";
-import { ProjectFilePage } from "@/components/ProjectFilePage";
-import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
-import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
-import { ProjectTasksPage } from "@/components/ProjectTasksPage";
-import { ProjectTeamPage } from "@/components/ProjectTeamPage";
-import { ProjectBIMPage } from "@/components/ProjectBIMPage";
-import { GanttChartPage } from "@/components/GanttChartPage";
-import { UploadProject } from "@/components/UploadProject";
-import { AuthPage } from "@/components/auth/AuthPage";
-import { AdminPanel } from "@/components/admin/AdminPanel";
-import { SettingsPage } from "@/components/SettingsPage";
-import { SupportPage } from "@/components/SupportPage";
-import { CreateProject } from "@/components/CreateProject";
-import { ProjectList } from "@/components/ProjectList";
-import { FilePage } from "@/components/FilePage";
-import { FinancePage } from "@/components/FinancePage";
-import { FinanceSettingsPage } from "@/components/FinanceSettingsPage";
-import { CashFlowPage } from "@/components/CashFlowPage";
-import { InvoicesPage } from "@/components/InvoicesPage";
-import { BillsPage } from "@/components/BillsPage";
-import { RecurringPage } from "@/components/RecurringPage";
-import { UserEditPage } from "@/components/UserEditPage";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { useProjects, Project } from "@/hooks/useProjects";
-import { useEffect } from "react";
+import { useCurrentProject } from "@/hooks/useCurrentProject";
+import { PageRouter } from "@/components/routing/PageRouter";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState("auth");
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
-  const { getProjects } = useProjects();
-
-  useEffect(() => {
-    const fetchCurrentProject = async () => {
-      if (selectedProject) {
-        const projects = await getProjects();
-        const project = projects.find(p => p.id === selectedProject);
-        if (project) {
-          setCurrentProject(project);
-        } else {
-          // Fallback project for demo purposes
-          setCurrentProject({
-            id: "1",
-            project_id: "SK23003",
-            name: "Gordon Street, Balwyn",
-            location: "Balwyn, VIC",
-            created_at: "2024-06-15T00:00:00Z",
-            status: "completed",
-            contract_price: "$2,450,000",
-            start_date: "2024-06-15",
-            deadline: "2024-08-30",
-            updated_at: "2024-06-15T00:00:00Z",
-            priority: "Medium"
-          });
-        }
-      }
-    };
-
-    fetchCurrentProject();
-  }, [selectedProject]);
-
-  const handleSelectProject = (projectId: string) => {
-    console.log("Setting selected project:", projectId);
-    setSelectedProject(projectId);
-  };
-
-  // Helper function to get current project or fallback
-  const getCurrentProject = (): Project => {
-    return currentProject || {
-      id: "1",
-      project_id: "SK23003",
-      name: "Gordon Street, Balwyn",
-      location: "Balwyn, VIC",
-      created_at: "2024-06-15T00:00:00Z",
-      status: "completed",
-      contract_price: "$2,450,000",
-      start_date: "2024-06-15",
-      deadline: "2024-08-30",
-      updated_at: "2024-06-15T00:00:00Z",
-      priority: "Medium"
-    };
-  };
-
-  const renderContent = () => {
-    switch (currentPage) {
-      case "auth":
-        return <AuthPage onNavigate={setCurrentPage} />;
-      case "tasks":
-        return <TaskManagement onNavigate={setCurrentPage} />;
-      case "dashboard":
-        return <BusinessDashboard onSelectProject={handleSelectProject} onNavigate={setCurrentPage} />;
-      case "settings":
-        return <SettingsPage onNavigate={setCurrentPage} />;
-      case "admin":
-        return <AdminPanel onNavigate={setCurrentPage} />;
-      case "create-project":
-        return <CreateProject onNavigate={setCurrentPage} />;
-      case "projects":
-        return <ProjectList onNavigate={setCurrentPage} onSelectProject={handleSelectProject} />;
-      case "project-detail":
-        return <ProjectDetail projectId={selectedProject} onNavigate={setCurrentPage} />;
-      case "project-tasks":
-        return <ProjectTasksPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "project-files":
-        return <ProjectFilePage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "project-settings":
-        return <ProjectSettingsPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "project-schedule":
-        return <ProjectSchedulePage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "project-team":
-        return <ProjectTeamPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "project-bim":
-        return <ProjectBIMPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "gantt-chart":
-        return <GanttChartPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
-      case "upload":
-        return <UploadProject onNavigate={setCurrentPage} />;
-      case "files":
-        return <FilePage onNavigate={setCurrentPage} />;
-      case "finance":
-        return <FinancePage onNavigate={setCurrentPage} />;
-      case "finance-settings":
-        return <FinanceSettingsPage onNavigate={setCurrentPage} />;
-      case "cashflow":
-        return <CashFlowPage onNavigate={setCurrentPage} />;
-      case "invoices":
-        return <InvoicesPage onNavigate={setCurrentPage} />;
-      case "bills":
-        return <BillsPage onNavigate={setCurrentPage} />;
-      case "recurring":
-        return <RecurringPage onNavigate={setCurrentPage} />;
-      case "support":
-        return <SupportPage />;
-      case "user-edit":
-        return <UserEditPage onNavigate={setCurrentPage} />;
-      default:
-        return <AuthPage onNavigate={setCurrentPage} />;
-    }
-  };
-
-  // Hide main sidebar for auth page, project-specific pages and user edit page
-  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "project-bim", "gantt-chart", "user-edit"].includes(currentPage);
+  const { selectedProject, handleSelectProject, getCurrentProject } = useCurrentProject();
 
   return (
     <AuthProvider>
@@ -157,28 +18,15 @@ const Index = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
           
           <div className="flex relative z-10">
-            {currentPage === "auth" ? (
-              <main className="flex-1 overflow-hidden w-full">
-                {renderContent()}
-              </main>
-            ) : (
-              <ProtectedRoute 
+            <AppLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+              <PageRouter
+                currentPage={currentPage}
+                selectedProject={selectedProject}
+                getCurrentProject={getCurrentProject}
                 onNavigate={setCurrentPage}
-                requireSuperAdmin={currentPage === "admin"}
-              >
-                {showMainSidebar ? (
-                  <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage}>
-                    <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
-                      {renderContent()}
-                    </main>
-                  </AppSidebar>
-                ) : (
-                  <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
-                    {renderContent()}
-                  </main>
-                )}
-              </ProtectedRoute>
-            )}
+                onSelectProject={handleSelectProject}
+              />
+            </AppLayout>
           </div>
         </div>
       </UserProvider>
