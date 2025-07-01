@@ -31,10 +31,9 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] p-6 font-manrope">
-      <div className="max-w-7xl mx-auto">
-        {/* Main Container with rounded background */}
-        <div className="bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] rounded-3xl p-8 shadow-2xl border border-[#E8E3D3]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope">
+      {/* Main Container taking full screen */}
+      <div className="min-h-screen bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-8">
           
           {/* Welcome Section */}
           <h2 className="text-4xl font-bold text-gray-900 mb-8">Welcome in, Nixtio</h2>
@@ -181,4 +180,3 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
     </div>
   );
 };
-
