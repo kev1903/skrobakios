@@ -13,9 +13,9 @@ const Index = () => {
   return (
     <AuthProvider>
       <UserProvider>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+        <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-600 to-white relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
           
           <div className="flex relative z-10">
             <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>

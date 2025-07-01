@@ -28,12 +28,12 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     >
       {showMainSidebar ? (
         <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
-          <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/50 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
+          <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/30 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
             {children}
           </main>
         </AppSidebar>
       ) : (
-        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/50 border border-white/20 shadow-xl transition-all duration-300 w-full">
+        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/30 border border-white/20 shadow-xl transition-all duration-300 w-full">
           {children}
         </main>
       )}

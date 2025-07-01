@@ -72,9 +72,9 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
   if (loading) {
     return (
       <div className="h-full overflow-auto font-manrope">
-        <div className="min-h-full bg-gradient-to-br from-blue-900 via-blue-300 to-white p-8">
+        <div className="min-h-full p-8">
           <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading projects...</div>
+            <div className="text-white">Loading projects...</div>
           </div>
         </div>
       </div>
@@ -83,15 +83,15 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
 
   return (
     <div className="h-full overflow-auto font-manrope">
-      <div className="min-h-full bg-gradient-to-br from-blue-900 via-blue-300 to-white p-8">
+      <div className="min-h-full p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Project Dashboard</h1>
-            <p className="text-gray-600">Manage your construction estimation projects</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Project Dashboard</h1>
+            <p className="text-white/80">Manage your construction estimation projects</p>
           </div>
           <Button 
             onClick={() => onNavigate("create-project")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/30 px-6 py-3 rounded-lg flex items-center space-x-2 backdrop-blur-sm"
           >
             <Upload className="w-5 h-5" />
             <span>New Project</span>
@@ -100,10 +100,10 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
 
         {projects.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-500 mb-4">No projects found</div>
+            <div className="text-white/80 mb-4">No projects found</div>
             <Button
               onClick={() => onNavigate("create-project")}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
             >
               Create Your First Project
             </Button>
@@ -113,10 +113,10 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
             {projects.map((project) => {
               const progress = getProgress(project.status);
               return (
-                <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
+                <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer border border-white/20 bg-white/10 backdrop-blur-sm">
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg font-semibold text-gray-900 truncate">
+                      <CardTitle className="text-lg font-semibold text-white truncate">
                         {project.name}
                       </CardTitle>
                       <Badge 
@@ -129,37 +129,37 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {project.location && (
-                      <div className="flex items-center space-x-2 text-gray-600">
+                      <div className="flex items-center space-x-2 text-white/80">
                         <MapPin className="w-4 h-4" />
                         <span className="text-sm">{project.location}</span>
                       </div>
                     )}
-                    <div className="flex items-center space-x-2 text-gray-600">
+                    <div className="flex items-center space-x-2 text-white/80">
                       <Calendar className="w-4 h-4" />
                       <span className="text-sm">{formatDate(project.created_at)}</span>
                     </div>
                     
-                    <div className="border-t pt-4">
+                    <div className="border-t border-white/20 pt-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Project ID</span>
-                        <span className="text-sm font-medium">#{project.project_id}</span>
+                        <span className="text-sm text-white/80">Project ID</span>
+                        <span className="text-sm font-medium text-white">#{project.project_id}</span>
                       </div>
                       {project.contract_price && (
                         <div className="flex justify-between items-center mb-4">
-                          <span className="text-sm text-gray-600">Contract Price</span>
-                          <span className="text-sm font-bold text-gray-900">{project.contract_price}</span>
+                          <span className="text-sm text-white/80">Contract Price</span>
+                          <span className="text-sm font-bold text-white">{project.contract_price}</span>
                         </div>
                       )}
                       
                       {progress > 0 && (
                         <div className="mb-4">
                           <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs text-gray-500">Progress</span>
-                            <span className="text-xs text-gray-500">{progress}%</span>
+                            <span className="text-xs text-white/70">Progress</span>
+                            <span className="text-xs text-white/70">{progress}%</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-white/20 rounded-full h-2">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                              className="bg-white h-2 rounded-full transition-all duration-300" 
                               style={{ width: `${progress}%` }}
                             ></div>
                           </div>
@@ -172,7 +172,7 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
                           onNavigate("project-detail");
                         }}
                         variant="outline" 
-                        className="w-full flex items-center space-x-2 hover:bg-gray-50"
+                        className="w-full flex items-center space-x-2 hover:bg-white/20 bg-white/10 text-white border-white/30"
                       >
                         <Eye className="w-4 h-4" />
                         <span>View Details</span>
