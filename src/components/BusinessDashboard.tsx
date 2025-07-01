@@ -101,7 +101,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
       <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-4">
         {/* Header with refresh button */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-4xl font-bold text-gray-900">{getTimeBasedGreeting()}</h2>
+          <h2 className="text-4xl font-bold text-gray-900 font-manrope-thin font-extralight">{getTimeBasedGreeting()}</h2>
           <Button
             onClick={handleRefreshStats}
             variant="outline"
