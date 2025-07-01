@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
 import { 
   SidebarGroup,
   SidebarGroupContent,
@@ -10,13 +9,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { cn } from "@/lib/utils";
-
-interface NavigationItem {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  active?: boolean;
-}
+import { NavigationItem } from './types';
 
 interface NavigationSectionProps {
   title: string;
