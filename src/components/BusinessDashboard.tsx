@@ -76,7 +76,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope overflow-y-auto flex items-center justify-center">
+      <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope-thin font-extralight overflow-y-auto flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading dashboard...</p>
@@ -86,7 +86,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope overflow-y-auto">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope-thin font-extralight overflow-y-auto">
       <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-4">
         {/* Header with refresh button */}
         <div className="flex items-center justify-between mb-8">

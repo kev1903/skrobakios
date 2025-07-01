@@ -49,7 +49,7 @@ export const TimeTracker = () => {
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-manrope">
+    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-manrope-thin font-extralight">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold text-gray-900">Time Tracker</CardTitle>
       </CardHeader>

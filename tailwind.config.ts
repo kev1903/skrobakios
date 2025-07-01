@@ -22,6 +22,7 @@ export default {
 				'inter': ['Inter', 'sans-serif'],
 				'poppins': ['Poppins', 'sans-serif'],
 				'manrope': ['Manrope', 'sans-serif'],
+				'manrope-thin': ['Manrope', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

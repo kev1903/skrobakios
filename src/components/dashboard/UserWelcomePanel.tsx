@@ -27,7 +27,7 @@ export const UserWelcomePanel = () => {
   const pendingTasks = onboardingTasks.filter(task => !task.completed).length;
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-manrope">
+    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-manrope-thin font-extralight">
       <CardContent className="p-6">
         <div className="text-center space-y-4">
           <div className="relative">
