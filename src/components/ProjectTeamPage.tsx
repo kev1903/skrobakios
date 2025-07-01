@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Users, UserPlus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ interface TeamMember {
   email: string;
   name?: string;
   role: 'project_admin' | 'editor' | 'viewer' | 'guest';
-  status: string; // Changed from specific union type to string to match database
+  status: string;
   invited_at: string;
   joined_at?: string;
   notify_on_task_added?: boolean;
@@ -97,7 +96,21 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
   const handleInviteMember = async (inviteData: { name: string; email: string; role: TeamMember['role'] }) => {
     try {
-      const { data, error } = await supabase
+      // First, create the invitation token
+      const { data: invitationData, error: invitationError } = await supabase
+        .from('team_invitations')
+        .insert([{
+          project_id: project.id,
+          email: inviteData.email,
+          invited_by_email: 'current-user@example.com' // TODO: Replace with actual user email when auth is implemented
+        }])
+        .select()
+        .single();
+
+      if (invitationError) throw invitationError;
+
+      // Then, create the team member record with pending status
+      const { data: memberData, error: memberError } = await supabase
         .from('team_members')
         .insert([{
           project_id: project.id,
@@ -109,15 +122,18 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
         .select()
         .single();
 
-      if (error) throw error;
+      if (memberError) throw memberError;
 
-      setTeamMembers([data, ...teamMembers]);
+      setTeamMembers([memberData, ...teamMembers]);
       setIsInviteDialogOpen(false);
       
       toast({
         title: "Success",
-        description: "Team member invited successfully"
+        description: `Invitation sent to ${inviteData.email}. Invitation token: ${invitationData.token}`,
+        duration: 10000
       });
+      
+      console.log('Invitation created:', invitationData);
     } catch (error: any) {
       console.error('Error inviting member:', error);
       toast({
