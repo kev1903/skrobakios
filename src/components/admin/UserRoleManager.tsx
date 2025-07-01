@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -26,6 +26,16 @@ export const UserRoleManager = ({ users, onRoleUpdate, loading = false }: UserRo
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<UserRole>('user');
 
+  // Update the selected role when a user is selected
+  useEffect(() => {
+    if (selectedUser) {
+      const user = users.find(u => u.id === selectedUser);
+      if (user && user.role) {
+        setSelectedRole(user.role);
+      }
+    }
+  }, [selectedUser, users]);
+
   const handleUpdateRole = () => {
     if (!selectedUser || !selectedRole) return;
     
@@ -33,6 +43,8 @@ export const UserRoleManager = ({ users, onRoleUpdate, loading = false }: UserRo
     setSelectedUser('');
     setSelectedRole('user');
   };
+
+  const selectedUserData = users.find(u => u.id === selectedUser);
 
   return (
     <Card>
@@ -52,15 +64,29 @@ export const UserRoleManager = ({ users, onRoleUpdate, loading = false }: UserRo
             <SelectContent>
               {users.map(user => (
                 <SelectItem key={user.id} value={user.id}>
-                  {user.email}
+                  <div className="flex items-center justify-between w-full">
+                    <span>{user.email}</span>
+                    <span className="text-xs text-slate-500 ml-2">({user.role || 'user'})</span>
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
+        {selectedUserData && (
+          <div className="p-3 bg-slate-50 rounded-lg">
+            <div className="text-sm text-slate-600">
+              <strong>Current Role:</strong> {selectedUserData.role || 'user'}
+            </div>
+            <div className="text-sm text-slate-500 mt-1">
+              User: {selectedUserData.email}
+            </div>
+          </div>
+        )}
+
         <div>
-          <Label htmlFor="role-select">Select Role</Label>
+          <Label htmlFor="role-select">New Role</Label>
           <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole)}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a role" />

@@ -37,17 +37,21 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <AdminHeader onNavigate={onNavigate} />
       <AdminAlerts error={error} success={success} />
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <UserRoleManager 
-          users={users} 
-          onRoleUpdate={updateUserRole}
-          loading={loading}
-        />
-        <UsersList users={users} loading={loading} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-1">
+          <UserRoleManager 
+            users={users} 
+            onRoleUpdate={updateUserRole}
+            loading={loading}
+          />
+        </div>
+        <div className="xl:col-span-2">
+          <UsersList users={users} loading={loading} />
+        </div>
       </div>
     </div>
   );
