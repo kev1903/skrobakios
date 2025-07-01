@@ -72,6 +72,17 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Main Action Buttons */}
+              <button 
+                onClick={() => onNavigate("create-project")}
+                className="bg-[#3366FF] hover:bg-[#1F3D7A] text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                New Project
+              </button>
+              <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                Your Task
+              </button>
+              
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Settings className="w-5 h-5" />
               </Button>
