@@ -34,7 +34,7 @@ export const useProjectState = () => {
     };
 
     fetchCurrentProject();
-  }, [selectedProject, getProjects]);
+  }, [selectedProject]); // Removed getProjects from dependency array
 
   const handleSelectProject = (projectId: string) => {
     console.log("Setting selected project:", projectId);
