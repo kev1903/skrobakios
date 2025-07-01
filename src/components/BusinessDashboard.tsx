@@ -15,13 +15,11 @@ interface BusinessDashboardProps {
 export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashboardProps) => {
   const navigationItems = [
     { label: "Dashboard", active: true },
-    { label: "People", active: false },
-    { label: "Hiring", active: false },
-    { label: "Devices", active: false },
-    { label: "Apps", active: false },
-    { label: "Salary", active: false },
+    { label: "Files", active: false },
+    { label: "Projects", active: false },
+    { label: "Finances", active: false },
+    { label: "Sales", active: false },
     { label: "Calendar", active: false },
-    { label: "Reviews", active: false },
   ];
 
   const statsData = [
