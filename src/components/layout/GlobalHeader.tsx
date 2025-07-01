@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Settings, User } from "lucide-react";
+import { Bell, Settings, User, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface GlobalHeaderProps {
@@ -56,10 +56,13 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
           </div>
           
           <div className="flex items-center space-x-4">
-            {/* Main Action Buttons */}
-            <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
-              Your Task
-            </button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full"
+            >
+              <CheckSquare className="w-5 h-5" />
+            </Button>
             
             <Button 
               variant="ghost" 
