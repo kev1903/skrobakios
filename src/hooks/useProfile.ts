@@ -82,6 +82,11 @@ export const useProfile = () => {
         return false;
       }
 
+      // Convert empty birth_date to null for database storage
+      const birthDateValue = profileData.birth_date && profileData.birth_date.trim() !== '' 
+        ? profileData.birth_date 
+        : null;
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
@@ -95,7 +100,7 @@ export const useProfile = () => {
           location: profileData.location,
           bio: profileData.bio,
           avatar_url: profileData.avatar_url,
-          birth_date: profileData.birth_date,
+          birth_date: birthDateValue,
           website: profileData.website,
           updated_at: new Date().toISOString(),
         });
