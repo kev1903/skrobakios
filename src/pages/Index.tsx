@@ -164,8 +164,8 @@ const Index = () => {
     }
   };
 
-  // Hide main sidebar for auth page, project-specific pages and user edit page
-  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit"].includes(currentPage);
+  // Hide main sidebar for auth page, project-specific pages, user edit page, and sales page
+  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit", "sales"].includes(currentPage);
 
   return (
     <AuthProvider>
