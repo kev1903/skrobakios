@@ -149,7 +149,12 @@ export const useProfile = () => {
         return false;
       }
 
+      // Update local state immediately for instant UI feedback
       setProfile(profileData);
+      
+      // Also trigger a refetch to ensure we have the latest data from the database
+      // This will also trigger real-time updates for other components
+      await fetchProfile();
       toast({
         title: "Success",
         description: "Profile saved successfully!",
@@ -168,6 +173,41 @@ export const useProfile = () => {
 
   useEffect(() => {
     fetchProfile();
+
+    // Set up real-time subscription for profile updates
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
+      const channel = supabase
+        .channel('profile-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'profiles',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Profile updated:', payload);
+            // Refetch profile data when changes occur
+            fetchProfile();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    const unsubscribe = setupRealtimeSubscription();
+
+    return () => {
+      unsubscribe?.then(cleanup => cleanup?.());
+    };
   }, []);
 
   return {
