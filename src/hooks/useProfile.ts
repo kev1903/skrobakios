@@ -15,6 +15,7 @@ interface ProfileData {
   avatar_url: string;
   birth_date: string;
   website: string;
+  company_slogan: string;
 }
 
 export const useProfile = () => {
@@ -60,6 +61,7 @@ export const useProfile = () => {
           avatar_url: data.avatar_url || '',
           birth_date: data.birth_date || '',
           website: data.website || '',
+          company_slogan: data.company_slogan || '',
         });
       }
     } catch (error) {
@@ -112,6 +114,7 @@ export const useProfile = () => {
             avatar_url: profileData.avatar_url,
             birth_date: birthDateValue,
             website: profileData.website,
+            company_slogan: profileData.company_slogan,
             updated_at: new Date().toISOString(),
           })
           .eq('user_id', user.id);
@@ -132,6 +135,7 @@ export const useProfile = () => {
             avatar_url: profileData.avatar_url,
             birth_date: birthDateValue,
             website: profileData.website,
+            company_slogan: profileData.company_slogan,
           });
       }
 

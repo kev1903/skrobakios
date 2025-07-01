@@ -21,6 +21,7 @@ interface UserProfile {
   companyAddress: string;
   companyMembers: string;
   companyLogo: string;
+  companySlogan: string;
 }
 
 interface UserContextType {
@@ -48,6 +49,7 @@ const defaultUserProfile: UserProfile = {
   companyAddress: '',
   companyMembers: '',
   companyLogo: '',
+  companySlogan: '',
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -78,6 +80,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         companyAddress: '',
         companyMembers: '',
         companyLogo: '',
+        companySlogan: profile.company_slogan || '',
       });
     }
   }, [profile]);

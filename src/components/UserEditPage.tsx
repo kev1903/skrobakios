@@ -38,6 +38,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     companyAddress: userProfile.companyAddress,
     companyMembers: userProfile.companyMembers,
     companyLogo: userProfile.companyLogo || '',
+    companySlogan: userProfile.companySlogan || '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -58,6 +59,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatarUrl: profile.avatar_url,
         birthDate: profile.birth_date,
         website: profile.website,
+        companySlogan: profile.company_slogan || '',
       }));
     } else if (!loading && !profile) {
       // If no profile exists, use context data as fallback
@@ -74,6 +76,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatarUrl: userProfile.avatarUrl,
         birthDate: userProfile.birthDate,
         website: userProfile.website,
+        companySlogan: userProfile.companySlogan || '',
       }));
     }
   }, [profile, loading, userProfile]);
@@ -102,6 +105,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatar_url: profileData.avatarUrl,
         birth_date: profileData.birthDate,
         website: profileData.website,
+        company_slogan: profileData.companySlogan,
       });
 
       if (success) {
@@ -125,6 +129,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
           companyAddress: profileData.companyAddress,
           companyMembers: profileData.companyMembers,
           companyLogo: profileData.companyLogo,
+          companySlogan: profileData.companySlogan,
         });
       }
     } catch (error) {
@@ -155,6 +160,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatarUrl: profile.avatar_url,
         birthDate: profile.birth_date,
         website: profile.website,
+        companySlogan: profile.company_slogan || '',
       }));
     }
     onNavigate('tasks');
@@ -226,6 +232,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
             companyAddress: profileData.companyAddress,
             companyMembers: profileData.companyMembers,
             companyLogo: profileData.companyLogo,
+            companySlogan: profileData.companySlogan,
           }}
           onInputChange={handleInputChange}
         />

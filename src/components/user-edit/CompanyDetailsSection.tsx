@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Building, Globe, MapPin, Users } from 'lucide-react';
+import { Building, Globe, MapPin, Users, MessageSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +15,7 @@ interface CompanyDetailsSectionProps {
     companyAddress: string;
     companyMembers: string;
     companyLogo: string;
+    companySlogan: string;
   };
   onInputChange: (field: string, value: string) => void;
 }
@@ -58,6 +59,20 @@ export const CompanyDetailsSection = ({ profileData, onInputChange }: CompanyDet
               className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="companySlogan" className="flex items-center space-x-2 text-slate-700 font-medium">
+            <MessageSquare className="w-4 h-4 text-blue-500" />
+            <span>Company Slogan</span>
+          </Label>
+          <Input
+            id="companySlogan"
+            value={profileData.companySlogan}
+            onChange={(e) => onInputChange('companySlogan', e.target.value)}
+            placeholder="Your company's motto or tagline"
+            className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
+          />
         </div>
 
         <div className="space-y-2">
