@@ -31,9 +31,9 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope">
+    <div className="h-screen bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope">
       {/* Main Container taking full screen */}
-      <div className="min-h-screen bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-8">
+      <div className="h-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-4">
           
           {/* Welcome Section */}
           <h2 className="text-4xl font-bold text-gray-900 mb-8">Welcome in, Nixtio</h2>

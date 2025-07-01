@@ -26,7 +26,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       <div className="min-h-screen flex flex-col">
         <GlobalHeader onNavigate={onNavigate} currentPage={currentPage} />
         
-        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/30 border-0 shadow-xl transition-all duration-300">
+        <main className="flex-1 overflow-hidden">
           {children}
         </main>
       </div>
