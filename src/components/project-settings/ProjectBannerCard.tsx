@@ -3,21 +3,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Image, Upload, X } from "lucide-react";
-import { useState, useRef } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Image, Upload, X, Move, RotateCcw } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectBannerCardProps {
   formData: {
     banner_image: string;
+    banner_position?: { x: number; y: number; scale: number };
   };
-  onInputChange: (field: string, value: string) => void;
+  onInputChange: (field: string, value: string | { x: number; y: number; scale: number }) => void;
 }
 
 export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCardProps) => {
   const [dragActive, setDragActive] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const position = formData.banner_position || { x: 0, y: 0, scale: 1 };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -69,6 +76,7 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
     reader.onload = (e) => {
       if (e.target?.result) {
         onInputChange("banner_image", e.target.result as string);
+        onInputChange("banner_position", { x: 0, y: 0, scale: 1 });
         toast({
           title: "Banner Uploaded",
           description: "Project banner has been updated successfully.",
@@ -78,8 +86,43 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
     reader.readAsDataURL(file);
   };
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!formData.banner_image) return;
+    
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  }, [formData.banner_image, position]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !imageContainerRef.current) return;
+    
+    const container = imageContainerRef.current;
+    const rect = container.getBoundingClientRect();
+    
+    const newX = Math.max(-200, Math.min(200, e.clientX - dragStart.x));
+    const newY = Math.max(-100, Math.min(100, e.clientY - dragStart.y));
+    
+    onInputChange("banner_position", { ...position, x: newX, y: newY });
+  }, [isDragging, dragStart, position, onInputChange]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleScaleChange = (value: number[]) => {
+    onInputChange("banner_position", { ...position, scale: value[0] });
+  };
+
+  const resetPosition = () => {
+    onInputChange("banner_position", { x: 0, y: 0, scale: 1 });
+  };
+
   const removeBanner = () => {
     onInputChange("banner_image", "");
+    onInputChange("banner_position", { x: 0, y: 0, scale: 1 });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -101,20 +144,99 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
           <div className="space-y-4">
             {/* Banner Display Section */}
             <div className="relative">
-              <div className="w-full h-64 rounded-lg overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-slate-100 to-slate-200">
+              <div 
+                ref={imageContainerRef}
+                className="w-full h-64 rounded-lg overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-slate-100 to-slate-200 cursor-move"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
                 <img
                   src={formData.banner_image}
                   alt="Project banner"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-200"
+                  style={{
+                    transform: `translate(${position.x}px, ${position.y}px) scale(${position.scale})`,
+                    transformOrigin: 'center'
+                  }}
+                  draggable={false}
                 />
                 <Button
                   variant="destructive"
                   size="sm"
                   onClick={removeBanner}
-                  className="absolute top-3 right-3 shadow-lg"
+                  className="absolute top-3 right-3 shadow-lg z-10"
                 >
                   <X className="w-4 h-4" />
                 </Button>
+                <div className="absolute top-3 left-3 bg-black/50 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                  <Move className="w-3 h-3" />
+                  Drag to reposition
+                </div>
+              </div>
+            </div>
+
+            {/* Position Controls */}
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Image Position & Scale</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetPosition}
+                  className="flex items-center gap-1"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Reset
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-600">Horizontal (X)</Label>
+                  <div className="flex items-center gap-2">
+                    <Slider
+                      value={[position.x]}
+                      onValueChange={(value) => onInputChange("banner_position", { ...position, x: value[0] })}
+                      min={-200}
+                      max={200}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-gray-500 w-8">{position.x}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-600">Vertical (Y)</Label>
+                  <div className="flex items-center gap-2">
+                    <Slider
+                      value={[position.y]}
+                      onValueChange={(value) => onInputChange("banner_position", { ...position, y: value[0] })}
+                      min={-100}
+                      max={100}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-gray-500 w-8">{position.y}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs text-gray-600">Scale</Label>
+                  <div className="flex items-center gap-2">
+                    <Slider
+                      value={[position.scale]}
+                      onValueChange={handleScaleChange}
+                      min={0.5}
+                      max={2}
+                      step={0.1}
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-gray-500 w-8">{position.scale.toFixed(1)}</span>
+                  </div>
+                </div>
               </div>
             </div>
             

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, Save, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +31,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     deadline: project.deadline || "",
     sharepoint_link: "",
     banner_image: "",
+    banner_position: { x: 0, y: 0, scale: 1 },
   });
 
   const getStatusColor = (status: string) => {
@@ -54,7 +54,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     }
   };
 
-  const handleInputChange = (field: string, value: string | { lat: number; lng: number }) => {
+  const handleInputChange = (field: string, value: string | { lat: number; lng: number } | { x: number; y: number; scale: number }) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -91,6 +91,11 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     // Store banner image in localStorage for demo purposes
     if (formData.banner_image) {
       localStorage.setItem(`project_banner_${project.id}`, formData.banner_image);
+    }
+
+    // Store banner position in localStorage for demo purposes
+    if (formData.banner_position) {
+      localStorage.setItem(`project_banner_position_${project.id}`, JSON.stringify(formData.banner_position));
     }
 
     toast({
@@ -149,6 +154,20 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
         ...prev,
         banner_image: savedBanner
       }));
+    }
+
+    // Load existing banner position from localStorage
+    const savedBannerPosition = localStorage.getItem(`project_banner_position_${project.id}`);
+    if (savedBannerPosition) {
+      try {
+        const bannerPosition = JSON.parse(savedBannerPosition);
+        setFormData(prev => ({
+          ...prev,
+          banner_position: bannerPosition
+        }));
+      } catch (error) {
+        console.error('Error parsing saved banner position:', error);
+      }
     }
   }, [project.id]);
 
