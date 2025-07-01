@@ -13,6 +13,12 @@ interface UserProfile {
   avatarUrl: string;
   birthDate: string;
   website: string;
+  // Company Details
+  companyName: string;
+  abn: string;
+  companyWebsite: string;
+  companyAddress: string;
+  companyMembers: string;
 }
 
 interface UserContextType {
@@ -31,7 +37,13 @@ const defaultUserProfile: UserProfile = {
   bio: 'Passionate UI/UX designer with 5+ years of experience creating user-centered digital experiences.',
   avatarUrl: '',
   birthDate: '1990-05-15',
-  website: 'https://wade-warren.design'
+  website: 'https://wade-warren.design',
+  // Company Details
+  companyName: 'KAKSIK Design Studio',
+  abn: '12 345 678 901',
+  companyWebsite: 'https://kaksik.design',
+  companyAddress: '123 Design Street, San Francisco, CA 94105',
+  companyMembers: '15'
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
