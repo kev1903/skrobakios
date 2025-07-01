@@ -18,6 +18,12 @@ interface SalesPageProps {
 export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  const handleBack = () => {
+    if (onNavigate) {
+      onNavigate('dashboard');
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -46,7 +52,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   return (
     <div className="flex h-screen bg-gray-50 w-full overflow-hidden">
       {/* Side Ribbon - Fixed position, always visible */}
-      <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} />
+      <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
       
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
