@@ -1,5 +1,5 @@
 
-import { ArrowLeft, BarChart3, Users, Calendar, Clock, AlertCircle, FileCheck, MessageSquare, Settings, FileText, Eye } from "lucide-react";
+import { ArrowLeft, BarChart3, Users, Calendar, Clock, AlertCircle, FileCheck, MessageSquare, Settings, FileText, Eye, Box } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -22,6 +22,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
     { id: "schedule", label: "Schedule", icon: Calendar, active: activeSection === "schedule" },
     { id: "issues", label: "Issues", icon: AlertCircle, active: activeSection === "issues" },
     { id: "audit", label: "Audit", icon: FileCheck, active: activeSection === "audit" },
+    { id: "bim", label: "BIM", icon: Box, active: activeSection === "bim" },
     { id: "files", label: "Files", icon: FileText, active: activeSection === "files" },
     { id: "media", label: "Media", icon: Eye, active: activeSection === "media" },
     { id: "documents", label: "Documents", icon: FileText, active: activeSection === "documents" },
@@ -39,6 +40,8 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
       onNavigate("project-schedule");
     } else if (itemId === "team") {
       onNavigate("project-team");
+    } else if (itemId === "bim") {
+      onNavigate("project-bim");
     } else {
       // Handle other navigation items as needed
       console.log(`Navigate to ${itemId}`);
