@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Save, Users, Calendar, DollarSign, MapPin, ExternalLink, LinkIcon } from "lucide-react";
-import { Project } from "@/hooks/useProjects";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Save, Users, Calendar, DollarSign, MapPin, ExternalLink, LinkIcon, Trash2 } from "lucide-react";
+import { Project, useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectSettingsPageProps {
@@ -19,6 +21,7 @@ interface ProjectSettingsPageProps {
 
 export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPageProps) => {
   const { toast } = useToast();
+  const { deleteProject, loading } = useProjects();
   const [formData, setFormData] = useState({
     name: project.name,
     description: project.description || "",
@@ -109,6 +112,25 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       title: "Connection Test",
       description: "SharePoint link is valid and ready to use.",
     });
+  };
+
+  const handleDeleteProject = async () => {
+    const success = await deleteProject(project.id);
+    
+    if (success) {
+      toast({
+        title: "Project Deleted",
+        description: "The project has been permanently deleted.",
+      });
+      // Navigate back to dashboard after deletion
+      onNavigate("dashboard");
+    } else {
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete the project. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -337,6 +359,54 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
                       onChange={(e) => handleInputChange("contract_price", e.target.value)}
                       placeholder="Enter contract price (e.g., $2,450,000)"
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Danger Zone */}
+              <Card className="border-red-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-600">
+                    <Trash2 className="w-5 h-5" />
+                    Danger Zone
+                  </CardTitle>
+                  <CardDescription>
+                    Irreversible and destructive actions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h4 className="font-medium text-red-900 mb-2">Delete Project</h4>
+                    <p className="text-sm text-red-700 mb-4">
+                      Once you delete this project, there is no going back. This will permanently delete the project and all associated data.
+                    </p>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Project
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the project "{project.name}" 
+                            and remove all of its data from our servers.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={handleDeleteProject}
+                            disabled={loading}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            {loading ? "Deleting..." : "Yes, delete project"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </CardContent>
               </Card>

@@ -88,9 +88,33 @@ export const useProjects = () => {
     }
   };
 
+  const deleteProject = async (projectId: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId);
+
+      if (error) throw error;
+      console.log('Project deleted successfully:', projectId);
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete project';
+      setError(errorMessage);
+      console.error('Error deleting project:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     createProject,
     getProjects,
+    deleteProject,
     loading,
     error,
   };
