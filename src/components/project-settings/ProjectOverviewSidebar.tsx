@@ -1,9 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Users } from "lucide-react";
 import { Project } from "@/hooks/useProjects";
 
 interface ProjectOverviewSidebarProps {
@@ -79,23 +77,6 @@ export const ProjectOverviewSidebar = ({
               {new Date(project.updated_at).toLocaleDateString()}
             </p>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Team Access
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-600 mb-4">
-            Manage who has access to this project
-          </p>
-          <Button variant="outline" className="w-full">
-            Manage Team
-          </Button>
         </CardContent>
       </Card>
     </div>
