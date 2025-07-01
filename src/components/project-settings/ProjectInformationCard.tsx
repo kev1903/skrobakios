@@ -3,18 +3,86 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Search } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectInformationCardProps {
   formData: {
     name: string;
     description: string;
     location: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
   };
-  onInputChange: (field: string, value: string) => void;
+  onInputChange: (field: string, value: string | { lat: number; lng: number }) => void;
 }
 
 export const ProjectInformationCard = ({ formData, onInputChange }: ProjectInformationCardProps) => {
+  const [isValidatingAddress, setIsValidatingAddress] = useState(false);
+  const { toast } = useToast();
+
+  const validateAddress = async () => {
+    if (!formData.location.trim()) {
+      toast({
+        title: "Address Required",
+        description: "Please enter an address to validate.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsValidatingAddress(true);
+
+    try {
+      // Using OpenStreetMap Nominatim API for geocoding (free alternative)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formData.location)}&limit=1`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Geocoding service unavailable');
+      }
+
+      const data = await response.json();
+      
+      if (data.length > 0) {
+        const result = data[0];
+        const coordinates = {
+          lat: parseFloat(result.lat),
+          lng: parseFloat(result.lon)
+        };
+        
+        // Update the formatted address and coordinates
+        onInputChange("location", result.display_name);
+        onInputChange("coordinates", coordinates);
+        
+        toast({
+          title: "Address Validated",
+          description: "Address has been successfully validated and location coordinates have been saved.",
+        });
+      } else {
+        toast({
+          title: "Address Not Found",
+          description: "Could not find the specified address. Please check and try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Address validation error:', error);
+      toast({
+        title: "Validation Error",
+        description: "Unable to validate address. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsValidatingAddress(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -38,13 +106,32 @@ export const ProjectInformationCard = ({ formData, onInputChange }: ProjectInfor
             />
           </div>
           <div>
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => onInputChange("location", e.target.value)}
-              placeholder="Enter project location"
-            />
+            <Label htmlFor="location">Project Address</Label>
+            <div className="flex gap-2">
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => onInputChange("location", e.target.value)}
+                placeholder="Enter full project address (e.g., 123 Main St, City, State, ZIP)"
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={validateAddress}
+                disabled={isValidatingAddress}
+                className="shrink-0"
+              >
+                <Search className="w-4 h-4" />
+                {isValidatingAddress ? "Validating..." : "Validate"}
+              </Button>
+            </div>
+            {formData.coordinates && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Coordinates: {formData.coordinates.lat.toFixed(6)}, {formData.coordinates.lng.toFixed(6)}
+              </p>
+            )}
           </div>
         </div>
         

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     description: project.description || "",
     contract_price: project.contract_price || "",
     location: project.location || "",
+    coordinates: undefined as { lat: number; lng: number } | undefined,
     priority: project.priority || "Medium",
     status: project.status,
     start_date: project.start_date || "",
@@ -52,7 +52,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | { lat: number; lng: number }) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -79,6 +79,11 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     // Store SharePoint link in localStorage for demo purposes
     if (formData.sharepoint_link) {
       localStorage.setItem(`project_sharepoint_${project.id}`, formData.sharepoint_link);
+    }
+
+    // Store coordinates in localStorage for demo purposes
+    if (formData.coordinates) {
+      localStorage.setItem(`project_coordinates_${project.id}`, JSON.stringify(formData.coordinates));
     }
 
     toast({
@@ -114,6 +119,20 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
         ...prev,
         sharepoint_link: savedLink
       }));
+    }
+
+    // Load existing coordinates from localStorage
+    const savedCoordinates = localStorage.getItem(`project_coordinates_${project.id}`);
+    if (savedCoordinates) {
+      try {
+        const coordinates = JSON.parse(savedCoordinates);
+        setFormData(prev => ({
+          ...prev,
+          coordinates
+        }));
+      } catch (error) {
+        console.error('Error parsing saved coordinates:', error);
+      }
     }
   }, [project.id]);
 
