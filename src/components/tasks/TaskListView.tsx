@@ -1,29 +1,13 @@
 import React, { useState } from 'react';
-import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useTaskContext } from './TaskContext';
+import { Table, TableBody } from '@/components/ui/table';
+import { useTaskContext, Task } from './TaskContext';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
-import { AddTaskButton } from './AddTaskButton';
 import { AddTaskDialog } from './AddTaskDialog';
-import { Task } from './TaskContext';
+import { TaskMobileCard } from './TaskMobileCard';
+import { TaskTableRow } from './TaskTableRow';
+import { TaskTableHeader } from './TaskTableHeader';
+import { TaskListControls } from './TaskListControls';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TaskListViewProps {
@@ -85,193 +69,39 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Tasks Table */}
       <Card>
         <CardContent className="p-0">
           {isMobile ? (
-            // Mobile Card View
             <div className="space-y-3 p-4">
-              {/* Add Task Button for Mobile */}
-              <div className="mb-4">
-                <AddTaskButton onAddTask={handleAddTask} />
-              </div>
+              <TaskListControls onAddTask={handleAddTask} isMobile />
               
               {tasks.map((task, index) => (
-                <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleTaskClick(task)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-blue-600 truncate">{task.taskName}</h3>
-                        <p className="text-sm text-gray-500">ID: {task.id}</p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); }}>
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }}
-                            className="cursor-pointer"
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Task
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}
-                            className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Task
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                        {task.priority}
-                      </Badge>
-                      <Badge variant="outline" className={getStatusColor(task.status)}>
-                        {task.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="w-6 h-6">
-                          <AvatarImage src={task.assignedTo.avatar} />
-                          <AvatarFallback className="text-xs">
-                            {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{task.assignedTo.name}</span>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">{task.dueDate}</p>
-                        <p className="text-xs text-gray-600">{task.progress}%</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <TaskMobileCard
+                  key={index}
+                  task={task}
+                  onTaskClick={handleTaskClick}
+                  onDeleteTask={handleDeleteTask}
+                  getPriorityColor={getPriorityColor}
+                  getStatusColor={getStatusColor}
+                />
               ))}
             </div>
           ) : (
-            // Desktop Table View
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="w-12">
-                      <Checkbox />
-                    </TableHead>
-                    <TableHead>Task ID</TableHead>
-                    <TableHead>Task Name</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Action</TableHead>
-                  </TableRow>
-                </TableHeader>
+                <TaskTableHeader />
                 <TableBody>
-                  {/* Add Task Row */}
-                  <TableRow className="hover:bg-gray-50 cursor-pointer" onClick={handleAddTask}>
-                    <TableCell colSpan={9} className="p-4">
-                      <AddTaskButton onAddTask={handleAddTask} />
-                    </TableCell>
-                  </TableRow>
+                  <TaskListControls onAddTask={handleAddTask} />
                   
                   {tasks.map((task, index) => (
-                    <TableRow key={index} className="hover:bg-gray-50">
-                      <TableCell>
-                        <Checkbox />
-                      </TableCell>
-                      <TableCell className="font-medium text-blue-600">
-                        {task.id}
-                      </TableCell>
-                      <TableCell 
-                        className="font-medium cursor-pointer hover:text-blue-600"
-                        onClick={() => handleTaskClick(task)}
-                      >
-                        {task.taskName}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={getPriorityColor(task.priority)}
-                        >
-                          {task.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={task.assignedTo.avatar} />
-                            <AvatarFallback>
-                              {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm">{task.assignedTo.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{task.dueDate}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={getStatusColor(task.status)}
-                        >
-                          {task.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-16 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${task.progress}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{task.progress}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleTaskClick(task)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => handleTaskClick(task)}
-                                className="cursor-pointer"
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Task
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteTask(task.id)}
-                                className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Task
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <TaskTableRow
+                      key={index}
+                      task={task}
+                      onTaskClick={handleTaskClick}
+                      onDeleteTask={handleDeleteTask}
+                      getPriorityColor={getPriorityColor}
+                      getStatusColor={getStatusColor}
+                    />
                   ))}
                 </TableBody>
               </Table>
