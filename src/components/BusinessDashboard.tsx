@@ -31,12 +31,23 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
   } = useDashboardData();
   const { getTotalWeeklyHours } = useTimeTracker();
 
-  const getWelcomeMessage = () => {
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+    let greeting;
+    
+    if (hour >= 1 && hour < 12) {
+      greeting = "Good Morning";
+    } else if (hour >= 12 && hour < 17) {
+      greeting = "Good Afternoon";
+    } else {
+      greeting = "Good Evening";
+    }
+
     const firstName = profile?.first_name;
     if (firstName) {
-      return `Welcome back, ${firstName}!`;
+      return `${greeting}, ${firstName}!`;
     }
-    return user?.email ? `Welcome back, ${user.email.split('@')[0]}!` : "Welcome back!";
+    return user?.email ? `${greeting}, ${user.email.split('@')[0]}!` : `${greeting}!`;
   };
 
   const handleRefreshStats = async () => {
@@ -90,7 +101,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
       <div className="min-h-screen w-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-4">
         {/* Header with refresh button */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-4xl font-bold text-gray-900">{getWelcomeMessage()}</h2>
+          <h2 className="text-4xl font-bold text-gray-900">{getTimeBasedGreeting()}</h2>
           <Button
             onClick={handleRefreshStats}
             variant="outline"
