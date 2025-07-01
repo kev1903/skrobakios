@@ -164,12 +164,17 @@ const Index = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
         
         <div className="flex relative z-10">
-          {showMainSidebar && (
-            <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+          {showMainSidebar ? (
+            <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage}>
+              <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
+                {renderContent()}
+              </main>
+            </AppSidebar>
+          ) : (
+            <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
+              {renderContent()}
+            </main>
           )}
-          <main className={`flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 ${showMainSidebar ? 'rounded-l-2xl ml-2 my-2 mr-2' : 'w-full'}`}>
-            {renderContent()}
-          </main>
         </div>
       </div>
     </UserProvider>
