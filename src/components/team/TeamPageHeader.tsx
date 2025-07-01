@@ -5,24 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { InviteMemberDialog } from "./InviteMemberDialog";
 import { AccessSettingsDialog } from "./AccessSettingsDialog";
-
-interface TeamMember {
-  id: string;
-  email: string;
-  name?: string;
-  role: 'project_admin' | 'editor' | 'viewer' | 'guest';
-  status: string;
-  invited_at: string;
-  joined_at?: string;
-  notify_on_task_added?: boolean;
-  avatar_url?: string;
-}
-
-interface ProjectAccessSettings {
-  access_level: 'private_to_members' | 'public' | 'restricted';
-  allow_member_invites: boolean;
-  require_approval_for_join: boolean;
-}
+import { TeamMember, ProjectAccessSettings } from "@/hooks/team/types";
 
 interface TeamPageHeaderProps {
   onInviteMember: (data: { name: string; email: string; role: TeamMember['role'] }) => void;

@@ -1,21 +1,9 @@
-
 import { Mail, Clock, MoreVertical, Shield, User, Eye, FileText, Send } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-interface TeamMember {
-  id: string;
-  email: string;
-  name?: string;
-  role: 'project_admin' | 'editor' | 'viewer' | 'guest';
-  status: string;
-  invited_at: string;
-  joined_at?: string;
-  notify_on_task_added?: boolean;
-  avatar_url?: string;
-}
+import { TeamMember } from "@/hooks/team/types";
 
 interface TeamMemberCardProps {
   member: TeamMember;

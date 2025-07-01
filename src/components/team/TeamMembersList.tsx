@@ -2,18 +2,7 @@
 import { Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeamMemberCard } from "./TeamMemberCard";
-
-interface TeamMember {
-  id: string;
-  email: string;
-  name?: string;
-  role: 'project_admin' | 'editor' | 'viewer' | 'guest';
-  status: string;
-  invited_at: string;
-  joined_at?: string;
-  notify_on_task_added?: boolean;
-  avatar_url?: string;
-}
+import { TeamMember } from "@/hooks/team/types";
 
 interface TeamMembersListProps {
   teamMembers: TeamMember[];
