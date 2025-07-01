@@ -59,7 +59,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
                     key={index}
                     onClick={() => {
                       if (item.label === "Projects") {
-                        onNavigate("project-dashboard");
+                        onNavigate("projects");
                       } else if (item.label === "Files") {
                         onNavigate("files");
                       } else if (item.label === "Finances") {
