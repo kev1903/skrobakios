@@ -1,15 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Camera, User, Mail, Phone, MapPin, Briefcase, Calendar, Globe, Building, Users, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { useProfile } from '@/hooks/useProfile';
-import { supabase } from '@/integrations/supabase/client';
+import { UserEditHeader } from '@/components/user-edit/UserEditHeader';
+import { ProfilePictureSection } from '@/components/user-edit/ProfilePictureSection';
+import { PersonalInfoSection } from '@/components/user-edit/PersonalInfoSection';
+import { PasswordUpdateSection } from '@/components/user-edit/PasswordUpdateSection';
+import { ProfessionalInfoSection } from '@/components/user-edit/ProfessionalInfoSection';
+import { CompanyDetailsSection } from '@/components/user-edit/CompanyDetailsSection';
 
 interface UserEditPageProps {
   onNavigate: (page: string) => void;
@@ -19,7 +17,6 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUser();
   const { profile, loading, saveProfile } = useProfile();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -41,14 +38,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     companyMembers: userProfile.companyMembers,
   });
 
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-
   const [saving, setSaving] = useState(false);
-  const [updatingPassword, setUpdatingPassword] = useState(false);
 
   // Initialize form data when profile loads
   useEffect(() => {
@@ -91,87 +81,6 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       ...prev,
       [field]: value
     }));
-  };
-
-  const handlePasswordChange = (field: string, value: string) => {
-    setPasswordData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const avatarUrl = e.target?.result as string;
-        setProfileData(prev => ({
-          ...prev,
-          avatarUrl
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handlePasswordUpdate = async () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "New passwords do not match",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setUpdatingPassword(true);
-    
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword
-      });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Password updated successfully",
-        });
-        setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
-        });
-      }
-    } catch (error) {
-      console.error('Error updating password:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update password",
-        variant: "destructive",
-      });
-    } finally {
-      setUpdatingPassword(false);
-    }
   };
 
   const handleSave = async () => {
@@ -262,377 +171,60 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
       {/* Header with Glassmorphism */}
-      <div className="relative backdrop-blur-xl bg-white/60 border-b border-white/20 shadow-sm">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCancel}
-                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Back</span>
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-                  Edit Profile
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">Update your personal information and preferences</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline" 
-                onClick={handleCancel}
-                disabled={saving}
-                className="backdrop-blur-sm bg-white/60 border-white/30 hover:bg-white/80 text-slate-600 hover:text-slate-800 transition-all duration-200"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={saving}
-                className="backdrop-blur-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <UserEditHeader 
+        onCancel={handleCancel}
+        onSave={handleSave}
+        saving={saving}
+      />
 
       {/* Content */}
       <div className="max-w-5xl mx-auto p-8 space-y-8">
         {/* Profile Picture Section */}
-        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center space-x-3 text-slate-800">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
-                <User className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="text-xl font-semibold">Profile Picture</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-8">
-              <div className="relative group">
-                <Avatar className="w-28 h-28 ring-4 ring-white/50 shadow-xl">
-                  <AvatarImage src={profileData.avatarUrl} />
-                  <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-100 to-slate-100 text-blue-600 font-semibold">
-                    {profileData.firstName[0]}{profileData.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  onClick={handleAvatarClick}
-                  className="absolute -bottom-2 -right-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full p-3 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl backdrop-blur-sm group-hover:scale-110"
-                >
-                  <Camera className="w-4 h-4" />
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-slate-800 text-lg">Upload a new photo</h3>
-                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-                  Choose a photo that represents you well. We support JPG, PNG, and GIF formats up to 5MB.
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleAvatarClick} 
-                  className="mt-4 backdrop-blur-sm bg-white/60 border-white/30 hover:bg-blue-50/60 hover:border-blue-200/50 hover:text-blue-600 transition-all duration-200"
-                >
-                  Choose File
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfilePictureSection 
+          avatarUrl={profileData.avatarUrl}
+          firstName={profileData.firstName}
+          lastName={profileData.lastName}
+          onAvatarChange={(avatarUrl) => handleInputChange('avatarUrl', avatarUrl)}
+        />
 
         {/* Personal Information */}
-        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center space-x-3 text-slate-800">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
-                <User className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="text-xl font-semibold">Personal Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-slate-700 font-medium">First Name</Label>
-                <Input
-                  id="firstName"
-                  value={profileData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-slate-700 font-medium">Last Name</Label>
-                <Input
-                  id="lastName"
-                  value={profileData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <Mail className="w-4 h-4 text-blue-500" />
-                <span>Email Address</span>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={profileData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <Phone className="w-4 h-4 text-blue-500" />
-                <span>Phone Number</span>
-              </Label>
-              <Input
-                id="phone"
-                value={profileData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="birthDate" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <Calendar className="w-4 h-4 text-blue-500" />
-                <span>Date of Birth</span>
-              </Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={profileData.birthDate}
-                onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <PersonalInfoSection 
+          profileData={{
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            email: profileData.email,
+            phone: profileData.phone,
+            birthDate: profileData.birthDate,
+          }}
+          onInputChange={handleInputChange}
+        />
 
         {/* Password Update Section */}
-        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center space-x-3 text-slate-800">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
-                <Lock className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="text-xl font-semibold">Update Password</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="newPassword" className="text-slate-700 font-medium">New Password</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                value={passwordData.newPassword}
-                onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-                placeholder="Enter new password"
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm New Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-                placeholder="Confirm new password"
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="pt-4">
-              <Button 
-                onClick={handlePasswordUpdate}
-                disabled={updatingPassword || !passwordData.newPassword || !passwordData.confirmPassword}
-                className="backdrop-blur-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                {updatingPassword ? 'Updating Password...' : 'Update Password'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <PasswordUpdateSection />
 
         {/* Professional Information */}
-        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center space-x-3 text-slate-800">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
-                <Briefcase className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="text-xl font-semibold">Professional Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle" className="text-slate-700 font-medium">Job Title</Label>
-                <Input
-                  id="jobTitle"
-                  value={profileData.jobTitle}
-                  onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-                  className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="company" className="text-slate-700 font-medium">Company</Label>
-                <Input
-                  id="company"
-                  value={profileData.company}
-                  onChange={(e) => handleInputChange('company', e.target.value)}
-                  className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <MapPin className="w-4 h-4 text-blue-500" />
-                <span>Location</span>
-              </Label>
-              <Input
-                id="location"
-                value={profileData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <Globe className="w-4 h-4 text-blue-500" />
-                <span>Website</span>
-              </Label>
-              <Input
-                id="website"
-                type="url"
-                value={profileData.website}
-                onChange={(e) => handleInputChange('website', e.target.value)}
-                placeholder="https://your-website.com"
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio" className="text-slate-700 font-medium">Bio</Label>
-              <Textarea
-                id="bio"
-                value={profileData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
-                rows={4}
-                placeholder="Tell us about yourself..."
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200 resize-none"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <ProfessionalInfoSection 
+          profileData={{
+            jobTitle: profileData.jobTitle,
+            company: profileData.company,
+            location: profileData.location,
+            website: profileData.website,
+            bio: profileData.bio,
+          }}
+          onInputChange={handleInputChange}
+        />
 
         {/* Company Details */}
-        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-          <CardHeader className="pb-6">
-            <CardTitle className="flex items-center space-x-3 text-slate-800">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
-                <Building className="w-5 h-5 text-blue-600" />
-              </div>
-              <span className="text-xl font-semibold">Company Details</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="companyName" className="text-slate-700 font-medium">Company Name</Label>
-                <Input
-                  id="companyName"
-                  value={profileData.companyName}
-                  onChange={(e) => handleInputChange('companyName', e.target.value)}
-                  placeholder="Your company name"
-                  className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="abn" className="text-slate-700 font-medium">ABN</Label>
-                <Input
-                  id="abn"
-                  value={profileData.abn}
-                  onChange={(e) => handleInputChange('abn', e.target.value)}
-                  placeholder="12 345 678 901"
-                  className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="companyWebsite" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <Globe className="w-4 h-4 text-blue-500" />
-                <span>Company Website</span>
-              </Label>
-              <Input
-                id="companyWebsite"
-                type="url"
-                value={profileData.companyWebsite}
-                onChange={(e) => handleInputChange('companyWebsite', e.target.value)}
-                placeholder="https://company-website.com"
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="companyAddress" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <MapPin className="w-4 h-4 text-blue-500" />
-                <span>Company Address</span>
-              </Label>
-              <Textarea
-                id="companyAddress"
-                value={profileData.companyAddress}
-                onChange={(e) => handleInputChange('companyAddress', e.target.value)}
-                rows={3}
-                placeholder="Enter complete company address..."
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200 resize-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="companyMembers" className="flex items-center space-x-2 text-slate-700 font-medium">
-                <Users className="w-4 h-4 text-blue-500" />
-                <span>Number of Members</span>
-              </Label>
-              <Input
-                id="companyMembers"
-                type="number"
-                value={profileData.companyMembers}
-                onChange={(e) => handleInputChange('companyMembers', e.target.value)}
-                placeholder="15"
-                min="1"
-                className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <CompanyDetailsSection 
+          profileData={{
+            companyName: profileData.companyName,
+            abn: profileData.abn,
+            companyWebsite: profileData.companyWebsite,
+            companyAddress: profileData.companyAddress,
+            companyMembers: profileData.companyMembers,
+          }}
+          onInputChange={handleInputChange}
+        />
       </div>
     </div>
   );
