@@ -71,7 +71,7 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
 
   if (loading) {
     return (
-      <div className="h-full overflow-auto font-manrope">
+      <div className="h-full overflow-auto font-manrope bg-gradient-to-br from-blue-50 via-white to-blue-100">
         <div className="p-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-gray-500">Loading projects...</div>
@@ -82,7 +82,7 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
   }
 
   return (
-    <div className="h-full overflow-auto font-manrope">
+    <div className="h-full overflow-auto font-manrope bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <div className="p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
