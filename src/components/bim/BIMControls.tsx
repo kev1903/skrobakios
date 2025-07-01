@@ -4,8 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
-  Zap,
-  ZapOff
+  Gauge
 } from "lucide-react";
 
 interface BIMControlsProps {
@@ -35,20 +34,20 @@ export const BIMControls = ({
               <Home className="w-4 h-4" />
             </Button>
             <Button
-              variant={performanceMode ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={onTogglePerformance}
               className="p-2"
-              title={performanceMode ? "Quality Mode" : "Performance Mode"}
+              title="Performance Settings"
             >
-              {performanceMode ? <Zap className="w-4 h-4" /> : <ZapOff className="w-4 h-4" />}
+              <Gauge className="w-4 h-4" />
             </Button>
           </div>
 
           {/* Status */}
           <div className="border-t border-white/30 pt-2">
-            <Badge variant={performanceMode ? "secondary" : "default"} className="text-xs">
-              {performanceMode ? "Performance" : "Quality"}
+            <Badge variant="secondary" className="text-xs">
+              Ultra-Light
             </Badge>
           </div>
         </div>
