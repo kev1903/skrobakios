@@ -87,26 +87,56 @@ export const useProfile = () => {
         ? profileData.birth_date 
         : null;
 
-      const { error } = await supabase
+      // First, check if profile exists
+      const { data: existingProfile } = await supabase
         .from('profiles')
-        .upsert({
-          user_id: user.id,
-          first_name: profileData.first_name,
-          last_name: profileData.last_name,
-          email: profileData.email,
-          phone: profileData.phone,
-          job_title: profileData.job_title,
-          company: profileData.company,
-          location: profileData.location,
-          bio: profileData.bio,
-          avatar_url: profileData.avatar_url,
-          birth_date: birthDateValue,
-          website: profileData.website,
-          updated_at: new Date().toISOString(),
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error saving profile:', error);
+      let result;
+      
+      if (existingProfile) {
+        // Update existing profile
+        result = await supabase
+          .from('profiles')
+          .update({
+            first_name: profileData.first_name,
+            last_name: profileData.last_name,
+            email: profileData.email,
+            phone: profileData.phone,
+            job_title: profileData.job_title,
+            company: profileData.company,
+            location: profileData.location,
+            bio: profileData.bio,
+            avatar_url: profileData.avatar_url,
+            birth_date: birthDateValue,
+            website: profileData.website,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id);
+      } else {
+        // Insert new profile
+        result = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            first_name: profileData.first_name,
+            last_name: profileData.last_name,
+            email: profileData.email,
+            phone: profileData.phone,
+            job_title: profileData.job_title,
+            company: profileData.company,
+            location: profileData.location,
+            bio: profileData.bio,
+            avatar_url: profileData.avatar_url,
+            birth_date: birthDateValue,
+            website: profileData.website,
+          });
+      }
+
+      if (result.error) {
+        console.error('Error saving profile:', result.error);
         toast({
           title: "Error",
           description: "Failed to save profile data",
