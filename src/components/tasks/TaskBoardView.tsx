@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useTaskContext } from './TaskContext';
 import { TaskBoardColumn } from './TaskBoardColumn';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
 import { Task } from './TaskContext';
 
 export const TaskBoardView = () => {
-  const { tasks, addTask, setTasks } = useTaskContext();
+  const { tasks, addTask, setTasks, updateTask } = useTaskContext();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -35,6 +36,28 @@ export const TaskBoardView = () => {
   const handleCloseSidePanel = () => {
     setIsSidePanelOpen(false);
     setSelectedTask(null);
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+
+    // If there's no destination or the item was dropped in the same place, do nothing
+    if (!destination || (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    )) {
+      return;
+    }
+
+    // Find the task being dragged
+    const draggedTask = tasks.find(task => task.id === draggableId);
+    if (!draggedTask) return;
+
+    // Update the task's status to match the destination column
+    const newStatus = destination.droppableId as Task['status'];
+    updateTask(draggedTask.id, { status: newStatus });
+
+    console.log(`Moved task "${draggedTask.taskName}" from ${source.droppableId} to ${newStatus}`);
   };
 
   const handleAddTask = (status: string) => {
@@ -113,24 +136,38 @@ export const TaskBoardView = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {statusColumns.map((column) => (
-          <TaskBoardColumn
-            key={column.id}
-            column={column}
-            tasks={getTasksByStatus(column.id)}
-            editingTaskId={editingTaskId}
-            newTaskTitle={newTaskTitle}
-            onTaskTitleChange={setNewTaskTitle}
-            onSaveTask={handleSaveTask}
-            onCancelEdit={handleCancelEdit}
-            onKeyPress={handleKeyPress}
-            onBlur={handleBlur}
-            onAddTask={handleAddTask}
-            onTaskClick={handleTaskClick}
-          />
-        ))}
-      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {statusColumns.map((column) => (
+            <Droppable key={column.id} droppableId={column.id}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={`rounded-lg p-4 transition-colors ${
+                    snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200' : ''
+                  }`}
+                >
+                  <TaskBoardColumn
+                    column={column}
+                    tasks={getTasksByStatus(column.id)}
+                    editingTaskId={editingTaskId}
+                    newTaskTitle={newTaskTitle}
+                    onTaskTitleChange={setNewTaskTitle}
+                    onSaveTask={handleSaveTask}
+                    onCancelEdit={handleCancelEdit}
+                    onKeyPress={handleKeyPress}
+                    onBlur={handleBlur}
+                    onAddTask={handleAddTask}
+                    onTaskClick={handleTaskClick}
+                  />
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          ))}
+        </div>
+      </DragDropContext>
 
       <TaskEditSidePanel
         task={selectedTask}

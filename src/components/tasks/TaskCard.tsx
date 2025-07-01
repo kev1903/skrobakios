@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { GripVertical } from 'lucide-react';
 import { Task } from './TaskContext';
 
 interface TaskCardProps {
@@ -31,14 +32,17 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
+    <Card className="hover:shadow-md transition-all cursor-grab active:cursor-grabbing group" onClick={handleClick}>
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between">
-            <h4 className="font-medium text-sm">{task.taskName}</h4>
-            <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
-              {task.priority}
-            </Badge>
+            <h4 className="font-medium text-sm flex-1 pr-2">{task.taskName}</h4>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
+                {task.priority}
+              </Badge>
+              <GripVertical className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </div>
           
           {task.description && (
@@ -66,7 +70,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
-                  className="bg-blue-600 h-2 rounded-full" 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
                   style={{ width: `${task.progress}%` }}
                 ></div>
               </div>

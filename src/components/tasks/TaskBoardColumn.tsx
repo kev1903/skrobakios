@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Draggable } from 'react-beautiful-dnd';
 import { Task } from './TaskContext';
 import { TaskCard } from './TaskCard';
 import { TaskCardEditor } from './TaskCardEditor';
@@ -37,7 +38,7 @@ export const TaskBoardColumn = ({
   onTaskClick
 }: TaskBoardColumnProps) => {
   return (
-    <div className="rounded-lg p-4">
+    <div className="h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">{column.title}</h3>
         <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
@@ -45,8 +46,8 @@ export const TaskBoardColumn = ({
         </span>
       </div>
       
-      <div className="space-y-3">
-        {tasks.map((task) => (
+      <div className="space-y-3 min-h-[200px]">
+        {tasks.map((task, index) => (
           <div key={task.id}>
             {editingTaskId === task.id ? (
               <TaskCardEditor
@@ -58,7 +59,27 @@ export const TaskBoardColumn = ({
                 onBlur={() => onBlur(task.id, column.id)}
               />
             ) : (
-              <TaskCard task={task} onClick={onTaskClick} />
+              <Draggable 
+                draggableId={task.id} 
+                index={index}
+                isDragDisabled={task.id.startsWith('temp-')}
+              >
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className={`transition-transform ${
+                      snapshot.isDragging ? 'rotate-3 scale-105 shadow-lg' : ''
+                    }`}
+                  >
+                    <TaskCard 
+                      task={task} 
+                      onClick={onTaskClick}
+                    />
+                  </div>
+                )}
+              </Draggable>
             )}
           </div>
         ))}
