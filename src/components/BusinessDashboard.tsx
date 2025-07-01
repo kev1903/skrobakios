@@ -33,7 +33,7 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
   return (
     <div className="h-full w-full bg-gradient-to-br from-[#F5F3E8] via-[#F8F6ED] to-[#FEFDF8] font-manrope">
       {/* Main Container taking full screen width */}
-      <div className="h-full w-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] px-4 py-6">
+      <div className="h-full w-full bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] p-4">
           
           {/* Welcome Section */}
           <h2 className="text-4xl font-bold text-gray-900 mb-8">Welcome in, Nixtio</h2>

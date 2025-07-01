@@ -18,8 +18,8 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
   ];
 
   return (
-    <div className="bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] border-b border-[#E8E3D3] p-6 shadow-sm">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-gradient-to-br from-[#F5F1E3] to-[#FEFCF5] border-b border-[#E8E3D3] p-6 shadow-sm w-full">
+      <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <h1 className="text-2xl font-bold text-gray-900 font-manrope">Crextio</h1>
