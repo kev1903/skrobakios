@@ -57,6 +57,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         phone: profile.phone,
         jobTitle: profile.job_title,
         company: profile.company,
+        companyName: profile.company, // Map database company to form companyName
         location: profile.location,
         bio: profile.bio,
         avatarUrl: profile.avatar_url,
@@ -95,14 +96,14 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     setSaving(true);
     
     try {
-      // Save to database
+      // Save to database - map companyName to company field
       const success = await saveProfile({
         first_name: profileData.firstName,
         last_name: profileData.lastName,
         email: profileData.email,
         phone: profileData.phone,
         job_title: profileData.jobTitle,
-        company: profileData.company,
+        company: profileData.companyName, // Use companyName from the form
         location: profileData.location,
         bio: profileData.bio,
         avatar_url: profileData.avatarUrl,
@@ -119,7 +120,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
           email: profileData.email,
           phone: profileData.phone,
           jobTitle: profileData.jobTitle,
-          company: profileData.company,
+          company: profileData.companyName, // Use companyName from the form
           location: profileData.location,
           bio: profileData.bio,
           avatarUrl: profileData.avatarUrl,
@@ -163,6 +164,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         phone: profile.phone,
         jobTitle: profile.job_title,
         company: profile.company,
+        companyName: profile.company, // Map database company to form companyName
         location: profile.location,
         bio: profile.bio,
         avatarUrl: profile.avatar_url,
