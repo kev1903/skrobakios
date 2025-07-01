@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
-import { ProjectDashboard } from "@/components/ProjectDashboard";
+import { BusinessDashboard } from "@/components/BusinessDashboard";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
@@ -78,7 +77,7 @@ const Index = () => {
       case "tasks":
         return <TaskManagement onNavigate={setCurrentPage} />;
       case "dashboard":
-        return <ProjectDashboard onSelectProject={handleSelectProject} onNavigate={setCurrentPage} />;
+        return <BusinessDashboard onSelectProject={handleSelectProject} onNavigate={setCurrentPage} />;
       case "settings":
         return <SettingsPage onNavigate={setCurrentPage} />;
       case "admin":
