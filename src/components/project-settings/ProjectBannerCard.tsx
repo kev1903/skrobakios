@@ -99,22 +99,27 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
       <CardContent className="space-y-4">
         {formData.banner_image ? (
           <div className="space-y-4">
+            {/* Banner Display Section */}
             <div className="relative">
-              <img
-                src={formData.banner_image}
-                alt="Project banner"
-                className="w-full h-48 object-cover rounded-lg border"
-              />
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={removeBanner}
-                className="absolute top-2 right-2"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+              <div className="w-full h-64 rounded-lg overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-slate-100 to-slate-200">
+                <img
+                  src={formData.banner_image}
+                  alt="Project banner"
+                  className="w-full h-full object-cover"
+                />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={removeBanner}
+                  className="absolute top-3 right-3 shadow-lg"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
+            
+            {/* Banner Controls */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
@@ -123,6 +128,9 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
                 <Upload className="w-4 h-4" />
                 Replace Banner
               </Button>
+              <div className="text-sm text-gray-500 flex items-center">
+                Banner is displayed across the top of your project
+              </div>
             </div>
           </div>
         ) : (
