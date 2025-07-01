@@ -30,7 +30,7 @@ export const SalesRibbon = ({ activeTab, onTabChange }: SalesRibbonProps) => {
   ];
 
   return (
-    <div className="w-16 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2">
+    <div className="w-16 h-full bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-2 shadow-sm">
       {ribbonItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.id;
@@ -40,18 +40,19 @@ export const SalesRibbon = ({ activeTab, onTabChange }: SalesRibbonProps) => {
             key={item.id}
             onClick={() => onTabChange(item.id)}
             className={cn(
-              "w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 group relative",
+              "w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200 group relative flex-shrink-0",
               isActive
-                ? "bg-blue-600 text-white shadow-lg"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                ? "bg-blue-600 text-white shadow-lg scale-105"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-105"
             )}
             title={item.label}
           >
             <Icon className="w-5 h-5" />
             
             {/* Tooltip */}
-            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+            <div className="absolute left-full ml-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
               {item.label}
+              <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
             </div>
           </button>
         );
