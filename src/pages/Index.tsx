@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
@@ -7,6 +8,7 @@ import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
+import { ProjectTeamPage } from "@/components/ProjectTeamPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/AuthPage";
@@ -107,6 +109,14 @@ const Index = () => {
             <p className="text-gray-500">Project not found</p>
           </div>
         );
+      case "project-team":
+        return currentProject ? (
+          <ProjectTeamPage project={currentProject} onNavigate={setCurrentPage} />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Project not found</p>
+          </div>
+        );
       case "gantt-chart":
         return currentProject ? (
           <GanttChartPage project={currentProject} onNavigate={setCurrentPage} />
@@ -141,7 +151,7 @@ const Index = () => {
   };
 
   // Hide main sidebar for project-specific pages
-  const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "gantt-chart"].includes(currentPage);
+  const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart"].includes(currentPage);
 
   return (
     <div className="min-h-screen flex">

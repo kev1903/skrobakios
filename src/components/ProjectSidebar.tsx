@@ -17,6 +17,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
     { id: "insights", label: "Insights", icon: BarChart3, active: activeSection === "insights" },
     { id: "tasks", label: "Tasks", icon: FileCheck, active: activeSection === "tasks" },
     { id: "sections", label: "Sections", icon: FileText, active: activeSection === "sections" },
+    { id: "team", label: "Team", icon: Users, active: activeSection === "team" },
     { id: "cost", label: "Cost", icon: BarChart3, active: activeSection === "cost" },
     { id: "schedule", label: "Schedule", icon: Calendar, active: activeSection === "schedule" },
     { id: "issues", label: "Issues", icon: AlertCircle, active: activeSection === "issues" },
@@ -36,6 +37,8 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
       onNavigate("project-settings");
     } else if (itemId === "schedule") {
       onNavigate("project-schedule");
+    } else if (itemId === "team") {
+      onNavigate("project-team");
     } else {
       // Handle other navigation items as needed
       console.log(`Navigate to ${itemId}`);
