@@ -22,7 +22,7 @@ export const GlobalHeader = ({ onNavigate, currentPage }: GlobalHeaderProps) => 
       <div className="w-full">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-gray-900 font-manrope">Crextio</h1>
+            <h1 className="text-2xl font-bold text-gray-900 font-manrope">Company name</h1>
           </div>
           
           <div className="flex items-center space-x-8">
