@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "./ProjectSidebar";
@@ -120,7 +121,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   };
 
   const progress = getProgress(currentProject.status);
-  const wbsCount = Math.floor(Math.random() * 10) + 8;
+  // Use a fixed WBS count instead of random to prevent constant changes
+  const wbsCount = 13;
 
   if (loading) {
     return (
