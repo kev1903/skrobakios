@@ -2,17 +2,15 @@
 import { useState, useEffect } from "react";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Save, Users, Calendar, DollarSign, MapPin, ExternalLink, LinkIcon, Trash2 } from "lucide-react";
+import { Save } from "lucide-react";
 import { Project, useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
+import { ProjectInformationCard } from "./project-settings/ProjectInformationCard";
+import { SharePointIntegrationCard } from "./project-settings/SharePointIntegrationCard";
+import { TimelineStatusCard } from "./project-settings/TimelineStatusCard";
+import { FinancialInformationCard } from "./project-settings/FinancialInformationCard";
+import { DangerZoneCard } from "./project-settings/DangerZoneCard";
+import { ProjectOverviewSidebar } from "./project-settings/ProjectOverviewSidebar";
 
 interface ProjectSettingsPageProps {
   project: Project;
@@ -89,31 +87,6 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     });
   };
 
-  const testSharePointConnection = () => {
-    if (!formData.sharepoint_link) {
-      toast({
-        title: "No SharePoint Link",
-        description: "Please enter a SharePoint link first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!validateSharePointLink(formData.sharepoint_link)) {
-      toast({
-        title: "Invalid Link",
-        description: "Please enter a valid SharePoint or OneDrive link.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Connection Test",
-      description: "SharePoint link is valid and ready to use.",
-    });
-  };
-
   const handleDeleteProject = async () => {
     const success = await deleteProject(project.id);
     
@@ -164,331 +137,40 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Settings */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Project Information card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    Project Information
-                  </CardTitle>
-                  <CardDescription>
-                    Basic information about your project
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="project-name">Project Name</Label>
-                      <Input
-                        id="project-name"
-                        value={formData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
-                        placeholder="Enter project name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) => handleInputChange("location", e.target.value)}
-                        placeholder="Enter project location"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
-                      placeholder="Enter project description"
-                      rows={3}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <ProjectInformationCard 
+                formData={formData}
+                onInputChange={handleInputChange}
+              />
 
-              {/* SharePoint Integration Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <LinkIcon className="w-5 h-5" />
-                    SharePoint Integration
-                  </CardTitle>
-                  <CardDescription>
-                    Connect your project to a SharePoint folder for file management
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="sharepoint-link">SharePoint Folder Link</Label>
-                    <Input
-                      id="sharepoint-link"
-                      value={formData.sharepoint_link}
-                      onChange={(e) => handleInputChange("sharepoint_link", e.target.value)}
-                      placeholder="Paste your SharePoint folder link here (e.g., https://company.sharepoint.com/...)"
-                      className="font-mono text-sm"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Paste the SharePoint or OneDrive folder link where your project files are stored
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={testSharePointConnection}
-                      disabled={!formData.sharepoint_link}
-                    >
-                      Test Connection
-                    </Button>
-                    {formData.sharepoint_link && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => window.open(formData.sharepoint_link, '_blank')}
-                      >
-                        <ExternalLink className="w-4 h-4 mr-1" />
-                        Open in SharePoint
-                      </Button>
-                    )}
-                  </div>
-                  
-                  {formData.sharepoint_link && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-start gap-2">
-                        <LinkIcon className="w-4 h-4 text-blue-600 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-blue-900">SharePoint Connected</p>
-                          <p className="text-xs text-blue-700">
-                            Files from this SharePoint folder will be displayed in the Project Files page
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <SharePointIntegrationCard 
+                formData={formData}
+                onInputChange={handleInputChange}
+              />
 
-              {/* Timeline & Status card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Timeline & Status
-                  </CardTitle>
-                  <CardDescription>
-                    Manage project timeline and current status
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="start-date">Start Date</Label>
-                      <Input
-                        id="start-date"
-                        type="date"
-                        value={formData.start_date}
-                        onChange={(e) => handleInputChange("start_date", e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="deadline">Deadline</Label>
-                      <Input
-                        id="deadline"
-                        type="date"
-                        value={formData.deadline}
-                        onChange={(e) => handleInputChange("deadline", e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="status">Status</Label>
-                      <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="in_progress">In Progress</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                          <SelectItem value="on_hold">On Hold</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="priority">Priority</Label>
-                      <Select value={formData.priority} onValueChange={(value) => handleInputChange("priority", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Low">Low</SelectItem>
-                          <SelectItem value="Medium">Medium</SelectItem>
-                          <SelectItem value="High">High</SelectItem>
-                          <SelectItem value="Critical">Critical</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <TimelineStatusCard 
+                formData={formData}
+                onInputChange={handleInputChange}
+              />
 
-              {/* Financial Information card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5" />
-                    Financial Information
-                  </CardTitle>
-                  <CardDescription>
-                    Project budget and contract details
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <Label htmlFor="contract-price">Contract Price</Label>
-                    <Input
-                      id="contract-price"
-                      value={formData.contract_price}
-                      onChange={(e) => handleInputChange("contract_price", e.target.value)}
-                      placeholder="Enter contract price (e.g., $2,450,000)"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <FinancialInformationCard 
+                formData={formData}
+                onInputChange={handleInputChange}
+              />
 
-              {/* Danger Zone */}
-              <Card className="border-red-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-red-600">
-                    <Trash2 className="w-5 h-5" />
-                    Danger Zone
-                  </CardTitle>
-                  <CardDescription>
-                    Irreversible and destructive actions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h4 className="font-medium text-red-900 mb-2">Delete Project</h4>
-                    <p className="text-sm text-red-700 mb-4">
-                      Once you delete this project, there is no going back. This will permanently delete the project and all associated data.
-                    </p>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete Project
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the project "{project.name}" 
-                            and remove all of its data from our servers.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={handleDeleteProject}
-                            disabled={loading}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            {loading ? "Deleting..." : "Yes, delete project"}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </CardContent>
-              </Card>
+              <DangerZoneCard 
+                project={project}
+                onDeleteProject={handleDeleteProject}
+                loading={loading}
+              />
             </div>
 
             {/* Project Overview Sidebar */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Project Overview</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Project ID</span>
-                    </div>
-                    <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
-                      {project.project_id}
-                    </p>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Current Status</span>
-                    </div>
-                    <Badge variant="outline" className={getStatusColor(formData.status)}>
-                      {getStatusText(formData.status)}
-                    </Badge>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Priority</span>
-                    </div>
-                    <Badge variant="outline">
-                      {formData.priority}
-                    </Badge>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Created</span>
-                    </div>
-                    <p className="text-sm text-gray-900">
-                      {new Date(project.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">Last Updated</span>
-                    </div>
-                    <p className="text-sm text-gray-900">
-                      {new Date(project.updated_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Team Access
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Manage who has access to this project
-                  </p>
-                  <Button variant="outline" className="w-full">
-                    Manage Team
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <ProjectOverviewSidebar 
+              project={project}
+              formData={formData}
+              getStatusColor={getStatusColor}
+              getStatusText={getStatusText}
+            />
           </div>
 
           {/* Save Button */}
