@@ -37,7 +37,7 @@ export const TaskBoardColumn = ({
   onTaskClick
 }: TaskBoardColumnProps) => {
   return (
-    <div className={`${column.color} rounded-lg p-4`}>
+    <div className="rounded-lg p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">{column.title}</h3>
         <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
