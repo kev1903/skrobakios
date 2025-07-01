@@ -5,18 +5,22 @@ import { Task, useTaskContext } from './TaskContext';
 import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
 import { TaskEditActions } from './TaskEditActions';
+import { SubtasksList } from './SubtasksList';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useProjectMembers } from '@/hooks/useProjectMembers';
 
 interface TaskEditSidePanelProps {
   task: Task | null;
   isOpen: boolean;
   onClose: () => void;
+  projectId?: string;
 }
 
-export const TaskEditSidePanel = ({ task, isOpen, onClose }: TaskEditSidePanelProps) => {
+export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEditSidePanelProps) => {
   const { updateTask } = useTaskContext();
   const [editedTask, setEditedTask] = useState<Task | null>(null);
   const isMobile = useIsMobile();
+  const { members } = useProjectMembers(projectId);
 
   useEffect(() => {
     if (task) {
@@ -65,9 +69,18 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose }: TaskEditSidePanelPr
         <SheetHeader>
           <TaskEditForm 
             task={editedTask} 
-            onFieldChange={handleFieldChange} 
+            onFieldChange={handleFieldChange}
+            projectId={projectId}
           />
         </SheetHeader>
+
+        {/* Subtasks Section */}
+        <div className="mt-8 pt-6 border-t">
+          <SubtasksList 
+            taskId={editedTask.id}
+            projectMembers={members.map(m => ({ name: m.name, avatar: m.avatar }))}
+          />
+        </div>
 
         <TaskEditActions 
           onSave={handleSave} 

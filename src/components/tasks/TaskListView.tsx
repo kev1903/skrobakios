@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,11 @@ import { AddTaskDialog } from './AddTaskDialog';
 import { Task } from './TaskContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-export const TaskListView = () => {
+interface TaskListViewProps {
+  projectId?: string;
+}
+
+export const TaskListView = ({ projectId }: TaskListViewProps) => {
   const { tasks } = useTaskContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -231,6 +234,7 @@ export const TaskListView = () => {
         task={selectedTask}
         isOpen={isSidePanelOpen}
         onClose={handleCloseSidePanel}
+        projectId={projectId}
       />
 
       <AddTaskDialog
