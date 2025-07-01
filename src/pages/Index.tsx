@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskManagement } from "@/components/TaskManagement";
@@ -71,6 +72,23 @@ const Index = () => {
     setSelectedProject(projectId);
   };
 
+  // Helper function to get current project or fallback
+  const getCurrentProject = (): Project => {
+    return currentProject || {
+      id: "1",
+      project_id: "SK23003",
+      name: "Gordon Street, Balwyn",
+      location: "Balwyn, VIC",
+      created_at: "2024-06-15T00:00:00Z",
+      status: "completed",
+      contract_price: "$2,450,000",
+      start_date: "2024-06-15",
+      deadline: "2024-08-30",
+      updated_at: "2024-06-15T00:00:00Z",
+      priority: "Medium"
+    };
+  };
+
   const renderContent = () => {
     switch (currentPage) {
       case "auth":
@@ -90,61 +108,19 @@ const Index = () => {
       case "project-detail":
         return <ProjectDetail projectId={selectedProject} onNavigate={setCurrentPage} />;
       case "project-tasks":
-        return currentProject ? (
-          <ProjectTasksPage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <ProjectTasksPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "project-files":
-        return currentProject ? (
-          <ProjectFilePage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <ProjectFilePage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "project-settings":
-        return currentProject ? (
-          <ProjectSettingsPage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <ProjectSettingsPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "project-schedule":
-        return currentProject ? (
-          <ProjectSchedulePage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <ProjectSchedulePage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "project-team":
-        return currentProject ? (
-          <ProjectTeamPage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <ProjectTeamPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "project-bim":
-        return currentProject ? (
-          <ProjectBIMPage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <ProjectBIMPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "gantt-chart":
-        return currentProject ? (
-          <GanttChartPage project={currentProject} onNavigate={setCurrentPage} />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-500">Project not found</p>
-          </div>
-        );
+        return <GanttChartPage project={getCurrentProject()} onNavigate={setCurrentPage} />;
       case "upload":
         return <UploadProject onNavigate={setCurrentPage} />;
       case "files":
