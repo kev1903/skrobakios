@@ -25,11 +25,14 @@ import {
   Settings, 
   HelpCircle, 
   LogOut,
-  User
+  User,
+  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/contexts/UserContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface ResponsiveSidebarProps {
   currentPage: string;
@@ -38,6 +41,7 @@ interface ResponsiveSidebarProps {
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { userProfile } = useUser();
+  const { user, userRole, signOut, isSuperAdmin, isAdmin } = useAuth();
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
@@ -60,6 +64,20 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
     { id: "settings", label: "Settings", icon: Settings },
     { id: "support", label: "Help Center", icon: HelpCircle },
   ];
+
+  // Add admin navigation if user has admin privileges
+  const adminNavigation = isAdmin ? [
+    { id: "admin", label: "Admin Panel", icon: Shield },
+  ] : [];
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      onNavigate('auth');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <Sidebar className="backdrop-blur-xl bg-white/60 border-r border-white/20 shadow-xl">
@@ -144,6 +162,41 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {adminNavigation.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 font-poppins">
+              {!isCollapsed && "Administration"}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {adminNavigation.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentPage === item.id;
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        onClick={() => onNavigate(item.id)}
+                        className={cn(
+                          "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group",
+                          isActive
+                            ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-700 font-medium backdrop-blur-sm border border-blue-500/20 shadow-lg"
+                            : "text-slate-600 hover:bg-white/20 hover:text-slate-800 hover:backdrop-blur-sm hover:shadow-md"
+                        )}
+                      >
+                        <Icon className={cn(
+                          "w-4 h-4 transition-all duration-200",
+                          isActive ? "text-blue-600" : "text-slate-500 group-hover:text-slate-700"
+                        )} />
+                        {!isCollapsed && <span>{item.label}</span>}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 font-poppins">
             {!isCollapsed && "Support"}
@@ -197,9 +250,16 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-800 truncate font-poppins">
-                {userProfile.firstName} {userProfile.lastName}
-              </p>
+              <div className="flex items-center space-x-2">
+                <p className="text-sm font-medium text-slate-800 truncate font-poppins">
+                  {user?.email || userProfile.firstName + ' ' + userProfile.lastName}
+                </p>
+                {userRole && (
+                  <Badge variant={isSuperAdmin ? "destructive" : isAdmin ? "default" : "secondary"} className="text-xs">
+                    {userRole}
+                  </Badge>
+                )}
+              </div>
               <p className="text-xs text-slate-500 truncate font-inter">{userProfile.jobTitle}</p>
             </div>
           )}
@@ -207,6 +267,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
         
         <Button 
           variant="ghost"
+          onClick={handleLogout}
           className="w-full flex items-center space-x-3 px-3 py-2 mt-2 text-left rounded-lg hover:bg-red-50/50 transition-all duration-200 text-slate-500 hover:text-red-600 group backdrop-blur-sm hover:shadow-md justify-start"
         >
           <LogOut className="w-4 h-4" />

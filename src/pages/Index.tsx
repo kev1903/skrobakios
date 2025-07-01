@@ -11,7 +11,8 @@ import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { ProjectTeamPage } from "@/components/ProjectTeamPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
-import { AuthPage } from "@/components/AuthPage";
+import { AuthPage } from "@/components/auth/AuthPage";
+import { AdminPanel } from "@/components/admin/AdminPanel";
 import { SupportPage } from "@/components/SupportPage";
 import { CreateProject } from "@/components/CreateProject";
 import { ProjectList } from "@/components/ProjectList";
@@ -24,11 +25,13 @@ import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
 import { UserProvider } from "@/contexts/UserContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useEffect } from "react";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState("tasks");
+  const [currentPage, setCurrentPage] = useState("auth");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const { getProjects } = useProjects();
@@ -69,10 +72,14 @@ const Index = () => {
 
   const renderContent = () => {
     switch (currentPage) {
+      case "auth":
+        return <AuthPage onNavigate={setCurrentPage} />;
       case "tasks":
         return <TaskManagement onNavigate={setCurrentPage} />;
       case "dashboard":
         return <ProjectDashboard onSelectProject={handleSelectProject} onNavigate={setCurrentPage} />;
+      case "admin":
+        return <AdminPanel onNavigate={setCurrentPage} />;
       case "create-project":
         return <CreateProject onNavigate={setCurrentPage} />;
       case "projects":
@@ -143,41 +150,52 @@ const Index = () => {
         return <BillsPage onNavigate={setCurrentPage} />;
       case "recurring":
         return <RecurringPage onNavigate={setCurrentPage} />;
-      case "auth":
-        return <AuthPage onNavigate={setCurrentPage} />;
       case "support":
         return <SupportPage />;
       case "user-edit":
         return <UserEditPage onNavigate={setCurrentPage} />;
       default:
-        return <TaskManagement onNavigate={setCurrentPage} />;
+        return <AuthPage onNavigate={setCurrentPage} />;
     }
   };
 
-  // Hide main sidebar for project-specific pages and user edit page
-  const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit"].includes(currentPage);
+  // Hide main sidebar for auth page, project-specific pages and user edit page
+  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit"].includes(currentPage);
 
   return (
-    <UserProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-        
-        <div className="flex relative z-10">
-          {showMainSidebar ? (
-            <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage}>
-              <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
+    <AuthProvider>
+      <UserProvider>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+          
+          <div className="flex relative z-10">
+            {currentPage === "auth" ? (
+              <main className="flex-1 overflow-hidden w-full">
                 {renderContent()}
               </main>
-            </AppSidebar>
-          ) : (
-            <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
-              {renderContent()}
-            </main>
-          )}
+            ) : (
+              <ProtectedRoute 
+                onNavigate={setCurrentPage}
+                requireSuperAdmin={currentPage === "admin"}
+              >
+                {showMainSidebar ? (
+                  <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage}>
+                    <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
+                      {renderContent()}
+                    </main>
+                  </AppSidebar>
+                ) : (
+                  <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
+                    {renderContent()}
+                  </main>
+                )}
+              </ProtectedRoute>
+            )}
+          </div>
         </div>
-      </div>
-    </UserProvider>
+      </UserProvider>
+    </AuthProvider>
   );
 };
 

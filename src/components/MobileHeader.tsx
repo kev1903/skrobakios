@@ -2,8 +2,10 @@
 import React from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface MobileHeaderProps {
   onNavigate: (page: string) => void;
@@ -11,6 +13,7 @@ interface MobileHeaderProps {
 
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile } = useUser();
+  const { user, userRole, isSuperAdmin, isAdmin } = useAuth();
 
   return (
     <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm md:hidden">
@@ -41,9 +44,16 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
             <User className="w-3 h-3 text-white" />
           )}
         </div>
-        <span className="text-xs font-medium text-slate-800 font-poppins">
-          {userProfile.firstName || 'User'}
-        </span>
+        <div className="flex flex-col items-start">
+          <span className="text-xs font-medium text-slate-800 font-poppins">
+            {user?.email?.split('@')[0] || userProfile.firstName || 'User'}
+          </span>
+          {userRole && (
+            <Badge variant={isSuperAdmin ? "destructive" : isAdmin ? "default" : "secondary"} className="text-xs h-4">
+              {userRole}
+            </Badge>
+          )}
+        </div>
       </Button>
     </header>
   );

@@ -275,16 +275,48 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      is_superadmin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
+      user_role: "superadmin" | "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -402,6 +434,7 @@ export const Constants = {
     Enums: {
       access_level: ["private_to_members", "public", "restricted"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
+      user_role: ["superadmin", "admin", "user"],
     },
   },
 } as const
