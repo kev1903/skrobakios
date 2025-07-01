@@ -92,7 +92,12 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Bell className="w-5 h-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full"
+                onClick={() => onNavigate("user-edit")}
+              >
                 <User className="w-5 h-5" />
               </Button>
             </div>
