@@ -22,11 +22,11 @@ export const BIMModelUpload = ({
 
   const handleFileSelect = (file: File) => {
     // Check if file is a supported 3D model format
-    const supportedFormats = ['.gltf', '.glb', '.obj', '.fbx'];
+    const supportedFormats = ['.gltf', '.glb', '.obj', '.fbx', '.ifc'];
     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
     
     if (!supportedFormats.includes(fileExtension)) {
-      alert('Please upload a supported 3D model format (.gltf, .glb, .obj, .fbx)');
+      alert('Please upload a supported 3D model format (.gltf, .glb, .obj, .fbx, .ifc)');
       return;
     }
 
@@ -79,7 +79,7 @@ export const BIMModelUpload = ({
           <div>
             <Label className="text-sm font-medium">Upload 3D Model</Label>
             <p className="text-xs text-gray-500 mt-1">
-              Supported formats: GLTF, GLB, OBJ, FBX
+              Supported formats: GLTF, GLB, OBJ, FBX, IFC
             </p>
           </div>
 
@@ -110,7 +110,7 @@ export const BIMModelUpload = ({
               <Input
                 ref={fileInputRef}
                 type="file"
-                accept=".gltf,.glb,.obj,.fbx"
+                accept=".gltf,.glb,.obj,.fbx,.ifc"
                 onChange={handleFileInputChange}
                 className="hidden"
               />
