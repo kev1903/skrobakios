@@ -175,7 +175,6 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
   );
