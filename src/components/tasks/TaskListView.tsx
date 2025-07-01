@@ -236,6 +236,7 @@ export const TaskListView = () => {
       <AddTaskDialog
         isOpen={isAddTaskDialogOpen}
         onClose={() => setIsAddTaskDialogOpen(false)}
+        status="Not Started"
       />
     </div>
   );
