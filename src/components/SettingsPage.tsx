@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, Shield, User, Bell, Lock, Palette, Globe } from 'lucide-react';
+import { ArrowLeft, Settings, Shield, User, Bell, Palette, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -48,7 +48,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 backdrop-blur-sm bg-white/60">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 backdrop-blur-sm bg-white/60">
               <TabsTrigger value="general" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
@@ -60,10 +60,6 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
               <TabsTrigger value="notifications" className="flex items-center space-x-2">
                 <Bell className="w-4 h-4" />
                 <span className="hidden sm:inline">Notifications</span>
-              </TabsTrigger>
-              <TabsTrigger value="security" className="flex items-center space-x-2">
-                <Lock className="w-4 h-4" />
-                <span className="hidden sm:inline">Security</span>
               </TabsTrigger>
               <TabsTrigger value="appearance" className="flex items-center space-x-2">
                 <Palette className="w-4 h-4" />
@@ -169,34 +165,6 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                       <p className="text-sm text-slate-500">Receive browser notifications</p>
                     </div>
                     <Button variant="outline" size="sm">Disabled</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="security" className="space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>
-                    Manage your account security
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Password</h4>
-                      <p className="text-sm text-slate-500">Change your account password</p>
-                    </div>
-                    <Button variant="outline" size="sm">Change Password</Button>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-slate-500">Add an extra layer of security</p>
-                    </div>
-                    <Button variant="outline" size="sm">Setup</Button>
                   </div>
                 </CardContent>
               </Card>
