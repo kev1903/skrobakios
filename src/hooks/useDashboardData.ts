@@ -34,20 +34,38 @@ export const useDashboardData = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardStats = async () => {
+    if (!user) {
+      console.log('No user found, skipping dashboard data fetch');
+      return;
+    }
+
     try {
-      // Fetch projects data
+      setError(null); // Clear any previous errors
+      console.log('Fetching dashboard data for user:', user.id);
+
+      // Fetch projects data with better error handling
       const { data: projects, error: projectsError } = await supabase
         .from('projects')
         .select('status');
 
-      if (projectsError) throw projectsError;
+      if (projectsError) {
+        console.error('Projects fetch error:', projectsError);
+        throw new Error(`Failed to fetch projects: ${projectsError.message}`);
+      }
 
-      // Fetch team members data
+      console.log('Projects data:', projects);
+
+      // Fetch team members data with better error handling
       const { data: teamMembers, error: teamError } = await supabase
         .from('team_members')
         .select('status');
 
-      if (teamError) throw teamError;
+      if (teamError) {
+        console.error('Team members fetch error:', teamError);
+        throw new Error(`Failed to fetch team members: ${teamError.message}`);
+      }
+
+      console.log('Team members data:', teamMembers);
 
       // Calculate stats
       const totalProjects = projects?.length || 0;
@@ -66,8 +84,12 @@ export const useDashboardData = () => {
         completedProjects,
         pendingProjects,
       });
+
+      console.log('Dashboard stats updated successfully');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
+      console.error('Dashboard fetch error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch dashboard data';
+      setError(errorMessage);
     }
   };
 
@@ -138,12 +160,22 @@ export const useDashboardData = () => {
   useEffect(() => {
     if (user) {
       setLoading(true);
-      Promise.all([
-        fetchDashboardStats(),
-        initializeOnboardingTasks()
-      ]).finally(() => {
-        setLoading(false);
-      });
+      setError(null);
+      
+      const loadDashboardData = async () => {
+        try {
+          await fetchDashboardStats();
+          initializeOnboardingTasks();
+        } catch (err) {
+          console.error('Error loading dashboard data:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadDashboardData();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
