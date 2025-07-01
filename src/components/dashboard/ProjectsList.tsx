@@ -1,37 +1,41 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Eye, Calendar, Users } from "lucide-react";
 
 const projects = [
   {
     id: "01",
-    name: "Project 01",
+    name: "Project Alpha",
     status: "Running",
     deadline: "02 Sep 2023",
-    team: ["👤", "👤", "👤"]
+    team: 3,
+    progress: 75
   },
   {
     id: "02",
-    name: "Project 02",
+    name: "Project Beta",
     status: "Pending",
-    deadline: "02 Sep 2023",
-    team: ["👤", "👤", "👤"]
+    deadline: "15 Sep 2023",
+    team: 5,
+    progress: 25
   },
   {
     id: "20",
-    name: "Project 20",
+    name: "Project Gamma",
     status: "Completed",
-    deadline: "02 Sep 2023",
-    team: ["👤", "👤", "👤"]
+    deadline: "28 Aug 2023",
+    team: 4,
+    progress: 100
   },
   {
     id: "10",
-    name: "Project 10",
+    name: "Project Delta",
     status: "Running",
-    deadline: "02 Sep 2023",
-    team: ["👤", "👤", "👤"]
+    deadline: "10 Oct 2023",
+    team: 6,
+    progress: 60
   }
 ];
 
@@ -41,57 +45,97 @@ interface ProjectsListProps {
 }
 
 export const ProjectsList = ({ onSelectProject, onNavigate }: ProjectsListProps) => {
-  const getStatusColor = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case "Running":
-        return "bg-blue-100 text-blue-800";
+        return { 
+          variant: "default" as const, 
+          className: "bg-blue-100 text-blue-700 hover:bg-blue-100",
+          dotColor: "bg-blue-500"
+        };
       case "Pending":
-        return "bg-orange-100 text-orange-800";
+        return { 
+          variant: "secondary" as const, 
+          className: "bg-amber-100 text-amber-700 hover:bg-amber-100",
+          dotColor: "bg-amber-500"
+        };
       case "Completed":
-        return "bg-green-100 text-green-800";
+        return { 
+          variant: "default" as const, 
+          className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
+          dotColor: "bg-emerald-500"
+        };
       default:
-        return "bg-gray-100 text-gray-800";
+        return { 
+          variant: "outline" as const, 
+          className: "bg-slate-100 text-slate-700 hover:bg-slate-100",
+          dotColor: "bg-slate-500"
+        };
     }
   };
 
   return (
-    <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-800">Projects</CardTitle>
+    <Card className="border-0 shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold text-slate-800">Recent Projects</CardTitle>
+          <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+            View All
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {projects.map((project) => (
-            <div key={project.id} className="flex items-center justify-between p-4 bg-white/50 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-semibold text-gray-800">{project.name}</span>
-                    <Badge className={getStatusColor(project.status)} variant="secondary">
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          {projects.map((project) => {
+            const statusConfig = getStatusConfig(project.status);
+            return (
+              <div 
+                key={project.id} 
+                className="flex items-center justify-between p-4 bg-slate-50/50 hover:bg-slate-50 rounded-xl transition-colors border border-slate-100"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-2 h-2 rounded-full ${statusConfig.dotColor}`}></div>
+                    <span className="font-semibold text-slate-800 truncate">{project.name}</span>
+                    <Badge 
+                      variant={statusConfig.variant}
+                      className={`text-xs px-2 py-1 ${statusConfig.className}`}
+                    >
                       {project.status}
                     </Badge>
                   </div>
-                  <div className="text-sm text-gray-600">
-                    Deadline: {project.deadline}
+                  
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>{project.deadline}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      <span>{project.team} members</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <span className="text-sm text-gray-600">Team Member</span>
-                  <div className="flex -space-x-1">
-                    {project.team.map((member, index) => (
-                      <div key={index} className="w-6 h-6 bg-gray-300 rounded-full border-2 border-white flex items-center justify-center text-xs">
-                        {member}
+                  
+                  {project.status !== "Completed" && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-slate-500">Progress</span>
+                        <span className="font-medium text-slate-700">{project.progress}%</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="w-full bg-slate-200 rounded-full h-1.5">
+                        <div 
+                          className="bg-blue-500 h-1.5 rounded-full transition-all duration-300" 
+                          style={{ width: `${project.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <Button
                   variant="ghost"
                   size="sm"
+                  className="ml-4 text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                   onClick={() => {
                     onSelectProject(project.id);
                     onNavigate("project-detail");
@@ -100,8 +144,8 @@ export const ProjectsList = ({ onSelectProject, onNavigate }: ProjectsListProps)
                   <Eye className="w-4 h-4" />
                 </Button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

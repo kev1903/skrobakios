@@ -1,9 +1,5 @@
 
 import { useState } from "react";
-import { Calendar, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { MetricsCards } from "@/components/dashboard/MetricsCards";
 import { TaskChart } from "@/components/dashboard/TaskChart";
@@ -20,8 +16,8 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
   const [selectedPeriod, setSelectedPeriod] = useState("This Month");
 
   return (
-    <div className="h-full overflow-auto bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      <div className="p-6 space-y-6">
         <DashboardHeader 
           selectedPeriod={selectedPeriod} 
           onPeriodChange={setSelectedPeriod}
@@ -30,12 +26,12 @@ export const BusinessDashboard = ({ onSelectProject, onNavigate }: BusinessDashb
 
         <MetricsCards />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <TaskChart />
           <ProjectStatusChart />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <ProjectsList onSelectProject={onSelectProject} onNavigate={onNavigate} />
           <EarningsChart />
         </div>

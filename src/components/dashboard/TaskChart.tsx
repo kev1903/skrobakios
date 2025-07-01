@@ -15,53 +15,63 @@ const data = [
   { date: "28 Aug", value: 28 }
 ];
 
+const legendItems = [
+  { name: "Projects", color: "bg-blue-500" },
+  { name: "Finance", color: "bg-purple-400" },
+  { name: "Sales", color: "bg-emerald-500" }
+];
+
 export const TaskChart = () => {
   return (
-    <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-800">
-          Incomplete task by Project
-        </CardTitle>
-        <div className="flex items-center space-x-4 text-xs">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span>Projects</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
-            <span>Finance</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-            <span>Sales</span>
+    <Card className="border-0 shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold text-slate-800">
+            Incomplete Tasks by Project
+          </CardTitle>
+          <div className="flex items-center gap-4">
+            {legendItems.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${item.color}`}></div>
+                <span className="text-xs text-slate-600 font-medium">{item.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
+            <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <XAxis 
                 dataKey="date" 
                 axisLine={false} 
                 tickLine={false}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
+                tick={{ fontSize: 11, fill: '#64748B' }}
               />
               <YAxis 
                 axisLine={false} 
                 tickLine={false}
-                tick={{ fontSize: 12, fill: '#6B7280' }}
+                tick={{ fontSize: 11, fill: '#64748B' }}
+                width={30}
               />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: '#1F2937',
+                  backgroundColor: '#0F172A',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
-                  fontSize: '12px'
+                  fontSize: '12px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
                 }}
+                cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
               />
-              <Bar dataKey="value" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+              <Bar 
+                dataKey="value" 
+                fill="#3B82F6" 
+                radius={[3, 3, 0, 0]}
+                className="hover:opacity-80 transition-opacity"
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
