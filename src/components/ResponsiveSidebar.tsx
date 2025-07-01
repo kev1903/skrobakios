@@ -26,7 +26,6 @@ import {
   HelpCircle, 
   LogOut,
   User,
-  Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/contexts/UserContext";
@@ -60,11 +59,9 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
     { id: "sales", label: "Sales", icon: TrendingUp },
   ];
 
-  // Move admin navigation to support section
   const supportNavigation = [
     { id: "settings", label: "Settings", icon: Settings },
     { id: "support", label: "Help Center", icon: HelpCircle },
-    ...(isAdmin ? [{ id: "admin", label: "Admin Panel", icon: Shield }] : []),
   ];
 
   const handleLogout = async () => {

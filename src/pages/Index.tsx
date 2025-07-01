@@ -13,6 +13,7 @@ import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { AdminPanel } from "@/components/admin/AdminPanel";
+import { SettingsPage } from "@/components/SettingsPage";
 import { SupportPage } from "@/components/SupportPage";
 import { CreateProject } from "@/components/CreateProject";
 import { ProjectList } from "@/components/ProjectList";
@@ -78,6 +79,8 @@ const Index = () => {
         return <TaskManagement onNavigate={setCurrentPage} />;
       case "dashboard":
         return <ProjectDashboard onSelectProject={handleSelectProject} onNavigate={setCurrentPage} />;
+      case "settings":
+        return <SettingsPage onNavigate={setCurrentPage} />;
       case "admin":
         return <AdminPanel onNavigate={setCurrentPage} />;
       case "create-project":
