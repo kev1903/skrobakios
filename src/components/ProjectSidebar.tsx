@@ -51,21 +51,11 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
         <Button
           variant="ghost"
           onClick={() => onNavigate("projects")}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
         </Button>
-        
-        <div className="mb-2">
-          <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Badge variant="outline" className={getStatusColor(project.status)}>
-              {getStatusText(project.status)}
-            </Badge>
-            <span>Last Updated 12h Ago</span>
-          </div>
-        </div>
       </div>
 
       <nav className="flex-1 p-4">
