@@ -1,42 +1,47 @@
 
 import { useRef, useEffect, useState, Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from "three";
 
 interface UltraLightBIMViewerProps {
   modelId: string;
   className?: string;
   performanceMode?: boolean;
+  modelFile?: File | null;
 }
 
-// Extremely lightweight single-mesh building
-const MinimalBuilding = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Component to load and display uploaded 3D model
+const UploadedModel = ({ modelFile }: { modelFile: File }) => {
+  const [modelUrl, setModelUrl] = useState<string>("");
 
   useEffect(() => {
-    if (!meshRef.current) return;
+    if (modelFile) {
+      const url = URL.createObjectURL(modelFile);
+      setModelUrl(url);
+      
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    }
+  }, [modelFile]);
 
-    // Create a single combined geometry for the entire building
-    const geometry = new THREE.BoxGeometry(8, 2, 6);
+  try {
+    if (!modelUrl) return null;
     
-    // Simple material with minimal features
-    const material = new THREE.MeshBasicMaterial({ 
-      color: 0xcccccc,
-      transparent: false,
-      fog: false
-    });
-
-    meshRef.current.geometry = geometry;
-    meshRef.current.material = material;
-  }, []);
-
-  return (
-    <mesh ref={meshRef} position={[0, 1, 0]}>
-      <boxGeometry args={[8, 2, 6]} />
-      <meshBasicMaterial color="#cccccc" />
-    </mesh>
-  );
+    const gltf = useLoader(GLTFLoader, modelUrl);
+    
+    // Scale and position the model
+    const model = gltf.scene.clone();
+    model.scale.setScalar(1);
+    model.position.set(0, 0, 0);
+    
+    return <primitive object={model} />;
+  } catch (error) {
+    console.error("Error loading model:", error);
+    return null;
+  }
 };
 
 const SimpleLoadingFallback = () => (
@@ -48,7 +53,24 @@ const SimpleLoadingFallback = () => (
   </div>
 );
 
-export const UltraLightBIMViewer = ({ modelId, className, performanceMode = true }: UltraLightBIMViewerProps) => {
+const NoModelPlaceholder = () => (
+  <div className="flex items-center justify-center h-full bg-gray-50">
+    <div className="text-center">
+      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-4">
+        <div className="w-8 h-8 border-2 border-gray-400 border-dashed rounded"></div>
+      </div>
+      <p className="text-gray-600">No model uploaded</p>
+      <p className="text-sm text-gray-500">Upload a 3D model to view it here</p>
+    </div>
+  </div>
+);
+
+export const UltraLightBIMViewer = ({ 
+  modelId, 
+  className, 
+  performanceMode = true, 
+  modelFile 
+}: UltraLightBIMViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -57,12 +79,21 @@ export const UltraLightBIMViewer = ({ modelId, className, performanceMode = true
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [modelId]);
+  }, [modelId, modelFile]);
 
   if (isLoading) {
     return (
       <div className={`${className} flex items-center justify-center bg-gray-50`}>
         <SimpleLoadingFallback />
+      </div>
+    );
+  }
+
+  // Show placeholder if no model is uploaded
+  if (!modelFile) {
+    return (
+      <div className={className}>
+        <NoModelPlaceholder />
       </div>
     );
   }
@@ -85,6 +116,7 @@ export const UltraLightBIMViewer = ({ modelId, className, performanceMode = true
         >
           {/* Minimal lighting */}
           <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 5, 5]} intensity={0.4} />
           
           {/* Simple ground plane */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
@@ -92,16 +124,16 @@ export const UltraLightBIMViewer = ({ modelId, className, performanceMode = true
             <meshBasicMaterial color="#f1f5f9" />
           </mesh>
 
-          {/* Ultra-simple building */}
-          <MinimalBuilding />
+          {/* Uploaded model */}
+          <UploadedModel modelFile={modelFile} />
 
           {/* Basic controls */}
           <OrbitControls
-            enablePan={false}
+            enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={8}
-            maxDistance={20}
+            minDistance={5}
+            maxDistance={30}
             minPolarAngle={0}
             maxPolarAngle={Math.PI / 2.2}
             enableDamping={false}
