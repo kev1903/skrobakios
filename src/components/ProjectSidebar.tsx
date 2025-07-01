@@ -46,15 +46,15 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ boxShadow: 'none' }}>
-      <div className="p-4 border-b border-gray-200">
+    <div className="w-64 backdrop-blur-xl bg-white/60 border-r border-white/20 shadow-xl flex flex-col rounded-l-2xl">
+      <div className="p-4 border-b border-white/20">
         <Button
           variant="ghost"
           onClick={() => onNavigate("projects")}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+          className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back</span>
+          <span className="font-medium">Back</span>
         </Button>
       </div>
 
@@ -64,10 +64,10 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
             <button
               key={item.id}
               onClick={() => handleItemClick(item.id)}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 ${
                 item.active
-                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-700 font-medium backdrop-blur-sm border border-blue-500/20 shadow-lg'
+                  : 'text-slate-600 hover:bg-white/20 hover:text-slate-800 hover:backdrop-blur-sm hover:shadow-md'
               }`}
             >
               <item.icon className="w-4 h-4" />

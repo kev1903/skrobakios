@@ -84,7 +84,7 @@ const Index = () => {
           <ProjectTasksPage project={currentProject} onNavigate={setCurrentPage} />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">Project not found</p>
+            <p className="text-slate-500">Project not found</p>
           </div>
         );
       case "project-files":
@@ -92,7 +92,7 @@ const Index = () => {
           <ProjectFilePage project={currentProject} onNavigate={setCurrentPage} />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">Project not found</p>
+            <p className="text-slate-500">Project not found</p>
           </div>
         );
       case "project-settings":
@@ -100,7 +100,7 @@ const Index = () => {
           <ProjectSettingsPage project={currentProject} onNavigate={setCurrentPage} />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">Project not found</p>
+            <p className="text-slate-500">Project not found</p>
           </div>
         );
       case "project-schedule":
@@ -108,7 +108,7 @@ const Index = () => {
           <ProjectSchedulePage project={currentProject} onNavigate={setCurrentPage} />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">Project not found</p>
+            <p className="text-slate-500">Project not found</p>
           </div>
         );
       case "project-team":
@@ -116,7 +116,7 @@ const Index = () => {
           <ProjectTeamPage project={currentProject} onNavigate={setCurrentPage} />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">Project not found</p>
+            <p className="text-slate-500">Project not found</p>
           </div>
         );
       case "gantt-chart":
@@ -124,7 +124,7 @@ const Index = () => {
           <GanttChartPage project={currentProject} onNavigate={setCurrentPage} />
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">Project not found</p>
+            <p className="text-slate-500">Project not found</p>
           </div>
         );
       case "upload":
@@ -159,13 +159,18 @@ const Index = () => {
 
   return (
     <UserProvider>
-      <div className="min-h-screen flex">
-        {showMainSidebar && (
-          <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-        )}
-        <main className={`flex-1 overflow-hidden glass-card animate-fade-in ${showMainSidebar ? '' : 'w-full'}`}>
-          {renderContent()}
-        </main>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+        
+        <div className="flex relative z-10">
+          {showMainSidebar && (
+            <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+          )}
+          <main className={`flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 ${showMainSidebar ? 'rounded-l-2xl ml-2 my-2 mr-2' : 'w-full'}`}>
+            {renderContent()}
+          </main>
+        </div>
       </div>
     </UserProvider>
   );
