@@ -23,6 +23,7 @@ import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
+import { UserProvider } from "@/contexts/UserContext";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useEffect } from "react";
 
@@ -157,14 +158,16 @@ const Index = () => {
   const showMainSidebar = !["project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "gantt-chart", "user-edit"].includes(currentPage);
 
   return (
-    <div className="min-h-screen flex">
-      {showMainSidebar && (
-        <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
-      )}
-      <main className={`flex-1 overflow-hidden glass-card animate-fade-in ${showMainSidebar ? '' : 'w-full'}`}>
-        {renderContent()}
-      </main>
-    </div>
+    <UserProvider>
+      <div className="min-h-screen flex">
+        {showMainSidebar && (
+          <AppSidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+        )}
+        <main className={`flex-1 overflow-hidden glass-card animate-fade-in ${showMainSidebar ? '' : 'w-full'}`}>
+          {renderContent()}
+        </main>
+      </div>
+    </UserProvider>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, Camera, User, Mail, Phone, MapPin, Briefcase, Calendar, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/contexts/UserContext';
 
 interface UserEditPageProps {
   onNavigate: (page: string) => void;
@@ -15,21 +15,10 @@ interface UserEditPageProps {
 
 export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   const { toast } = useToast();
+  const { userProfile, updateUserProfile } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [profileData, setProfileData] = useState({
-    firstName: 'Wade',
-    lastName: 'Warren',
-    email: 'wade.warren@example.com',
-    phone: '+1 (555) 123-4567',
-    jobTitle: 'UI UX Designer',
-    company: 'KAKSIK',
-    location: 'San Francisco, CA',
-    bio: 'Passionate UI/UX designer with 5+ years of experience creating user-centered digital experiences.',
-    avatarUrl: '',
-    birthDate: '1990-05-15',
-    website: 'https://wade-warren.design'
-  });
+  const [profileData, setProfileData] = useState(userProfile);
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData(prev => ({
@@ -47,9 +36,10 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
+        const avatarUrl = e.target?.result as string;
         setProfileData(prev => ({
           ...prev,
-          avatarUrl: e.target?.result as string
+          avatarUrl
         }));
       };
       reader.readAsDataURL(file);
@@ -57,13 +47,18 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   };
 
   const handleSave = () => {
+    // Update the global user profile context
+    updateUserProfile(profileData);
+    
     toast({
       title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
+      description: "Your profile has been successfully updated and changes are reflected throughout the application.",
     });
   };
 
   const handleCancel = () => {
+    // Reset to original profile data
+    setProfileData(userProfile);
     onNavigate('tasks');
   };
 

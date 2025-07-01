@@ -1,4 +1,3 @@
-
 import { 
   Home, 
   Calendar, 
@@ -14,6 +13,7 @@ import {
   User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/contexts/UserContext";
 
 interface AppSidebarProps {
   currentPage: string;
@@ -21,6 +21,8 @@ interface AppSidebarProps {
 }
 
 export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
+  const { userProfile } = useUser();
+
   const generalNavigation = [
     { id: "tasks", label: "My Tasks", icon: Home, active: true },
     { id: "schedules", label: "My Schedules", icon: Calendar },
@@ -158,12 +160,22 @@ export const AppSidebar = ({ currentPage, onNavigate }: AppSidebarProps) => {
           onClick={() => onNavigate('user-edit')}
           className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/10 transition-all duration-200 group backdrop-blur-sm"
         >
-          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+            {userProfile.avatarUrl ? (
+              <img 
+                src={userProfile.avatarUrl} 
+                alt="User Avatar" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="w-4 h-4 text-white" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-800 truncate font-poppins">Wade Warren</p>
-            <p className="text-xs text-gray-500 truncate font-inter">UI UX Designer</p>
+            <p className="text-sm font-medium text-gray-800 truncate font-poppins">
+              {userProfile.firstName} {userProfile.lastName}
+            </p>
+            <p className="text-xs text-gray-500 truncate font-inter">{userProfile.jobTitle}</p>
           </div>
         </button>
         <button className="w-full flex items-center space-x-3 px-3 py-2 mt-2 text-left rounded-lg hover:bg-red-50/50 transition-all duration-200 text-gray-500 hover:text-red-600 group backdrop-blur-sm">
