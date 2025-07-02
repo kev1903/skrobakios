@@ -592,7 +592,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                         {/* Task Bar */}
                         {barStyle && (
                           <div
-                            className="absolute top-1 h-6 rounded-sm flex items-center text-white text-xs font-medium px-1 shadow-sm"
+                            className="absolute top-1 h-6 rounded-sm flex items-center text-white text-xs font-medium px-1"
                             style={barStyle}
                           >
                             <span className="truncate">{task.name}</span>
