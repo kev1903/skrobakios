@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { Edit, MoreHorizontal } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -25,7 +31,7 @@ interface TaskListViewProps {
 }
 
 export const TaskListView = ({ projectId }: TaskListViewProps) => {
-  const { tasks } = useTaskContext();
+  const { tasks, deleteTask } = useTaskContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
@@ -43,6 +49,10 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
 
   const handleAddTask = () => {
     setIsAddTaskDialogOpen(true);
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    await deleteTask(taskId);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -94,9 +104,27 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
                         <h3 className="font-medium text-blue-600 truncate">{task.taskName}</h3>
                         <p className="text-sm text-gray-500">ID: {task.id}</p>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center space-x-1">
+                        <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white border shadow-lg">
+                            <DropdownMenuItem 
+                              className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                              onClick={() => handleDeleteTask(task.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete Task
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                     
                     <div className="flex items-center space-x-2 mb-2">
@@ -216,9 +244,22 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-white border shadow-lg">
+                              <DropdownMenuItem 
+                                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                onClick={() => handleDeleteTask(task.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete Task
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
