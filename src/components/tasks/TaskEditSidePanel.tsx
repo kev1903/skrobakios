@@ -17,7 +17,7 @@ interface TaskEditSidePanelProps {
 }
 
 export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEditSidePanelProps) => {
-  const { updateTask } = useTaskContext();
+  const { updateTask, deleteTask } = useTaskContext();
   const [editedTask, setEditedTask] = useState<Task | null>(null);
   const isMobile = useIsMobile();
   const { members } = useProjectMembers(projectId);
@@ -51,6 +51,13 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
     handleFieldChange('progress', 100);
   };
 
+  const handleDelete = async () => {
+    if (editedTask) {
+      await deleteTask(editedTask.id);
+      onClose();
+    }
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent 
@@ -64,6 +71,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         <TaskEditHeader 
           task={editedTask} 
           onMarkComplete={handleMarkComplete} 
+          onDelete={handleDelete}
         />
 
         <SheetHeader>

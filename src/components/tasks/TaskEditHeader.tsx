@@ -1,16 +1,28 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, ThumbsUp, Paperclip, MessageSquare, Link, Maximize2, MoreHorizontal, ArrowRight } from 'lucide-react';
+import { Check, ThumbsUp, Paperclip, MessageSquare, Link, Maximize2, Trash2, ArrowRight } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Task } from './TaskContext';
 
 interface TaskEditHeaderProps {
   task: Task;
   onMarkComplete: () => void;
+  onDelete: () => void;
 }
 
-export const TaskEditHeader = ({ task, onMarkComplete }: TaskEditHeaderProps) => {
+export const TaskEditHeader = ({ task, onMarkComplete, onDelete }: TaskEditHeaderProps) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case "high":
@@ -22,6 +34,15 @@ export const TaskEditHeader = ({ task, onMarkComplete }: TaskEditHeaderProps) =>
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDelete();
+    setShowDeleteDialog(false);
   };
 
   return (
@@ -56,8 +77,8 @@ export const TaskEditHeader = ({ task, onMarkComplete }: TaskEditHeaderProps) =>
           <Button variant="ghost" size="sm">
             <Maximize2 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm">
-            <MoreHorizontal className="w-4 h-4" />
+          <Button variant="ghost" size="sm" onClick={handleDeleteClick}>
+            <Trash2 className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="sm">
             <ArrowRight className="w-4 h-4" />
@@ -76,6 +97,24 @@ export const TaskEditHeader = ({ task, onMarkComplete }: TaskEditHeaderProps) =>
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the task "{task.taskName}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Delete Task
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
