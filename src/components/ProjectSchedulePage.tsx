@@ -33,6 +33,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['preliminaries', 'site-work', 'order-material']));
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
+  const [datePickerOpen, setDatePickerOpen] = useState<string | null>(null);
 
   // SmartSheet-style hierarchical task data matching the reference image
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([
@@ -367,17 +368,23 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   };
 
   const handleCellEdit = (taskId: string, field: string) => {
-    setEditingTask(taskId);
-    setEditingField(field);
+    if (field === 'startDate' || field === 'endDate') {
+      setDatePickerOpen(`${taskId}-${field}`);
+    } else {
+      setEditingTask(taskId);
+      setEditingField(field);
+    }
   };
 
   const handleCellBlur = () => {
     setEditingTask(null);
     setEditingField(null);
+    setDatePickerOpen(null);
   };
 
   const renderEditableCell = (task: GanttTask, field: string, value: any, className: string) => {
     const isEditing = editingTask === task.id && editingField === field;
+    const isDatePickerOpen = datePickerOpen === `${task.id}-${field}`;
     
     if (isEditing) {
       if (field === 'duration') {
@@ -396,45 +403,6 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             }}
             autoFocus
           />
-        );
-      } else if (field === 'startDate' || field === 'endDate') {
-        const selectedDate = new Date(value);
-        
-        return (
-          <Popover open={true} onOpenChange={(open) => !open && handleCellBlur()}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "h-full w-full text-xs justify-start text-left font-normal p-0 bg-transparent hover:bg-transparent border-0 focus:ring-0",
-                  !value && "text-muted-foreground"
-                )}
-                style={{ 
-                  border: 'none', 
-                  outline: 'none', 
-                  boxShadow: 'none',
-                  background: 'transparent'
-                }}
-              >
-                <CalendarIcon className="mr-1 h-3 w-3" />
-                {value ? format(selectedDate, "M/d/yy") : <span>Pick a date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => {
-                  if (date) {
-                    updateTask(task.id, { [field]: format(date, 'yyyy-MM-dd') });
-                  }
-                  handleCellBlur();
-                }}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
         );
       } else {
         return (
@@ -455,15 +423,46 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       }
     }
 
+    if (field === 'startDate' || field === 'endDate') {
+      return (
+        <Popover open={isDatePickerOpen} onOpenChange={(open) => {
+          if (!open) {
+            setDatePickerOpen(null);
+          }
+        }}>
+          <PopoverTrigger asChild>
+            <div 
+              className={`${className} cursor-pointer hover:bg-muted/20 transition-colors h-full w-full flex items-center`}
+              onClick={() => handleCellEdit(task.id, field)}
+            >
+              <CalendarIcon className="mr-1 h-3 w-3" />
+              {value ? new Date(value).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : 'Pick date'}
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
+            <Calendar
+              mode="single"
+              selected={value ? new Date(value) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  updateTask(task.id, { [field]: format(date, 'yyyy-MM-dd') });
+                }
+                setDatePickerOpen(null);
+              }}
+              initialFocus
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+      );
+    }
+
     return (
       <div 
         className={`${className} cursor-pointer hover:bg-muted/20 transition-colors h-full w-full flex items-center`}
         onClick={() => handleCellEdit(task.id, field)}
       >
-        {field === 'startDate' || field === 'endDate' ? 
-          new Date(value).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) 
-          : field === 'duration' ? `${value}d` : value
-        }
+        {field === 'duration' ? `${value}d` : value}
       </div>
     );
   };
