@@ -293,6 +293,29 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     });
   };
 
+  const calculateWorkingDays = (startDate: string, endDate: string): number => {
+    if (!startDate || !endDate) return 0;
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (start > end) return 0;
+    
+    let workingDays = 0;
+    const currentDate = new Date(start);
+    
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay();
+      // Count Monday (1) through Friday (5) as working days
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        workingDays++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return workingDays;
+  };
+
   const flattenTasks = (tasks: GanttTask[]): GanttTask[] => {
     const result: GanttTask[] = [];
     
@@ -350,12 +373,20 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   };
 
   const updateTask = (taskId: string, updates: Partial<GanttTask>) => {
-    // AI Agent can call this function to update tasks
     setGanttTasks(prev => {
       const updateTaskRecursively = (tasks: GanttTask[]): GanttTask[] => {
         return tasks.map(task => {
           if (task.id === taskId) {
-            return { ...task, ...updates };
+            const updatedTask = { ...task, ...updates };
+            
+            // Auto-calculate duration when start or end date changes
+            if (updates.startDate || updates.endDate) {
+              const startDate = updates.startDate || task.startDate;
+              const endDate = updates.endDate || task.endDate;
+              updatedTask.duration = calculateWorkingDays(startDate, endDate);
+            }
+            
+            return updatedTask;
           }
           if (task.children) {
             return { ...task, children: updateTaskRecursively(task.children) };
@@ -368,6 +399,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   };
 
   const handleCellEdit = (taskId: string, field: string) => {
+    // Don't allow editing of duration as it's auto-calculated
+    if (field === 'duration') return;
+    
     if (field === 'startDate' || field === 'endDate') {
       setDatePickerOpen(`${taskId}-${field}`);
     } else {
@@ -386,41 +420,22 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     const isEditing = editingTask === task.id && editingField === field;
     const isDatePickerOpen = datePickerOpen === `${task.id}-${field}`;
     
-    if (isEditing) {
-      if (field === 'duration') {
-        return (
-          <Input
-            type="number"
-            value={value}
-            onChange={(e) => updateTask(task.id, { [field]: Number(e.target.value) })}
-            onBlur={handleCellBlur}
-            className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none text-center"
-            style={{ 
-              border: 'none', 
-              outline: 'none', 
-              boxShadow: 'none',
-              background: 'transparent'
-            }}
-            autoFocus
-          />
-        );
-      } else {
-        return (
-          <Input
-            value={value}
-            onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
-            onBlur={handleCellBlur}
-            className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
-            style={{ 
-              border: 'none', 
-              outline: 'none', 
-              boxShadow: 'none',
-              background: 'transparent'
-            }}
-            autoFocus
-          />
-        );
-      }
+    if (isEditing && field !== 'duration') {
+      return (
+        <Input
+          value={value}
+          onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
+          onBlur={handleCellBlur}
+          className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
+          style={{ 
+            border: 'none', 
+            outline: 'none', 
+            boxShadow: 'none',
+            background: 'transparent'
+          }}
+          autoFocus
+        />
+      );
     }
 
     if (field === 'startDate' || field === 'endDate') {
@@ -459,7 +474,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
     return (
       <div 
-        className={`${className} cursor-pointer hover:bg-muted/20 transition-colors h-full w-full flex items-center`}
+        className={`${className} ${field === 'duration' ? '' : 'cursor-pointer hover:bg-muted/20'} transition-colors h-full w-full flex items-center`}
         onClick={() => handleCellEdit(task.id, field)}
       >
         {field === 'duration' ? `${value}d` : value}
@@ -597,7 +612,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             <div className="flex glass-light border-r border-border">
               <div className="w-8 px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border"></div>
               <div className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Name</div>
-              <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Duration</div>
+              <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Duration (Auto)</div>
               <div className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Start Date</div>
               <div className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border">End Date</div>
               <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Predecessor</div>
