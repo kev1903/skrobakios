@@ -389,7 +389,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="glass-card border-b border-border px-6 py-4 shadow-sm backdrop-blur-sm">
+      <div className="glass-card border-b border-border px-6 py-4 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
