@@ -11,9 +11,10 @@ interface AddTaskDialogProps {
   isOpen: boolean;
   onClose: () => void;
   status: string;
+  projectId: string;
 }
 
-export const AddTaskDialog = ({ isOpen, onClose, status }: AddTaskDialogProps) => {
+export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDialogProps) => {
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
   const { addTask } = useTaskContext();
@@ -22,7 +23,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status }: AddTaskDialogProps) =
     if (!taskName.trim()) return;
 
     const newTask = {
-      id: `#PT${String(Date.now()).slice(-3)}`,
+      project_id: projectId,
       taskName: taskName.trim(),
       priority: 'Medium' as const,
       assignedTo: { name: 'Unassigned', avatar: '' },

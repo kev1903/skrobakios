@@ -5,8 +5,8 @@ import { TaskBoardColumn } from './TaskBoardColumn';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
 import { Task } from './TaskContext';
 
-export const TaskBoardView = () => {
-  const { tasks, addTask, setTasks, updateTask } = useTaskContext();
+export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
+  const { tasks, addTask, updateTask } = useTaskContext();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -64,20 +64,8 @@ export const TaskBoardView = () => {
     const tempTaskId = `temp-${Date.now()}`;
     console.log(`Adding new task to ${status} column`);
     
-    // Create a temporary task for inline editing
-    const tempTask = {
-      id: tempTaskId,
-      taskName: '',
-      priority: 'Medium' as const,
-      assignedTo: { name: 'Unassigned', avatar: '' },
-      dueDate: new Date().toISOString().split('T')[0],
-      status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
-      progress: 0,
-      description: '',
-      category: 'General'
-    };
-
-    addTask(tempTask);
+    // Don't create temporary tasks - we'll handle this differently
+    console.log("Add task clicked for status:", status);
     setEditingTaskId(tempTaskId);
     setNewTaskTitle('');
   };
@@ -88,8 +76,10 @@ export const TaskBoardView = () => {
       return;
     }
 
+    if (!projectId) return;
+    
     const finalTask = {
-      id: `#PT${String(Date.now()).slice(-3)}`,
+      project_id: projectId,
       taskName: newTaskTitle.trim(),
       priority: 'Medium' as const,
       assignedTo: { name: 'Unassigned', avatar: '' },
@@ -100,9 +90,7 @@ export const TaskBoardView = () => {
       category: 'General'
     };
 
-    // Remove temporary task and add final task
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks([...updatedTasks, finalTask]);
+    addTask(finalTask);
 
     console.log(`Added new task: ${newTaskTitle} to ${status} column`);
     setEditingTaskId(null);
@@ -110,9 +98,6 @@ export const TaskBoardView = () => {
   };
 
   const handleCancelEdit = (taskId: string) => {
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(updatedTasks);
-    
     setEditingTaskId(null);
     setNewTaskTitle('');
   };

@@ -241,6 +241,7 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
         isOpen={isAddTaskDialogOpen}
         onClose={() => setIsAddTaskDialogOpen(false)}
         status="Not Started"
+        projectId={projectId || ''}
       />
     </div>
   );

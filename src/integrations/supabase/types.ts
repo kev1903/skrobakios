@@ -181,6 +181,62 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          assigned_to_avatar: string | null
+          assigned_to_name: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          progress: number
+          project_id: string
+          status: string
+          task_name: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to_avatar?: string | null
+          assigned_to_name?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          progress?: number
+          project_id: string
+          status?: string
+          task_name: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to_avatar?: string | null
+          assigned_to_name?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          progress?: number
+          project_id?: string
+          status?: string
+          task_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_invitations: {
         Row: {
           created_at: string
