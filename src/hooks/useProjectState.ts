@@ -5,30 +5,31 @@ import { useProjects, Project } from "@/hooks/useProjects";
 export const useProjectState = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
-  const { getProjects } = useProjects();
+  const { getProjects, getProject } = useProjects();
 
   useEffect(() => {
     const fetchCurrentProject = async () => {
       if (selectedProject) {
         try {
-          const projects = await getProjects();
-          const project = projects.find(p => p.id === selectedProject);
+          // Use getProject for individual project fetching which checks cache first
+          const project = await getProject(selectedProject);
           if (project) {
             setCurrentProject(project);
           } else {
-            // No project found
-            setCurrentProject(null);
+            // Fallback to fetching all projects if individual fetch fails
+            const projects = await getProjects();
+            const foundProject = projects.find(p => p.id === selectedProject);
+            setCurrentProject(foundProject || null);
           }
         } catch (error) {
           console.error('Error fetching projects:', error);
-          // Set to null on error
           setCurrentProject(null);
         }
       }
     };
 
     fetchCurrentProject();
-  }, [selectedProject, getProjects]);
+  }, [selectedProject, getProjects, getProject]);
 
   const handleSelectProject = (projectId: string) => {
     console.log("Setting selected project:", projectId);

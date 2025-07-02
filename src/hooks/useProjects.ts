@@ -231,10 +231,54 @@ export const useProjects = () => {
     }
   };
 
+  const updateProject = async (projectId: string, updates: Partial<Omit<Project, 'id' | 'created_at' | 'updated_at'>>): Promise<Project | null> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', projectId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Update cache
+      if (globalCache.data) {
+        const updatedProjects = globalCache.data.map(p => 
+          p.id === projectId ? { ...p, ...data } : p
+        );
+        globalCache.data = updatedProjects;
+        globalCache.timestamp = Date.now();
+        saveToLocalStorage(updatedProjects);
+      } else {
+        // If no cache exists, invalidate it to force refresh
+        globalCache.data = null;
+        globalCache.timestamp = 0;
+      }
+      
+      console.log('Project updated successfully:', projectId);
+      return data;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update project';
+      setError(errorMessage);
+      console.error('Error updating project:', err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     createProject,
     getProjects,
     getProject,
+    updateProject,
     deleteProject,
     loading,
     error,

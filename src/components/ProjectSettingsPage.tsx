@@ -18,7 +18,7 @@ interface ProjectSettingsPageProps {
 
 export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPageProps) => {
   const { toast } = useToast();
-  const { deleteProject, loading } = useProjects();
+  const { deleteProject, updateProject, loading } = useProjects();
   const [activeTab, setActiveTab] = useState('general');
   const [formData, setFormData] = useState({
     name: project.name,
@@ -65,7 +65,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     return url.includes('sharepoint.com') || url.includes('onedrive.com') || url === '';
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (formData.sharepoint_link && !validateSharePointLink(formData.sharepoint_link)) {
       toast({
         title: "Invalid SharePoint Link",
@@ -75,33 +75,56 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       return;
     }
 
-    // In a real application, this would update the project in the database
     console.log("Saving project settings:", formData);
     
-    // Store SharePoint link in localStorage for demo purposes
-    if (formData.sharepoint_link) {
-      localStorage.setItem(`project_sharepoint_${project.id}`, formData.sharepoint_link);
-    }
+    // Prepare project updates (only include fields that exist in the database)
+    const projectUpdates = {
+      name: formData.name,
+      description: formData.description,
+      location: formData.location,
+      priority: formData.priority,
+      status: formData.status,
+      start_date: formData.start_date || null,
+      deadline: formData.deadline || null,
+    };
 
-    // Store coordinates in localStorage for demo purposes
-    if (formData.coordinates) {
-      localStorage.setItem(`project_coordinates_${project.id}`, JSON.stringify(formData.coordinates));
-    }
+    // Update project in the database
+    const updatedProject = await updateProject(project.id, projectUpdates);
+    
+    if (updatedProject) {
+      // Store additional settings in localStorage (since they're not in the projects table)
+      if (formData.sharepoint_link) {
+        localStorage.setItem(`project_sharepoint_${project.id}`, formData.sharepoint_link);
+      }
 
-    // Store banner image in localStorage for demo purposes
-    if (formData.banner_image) {
-      localStorage.setItem(`project_banner_${project.id}`, formData.banner_image);
-    }
+      if (formData.coordinates) {
+        localStorage.setItem(`project_coordinates_${project.id}`, JSON.stringify(formData.coordinates));
+      }
 
-    // Store banner position in localStorage for demo purposes
-    if (formData.banner_position) {
-      localStorage.setItem(`project_banner_position_${project.id}`, JSON.stringify(formData.banner_position));
-    }
+      if (formData.banner_image) {
+        localStorage.setItem(`project_banner_${project.id}`, formData.banner_image);
+      }
 
-    toast({
-      title: "Settings Saved",
-      description: "Project settings have been updated successfully.",
-    });
+      if (formData.banner_position) {
+        localStorage.setItem(`project_banner_position_${project.id}`, JSON.stringify(formData.banner_position));
+      }
+
+      toast({
+        title: "Settings Saved",
+        description: "Project settings have been updated successfully.",
+      });
+      
+      // Navigate back to project detail to see the updated data
+      setTimeout(() => {
+        onNavigate("project-detail");
+      }, 1000);
+    } else {
+      toast({
+        title: "Save Failed",
+        description: "Failed to update project settings. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteProject = async () => {
@@ -265,9 +288,13 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
 
             {/* Save Button */}
             <div className="mt-8 flex justify-end">
-              <Button onClick={handleSave} className="flex items-center gap-2">
+              <Button 
+                onClick={handleSave} 
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
                 <Save className="w-4 h-4" />
-                Save Changes
+                {loading ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </Tabs>
