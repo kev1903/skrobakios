@@ -62,9 +62,17 @@ export const TaskEditForm = ({ task, onFieldChange, projectId }: TaskEditFormPro
               </div>
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+            <SelectItem value="">
+              <div className="flex items-center space-x-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarFallback className="text-xs bg-gray-200">?</AvatarFallback>
+                </Avatar>
+                <span>Unassigned</span>
+              </div>
+            </SelectItem>
             {members.map((member) => (
-              <SelectItem key={member.name} value={member.name}>
+              <SelectItem key={member.email} value={member.name}>
                 <div className="flex items-center space-x-2">
                   <Avatar className="w-6 h-6">
                     <AvatarImage src={member.avatar} />

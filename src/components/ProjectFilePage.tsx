@@ -11,7 +11,6 @@ import { FileGrid } from "./files/FileGrid";
 import { FileList } from "./files/FileList";
 import { SharePointIntegration } from "./files/SharePointIntegration";
 import { FileType, FileItem } from "./files/types";
-import { projectFiles, sampleSharePointFiles } from "./files/sampleData";
 
 interface ProjectFilePageProps {
   project: Project;
@@ -28,15 +27,11 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
   const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate loading SharePoint files
-    const timer = setTimeout(() => {
-      setSharePointFiles(sampleSharePointFiles);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    // Initialize empty files - will be loaded from database in real implementation
+    setSharePointFiles([]);
   }, []);
 
-  const allFiles = [...projectFiles, ...sharePointFiles];
+  const allFiles = [...sharePointFiles];
 
   const filteredFiles = allFiles.filter(file => {
     const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -57,9 +52,9 @@ export const ProjectFilePage = ({ project, onNavigate }: ProjectFilePageProps) =
   const handleSyncSharePoint = async () => {
     setIsLoading(true);
     try {
-      // Simulate SharePoint sync
+      // Simulate SharePoint sync - will integrate with real SharePoint API
       await new Promise(resolve => setTimeout(resolve, 2000));
-      setSharePointFiles(sampleSharePointFiles);
+      setSharePointFiles([]);
       toast({
         title: "SharePoint Sync Complete",
         description: "Successfully synced files from SharePoint.",

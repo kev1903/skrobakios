@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProjectMember {
   name: string;
@@ -9,46 +10,44 @@ interface ProjectMember {
 }
 
 export const useProjectMembers = (projectId?: string) => {
-  const [members, setMembers] = useState<ProjectMember[]>([
-    {
-      name: 'John Smith',
-      avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png',
-      role: 'Project Manager',
-      email: 'john@example.com'
-    },
-    {
-      name: 'Sarah Wilson',
-      avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png',
-      role: 'Architect',
-      email: 'sarah@example.com'
-    },
-    {
-      name: 'Mike Johnson',
-      avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png',
-      role: 'Engineer',
-      email: 'mike@example.com'
-    },
-    {
-      name: 'Lisa Brown',
-      avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png',
-      role: 'Electrician',
-      email: 'lisa@example.com'
-    },
-    {
-      name: 'David Miller',
-      avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png',
-      role: 'Plumber',
-      email: 'david@example.com'
-    }
-  ]);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // In a real application, you would fetch members based on projectId
   useEffect(() => {
-    if (projectId) {
-      // Fetch project members from API
-      console.log('Fetching members for project:', projectId);
-    }
+    const fetchProjectMembers = async () => {
+      if (!projectId) {
+        setMembers([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('team_members')
+          .select('*')
+          .eq('project_id', projectId)
+          .eq('status', 'active');
+
+        if (error) throw error;
+
+        const formattedMembers = (data || []).map(member => ({
+          name: member.name || member.email,
+          avatar: member.avatar_url || '',
+          role: member.role,
+          email: member.email
+        }));
+
+        setMembers(formattedMembers);
+      } catch (error) {
+        console.error('Error fetching project members:', error);
+        setMembers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjectMembers();
   }, [projectId]);
 
-  return { members };
+  return { members, loading };
 };

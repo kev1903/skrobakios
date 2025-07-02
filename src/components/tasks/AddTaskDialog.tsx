@@ -26,7 +26,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
       project_id: projectId,
       taskName: taskName.trim(),
       priority: 'Medium' as const,
-      assignedTo: { name: 'Unassigned', avatar: '' },
+      assignedTo: { name: '', avatar: '' },
       dueDate: new Date().toISOString().split('T')[0],
       status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: 0,
