@@ -200,7 +200,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="pl-10 pr-10 py-3 text-base border-white/20 focus:border-white/40 focus:ring-white/30 bg-white/10 backdrop-blur-sm shadow-sm text-white placeholder-white/60 hover:bg-white/15 transition-all duration-200"
+          className="pl-10 pr-10 py-2 text-sm border-white/20 focus:border-white/40 focus:ring-white/30 bg-white/10 backdrop-blur-sm shadow-sm text-white placeholder-white/60 hover:bg-white/15 transition-all duration-200"
         />
         {query && (
           <Button
@@ -212,7 +212,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
             }}
             className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-auto text-white/70 hover:text-white hover:bg-white/10"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3 h-3" />
           </Button>
         )}
       </div>

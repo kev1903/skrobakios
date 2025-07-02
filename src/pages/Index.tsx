@@ -28,7 +28,7 @@ const Index = () => {
               />
             )}
             
-            <div className="relative z-10 flex min-h-screen">
+            <div className="relative z-10 flex min-h-screen pt-20">
               <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
                 <ContentRenderer 
                   currentPage={currentPage}
