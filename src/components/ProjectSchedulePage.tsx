@@ -726,9 +726,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             {/* Task Rows */}
             <div className="bg-card">
               {flatTasks.map((task, rowIndex) => (
-                <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors">
+                <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors h-10">
                   {/* Row Number */}
-                  <div className="w-8 px-2 py-2 text-xs text-muted-foreground border-r border-border text-center">
+                  <div className="w-8 px-2 py-2 text-xs text-muted-foreground border-r border-border text-center flex items-center justify-center">
                     {rowIndex + 1}
                   </div>
                   
@@ -752,7 +752,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                           value={task.name}
                           onChange={(e) => updateTask(task.id, { name: e.target.value })}
                           onBlur={() => setEditingTask(null)}
-                          className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
+                          className="h-6 w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
                           style={{ 
                             border: 'none', 
                             outline: 'none', 
@@ -763,7 +763,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                         />
                       ) : (
                         <div 
-                          className="text-xs cursor-pointer hover:bg-muted/20 transition-colors flex-1 h-full flex items-center"
+                          className="text-xs cursor-pointer hover:bg-muted/20 transition-colors flex-1 flex items-center"
                           onClick={() => setEditingTask(task.id)}
                         >
                           {task.name}
@@ -773,22 +773,22 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   </div>
                   
                   {/* Duration */}
-                  <div className="w-20 px-3 py-2 border-r border-border text-center">
+                  <div className="w-20 px-3 py-2 border-r border-border text-center flex items-center justify-center">
                     {renderEditableCell(task, 'duration', task.duration, 'text-xs text-foreground')}
                   </div>
                   
                   {/* Start Date */}
-                  <div className="w-24 px-3 py-2 border-r border-border">
+                  <div className="w-24 px-3 py-2 border-r border-border flex items-center">
                     {renderEditableCell(task, 'startDate', task.startDate, 'text-xs text-foreground')}
                   </div>
                   
                   {/* End Date */}
-                  <div className="w-24 px-3 py-2 border-r border-border">
+                  <div className="w-24 px-3 py-2 border-r border-border flex items-center">
                     {renderEditableCell(task, 'endDate', task.endDate, 'text-xs text-foreground')}
                   </div>
                   
                   {/* Predecessor */}
-                  <div className="w-20 px-3 py-2 border-r border-border text-center">
+                  <div className="w-20 px-3 py-2 border-r border-border text-center flex items-center justify-center">
                     {renderEditableCell(task, 'predecessor', task.predecessor, 'text-xs text-foreground')}
                   </div>
                 </div>
@@ -819,11 +819,11 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             {/* Gantt Chart Rows */}
             <div className="bg-card">
               {flatTasks.map((task, rowIndex) => (
-                <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors">
+                <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors h-10">
                   {timelineWeeks.map((week, weekIndex) => {
                     const barStyle = getTaskBarStyle(task, week);
                     return (
-                      <div key={weekIndex} className="w-[200px] h-8 border-r border-border relative">
+                      <div key={weekIndex} className="w-[200px] h-10 border-r border-border relative">
                         {/* Weekend shading */}
                         <div className="absolute right-0 top-0 w-[28.5%] h-full bg-muted/30 opacity-50"></div>
                         
