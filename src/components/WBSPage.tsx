@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Link as LinkIcon, Eye, ChevronRight, ChevronDown, Edit2, Save, X } from 'lucide-react';
+import { ArrowLeft, Plus, Link as LinkIcon, Eye, ChevronRight, ChevronDown, Edit2, Save, X, Trash2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,25 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Project } from '@/hooks/useProjects';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
-
-export interface WBSItem {
-  id: string;
-  wbsId: string;
-  title: string;
-  description?: string;
-  assignedTo?: string;
-  startDate?: string;
-  endDate?: string;
-  duration?: number;
-  budgetedCost?: number;
-  actualCost?: number;
-  progress?: number;
-  parentId?: string;
-  children: WBSItem[];
-  linkedTasks: string[];
-  level: number;
-  isExpanded: boolean;
-}
+import { useWBS, WBSItem } from '@/hooks/useWBS';
 
 interface WBSPageProps {
   project: Project;
@@ -37,7 +19,7 @@ interface WBSPageProps {
 export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   const { toast } = useToast();
   const { members } = useProjectMembers(project.id);
-  const [wbsItems, setWBSItems] = useState<WBSItem[]>([]);
+  const { wbsItems, loading, createWBSItem, updateWBSItem, deleteWBSItem, generateWBSId, calculateDuration } = useWBS(project.id);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     assignee: '',
@@ -45,83 +27,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     startDate: '',
   });
 
-  // Initialize with sample data
-  useEffect(() => {
-    const sampleWBS: WBSItem[] = [
-      {
-        id: '1',
-        wbsId: '1.0',
-        title: 'Site Preparation',
-        description: 'Prepare construction site for building work',
-        assignedTo: 'John Smith',
-        startDate: '2024-07-01',
-        endDate: '2024-07-15',
-        duration: 14,
-        budgetedCost: 25000,
-        actualCost: 22000,
-        progress: 90,
-        children: [
-          {
-            id: '1.1',
-            wbsId: '1.1',
-            title: 'Site Survey',
-            description: 'Conduct detailed site survey',
-            assignedTo: 'Mike Johnson',
-            startDate: '2024-07-01',
-            endDate: '2024-07-05',
-            duration: 5,
-            budgetedCost: 8000,
-            actualCost: 7500,
-            progress: 100,
-            parentId: '1',
-            children: [],
-            linkedTasks: [],
-            level: 1,
-            isExpanded: false,
-          },
-          {
-            id: '1.2',
-            wbsId: '1.2',
-            title: 'Site Clearance',
-            description: 'Clear vegetation and debris',
-            assignedTo: 'Sarah Wilson',
-            startDate: '2024-07-06',
-            endDate: '2024-07-15',
-            duration: 9,
-            budgetedCost: 17000,
-            actualCost: 14500,
-            progress: 80,
-            parentId: '1',
-            children: [],
-            linkedTasks: [],
-            level: 1,
-            isExpanded: false,
-          }
-        ],
-        linkedTasks: [],
-        level: 0,
-        isExpanded: true,
-      },
-      {
-        id: '2',
-        wbsId: '2.0',
-        title: 'Foundation Work',
-        description: 'Foundation construction and concrete work',
-        assignedTo: 'David Miller',
-        startDate: '2024-07-16',
-        endDate: '2024-08-15',
-        duration: 30,
-        budgetedCost: 75000,
-        actualCost: 0,
-        progress: 0,
-        children: [],
-        linkedTasks: [],
-        level: 0,
-        isExpanded: false,
-      }
-    ];
-    setWBSItems(sampleWBS);
-  }, []);
+  // Remove the sample data initialization since we're using the database hook
 
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return 'bg-green-100 text-green-800 border-green-200';
@@ -130,93 +36,74 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     return 'bg-red-100 text-red-800 border-red-200';
   };
 
-  const calculateDuration = (startDate: string, endDate: string) => {
-    if (!startDate || !endDate) return 0;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const timeDiff = end.getTime() - start.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  const toggleExpanded = async (id: string) => {
+    const item = findWBSItem(wbsItems, id);
+    if (item) {
+      await updateWBSItem(id, { is_expanded: !item.is_expanded });
+    }
   };
 
-  const toggleExpanded = (id: string) => {
-    const updateItems = (items: WBSItem[]): WBSItem[] => {
-      return items.map(item => {
-        if (item.id === id) {
-          return { ...item, isExpanded: !item.isExpanded };
-        }
-        if (item.children.length > 0) {
-          return { ...item, children: updateItems(item.children) };
-        }
-        return item;
-      });
-    };
-    setWBSItems(updateItems(wbsItems));
+  const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
+    for (const item of items) {
+      if (item.id === id) return item;
+      const found = findWBSItem(item.children, id);
+      if (found) return found;
+    }
+    return null;
   };
 
-  const addChildItem = (parentId: string) => {
-    const generateWBSId = (parent: WBSItem, siblings: WBSItem[]) => {
-      const childCount = siblings.filter(item => item.parentId === parentId).length;
-      return `${parent.wbsId}.${childCount + 1}`;
-    };
-
-    const newItem: WBSItem = {
-      id: `${Date.now()}`,
-      wbsId: '',
+  const addChildItem = async (parentId?: string) => {
+    const newWBSId = generateWBSId(parentId);
+    const parentItem = parentId ? findWBSItem(wbsItems, parentId) : null;
+    
+    const newItem: Omit<WBSItem, 'id' | 'children' | 'created_at' | 'updated_at'> = {
+      project_id: project.id,
+      parent_id: parentId,
+      wbs_id: newWBSId,
       title: 'New Work Package',
       description: '',
-      assignedTo: '',
-      startDate: '',
-      endDate: '',
+      assigned_to: '',
+      start_date: '',
+      end_date: '',
       duration: 0,
-      budgetedCost: 0,
-      actualCost: 0,
+      budgeted_cost: 0,
+      actual_cost: 0,
       progress: 0,
-      parentId,
-      children: [],
-      linkedTasks: [],
-      level: 0,
-      isExpanded: false,
+      level: parentItem ? parentItem.level + 1 : 0,
+      is_expanded: false,
+      linked_tasks: [],
     };
 
-    const updateItems = (items: WBSItem[]): WBSItem[] => {
-      return items.map(item => {
-        if (item.id === parentId) {
-          newItem.wbsId = generateWBSId(item, [...item.children, newItem]);
-          newItem.level = item.level + 1;
-          return { 
-            ...item, 
-            children: [...item.children, newItem],
-            isExpanded: true 
-          };
-        }
-        if (item.children.length > 0) {
-          return { ...item, children: updateItems(item.children) };
-        }
-        return item;
+    const createdItem = await createWBSItem(newItem);
+    if (createdItem) {
+      setEditingId(createdItem.id);
+      toast({
+        title: "WBS Item Created",
+        description: "New work package has been added to the WBS.",
       });
-    };
-
-    setWBSItems(updateItems(wbsItems));
-    setEditingId(newItem.id);
+    }
   };
 
-  const updateWBSItem = (id: string, updates: Partial<WBSItem>) => {
-    const updateItems = (items: WBSItem[]): WBSItem[] => {
-      return items.map(item => {
-        if (item.id === id) {
-          const updated = { ...item, ...updates };
-          if (updates.startDate || updates.endDate) {
-            updated.duration = calculateDuration(updated.startDate || '', updated.endDate || '');
-          }
-          return updated;
-        }
-        if (item.children.length > 0) {
-          return { ...item, children: updateItems(item.children) };
-        }
-        return item;
-      });
-    };
-    setWBSItems(updateItems(wbsItems));
+  const handleUpdateItem = async (id: string, updates: Partial<WBSItem>) => {
+    // Calculate duration if dates are updated
+    if (updates.start_date || updates.end_date) {
+      const item = findWBSItem(wbsItems, id);
+      if (item) {
+        const startDate = updates.start_date || item.start_date || '';
+        const endDate = updates.end_date || item.end_date || '';
+        updates.duration = calculateDuration(startDate, endDate);
+      }
+    }
+    
+    await updateWBSItem(id, updates);
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    await deleteWBSItem(id);
+    toast({
+      title: "WBS Item Deleted",
+      description: "Work package has been removed from the WBS.",
+    });
   };
 
   const renderWBSItem = (item: WBSItem, index: number) => {
@@ -238,14 +125,14 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
                 onClick={() => toggleExpanded(item.id)}
                 className="p-1 hover:bg-gray-200 rounded transition-colors"
               >
-                {item.isExpanded ? (
+                {item.is_expanded ? (
                   <ChevronDown className="w-4 h-4" />
                 ) : (
                   <ChevronRight className="w-4 h-4" />
                 )}
               </button>
             )}
-            <span className="text-sm font-mono text-gray-600">{item.wbsId}</span>
+            <span className="text-sm font-mono text-gray-600">{item.wbs_id}</span>
           </div>
 
           {/* Title */}
@@ -253,7 +140,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             {isEditing ? (
               <Input
                 value={item.title}
-                onChange={(e) => updateWBSItem(item.id, { title: e.target.value })}
+                onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
                 className="h-8 text-sm"
               />
             ) : (
@@ -265,8 +152,8 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
           <div className="col-span-1">
             {isEditing ? (
               <Select
-                value={item.assignedTo}
-                onValueChange={(value) => updateWBSItem(item.id, { assignedTo: value })}
+                value={item.assigned_to}
+                onValueChange={(value) => handleUpdateItem(item.id, { assigned_to: value })}
               >
                 <SelectTrigger className="h-8 text-sm">
                   <SelectValue />
@@ -280,7 +167,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
                 </SelectContent>
               </Select>
             ) : (
-              <span className="text-sm">{item.assignedTo}</span>
+              <span className="text-sm">{item.assigned_to}</span>
             )}
           </div>
 
@@ -289,12 +176,12 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             {isEditing ? (
               <Input
                 type="date"
-                value={item.startDate}
-                onChange={(e) => updateWBSItem(item.id, { startDate: e.target.value })}
+                value={item.start_date}
+                onChange={(e) => handleUpdateItem(item.id, { start_date: e.target.value })}
                 className="h-8 text-sm"
               />
             ) : (
-              <span className="text-sm">{item.startDate}</span>
+              <span className="text-sm">{item.start_date}</span>
             )}
           </div>
 
@@ -303,12 +190,12 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             {isEditing ? (
               <Input
                 type="date"
-                value={item.endDate}
-                onChange={(e) => updateWBSItem(item.id, { endDate: e.target.value })}
+                value={item.end_date}
+                onChange={(e) => handleUpdateItem(item.id, { end_date: e.target.value })}
                 className="h-8 text-sm"
               />
             ) : (
-              <span className="text-sm">{item.endDate}</span>
+              <span className="text-sm">{item.end_date}</span>
             )}
           </div>
 
@@ -322,12 +209,12 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             {isEditing ? (
               <Input
                 type="number"
-                value={item.budgetedCost}
-                onChange={(e) => updateWBSItem(item.id, { budgetedCost: Number(e.target.value) })}
+                value={item.budgeted_cost}
+                onChange={(e) => handleUpdateItem(item.id, { budgeted_cost: Number(e.target.value) })}
                 className="h-8 text-sm"
               />
             ) : (
-              <span className="text-sm">${item.budgetedCost?.toLocaleString()}</span>
+              <span className="text-sm">${item.budgeted_cost?.toLocaleString()}</span>
             )}
           </div>
 
@@ -336,12 +223,12 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             {isEditing ? (
               <Input
                 type="number"
-                value={item.actualCost}
-                onChange={(e) => updateWBSItem(item.id, { actualCost: Number(e.target.value) })}
+                value={item.actual_cost}
+                onChange={(e) => handleUpdateItem(item.id, { actual_cost: Number(e.target.value) })}
                 className="h-8 text-sm"
               />
             ) : (
-              <span className="text-sm">${item.actualCost?.toLocaleString()}</span>
+              <span className="text-sm">${item.actual_cost?.toLocaleString()}</span>
             )}
           </div>
 
@@ -353,7 +240,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
                 min="0"
                 max="100"
                 value={item.progress}
-                onChange={(e) => updateWBSItem(item.id, { progress: Number(e.target.value) })}
+                onChange={(e) => handleUpdateItem(item.id, { progress: Number(e.target.value) })}
                 className="h-8 text-sm"
               />
             ) : (
@@ -421,7 +308,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
         </div>
 
         {/* Render children if expanded */}
-        {item.isExpanded && item.children.map((child, childIndex) => 
+        {item.is_expanded && item.children.map((child, childIndex) => 
           renderWBSItem(child, childIndex)
         )}
       </div>
@@ -449,7 +336,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button onClick={() => addChildItem('')} className="flex items-center space-x-2">
+            <Button onClick={() => addChildItem()} className="flex items-center space-x-2">
               <Plus className="w-4 h-4" />
               <span>Add Top Level</span>
             </Button>

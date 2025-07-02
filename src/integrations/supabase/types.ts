@@ -391,6 +391,84 @@ export type Database = {
         }
         Relationships: []
       }
+      wbs_items: {
+        Row: {
+          actual_cost: number | null
+          assigned_to: string | null
+          budgeted_cost: number | null
+          created_at: string
+          description: string | null
+          duration: number | null
+          end_date: string | null
+          id: string
+          is_expanded: boolean | null
+          level: number | null
+          linked_tasks: Json | null
+          parent_id: string | null
+          progress: number | null
+          project_id: string
+          start_date: string | null
+          title: string
+          updated_at: string
+          wbs_id: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          assigned_to?: string | null
+          budgeted_cost?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          end_date?: string | null
+          id?: string
+          is_expanded?: boolean | null
+          level?: number | null
+          linked_tasks?: Json | null
+          parent_id?: string | null
+          progress?: number | null
+          project_id: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+          wbs_id: string
+        }
+        Update: {
+          actual_cost?: number | null
+          assigned_to?: string | null
+          budgeted_cost?: number | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          end_date?: string | null
+          id?: string
+          is_expanded?: boolean | null
+          level?: number | null
+          linked_tasks?: Json | null
+          parent_id?: string | null
+          progress?: number | null
+          project_id?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+          wbs_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wbs_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "wbs_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wbs_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
