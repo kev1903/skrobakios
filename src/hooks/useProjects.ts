@@ -116,53 +116,52 @@ export const useProjects = () => {
   };
 
   const getProjects = useCallback(async (): Promise<Project[]> => {
-    // Instant return with cached data
-    if (globalCache.isValid() && globalCache.data) {
-      return globalCache.data;
-    }
-
-    // Return localStorage data immediately for instant loading
-    const cachedData = loadFromLocalStorage();
+    // Always fetch fresh data to ensure consistency
+    setLoading(true);
+    setError(null);
     
-    // Update cache with localStorage data
-    globalCache.data = cachedData;
-    globalCache.timestamp = Date.now();
-
-    // Fetch fresh data in background (non-blocking)
-    setTimeout(async () => {
-      try {
-        // Cancel previous request
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-        }
-        
-        abortControllerRef.current = new AbortController();
-        
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .abortSignal(abortControllerRef.current.signal);
-
-        if (error) throw error;
-        
-        const freshData = data || [];
-        
-        // Update cache
-        globalCache.data = freshData;
-        globalCache.timestamp = Date.now();
-        
-        // Save to localStorage for next time
-        saveToLocalStorage(freshData);
-        
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error('Background fetch error:', err);
-        }
+    try {
+      // Cancel previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
-    }, 0);
+      
+      abortControllerRef.current = new AbortController();
+      
+      console.log("Fetching projects from database...");
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .abortSignal(abortControllerRef.current.signal);
 
-    return cachedData;
+      if (error) throw error;
+      
+      const freshData = data || [];
+      console.log("Fetched projects:", freshData);
+      
+      // Update cache
+      globalCache.data = freshData;
+      globalCache.timestamp = Date.now();
+      
+      // Save to localStorage
+      saveToLocalStorage(freshData);
+      
+      return freshData;
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch projects';
+        setError(errorMessage);
+        console.error('Error fetching projects:', err);
+        
+        // Try to return cached data as fallback
+        const cachedData = loadFromLocalStorage();
+        return cachedData;
+      }
+      return [];
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const getProject = useCallback(async (projectId: string): Promise<Project | null> => {
