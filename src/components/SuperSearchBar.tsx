@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, FileText, Users, Calendar, Building, ArrowRight } from 'lucide-react';
+import { Search, X, FileText, Users, Calendar, Building } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -232,7 +232,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
                   <button
                     key={result.id}
                     onClick={() => handleResultClick(result)}
-                    className="w-full p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 text-left transition-colors group"
+                    className="w-full p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 text-left transition-colors"
                   >
                     <div className="flex items-start space-x-3">
                       <div className="flex-shrink-0 mt-1">
@@ -258,7 +258,6 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
                           </p>
                         )}
                       </div>
-                      <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" />
                     </div>
                   </button>
                 ))}
