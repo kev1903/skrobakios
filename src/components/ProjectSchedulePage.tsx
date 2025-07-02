@@ -387,11 +387,11 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const timelineWeeks = getTimelineWeeks();
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <div className="glass-card border-b border-border px-6 py-4 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+      <div className="glass-card border-b border-border px-4 md:px-6 py-3 md:py-4 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-center justify-between max-w-full">
+          <div className="flex items-center space-x-2 md:space-x-4 min-w-0 flex-1">
             <Button
               variant="ghost"
               size="sm"
@@ -401,15 +401,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Project</span>
             </Button>
-            <div>
-              <h1 className="text-2xl font-poppins font-bold text-foreground heading-modern">Project Schedule</h1>
-              <p className="text-muted-foreground body-modern">{project.name} - Timeline View</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl md:text-2xl font-poppins font-bold text-foreground heading-modern truncate">Project Schedule</h1>
+              <p className="text-sm text-muted-foreground body-modern truncate">{project.name} - Timeline View</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button 
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            <Button
               onClick={() => addTask()} 
-              className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-3 py-2"
             >
               <Plus className="w-4 h-4" />
               <span>Add Task</span>
@@ -419,35 +419,35 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       </div>
 
       {/* Navigation Tabs */}
-      <div className="glass-light border-b border-border px-6 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
+      <div className="glass-light border-b border-border px-4 md:px-6 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-center justify-between overflow-x-auto">
           {/* Tab Navigation */}
-          <div className="flex space-x-8">
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+          <div className="flex space-x-4 md:space-x-8 min-w-max">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Overview</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>List</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Board</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm font-medium text-primary border-b-2 border-primary">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm font-medium text-primary border-b-2 border-primary whitespace-nowrap">
               <span>Timeline</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Calendar</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Workflow</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Dashboard</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Messages</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
+            <button className="flex items-center space-x-2 px-1 py-2 md:py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors whitespace-nowrap">
               <span>Files</span>
             </button>
           </div>
@@ -455,36 +455,36 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="glass-light border-b border-border px-6 py-3 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
+      <div className="glass-light border-b border-border px-4 md:px-6 py-3 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-center justify-between gap-4">
           {/* Search */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 min-w-0 flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search tasks..."
-                className="pl-10 w-80 h-9 text-sm input-glass border-border focus:border-primary"
+                className="pl-10 w-full max-w-sm h-9 text-sm input-glass border-border focus:border-primary"
               />
             </div>
           </div>
           
           {/* Action Buttons */}
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all">
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all hidden sm:flex">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
             <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
+              <Filter className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Filter</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* SmartSheet-style Gantt Chart */}
-      <div className="flex-1 overflow-auto bg-background">
-        <div className="w-full min-w-[1200px]">
+      <div className="flex-1 overflow-auto bg-background min-h-0">
+        <div className="w-full min-w-[1200px] h-full">
           {/* Table Header */}
           <div className="flex glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
             {/* Left Grid Headers */}
