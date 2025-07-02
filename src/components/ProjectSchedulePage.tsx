@@ -464,6 +464,17 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                 }
                 setDatePickerOpen(null);
               }}
+              disabled={(date) => {
+                // For start date: cannot be after end date
+                if (field === 'startDate' && task.endDate) {
+                  return date > new Date(task.endDate);
+                }
+                // For end date: cannot be before start date
+                if (field === 'endDate' && task.startDate) {
+                  return date < new Date(task.startDate);
+                }
+                return false;
+              }}
               initialFocus
               className={cn("p-3 pointer-events-auto")}
             />
