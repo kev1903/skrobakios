@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Filter, MoreHorizontal, Eye } from "lucide-react";
+import { Plus, Filter, MoreHorizontal, Eye, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -25,9 +25,14 @@ interface ProjectListProps {
   onSelectProject?: (projectId: string) => void;
 }
 
+type SortField = 'project_id' | 'name' | 'description' | 'start_date' | 'deadline' | 'status';
+type SortDirection = 'asc' | 'desc';
+
 export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const { getProjects, loading } = useProjects();
   const { toast } = useToast();
 
@@ -77,6 +82,54 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       year: 'numeric'
     });
   };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedProjects = () => {
+    return [...projects].sort((a, b) => {
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+
+      // Handle null/undefined values
+      if (!aValue && !bValue) return 0;
+      if (!aValue) return sortDirection === 'asc' ? 1 : -1;
+      if (!bValue) return sortDirection === 'asc' ? -1 : 1;
+
+      // Convert to string for comparison
+      aValue = String(aValue).toLowerCase();
+      bValue = String(bValue).toLowerCase();
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
+    <TableHead 
+      className="font-medium text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+      onClick={() => handleSort(field)}
+    >
+      <div className="flex items-center space-x-2">
+        <span>{children}</span>
+        <div className="flex flex-col">
+          <ArrowUp 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} 
+          />
+          <ArrowDown 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} 
+          />
+        </div>
+      </div>
+    </TableHead>
+  );
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -177,17 +230,17 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                       className="rounded border-gray-300"
                     />
                   </TableHead>
-                  <TableHead className="font-medium text-gray-700">ID</TableHead>
-                  <TableHead className="font-medium text-gray-700">Project Name</TableHead>
-                  <TableHead className="font-medium text-gray-700">Description</TableHead>
-                  <TableHead className="font-medium text-gray-700">Start Date</TableHead>
-                  <TableHead className="font-medium text-gray-700">Due Date</TableHead>
-                  <TableHead className="font-medium text-gray-700">Status</TableHead>
+                  <SortableHeader field="project_id">ID</SortableHeader>
+                  <SortableHeader field="name">Project Name</SortableHeader>
+                  <SortableHeader field="description">Description</SortableHeader>
+                  <SortableHeader field="start_date">Start Date</SortableHeader>
+                  <SortableHeader field="deadline">Due Date</SortableHeader>
+                  <SortableHeader field="status">Status</SortableHeader>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {projects.map((project) => {
+                {getSortedProjects().map((project) => {
                   console.log("Rendering project:", project.name, "with ID:", project.id);
                   return (
                     <TableRow key={project.id} className="hover:bg-gray-50/50">
