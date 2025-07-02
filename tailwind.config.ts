@@ -19,10 +19,10 @@ export default {
 		},
 		extend: {
 			fontFamily: {
+				'heading': ['Playfair Display', 'serif'],
+				'body': ['Inter', 'Helvetica Neue', 'sans-serif'],
 				'inter': ['Inter', 'sans-serif'],
-				'poppins': ['Poppins', 'sans-serif'],
-				'manrope': ['Manrope', 'sans-serif'],
-				'manrope-thin': ['Manrope', 'sans-serif'],
+				'playfair': ['Playfair Display', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
