@@ -42,6 +42,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   }>({ show: false, x: 0, y: 0 });
   const [leftWidth, setLeftWidth] = useState(40); // percentage
   const [isDragging, setIsDragging] = useState(false);
+  const [columnWidths, setColumnWidths] = useState({
+    rowNumber: 32,    // w-8 = 32px
+    name: 320,        // w-80 = 320px
+    duration: 80,     // w-20 = 80px
+    startDate: 96,    // w-24 = 96px
+    endDate: 96,      // w-24 = 96px
+    predecessor: 80   // w-20 = 80px
+  });
+  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
 
   // Close context menu on click outside
   useEffect(() => {
@@ -80,6 +89,41 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
+
+  // Handle column resizing
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!resizingColumn) return;
+      
+      const header = document.querySelector(`[data-column="${resizingColumn}"]`);
+      if (!header) return;
+      
+      const headerRect = header.getBoundingClientRect();
+      const newWidth = e.clientX - headerRect.left;
+      
+      // Minimum width of 50px
+      const clampedWidth = Math.max(newWidth, 50);
+      
+      setColumnWidths(prev => ({
+        ...prev,
+        [resizingColumn]: clampedWidth
+      }));
+    };
+
+    const handleMouseUp = () => {
+      setResizingColumn(null);
+    };
+
+    if (resizingColumn) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizingColumn]);
 
   // SmartSheet-style hierarchical task data matching the reference image
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([
@@ -725,36 +769,96 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             {/* Table Header */}
             <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
               <div className="flex">
-                <div className="w-8 px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border"></div>
                 <div 
-                  className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border relative"
+                  style={{ width: `${columnWidths.rowNumber}px` }}
+                  data-column="rowNumber"
+                >
+                  {/* Row number column resize handle */}
+                  <div 
+                    className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
+                    onMouseDown={() => setResizingColumn('rowNumber')}
+                  ></div>
+                </div>
+                
+                <div 
+                  className="px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors relative"
+                  style={{ width: `${columnWidths.name}px` }}
+                  data-column="name"
                   onContextMenu={(e) => handleContextMenu(e, 'name')}
                 >
                   Name
+                  <div 
+                    className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setResizingColumn('name');
+                    }}
+                  ></div>
                 </div>
+                
                 <div 
-                  className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors relative"
+                  style={{ width: `${columnWidths.duration}px` }}
+                  data-column="duration"
                   onContextMenu={(e) => handleContextMenu(e, 'duration')}
                 >
                   Duration (Auto)
+                  <div 
+                    className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setResizingColumn('duration');
+                    }}
+                  ></div>
                 </div>
+                
                 <div 
-                  className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors relative"
+                  style={{ width: `${columnWidths.startDate}px` }}
+                  data-column="startDate"
                   onContextMenu={(e) => handleContextMenu(e, 'startDate')}
                 >
                   Start Date
+                  <div 
+                    className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setResizingColumn('startDate');
+                    }}
+                  ></div>
                 </div>
+                
                 <div 
-                  className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors relative"
+                  style={{ width: `${columnWidths.endDate}px` }}
+                  data-column="endDate"
                   onContextMenu={(e) => handleContextMenu(e, 'endDate')}
                 >
                   End Date
+                  <div 
+                    className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setResizingColumn('endDate');
+                    }}
+                  ></div>
                 </div>
+                
                 <div 
-                  className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors relative"
+                  style={{ width: `${columnWidths.predecessor}px` }}
+                  data-column="predecessor"
                   onContextMenu={(e) => handleContextMenu(e, 'predecessor')}
                 >
                   Predecessor
+                  <div 
+                    className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setResizingColumn('predecessor');
+                    }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -764,12 +868,18 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               {flatTasks.map((task, rowIndex) => (
                 <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors h-10">
                   {/* Row Number */}
-                  <div className="w-8 px-2 py-2 text-xs text-muted-foreground border-r border-border text-center flex items-center justify-center">
+                  <div 
+                    className="px-2 py-2 text-xs text-muted-foreground border-r border-border text-center flex items-center justify-center"
+                    style={{ width: `${columnWidths.rowNumber}px` }}
+                  >
                     {rowIndex + 1}
                   </div>
                   
                   {/* Task Name */}
-                  <div className="w-80 px-3 py-2 border-r border-border flex items-center">
+                  <div 
+                    className="px-3 py-2 border-r border-border flex items-center"
+                    style={{ width: `${columnWidths.name}px` }}
+                  >
                     <div className="flex items-center w-full" style={{ marginLeft: `${task.level * 20}px` }}>
                       {task.children && task.children.length > 0 && (
                         <button
@@ -809,22 +919,34 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   </div>
                   
                   {/* Duration */}
-                  <div className="w-20 px-3 py-2 border-r border-border text-center flex items-center justify-center">
+                  <div 
+                    className="px-3 py-2 border-r border-border text-center flex items-center justify-center"
+                    style={{ width: `${columnWidths.duration}px` }}
+                  >
                     {renderEditableCell(task, 'duration', task.duration, 'text-xs text-foreground')}
                   </div>
                   
                   {/* Start Date */}
-                  <div className="w-24 px-3 py-2 border-r border-border flex items-center">
+                  <div 
+                    className="px-3 py-2 border-r border-border flex items-center"
+                    style={{ width: `${columnWidths.startDate}px` }}
+                  >
                     {renderEditableCell(task, 'startDate', task.startDate, 'text-xs text-foreground')}
                   </div>
                   
                   {/* End Date */}
-                  <div className="w-24 px-3 py-2 border-r border-border flex items-center">
+                  <div 
+                    className="px-3 py-2 border-r border-border flex items-center"
+                    style={{ width: `${columnWidths.endDate}px` }}
+                  >
                     {renderEditableCell(task, 'endDate', task.endDate, 'text-xs text-foreground')}
                   </div>
                   
                   {/* Predecessor */}
-                  <div className="w-20 px-3 py-2 border-r border-border text-center flex items-center justify-center">
+                  <div 
+                    className="px-3 py-2 border-r border-border text-center flex items-center justify-center"
+                    style={{ width: `${columnWidths.predecessor}px` }}
+                  >
                     {renderEditableCell(task, 'predecessor', task.predecessor, 'text-xs text-foreground')}
                   </div>
                 </div>
