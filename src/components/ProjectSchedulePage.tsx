@@ -28,6 +28,7 @@ interface ProjectSchedulePageProps {
 export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePageProps) => {
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['preliminaries', 'site-work', 'order-material']));
   const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
 
   // SmartSheet-style hierarchical task data matching the reference image
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([
@@ -361,6 +362,68 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     });
   };
 
+  const handleCellEdit = (taskId: string, field: string) => {
+    setEditingTask(taskId);
+    setEditingField(field);
+  };
+
+  const handleCellBlur = () => {
+    setEditingTask(null);
+    setEditingField(null);
+  };
+
+  const renderEditableCell = (task: GanttTask, field: string, value: any, className: string) => {
+    const isEditing = editingTask === task.id && editingField === field;
+    
+    if (isEditing) {
+      if (field === 'duration') {
+        return (
+          <Input
+            type="number"
+            value={value}
+            onChange={(e) => updateTask(task.id, { [field]: Number(e.target.value) })}
+            onBlur={handleCellBlur}
+            className="h-6 text-xs border-none p-1 bg-transparent focus:ring-0 text-center"
+            autoFocus
+          />
+        );
+      } else if (field === 'startDate' || field === 'endDate') {
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
+            onBlur={handleCellBlur}
+            className="h-6 text-xs border-none p-1 bg-transparent focus:ring-0"
+            autoFocus
+          />
+        );
+      } else {
+        return (
+          <Input
+            value={value}
+            onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
+            onBlur={handleCellBlur}
+            className="h-6 text-xs border-none p-1 bg-transparent focus:ring-0"
+            autoFocus
+          />
+        );
+      }
+    }
+
+    return (
+      <div 
+        className={`${className} cursor-pointer hover:bg-muted/20 transition-colors rounded px-1 py-1`}
+        onClick={() => handleCellEdit(task.id, field)}
+      >
+        {field === 'startDate' || field === 'endDate' ? 
+          new Date(value).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) 
+          : field === 'duration' ? `${value}d` : value
+        }
+      </div>
+    );
+  };
+
   const addTask = (parentId?: string) => {
     // AI Agent can call this function to add new tasks
     const newTask: GanttTask = {
@@ -560,23 +623,23 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   </div>
                   
                   {/* Duration */}
-                  <div className="w-20 px-3 py-2 text-xs text-foreground border-r border-border text-center">
-                    {task.duration}d
+                  <div className="w-20 px-3 py-2 border-r border-border text-center">
+                    {renderEditableCell(task, 'duration', task.duration, 'text-xs text-foreground')}
                   </div>
                   
                   {/* Start Date */}
-                  <div className="w-24 px-3 py-2 text-xs text-foreground border-r border-border">
-                    {new Date(task.startDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
+                  <div className="w-24 px-3 py-2 border-r border-border">
+                    {renderEditableCell(task, 'startDate', task.startDate, 'text-xs text-foreground')}
                   </div>
                   
                   {/* End Date */}
-                  <div className="w-24 px-3 py-2 text-xs text-foreground border-r border-border">
-                    {new Date(task.endDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
+                  <div className="w-24 px-3 py-2 border-r border-border">
+                    {renderEditableCell(task, 'endDate', task.endDate, 'text-xs text-foreground')}
                   </div>
                   
                   {/* Predecessor */}
-                  <div className="w-20 px-3 py-2 text-xs text-foreground border-r border-border text-center">
-                    {task.predecessor}
+                  <div className="w-20 px-3 py-2 border-r border-border text-center">
+                    {renderEditableCell(task, 'predecessor', task.predecessor, 'text-xs text-foreground')}
                   </div>
                 </div>
                 
