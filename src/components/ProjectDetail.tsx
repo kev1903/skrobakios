@@ -21,6 +21,27 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { getProject, loading } = useProjects();
 
+  // Always call useMemo hooks before any conditional logic
+  const progress = useMemo(() => {
+    if (!project) return 0;
+    switch (project.status) {
+      case "completed": return 100;
+      case "running": return 65;
+      case "pending": return 0;
+      default: return 0;
+    }
+  }, [project?.status]);
+
+  const wbsCount = useMemo(() => {
+    if (!project) return 8;
+    // Generate consistent count based on project ID to avoid changing on each render
+    const hash = project.id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    return Math.abs(hash % 10) + 8;
+  }, [project?.id]);
+
   useEffect(() => {
     // Set timeout for loading state
     timeoutRef.current = setTimeout(() => {
@@ -82,51 +103,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     };
   }, [projectId, getProject]);
 
-  // Show loading or error message if no project is available
-  if (localLoading && !project) {
-    return (
-      <div className="h-screen flex bg-gray-50">
-        <div className="flex items-center justify-center w-full">
-          <div className="text-gray-500">Loading project details...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error message if no project found and not loading
-  if (!project && !localLoading) {
-    return (
-      <div className="h-screen flex bg-gray-50">
-        <div className="flex items-center justify-center w-full">
-          <div className="text-center">
-            <div className="text-gray-500 text-lg mb-2">Project not found</div>
-            <button 
-              onClick={() => onNavigate("project-dashboard")}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              Back to Projects
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const handleProjectUpdate = (updatedProject: Project) => {
     setProject(updatedProject);
-  };
-
-  const getProgress = (status: string) => {
-    switch (status) {
-      case "completed":
-        return 100;
-      case "running":
-        return 65;
-      case "pending":
-        return 0;
-      default:
-        return 0;
-    }
   };
 
   const getStatusColor = (status: string) => {
@@ -165,20 +143,40 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     });
   };
 
+  // Show loading state
+  if (localLoading && !project) {
+    return (
+      <div className="h-screen flex bg-gray-50">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-gray-500">Loading project details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message if no project found and not loading
+  if (!project && !localLoading) {
+    return (
+      <div className="h-screen flex bg-gray-50">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-center">
+            <div className="text-gray-500 text-lg mb-2">Project not found</div>
+            <button 
+              onClick={() => onNavigate("project-dashboard")}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              Back to Projects
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Ensure we have a valid project before proceeding
   if (!project) {
     return null;
   }
-
-  const progress = useMemo(() => getProgress(project.status), [project.status]);
-  const wbsCount = useMemo(() => {
-    // Generate consistent count based on project ID to avoid changing on each render
-    const hash = project.id.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
-      return a & a;
-    }, 0);
-    return Math.abs(hash % 10) + 8;
-  }, [project.id]);
 
   return (
     <div className="h-screen flex bg-gray-50">
