@@ -20,22 +20,7 @@ interface SubtasksListProps {
 }
 
 export const SubtasksList = ({ taskId, projectMembers }: SubtasksListProps) => {
-  const [subtasks, setSubtasks] = useState<Subtask[]>([
-    {
-      id: 'st1',
-      title: 'Pre-Inspection Clearance',
-      assignedTo: { name: 'John Smith', avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png' },
-      dueDate: '2024-07-12',
-      completed: false
-    },
-    {
-      id: 'st2',
-      title: 'Manufacturer\'s details of the roof trusses',
-      assignedTo: { name: 'Sarah Wilson', avatar: '/lovable-uploads/39fa74b4-f31c-4e52-99aa-01226dcff8a5.png' },
-      dueDate: '2024-07-15',
-      completed: true
-    }
-  ]);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [newSubtask, setNewSubtask] = useState({
