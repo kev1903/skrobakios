@@ -383,8 +383,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: Number(e.target.value) })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none text-center !border-none !outline-none !ring-0 !shadow-none"
-            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
+            className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none text-center"
+            style={{ 
+              border: 'none', 
+              outline: 'none', 
+              boxShadow: 'none',
+              background: 'transparent'
+            }}
             autoFocus
           />
         );
@@ -395,8 +400,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none !border-none !outline-none !ring-0 !shadow-none"
-            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
+            className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
+            style={{ 
+              border: 'none', 
+              outline: 'none', 
+              boxShadow: 'none',
+              background: 'transparent'
+            }}
             autoFocus
           />
         );
@@ -406,8 +416,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none !border-none !outline-none !ring-0 !shadow-none"
-            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
+            className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
+            style={{ 
+              border: 'none', 
+              outline: 'none', 
+              boxShadow: 'none',
+              background: 'transparent'
+            }}
             autoFocus
           />
         );
@@ -416,7 +431,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
     return (
       <div 
-        className={`${className} cursor-pointer hover:bg-muted/20 transition-colors rounded px-1 py-1`}
+        className={`${className} cursor-pointer hover:bg-muted/20 transition-colors h-full w-full flex items-center`}
         onClick={() => handleCellEdit(task.id, field)}
       >
         {field === 'startDate' || field === 'endDate' ? 
@@ -591,40 +606,45 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                     {rowIndex + 1}
                   </div>
                   
-                  {/* Task Name */}
-                  <div className="w-80 px-3 py-2 border-r border-border flex items-center">
-                    <div className="flex items-center" style={{ marginLeft: `${task.level * 20}px` }}>
-                      {task.children && task.children.length > 0 && (
-                        <button
-                          onClick={() => toggleExpanded(task.id)}
-                          className="mr-2 p-1 hover:bg-muted rounded transition-colors"
-                        >
-                          {expandedTasks.has(task.id) ? (
-                            <ChevronDown className="w-3 h-3" />
-                          ) : (
-                            <ChevronRight className="w-3 h-3" />
-                          )}
-                        </button>
-                      )}
-                      {editingTask === task.id ? (
-                        <Input
-                          value={task.name}
-                          onChange={(e) => updateTask(task.id, { name: e.target.value })}
-                          onBlur={() => setEditingTask(null)}
-                          className="h-6 text-xs border-0 p-0 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none !border-none !outline-none !ring-0 !shadow-none"
-                          style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
-                          autoFocus
-                        />
-                      ) : (
-                        <span 
-                          className="text-xs cursor-pointer hover:text-primary transition-colors"
-                          onClick={() => setEditingTask(task.id)}
-                        >
-                          {task.name}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                   {/* Task Name */}
+                   <div className="w-80 px-3 py-2 border-r border-border flex items-center">
+                     <div className="flex items-center w-full" style={{ marginLeft: `${task.level * 20}px` }}>
+                       {task.children && task.children.length > 0 && (
+                         <button
+                           onClick={() => toggleExpanded(task.id)}
+                           className="mr-2 p-1 hover:bg-muted rounded transition-colors"
+                         >
+                           {expandedTasks.has(task.id) ? (
+                             <ChevronDown className="w-3 h-3" />
+                           ) : (
+                             <ChevronRight className="w-3 h-3" />
+                           )}
+                         </button>
+                       )}
+                       {editingTask === task.id ? (
+                         <Input
+                           value={task.name}
+                           onChange={(e) => updateTask(task.id, { name: e.target.value })}
+                           onBlur={() => setEditingTask(null)}
+                           className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
+                           style={{ 
+                             border: 'none', 
+                             outline: 'none', 
+                             boxShadow: 'none',
+                             background: 'transparent'
+                           }}
+                           autoFocus
+                         />
+                       ) : (
+                         <div 
+                           className="text-xs cursor-pointer hover:bg-muted/20 transition-colors flex-1 h-full flex items-center"
+                           onClick={() => setEditingTask(task.id)}
+                         >
+                           {task.name}
+                         </div>
+                       )}
+                     </div>
+                   </div>
                   
                   {/* Duration */}
                   <div className="w-20 px-3 py-2 border-r border-border text-center">
