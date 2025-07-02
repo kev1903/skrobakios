@@ -19,7 +19,7 @@ interface WBSPageProps {
 export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   const { toast } = useToast();
   const { members } = useProjectMembers(project.id);
-  const { wbsItems, loading, createWBSItem, updateWBSItem, deleteWBSItem, generateWBSId, calculateDuration } = useWBS(project.id);
+  const { wbsItems, loading, createWBSItem, updateWBSItem, deleteWBSItem, generateWBSId, calculateDuration, findWBSItem } = useWBS(project.id);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     assignee: '',
@@ -37,26 +37,18 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   };
 
   const toggleExpanded = async (id: string) => {
-    const item = findWBSItem(wbsItems, id);
+    const item = findWBSItem(id);
     if (item) {
       await updateWBSItem(id, { is_expanded: !item.is_expanded });
     }
   };
 
-  const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
-    for (const item of items) {
-      if (item.id === id) return item;
-      const found = findWBSItem(item.children, id);
-      if (found) return found;
-    }
-    return null;
-  };
 
   const addChildItem = async (parentId?: string) => {
     const newWBSId = generateWBSId(parentId);
-    const parentItem = parentId ? findWBSItem(wbsItems, parentId) : null;
+    const parentItem = parentId ? findWBSItem(parentId) : null;
     
-    const newItem: Omit<WBSItem, 'id' | 'children' | 'created_at' | 'updated_at'> = {
+    const newItem = {
       project_id: project.id,
       parent_id: parentId,
       wbs_id: newWBSId,
@@ -87,7 +79,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   const handleUpdateItem = async (id: string, updates: Partial<WBSItem>) => {
     // Calculate duration if dates are updated
     if (updates.start_date || updates.end_date) {
-      const item = findWBSItem(wbsItems, id);
+      const item = findWBSItem(id);
       if (item) {
         const startDate = updates.start_date || item.start_date || '';
         const endDate = updates.end_date || item.end_date || '';
