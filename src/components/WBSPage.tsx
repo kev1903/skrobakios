@@ -308,9 +308,9 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
@@ -328,17 +328,24 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button onClick={() => addChildItem()} className="flex items-center space-x-2">
+            <Button 
+              onClick={() => addChildItem()} 
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+            >
               <Plus className="w-4 h-4" />
-              <span>Add Top Level</span>
+              <span>Add Top Level WBS</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
+      <div className="bg-white border-b border-gray-200 px-6 py-3 shadow-sm">
         <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Filters:</span>
+          </div>
           <Select value={filters.assignee} onValueChange={(value) => setFilters({...filters, assignee: value})}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Filter by assignee" />
@@ -369,7 +376,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
       </div>
 
       {/* WBS Table Header */}
-      <div className="bg-gray-100 border-b border-gray-200">
+      <div className="bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
         <div className="grid grid-cols-12 gap-2 p-3 text-sm font-medium text-gray-700">
           <div className="col-span-1">WBS ID</div>
           <div className="col-span-2">Title</div>
@@ -386,7 +393,18 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
 
       {/* WBS Content */}
       <div className="flex-1 overflow-auto bg-white">
-        {wbsItems.map((item, index) => renderWBSItem(item, index))}
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-500">Loading WBS items...</div>
+          </div>
+        ) : wbsItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+            <div className="text-lg font-medium">No WBS items found</div>
+            <div className="text-sm mt-1">Click "Add Top Level WBS" to get started</div>
+          </div>
+        ) : (
+          wbsItems.map((item, index) => renderWBSItem(item, index))
+        )}
       </div>
     </div>
   );
