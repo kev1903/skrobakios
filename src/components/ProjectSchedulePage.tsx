@@ -383,7 +383,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: Number(e.target.value) })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none text-center"
+            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none text-center !border-none !outline-none !ring-0 !shadow-none"
+            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
             autoFocus
           />
         );
@@ -394,7 +395,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none"
+            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none !border-none !outline-none !ring-0 !shadow-none"
+            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
             autoFocus
           />
         );
@@ -404,7 +406,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none"
+            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none !border-none !outline-none !ring-0 !shadow-none"
+            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
             autoFocus
           />
         );
@@ -608,7 +611,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                           value={task.name}
                           onChange={(e) => updateTask(task.id, { name: e.target.value })}
                           onBlur={() => setEditingTask(null)}
-                          className="h-6 text-xs border-0 p-0 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none"
+                          className="h-6 text-xs border-0 p-0 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none !border-none !outline-none !ring-0 !shadow-none"
+                          style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
                           autoFocus
                         />
                       ) : (
