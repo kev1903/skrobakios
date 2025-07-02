@@ -13,41 +13,6 @@ interface ProjectDetailProps {
 }
 
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
-  const [project, setProject] = useState<Project | null>(null);
-  const [bannerImage, setBannerImage] = useState<string>("");
-  const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
-  const { getProject, loading } = useProjects();
-
-  useEffect(() => {
-    const fetchProject = async () => {
-      if (!projectId) return;
-      
-      const foundProject = await getProject(projectId);
-      if (foundProject) {
-        setProject(foundProject);
-        
-        // Load banner image from localStorage
-        const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
-        if (savedBanner) {
-          setBannerImage(savedBanner);
-        }
-
-        // Load banner position from localStorage
-        const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
-        if (savedBannerPosition) {
-          try {
-            const position = JSON.parse(savedBannerPosition);
-            setBannerPosition(position);
-          } catch (error) {
-            console.error('Error parsing saved banner position:', error);
-          }
-        }
-      }
-    };
-
-    fetchProject();
-  }, [projectId, getProject]);
-
   // Fallback project data if no project is found
   const fallbackProject: Project = {
     id: "550e8400-e29b-41d4-a716-446655440000",
@@ -62,6 +27,54 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     updated_at: "2024-06-15T00:00:00Z",
     priority: "Medium"
   };
+
+  const [project, setProject] = useState<Project | null>(null);
+  const [bannerImage, setBannerImage] = useState<string>("");
+  const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
+  const { getProject, loading } = useProjects();
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (!projectId) {
+        // Use fallback project when no projectId is provided
+        setProject(fallbackProject);
+        return;
+      }
+      
+      try {
+        const foundProject = await getProject(projectId);
+        if (foundProject) {
+          setProject(foundProject);
+          
+          // Load banner image from localStorage
+          const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
+          if (savedBanner) {
+            setBannerImage(savedBanner);
+          }
+
+          // Load banner position from localStorage
+          const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
+          if (savedBannerPosition) {
+            try {
+              const position = JSON.parse(savedBannerPosition);
+              setBannerPosition(position);
+            } catch (error) {
+              console.error('Error parsing saved banner position:', error);
+            }
+          }
+        } else {
+          // Use fallback project if not found
+          setProject(fallbackProject);
+        }
+      } catch (error) {
+        console.error('Error fetching project:', error);
+        // Use fallback project on error
+        setProject(fallbackProject);
+      }
+    };
+
+    fetchProject();
+  }, [projectId, getProject]);
 
   const currentProject = project || fallbackProject;
 
