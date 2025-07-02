@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -539,6 +539,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             </div>
           </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onNavigate('schedule-settings')}
+              className="flex items-center space-x-2 glass-hover border-border hover:border-primary transition-all"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </Button>
             <Button
               onClick={() => addTask()} 
               className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-3 py-2"
