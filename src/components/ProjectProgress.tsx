@@ -8,10 +8,6 @@ interface ProjectProgressProps {
 }
 
 export const ProjectProgress = ({ progress, wbsCount }: ProjectProgressProps) => {
-  if (progress <= 0 || progress >= 100) {
-    return null;
-  }
-
   return (
     <Card className="mb-8">
       <CardHeader>

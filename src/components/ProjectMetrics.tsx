@@ -7,10 +7,18 @@ interface ProjectMetricsProps {
 }
 
 export const ProjectMetrics = ({ project }: ProjectMetricsProps) => {
+  const getContractValue = () => {
+    if (!project.contract_price) return 0;
+    const cleanPrice = project.contract_price.replace(/[$,]/g, '');
+    return parseInt(cleanPrice) || 0;
+  };
+
+  const contractValue = getContractValue();
+  
   const summaryMetrics = [
     { label: "Contract Price", value: project.contract_price || "$0", trend: "up" },
-    { label: "Paid To Date", value: project.contract_price ? `$${(parseInt(project.contract_price.replace(/[$,]/g, '')) * 0.65 / 1000000).toFixed(1)}M` : "$0", trend: "up" },
-    { label: "Payment Received", value: project.contract_price ? `$${(parseInt(project.contract_price.replace(/[$,]/g, '')) * 0.2 / 1000000).toFixed(1)}M` : "$0", trend: "up" }
+    { label: "Paid To Date", value: contractValue > 0 ? `$${(contractValue * 0.65 / 1000000).toFixed(1)}M` : "$0", trend: "up" },
+    { label: "Payment Received", value: contractValue > 0 ? `$${(contractValue * 0.2 / 1000000).toFixed(1)}M` : "$0", trend: "up" }
   ];
 
   return (

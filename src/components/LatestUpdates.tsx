@@ -11,9 +11,9 @@ interface LatestUpdatesProps {
 
 export const LatestUpdates = ({ project, progress, wbsCount }: LatestUpdatesProps) => {
   const latestUpdates = [
-    { icon: FileCheck, label: "Incomplete Task", count: Math.max(20 - progress / 5, 0) },
-    { icon: MessageSquare, label: "Unread Messages", count: project.status === "pending" ? 12 : 5 },
-    { icon: FileText, label: "Unread Documents", count: wbsCount - Math.floor(progress / 10) }
+    { icon: FileCheck, label: "Incomplete Task", count: Math.max(Math.floor((100 - progress) / 10), 0) },
+    { icon: MessageSquare, label: "Unread Messages", count: project.status === "pending" ? 8 : 5 },
+    { icon: FileText, label: "Unread Documents", count: Math.max(Math.floor(wbsCount / 3), 1) }
   ];
 
   return (

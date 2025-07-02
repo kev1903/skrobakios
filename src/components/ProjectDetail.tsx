@@ -51,7 +51,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
   // Fallback project data if no project is found
   const fallbackProject: Project = {
-    id: "1",
+    id: "550e8400-e29b-41d4-a716-446655440000",
     project_id: "SK23003",
     name: "Gordon Street, Balwyn",
     location: "Balwyn, VIC",
