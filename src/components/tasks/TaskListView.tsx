@@ -102,7 +102,6 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-blue-600 truncate">{task.taskName}</h3>
-                        <p className="text-sm text-gray-500">ID: {task.id}</p>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }}>
@@ -164,7 +163,6 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
                     <TableHead className="w-12">
                       <Checkbox />
                     </TableHead>
-                    <TableHead>Task ID</TableHead>
                     <TableHead>Task Name</TableHead>
                     <TableHead>Priority</TableHead>
                     <TableHead>Assigned To</TableHead>
@@ -176,8 +174,8 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
                 </TableHeader>
                 <TableBody>
                   {/* Add Task Row */}
-                  <TableRow className="hover:bg-gray-50 cursor-pointer" onClick={handleAddTask}>
-                    <TableCell colSpan={9} className="p-4">
+                   <TableRow className="hover:bg-gray-50 cursor-pointer" onClick={handleAddTask}>
+                    <TableCell colSpan={8} className="p-4">
                       <AddTaskButton onAddTask={handleAddTask} />
                     </TableCell>
                   </TableRow>
@@ -186,9 +184,6 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
                     <TableRow key={index} className="hover:bg-gray-50">
                       <TableCell>
                         <Checkbox />
-                      </TableCell>
-                      <TableCell className="font-medium text-blue-600">
-                        {task.id}
                       </TableCell>
                       <TableCell 
                         className="font-medium cursor-pointer hover:text-blue-600"
