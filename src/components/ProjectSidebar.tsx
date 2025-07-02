@@ -16,7 +16,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
   const sidebarItems = [
     { id: "insights", label: "Insights", icon: BarChart3, active: activeSection === "insights" },
     { id: "tasks", label: "Tasks", icon: FileCheck, active: activeSection === "tasks" },
-    { id: "sections", label: "Sections", icon: FileText, active: activeSection === "sections" },
+    { id: "sections", label: "WBS", icon: FileText, active: activeSection === "sections" },
     { id: "team", label: "Team", icon: Users, active: activeSection === "team" },
     { id: "cost", label: "Cost", icon: BarChart3, active: activeSection === "cost" },
     { id: "schedule", label: "Schedule", icon: Calendar, active: activeSection === "schedule" },

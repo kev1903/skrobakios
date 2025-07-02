@@ -11,7 +11,7 @@ export const FileProjectSidebar = ({ onNavigate }: FileProjectSidebarProps) => {
   const sidebarItems = [
     { id: "insights", label: "Insights", icon: BarChart3, active: false },
     { id: "tasks", label: "Tasks", icon: FileCheck, active: false },
-    { id: "sections", label: "Sections", icon: FileText, active: false },
+    { id: "sections", label: "WBS", icon: FileText, active: false },
     { id: "cost", label: "Cost", icon: BarChart3, active: false },
     { id: "schedule", label: "Schedule", icon: Calendar, active: false },
     { id: "issues", label: "Issues", icon: AlertCircle, active: false },
