@@ -7,56 +7,33 @@
 
 @layer base {
   :root {
-    /* Skrobaki Design System Colors - HSL Values */
-    --background: 225 60% 99%;
-    --foreground: 0 0% 12%;
+    --background: 240 10% 98%;
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 12%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 12%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    /* Primary Brand Colors - #265DFF */
-    --primary: 225 100% 63%;
-    --primary-foreground: 0 0% 100%;
-    --primary-50: 225 100% 97%;
-    --primary-100: 225 100% 94%;
-    --primary-500: 225 100% 63%;
-    --primary-600: 225 100% 56%;
+    --primary: 220 14.3% 25.9%;
+    --primary-foreground: 210 40% 98%;
 
-    /* Secondary Colors - #FF9D00 */
-    --secondary: 37 100% 50%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    /* Accent Colors - #FFE399 */
-    --accent: 50 100% 80%;
-    --accent-foreground: 0 0% 12%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Neutral Colors - Clean grays and table borders */
-    --neutral-50: 225 60% 99%;
-    --neutral-100: 225 60% 96%;
-    --neutral-200: 225 40% 91%; /* Table borders #E0E6F0 */
-    --neutral-500: 225 16% 47%;
-    --neutral-600: 225 19% 35%;
-    --neutral-700: 225 25% 27%;
-    --neutral-800: 0 0% 23%; /* #3A3A3A - Subtext */
-    --neutral-900: 0 0% 12%; /* #1F1F1F - Dark text */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 225 40% 96%;
-    --muted-foreground: 0 0% 23%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 225 40% 91%;
-    --input: 225 40% 91%;
-    --ring: 225 100% 63%;
-
-    /* Status Colors for Badges */
-    --success: 142 76% 74%;
-    --warning: 37 100% 85%;
-    --error: 0 84% 90%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 220 14.3% 25.9%;
 
     --radius: 0.75rem;
 
@@ -65,19 +42,19 @@
     --glass-bg-light: rgba(255, 255, 255, 0.4);
     --glass-bg-hover: rgba(255, 255, 255, 0.6);
     --glass-border: rgba(255, 255, 255, 0.3);
-    --glass-shadow: rgba(245, 158, 11, 0.2);
-    --glass-shadow-hover: rgba(245, 158, 11, 0.3);
+    --glass-shadow: rgba(31, 38, 135, 0.2);
+    --glass-shadow-hover: rgba(31, 38, 135, 0.3);
     --glass-backdrop: blur(20px);
     
     /* Sidebar Variables */
     --sidebar-background: rgba(255, 255, 255, 0.6);
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 45 93% 47%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: rgba(245, 158, 11, 0.1);
+    --sidebar-primary: 220 14.3% 25.9%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: rgba(59, 130, 246, 0.1);
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: rgba(255, 255, 255, 0.3);
-    --sidebar-ring: 45 93% 47%;
+    --sidebar-ring: 220 14.3% 25.9%;
   }
 
   .dark {
@@ -90,8 +67,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 45 93% 47%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 210 40% 90%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -107,7 +84,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 45 93% 47%;
+    --ring: 210 40% 90%;
     
     /* Dark Mode Enhanced Glassmorphism */
     --glass-bg: rgba(15, 23, 42, 0.4);
@@ -119,12 +96,12 @@
     
     --sidebar-background: rgba(15, 23, 42, 0.8);
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 45 93% 47%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: rgba(245, 158, 11, 0.2);
+    --sidebar-primary: 210 40% 90%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: rgba(59, 130, 246, 0.2);
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: rgba(255, 255, 255, 0.1);
-    --sidebar-ring: 45 93% 47%;
+    --sidebar-ring: 210 40% 90%;
   }
 }
 
@@ -134,16 +111,38 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body;
-    /* Skrobaki Background Gradient: #EAF2FF to #D6E5FF */
-    background: linear-gradient(180deg, #EAF2FF 0%, #D6E5FF 100%);
+    @apply bg-background text-foreground font-inter;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 25%, #dbeafe 50%, #e0e7ff 75%, #f1f5f9 100%);
     min-height: 100vh;
     position: relative;
     transition: background 0.3s ease, color 0.3s ease;
   }
 
   .dark body {
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 70%),
+      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.1) 0%, transparent 70%),
+      radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+
+  .dark body::before {
+    background: 
+      radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.2) 0%, transparent 70%),
+      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.2) 0%, transparent 70%),
+      radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
   }
   
   /* Enhanced Glassmorphism Utility Classes */
@@ -189,30 +188,23 @@
 @layer components {
   /* Modern Typography with Enhanced Gradients */
   .text-gradient {
-    background: linear-gradient(135deg, #1e293b 0%, #f59e0b 50%, #fbbf24 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #3730a3 50%, #1e40af 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .heading-modern {
-    @apply font-heading font-semibold tracking-tight;
+    @apply font-poppins font-semibold tracking-tight;
   }
   
   .body-modern {
-    @apply font-body font-normal;
+    @apply font-inter font-normal;
   }
 
   /* Enhanced Input Styles */
   .input-glass {
-    @apply backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-amber-400 transition-all duration-200;
-  }
-
-  /* Glass Background Utility */
-  .glass-bg {
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, rgba(255, 255, 255, 0.1) 20%, rgba(254, 252, 245, 0.8) 60%, rgba(251, 191, 36, 0.1) 100%);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    @apply backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200;
   }
 
   /* Enhanced Interactive Elements */
@@ -241,8 +233,8 @@
   }
 
   @keyframes glow {
-    from { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-    to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+    from { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    to { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
   }
 
   .slide-in {

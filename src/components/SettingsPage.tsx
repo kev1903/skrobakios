@@ -9,7 +9,6 @@ import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminPanel } from './admin/AdminPanel';
 import { useTheme } from '@/hooks/useTheme';
-import { AppearanceSettings } from './appearance/AppearanceSettings';
 
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
@@ -174,7 +173,38 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
             </TabsContent>
 
             <TabsContent value="appearance" className="space-y-6">
-              <AppearanceSettings onNavigate={onNavigate} />
+              <Card className="backdrop-blur-sm bg-white/60 dark:bg-slate-900/60 border-white/30 dark:border-slate-700/30">
+                <CardHeader>
+                  <CardTitle>Appearance Settings</CardTitle>
+                  <CardDescription>
+                    Customize the look and feel of the application
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-medium">Theme</h4>
+                      <p className="text-sm text-slate-500">Choose between light and dark mode</p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm text-slate-600 dark:text-slate-400">Light</span>
+                      <Switch
+                        checked={theme === 'dark'}
+                        onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                      />
+                      <span className="text-sm text-slate-600 dark:text-slate-400">Dark</span>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-medium">Compact Mode</h4>
+                      <p className="text-sm text-slate-500">Use a more compact interface</p>
+                    </div>
+                    <Button variant="outline" size="sm">Disabled</Button>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {isSuperAdmin && (
