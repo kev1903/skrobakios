@@ -383,7 +383,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: Number(e.target.value) })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-none p-1 bg-transparent focus:ring-0 text-center"
+            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none text-center"
             autoFocus
           />
         );
@@ -394,7 +394,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-none p-1 bg-transparent focus:ring-0"
+            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none"
             autoFocus
           />
         );
@@ -404,7 +404,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             value={value}
             onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
             onBlur={handleCellBlur}
-            className="h-6 text-xs border-none p-1 bg-transparent focus:ring-0"
+            className="h-6 text-xs border-0 p-1 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none"
             autoFocus
           />
         );
@@ -608,7 +608,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                           value={task.name}
                           onChange={(e) => updateTask(task.id, { name: e.target.value })}
                           onBlur={() => setEditingTask(null)}
-                          className="h-6 text-xs border-none p-0 focus:ring-0 bg-transparent"
+                          className="h-6 text-xs border-0 p-0 bg-transparent focus:ring-0 focus:outline-none focus:border-0 shadow-none"
                           autoFocus
                         />
                       ) : (
