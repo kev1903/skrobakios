@@ -190,9 +190,9 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
   };
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-2xl mx-auto">
+    <div ref={searchRef} className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 w-4 h-4" />
         <Input
           ref={inputRef}
           type="text"
@@ -200,7 +200,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="pl-10 pr-10 py-3 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 bg-white/90 backdrop-blur-sm shadow-sm"
+          className="pl-10 pr-10 py-3 text-base border-white/20 focus:border-white/40 focus:ring-white/30 bg-white/10 backdrop-blur-sm shadow-sm text-white placeholder-white/60 hover:bg-white/15 transition-all duration-200"
         />
         {query && (
           <Button
@@ -210,7 +210,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
               setQuery('');
               setResults([]);
             }}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-auto"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-auto text-white/70 hover:text-white hover:bg-white/10"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -219,7 +219,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
 
       {/* Search Results Dropdown */}
       {isOpen && (query || results.length > 0) && (
-        <Card className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border-gray-200 shadow-xl z-50 max-h-96 overflow-hidden">
+        <Card className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border-white/20 shadow-2xl z-50 max-h-96 overflow-hidden rounded-xl">
           <CardContent className="p-0">
             {isLoading ? (
               <div className="p-4 text-center text-gray-500">

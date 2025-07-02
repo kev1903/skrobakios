@@ -8,15 +8,15 @@ interface TopHeaderProps {
 
 export const TopHeader = ({ onNavigate, onSelectProject }: TopHeaderProps) => {
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm relative z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center h-16">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+      <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="px-6 py-3">
           <SuperSearchBar 
             onNavigate={onNavigate}
             onSelectProject={onSelectProject}
           />
         </div>
       </div>
-    </header>
+    </div>
   );
 };

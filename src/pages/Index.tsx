@@ -20,26 +20,24 @@ const Index = () => {
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
-            <div className="relative z-10 flex flex-col min-h-screen">
-              {/* Top Header with Search Bar - Show on all pages except auth */}
-              {currentPage !== "auth" && (
-                <TopHeader 
+            {/* Floating Search Bar - Show on all pages except auth */}
+            {currentPage !== "auth" && (
+              <TopHeader 
+                onNavigate={setCurrentPage}
+                onSelectProject={handleSelectProject}
+              />
+            )}
+            
+            <div className="relative z-10 flex min-h-screen">
+              <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+                <ContentRenderer 
+                  currentPage={currentPage}
                   onNavigate={setCurrentPage}
                   onSelectProject={handleSelectProject}
+                  selectedProject={selectedProject}
+                  currentProject={currentProject}
                 />
-              )}
-              
-              <div className="flex flex-1">
-                <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-                  <ContentRenderer 
-                    currentPage={currentPage}
-                    onNavigate={setCurrentPage}
-                    onSelectProject={handleSelectProject}
-                    selectedProject={selectedProject}
-                    currentProject={currentProject}
-                  />
-                </PageLayout>
-              </div>
+              </PageLayout>
             </div>
           </div>
         </TaskProvider>
