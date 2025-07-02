@@ -30,10 +30,27 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// Enhanced Primary Color Scale
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					50: 'hsl(var(--primary-50))',
+					100: 'hsl(var(--primary-100))',
+					500: 'hsl(var(--primary-500))',
+					600: 'hsl(var(--primary-600))',
 				},
+				
+				// Enhanced Neutral Color Scale
+				neutral: {
+					50: 'hsl(var(--neutral-50))',
+					100: 'hsl(var(--neutral-100))',
+					500: 'hsl(var(--neutral-500))',
+					600: 'hsl(var(--neutral-600))',
+					700: 'hsl(var(--neutral-700))',
+					800: 'hsl(var(--neutral-800))',
+				},
+				
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
@@ -72,7 +89,13 @@ export default {
 					DEFAULT: 'var(--glass-bg)',
 					border: 'var(--glass-border)',
 					shadow: 'var(--glass-shadow)'
-				}
+				},
+				
+				// Semantic Colors
+				success: 'hsl(142, 76%, 36%)',
+				warning: 'hsl(38, 92%, 50%)',
+				error: 'hsl(0, 84%, 60%)',
+				info: 'hsl(217, 91%, 60%)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
