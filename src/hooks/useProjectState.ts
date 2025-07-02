@@ -16,37 +16,13 @@ export const useProjectState = () => {
           if (project) {
             setCurrentProject(project);
           } else {
-            // Fallback project for demo purposes
-            setCurrentProject({
-              id: "550e8400-e29b-41d4-a716-446655440000",
-              project_id: "SK23003",
-              name: "Gordon Street, Balwyn",
-              location: "Balwyn, VIC",
-              created_at: "2024-06-15T00:00:00Z",
-              status: "completed",
-              contract_price: "$2,450,000",
-              start_date: "2024-06-15",
-              deadline: "2024-08-30",
-              updated_at: "2024-06-15T00:00:00Z",
-              priority: "Medium"
-            });
+            // No project found
+            setCurrentProject(null);
           }
         } catch (error) {
           console.error('Error fetching projects:', error);
-          // Set fallback project on error
-          setCurrentProject({
-            id: "550e8400-e29b-41d4-a716-446655440000",
-            project_id: "SK23003",
-            name: "Gordon Street, Balwyn",
-            location: "Balwyn, VIC",
-            created_at: "2024-06-15T00:00:00Z",
-            status: "completed",
-            contract_price: "$2,450,000",
-            start_date: "2024-06-15",
-            deadline: "2024-08-30",
-            updated_at: "2024-06-15T00:00:00Z",
-            priority: "Medium"
-          });
+          // Set to null on error
+          setCurrentProject(null);
         }
       }
     };

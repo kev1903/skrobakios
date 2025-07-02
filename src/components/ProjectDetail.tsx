@@ -13,20 +13,6 @@ interface ProjectDetailProps {
 }
 
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
-  // Fallback project data if no project is found
-  const fallbackProject: Project = {
-    id: "550e8400-e29b-41d4-a716-446655440000",
-    project_id: "SK23003",
-    name: "Gordon Street, Balwyn",
-    location: "Balwyn, VIC",
-    created_at: "2024-06-15T00:00:00Z",
-    status: "completed",
-    contract_price: "$2,450,000",
-    start_date: "2024-06-15",
-    deadline: "2024-08-30",
-    updated_at: "2024-06-15T00:00:00Z",
-    priority: "Medium"
-  };
 
   const [project, setProject] = useState<Project | null>(null);
   const [bannerImage, setBannerImage] = useState<string>("");
@@ -45,8 +31,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       setLocalLoading(true);
       
       if (!projectId) {
-        // Use fallback project when no projectId is provided
-        setProject(fallbackProject);
+        // No projectId provided, show message or redirect
         setLocalLoading(false);
         return;
       }
@@ -73,13 +58,13 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
             }
           }
         } else {
-          // Use fallback project if not found
-          setProject(fallbackProject);
+          // Project not found, set to null
+          setProject(null);
         }
       } catch (error) {
         console.error('Error fetching project:', error);
-        // Use fallback project on error
-        setProject(fallbackProject);
+        // Set to null on error
+        setProject(null);
       } finally {
         setLocalLoading(false);
         if (timeoutRef.current) {
@@ -97,7 +82,35 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     };
   }, [projectId, getProject]);
 
-  const currentProject = project || fallbackProject;
+  // Show loading or error message if no project is available
+  if (localLoading && !project) {
+    return (
+      <div className="h-screen flex bg-gray-50">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-gray-500">Loading project details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message if no project found and not loading
+  if (!project && !localLoading) {
+    return (
+      <div className="h-screen flex bg-gray-50">
+        <div className="flex items-center justify-center w-full">
+          <div className="text-center">
+            <div className="text-gray-500 text-lg mb-2">Project not found</div>
+            <button 
+              onClick={() => onNavigate("project-dashboard")}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              Back to Projects
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleProjectUpdate = (updatedProject: Project) => {
     setProject(updatedProject);
@@ -152,31 +165,26 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     });
   };
 
-  const progress = useMemo(() => getProgress(currentProject.status), [currentProject.status]);
+  // Ensure we have a valid project before proceeding
+  if (!project) {
+    return null;
+  }
+
+  const progress = useMemo(() => getProgress(project.status), [project.status]);
   const wbsCount = useMemo(() => {
     // Generate consistent count based on project ID to avoid changing on each render
-    const hash = currentProject.id.split('').reduce((a, b) => {
+    const hash = project.id.split('').reduce((a, b) => {
       a = ((a << 5) - a) + b.charCodeAt(0);
       return a & a;
     }, 0);
     return Math.abs(hash % 10) + 8;
-  }, [currentProject.id]);
-
-  if (localLoading && !project) {
-    return (
-      <div className="h-screen flex bg-gray-50">
-        <div className="flex items-center justify-center w-full">
-          <div className="text-gray-500">Loading project details...</div>
-        </div>
-      </div>
-    );
-  }
+  }, [project.id]);
 
   return (
     <div className="h-screen flex bg-gray-50">
       {/* Project Sidebar */}
       <ProjectSidebar
-        project={currentProject}
+        project={project}
         onNavigate={onNavigate}
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
@@ -186,7 +194,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           <ProjectHeader
-            project={currentProject}
+            project={project}
             bannerImage={bannerImage}
             bannerPosition={bannerPosition}
             getStatusColor={getStatusColor}
@@ -195,17 +203,17 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           />
 
           <ProjectInfo
-            project={currentProject}
+            project={project}
             getStatusText={getStatusText}
             formatDate={formatDate}
           />
 
           <ProjectProgress progress={progress} wbsCount={wbsCount} />
 
-          <ProjectMetrics project={currentProject} />
+          <ProjectMetrics project={project} />
 
           <LatestUpdates
-            project={currentProject}
+            project={project}
             progress={progress}
             wbsCount={wbsCount}
           />

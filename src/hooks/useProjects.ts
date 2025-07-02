@@ -32,47 +32,6 @@ export interface CreateProjectData {
 const CACHE_KEY = 'projects_cache';
 const CACHE_DURATION = 30000; // 30 seconds
 
-const fallbackProjects: Project[] = [
-  {
-    id: "550e8400-e29b-41d4-a716-446655440000",
-    project_id: "SK23003",
-    name: "Gordon Street, Balwyn",
-    location: "Balwyn, VIC",
-    created_at: "2024-06-15T00:00:00Z",
-    status: "completed",
-    contract_price: "$2,450,000",
-    start_date: "2024-06-15",
-    deadline: "2024-08-30",
-    updated_at: "2024-06-15T00:00:00Z",
-    priority: "Medium"
-  },
-  {
-    id: "550e8400-e29b-41d4-a716-446655440001", 
-    project_id: "SK23004",
-    name: "Collins Street, Melbourne",
-    location: "Melbourne, VIC",
-    created_at: "2024-07-01T00:00:00Z",
-    status: "running",
-    contract_price: "$3,200,000",
-    start_date: "2024-07-01",
-    deadline: "2024-09-15",
-    updated_at: "2024-07-01T00:00:00Z",
-    priority: "High"
-  },
-  {
-    id: "550e8400-e29b-41d4-a716-446655440002",
-    project_id: "SK23005", 
-    name: "Richmond Terrace",
-    location: "Richmond, VIC",
-    created_at: "2024-06-01T00:00:00Z",
-    status: "pending",
-    contract_price: "$1,800,000",
-    start_date: "2024-08-01",
-    deadline: "2024-10-30",
-    updated_at: "2024-06-01T00:00:00Z",
-    priority: "Low"
-  }
-];
 
 // Global cache object
 let globalCache: {
@@ -98,7 +57,7 @@ const loadFromLocalStorage = (): Project[] => {
   } catch (error) {
     console.error('Error loading from localStorage:', error);
   }
-  return fallbackProjects;
+  return [];
 };
 
 // Save to localStorage
@@ -187,7 +146,7 @@ export const useProjects = () => {
 
         if (error) throw error;
         
-        const freshData = data || fallbackProjects;
+        const freshData = data || [];
         
         // Update cache
         globalCache.data = freshData;
@@ -236,8 +195,8 @@ export const useProjects = () => {
       setError(errorMessage);
       console.error('Error fetching project:', err);
       
-      // Return fallback project
-      return fallbackProjects[0];
+      // Return null when project not found
+      return null;
     } finally {
       setLoading(false);
     }
