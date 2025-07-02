@@ -40,6 +40,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     y: number;
     column?: string;
   }>({ show: false, x: 0, y: 0 });
+  const [leftWidth, setLeftWidth] = useState(40); // percentage
+  const [isDragging, setIsDragging] = useState(false);
 
   // Close context menu on click outside
   useEffect(() => {
@@ -47,6 +49,37 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
+
+  // Handle resizer drag
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      const container = document.querySelector('.schedule-container');
+      if (!container) return;
+      
+      const containerRect = container.getBoundingClientRect();
+      const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+      
+      // Limit between 20% and 80%
+      const clampedWidth = Math.min(Math.max(newLeftWidth, 20), 80);
+      setLeftWidth(clampedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   // SmartSheet-style hierarchical task data matching the reference image
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([
@@ -682,10 +715,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       </div>
 
       {/* Main Content - Split Layout */}
-      <div className="flex-1 overflow-hidden bg-background min-h-0">
+      <div className="flex-1 overflow-hidden bg-background min-h-0 schedule-container">
         <div className="flex h-full">
           {/* Left Side - Data Table */}
-          <div className="w-2/5 border-r border-border overflow-auto">
+          <div 
+            className="border-r border-border overflow-auto" 
+            style={{ width: `${leftWidth}%` }}
+          >
             {/* Table Header */}
             <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
               <div className="flex">
@@ -796,8 +832,19 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             </div>
           </div>
 
+          {/* Draggable Resizer */}
+          <div 
+            className="w-1 bg-border hover:bg-primary cursor-col-resize flex-shrink-0 relative group"
+            onMouseDown={() => setIsDragging(true)}
+          >
+            <div className="absolute inset-0 w-2 -ml-0.5 group-hover:bg-primary/20 transition-colors"></div>
+          </div>
+
           {/* Right Side - Gantt Chart */}
-          <div className="flex-1 overflow-auto">
+          <div 
+            className="overflow-auto" 
+            style={{ width: `${100 - leftWidth}%` }}
+          >
             {/* Gantt Chart Header */}
             <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
               <div className="flex">
