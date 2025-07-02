@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { Project } from "@/hooks/useProjects";
 
 interface GanttTask {
@@ -394,21 +398,43 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           />
         );
       } else if (field === 'startDate' || field === 'endDate') {
+        const selectedDate = new Date(value);
+        
         return (
-          <Input
-            type="date"
-            value={value}
-            onChange={(e) => updateTask(task.id, { [field]: e.target.value })}
-            onBlur={handleCellBlur}
-            className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
-            style={{ 
-              border: 'none', 
-              outline: 'none', 
-              boxShadow: 'none',
-              background: 'transparent'
-            }}
-            autoFocus
-          />
+          <Popover open={true} onOpenChange={(open) => !open && handleCellBlur()}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "h-full w-full text-xs justify-start text-left font-normal p-0 bg-transparent hover:bg-transparent border-0 focus:ring-0",
+                  !value && "text-muted-foreground"
+                )}
+                style={{ 
+                  border: 'none', 
+                  outline: 'none', 
+                  boxShadow: 'none',
+                  background: 'transparent'
+                }}
+              >
+                <CalendarIcon className="mr-1 h-3 w-3" />
+                {value ? format(selectedDate, "M/d/yy") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  if (date) {
+                    updateTask(task.id, { [field]: format(date, 'yyyy-MM-dd') });
+                  }
+                  handleCellBlur();
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         );
       } else {
         return (
