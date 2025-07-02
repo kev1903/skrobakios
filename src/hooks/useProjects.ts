@@ -88,6 +88,29 @@ export const useProjects = () => {
     }
   };
 
+  const getProject = async (projectId: string): Promise<Project | null> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch project';
+      setError(errorMessage);
+      console.error('Error fetching project:', err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const deleteProject = async (projectId: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
@@ -114,6 +137,7 @@ export const useProjects = () => {
   return {
     createProject,
     getProjects,
+    getProject,
     deleteProject,
     loading,
     error,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { ProjectHeader } from "./ProjectHeader";
@@ -16,12 +16,13 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const [project, setProject] = useState<Project | null>(null);
   const [bannerImage, setBannerImage] = useState<string>("");
   const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
-  const { getProjects, loading } = useProjects();
+  const { getProject, loading } = useProjects();
 
   useEffect(() => {
     const fetchProject = async () => {
-      const projects = await getProjects();
-      const foundProject = projects.find(p => p.id === projectId);
+      if (!projectId) return;
+      
+      const foundProject = await getProject(projectId);
       if (foundProject) {
         setProject(foundProject);
         
@@ -44,10 +45,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       }
     };
 
-    if (projectId) {
-      fetchProject();
-    }
-  }, [projectId]);
+    fetchProject();
+  }, [projectId, getProject]);
 
   // Fallback project data if no project is found
   const fallbackProject: Project = {
@@ -119,8 +118,15 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     });
   };
 
-  const progress = getProgress(currentProject.status);
-  const wbsCount = Math.floor(Math.random() * 10) + 8;
+  const progress = useMemo(() => getProgress(currentProject.status), [currentProject.status]);
+  const wbsCount = useMemo(() => {
+    // Generate consistent count based on project ID to avoid changing on each render
+    const hash = currentProject.id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    return Math.abs(hash % 10) + 8;
+  }, [currentProject.id]);
 
   if (loading) {
     return (
