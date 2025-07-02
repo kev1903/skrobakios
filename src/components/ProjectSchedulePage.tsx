@@ -451,7 +451,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               onClick={() => handleCellEdit(task.id, field)}
             >
               <CalendarIcon className="mr-1 h-3 w-3" />
-              {value ? new Date(value).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : 'Pick date'}
+              {value ? format(new Date(value), "dd/MM/yy") : 'Pick date'}
             </div>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
