@@ -17,7 +17,7 @@ export const useProjectState = () => {
         } else {
           // Fallback project for demo purposes
           setCurrentProject({
-            id: "1",
+            id: "550e8400-e29b-41d4-a716-446655440000",
             project_id: "SK23003",
             name: "Gordon Street, Balwyn",
             location: "Balwyn, VIC",
