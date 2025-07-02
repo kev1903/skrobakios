@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon, Settings } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon, Settings, MoreVertical, Trash, Eye, EyeOff, Lock, Unlock, BarChart3, FileText, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,6 +34,19 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    show: boolean;
+    x: number;
+    y: number;
+    column?: string;
+  }>({ show: false, x: 0, y: 0 });
+
+  // Close context menu on click outside
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu({ show: false, x: 0, y: 0 });
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // SmartSheet-style hierarchical task data matching the reference image
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([
@@ -515,6 +528,71 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     }
   };
 
+  const handleContextMenu = (e: React.MouseEvent, column: string) => {
+    e.preventDefault();
+    setContextMenu({
+      show: true,
+      x: e.clientX,
+      y: e.clientY,
+      column
+    });
+  };
+
+  const handleContextMenuAction = (action: string) => {
+    const { column } = contextMenu;
+    console.log(`Action: ${action} on column: ${column}`);
+    
+    switch (action) {
+      case 'insert-left':
+        // Add column to the left
+        break;
+      case 'insert-right':
+        // Add column to the right
+        break;
+      case 'delete-column':
+        // Delete column
+        break;
+      case 'rename-column':
+        // Rename column
+        break;
+      case 'add-description':
+        // Add column description
+        break;
+      case 'filter':
+        // Filter column
+        break;
+      case 'sort-rows':
+        // Sort rows
+        break;
+      case 'lock-column':
+        // Lock column
+        break;
+      case 'freeze-column':
+        // Freeze column
+        break;
+      case 'hide-column':
+        // Hide column
+        break;
+      case 'show-gantt':
+        // Show/hide gantt
+        break;
+      case 'edit-project-settings':
+        onNavigate('schedule-settings');
+        break;
+      case 'expand-all':
+        setExpandedTasks(new Set(ganttTasks.map(t => t.id)));
+        break;
+      case 'collapse-all':
+        setExpandedTasks(new Set());
+        break;
+      case 'edit-column-properties':
+        // Edit column properties
+        break;
+    }
+    
+    setContextMenu({ show: false, x: 0, y: 0 });
+  };
+
   const flatTasks = flattenTasks(ganttTasks);
   const timelineWeeks = getTimelineWeeks();
 
@@ -631,11 +709,36 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             {/* Left Grid Headers */}
             <div className="flex glass-light border-r border-border">
               <div className="w-8 px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border"></div>
-              <div className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Name</div>
-              <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Duration (Auto)</div>
-              <div className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Start Date</div>
-              <div className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border">End Date</div>
-              <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Predecessor</div>
+              <div 
+                className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                onContextMenu={(e) => handleContextMenu(e, 'name')}
+              >
+                Name
+              </div>
+              <div 
+                className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                onContextMenu={(e) => handleContextMenu(e, 'duration')}
+              >
+                Duration (Auto)
+              </div>
+              <div 
+                className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                onContextMenu={(e) => handleContextMenu(e, 'startDate')}
+              >
+                Start Date
+              </div>
+              <div 
+                className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                onContextMenu={(e) => handleContextMenu(e, 'endDate')}
+              >
+                End Date
+              </div>
+              <div 
+                className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                onContextMenu={(e) => handleContextMenu(e, 'predecessor')}
+              >
+                Predecessor
+              </div>
             </div>
             
             {/* Timeline Headers */}
@@ -754,6 +857,152 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
         </div>
       </div>
+
+      {/* Context Menu */}
+      {contextMenu.show && (
+        <div
+          className="fixed bg-card border border-border rounded-md shadow-lg py-1 z-50 min-w-[200px]"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="px-3 py-1 text-xs font-medium text-muted-foreground border-b border-border mb-1">
+            Column: {contextMenu.column}
+          </div>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('insert-left')}
+          >
+            <Plus className="w-3 h-3" />
+            <span>Insert Column Left</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('insert-right')}
+          >
+            <Plus className="w-3 h-3" />
+            <span>Insert Column Right</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2 text-destructive"
+            onClick={() => handleContextMenuAction('delete-column')}
+          >
+            <Trash className="w-3 h-3" />
+            <span>Delete Column</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('rename-column')}
+          >
+            <Edit2 className="w-3 h-3" />
+            <span>Rename Column...</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('add-description')}
+          >
+            <FileText className="w-3 h-3" />
+            <span>Add Column Description...</span>
+          </button>
+          
+          <div className="border-t border-border my-1"></div>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('filter')}
+          >
+            <Filter className="w-3 h-3" />
+            <span>Filter...</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('sort-rows')}
+          >
+            <BarChart3 className="w-3 h-3" />
+            <span>Sort Rows...</span>
+          </button>
+          
+          <div className="border-t border-border my-1"></div>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('lock-column')}
+          >
+            <Lock className="w-3 h-3" />
+            <span>Lock Column</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('freeze-column')}
+          >
+            <Eye className="w-3 h-3" />
+            <span>Freeze Column</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('hide-column')}
+          >
+            <EyeOff className="w-3 h-3" />
+            <span>Hide Column</span>
+          </button>
+          
+          <div className="border-t border-border my-1"></div>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('show-gantt')}
+          >
+            <BarChart3 className="w-3 h-3" />
+            <span>Show Gantt</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('edit-project-settings')}
+          >
+            <Settings className="w-3 h-3" />
+            <span>Edit Project Settings...</span>
+          </button>
+          
+          <div className="border-t border-border my-1"></div>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('expand-all')}
+          >
+            <ChevronDown className="w-3 h-3" />
+            <span>Expand All</span>
+          </button>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('collapse-all')}
+          >
+            <ChevronUp className="w-3 h-3" />
+            <span>Collapse All</span>
+          </button>
+          
+          <div className="border-t border-border my-1"></div>
+          
+          <button
+            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+            onClick={() => handleContextMenuAction('edit-column-properties')}
+          >
+            <Edit2 className="w-3 h-3" />
+            <span>Edit Column Properties...</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
