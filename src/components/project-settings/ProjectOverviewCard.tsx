@@ -11,6 +11,7 @@ import { Info } from "lucide-react";
 interface ProjectOverviewCardProps {
   project: Project;
   formData: {
+    project_id: string;
     priority: string;
     status: string;
   };
@@ -46,9 +47,10 @@ export const ProjectOverviewCard = ({
               </Label>
               <Input
                 id="project-id"
-                value={project.project_id}
-                disabled
-                className="bg-gray-50 font-mono text-sm"
+                value={formData.project_id}
+                onChange={(e) => onInputChange("project_id", e.target.value)}
+                className="font-mono text-sm"
+                placeholder="Enter project ID"
               />
             </div>
             

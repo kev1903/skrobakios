@@ -21,6 +21,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   const { deleteProject, updateProject, loading } = useProjects();
   const [activeTab, setActiveTab] = useState('general');
   const [formData, setFormData] = useState({
+    project_id: project.project_id,
     name: project.name,
     description: project.description || "",
     location: project.location || "",
@@ -79,6 +80,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     
     // Prepare project updates (only include fields that exist in the database)
     const projectUpdates = {
+      project_id: formData.project_id,
       name: formData.name,
       description: formData.description,
       location: formData.location,
