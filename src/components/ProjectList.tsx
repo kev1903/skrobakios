@@ -179,7 +179,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                   </TableHead>
                   <TableHead className="font-medium text-gray-700">ID</TableHead>
                   <TableHead className="font-medium text-gray-700">Project Name</TableHead>
-                  <TableHead className="font-medium text-gray-700">Location</TableHead>
+                  <TableHead className="font-medium text-gray-700">Description</TableHead>
                   <TableHead className="font-medium text-gray-700">Start Date</TableHead>
                   <TableHead className="font-medium text-gray-700">Due Date</TableHead>
                   <TableHead className="font-medium text-gray-700">Status</TableHead>
@@ -211,7 +211,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                         </button>
                       </TableCell>
                       <TableCell className="text-gray-600">
-                        {project.location || '-'}
+                        {project.description || '-'}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {project.start_date ? formatDate(project.start_date) : '-'}
