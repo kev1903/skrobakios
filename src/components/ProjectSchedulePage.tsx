@@ -51,6 +51,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     predecessor: 80   // w-20 = 80px
   });
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+  const [columnNames, setColumnNames] = useState({
+    name: 'Name',
+    duration: 'Duration (Auto)',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    predecessor: 'Predecessor'
+  });
+  const [renamingColumn, setRenamingColumn] = useState<string | null>(null);
+  const [newColumnName, setNewColumnName] = useState('');
 
   // Close context menu on click outside
   useEffect(() => {
@@ -630,7 +639,10 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         // Delete column
         break;
       case 'rename-column':
-        // Rename column
+        if (column && column !== 'rowNumber') {
+          setRenamingColumn(column);
+          setNewColumnName(columnNames[column as keyof typeof columnNames] || '');
+        }
         break;
       case 'add-description':
         // Add column description
@@ -787,7 +799,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   data-column="name"
                   onContextMenu={(e) => handleContextMenu(e, 'name')}
                 >
-                  Name
+                  {columnNames.name}
                   <div 
                     className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
                     onMouseDown={(e) => {
@@ -803,7 +815,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   data-column="duration"
                   onContextMenu={(e) => handleContextMenu(e, 'duration')}
                 >
-                  Duration (Auto)
+                  {columnNames.duration}
                   <div 
                     className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
                     onMouseDown={(e) => {
@@ -819,7 +831,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   data-column="startDate"
                   onContextMenu={(e) => handleContextMenu(e, 'startDate')}
                 >
-                  Start Date
+                  {columnNames.startDate}
                   <div 
                     className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
                     onMouseDown={(e) => {
@@ -835,7 +847,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   data-column="endDate"
                   onContextMenu={(e) => handleContextMenu(e, 'endDate')}
                 >
-                  End Date
+                  {columnNames.endDate}
                   <div 
                     className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
                     onMouseDown={(e) => {
@@ -851,7 +863,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   data-column="predecessor"
                   onContextMenu={(e) => handleContextMenu(e, 'predecessor')}
                 >
-                  Predecessor
+                  {columnNames.predecessor}
                   <div 
                     className="absolute right-0 top-0 w-1 h-full bg-transparent hover:bg-primary cursor-col-resize z-20"
                     onMouseDown={(e) => {
@@ -1158,6 +1170,69 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             <Edit2 className="w-3 h-3" />
             <span>Edit Column Properties...</span>
           </button>
+        </div>
+      )}
+
+      {/* Column Rename Dialog */}
+      {renamingColumn && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border border-border rounded-lg p-6 w-96 max-w-[90vw]">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Rename Column</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-2">
+                  Column Name
+                </label>
+                <Input
+                  value={newColumnName}
+                  onChange={(e) => setNewColumnName(e.target.value)}
+                  placeholder="Enter new column name"
+                  className="w-full"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      // Save the rename
+                      setColumnNames(prev => ({
+                        ...prev,
+                        [renamingColumn]: newColumnName
+                      }));
+                      setRenamingColumn(null);
+                      setNewColumnName('');
+                    }
+                    if (e.key === 'Escape') {
+                      // Cancel rename
+                      setRenamingColumn(null);
+                      setNewColumnName('');
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setRenamingColumn(null);
+                    setNewColumnName('');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    setColumnNames(prev => ({
+                      ...prev,
+                      [renamingColumn]: newColumnName
+                    }));
+                    setRenamingColumn(null);
+                    setNewColumnName('');
+                  }}
+                  disabled={!newColumnName.trim()}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
