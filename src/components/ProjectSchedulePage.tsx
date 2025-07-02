@@ -670,32 +670,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               <span>Files</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Search and Filter Bar */}
-      <div className="glass-light border-b border-border px-4 md:px-6 py-3 backdrop-blur-sm flex-shrink-0">
-        <div className="flex items-center justify-between gap-4">
-          {/* Search */}
-          <div className="flex items-center space-x-4 min-w-0 flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search tasks..."
-                className="pl-10 w-full max-w-sm h-9 text-sm input-glass border-border focus:border-primary"
-              />
-            </div>
-          </div>
           
-          {/* Action Buttons */}
+          {/* Export Button */}
           <div className="flex items-center space-x-2 flex-shrink-0">
-            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all hidden sm:flex">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all">
-              <Filter className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Filter</span>
+            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all flex items-center space-x-2">
+              <Download className="w-4 h-4" />
+              <span>Export</span>
             </Button>
           </div>
         </div>
