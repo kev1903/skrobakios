@@ -387,9 +387,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const timelineWeeks = getTimelineWeeks();
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+      <div className="glass-card border-b border-border px-6 py-4 shadow-sm backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
@@ -402,14 +402,14 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               <span>Back to Project</span>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Project Schedule - Gantt Chart</h1>
-              <p className="text-gray-600">{project.name}</p>
+              <h1 className="text-2xl font-poppins font-bold text-foreground heading-modern">Project Schedule</h1>
+              <p className="text-muted-foreground body-modern">{project.name} - Timeline View</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button 
               onClick={() => addTask()} 
-              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+              className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="w-4 h-4" />
               <span>Add Task</span>
@@ -419,35 +419,35 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200 px-6">
+      <div className="glass-light border-b border-border px-6 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           {/* Tab Navigation */}
           <div className="flex space-x-8">
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Overview</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>List</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Board</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm font-medium text-primary border-b-2 border-primary">
               <span>Timeline</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Calendar</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Workflow</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Dashboard</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Messages</span>
             </button>
-            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-muted-foreground hover:text-foreground border-b-2 border-transparent hover:border-muted transition-colors">
               <span>Files</span>
             </button>
           </div>
@@ -455,26 +455,26 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3">
+      <div className="glass-light border-b border-border px-6 py-3 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           {/* Search */}
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search tasks..."
-                className="pl-10 w-80 h-9 text-sm bg-gray-50 border-gray-200 focus:bg-white"
+                className="pl-10 w-80 h-9 text-sm input-glass border-border focus:border-primary"
               />
             </div>
           </div>
           
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" className="h-9 text-sm bg-white border-gray-200 hover:bg-gray-50">
+            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm" className="h-9 text-sm bg-white border-gray-200 hover:bg-gray-50">
+            <Button variant="outline" size="sm" className="h-9 text-sm glass-hover border-border hover:border-primary transition-all">
               <Filter className="w-4 h-4 mr-2" />
               Filter
             </Button>
@@ -483,28 +483,28 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       </div>
 
       {/* SmartSheet-style Gantt Chart */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-background">
         <div className="w-full min-w-[1200px]">
           {/* Table Header */}
-          <div className="flex bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+          <div className="flex glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
             {/* Left Grid Headers */}
-            <div className="flex bg-gray-50 border-r border-gray-200">
-              <div className="w-8 px-2 py-3 text-xs font-medium text-gray-700 border-r border-gray-200"></div>
-              <div className="w-80 px-3 py-3 text-xs font-medium text-gray-700 border-r border-gray-200">Name</div>
-              <div className="w-20 px-3 py-3 text-xs font-medium text-gray-700 border-r border-gray-200">Duration</div>
-              <div className="w-24 px-3 py-3 text-xs font-medium text-gray-700 border-r border-gray-200">Start Date</div>
-              <div className="w-24 px-3 py-3 text-xs font-medium text-gray-700 border-r border-gray-200">End Date</div>
-              <div className="w-20 px-3 py-3 text-xs font-medium text-gray-700 border-r border-gray-200">Predecessor</div>
+            <div className="flex glass-light border-r border-border">
+              <div className="w-8 px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border"></div>
+              <div className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Name</div>
+              <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Duration</div>
+              <div className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Start Date</div>
+              <div className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border">End Date</div>
+              <div className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border">Predecessor</div>
             </div>
             
             {/* Timeline Headers */}
-            <div className="flex bg-gray-50">
+            <div className="flex glass-light">
               {timelineWeeks.map((week, index) => (
-                <div key={index} className="w-[200px] px-2 py-1 border-r border-gray-200 text-center">
-                  <div className="text-xs font-medium text-gray-700">
+                <div key={index} className="w-[200px] px-2 py-1 border-r border-border text-center">
+                  <div className="text-xs font-medium text-foreground">
                     {week.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
                     {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dayIndex) => (
                       <span key={dayIndex} className="w-6 text-center">{day}</span>
                     ))}
@@ -515,23 +515,23 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
 
           {/* Task Rows */}
-          <div className="bg-white">
+          <div className="bg-card">
             {flatTasks.map((task, rowIndex) => (
-              <div key={task.id} className="flex border-b border-gray-100 hover:bg-gray-50 group">
+              <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors">
                 {/* Left Grid Cells */}
-                <div className="flex bg-white border-r border-gray-200">
+                <div className="flex bg-card border-r border-border">
                   {/* Row Number */}
-                  <div className="w-8 px-2 py-2 text-xs text-gray-500 border-r border-gray-200 text-center">
+                  <div className="w-8 px-2 py-2 text-xs text-muted-foreground border-r border-border text-center">
                     {rowIndex + 1}
                   </div>
                   
                   {/* Task Name */}
-                  <div className="w-80 px-3 py-2 border-r border-gray-200 flex items-center">
+                  <div className="w-80 px-3 py-2 border-r border-border flex items-center">
                     <div className="flex items-center" style={{ marginLeft: `${task.level * 20}px` }}>
                       {task.children && task.children.length > 0 && (
                         <button
                           onClick={() => toggleExpanded(task.id)}
-                          className="mr-2 p-1 hover:bg-gray-200 rounded"
+                          className="mr-2 p-1 hover:bg-muted rounded transition-colors"
                         >
                           {expandedTasks.has(task.id) ? (
                             <ChevronDown className="w-3 h-3" />
@@ -545,12 +545,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                           value={task.name}
                           onChange={(e) => updateTask(task.id, { name: e.target.value })}
                           onBlur={() => setEditingTask(null)}
-                          className="h-6 text-xs border-none p-0 focus:ring-0"
+                          className="h-6 text-xs border-none p-0 focus:ring-0 bg-transparent"
                           autoFocus
                         />
                       ) : (
                         <span 
-                          className="text-xs cursor-pointer hover:text-blue-600"
+                          className="text-xs cursor-pointer hover:text-primary transition-colors"
                           onClick={() => setEditingTask(task.id)}
                         >
                           {task.name}
@@ -560,22 +560,22 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   </div>
                   
                   {/* Duration */}
-                  <div className="w-20 px-3 py-2 text-xs text-gray-700 border-r border-gray-200 text-center">
+                  <div className="w-20 px-3 py-2 text-xs text-foreground border-r border-border text-center">
                     {task.duration}d
                   </div>
                   
                   {/* Start Date */}
-                  <div className="w-24 px-3 py-2 text-xs text-gray-700 border-r border-gray-200">
+                  <div className="w-24 px-3 py-2 text-xs text-foreground border-r border-border">
                     {new Date(task.startDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
                   </div>
                   
                   {/* End Date */}
-                  <div className="w-24 px-3 py-2 text-xs text-gray-700 border-r border-gray-200">
+                  <div className="w-24 px-3 py-2 text-xs text-foreground border-r border-border">
                     {new Date(task.endDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
                   </div>
                   
                   {/* Predecessor */}
-                  <div className="w-20 px-3 py-2 text-xs text-gray-700 border-r border-gray-200 text-center">
+                  <div className="w-20 px-3 py-2 text-xs text-foreground border-r border-border text-center">
                     {task.predecessor}
                   </div>
                 </div>
@@ -585,14 +585,14 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   {timelineWeeks.map((week, weekIndex) => {
                     const barStyle = getTaskBarStyle(task, week);
                     return (
-                      <div key={weekIndex} className="w-[200px] h-8 border-r border-gray-100 relative">
+                      <div key={weekIndex} className="w-[200px] h-8 border-r border-border relative">
                         {/* Weekend shading */}
-                        <div className="absolute right-0 top-0 w-[28.5%] h-full bg-gray-100 opacity-30"></div>
+                        <div className="absolute right-0 top-0 w-[28.5%] h-full bg-muted/30 opacity-50"></div>
                         
                         {/* Task Bar */}
                         {barStyle && (
                           <div
-                            className="absolute top-1 h-6 rounded-sm flex items-center text-white text-xs font-medium px-1"
+                            className="absolute top-1 h-6 rounded-sm flex items-center text-white text-xs font-medium px-1 shadow-sm"
                             style={barStyle}
                           >
                             <span className="truncate">{task.name}</span>
