@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Download, Filter, Search, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,11 +32,16 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
     { id: "files", label: "Files", icon: null }
   ];
 
-  useEffect(() => {
+  // Memoize the task loading to prevent infinite loops
+  const loadTasks = useCallback(() => {
     if (project?.id) {
       loadTasksForProject(project.id);
     }
   }, [project?.id, loadTasksForProject]);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   const renderActiveView = () => {
     switch (activeTab) {
