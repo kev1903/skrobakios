@@ -25,6 +25,7 @@ import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
 import { SalesPage } from "@/components/SalesPage";
+import { WBSPage } from "@/components/WBSPage";
 import { Project } from "@/hooks/useProjects";
 
 interface ContentRendererProps {
@@ -84,6 +85,10 @@ export const ContentRenderer = ({
     case "project-team":
       return currentProject ? (
         <ProjectTeamPage project={currentProject} onNavigate={onNavigate} />
+      ) : renderProjectNotFound();
+    case "project-wbs":
+      return currentProject ? (
+        <WBSPage project={currentProject} onNavigate={onNavigate} />
       ) : renderProjectNotFound();
     case "gantt-chart":
       return currentProject ? (

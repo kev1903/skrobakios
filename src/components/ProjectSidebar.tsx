@@ -34,6 +34,8 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
       onNavigate("project-tasks");
     } else if (itemId === "files") {
       onNavigate("project-files");
+    } else if (itemId === "sections") {
+      onNavigate("project-wbs");
     } else if (itemId === "setting") {
       onNavigate("project-settings");
     } else if (itemId === "schedule") {
