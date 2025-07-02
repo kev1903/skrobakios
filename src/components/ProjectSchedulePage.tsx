@@ -681,113 +681,96 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         </div>
       </div>
 
-      {/* SmartSheet-style Gantt Chart */}
-      <div className="flex-1 overflow-auto bg-background min-h-0">
-        <div className="w-full min-w-[1200px] h-full">
-          {/* Table Header */}
-          <div className="flex glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
-            {/* Left Grid Headers */}
-            <div className="flex glass-light border-r border-border">
-              <div className="w-8 px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border"></div>
-              <div 
-                className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
-                onContextMenu={(e) => handleContextMenu(e, 'name')}
-              >
-                Name
-              </div>
-              <div 
-                className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
-                onContextMenu={(e) => handleContextMenu(e, 'duration')}
-              >
-                Duration (Auto)
-              </div>
-              <div 
-                className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
-                onContextMenu={(e) => handleContextMenu(e, 'startDate')}
-              >
-                Start Date
-              </div>
-              <div 
-                className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
-                onContextMenu={(e) => handleContextMenu(e, 'endDate')}
-              >
-                End Date
-              </div>
-              <div 
-                className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
-                onContextMenu={(e) => handleContextMenu(e, 'predecessor')}
-              >
-                Predecessor
-              </div>
-            </div>
-            
-            {/* Timeline Headers */}
-            <div className="flex glass-light">
-              {timelineWeeks.map((week, index) => (
-                <div key={index} className="w-[200px] px-2 py-1 border-r border-border text-center">
-                  <div className="text-xs font-medium text-foreground">
-                    {week.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dayIndex) => (
-                      <span key={dayIndex} className="w-6 text-center">{day}</span>
-                    ))}
-                  </div>
+      {/* Main Content - Split Layout */}
+      <div className="flex-1 overflow-hidden bg-background min-h-0">
+        <div className="flex h-full">
+          {/* Left Side - Data Table */}
+          <div className="w-2/5 border-r border-border overflow-auto">
+            {/* Table Header */}
+            <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
+              <div className="flex">
+                <div className="w-8 px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border"></div>
+                <div 
+                  className="w-80 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  onContextMenu={(e) => handleContextMenu(e, 'name')}
+                >
+                  Name
                 </div>
-              ))}
+                <div 
+                  className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  onContextMenu={(e) => handleContextMenu(e, 'duration')}
+                >
+                  Duration (Auto)
+                </div>
+                <div 
+                  className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  onContextMenu={(e) => handleContextMenu(e, 'startDate')}
+                >
+                  Start Date
+                </div>
+                <div 
+                  className="w-24 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  onContextMenu={(e) => handleContextMenu(e, 'endDate')}
+                >
+                  End Date
+                </div>
+                <div 
+                  className="w-20 px-3 py-3 text-xs font-medium text-foreground border-r border-border cursor-pointer hover:bg-muted/20 transition-colors"
+                  onContextMenu={(e) => handleContextMenu(e, 'predecessor')}
+                >
+                  Predecessor
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Task Rows */}
-          <div className="bg-card">
-            {flatTasks.map((task, rowIndex) => (
-              <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors">
-                {/* Left Grid Cells */}
-                <div className="flex bg-card border-r border-border">
+            {/* Task Rows */}
+            <div className="bg-card">
+              {flatTasks.map((task, rowIndex) => (
+                <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors">
                   {/* Row Number */}
                   <div className="w-8 px-2 py-2 text-xs text-muted-foreground border-r border-border text-center">
                     {rowIndex + 1}
                   </div>
                   
-                   {/* Task Name */}
-                   <div className="w-80 px-3 py-2 border-r border-border flex items-center">
-                     <div className="flex items-center w-full" style={{ marginLeft: `${task.level * 20}px` }}>
-                       {task.children && task.children.length > 0 && (
-                         <button
-                           onClick={() => toggleExpanded(task.id)}
-                           className="mr-2 p-1 hover:bg-muted rounded transition-colors"
-                         >
-                           {expandedTasks.has(task.id) ? (
-                             <ChevronDown className="w-3 h-3" />
-                           ) : (
-                             <ChevronRight className="w-3 h-3" />
-                           )}
-                         </button>
-                       )}
-                       {editingTask === task.id ? (
-                         <Input
-                           value={task.name}
-                           onChange={(e) => updateTask(task.id, { name: e.target.value })}
-                           onBlur={() => setEditingTask(null)}
-                           className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
-                           style={{ 
-                             border: 'none', 
-                             outline: 'none', 
-                             boxShadow: 'none',
-                             background: 'transparent'
-                           }}
-                           autoFocus
-                         />
-                       ) : (
-                         <div 
-                           className="text-xs cursor-pointer hover:bg-muted/20 transition-colors flex-1 h-full flex items-center"
-                           onClick={() => setEditingTask(task.id)}
-                         >
-                           {task.name}
-                         </div>
-                       )}
-                     </div>
-                   </div>
+                  {/* Task Name */}
+                  <div className="w-80 px-3 py-2 border-r border-border flex items-center">
+                    <div className="flex items-center w-full" style={{ marginLeft: `${task.level * 20}px` }}>
+                      {task.children && task.children.length > 0 && (
+                        <button
+                          onClick={() => toggleExpanded(task.id)}
+                          className="mr-2 p-1 hover:bg-muted rounded transition-colors"
+                        >
+                          {expandedTasks.has(task.id) ? (
+                            <ChevronDown className="w-3 h-3" />
+                          ) : (
+                            <ChevronRight className="w-3 h-3" />
+                          )}
+                        </button>
+                      )}
+                      {editingTask === task.id ? (
+                        <Input
+                          value={task.name}
+                          onChange={(e) => updateTask(task.id, { name: e.target.value })}
+                          onBlur={() => setEditingTask(null)}
+                          className="h-full w-full text-xs bg-transparent focus:ring-0 focus:outline-none"
+                          style={{ 
+                            border: 'none', 
+                            outline: 'none', 
+                            boxShadow: 'none',
+                            background: 'transparent'
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <div 
+                          className="text-xs cursor-pointer hover:bg-muted/20 transition-colors flex-1 h-full flex items-center"
+                          onClick={() => setEditingTask(task.id)}
+                        >
+                          {task.name}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   
                   {/* Duration */}
                   <div className="w-20 px-3 py-2 border-r border-border text-center">
@@ -809,9 +792,34 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                     {renderEditableCell(task, 'predecessor', task.predecessor, 'text-xs text-foreground')}
                   </div>
                 </div>
-                
-                {/* Timeline Cells */}
-                <div className="flex">
+              ))}
+            </div>
+          </div>
+
+          {/* Right Side - Gantt Chart */}
+          <div className="flex-1 overflow-auto">
+            {/* Gantt Chart Header */}
+            <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
+              <div className="flex">
+                {timelineWeeks.map((week, index) => (
+                  <div key={index} className="w-[200px] px-2 py-1 border-r border-border text-center">
+                    <div className="text-xs font-medium text-foreground">
+                      {week.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dayIndex) => (
+                        <span key={dayIndex} className="w-6 text-center">{day}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Gantt Chart Rows */}
+            <div className="bg-card">
+              {flatTasks.map((task, rowIndex) => (
+                <div key={task.id} className="flex border-b border-border hover:bg-muted/50 group transition-colors">
                   {timelineWeeks.map((week, weekIndex) => {
                     const barStyle = getTaskBarStyle(task, week);
                     return (
@@ -832,8 +840,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                     );
                   })}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
