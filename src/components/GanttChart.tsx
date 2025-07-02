@@ -99,7 +99,7 @@ export const GanttChart = ({ tasks, startDate, endDate }: GanttChartProps) => {
         <div className="flex-1 bg-gray-50">
           <div className="flex">
             {weeks.map((week, index) => (
-              <div key={index} className="flex-1 min-w-[200px] p-2 border-r border-gray-200 text-center">
+              <div key={index} className="flex-1 min-w-[200px] p-2 border-r border-gray-200 text-center last:border-r-0">
                 <div className="text-xs text-gray-600 mb-1">
                   W{Math.floor(index / 4) + 25} {week.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {week.end.toLocaleDateString('en-US', { day: 'numeric' })}
                 </div>
@@ -153,7 +153,7 @@ export const GanttChart = ({ tasks, startDate, endDate }: GanttChartProps) => {
             <div className="flex-1 relative h-12 bg-white">
               <div className="absolute inset-0 flex">
                 {weeks.map((_, weekIndex) => (
-                  <div key={weekIndex} className="flex-1 min-w-[200px] border-r border-gray-100">
+                  <div key={weekIndex} className="flex-1 min-w-[200px] border-r border-gray-200 last:border-r-0">
                     <div className="h-full relative">
                       {/* Weekend shading */}
                       <div className="absolute right-0 top-0 w-[28.5%] h-full bg-gray-50 opacity-50"></div>
