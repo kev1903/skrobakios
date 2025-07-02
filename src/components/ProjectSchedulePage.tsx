@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2 } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -413,6 +413,70 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             >
               <Plus className="w-4 h-4" />
               <span>Add Task</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-gray-200 px-6">
+        <div className="flex items-center justify-between">
+          {/* Tab Navigation */}
+          <div className="flex space-x-8">
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Overview</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>List</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Board</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+              <span>Timeline</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Calendar</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Workflow</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Dashboard</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Messages</span>
+            </button>
+            <button className="flex items-center space-x-2 px-1 py-3 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+              <span>Files</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter Bar */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="flex items-center justify-between">
+          {/* Search */}
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search tasks..."
+                className="pl-10 w-80 h-9 text-sm bg-gray-50 border-gray-200 focus:bg-white"
+              />
+            </div>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" className="h-9 text-sm bg-white border-gray-200 hover:bg-gray-50">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm" className="h-9 text-sm bg-white border-gray-200 hover:bg-gray-50">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
             </Button>
           </div>
         </div>
