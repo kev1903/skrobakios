@@ -36,7 +36,7 @@ export const ProjectHeader = ({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.name}</h1>
-          <p className="text-gray-600">{project.location}</p>
+          <p className="text-gray-600">{project.description || 'No description available'}</p>
         </div>
         <Button 
           className="bg-blue-600 hover:bg-blue-700 text-white"
