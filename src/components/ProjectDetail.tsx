@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { ProjectHeader } from "./ProjectHeader";
@@ -31,13 +31,23 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const [project, setProject] = useState<Project | null>(null);
   const [bannerImage, setBannerImage] = useState<string>("");
   const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
+  const [localLoading, setLocalLoading] = useState(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { getProject, loading } = useProjects();
 
   useEffect(() => {
+    // Set timeout for loading state
+    timeoutRef.current = setTimeout(() => {
+      setLocalLoading(false);
+    }, 3000); // 3 second timeout
+
     const fetchProject = async () => {
+      setLocalLoading(true);
+      
       if (!projectId) {
         // Use fallback project when no projectId is provided
         setProject(fallbackProject);
+        setLocalLoading(false);
         return;
       }
       
@@ -70,10 +80,21 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         console.error('Error fetching project:', error);
         // Use fallback project on error
         setProject(fallbackProject);
+      } finally {
+        setLocalLoading(false);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
       }
     };
 
     fetchProject();
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [projectId, getProject]);
 
   const currentProject = project || fallbackProject;
@@ -141,7 +162,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     return Math.abs(hash % 10) + 8;
   }, [currentProject.id]);
 
-  if (loading) {
+  if (localLoading && !project) {
     return (
       <div className="h-screen flex bg-gray-50">
         <div className="flex items-center justify-center w-full">

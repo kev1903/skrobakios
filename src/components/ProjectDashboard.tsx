@@ -16,12 +16,18 @@ export const ProjectDashboard = ({ onSelectProject, onNavigate }: ProjectDashboa
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const fetchedProjects = await getProjects();
-      setProjects(fetchedProjects);
+      try {
+        const fetchedProjects = await getProjects();
+        setProjects(fetchedProjects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        // Set empty array on error to prevent infinite loading
+        setProjects([]);
+      }
     };
 
     fetchProjects();
-  }, []);
+  }, [getProjects]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
