@@ -22,8 +22,8 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   const { wbsItems, loading, createWBSItem, updateWBSItem, deleteWBSItem, generateWBSId, calculateDuration, findWBSItem } = useWBS(project.id);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
-    assignee: '',
-    progress: '',
+    assignee: 'all',
+    progress: 'all',
     startDate: '',
   });
 
@@ -344,8 +344,8 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
               <SelectValue placeholder="Filter by assignee" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Assignees</SelectItem>
-              {members.map((member) => (
+              <SelectItem value="all">All Assignees</SelectItem>
+              {members.filter(member => member.name && member.name.trim() !== '').map((member) => (
                 <SelectItem key={member.email} value={member.name}>
                   {member.name}
                 </SelectItem>
@@ -358,7 +358,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
               <SelectValue placeholder="Filter by progress" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Progress</SelectItem>
+              <SelectItem value="all">All Progress</SelectItem>
               <SelectItem value="0-25">0-25%</SelectItem>
               <SelectItem value="26-50">26-50%</SelectItem>
               <SelectItem value="51-75">51-75%</SelectItem>
