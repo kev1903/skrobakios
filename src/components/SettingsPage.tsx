@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, Shield, User, Bell, Palette, Globe } from 'lucide-react';
+import { ArrowLeft, Settings, Shield, User, Bell, Palette, Globe, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminPanel } from './admin/AdminPanel';
+import { RoleManagement } from './admin/RoleManagement';
 import { useTheme } from '@/hooks/useTheme';
 
 interface SettingsPageProps {
@@ -50,7 +51,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 backdrop-blur-sm bg-white/60">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 backdrop-blur-sm bg-white/60">
               <TabsTrigger value="general" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
@@ -68,10 +69,16 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                 <span className="hidden sm:inline">Appearance</span>
               </TabsTrigger>
               {isSuperAdmin && (
-                <TabsTrigger value="admin" className="flex items-center space-x-2">
-                  <Shield className="w-4 h-4" />
-                  <span className="hidden sm:inline">Admin</span>
-                </TabsTrigger>
+                <>
+                  <TabsTrigger value="roles" className="flex items-center space-x-2">
+                    <Users className="w-4 h-4" />
+                    <span className="hidden sm:inline">Roles</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="admin" className="flex items-center space-x-2">
+                    <Shield className="w-4 h-4" />
+                    <span className="hidden sm:inline">Admin</span>
+                  </TabsTrigger>
+                </>
               )}
             </TabsList>
 
@@ -208,9 +215,15 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
             </TabsContent>
 
             {isSuperAdmin && (
-              <TabsContent value="admin" className="space-y-6">
-                <AdminPanel onNavigate={onNavigate} />
-              </TabsContent>
+              <>
+                <TabsContent value="roles" className="space-y-6">
+                  <RoleManagement onNavigate={onNavigate} />
+                </TabsContent>
+                
+                <TabsContent value="admin" className="space-y-6">
+                  <AdminPanel onNavigate={onNavigate} />
+                </TabsContent>
+              </>
             )}
           </Tabs>
         </div>
