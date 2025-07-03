@@ -23,12 +23,17 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   const { members } = useProjectMembers(projectId);
 
   useEffect(() => {
+    console.log('TaskEditSidePanel received task:', task);
+    console.log('TaskEditSidePanel isOpen:', isOpen);
     if (task) {
       setEditedTask({ ...task });
     }
-  }, [task]);
+  }, [task, isOpen]);
 
-  if (!task || !editedTask) return null;
+  if (!task || !editedTask) {
+    console.log('TaskEditSidePanel returning null - task:', task, 'editedTask:', editedTask);
+    return null;
+  }
 
   const handleSave = () => {
     if (editedTask) {

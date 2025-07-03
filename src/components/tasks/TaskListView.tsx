@@ -38,8 +38,10 @@ export const TaskListView = ({ projectId }: TaskListViewProps) => {
   const isMobile = useIsMobile();
 
   const handleTaskClick = (task: Task) => {
+    console.log('Task clicked:', task);
     setSelectedTask(task);
     setIsSidePanelOpen(true);
+    console.log('Side panel should open now');
   };
 
   const handleCloseSidePanel = () => {

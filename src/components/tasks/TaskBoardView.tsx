@@ -24,6 +24,7 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
   };
 
   const handleTaskClick = (task: Task) => {
+    console.log('Board task clicked:', task);
     // Don't open side panel for temporary tasks being edited
     if (task.id.startsWith('temp-')) {
       return;
@@ -31,6 +32,7 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
     
     setSelectedTask(task);
     setIsSidePanelOpen(true);
+    console.log('Board side panel should open now');
   };
 
   const handleCloseSidePanel = () => {
