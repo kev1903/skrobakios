@@ -147,6 +147,19 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (emailResult.error) {
         console.error("Email sending failed:", emailResult.error);
+        
+        // Check if it's a domain verification issue
+        if (emailResult.error.message?.includes("verify a domain")) {
+          return new Response(
+            JSON.stringify({ 
+              error: "Domain verification required", 
+              details: "Please verify your domain at resend.com/domains to send emails to other recipients. Currently, you can only send emails to your verified email address.",
+              resendError: emailResult.error.message
+            }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
         return new Response(
           JSON.stringify({ 
             error: "Failed to send email", 
