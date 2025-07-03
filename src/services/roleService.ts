@@ -1,75 +1,156 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { DatabaseRole } from '@/types/accessUsers';
 
+export interface PermissionSection {
+  id: string;
+  name: string;
+  enabled: boolean;
+}
+
+export interface RolePermissions {
+  company: PermissionSection[];
+  project: PermissionSection[];
+}
+
 export interface RoleData {
   id: string;
   name: string;
   description: string;
-  permissions: string[];
+  permissions: RolePermissions;
   userCount: number;
   system: boolean;
 }
+
+// Define available company and project permissions
+const companyPermissions = [
+  { id: 'user_management', name: 'User Management' },
+  { id: 'role_management', name: 'Role Management' },
+  { id: 'system_settings', name: 'System Settings' },
+  { id: 'financial_management', name: 'Financial Management' },
+  { id: 'invoice_management', name: 'Invoice Management' },
+  { id: 'expense_tracking', name: 'Expense Tracking' },
+  { id: 'company_settings', name: 'Company Settings' },
+  { id: 'admin_panel', name: 'Admin Panel Access' }
+];
+
+const projectPermissions = [
+  { id: 'project_management', name: 'Project Management' },
+  { id: 'project_create', name: 'Create Projects' },
+  { id: 'project_edit', name: 'Edit Projects' },
+  { id: 'project_delete', name: 'Delete Projects' },
+  { id: 'project_view', name: 'View Projects' },
+  { id: 'team_management', name: 'Team Management' },
+  { id: 'task_management', name: 'Task Management' },
+  { id: 'task_view', name: 'View Tasks' },
+  { id: 'file_access', name: 'File Access' },
+  { id: 'file_upload', name: 'File Upload' },
+  { id: 'progress_view', name: 'Progress Tracking' },
+  { id: 'estimation_tools', name: 'Estimation Tools' },
+  { id: 'schedule_management', name: 'Schedule Management' }
+];
+
+// Helper function to create permission structure
+const createPermissions = (enabledCompany: string[], enabledProject: string[]): RolePermissions => ({
+  company: companyPermissions.map(perm => ({
+    ...perm,
+    enabled: enabledCompany.includes(perm.id)
+  })),
+  project: projectPermissions.map(perm => ({
+    ...perm,
+    enabled: enabledProject.includes(perm.id)
+  }))
+});
 
 // Role descriptions and permissions mapping
 const roleConfig = {
   superadmin: {
     name: 'Super Admin',
     description: 'Full system access with all administrative privileges',
-    permissions: ['user_management', 'role_management', 'system_settings', 'project_management', 'financial_access'],
+    permissions: createPermissions(
+      ['user_management', 'role_management', 'system_settings', 'financial_management', 'invoice_management', 'expense_tracking', 'company_settings', 'admin_panel'],
+      ['project_management', 'project_create', 'project_edit', 'project_delete', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view', 'estimation_tools', 'schedule_management']
+    ),
     system: true
   },
   project_manager: {
     name: 'Project Manager',
     description: 'Manage projects, teams, and project-related activities',
-    permissions: ['project_management', 'team_management', 'task_management', 'file_access'],
+    permissions: createPermissions(
+      ['expense_tracking'],
+      ['project_management', 'project_create', 'project_edit', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view', 'schedule_management']
+    ),
     system: false
   },
   project_admin: {
     name: 'Project Admin',
     description: 'Administrative access to project settings and team management',
-    permissions: ['project_settings', 'team_management', 'task_management'],
+    permissions: createPermissions(
+      [],
+      ['project_edit', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'progress_view']
+    ),
     system: false
   },
   consultant: {
     name: 'Consultant',
     description: 'External consultant with limited project access',
-    permissions: ['task_view', 'file_view', 'project_view'],
+    permissions: createPermissions(
+      [],
+      ['project_view', 'task_view', 'file_access', 'progress_view']
+    ),
     system: false
   },
   subcontractor: {
     name: 'SubContractor',
     description: 'External contractor with specific task access',
-    permissions: ['task_management', 'file_access'],
+    permissions: createPermissions(
+      [],
+      ['task_management', 'task_view', 'file_access', 'file_upload', 'progress_view']
+    ),
     system: false
   },
   estimator: {
     name: 'Estimator',
     description: 'Access to cost estimation and financial planning tools',
-    permissions: ['estimation_tools', 'financial_view', 'project_view'],
+    permissions: createPermissions(
+      ['expense_tracking'],
+      ['project_view', 'estimation_tools', 'progress_view']
+    ),
     system: false
   },
   accounts: {
     name: 'Accounts',
     description: 'Financial and accounting access',
-    permissions: ['financial_management', 'invoice_management', 'expense_tracking'],
+    permissions: createPermissions(
+      ['financial_management', 'invoice_management', 'expense_tracking'],
+      ['project_view', 'progress_view']
+    ),
     system: false
   },
   admin: {
     name: 'Admin',
     description: 'General administrative access (legacy role)',
-    permissions: ['project_management', 'team_management', 'task_management'],
+    permissions: createPermissions(
+      ['company_settings'],
+      ['project_management', 'project_view', 'team_management', 'task_management', 'task_view']
+    ),
     system: false
   },
   user: {
     name: 'User',
     description: 'Basic user access with limited permissions',
-    permissions: ['task_view', 'project_view'],
+    permissions: createPermissions(
+      [],
+      ['project_view', 'task_view']
+    ),
     system: false
   },
   client_viewer: {
     name: 'Client Viewer',
     description: 'Limited read-only access for clients',
-    permissions: ['project_view', 'progress_view'],
+    permissions: createPermissions(
+      [],
+      ['project_view', 'progress_view']
+    ),
     system: false
   }
 };

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Plus, Settings, UserCog, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { Shield, Plus, Settings, UserCog, Edit, Trash2, RefreshCw, ChevronDown, ChevronRight, Building, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchRoleData, getRoleStats, type RoleData } from '@/services/roleService';
+import { fetchRoleData, getRoleStats, type RoleData, type PermissionSection } from '@/services/roleService';
 
 interface RoleManagementProps {
   onNavigate: (page: string) => void;
@@ -17,6 +19,7 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
   const [roles, setRoles] = useState<RoleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState({
     totalRoles: 0,
     totalUsers: 0,
@@ -86,15 +89,46 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
 
     toast({
       title: "Delete Role",
-      description: `Role deletion functionality will be implemented here.`,
+      description: "Role deletion functionality will be implemented here.",
     });
   };
 
-  const getPermissionBadgeVariant = (permission: string) => {
-    if (permission.includes('management')) return 'default';
-    if (permission.includes('view')) return 'secondary';
-    if (permission.includes('admin') || permission.includes('settings')) return 'destructive';
-    return 'outline';
+  const toggleRoleExpansion = (roleId: string) => {
+    setExpandedRoles(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(roleId)) {
+        newSet.delete(roleId);
+      } else {
+        newSet.add(roleId);
+      }
+      return newSet;
+    });
+  };
+
+  const handlePermissionToggle = (roleId: string, section: 'company' | 'project', permissionId: string, enabled: boolean) => {
+    // Update the role permissions
+    setRoles(prevRoles => 
+      prevRoles.map(role => 
+        role.id === roleId 
+          ? {
+              ...role,
+              permissions: {
+                ...role.permissions,
+                [section]: role.permissions[section].map(perm => 
+                  perm.id === permissionId 
+                    ? { ...perm, enabled } 
+                    : perm
+                )
+              }
+            }
+          : role
+      )
+    );
+
+    toast({
+      title: "Permission Updated",
+      description: `${enabled ? 'Enabled' : 'Disabled'} permission for ${roleId}`,
+    });
   };
 
   if (!isSuperAdmin) {
@@ -286,20 +320,82 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Permissions</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {role.permissions.map((permission) => (
-                      <Badge
-                        key={permission}
-                        variant={getPermissionBadgeVariant(permission)}
-                        className="text-xs"
-                      >
-                        {permission.replace('_', ' ').toUpperCase()}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+                <Collapsible 
+                  open={expandedRoles.has(role.id)} 
+                  onOpenChange={() => toggleRoleExpansion(role.id)}
+                >
+                  <CollapsibleTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-between p-0 h-auto font-normal"
+                    >
+                      <span className="text-sm font-medium text-slate-700">View Permissions</span>
+                      {expandedRoles.has(role.id) ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent className="space-y-4 mt-4">
+                    {/* Company Permissions */}
+                    <div className="border rounded-lg p-4 bg-slate-50/50">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <Building className="w-4 h-4 text-blue-600" />
+                        <h5 className="font-medium text-slate-700">Company Permissions</h5>
+                      </div>
+                      <div className="space-y-2">
+                        {role.permissions.company.map((permission) => (
+                          <div key={permission.id} className="flex items-center justify-between">
+                            <span className="text-sm text-slate-600">{permission.name}</span>
+                            <Switch
+                              checked={permission.enabled}
+                              onCheckedChange={(enabled) => 
+                                handlePermissionToggle(role.id, 'company', permission.id, enabled)
+                              }
+                              disabled={role.system}
+                            />
+                          </div>
+                        ))}
+                        {role.permissions.company.length === 0 && (
+                          <p className="text-sm text-slate-400 italic">No company permissions assigned</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Project Permissions */}
+                    <div className="border rounded-lg p-4 bg-slate-50/50">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <FolderOpen className="w-4 h-4 text-green-600" />
+                        <h5 className="font-medium text-slate-700">Project Permissions</h5>
+                      </div>
+                      <div className="space-y-2">
+                        {role.permissions.project.map((permission) => (
+                          <div key={permission.id} className="flex items-center justify-between">
+                            <span className="text-sm text-slate-600">{permission.name}</span>
+                            <Switch
+                              checked={permission.enabled}
+                              onCheckedChange={(enabled) => 
+                                handlePermissionToggle(role.id, 'project', permission.id, enabled)
+                              }
+                              disabled={role.system}
+                            />
+                          </div>
+                        ))}
+                        {role.permissions.project.length === 0 && (
+                          <p className="text-sm text-slate-400 italic">No project permissions assigned</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {role.system && (
+                      <div className="text-xs text-slate-500 italic bg-slate-100 p-2 rounded">
+                        System roles have protected permissions that cannot be modified.
+                      </div>
+                    )}
+                  </CollapsibleContent>
+                </Collapsible>
               </CardContent>
             </Card>
           ))}
