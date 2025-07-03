@@ -162,6 +162,15 @@ const handler = async (req: Request): Promise<Response> => {
         invitationUrl
       });
       
+      // Additional email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        console.error("Invalid email format:", email);
+        return new Response(
+          JSON.stringify({ error: "Invalid email format" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       const emailResult = await resend.emails.send({
         from: "KAKSIK <noreply@skrobaki.com>",
         to: [email],
@@ -197,10 +206,16 @@ const handler = async (req: Request): Promise<Response> => {
         `,
       });
 
+      console.log("Email send attempt completed. Result:", {
+        success: !emailResult.error,
+        emailId: emailResult.data?.id,
+        error: emailResult.error
+      });
+
       if (emailResult.error) {
         console.error("Email sending failed:", emailResult.error);
         
-        // Check if it's a domain verification issue
+        // Check for specific error types
         if (emailResult.error.message?.includes("verify a domain")) {
           return new Response(
             JSON.stringify({ 
@@ -212,10 +227,22 @@ const handler = async (req: Request): Promise<Response> => {
           );
         }
         
+        if (emailResult.error.message?.includes("rate limit")) {
+          return new Response(
+            JSON.stringify({ 
+              error: "Rate limit exceeded", 
+              details: "Too many emails sent. Please try again in a few minutes.",
+              resendError: emailResult.error.message
+            }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
         return new Response(
           JSON.stringify({ 
             error: "Failed to send email", 
-            details: emailResult.error.message 
+            details: emailResult.error.message,
+            errorName: emailResult.error.name
           }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
@@ -227,7 +254,12 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ 
           success: true, 
           invitation, 
-          emailId: emailResult.data?.id 
+          emailId: emailResult.data?.id,
+          emailDetails: {
+            to: email,
+            from: "KAKSIK <noreply@skrobaki.com>",
+            subject: `You're invited to join KAKSIK as ${role}`
+          }
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
