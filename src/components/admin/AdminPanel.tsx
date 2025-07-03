@@ -8,7 +8,8 @@ import { UserRoleManager } from './UserRoleManager';
 import { UsersList } from './UsersList';
 import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
-import { AccessManagementTable, type AccessUser } from './AccessManagementTable';
+import { AccessManagementTable, type AccessUser, type UserRole, type UserStatus } from './AccessManagementTable';
+import { useAccessUsers } from '@/hooks/useAccessUsers';
 import { useAdminData } from './useAdminData';
 
 interface AdminPanelProps {
@@ -17,57 +18,19 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const { isSuperAdmin } = useAuth();
-  const { users, loading, error, success, updateUserRole } = useAdminData();
+  const { users: adminUsers, loading: adminLoading, error: adminError, success } = useAdminData();
+  const { 
+    users: accessUsers, 
+    loading: accessLoading, 
+    error: accessError, 
+    updateUserRole: updateAccessUserRole 
+  } = useAccessUsers();
 
-  // Sample data for Access Management Table
-  const accessUsers: AccessUser[] = [
-    {
-      id: '1',
-      first_name: 'Kevin',
-      last_name: 'Skrobaki',
-      email: 'kevin@skrobaki.com',
-      company: 'Skrobaki Construction',
-      role: 'Super Admin',
-      status: 'Active',
-      avatar: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      id: '2',
-      first_name: 'Sarah',
-      last_name: 'Johnson',
-      email: 'sarah.johnson@example.com',
-      company: 'ABC Construction',
-      role: 'Project Manager',
-      status: 'Active',
-      avatar: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      id: '3',
-      first_name: 'Mike',
-      last_name: 'Chen',
-      email: 'mike.chen@example.com',
-      company: 'DEF Engineering',
-      role: 'Project Admin',
-      status: 'Suspended',
-      avatar: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=150&fit=crop&crop=face'
-    },
-    {
-      id: '4',
-      first_name: 'Lisa',
-      last_name: 'Rodriguez',
-      email: 'lisa.rodriguez@example.com',
-      company: 'GHI Consulting',
-      role: 'Consultant',
-      status: 'Active',
-    },
-  ];
-
-  const handleRoleChange = (userId: string, newRole: AccessUser['role']) => {
-    console.log(`Changing role for user ${userId} to ${newRole}`);
-    // Implement role change logic here
+  const handleRoleChange = (userId: string, newRole: UserRole) => {
+    updateAccessUserRole(userId, newRole);
   };
 
-  const handleStatusChange = (userId: string, newStatus: AccessUser['status']) => {
+  const handleStatusChange = (userId: string, newStatus: UserStatus) => {
     console.log(`Changing status for user ${userId} to ${newStatus}`);
     // Implement status change logic here
   };
@@ -114,7 +77,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <AdminHeader onNavigate={onNavigate} />
-      <AdminAlerts error={error} success={success} />
+      <AdminAlerts error={accessError || adminError} success={success} />
       
       <AccessManagementTable
         users={accessUsers}
