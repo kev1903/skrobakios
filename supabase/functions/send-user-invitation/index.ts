@@ -172,7 +172,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
       const emailResult = await resend.emails.send({
-        from: "KAKSIK <noreply@skrobaki.com>",
+        from: "KAKSIK Support <support@skrobaki.com>",
         to: [email],
         subject: `You're invited to join KAKSIK as ${role}`,
         html: `
@@ -203,6 +203,21 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
           </body>
           </html>
+        `,
+        text: `
+Welcome to KAKSIK!
+
+Hello ${name},
+
+You've been invited by ${invitedBy} to join KAKSIK as a ${role}.
+
+Accept your invitation by visiting this link:
+${invitationUrl}
+
+This invitation will expire in 7 days.
+
+Best regards,
+The KAKSIK Team
         `,
       });
 
