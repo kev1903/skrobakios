@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Initialize Resend later after checking the API key
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,14 +19,35 @@ interface InvitationRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("=== SEND USER INVITATION FUNCTION STARTED ===");
+  console.log("Request method:", req.method);
+  
   if (req.method === "OPTIONS") {
+    console.log("Returning CORS preflight response");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log("Checking environment variables...");
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    console.log("RESEND_API_KEY configured:", !!resendApiKey);
+    console.log("SUPABASE_URL configured:", !!supabaseUrl);
+    console.log("SERVICE_ROLE_KEY configured:", !!serviceRoleKey);
+    
+    if (!resendApiKey) {
+      console.error("RESEND_API_KEY is not configured!");
+      return new Response(
+        JSON.stringify({ error: "Email service not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      supabaseUrl ?? "",
+      serviceRoleKey ?? ""
     );
 
     const { email, name, role, invitedBy }: InvitationRequest = await req.json();
@@ -116,6 +137,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log("Sending email to:", email);
     console.log("Invitation URL:", invitationUrl);
+    // Initialize Resend with API key
+    const resend = new Resend(resendApiKey);
     
     const emailResponse = await resend.emails.send({
       from: "KAKSIK <onboarding@resend.dev>",
