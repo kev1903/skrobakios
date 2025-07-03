@@ -160,7 +160,18 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Invitation email sent:", emailResponse);
+    if (emailResponse.error) {
+      console.error("Resend error:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to send invitation email", 
+          details: emailResponse.error.message 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Invitation email sent successfully:", emailResponse);
 
     return new Response(
       JSON.stringify({ success: true, invitation }),
