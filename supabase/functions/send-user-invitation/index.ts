@@ -153,17 +153,47 @@ const handler = async (req: Request): Promise<Response> => {
       const resend = new Resend(resendApiKey);
       console.log("Resend client created");
 
-      const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
+      const invitationUrl = `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`;
+      
+      console.log("Sending email with details:", {
+        from: "KAKSIK <noreply@skrobaki.com>",
+        to: email,
+        subject: `You're invited to join KAKSIK as ${role}`,
+        invitationUrl
+      });
       
       const emailResult = await resend.emails.send({
         from: "KAKSIK <noreply@skrobaki.com>",
         to: [email],
         subject: `You're invited to join KAKSIK as ${role}`,
         html: `
-          <h1>Welcome to KAKSIK!</h1>
-          <p>Hello ${name},</p>
-          <p>You've been invited by ${invitedBy} to join KAKSIK as a ${role}.</p>
-          <p><a href="${invitationUrl}">Accept Invitation</a></p>
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>KAKSIK Invitation</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #2563eb;">Welcome to KAKSIK!</h1>
+              <p>Hello ${name},</p>
+              <p>You've been invited by ${invitedBy} to join KAKSIK as a <strong>${role}</strong>.</p>
+              <div style="margin: 30px 0; text-align: center;">
+                <a href="${invitationUrl}" 
+                   style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  Accept Invitation
+                </a>
+              </div>
+              <p style="color: #666; font-size: 14px;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="${invitationUrl}">${invitationUrl}</a>
+              </p>
+              <p style="color: #666; font-size: 14px;">
+                This invitation will expire in 7 days.
+              </p>
+            </div>
+          </body>
+          </html>
         `,
       });
 
