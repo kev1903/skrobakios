@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon, Settings, MoreVertical, Trash, Eye, EyeOff, Lock, Unlock, BarChart3, FileText, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -778,8 +779,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             className="border-r border-border overflow-auto" 
             style={{ width: `${leftWidth}%` }}
           >
-            {/* Table Header */}
-            <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
+            {/* Table Header - Updated with solid background */}
+            <div className="bg-card border-b border-border sticky top-0 z-10">
               <div className="flex">
                 <div 
                   className="px-2 py-3 text-xs font-medium text-muted-foreground border-r border-border relative"
@@ -979,8 +980,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             className="overflow-auto" 
             style={{ width: `${100 - leftWidth}%` }}
           >
-            {/* Gantt Chart Header */}
-            <div className="glass-light border-b border-border sticky top-0 z-10 backdrop-blur-sm">
+            {/* Gantt Chart Header - Updated with solid background */}
+            <div className="bg-card border-b border-border sticky top-0 z-10">
               <div className="flex">
                 {timelineWeeks.map((week, index) => (
                   <div key={index} className="w-[200px] px-2 py-1 border-r border-border text-center">
