@@ -18,9 +18,13 @@ export const TaskEditForm = ({ task, onFieldChange, projectId }: TaskEditFormPro
   const { members } = useProjectMembers(projectId);
 
   const handleAssigneeChange = (memberName: string) => {
-    const member = members.find(m => m.name === memberName);
-    if (member) {
-      onFieldChange('assignedTo', { name: member.name, avatar: member.avatar });
+    if (memberName === 'unassigned') {
+      onFieldChange('assignedTo', { name: 'Unassigned', avatar: '' });
+    } else {
+      const member = members.find(m => m.name === memberName);
+      if (member) {
+        onFieldChange('assignedTo', { name: member.name, avatar: member.avatar });
+      }
     }
   };
 
@@ -63,7 +67,7 @@ export const TaskEditForm = ({ task, onFieldChange, projectId }: TaskEditFormPro
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
-            <SelectItem value="">
+            <SelectItem value="unassigned">
               <div className="flex items-center space-x-2">
                 <Avatar className="w-6 h-6">
                   <AvatarFallback className="text-xs bg-gray-200">?</AvatarFallback>
