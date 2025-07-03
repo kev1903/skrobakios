@@ -119,11 +119,6 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
         onRemoveUser={handleRemoveUser}
         onReactivateUser={handleReactivateUser}
       />
-      
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-        <UserInvitationManager />
-        <UserInvitationsList />
-      </div>
     </div>
   );
 };
