@@ -13,6 +13,7 @@ const corsHeaders = {
 
 interface InvitationRequest {
   email: string;
+  name: string;
   role: string;
   invitedBy: string;
 }
@@ -28,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { email, role, invitedBy }: InvitationRequest = await req.json();
+    const { email, name, role, invitedBy }: InvitationRequest = await req.json();
 
     // Get the auth header
     const authHeader = req.headers.get("Authorization");
@@ -74,16 +75,45 @@ const handler = async (req: Request): Promise<Response> => {
     const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
     
     const emailResponse = await resend.emails.send({
-      from: "Your App <onboarding@resend.dev>",
+      from: "KAKSIK <onboarding@resend.dev>",
       to: [email],
-      subject: `You've been invited to join our application`,
+      subject: `You're invited to join KAKSIK as ${role}`,
       html: `
-        <h1>You've been invited!</h1>
-        <p>You have been invited by ${invitedBy} to join our application with the role of <strong>${role}</strong>.</p>
-        <p>Click the link below to accept the invitation and create your account:</p>
-        <a href="${invitationUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Accept Invitation</a>
-        <p>This invitation will expire in 7 days.</p>
-        <p>If you didn't expect this invitation, you can safely ignore this email.</p>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1e293b; font-size: 28px; margin-bottom: 10px;">Welcome to KAKSIK!</h1>
+          </div>
+          
+          <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 25%, #dbeafe 50%, #e0e7ff 75%, #f1f5f9 100%); padding: 30px; border-radius: 12px; margin-bottom: 20px;">
+            <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+              Hello <strong>${name}</strong>,
+            </p>
+            <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+              You've been invited by <strong>${invitedBy}</strong> to join KAKSIK as a <strong style="color: #3730a3;">${role}</strong>.
+            </p>
+            <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+              Click the button below to accept your invitation and set up your account:
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${invitationUrl}" style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);">
+                Accept Invitation
+              </a>
+            </div>
+          </div>
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 0;">
+              <strong>Note:</strong> This invitation will expire in 7 days. If you didn't expect this invitation, you can safely ignore this email.
+            </p>
+          </div>
+          
+          <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+              <a href="#" style="color: #3b82f6; text-decoration: none;">KAKSIK</a> - Modern Task Management
+            </p>
+          </div>
+        </div>
       `,
     });
 
