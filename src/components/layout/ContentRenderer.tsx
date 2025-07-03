@@ -12,6 +12,7 @@ import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { AdminPanel } from "@/components/admin/AdminPanel";
+import { NewUserPage } from "@/components/admin/NewUserPage";
 import { SettingsPage } from "@/components/SettingsPage";
 import { SupportPage } from "@/components/SupportPage";
 import { CreateProject } from "@/components/CreateProject";
@@ -60,6 +61,8 @@ export const ContentRenderer = ({
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
       return <AdminPanel onNavigate={onNavigate} />;
+    case "admin-new-user":
+      return <NewUserPage onNavigate={onNavigate} />;
     case "create-project":
       return <CreateProject onNavigate={onNavigate} />;
     case "projects":

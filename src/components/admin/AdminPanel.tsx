@@ -56,8 +56,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   };
 
   const handleAddNewUser = () => {
-    console.log('Adding new user');
-    // Implement add new user logic here - could open a modal or navigate to a form
+    onNavigate('admin-new-user');
   };
 
   if (!isSuperAdmin) {
