@@ -94,13 +94,13 @@ export const GanttChart = ({ tasks, startDate, endDate }: GanttChartProps) => {
       <div className="overflow-x-auto">
         {/* Header */}
         <div className="flex border-b border-gray-200 min-w-fit">
-          <div className="w-96 p-4 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+          <div className="w-96 p-3 border-r border-gray-200 bg-gray-50 flex-shrink-0">
             <h3 className="font-semibold text-gray-900">Name</h3>
           </div>
           <div className="bg-gray-50" style={{ width: `${weeks.length * 200}px` }}>
             <div className="flex">
               {weeks.map((week, index) => (
-                <div key={index} className="w-[200px] p-2 border-r border-gray-200 text-center last:border-r-0 flex-shrink-0">
+                <div key={index} className="w-[200px] p-3 border-r border-gray-200 text-center last:border-r-0 flex-shrink-0">
                   <div className="text-xs text-gray-600 mb-1">
                     W{Math.floor(index / 4) + 25} {week.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {week.end.toLocaleDateString('en-US', { day: 'numeric' })}
                   </div>
