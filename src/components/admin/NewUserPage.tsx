@@ -106,7 +106,14 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
       }
 
       // Call edge function to send invitation email and create record
-      const { error: emailError } = await supabase.functions.invoke('send-user-invitation', {
+      console.log('Calling edge function with data:', {
+        email: formData.email,
+        name: formData.name,
+        role: formData.role,
+        invitedBy: user.email || 'Admin',
+      });
+      
+      const { data, error: emailError } = await supabase.functions.invoke('send-user-invitation', {
         body: {
           email: formData.email,
           name: formData.name,
@@ -115,7 +122,10 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
         }
       });
 
+      console.log('Edge function response:', { data, emailError });
+
       if (emailError) {
+        console.error('Edge function error details:', emailError);
         throw emailError;
       }
 
