@@ -105,20 +105,7 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
         throw new Error('You must be logged in to send invitations');
       }
 
-      // Create invitation record
-      const { error: inviteError } = await supabase
-        .from('user_invitations')
-        .insert({
-          email: formData.email,
-          invited_by_user_id: user.id,
-          invited_role: mapRoleToDbRole(formData.role),
-        });
-
-      if (inviteError) {
-        throw inviteError;
-      }
-
-      // Call edge function to send invitation email
+      // Call edge function to send invitation email and create record
       const { error: emailError } = await supabase.functions.invoke('send-user-invitation', {
         body: {
           email: formData.email,
