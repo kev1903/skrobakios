@@ -31,6 +31,23 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { email, name, role, invitedBy }: InvitationRequest = await req.json();
 
+    // Map display role to database role
+    const mapRoleToDbRole = (role: string): 'superadmin' | 'admin' | 'user' => {
+      switch (role) {
+        case 'Super Admin':
+          return 'superadmin';
+        case 'Project Manager':
+        case 'Project Admin':
+        case 'Consultant':
+        case 'SubContractor':
+        case 'Estimator':
+        case 'Accounts':
+          return 'admin';
+        default:
+          return 'user';
+      }
+    };
+
     // Get the auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -57,7 +74,7 @@ const handler = async (req: Request): Promise<Response> => {
       .from("user_invitations")
       .insert({
         email,
-        invited_role: role,
+        invited_role: mapRoleToDbRole(role),
         invited_by_user_id: user.id,
       })
       .select()
