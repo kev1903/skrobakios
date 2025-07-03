@@ -8,17 +8,9 @@ interface AdminHeaderProps {
 
 export const AdminHeader = ({ onNavigate }: AdminHeaderProps) => {
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-        <p className="text-gray-600 mt-1">Manage users and their roles</p>
-      </div>
-      <Button 
-        onClick={() => onNavigate('dashboard')} 
-        variant="outline"
-      >
-        Back to Dashboard
-      </Button>
+    <div>
+      <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
+      <p className="text-gray-600 mt-1">Manage users and their roles</p>
     </div>
   );
 };
