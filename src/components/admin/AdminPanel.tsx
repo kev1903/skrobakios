@@ -8,6 +8,7 @@ import { UserRoleManager } from './UserRoleManager';
 import { UsersList } from './UsersList';
 import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
+import { AccessManagementTable } from './AccessManagementTable';
 import { useAdminData } from './useAdminData';
 
 interface AdminPanelProps {
@@ -41,6 +42,9 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     <div className="max-w-7xl mx-auto space-y-6">
       <AdminHeader onNavigate={onNavigate} />
       <AdminAlerts error={error} success={success} />
+      
+      {/* Modern Access Management Table */}
+      <AccessManagementTable />
       
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-1 space-y-6">
