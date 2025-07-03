@@ -174,9 +174,9 @@ export const useAccessUsers = () => {
         }
       }
 
-      // Delete the profile
+      // Delete the profile (this should now work with the new RLS policy)
       console.log('Deleting profile:', userId);
-      const { error: deleteError } = await supabase
+      const { error: deleteError, count } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
@@ -185,6 +185,14 @@ export const useAccessUsers = () => {
         console.error('Error deleting profile:', deleteError);
         throw deleteError;
       }
+      
+      console.log('Profile deletion result - rows affected:', count);
+      
+      if (count === 0) {
+        console.warn('No rows were deleted - profile may not exist or permission denied');
+        throw new Error('Failed to delete profile - no rows affected');
+      }
+      
       console.log('Profile deleted successfully');
 
       // Immediately update the local state to remove the user from UI
