@@ -8,6 +8,7 @@ import { UserRoleManager } from './UserRoleManager';
 import { UsersList } from './UsersList';
 import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
+import { AccessManagementTable, type AccessUser } from './AccessManagementTable';
 import { useAdminData } from './useAdminData';
 
 interface AdminPanelProps {
@@ -17,6 +18,73 @@ interface AdminPanelProps {
 export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const { isSuperAdmin } = useAuth();
   const { users, loading, error, success, updateUserRole } = useAdminData();
+
+  // Sample data for Access Management Table
+  const accessUsers: AccessUser[] = [
+    {
+      id: '1',
+      name: 'Kevin Skrobaki',
+      email: 'kevin@skrobaki.com',
+      company: 'Skrobaki Construction',
+      role: 'Super Admin',
+      status: 'Active',
+      avatar: '/placeholder.svg'
+    },
+    {
+      id: '2',
+      name: 'Sarah Johnson',
+      email: 'sarah.johnson@example.com',
+      company: 'ABC Construction',
+      role: 'Project Manager',
+      status: 'Active',
+    },
+    {
+      id: '3',
+      name: 'Mike Chen',
+      email: 'mike.chen@example.com',
+      company: 'DEF Engineering',
+      role: 'Project Admin',
+      status: 'Suspended',
+    },
+    {
+      id: '4',
+      name: 'Lisa Rodriguez',
+      email: 'lisa.rodriguez@example.com',
+      company: 'GHI Consulting',
+      role: 'Consultant',
+      status: 'Active',
+    },
+  ];
+
+  const handleRoleChange = (userId: string, newRole: AccessUser['role']) => {
+    console.log(`Changing role for user ${userId} to ${newRole}`);
+    // Implement role change logic here
+  };
+
+  const handleStatusChange = (userId: string, newStatus: AccessUser['status']) => {
+    console.log(`Changing status for user ${userId} to ${newStatus}`);
+    // Implement status change logic here
+  };
+
+  const handleViewUser = (userId: string) => {
+    console.log(`Viewing user ${userId}`);
+    // Implement view user logic here
+  };
+
+  const handleEditUser = (userId: string) => {
+    console.log(`Editing user ${userId}`);
+    // Implement edit user logic here
+  };
+
+  const handleRemoveUser = (userId: string) => {
+    console.log(`Removing user ${userId}`);
+    // Implement remove user logic here
+  };
+
+  const handleReactivateUser = (userId: string) => {
+    console.log(`Reactivating user ${userId}`);
+    handleStatusChange(userId, 'Active');
+  };
 
   if (!isSuperAdmin) {
     return (
@@ -42,19 +110,19 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       <AdminHeader onNavigate={onNavigate} />
       <AdminAlerts error={error} success={success} />
       
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1 space-y-6">
-          <UserRoleManager 
-            users={users} 
-            onRoleUpdate={updateUserRole}
-            loading={loading}
-          />
-          <UserInvitationManager />
-        </div>
-        <div className="xl:col-span-2 space-y-6">
-          <UsersList users={users} loading={loading} />
-          <UserInvitationsList />
-        </div>
+      <AccessManagementTable
+        users={accessUsers}
+        onRoleChange={handleRoleChange}
+        onStatusChange={handleStatusChange}
+        onViewUser={handleViewUser}
+        onEditUser={handleEditUser}
+        onRemoveUser={handleRemoveUser}
+        onReactivateUser={handleReactivateUser}
+      />
+      
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+        <UserInvitationManager />
+        <UserInvitationsList />
       </div>
     </div>
   );
