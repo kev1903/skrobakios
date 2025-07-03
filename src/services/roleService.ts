@@ -67,8 +67,10 @@ const roleConfig = {
     name: 'Super Admin',
     description: 'Full system access with all administrative privileges',
     permissions: createPermissions(
-      ['user_management', 'role_management', 'system_settings', 'financial_management', 'invoice_management', 'expense_tracking', 'company_settings', 'admin_panel'],
-      ['project_management', 'project_create', 'project_edit', 'project_delete', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view', 'estimation_tools', 'schedule_management']
+      // Enable ALL company permissions
+      companyPermissions.map(p => p.id),
+      // Enable ALL project permissions  
+      projectPermissions.map(p => p.id)
     ),
     system: true
   },
