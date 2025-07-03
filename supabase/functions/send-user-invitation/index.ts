@@ -69,12 +69,17 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    const mappedRole = mapRoleToDbRole(role);
+    console.log("Mapped role:", mappedRole, "from original role:", role);
+    console.log("User ID:", user.id);
+    console.log("Email:", email);
+
     // Create invitation record
     const { data: invitation, error: inviteError } = await supabaseClient
       .from("user_invitations")
       .insert({
         email,
-        invited_role: mapRoleToDbRole(role),
+        invited_role: mappedRole,
         invited_by_user_id: user.id,
       })
       .select()
@@ -82,14 +87,24 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (inviteError) {
       console.error("Error creating invitation:", inviteError);
+      console.error("Full error object:", JSON.stringify(inviteError, null, 2));
       return new Response(
-        JSON.stringify({ error: "Failed to create invitation" }),
+        JSON.stringify({ 
+          error: "Failed to create invitation", 
+          details: inviteError.message,
+          code: inviteError.code 
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    console.log("Invitation created successfully:", invitation);
+
     // Send invitation email
     const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
+    
+    console.log("Sending email to:", email);
+    console.log("Invitation URL:", invitationUrl);
     
     const emailResponse = await resend.emails.send({
       from: "KAKSIK <onboarding@resend.dev>",
