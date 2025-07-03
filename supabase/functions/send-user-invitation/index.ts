@@ -74,6 +74,17 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("User ID:", user.id);
     console.log("Email:", email);
 
+    // Check for existing invitation and delete it if it exists
+    const { error: deleteError } = await supabaseClient
+      .from("user_invitations")
+      .delete()
+      .eq("email", email)
+      .eq("invited_by_user_id", user.id);
+
+    if (deleteError) {
+      console.log("Note: No existing invitation to delete (this is normal):", deleteError.message);
+    }
+
     // Create invitation record
     const { data: invitation, error: inviteError } = await supabaseClient
       .from("user_invitations")
