@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MoreHorizontal, Eye, Edit, Trash2, UserCheck, AlertCircle } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, Trash2, UserCheck, AlertCircle, Plus } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -67,12 +67,14 @@ export interface AccessUser {
 
 interface AccessManagementTableProps {
   users: AccessUser[];
+  currentUserRole?: UserRole;
   onRoleChange: (userId: string, newRole: UserRole) => void;
   onStatusChange: (userId: string, newStatus: UserStatus) => void;
   onViewUser: (userId: string) => void;
   onEditUser: (userId: string) => void;
   onRemoveUser: (userId: string) => void;
   onReactivateUser: (userId: string) => void;
+  onAddNewUser: () => void;
 }
 
 const ROLES: UserRole[] = [
@@ -88,12 +90,14 @@ const ROLES: UserRole[] = [
 
 export const AccessManagementTable = ({
   users,
+  currentUserRole,
   onRoleChange,
   onStatusChange,
   onViewUser,
   onEditUser,
   onRemoveUser,
   onReactivateUser,
+  onAddNewUser,
 }: AccessManagementTableProps) => {
   const [removeUserId, setRemoveUserId] = useState<string | null>(null);
 
@@ -117,6 +121,9 @@ export const AccessManagementTable = ({
   };
 
   const isSuperAdmin = (role: UserRole) => role === 'Super Admin';
+  const isAdmin = (role: UserRole) => role === 'Super Admin' || role === 'Project Manager' || role === 'Project Admin';
+  
+  const canAddUsers = currentUserRole ? isAdmin(currentUserRole) : false;
 
   const renderActions = (user: AccessUser) => {
     const isUserSuperAdmin = isSuperAdmin(user.role);
@@ -229,10 +236,24 @@ export const AccessManagementTable = ({
     <>
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="heading-modern text-gradient">Access Management</CardTitle>
-          <CardDescription>
-            Manage user roles, permissions, and access levels
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="heading-modern text-gradient">Access Management</CardTitle>
+              <CardDescription>
+                Manage user roles, permissions, and access levels
+              </CardDescription>
+            </div>
+            {canAddUsers && (
+              <Button 
+                onClick={onAddNewUser}
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Plus className="h-4 w-4" />
+                New User
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border overflow-hidden">

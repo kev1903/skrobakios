@@ -55,6 +55,11 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     handleStatusChange(userId, 'Active');
   };
 
+  const handleAddNewUser = () => {
+    console.log('Adding new user');
+    // Implement add new user logic here - could open a modal or navigate to a form
+  };
+
   if (!isSuperAdmin) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -81,12 +86,14 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       
       <AccessManagementTable
         users={accessUsers}
+        currentUserRole="Super Admin"
         onRoleChange={handleRoleChange}
         onStatusChange={handleStatusChange}
         onViewUser={handleViewUser}
         onEditUser={handleEditUser}
         onRemoveUser={handleRemoveUser}
         onReactivateUser={handleReactivateUser}
+        onAddNewUser={handleAddNewUser}
       />
     </div>
   );
