@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,44 +16,68 @@ interface InvitationRequest {
 
 const handler = async (req: Request): Promise<Response> => {
   console.log("=== SEND USER INVITATION FUNCTION STARTED ===");
-  console.log("Request method:", req.method);
   
   if (req.method === "OPTIONS") {
-    console.log("Returning CORS preflight response");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log("Checking environment variables...");
+    console.log("Basic setup working...");
+    
+    // Test environment variables first
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
-    console.log("RESEND_API_KEY configured:", !!resendApiKey);
-    console.log("SUPABASE_URL configured:", !!supabaseUrl);
-    console.log("SERVICE_ROLE_KEY configured:", !!serviceRoleKey);
-    
+    console.log("Environment check:", {
+      hasResendKey: !!resendApiKey,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!serviceRoleKey
+    });
+
     if (!resendApiKey) {
-      console.error("RESEND_API_KEY is not configured!");
       return new Response(
-        JSON.stringify({ error: "Email service not configured" }),
+        JSON.stringify({ error: "RESEND_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabaseClient = createClient(
-      supabaseUrl ?? "",
-      serviceRoleKey ?? ""
+    // Test Supabase client creation
+    const supabaseClient = createClient(supabaseUrl ?? "", serviceRoleKey ?? "");
+    console.log("Supabase client created successfully");
+
+    // Test request parsing
+    const requestData = await req.json();
+    console.log("Request data:", requestData);
+
+    const { email, name, role, invitedBy } = requestData as InvitationRequest;
+
+    // Test auth
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
     );
 
-    const { email, name, role, invitedBy }: InvitationRequest = await req.json();
-    console.log("Request data:", { email, name, role, invitedBy });
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized", details: authError?.message }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Map display role to database role
+    console.log("Authentication successful for user:", user.id);
+
+    // Map role
     const mapRoleToDbRole = (role: string): 'superadmin' | 'admin' | 'user' => {
       switch (role) {
-        case 'Super Admin':
-          return 'superadmin';
+        case 'Super Admin': return 'superadmin';
         case 'Project Manager':
         case 'Project Admin':
         case 'Consultant':
@@ -62,55 +85,21 @@ const handler = async (req: Request): Promise<Response> => {
         case 'Estimator':
         case 'Accounts':
           return 'admin';
-        default:
-          return 'user';
+        default: return 'user';
       }
     };
 
-    // Get the auth header
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      console.error("No authorization header found");
-      return new Response(
-        JSON.stringify({ error: "No authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Verify the user is authenticated and is a superadmin
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      console.error("Authentication failed:", authError);
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const mappedRole = mapRoleToDbRole(role);
-    console.log("Mapped role:", mappedRole, "from original role:", role);
-    console.log("User ID:", user.id);
-    console.log("Email:", email);
+    console.log("Role mapped:", role, "->", mappedRole);
 
-    // Check for existing invitation and delete it if it exists
-    console.log("Checking for existing invitations...");
-    const { error: deleteError } = await supabaseClient
+    // Delete existing invitation
+    await supabaseClient
       .from("user_invitations")
       .delete()
       .eq("email", email)
       .eq("invited_by_user_id", user.id);
 
-    if (deleteError) {
-      console.log("Note: No existing invitation to delete (this is normal):", deleteError.message);
-    } else {
-      console.log("Deleted existing invitation for email:", email);
-    }
-
-    // Create invitation record
-    console.log("Creating new invitation...");
+    // Create new invitation
     const { data: invitation, error: inviteError } = await supabaseClient
       .from("user_invitations")
       .insert({
@@ -122,101 +111,82 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (inviteError) {
-      console.error("Error creating invitation:", inviteError);
-      console.error("Full error object:", JSON.stringify(inviteError, null, 2));
+      console.error("Database error:", inviteError);
       return new Response(
         JSON.stringify({ 
           error: "Failed to create invitation", 
-          details: inviteError.message,
-          code: inviteError.code 
+          details: inviteError.message 
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Invitation created successfully:", invitation);
+    console.log("Invitation created:", invitation);
 
-    // Send invitation email
-    const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
-    console.log("Sending email to:", email);
-    console.log("Invitation URL:", invitationUrl);
-    
-    // Initialize Resend with API key
-    const resend = new Resend(resendApiKey);
-    
-    console.log("Attempting to send email...");
-    const emailResponse = await resend.emails.send({
-      from: "KAKSIK <onboarding@resend.dev>",
-      to: [email],
-      subject: `You're invited to join KAKSIK as ${role}`,
-      html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #1e293b; font-size: 28px; margin-bottom: 10px;">Welcome to KAKSIK!</h1>
-          </div>
-          
-          <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 25%, #dbeafe 50%, #e0e7ff 75%, #f1f5f9 100%); padding: 30px; border-radius: 12px; margin-bottom: 20px;">
-            <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
-              Hello <strong>${name}</strong>,
-            </p>
-            <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
-              You've been invited by <strong>${invitedBy}</strong> to join KAKSIK as a <strong style="color: #3730a3;">${role}</strong>.
-            </p>
-            <p style="color: #334155; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
-              Click the button below to accept your invitation and set up your account:
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${invitationUrl}" style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);">
-                Accept Invitation
-              </a>
-            </div>
-          </div>
-          
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin: 0;">
-              <strong>Note:</strong> This invitation will expire in 7 days. If you didn't expect this invitation, you can safely ignore this email.
-            </p>
-          </div>
-          
-          <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
-            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-              <a href="#" style="color: #3b82f6; text-decoration: none;">KAKSIK</a> - Modern Task Management
-            </p>
-          </div>
-        </div>
-      `,
-    });
+    // Try to import and use Resend
+    try {
+      const { Resend } = await import("npm:resend@2.0.0");
+      console.log("Resend imported successfully");
+      
+      const resend = new Resend(resendApiKey);
+      console.log("Resend client created");
 
-    if (emailResponse.error) {
-      console.error("Resend error:", emailResponse.error);
+      const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
+      
+      const emailResult = await resend.emails.send({
+        from: "KAKSIK <onboarding@resend.dev>",
+        to: [email],
+        subject: `You're invited to join KAKSIK as ${role}`,
+        html: `
+          <h1>Welcome to KAKSIK!</h1>
+          <p>Hello ${name},</p>
+          <p>You've been invited by ${invitedBy} to join KAKSIK as a ${role}.</p>
+          <p><a href="${invitationUrl}">Accept Invitation</a></p>
+        `,
+      });
+
+      if (emailResult.error) {
+        console.error("Email sending failed:", emailResult.error);
+        return new Response(
+          JSON.stringify({ 
+            error: "Failed to send email", 
+            details: emailResult.error.message 
+          }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log("Email sent successfully:", emailResult);
+
       return new Response(
         JSON.stringify({ 
-          error: "Failed to send invitation email", 
-          details: emailResponse.error.message 
+          success: true, 
+          invitation, 
+          emailId: emailResult.data?.id 
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+
+    } catch (resendError) {
+      console.error("Resend import/usage error:", resendError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Email service error", 
+          details: resendError.message 
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Email sent successfully:", emailResponse);
-
-    return new Response(
-      JSON.stringify({ success: true, invitation }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
   } catch (error: any) {
-    console.error("Error in send-user-invitation function:", error);
-    console.error("Error stack:", error.stack);
+    console.error("Function error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ 
+        error: "Internal server error", 
+        details: error.message,
+        stack: error.stack 
+      }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 };
