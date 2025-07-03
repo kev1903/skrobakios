@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowLeft, Calendar, Download, Users, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { GanttChart } from './GanttChart';
+import { GanttChart, type GanttTask } from './GanttChart';
 import { Project } from '@/hooks/useProjects';
 
 interface GanttChartPageProps {
@@ -11,7 +11,7 @@ interface GanttChartPageProps {
 }
 
 export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => {
-  const mockGanttTasks = [
+  const mockGanttTasks: GanttTask[] = [
     {
       id: 'planning',
       name: 'Planning',
@@ -20,7 +20,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
       progress: 60,
       color: '#6B7280',
       level: 0,
-      type: 'group' as const,
+      type: 'group',
+      status: 'in-progress',
+      priority: 'high',
+      assignee: 'Project Manager',
       children: [
         {
           id: 'geotechnical',
@@ -30,7 +33,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           progress: 100,
           color: '#4B5563',
           level: 1,
-          type: 'task' as const
+          type: 'task',
+          status: 'completed',
+          priority: 'high',
+          assignee: 'John Smith'
         },
         {
           id: 'architectural',
@@ -40,7 +46,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           progress: 100,
           color: '#6B7280',
           level: 1,
-          type: 'task' as const
+          type: 'task',
+          status: 'completed',
+          priority: 'medium',
+          assignee: 'Sarah Wilson'
         },
         {
           id: 'engineering',
@@ -50,7 +59,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           progress: 80,
           color: '#9CA3AF',
           level: 1,
-          type: 'task' as const
+          type: 'task',
+          status: 'in-progress',
+          priority: 'high',
+          assignee: 'Mike Johnson'
         },
         {
           id: 'energy-report',
@@ -60,7 +72,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           progress: 40,
           color: '#6B7280',
           level: 1,
-          type: 'task' as const
+          type: 'task',
+          status: 'in-progress',
+          priority: 'medium',
+          assignee: 'Lisa Brown'
         },
         {
           id: 'building-surveying',
@@ -68,9 +83,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-25',
           endDate: '2025-06-25',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'medium'
         },
         {
           id: 'performance-solution',
@@ -78,9 +95,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-26',
           endDate: '2025-06-26',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'medium'
         },
         {
           id: 'construction-management',
@@ -88,9 +107,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-27',
           endDate: '2025-06-27',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'low'
         },
         {
           id: 'builders-license',
@@ -98,9 +119,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-28',
           endDate: '2025-06-28',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'critical'
         },
         {
           id: 'insurance',
@@ -108,9 +131,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-29',
           endDate: '2025-06-29',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'high'
         },
         {
           id: 'project-estimate',
@@ -118,9 +143,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-06-30',
           endDate: '2025-06-30',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'critical'
         },
         {
           id: 'civil-drainage',
@@ -128,9 +155,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-01',
           endDate: '2025-07-01',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'medium'
         },
         {
           id: 'roof-drainage',
@@ -138,9 +167,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-02',
           endDate: '2025-07-02',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'medium'
         },
         {
           id: 'interior-designer',
@@ -148,9 +179,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-03',
           endDate: '2025-07-03',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'low'
         },
         {
           id: 'landscape-designer',
@@ -160,7 +193,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           progress: 20,
           color: '#6B7280',
           level: 1,
-          type: 'task' as const
+          type: 'task',
+          status: 'in-progress',
+          priority: 'medium',
+          assignee: 'David Chen'
         },
         {
           id: '3d-renders',
@@ -168,9 +204,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-05',
           endDate: '2025-07-05',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'low'
         },
         {
           id: 'site-feature-survey',
@@ -180,7 +218,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           progress: 0,
           color: '#9CA3AF',
           level: 1,
-          type: 'task' as const
+          type: 'task',
+          status: 'not-started',
+          priority: 'medium',
+          assignee: 'Robert Lee'
         }
       ]
     },
@@ -192,7 +233,10 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
       progress: 0,
       color: '#6B7280',
       level: 0,
-      type: 'group' as const,
+      type: 'group',
+      status: 'not-started',
+      priority: 'low',
+      assignee: 'Site Supervisor',
       children: [
         {
           id: 'toilet-hire',
@@ -200,9 +244,11 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           startDate: '2025-07-06',
           endDate: '2025-07-12',
           progress: 0,
-          color: '#6B7280',
+          color: '#FBBF24',
           level: 1,
-          type: 'milestone' as const
+          type: 'milestone',
+          status: 'not-started',
+          priority: 'low'
         }
       ]
     }
