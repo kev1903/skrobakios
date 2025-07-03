@@ -56,6 +56,7 @@ export type Database = {
           last_name: string | null
           location: string | null
           phone: string | null
+          status: string
           updated_at: string
           user_id: string | null
           website: string | null
@@ -74,6 +75,7 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           phone?: string | null
+          status?: string
           updated_at?: string
           user_id?: string | null
           website?: string | null
@@ -92,6 +94,7 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           phone?: string | null
+          status?: string
           updated_at?: string
           user_id?: string | null
           website?: string | null
