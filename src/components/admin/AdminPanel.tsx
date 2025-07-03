@@ -2,6 +2,7 @@ import React from 'react';
 import { Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { AdminHeader } from './AdminHeader';
 import { AdminAlerts } from './AdminAlerts';
 import { UserRoleManager } from './UserRoleManager';
@@ -18,12 +19,14 @@ interface AdminPanelProps {
 
 export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const { isSuperAdmin } = useAuth();
+  const { toast } = useToast();
   const { users: adminUsers, loading: adminLoading, error: adminError, success } = useAdminData();
   const { 
     users: accessUsers, 
     loading: accessLoading, 
     error: accessError, 
-    updateUserRole: updateAccessUserRole 
+    updateUserRole: updateAccessUserRole,
+    deleteUser
   } = useAccessUsers();
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
@@ -45,9 +48,22 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     // Implement edit user logic here
   };
 
-  const handleRemoveUser = (userId: string) => {
-    console.log(`Removing user ${userId}`);
-    // Implement remove user logic here
+  const handleRemoveUser = async (userId: string) => {
+    try {
+      const userToDelete = accessUsers.find(user => user.id === userId);
+      await deleteUser(userId);
+      
+      toast({
+        title: "User Deleted",
+        description: `${userToDelete?.first_name} ${userToDelete?.last_name} has been successfully removed from the system.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete user. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleReactivateUser = (userId: string) => {

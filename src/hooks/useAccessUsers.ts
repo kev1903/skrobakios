@@ -122,6 +122,69 @@ export const useAccessUsers = () => {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      // Get the user_id from the profile first
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const userAccountId = profileData.user_id;
+
+      // Delete user role first (foreign key constraint)
+      if (userAccountId) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userAccountId);
+
+        if (roleError) throw roleError;
+      }
+
+      // Delete any pending invitations for this user
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', userId)
+        .single();
+
+      if (profile?.email) {
+        await supabase
+          .from('user_invitations')
+          .delete()
+          .eq('email', profile.email);
+      }
+
+      // Delete the profile
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (deleteError) throw deleteError;
+
+      // Delete the auth user if they have an account
+      if (userAccountId) {
+        const { error: authError } = await supabase.auth.admin.deleteUser(userAccountId);
+        if (authError) {
+          console.error('Error deleting auth user:', authError);
+          // Don't throw here as the profile is already deleted
+        }
+      }
+
+      // Refresh the users list
+      await fetchUsers();
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete user');
+      throw err;
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -132,5 +195,6 @@ export const useAccessUsers = () => {
     error,
     refetchUsers: fetchUsers,
     updateUserRole,
+    deleteUser,
   };
 };
