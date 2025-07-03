@@ -14,16 +14,29 @@ interface DatabaseProfile {
 
 interface DatabaseRole {
   user_id: string;
-  role: 'superadmin' | 'admin' | 'user';
+  role: 'superadmin' | 'admin' | 'user' | 'project_manager' | 'project_admin' | 'consultant' | 'subcontractor' | 'estimator' | 'accounts' | 'client_viewer';
 }
 
-const mapDatabaseRoleToDisplayRole = (dbRole: 'superadmin' | 'admin' | 'user'): UserRole => {
+const mapDatabaseRoleToDisplayRole = (dbRole: string): UserRole => {
   switch (dbRole) {
     case 'superadmin':
       return 'Super Admin';
+    case 'project_manager':
+      return 'Project Manager';
+    case 'project_admin':
+      return 'Project Admin';
+    case 'consultant':
+      return 'Consultant';
+    case 'subcontractor':
+      return 'SubContractor';
+    case 'estimator':
+      return 'Estimator';
+    case 'accounts':
+      return 'Accounts';
     case 'admin':
       return 'Project Manager';
     case 'user':
+    case 'client_viewer':
     default:
       return 'Client Viewer';
   }
@@ -62,7 +75,7 @@ export const useAccessUsers = () => {
       if (rolesError) throw rolesError;
 
       // Create a map of user roles for quick lookup
-      const rolesMap = new Map<string, 'superadmin' | 'admin' | 'user'>();
+      const rolesMap = new Map<string, DatabaseRole['role']>();
       (rolesData as DatabaseRole[]).forEach(role => {
         rolesMap.set(role.user_id, role.role);
       });
@@ -90,21 +103,32 @@ export const useAccessUsers = () => {
   const updateUserRole = async (userId: string, newRole: UserRole) => {
     try {
       // Map display role back to database role
-      let dbRole: 'superadmin' | 'admin' | 'user';
+      let dbRole: DatabaseRole['role'];
       switch (newRole) {
         case 'Super Admin':
           dbRole = 'superadmin';
           break;
         case 'Project Manager':
-        case 'Project Admin':
-        case 'Consultant':
-        case 'SubContractor':
-        case 'Estimator':
-        case 'Accounts':
-          dbRole = 'admin';
+          dbRole = 'project_manager';
           break;
+        case 'Project Admin':
+          dbRole = 'project_admin';
+          break;
+        case 'Consultant':
+          dbRole = 'consultant';
+          break;
+        case 'SubContractor':
+          dbRole = 'subcontractor';
+          break;
+        case 'Estimator':
+          dbRole = 'estimator';
+          break;
+        case 'Accounts':
+          dbRole = 'accounts';
+          break;
+        case 'Client Viewer':
         default:
-          dbRole = 'user';
+          dbRole = 'client_viewer';
       }
 
       const { error: updateError } = await supabase

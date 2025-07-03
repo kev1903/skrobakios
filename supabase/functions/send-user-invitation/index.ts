@@ -75,17 +75,17 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Authentication successful for user:", user.id);
 
     // Map role
-    const mapRoleToDbRole = (role: string): 'superadmin' | 'admin' | 'user' => {
+    const mapRoleToDbRole = (role: string): string => {
       switch (role) {
         case 'Super Admin': return 'superadmin';
-        case 'Project Manager':
-        case 'Project Admin':
-        case 'Consultant':
-        case 'SubContractor':
-        case 'Estimator':
-        case 'Accounts':
-          return 'admin';
-        default: return 'user';
+        case 'Project Manager': return 'project_manager';
+        case 'Project Admin': return 'project_admin';
+        case 'Consultant': return 'consultant';
+        case 'SubContractor': return 'subcontractor';
+        case 'Estimator': return 'estimator';
+        case 'Accounts': return 'accounts';
+        case 'Client Viewer': return 'client_viewer';
+        default: return 'client_viewer';
       }
     };
 
