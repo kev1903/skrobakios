@@ -1,87 +1,63 @@
-import React, { useState } from 'react';
-import { Shield, Plus, Settings, UserCog, Edit, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, Plus, Settings, UserCog, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { fetchRoleData, getRoleStats, type RoleData } from '@/services/roleService';
 
 interface RoleManagementProps {
   onNavigate: (page: string) => void;
 }
 
-// Mock role data - in a real app this would come from a database
-const systemRoles = [
-  {
-    id: 'superadmin',
-    name: 'Super Admin',
-    description: 'Full system access with all administrative privileges',
-    permissions: ['user_management', 'role_management', 'system_settings', 'project_management', 'financial_access'],
-    userCount: 1,
-    system: true
-  },
-  {
-    id: 'project_manager',
-    name: 'Project Manager',
-    description: 'Manage projects, teams, and project-related activities',
-    permissions: ['project_management', 'team_management', 'task_management', 'file_access'],
-    userCount: 3,
-    system: false
-  },
-  {
-    id: 'project_admin',
-    name: 'Project Admin',
-    description: 'Administrative access to project settings and team management',
-    permissions: ['project_settings', 'team_management', 'task_management'],
-    userCount: 2,
-    system: false
-  },
-  {
-    id: 'consultant',
-    name: 'Consultant',
-    description: 'External consultant with limited project access',
-    permissions: ['task_view', 'file_view', 'project_view'],
-    userCount: 5,
-    system: false
-  },
-  {
-    id: 'subcontractor',
-    name: 'SubContractor',
-    description: 'External contractor with specific task access',
-    permissions: ['task_management', 'file_access'],
-    userCount: 8,
-    system: false
-  },
-  {
-    id: 'estimator',
-    name: 'Estimator',
-    description: 'Access to cost estimation and financial planning tools',
-    permissions: ['estimation_tools', 'financial_view', 'project_view'],
-    userCount: 2,
-    system: false
-  },
-  {
-    id: 'accounts',
-    name: 'Accounts',
-    description: 'Financial and accounting access',
-    permissions: ['financial_management', 'invoice_management', 'expense_tracking'],
-    userCount: 1,
-    system: false
-  },
-  {
-    id: 'client_viewer',
-    name: 'Client Viewer',
-    description: 'Limited read-only access for clients',
-    permissions: ['project_view', 'progress_view'],
-    userCount: 12,
-    system: false
-  }
-];
-
 export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
   const { isSuperAdmin } = useAuth();
   const { toast } = useToast();
-  const [roles, setRoles] = useState(systemRoles);
+  const [roles, setRoles] = useState<RoleData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    totalRoles: 0,
+    totalUsers: 0,
+    customRoles: 0,
+    systemRoles: 0
+  });
+
+  const loadRoleData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const [rolesData, roleStats] = await Promise.all([
+        fetchRoleData(),
+        getRoleStats()
+      ]);
+      
+      setRoles(rolesData);
+      setStats(roleStats);
+    } catch (err) {
+      console.error('Error loading role data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load role data');
+      toast({
+        title: "Error",
+        description: "Failed to load role data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isSuperAdmin) {
+      loadRoleData();
+    }
+  }, [isSuperAdmin]);
+
+  const handleRefresh = () => {
+    loadRoleData();
+  };
 
   const handleCreateRole = () => {
     toast({
@@ -150,21 +126,48 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
           </h2>
           <p className="text-slate-500 mt-1">Define and manage user roles and permissions</p>
         </div>
-        <Button onClick={handleCreateRole} className="flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>Create Role</span>
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            size="sm"
+            disabled={loading}
+            className="flex items-center space-x-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </Button>
+          <Button onClick={handleCreateRole} className="flex items-center space-x-2">
+            <Plus className="w-4 h-4" />
+            <span>Create Role</span>
+          </Button>
+        </div>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Card className="backdrop-blur-sm bg-red-50/60 border-red-200/30">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 text-red-600">
+              <Shield className="w-5 h-5" />
+              <div>
+                <p className="font-medium">Error loading role data</p>
+                <p className="text-sm">{error}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Role Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="backdrop-blur-sm bg-white/60 border-white/30">
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Shield className="w-5 h-5 text-blue-600" />
               <div>
                 <p className="text-sm text-slate-500">Total Roles</p>
-                <p className="text-2xl font-bold">{roles.length}</p>
+                <p className="text-2xl font-bold">{loading ? '...' : stats.totalRoles}</p>
               </div>
             </div>
           </CardContent>
@@ -175,7 +178,7 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
               <UserCog className="w-5 h-5 text-green-600" />
               <div>
                 <p className="text-sm text-slate-500">Active Users</p>
-                <p className="text-2xl font-bold">{roles.reduce((sum, role) => sum + role.userCount, 0)}</p>
+                <p className="text-2xl font-bold">{loading ? '...' : stats.totalUsers}</p>
               </div>
             </div>
           </CardContent>
@@ -186,7 +189,18 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
               <Settings className="w-5 h-5 text-purple-600" />
               <div>
                 <p className="text-sm text-slate-500">Custom Roles</p>
-                <p className="text-2xl font-bold">{roles.filter(role => !role.system).length}</p>
+                <p className="text-2xl font-bold">{loading ? '...' : stats.customRoles}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-5 h-5 text-orange-600" />
+              <div>
+                <p className="text-sm text-slate-500">System Roles</p>
+                <p className="text-2xl font-bold">{loading ? '...' : stats.systemRoles}</p>
               </div>
             </div>
           </CardContent>
@@ -194,66 +208,103 @@ export const RoleManagement = ({ onNavigate }: RoleManagementProps) => {
       </div>
 
       {/* Roles List */}
-      <div className="grid gap-4">
-        {roles.map((role) => (
-          <Card key={role.id} className="backdrop-blur-sm bg-white/60 border-white/30 hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <CardTitle className="text-lg">{role.name}</CardTitle>
-                  {role.system && (
-                    <Badge variant="destructive" className="text-xs">
-                      System Role
-                    </Badge>
-                  )}
-                  <Badge variant="outline" className="text-xs">
-                    {role.userCount} {role.userCount === 1 ? 'user' : 'users'}
-                  </Badge>
+      {loading ? (
+        <div className="grid gap-4">
+          {[...Array(3)].map((_, index) => (
+            <Card key={index} className="backdrop-blur-sm bg-white/60 border-white/30">
+              <CardHeader>
+                <div className="animate-pulse">
+                  <div className="h-6 bg-slate-200 rounded mb-2 w-1/3"></div>
+                  <div className="h-4 bg-slate-200 rounded w-2/3"></div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditRole(role.id)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  {!role.system && (
+              </CardHeader>
+              <CardContent>
+                <div className="animate-pulse">
+                  <div className="h-4 bg-slate-200 rounded mb-2 w-1/4"></div>
+                  <div className="flex gap-2">
+                    <div className="h-6 bg-slate-200 rounded w-20"></div>
+                    <div className="h-6 bg-slate-200 rounded w-24"></div>
+                    <div className="h-6 bg-slate-200 rounded w-16"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : roles.length === 0 ? (
+        <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+          <CardContent className="p-8 text-center">
+            <Shield className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-slate-600 mb-2">No Roles Found</h3>
+            <p className="text-slate-500 mb-4">There are no roles configured in the system.</p>
+            <Button onClick={handleCreateRole} className="flex items-center space-x-2">
+              <Plus className="w-4 h-4" />
+              <span>Create First Role</span>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {roles.map((role) => (
+            <Card key={role.id} className="backdrop-blur-sm bg-white/60 border-white/30 hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <CardTitle className="text-lg">{role.name}</CardTitle>
+                    {role.system && (
+                      <Badge variant="destructive" className="text-xs">
+                        System Role
+                      </Badge>
+                    )}
+                    <Badge variant="outline" className="text-xs">
+                      {role.userCount} {role.userCount === 1 ? 'user' : 'users'}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center space-x-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteRole(role.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleEditRole(role.id)}
+                      className="h-8 w-8 p-0"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Edit className="w-4 h-4" />
                     </Button>
-                  )}
+                    {!role.system && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteRole(role.id)}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <CardDescription>
-                {role.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div>
-                <h4 className="text-sm font-medium text-slate-700 mb-2">Permissions</h4>
-                <div className="flex flex-wrap gap-1">
-                  {role.permissions.map((permission) => (
-                    <Badge
-                      key={permission}
-                      variant={getPermissionBadgeVariant(permission)}
-                      className="text-xs"
-                    >
-                      {permission.replace('_', ' ').toUpperCase()}
-                    </Badge>
-                  ))}
+                <CardDescription>
+                  {role.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <h4 className="text-sm font-medium text-slate-700 mb-2">Permissions</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {role.permissions.map((permission) => (
+                      <Badge
+                        key={permission}
+                        variant={getPermissionBadgeVariant(permission)}
+                        className="text-xs"
+                      >
+                        {permission.replace('_', ' ').toUpperCase()}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
