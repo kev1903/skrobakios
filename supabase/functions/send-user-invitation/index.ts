@@ -123,6 +123,28 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Invitation created:", invitation);
 
+    // Create invited user profile
+    const { data: profile, error: profileError } = await supabaseClient
+      .from("profiles")
+      .insert({
+        email,
+        first_name: name.split(' ')[0] || '',
+        last_name: name.split(' ').slice(1).join(' ') || '',
+        status: 'invited'
+      })
+      .select()
+      .single();
+
+    if (profileError) {
+      console.error("Profile creation error:", profileError);
+      // Don't fail the whole operation if profile creation fails
+      console.log("Continuing without profile creation");
+    } else {
+      console.log("Invited user profile created:", profile);
+    }
+
+    // Note: User role will be created when the user signs up and the trigger activates
+
     // Try to import and use Resend
     try {
       const { Resend } = await import("npm:resend@2.0.0");
