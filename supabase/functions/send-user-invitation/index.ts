@@ -1,9 +1,6 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
-
-// Initialize Resend later after checking the API key
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -51,6 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const { email, name, role, invitedBy }: InvitationRequest = await req.json();
+    console.log("Request data:", { email, name, role, invitedBy });
 
     // Map display role to database role
     const mapRoleToDbRole = (role: string): 'superadmin' | 'admin' | 'user' => {
@@ -72,6 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      console.error("No authorization header found");
       return new Response(
         JSON.stringify({ error: "No authorization header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -84,6 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     if (authError || !user) {
+      console.error("Authentication failed:", authError);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -96,6 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Email:", email);
 
     // Check for existing invitation and delete it if it exists
+    console.log("Checking for existing invitations...");
     const { error: deleteError } = await supabaseClient
       .from("user_invitations")
       .delete()
@@ -104,9 +105,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (deleteError) {
       console.log("Note: No existing invitation to delete (this is normal):", deleteError.message);
+    } else {
+      console.log("Deleted existing invitation for email:", email);
     }
 
     // Create invitation record
+    console.log("Creating new invitation...");
     const { data: invitation, error: inviteError } = await supabaseClient
       .from("user_invitations")
       .insert({
@@ -134,12 +138,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send invitation email
     const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
-    
     console.log("Sending email to:", email);
     console.log("Invitation URL:", invitationUrl);
+    
     // Initialize Resend with API key
     const resend = new Resend(resendApiKey);
     
+    console.log("Attempting to send email...");
     const emailResponse = await resend.emails.send({
       from: "KAKSIK <onboarding@resend.dev>",
       to: [email],
@@ -194,7 +199,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Invitation email sent successfully:", emailResponse);
+    console.log("Email sent successfully:", emailResponse);
 
     return new Response(
       JSON.stringify({ success: true, invitation }),
@@ -205,6 +210,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
   } catch (error: any) {
     console.error("Error in send-user-invitation function:", error);
+    console.error("Error stack:", error.stack);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
