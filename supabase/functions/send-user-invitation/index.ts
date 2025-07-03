@@ -134,7 +134,7 @@ const handler = async (req: Request): Promise<Response> => {
       const invitationUrl = `${req.headers.get("origin")}/accept-invitation?token=${invitation.token}`;
       
       const emailResult = await resend.emails.send({
-        from: "KAKSIK <onboarding@resend.dev>",
+        from: "KAKSIK <noreply@skrobaki.com>",
         to: [email],
         subject: `You're invited to join KAKSIK as ${role}`,
         html: `
