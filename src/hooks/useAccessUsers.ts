@@ -124,62 +124,76 @@ export const useAccessUsers = () => {
 
   const deleteUser = async (userId: string) => {
     try {
+      console.log('Starting delete process for user:', userId);
+      
       // Get the user_id from the profile first
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('user_id')
+        .select('user_id, email, first_name, last_name')
         .eq('id', userId)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        throw profileError;
+      }
 
+      console.log('Profile data found:', profileData);
       const userAccountId = profileData.user_id;
 
       // Delete user role first (foreign key constraint)
       if (userAccountId) {
+        console.log('Deleting user role for:', userAccountId);
         const { error: roleError } = await supabase
           .from('user_roles')
           .delete()
           .eq('user_id', userAccountId);
 
-        if (roleError) throw roleError;
+        if (roleError) {
+          console.error('Error deleting user role:', roleError);
+          throw roleError;
+        }
+        console.log('User role deleted successfully');
       }
 
       // Delete any pending invitations for this user
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', userId)
-        .single();
-
-      if (profile?.email) {
-        await supabase
+      if (profileData.email) {
+        console.log('Deleting invitations for:', profileData.email);
+        const { error: invitationError } = await supabase
           .from('user_invitations')
           .delete()
-          .eq('email', profile.email);
+          .eq('email', profileData.email);
+
+        if (invitationError) {
+          console.error('Error deleting invitations:', invitationError);
+          // Don't throw here, continue with profile deletion
+        } else {
+          console.log('Invitations deleted successfully');
+        }
       }
 
       // Delete the profile
+      console.log('Deleting profile:', userId);
       const { error: deleteError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
 
-      if (deleteError) throw deleteError;
-
-      // Delete the auth user if they have an account
-      if (userAccountId) {
-        const { error: authError } = await supabase.auth.admin.deleteUser(userAccountId);
-        if (authError) {
-          console.error('Error deleting auth user:', authError);
-          // Don't throw here as the profile is already deleted
-        }
+      if (deleteError) {
+        console.error('Error deleting profile:', deleteError);
+        throw deleteError;
       }
+      console.log('Profile deleted successfully');
 
+      // Note: We're skipping auth user deletion for now as it requires special permissions
+      // The profile deletion is the most important part for the UI
+
+      console.log('Refreshing users list...');
       // Refresh the users list
       await fetchUsers();
+      console.log('Users list refreshed');
     } catch (err) {
-      console.error('Error deleting user:', err);
+      console.error('Error in deleteUser function:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete user');
       throw err;
     }

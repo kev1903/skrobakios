@@ -50,17 +50,22 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
 
   const handleRemoveUser = async (userId: string) => {
     try {
+      console.log('Admin panel: Starting user deletion for:', userId);
       const userToDelete = accessUsers.find(user => user.id === userId);
+      console.log('User to delete:', userToDelete);
+      
       await deleteUser(userId);
       
+      console.log('User deletion completed successfully');
       toast({
         title: "User Deleted",
         description: `${userToDelete?.first_name} ${userToDelete?.last_name} has been successfully removed from the system.`,
       });
     } catch (error) {
+      console.error('Admin panel: Error deleting user:', error);
       toast({
         title: "Error",
-        description: "Failed to delete user. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to delete user. Please try again.",
         variant: "destructive",
       });
     }
