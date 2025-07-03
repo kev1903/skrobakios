@@ -18,7 +18,7 @@ export interface GanttTask {
   expanded?: boolean;
   type: 'milestone' | 'task' | 'group';
   assignee?: string;
-  status: 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'blocked';
+  status: 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'blocked' | 'review';
   dependencies?: string[];
   priority: 'low' | 'medium' | 'high' | 'critical';
   effort?: number; // in hours
@@ -57,7 +57,7 @@ export const GanttChart = ({
   zoomLevel = 'weeks'
 }: GanttChartProps) => {
   const { toast } = useToast();
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['planning', 'site-amenities']));
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['project-kickoff', 'research-analysis', 'wireframing', 'visual-design', 'prototyping']));
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
   const [hoveredTask, setHoveredTask] = useState<string | null>(null);
@@ -234,6 +234,7 @@ export const GanttChart = ({
     switch (status) {
       case 'completed': return 'bg-green-500';
       case 'in-progress': return 'bg-blue-500';
+      case 'review': return 'bg-yellow-500';
       case 'on-hold': return 'bg-yellow-500';
       case 'blocked': return 'bg-red-500';
       default: return 'bg-gray-400';
@@ -278,107 +279,78 @@ export const GanttChart = ({
 
   return (
     <div className="w-full bg-white rounded-lg border border-gray-200 shadow-sm">
-      {/* Enhanced Header with Controls */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+      {/* Top Header with Filters */}
+      <div className="p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <h3 className="text-lg font-semibold text-gray-900">Project Timeline</h3>
-            <Badge variant="outline" className="bg-white">
-              {completionPercentage}% Complete
-            </Badge>
+            <Button 
+              size="sm" 
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              onClick={() => onTaskCreate && onTaskCreate()}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add work
+            </Button>
           </div>
           
-          {/* Zoom Controls */}
-          <div className="flex items-center space-x-2">
-            <Button
-              size="sm"
-              variant={currentZoom === 'days' ? 'default' : 'outline'}
-              onClick={() => handleZoomChange('days')}
-              className="text-xs"
-            >
-              Days
-            </Button>
-            <Button
-              size="sm"
-              variant={currentZoom === 'weeks' ? 'default' : 'outline'}
-              onClick={() => handleZoomChange('weeks')}
-              className="text-xs"
-            >
-              Weeks
-            </Button>
-            <Button
-              size="sm"
-              variant={currentZoom === 'months' ? 'default' : 'outline'}
-              onClick={() => handleZoomChange('months')}
-              className="text-xs"
-            >
-              Months
-            </Button>
-            {!readOnly && onTaskCreate && (
-              <Button size="sm" onClick={() => onTaskCreate()} className="ml-4">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Task
-              </Button>
-            )}
+          <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4" />
+              <span>Today</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Users className="w-4 h-4" />
+              <span>All tasks</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span>Filter</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span>Color: Default</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span>Months</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span>Gantt Option</span>
+            </div>
           </div>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${completionPercentage}%` }}
-          ></div>
         </div>
       </div>
 
       <div className="overflow-auto" style={{ maxHeight: '70vh' }}>
         {/* Table Header */}
         <div className="flex border-b border-gray-200 sticky top-0 bg-white z-10 shadow-sm">
-          <div className="w-96 p-3 border-r border-gray-200 bg-gray-50 flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-gray-900">Task Name</h4>
-              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                <span>Status</span>
-                <span>•</span>
-                <span>Priority</span>
+          <div className="w-80 p-3 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+            <span className="text-sm font-medium text-gray-700">Task Name</span>
+          </div>
+          <div className="w-24 p-3 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+            <span className="text-sm font-medium text-gray-700">Status</span>
+          </div>
+          <div className="w-32 p-3 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+            <span className="text-sm font-medium text-gray-700">Contributor</span>
+          </div>
+          <div className="w-32 p-3 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+            <span className="text-sm font-medium text-gray-700">Date range</span>
+          </div>
+          
+          {/* Timeline Headers - May and June */}
+          <div className="flex bg-gray-50">
+            <div className="w-40 p-3 border-r border-gray-200 text-center">
+              <span className="text-sm font-medium text-gray-900">May</span>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                {[21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map(day => (
+                  <span key={day} className="w-3 text-center">{day}</span>
+                ))}
               </div>
             </div>
-          </div>
-          <div 
-            className="bg-gray-50 flex-shrink-0 border-r border-gray-200" 
-            style={{ width: `${timelineWidth}px` }}
-            ref={timelineRef}
-          >
-            <div className="flex">
-              {timelineUnits.map((unit, index) => (
-                <div 
-                  key={index} 
-                  className={cn(
-                    "p-3 border-r border-gray-200 text-center last:border-r-0 flex-shrink-0",
-                    unit.isWeekend && showWeekends && "bg-gray-100"
-                  )}
-                  style={{ width: `${unitWidth}px` }}
-                >
-                  <div className="text-xs font-medium text-gray-700">
-                    {unit.label}
-                  </div>
-                  {currentZoom === 'weeks' && (
-                    <div className="flex justify-between text-xs text-gray-500 mt-1">
-                      {Array.from({ length: 7 }, (_, dayIndex) => {
-                        const date = new Date(unit.start);
-                        date.setDate(date.getDate() + dayIndex);
-                        if (date > unit.end) return null;
-                        return (
-                          <span key={dayIndex} className="w-3 text-center">
-                            {date.getDate()}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="w-40 p-3 text-center">
+              <span className="text-sm font-medium text-gray-900">June</span>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(day => (
+                  <span key={day} className="w-3 text-center">{day}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -402,7 +374,7 @@ export const GanttChart = ({
                 onMouseLeave={() => setHoveredTask(null)}
               >
                 {/* Task Name Column */}
-                <div className="w-96 p-3 border-r border-gray-200 flex items-center flex-shrink-0">
+                <div className="w-80 p-3 border-r border-gray-200 flex items-center flex-shrink-0">
                   <div 
                     className="flex items-center w-full" 
                     style={{ marginLeft: `${task.level * 16}px` }}
@@ -421,104 +393,70 @@ export const GanttChart = ({
                       </button>
                     )}
                     
-                    {/* Task Type Indicator */}
-                    <div className="mr-2">
-                      {task.type === 'milestone' && (
-                        <div className="w-3 h-3 bg-yellow-500 rotate-45" title="Milestone"></div>
-                      )}
-                      {task.type === 'task' && (
-                        <div className={cn("w-3 h-3 rounded-full", getStatusColor(task.status))} title={task.status}></div>
-                      )}
-                      {task.type === 'group' && (
-                        <div className="w-3 h-3 bg-gray-600 rounded-sm" title="Group"></div>
-                      )}
-                    </div>
-
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span 
-                          className={cn(
-                            "text-sm font-medium truncate cursor-pointer hover:text-blue-600 transition-colors",
-                            task.type === 'group' && "font-semibold text-gray-900",
-                            task.status === 'completed' && "line-through text-gray-500"
-                          )}
-                          onClick={() => handleTaskClick(task.id)}
-                          title={task.name}
-                        >
-                          {task.name}
-                        </span>
-                        
-                        <div className="flex items-center space-x-1 ml-2">
-                          <Badge 
-                            variant="outline" 
-                            className={cn("text-xs px-1 py-0", getStatusColor(task.status))}
-                          >
-                            {task.status.replace('-', ' ')}
-                          </Badge>
-                          {task.assignee && (
-                            <div 
-                              className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-xs text-white font-medium"
-                              title={`Assigned to: ${task.assignee}`}
-                            >
-                              {task.assignee.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {task.assignee && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          Assigned to: {task.assignee}
-                        </div>
-                      )}
+                      <span 
+                        className={cn(
+                          "text-sm font-medium truncate cursor-pointer hover:text-blue-600 transition-colors",
+                          task.type === 'group' && "font-semibold text-gray-900",
+                          task.status === 'completed' && "text-gray-900"
+                        )}
+                        onClick={() => handleTaskClick(task.id)}
+                        title={task.name}
+                      >
+                        {task.name}
+                      </span>
                     </div>
                   </div>
+                </div>
+
+                {/* Status Column */}
+                <div className="w-24 p-3 border-r border-gray-200 flex items-center flex-shrink-0">
+                  <div className={cn("w-2 h-2 rounded-full", getStatusColor(task.status))} title={task.status}></div>
+                  <span className="ml-2 text-xs text-gray-600 capitalize">
+                    {task.status === 'in-progress' ? 'In progress' : task.status}
+                  </span>
+                </div>
+
+                {/* Contributor Column */}
+                <div className="w-32 p-3 border-r border-gray-200 flex items-center flex-shrink-0">
+                  <span className="text-sm text-gray-700">{task.assignee || '-'}</span>
+                </div>
+
+                {/* Date Range Column */}
+                <div className="w-32 p-3 border-r border-gray-200 flex items-center flex-shrink-0">
+                  <span className="text-sm text-gray-700">
+                    {task.startDate && task.endDate 
+                      ? `${new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(task.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                      : task.startDate 
+                        ? new Date(task.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        : 'Today'
+                    }
+                  </span>
                 </div>
 
                 {/* Timeline Column */}
                 <div 
                   className="relative h-12 bg-white flex-shrink-0" 
-                  style={{ width: `${timelineWidth}px` }}
+                  style={{ width: '320px' }}
                 >
                   {/* Grid Lines */}
                   <div className="absolute inset-0 flex">
-                    {timelineUnits.map((unit, unitIndex) => (
-                      <div 
-                        key={unitIndex} 
-                        className={cn(
-                          "border-r border-gray-200 last:border-r-0 flex-shrink-0",
-                          unit.isWeekend && showWeekends && "bg-gray-50/50"
-                        )}
-                        style={{ width: `${unitWidth}px` }}
-                      >
-                        {/* Today Indicator */}
-                        {(() => {
-                          const today = new Date();
-                          if (today >= unit.start && today <= unit.end) {
-                            const todayOffset = ((today.getTime() - unit.start.getTime()) / (unit.end.getTime() - unit.start.getTime())) * unitWidth;
-                            return (
-                              <div 
-                                className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20"
-                                style={{ left: `${todayOffset}px` }}
-                              />
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                    ))}
+                    {/* May Column */}
+                    <div className="w-40 border-r border-gray-200 bg-gray-50/30"></div>
+                    {/* June Column */}
+                    <div className="w-40 bg-gray-50/30"></div>
                   </div>
                   
                   {/* Task Bar */}
-                  {task.type !== 'milestone' && (
+                  {task.type !== 'milestone' && task.startDate && task.endDate && (
                     <div
                       className={cn(
-                        "absolute top-2 h-8 rounded-md flex items-center px-2 text-xs text-white font-medium shadow-sm transition-all duration-200 cursor-pointer group",
+                        "absolute top-2 h-8 rounded-md flex items-center px-2 text-xs text-white font-medium shadow-sm transition-all duration-200 cursor-pointer",
                         isHovered && "shadow-lg scale-105 z-10",
                         isSelected && "ring-2 ring-white ring-offset-1 z-10"
                       )}
                       style={{
-                        ...taskPosition,
+                        ...getTaskPosition(task),
                         backgroundColor: task.color,
                         minWidth: '20px'
                       }}
@@ -530,24 +468,9 @@ export const GanttChart = ({
                       {/* Progress Overlay */}
                       {task.progress > 0 && (
                         <div
-                          className="absolute top-0 left-0 h-full bg-black bg-opacity-20 rounded-md transition-all"
+                          className="absolute top-0 left-0 h-full bg-black bg-opacity-20 rounded-md"
                           style={{ width: `${Math.min(100, task.progress)}%` }}
                         />
-                      )}
-                      
-                      {/* Progress Text */}
-                      {task.progress > 0 && (
-                        <span className="text-xs font-medium z-10 ml-1">
-                          {task.progress}%
-                        </span>
-                      )}
-
-                      {/* Resize Handles (when selected) */}
-                      {isSelected && !readOnly && (
-                        <>
-                          <div className="absolute left-0 top-0 w-1 h-full bg-white rounded-l cursor-ew-resize opacity-75 hover:opacity-100" />
-                          <div className="absolute right-0 top-0 w-1 h-full bg-white rounded-r cursor-ew-resize opacity-75 hover:opacity-100" />
-                        </>
                       )}
                     </div>
                   )}
