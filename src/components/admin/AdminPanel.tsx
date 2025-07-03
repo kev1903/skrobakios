@@ -23,32 +23,38 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const accessUsers: AccessUser[] = [
     {
       id: '1',
-      name: 'Kevin Skrobaki',
+      first_name: 'Kevin',
+      last_name: 'Skrobaki',
       email: 'kevin@skrobaki.com',
       company: 'Skrobaki Construction',
       role: 'Super Admin',
       status: 'Active',
-      avatar: '/placeholder.svg'
+      avatar: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=150&h=150&fit=crop&crop=face'
     },
     {
       id: '2',
-      name: 'Sarah Johnson',
+      first_name: 'Sarah',
+      last_name: 'Johnson',
       email: 'sarah.johnson@example.com',
       company: 'ABC Construction',
       role: 'Project Manager',
       status: 'Active',
+      avatar: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=face'
     },
     {
       id: '3',
-      name: 'Mike Chen',
+      first_name: 'Mike',
+      last_name: 'Chen',
       email: 'mike.chen@example.com',
       company: 'DEF Engineering',
       role: 'Project Admin',
       status: 'Suspended',
+      avatar: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&h=150&fit=crop&crop=face'
     },
     {
       id: '4',
-      name: 'Lisa Rodriguez',
+      first_name: 'Lisa',
+      last_name: 'Rodriguez',
       email: 'lisa.rodriguez@example.com',
       company: 'GHI Consulting',
       role: 'Consultant',

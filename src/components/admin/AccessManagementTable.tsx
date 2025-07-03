@@ -56,7 +56,8 @@ export type UserStatus = 'Active' | 'Suspended';
 
 export interface AccessUser {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   company: string;
   role: UserRole;
@@ -111,13 +112,8 @@ export const AccessManagementTable = ({
     return status === 'Active' ? 'default' : 'destructive';
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  const getInitials = (firstName: string, lastName: string) => {
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
   };
 
   const isSuperAdmin = (role: UserRole) => role === 'Super Admin';
@@ -260,12 +256,12 @@ export const AccessManagementTable = ({
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar} alt={user.name} />
+                          <AvatarImage src={user.avatar} alt={`${user.first_name} ${user.last_name}`} />
                           <AvatarFallback className="text-xs font-medium">
-                            {getInitials(user.name)}
+                            {getInitials(user.first_name, user.last_name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium">{user.name}</span>
+                        <span className="font-medium">{user.first_name} {user.last_name}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
