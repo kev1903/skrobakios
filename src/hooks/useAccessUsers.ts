@@ -141,7 +141,7 @@ export const useAccessUsers = () => {
       console.log('Profile data found:', profileData);
       const userAccountId = profileData.user_id;
 
-      // Delete user role first (foreign key constraint)
+      // Delete user role first (foreign key constraint) - only if user has an account
       if (userAccountId) {
         console.log('Deleting user role for:', userAccountId);
         const { error: roleError } = await supabase
@@ -154,6 +154,8 @@ export const useAccessUsers = () => {
           throw roleError;
         }
         console.log('User role deleted successfully');
+      } else {
+        console.log('No user account found, skipping role deletion');
       }
 
       // Delete any pending invitations for this user
@@ -185,13 +187,19 @@ export const useAccessUsers = () => {
       }
       console.log('Profile deleted successfully');
 
-      // Note: We're skipping auth user deletion for now as it requires special permissions
-      // The profile deletion is the most important part for the UI
+      // Immediately update the local state to remove the user from UI
+      console.log('Updating local state...');
+      setUsers(prevUsers => {
+        const updatedUsers = prevUsers.filter(user => user.id !== userId);
+        console.log('Local state updated, remaining users:', updatedUsers.length);
+        return updatedUsers;
+      });
 
-      console.log('Refreshing users list...');
-      // Refresh the users list
+      // Also refresh from database to ensure consistency
+      console.log('Refreshing users list from database...');
       await fetchUsers();
-      console.log('Users list refreshed');
+      console.log('Users list refreshed from database');
+      
     } catch (err) {
       console.error('Error in deleteUser function:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete user');
