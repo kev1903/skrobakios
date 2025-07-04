@@ -239,7 +239,7 @@ export const AccessManagementTable = ({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="heading-modern text-gradient">Access Management</CardTitle>
-              <CardDescription className="mt-3">
+              <CardDescription>
                 Manage user roles, permissions, and access levels
               </CardDescription>
             </div>
