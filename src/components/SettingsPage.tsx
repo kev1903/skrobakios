@@ -20,6 +20,14 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
 
+  // Handle navigation back to admin tab
+  React.useEffect(() => {
+    const currentPage = window.location.hash?.slice(1) || '';
+    if (currentPage === 'admin' || currentPage === 'admin-new-user') {
+      setActiveTab('admin');
+    }
+  }, []);
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
