@@ -171,8 +171,15 @@ const handler = async (req: Request): Promise<Response> => {
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const emailResult = await resend.emails.send({
+      console.log("Attempting to send email with details:", {
         from: "KAKSIK Support <support@skrobaki.com>",
+        to: email,
+        subject: `You're invited to join KAKSIK as ${role}`,
+        resendApiKey: !!resendApiKey
+      });
+      
+      const emailResult = await resend.emails.send({
+        from: "KAKSIK Support <onboarding@resend.dev>",
         to: [email],
         subject: `You're invited to join KAKSIK as ${role}`,
         html: `
