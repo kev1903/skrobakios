@@ -224,7 +224,7 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Adding...' : 'Add User'}
+              {isSubmitting ? 'Sending...' : 'Send Invite'}
             </Button>
           </div>
         </form>
