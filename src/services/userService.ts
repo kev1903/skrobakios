@@ -13,7 +13,8 @@ export const fetchUsersData = async (): Promise<AccessUser[]> => {
       last_name,
       email,
       avatar_url,
-      company
+      company,
+      status
     `)
     .order('first_name');
 
@@ -39,7 +40,7 @@ export const fetchUsersData = async (): Promise<AccessUser[]> => {
     email: user.email || '',
     company: user.company || 'No Company',
     role: mapDatabaseRoleToDisplayRole(rolesMap.get(user.user_id || '') || 'user'),
-    status: 'Active' as const, // Default to active, can be enhanced later
+    status: user.status === 'invited' ? 'Suspended' as const : 'Active' as const,
     avatar: user.avatar_url || undefined,
   }));
 

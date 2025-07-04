@@ -120,7 +120,13 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       
       <AddUserDialog
         open={showAddUserDialog}
-        onOpenChange={setShowAddUserDialog}
+        onOpenChange={(open) => {
+          setShowAddUserDialog(open);
+          if (!open) {
+            // Refresh users list when dialog closes after successful addition
+            window.location.reload();
+          }
+        }}
       />
     </div>
   );

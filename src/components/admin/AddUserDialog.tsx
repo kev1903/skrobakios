@@ -19,6 +19,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from './AccessManagementTable';
+import { supabase } from '@/integrations/supabase/client';
+import { mapDisplayRoleToDatabase } from '@/utils/roleMapping';
 
 interface AddUserDialogProps {
   open: boolean;
@@ -58,14 +60,50 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
     setIsSubmitting(true);
     
     try {
-      // TODO: Implement user invitation/creation logic here
-      console.log('Creating user:', { firstName, lastName, email, role });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Check if user with this email already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email.trim())
+        .single();
+
+      if (existingProfile) {
+        toast({
+          title: "Email Already Exists",
+          description: "A user with this email address already exists.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create invited profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          email: email.trim(),
+          status: 'invited'
+        })
+        .select()
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Create user invitation
+      const { error: invitationError } = await supabase
+        .from('user_invitations')
+        .insert({
+          email: email.trim(),
+          invited_role: mapDisplayRoleToDatabase(role),
+          invited_by_user_id: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (invitationError) throw invitationError;
       
       toast({
-        title: "User Added",
+        title: "User Invited",
         description: `${firstName} ${lastName} has been invited to join the system.`,
       });
       
@@ -76,9 +114,10 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
       setRole('');
       onOpenChange(false);
     } catch (error) {
+      console.error('Error creating user invitation:', error);
       toast({
         title: "Error",
-        description: "Failed to add user. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to invite user. Please try again.",
         variant: "destructive",
       });
     } finally {

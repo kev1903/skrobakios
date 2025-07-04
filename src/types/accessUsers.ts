@@ -6,6 +6,7 @@ export interface DatabaseProfile {
   email: string | null;
   avatar_url: string | null;
   company: string | null;
+  status: string;
 }
 
 export interface DatabaseRole {
