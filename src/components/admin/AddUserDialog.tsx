@@ -60,6 +60,8 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
     setIsSubmitting(true);
     
     try {
+      console.log('Starting user invitation process...', { firstName, lastName, email, role });
+      
       // Check if user with this email already exists
       const { data: existingProfile } = await supabase
         .from('profiles')
@@ -77,25 +79,15 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
         return;
       }
 
-      // Create invited profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          email: email.trim(),
-          status: 'invited'
-        })
-        .select()
-        .single();
-
-      if (profileError) throw profileError;
+      console.log('No existing profile found, proceeding with invitation...');
 
       // Get current user info for the invitation
       const { data: currentUser } = await supabase.auth.getUser();
       if (!currentUser.user) {
         throw new Error('You must be logged in to send invitations');
       }
+
+      console.log('Current user verified, calling edge function...');
 
       // Call edge function to send invitation email and create records
       const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('send-user-invitation', {
@@ -107,18 +99,23 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
         }
       });
 
+      console.log('Edge function response:', { invitationResult, invitationError });
+
       if (invitationError) {
         console.error('Error calling invitation function:', invitationError);
-        throw invitationError;
+        throw new Error(`Edge function error: ${invitationError.message}`);
       }
 
       if (!invitationResult?.success) {
+        console.error('Edge function returned failure:', invitationResult);
         throw new Error(invitationResult?.error || 'Failed to send invitation');
       }
+
+      console.log('Invitation sent successfully!');
       
       toast({
         title: "User Invited",
-        description: `${firstName} ${lastName} has been invited to join the system.`,
+        description: `${firstName} ${lastName} has been invited successfully and will receive an email.`,
       });
       
       // Reset form and close dialog
@@ -128,7 +125,7 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
       setRole('');
       onOpenChange(false);
     } catch (error) {
-      console.error('Error creating user invitation:', error);
+      console.error('Error in handleSubmit:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to invite user. Please try again.",
