@@ -3,6 +3,7 @@ import { Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { AdminHeader } from './AdminHeader';
 import { AdminAlerts } from './AdminAlerts';
 import { UserRoleManager } from './UserRoleManager';
@@ -73,9 +74,66 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     }
   };
 
-  const handleReactivateUser = (userId: string) => {
-    console.log(`Reactivating user ${userId}`);
-    handleStatusChange(userId, 'Active');
+  const handleReactivateUser = async (userId: string) => {
+    const userToResend = accessUsers.find(user => user.id === userId);
+    
+    if (!userToResend) {
+      toast({
+        title: "Error",
+        description: "User not found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // If user is invited, resend the invitation email
+    if (userToResend.status === 'Invited') {
+      try {
+        console.log(`Resending invitation to user ${userId}:`, userToResend);
+        
+        // Get current user info
+        const { data: currentUser } = await supabase.auth.getUser();
+        if (!currentUser.user) {
+          throw new Error('You must be logged in to send invitations');
+        }
+
+        // Call edge function to resend invitation email
+        const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('send-user-invitation', {
+          body: {
+            email: userToResend.email,
+            name: `${userToResend.first_name} ${userToResend.last_name}`,
+            role: userToResend.role,
+            invitedBy: currentUser.user.email || 'Admin'
+          }
+        });
+
+        if (invitationError) {
+          console.error('Error resending invitation:', invitationError);
+          throw new Error(`Failed to resend invitation: ${invitationError.message}`);
+        }
+
+        if (!invitationResult?.success) {
+          throw new Error(invitationResult?.error || 'Failed to resend invitation');
+        }
+
+        toast({
+          title: "Invitation Resent",
+          description: `Invitation email has been resent to ${userToResend.first_name} ${userToResend.last_name}.`,
+        });
+        
+      } catch (error) {
+        console.error('Error resending invitation:', error);
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to resend invitation.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // For non-invited users, just reactivate them
+      console.log(`Reactivating user ${userId}`);
+      handleStatusChange(userId, 'Active');
+    }
   };
 
   const handleAddNewUser = () => {
