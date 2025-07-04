@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { DatabaseProfile, DatabaseRole } from '@/types/accessUsers';
-import type { AccessUser, UserRole } from '@/components/admin/AccessManagementTable';
+import type { AccessUser, UserRole } from '@/components/admin/types';
 import { mapDatabaseRoleToDisplayRole, mapDisplayRoleToDatabase } from '@/utils/roleMapping';
 
 export const fetchUsersData = async (): Promise<AccessUser[]> => {

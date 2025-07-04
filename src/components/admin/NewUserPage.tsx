@@ -14,7 +14,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import type { UserRole } from './AccessManagementTable';
+import type { UserRole } from './types';
 
 const ROLES: UserRole[] = [
   'Super Admin',

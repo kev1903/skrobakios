@@ -1,4 +1,4 @@
-import type { UserRole } from '@/components/admin/AccessManagementTable';
+import type { UserRole } from '@/components/admin/types';
 import type { DatabaseRole } from '@/types/accessUsers';
 
 export const mapDatabaseRoleToDisplayRole = (dbRole: string): UserRole => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { AccessUser, UserRole } from '@/components/admin/AccessManagementTable';
+import type { AccessUser, UserRole } from '@/components/admin/types';
 import { fetchUsersData, updateUserRoleInDatabase, deleteUserFromDatabase } from '@/services/userService';
 
 export const useAccessUsers = () => {
