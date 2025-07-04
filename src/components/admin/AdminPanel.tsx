@@ -1,6 +1,7 @@
-import React from 'react';
-import { Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shield, Users, Settings, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AdminHeader } from './AdminHeader';
@@ -10,6 +11,7 @@ import { UsersList } from './UsersList';
 import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
 import { AccessManagementTable, type AccessUser, type UserRole, type UserStatus } from './AccessManagementTable';
+import { Database } from '@/integrations/supabase/types';
 import { useAccessUsers } from '@/hooks/useAccessUsers';
 import { useAdminData } from './useAdminData';
 
@@ -20,6 +22,7 @@ interface AdminPanelProps {
 export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const { isSuperAdmin } = useAuth();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('access-management');
   const { users: adminUsers, loading: adminLoading, error: adminError, success } = useAdminData();
   const { 
     users: accessUsers, 
@@ -31,6 +34,12 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     updateAccessUserRole(userId, newRole);
+  };
+
+  const handleDatabaseRoleChange = (userId: string, role: Database['public']['Enums']['user_role']) => {
+    // Convert database role to UserRole format for consistency
+    console.log(`Updating database role for user ${userId} to ${role}`);
+    // This would need to be implemented with proper database role update logic
   };
 
   const handleStatusChange = (userId: string, newStatus: UserStatus) => {
@@ -104,17 +113,51 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       <AdminHeader onNavigate={onNavigate} />
       <AdminAlerts error={accessError || adminError} success={success} />
       
-      <AccessManagementTable
-        users={accessUsers}
-        currentUserRole="Super Admin"
-        onRoleChange={handleRoleChange}
-        onStatusChange={handleStatusChange}
-        onViewUser={handleViewUser}
-        onEditUser={handleEditUser}
-        onRemoveUser={handleRemoveUser}
-        onReactivateUser={handleReactivateUser}
-        onAddNewUser={handleAddNewUser}
-      />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 backdrop-blur-sm bg-white/60">
+          <TabsTrigger value="access-management" className="flex items-center space-x-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">Access Management</span>
+          </TabsTrigger>
+          <TabsTrigger value="user-roles" className="flex items-center space-x-2">
+            <Shield className="w-4 h-4" />
+            <span className="hidden sm:inline">User Roles</span>
+          </TabsTrigger>
+          <TabsTrigger value="invitations" className="flex items-center space-x-2">
+            <UserPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Invitations</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="access-management" className="space-y-6">
+          <AccessManagementTable
+            users={accessUsers}
+            currentUserRole="Super Admin"
+            onRoleChange={handleRoleChange}
+            onStatusChange={handleStatusChange}
+            onViewUser={handleViewUser}
+            onEditUser={handleEditUser}
+            onRemoveUser={handleRemoveUser}
+            onReactivateUser={handleReactivateUser}
+            onAddNewUser={handleAddNewUser}
+          />
+        </TabsContent>
+
+        <TabsContent value="user-roles" className="space-y-6">
+          <UserRoleManager 
+            users={adminUsers}
+            onRoleUpdate={handleDatabaseRoleChange}
+            loading={adminLoading}
+          />
+        </TabsContent>
+
+        <TabsContent value="invitations" className="space-y-6">
+          <div className="space-y-6">
+            <UserInvitationManager />
+            <UserInvitationsList />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

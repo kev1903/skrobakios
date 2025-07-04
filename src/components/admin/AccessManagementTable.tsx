@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { MoreHorizontal, Eye, Edit, Trash2, UserCheck, AlertCircle, Plus, ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { MoreHorizontal, Eye, Edit, Trash2, UserCheck, AlertCircle, Plus } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -100,8 +100,6 @@ export const AccessManagementTable = ({
   onAddNewUser,
 }: AccessManagementTableProps) => {
   const [removeUserId, setRemoveUserId] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<keyof AccessUser | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     onRoleChange(userId, newRole);
@@ -126,59 +124,6 @@ export const AccessManagementTable = ({
   const isAdmin = (role: UserRole) => role === 'Super Admin' || role === 'Project Manager' || role === 'Project Admin';
   
   const canAddUsers = currentUserRole ? isAdmin(currentUserRole) : false;
-
-  const handleSort = (field: keyof AccessUser) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const sortedUsers = useMemo(() => {
-    if (!sortField) return users;
-
-    return [...users].sort((a, b) => {
-      const aValue = a[sortField];
-      const bValue = b[sortField];
-
-      if (aValue < bValue) {
-        return sortDirection === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortDirection === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [users, sortField, sortDirection]);
-
-  const SortableHeader = ({ field, children }: { field: keyof AccessUser; children: React.ReactNode }) => (
-    <TableHead 
-      className="font-semibold cursor-pointer hover:bg-muted/20 transition-colors select-none"
-      onClick={() => handleSort(field)}
-    >
-      <div className="flex items-center gap-1">
-        {children}
-        <div className="flex flex-col">
-          <ChevronUp 
-            className={`h-3 w-3 ${
-              sortField === field && sortDirection === 'asc' 
-                ? 'text-primary' 
-                : 'text-muted-foreground/50'
-            }`} 
-          />
-          <ChevronDown 
-            className={`h-3 w-3 -mt-1 ${
-              sortField === field && sortDirection === 'desc' 
-                ? 'text-primary' 
-                : 'text-muted-foreground/50'
-            }`} 
-          />
-        </div>
-      </div>
-    </TableHead>
-  );
 
   const renderActions = (user: AccessUser) => {
     const isUserSuperAdmin = isSuperAdmin(user.role);
@@ -315,16 +260,16 @@ export const AccessManagementTable = ({
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <SortableHeader field="first_name">User</SortableHeader>
-                  <SortableHeader field="email">Email</SortableHeader>
-                  <SortableHeader field="company">Company</SortableHeader>
-                  <SortableHeader field="role">Role</SortableHeader>
-                  <SortableHeader field="status">Status</SortableHeader>
+                  <TableHead className="font-semibold">User</TableHead>
+                  <TableHead className="font-semibold">Email</TableHead>
+                  <TableHead className="font-semibold">Company</TableHead>
+                  <TableHead className="font-semibold">Role</TableHead>
+                  <TableHead className="font-semibold">Status</TableHead>
                   <TableHead className="font-semibold text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedUsers.map((user) => (
+                {users.map((user) => (
                   <TableRow 
                     key={user.id}
                     className="hover:bg-muted/20 transition-colors"
