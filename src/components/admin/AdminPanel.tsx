@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +10,7 @@ import { UsersList } from './UsersList';
 import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
 import { AccessManagementTable, type AccessUser, type UserRole, type UserStatus } from './AccessManagementTable';
+import { AddUserDialog } from './AddUserDialog';
 import { useAccessUsers } from '@/hooks/useAccessUsers';
 import { useAdminData } from './useAdminData';
 
@@ -20,6 +21,7 @@ interface AdminPanelProps {
 export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const { isSuperAdmin } = useAuth();
   const { toast } = useToast();
+  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const { users: adminUsers, loading: adminLoading, error: adminError, success } = useAdminData();
   const { 
     users: accessUsers, 
@@ -77,7 +79,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   };
 
   const handleAddNewUser = () => {
-    onNavigate('admin-new-user');
+    setShowAddUserDialog(true);
   };
 
   if (!isSuperAdmin) {
@@ -114,6 +116,11 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
         onRemoveUser={handleRemoveUser}
         onReactivateUser={handleReactivateUser}
         onAddNewUser={handleAddNewUser}
+      />
+      
+      <AddUserDialog
+        open={showAddUserDialog}
+        onOpenChange={setShowAddUserDialog}
       />
     </div>
   );
