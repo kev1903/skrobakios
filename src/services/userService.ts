@@ -40,7 +40,7 @@ export const fetchUsersData = async (): Promise<AccessUser[]> => {
     email: user.email || '',
     company: user.company || 'No Company',
     role: mapDatabaseRoleToDisplayRole(rolesMap.get(user.user_id || '') || 'user'),
-    status: user.status === 'invited' ? 'Suspended' as const : 'Active' as const,
+    status: user.status === 'invited' ? 'Invited' as const : 'Active' as const,
     avatar: user.avatar_url || undefined,
   }));
 

@@ -52,7 +52,7 @@ export type UserRole =
   | 'Accounts'
   | 'Client Viewer';
 
-export type UserStatus = 'Active' | 'Suspended';
+export type UserStatus = 'Active' | 'Suspended' | 'Invited';
 
 export interface AccessUser {
   id: string;
@@ -113,7 +113,9 @@ export const AccessManagementTable = ({
   };
 
   const getStatusBadgeVariant = (status: UserStatus) => {
-    return status === 'Active' ? 'default' : 'destructive';
+    if (status === 'Active') return 'default';
+    if (status === 'Invited') return 'secondary';
+    return 'destructive';
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -128,8 +130,9 @@ export const AccessManagementTable = ({
   const renderActions = (user: AccessUser) => {
     const isUserSuperAdmin = isSuperAdmin(user.role);
     const isSuspended = user.status === 'Suspended';
+    const isInvited = user.status === 'Invited';
 
-    if (isSuspended) {
+    if (isSuspended || isInvited) {
       return (
         <div className="flex items-center gap-2">
           <TooltipProvider>
@@ -160,7 +163,7 @@ export const AccessManagementTable = ({
                   <UserCheck className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Reactivate User</TooltipContent>
+              <TooltipContent>{isInvited ? 'Resend Invitation' : 'Reactivate User'}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
