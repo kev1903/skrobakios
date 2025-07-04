@@ -91,16 +91,30 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
 
       if (profileError) throw profileError;
 
-      // Create user invitation
-      const { error: invitationError } = await supabase
-        .from('user_invitations')
-        .insert({
-          email: email.trim(),
-          invited_role: mapDisplayRoleToDatabase(role),
-          invited_by_user_id: (await supabase.auth.getUser()).data.user?.id
-        });
+      // Get current user info for the invitation
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) {
+        throw new Error('You must be logged in to send invitations');
+      }
 
-      if (invitationError) throw invitationError;
+      // Call edge function to send invitation email and create records
+      const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
+          email: email.trim(),
+          name: `${firstName.trim()} ${lastName.trim()}`,
+          role: role,
+          invitedBy: currentUser.user.email || 'Admin'
+        }
+      });
+
+      if (invitationError) {
+        console.error('Error calling invitation function:', invitationError);
+        throw invitationError;
+      }
+
+      if (!invitationResult?.success) {
+        throw new Error(invitationResult?.error || 'Failed to send invitation');
+      }
       
       toast({
         title: "User Invited",
