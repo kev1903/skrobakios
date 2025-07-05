@@ -17,7 +17,9 @@ interface DigitalObjectsTableProps {
   loading: boolean;
   editingId: string | null;
   editingData: Partial<DigitalObject>;
+  selectedIds: string[];
   onRowClick: (obj: DigitalObject) => void;
+  onRowSelect: (id: string, event: React.MouseEvent) => void;
   onSave: () => void;
   onCancel: () => void;
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
@@ -29,7 +31,9 @@ export const DigitalObjectsTable = ({
   loading,
   editingId,
   editingData,
+  selectedIds,
   onRowClick,
+  onRowSelect,
   onSave,
   onCancel,
   onEditingDataChange,
@@ -93,7 +97,9 @@ export const DigitalObjectsTable = ({
                         index={index}
                         editingId={editingId}
                         editingData={editingData}
+                        selectedIds={selectedIds}
                         onRowClick={onRowClick}
+                        onRowSelect={onRowSelect}
                         onSave={onSave}
                         onCancel={onCancel}
                         onEditingDataChange={onEditingDataChange}

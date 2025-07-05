@@ -11,11 +11,15 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     loading,
     editingId,
     editingData,
+    selectedIds,
     setEditingData,
     handleRowClick,
+    handleRowSelect,
     handleSave,
     handleCancel,
-    handleDragEnd
+    handleDragEnd,
+    handleIndent,
+    handleOutdent
   } = useDigitalObjects();
 
   return (
@@ -32,14 +36,20 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
       {/* Main Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         <div className="p-8">
-          <DigitalObjectsHeader />
+          <DigitalObjectsHeader 
+            selectedIds={selectedIds}
+            onIndent={handleIndent}
+            onOutdent={handleOutdent}
+          />
           
           <DigitalObjectsTable
             digitalObjects={digitalObjects}
             loading={loading}
             editingId={editingId}
             editingData={editingData}
+            selectedIds={selectedIds}
             onRowClick={handleRowClick}
+            onRowSelect={handleRowSelect}
             onSave={handleSave}
             onCancel={handleCancel}
             onEditingDataChange={setEditingData}

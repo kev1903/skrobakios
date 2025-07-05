@@ -12,7 +12,9 @@ interface DigitalObjectRowProps {
   index: number;
   editingId: string | null;
   editingData: Partial<DigitalObject>;
+  selectedIds: string[];
   onRowClick: (obj: DigitalObject) => void;
+  onRowSelect: (id: string, event: React.MouseEvent) => void;
   onSave: () => void;
   onCancel: () => void;
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
@@ -24,12 +26,23 @@ export const DigitalObjectRow = ({
   index,
   editingId,
   editingData,
+  selectedIds,
   onRowClick,
+  onRowSelect,
   onSave,
   onCancel,
   onEditingDataChange,
   onKeyDown
 }: DigitalObjectRowProps) => {
+  const isSelected = selectedIds.includes(obj.id);
+
+  const handleClick = (event: React.MouseEvent) => {
+    if (event.ctrlKey || event.metaKey) {
+      onRowSelect(obj.id, event);
+    } else {
+      onRowClick(obj);
+    }
+  };
   const renderEditableCell = (field: keyof DigitalObject, value: any, type: 'text' | 'number' | 'select' = 'text') => {
     if (editingId === obj.id && editingData) {
       if (type === 'select' && field === 'status') {
@@ -75,8 +88,10 @@ export const DigitalObjectRow = ({
           {...provided.draggableProps}
           className={`border-white/10 hover:bg-white/5 h-10 cursor-pointer transition-colors ${
             editingId === obj.id ? 'bg-white/10' : ''
-          } ${snapshot.isDragging ? 'bg-white/20 shadow-lg' : ''}`}
-          onClick={() => onRowClick(obj)}
+          } ${isSelected ? 'bg-blue-500/20 border-blue-500/30' : ''} ${
+            snapshot.isDragging ? 'bg-white/20 shadow-lg' : ''
+          }`}
+          onClick={handleClick}
         >
           <TableCell className="h-10 py-2 w-8">
             <div 

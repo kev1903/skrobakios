@@ -8,6 +8,7 @@ export const useDigitalObjects = () => {
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading] = useState(false);
 
   // Mock data for now until digital_objects table types are updated
@@ -74,6 +75,91 @@ export const useDigitalObjects = () => {
       setEditingId(obj.id);
       setEditingData({ ...obj });
     }
+  };
+
+  const handleRowSelect = (id: string, event: React.MouseEvent) => {
+    if (event.ctrlKey || event.metaKey) {
+      setSelectedIds(prev => 
+        prev.includes(id) 
+          ? prev.filter(selectedId => selectedId !== id)
+          : [...prev, id]
+      );
+    } else {
+      setSelectedIds([id]);
+    }
+  };
+
+  const handleIndent = () => {
+    if (selectedIds.length === 0) return;
+
+    const updatedObjects = digitalObjects.map(obj => {
+      if (selectedIds.includes(obj.id)) {
+        // Find potential parent (previous item at same or higher level)
+        const currentIndex = digitalObjects.findIndex(item => item.id === obj.id);
+        let newParentId = null;
+        let newLevel = obj.level + 1;
+
+        for (let i = currentIndex - 1; i >= 0; i--) {
+          const prevItem = digitalObjects[i];
+          if (prevItem.level < newLevel) {
+            newParentId = prevItem.id;
+            break;
+          } else if (prevItem.level === newLevel - 1) {
+            newParentId = prevItem.id;
+            break;
+          }
+        }
+
+        return {
+          ...obj,
+          level: newLevel,
+          parent_id: newParentId
+        };
+      }
+      return obj;
+    });
+
+    setDigitalObjects(updatedObjects);
+    toast({
+      title: "Indented",
+      description: `${selectedIds.length} item(s) indented`,
+    });
+  };
+
+  const handleOutdent = () => {
+    if (selectedIds.length === 0) return;
+
+    const updatedObjects = digitalObjects.map(obj => {
+      if (selectedIds.includes(obj.id) && obj.level > 0) {
+        const newLevel = obj.level - 1;
+        let newParentId = null;
+
+        // Find new parent for the outdented item
+        if (newLevel > 0) {
+          const currentIndex = digitalObjects.findIndex(item => item.id === obj.id);
+          for (let i = currentIndex - 1; i >= 0; i--) {
+            const prevItem = digitalObjects[i];
+            if (prevItem.level === newLevel - 1) {
+              newParentId = prevItem.id;
+              break;
+            }
+          }
+        }
+
+        return {
+          ...obj,
+          level: newLevel,
+          parent_id: newParentId
+        };
+      }
+      return obj;
+    });
+
+    setDigitalObjects(updatedObjects);
+    toast({
+      title: "Outdented",
+      description: `${selectedIds.length} item(s) outdented`,
+    });
   };
 
   const handleSave = async () => {
@@ -189,10 +275,14 @@ export const useDigitalObjects = () => {
     loading,
     editingId,
     editingData,
+    selectedIds,
     setEditingData,
     handleRowClick,
+    handleRowSelect,
     handleSave,
     handleCancel,
-    handleDragEnd
+    handleDragEnd,
+    handleIndent,
+    handleOutdent
   };
 };
