@@ -160,6 +160,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
         // Create marker element
         const markerElement = document.createElement('div');
         markerElement.className = 'project-marker';
+        markerElement.style.position = 'relative';
         markerElement.innerHTML = `
           <div style="
             background-color: #3b82f6;
@@ -176,6 +177,38 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
             <div style="color: white; font-size: 10px; font-weight: bold;">P</div>
           </div>
         `;
+
+        // Create hover tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'project-tooltip';
+        tooltip.style.cssText = `
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          margin-bottom: 5px;
+          z-index: 1000;
+        `;
+        tooltip.textContent = project.name;
+        markerElement.appendChild(tooltip);
+
+        // Add hover events
+        markerElement.addEventListener('mouseenter', () => {
+          tooltip.style.opacity = '1';
+        });
+
+        markerElement.addEventListener('mouseleave', () => {
+          tooltip.style.opacity = '0';
+        });
 
         // Create popup for project info
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
