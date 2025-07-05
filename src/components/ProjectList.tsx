@@ -250,7 +250,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         <div className="mb-6">
           <Button
             onClick={() => onNavigate("create-project")}
-            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-300"
+            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
             size="lg"
           >
             <Plus className="w-5 h-5" />
@@ -307,7 +307,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             <div className="text-white/80 mb-4">No projects found</div>
             <Button
               onClick={() => onNavigate("create-project")}
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all duration-300"
+              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Create Your First Project
             </Button>
