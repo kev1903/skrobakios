@@ -390,8 +390,21 @@ export const Mapbox3DEnvironment = ({
   const handleFileUpload = async () => {
     if (!uploadFormData.file || !uploadFormData.name || !uploadFormData.address) {
       toast({
-        title: "Missing Information",
+        title: "Missing Information", 
         description: "Please fill in all required fields and select a file.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file type
+    const fileExt = uploadFormData.file.name.split('.').pop()?.toLowerCase();
+    const supportedFormats = ['ifc', 'gltf', 'glb'];
+    
+    if (!fileExt || !supportedFormats.includes(fileExt)) {
+      toast({
+        title: "Unsupported File Format",
+        description: "Please upload an IFC, GLTF, or GLB file.",
         variant: "destructive"
       });
       return;
@@ -400,20 +413,19 @@ export const Mapbox3DEnvironment = ({
     setIsUploading(true);
 
     try {
-      // First, geocode the address
+      // First, geocode the address to get precise coordinates
       const coordinates = await geocodeAddress(uploadFormData.address);
       if (!coordinates) {
         toast({
           title: "Address Not Found",
-          description: "Could not find the specified address. Please try a different address.",
+          description: "Could not locate the specified address. Please verify the address and try again.",
           variant: "destructive"
         });
         setIsUploading(false);
         return;
       }
 
-      // Upload file to storage
-      const fileExt = uploadFormData.file.name.split('.').pop();
+      // Upload file to Supabase storage
       const fileName = `${Date.now()}_${uploadFormData.name.replace(/\s+/g, '_')}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -421,40 +433,57 @@ export const Mapbox3DEnvironment = ({
         .upload(fileName, uploadFormData.file);
 
       if (uploadError) {
-        throw uploadError;
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
-      // Get public URL
+      // Get public URL for the uploaded file
       const { data: urlData } = supabase.storage
         .from('3d-models')
         .getPublicUrl(fileName);
 
-      // Insert model metadata
+      if (!urlData.publicUrl) {
+        throw new Error('Failed to get file URL');
+      }
+
+      // For IFC files, we'll store the URL but note that it needs conversion
+      let processedFileUrl = urlData.publicUrl;
+      let processingNote = '';
+
+      if (fileExt === 'ifc') {
+        processingNote = 'IFC file uploaded - conversion to GLTF may be needed for 3D visualization';
+        // In a production environment, you would convert IFC to GLTF here
+        // For now, we'll store the IFC file and show a placeholder or use a sample model
+      }
+
+      // Insert model metadata into database
       const { data: modelData, error: modelError } = await supabase
         .from('model_3d')
         .insert({
           name: uploadFormData.name,
-          description: uploadFormData.description,
-          file_url: urlData.publicUrl,
+          description: uploadFormData.description + (processingNote ? ` (${processingNote})` : ''),
+          file_url: processedFileUrl,
           coordinates: `POINT(${coordinates[0]} ${coordinates[1]})`,
-          scale: 1.0,
-          rotation_x: Math.PI / 2, // Default 90 degrees for IFC models
-          elevation: 0,
+          scale: fileExt === 'ifc' ? 0.1 : 1.0, // IFC models are often larger scale
+          rotation_x: Math.PI / 2, // Default rotation for architectural models
+          rotation_y: 0,
+          rotation_z: 0,
+          elevation: 0, // Ground level placement
           uploaded_by: (await supabase.auth.getUser()).data.user?.id
         })
         .select()
         .single();
 
       if (modelError) {
-        throw modelError;
+        throw new Error(`Database error: ${modelError.message}`);
       }
 
+      // Success notification
       toast({
-        title: "Upload Successful",
-        description: `Model "${uploadFormData.name}" has been uploaded and placed at ${uploadFormData.address}.`
+        title: "Model Uploaded Successfully!",
+        description: `"${uploadFormData.name}" has been placed at ${uploadFormData.address} on the map.`
       });
 
-      // Reset form
+      // Clear the form
       setUploadFormData({
         name: '',
         description: '',
@@ -463,14 +492,14 @@ export const Mapbox3DEnvironment = ({
       });
       setShowUploadForm(false);
 
-      // Refresh available models
-      const { data: models } = await supabase
+      // Refresh the available models list
+      const { data: refreshedModels } = await supabase
         .from('model_3d')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (models) {
-        const formattedModels: Model3D[] = models.map(model => ({
+      if (refreshedModels) {
+        const formattedModels: Model3D[] = refreshedModels.map(model => ({
           id: model.id,
           name: model.name,
           description: model.description,
@@ -487,18 +516,37 @@ export const Mapbox3DEnvironment = ({
 
         setAvailableModels(formattedModels);
         
-        // Switch to the newly uploaded model
+        // Automatically switch to the newly uploaded model
         const newModel = formattedModels.find(m => m.id === modelData.id);
         if (newModel) {
           setCurrentModel(newModel);
+          
+          // Center map on the new model location
+          if (map.current) {
+            map.current.flyTo({
+              center: newModel.coordinates,
+              zoom: 18,
+              pitch: 60,
+              bearing: 30
+            });
+          }
         }
+      }
+
+      // Special handling for IFC files
+      if (fileExt === 'ifc') {
+        toast({
+          title: "IFC File Processing",
+          description: "IFC file uploaded successfully. For full 3D visualization, consider converting to GLTF format.",
+          variant: "default"
+        });
       }
 
     } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: "Upload Failed",
-        description: `Failed to upload model: ${error.message}`,
+        description: error instanceof Error ? error.message : 'An unexpected error occurred during upload.',
         variant: "destructive"
       });
     } finally {
