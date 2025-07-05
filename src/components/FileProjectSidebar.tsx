@@ -67,7 +67,7 @@ export const FileProjectSidebar = ({ onNavigate }: FileProjectSidebarProps) => {
 
         {/* Support Section */}
         <div className="border-t border-white/20 px-3 py-4 space-y-1">
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+          <div className="text-xs font-medium text-white uppercase tracking-wider px-3 py-2">
             Support
           </div>
           <button

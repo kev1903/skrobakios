@@ -192,7 +192,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
   return (
     <div ref={searchRef} className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 w-4 h-4" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white w-4 h-4" />
         <Input
           ref={inputRef}
           type="text"
@@ -210,7 +210,7 @@ export const SuperSearchBar = ({ onNavigate, onSelectProject }: SuperSearchBarPr
               setQuery('');
               setResults([]);
             }}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-auto text-white/70 hover:text-white hover:bg-white/10"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-auto text-white hover:text-white hover:bg-white/10"
           >
             <X className="w-3 h-3" />
           </Button>

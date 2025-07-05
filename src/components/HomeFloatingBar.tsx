@@ -74,7 +74,7 @@ export const HomeFloatingBar = ({
             onClick={toggleRibbon}
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           >
-            <Menu className="w-5 h-5 text-white/80" />
+            <Menu className="w-5 h-5 text-white" />
           </button>
         </div>
 
@@ -160,7 +160,7 @@ export const HomeFloatingBar = ({
 
           {/* Support Section */}
           <div className="border-t border-white/20 px-3 py-4 space-y-1">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            <div className="text-xs font-medium text-white uppercase tracking-wider px-3 py-2">
               Support
             </div>
             <button
@@ -190,7 +190,7 @@ export const HomeFloatingBar = ({
 
     {/* Project Section - Full Screen */}
     {isProjectSectionOpen && (
-      <div className="fixed inset-0 z-30 pt-24 pb-24">
+      <div className="fixed inset-0 z-40 pt-24 pb-24">
         <div 
           className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
@@ -212,13 +212,13 @@ export const HomeFloatingBar = ({
               {projects.map((project) => (
                 <div key={project.id} className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
                   <h3 className="text-white font-semibold text-lg mb-3">{project.name}</h3>
-                  <p className="text-white/70 text-sm mb-4">{project.description || 'No description available'}</p>
+                  <p className="text-white text-sm mb-4">{project.description || 'No description available'}</p>
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                       {getStatusText(project.status)}
                     </span>
                     {project.deadline && (
-                      <span className="text-white/50 text-xs">Due: {formatDate(project.deadline)}</span>
+                      <span className="text-white text-xs">Due: {formatDate(project.deadline)}</span>
                     )}
                   </div>
                 </div>
