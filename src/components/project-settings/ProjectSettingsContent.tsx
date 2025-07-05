@@ -6,7 +6,6 @@ import { ProjectBannerCard } from "./ProjectBannerCard";
 import { ProjectInformationCard } from "./ProjectInformationCard";
 import { ProjectOverviewCard } from "./ProjectOverviewCard";
 import { SharePointIntegrationCard } from "./SharePointIntegrationCard";
-import { DigitalObjectsCard } from "./DigitalObjectsCard";
 import { TimelineStatusCard } from "./TimelineStatusCard";
 import { DangerZoneCard } from "./DangerZoneCard";
 
@@ -54,10 +53,6 @@ export const ProjectSettingsContent = ({
           formData={formData}
           onInputChange={onInputChange}
         />
-      </TabsContent>
-
-      <TabsContent value="digital-objects" className="space-y-6 mt-0">
-        <DigitalObjectsCard project={project} />
       </TabsContent>
 
       <TabsContent value="timeline" className="space-y-6 mt-0">

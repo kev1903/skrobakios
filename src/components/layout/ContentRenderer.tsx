@@ -28,6 +28,7 @@ import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
+import { ProjectDigitalTwinPage } from "@/components/ProjectDigitalTwinPage";
 
 import { Project } from "@/hooks/useProjects";
 
@@ -71,6 +72,10 @@ export const ContentRenderer = ({
       return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "project-detail":
       return <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />;
+    case "project-digital-twin":
+      return currentProject ? (
+        <ProjectDigitalTwinPage project={currentProject} onNavigate={onNavigate} />
+      ) : renderProjectNotFound();
     case "project-tasks":
       return currentProject ? (
         <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
