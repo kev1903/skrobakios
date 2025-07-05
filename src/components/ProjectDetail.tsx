@@ -208,7 +208,6 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
             project={project}
             getStatusText={getStatusText}
             formatDate={formatDate}
-            onNavigate={onNavigate}
           />
 
           <ProjectProgress progress={progress} wbsCount={wbsCount} />
