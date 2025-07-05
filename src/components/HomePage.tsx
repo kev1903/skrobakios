@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
+import { ChatBox } from '@/components/ChatBox';
 
 interface Project {
   id: string;
@@ -230,6 +231,9 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
           </div>
         </div>
       )}
+      
+      {/* Bottom Chat Box */}
+      <ChatBox onNavigate={onNavigate} />
     </div>
   );
 };

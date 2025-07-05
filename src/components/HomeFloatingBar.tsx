@@ -32,12 +32,8 @@ export const HomeFloatingBar = ({
           </button>
         </div>
 
-        {/* Left side - Search Bar */}
-        <div className="flex-shrink-0 max-w-xs">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 w-4 h-4" />
-            <Input type="text" placeholder="Search projects, tasks, files..." className="pl-10 pr-4 text-sm border-white/20 focus:border-white/40 focus:ring-white/30 bg-white/20 backdrop-blur-sm shadow-sm text-white placeholder-white/60 hover:bg-white/25 transition-all duration-200 py-0 px-[36px]" />
-          </div>
+        {/* Spacer for left side */}
+        <div className="flex-shrink-0">
         </div>
 
         {/* Center - Company Name */}
