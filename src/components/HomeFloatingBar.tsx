@@ -61,7 +61,14 @@ export const HomeFloatingBar = ({
   };
 
   const toggleRibbon = () => {
-    setIsRibbonOpen(!isRibbonOpen);
+    if (!isRibbonOpen) {
+      // When opening ribbon, navigate to home and open ribbon
+      onNavigate('home');
+      setIsRibbonOpen(true);
+    } else {
+      // When closing ribbon, just close it
+      setIsRibbonOpen(false);
+    }
   };
 
   return (
