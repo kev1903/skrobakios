@@ -7,7 +7,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Loader2, Navigation, Home } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Eye, EyeOff, Loader2, Navigation, Home, Upload, MapPin } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Model3D {
   id: string;
@@ -42,6 +45,15 @@ export const Mapbox3DEnvironment = ({
   const [modelLayer, setModelLayer] = useState<any>(null);
   const [currentModel, setCurrentModel] = useState<Model3D | null>(null);
   const [availableModels, setAvailableModels] = useState<Model3D[]>([]);
+  const [showUploadForm, setShowUploadForm] = useState(false);
+  const [uploadFormData, setUploadFormData] = useState({
+    name: '',
+    description: '',
+    address: '',
+    file: null as File | null
+  });
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
 
   // Load available 3D models from database
   useEffect(() => {
@@ -343,6 +355,157 @@ export const Mapbox3DEnvironment = ({
     onNavigate('dashboard');
   };
 
+  // Geocode address to coordinates
+  const geocodeAddress = async (address: string): Promise<[number, number] | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+      if (error || !data?.token) {
+        console.error('Failed to get Mapbox token for geocoding');
+        return null;
+      }
+
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${data.token}&limit=1`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Geocoding request failed');
+      }
+
+      const geocodeData = await response.json();
+      
+      if (geocodeData.features && geocodeData.features.length > 0) {
+        const [lng, lat] = geocodeData.features[0].center;
+        return [lng, lat];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error geocoding address:', error);
+      return null;
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async () => {
+    if (!uploadFormData.file || !uploadFormData.name || !uploadFormData.address) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields and select a file.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // First, geocode the address
+      const coordinates = await geocodeAddress(uploadFormData.address);
+      if (!coordinates) {
+        toast({
+          title: "Address Not Found",
+          description: "Could not find the specified address. Please try a different address.",
+          variant: "destructive"
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      // Upload file to storage
+      const fileExt = uploadFormData.file.name.split('.').pop();
+      const fileName = `${Date.now()}_${uploadFormData.name.replace(/\s+/g, '_')}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('3d-models')
+        .upload(fileName, uploadFormData.file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('3d-models')
+        .getPublicUrl(fileName);
+
+      // Insert model metadata
+      const { data: modelData, error: modelError } = await supabase
+        .from('model_3d')
+        .insert({
+          name: uploadFormData.name,
+          description: uploadFormData.description,
+          file_url: urlData.publicUrl,
+          coordinates: `POINT(${coordinates[0]} ${coordinates[1]})`,
+          scale: 1.0,
+          rotation_x: Math.PI / 2, // Default 90 degrees for IFC models
+          elevation: 0,
+          uploaded_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select()
+        .single();
+
+      if (modelError) {
+        throw modelError;
+      }
+
+      toast({
+        title: "Upload Successful",
+        description: `Model "${uploadFormData.name}" has been uploaded and placed at ${uploadFormData.address}.`
+      });
+
+      // Reset form
+      setUploadFormData({
+        name: '',
+        description: '',
+        address: '',
+        file: null
+      });
+      setShowUploadForm(false);
+
+      // Refresh available models
+      const { data: models } = await supabase
+        .from('model_3d')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (models) {
+        const formattedModels: Model3D[] = models.map(model => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          file_url: model.file_url,
+          coordinates: model.coordinates && typeof model.coordinates === 'object' && 'x' in model.coordinates && 'y' in model.coordinates 
+            ? [model.coordinates.x as number, model.coordinates.y as number] 
+            : [145.032000, -37.820300],
+          scale: model.scale || 1.0,
+          rotation_x: model.rotation_x || Math.PI / 2,
+          rotation_y: model.rotation_y || 0,
+          rotation_z: model.rotation_z || 0,
+          elevation: model.elevation || 0
+        }));
+
+        setAvailableModels(formattedModels);
+        
+        // Switch to the newly uploaded model
+        const newModel = formattedModels.find(m => m.id === modelData.id);
+        if (newModel) {
+          setCurrentModel(newModel);
+        }
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: `Failed to upload model: ${error.message}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className={`relative w-full h-screen ${className}`}>
       {/* Map Container - Full viewport height */}
@@ -388,7 +551,7 @@ export const Mapbox3DEnvironment = ({
 
       {/* Controls Panel - Top Left */}
       {!isLoading && !error && (
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg z-40 min-w-[280px]">
+        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg z-40 min-w-[320px] max-h-[calc(100vh-2rem)] overflow-y-auto">
           <div className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -402,9 +565,120 @@ export const Mapbox3DEnvironment = ({
                 <Home className="w-4 h-4" />
               </Button>
             </div>
+
+            {/* Upload Section */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-medium text-gray-800">Upload IFC Model</h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowUploadForm(!showUploadForm)}
+                  className="text-xs"
+                >
+                  <Upload className="w-3 h-3 mr-1" />
+                  {showUploadForm ? 'Cancel' : 'Upload'}
+                </Button>
+              </div>
+
+              {showUploadForm && (
+                <div className="space-y-3 bg-gray-50 p-3 rounded-lg">
+                  <div>
+                    <Label htmlFor="model-name" className="text-xs font-medium">Model Name *</Label>
+                    <Input
+                      id="model-name"
+                      value={uploadFormData.name}
+                      onChange={(e) => setUploadFormData({...uploadFormData, name: e.target.value})}
+                      placeholder="Enter model name"
+                      className="text-xs h-8"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="model-description" className="text-xs font-medium">Description</Label>
+                    <Textarea
+                      id="model-description"
+                      value={uploadFormData.description}
+                      onChange={(e) => setUploadFormData({...uploadFormData, description: e.target.value})}
+                      placeholder="Optional description"
+                      className="text-xs h-16 resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="project-address" className="text-xs font-medium">Project Address *</Label>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3 h-3 text-gray-500" />
+                      <Input
+                        id="project-address"
+                        value={uploadFormData.address}
+                        onChange={(e) => setUploadFormData({...uploadFormData, address: e.target.value})}
+                        placeholder="123 Main St, City, Country"
+                        className="text-xs h-8 flex-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="model-file" className="text-xs font-medium">IFC File *</Label>
+                    <Input
+                      id="model-file"
+                      type="file"
+                      accept=".ifc,.gltf,.glb"
+                      onChange={(e) => setUploadFormData({...uploadFormData, file: e.target.files?.[0] || null})}
+                      className="text-xs h-8"
+                    />
+                    <div className="text-xs text-gray-500 mt-1">
+                      Supports: .ifc, .gltf, .glb files
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleFileUpload}
+                    disabled={isUploading || !uploadFormData.file || !uploadFormData.name || !uploadFormData.address}
+                    className="w-full h-8 text-xs"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3 h-3 mr-1" />
+                        Upload & Place Model
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
             
+            {/* Model Selection */}
+            {availableModels.length > 1 && (
+              <div className="border-t pt-4">
+                <Label className="text-xs font-medium mb-2 block">Available Models</Label>
+                <div className="space-y-1 max-h-24 overflow-y-auto">
+                  {availableModels.map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => setCurrentModel(model)}
+                      className={`w-full text-left p-2 rounded text-xs transition-all ${
+                        currentModel?.id === model.id
+                          ? 'bg-blue-100 border border-blue-200'
+                          : 'bg-gray-100 hover:bg-gray-200'
+                      }`}
+                    >
+                      <div className="font-medium truncate">{model.name}</div>
+                      <div className="text-gray-500 truncate">{model.description || 'No description'}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Model Visibility Toggle */}
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border-t pt-4">
               <Switch
                 id="model-visibility"
                 checked={showModel}
