@@ -1,13 +1,14 @@
-import { Table, ChevronRight, ChevronLeft } from "lucide-react";
+import { Table, ChevronRight, ChevronLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DigitalObjectsHeaderProps {
   selectedIds: string[];
   onIndent: () => void;
   onOutdent: () => void;
+  onAddRow: () => void;
 }
 
-export const DigitalObjectsHeader = ({ selectedIds, onIndent, onOutdent }: DigitalObjectsHeaderProps) => {
+export const DigitalObjectsHeader = ({ selectedIds, onIndent, onOutdent, onAddRow }: DigitalObjectsHeaderProps) => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
@@ -22,6 +23,15 @@ export const DigitalObjectsHeader = ({ selectedIds, onIndent, onOutdent }: Digit
         </div>
         
         <div className="flex items-center gap-2">
+          <Button
+            onClick={onAddRow}
+            variant="default"
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            <Plus className="w-4 h-4" />
+            Add Row
+          </Button>
           <Button
             onClick={onOutdent}
             disabled={selectedIds.length === 0}

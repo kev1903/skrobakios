@@ -22,7 +22,8 @@ export const useDigitalObjects = () => {
       cost: 250000,
       progress: 65,
       level: 0,
-      parent_id: null
+      parent_id: null,
+      expanded: true
     },
     {
       id: "2", 
@@ -55,7 +56,8 @@ export const useDigitalObjects = () => {
       cost: 180000,
       progress: 0,
       level: 0,
-      parent_id: null
+      parent_id: null,
+      expanded: true
     },
     {
       id: "5",
@@ -69,6 +71,71 @@ export const useDigitalObjects = () => {
       parent_id: "4"
     }
   ]);
+
+  // Calculate subtotals for parent rows
+  const calculateSubtotals = (objects: DigitalObject[]) => {
+    return objects.map(obj => {
+      const children = objects.filter(child => child.parent_id === obj.id);
+      if (children.length > 0) {
+        const totalCost = children.reduce((sum, child) => sum + (child.cost || 0), 0);
+        const avgProgress = Math.round(children.reduce((sum, child) => sum + child.progress, 0) / children.length);
+        return { ...obj, cost: totalCost, progress: avgProgress };
+      }
+      return obj;
+    });
+  };
+
+  // Get visible rows based on expanded state
+  const getVisibleRows = () => {
+    const objectsWithSubtotals = calculateSubtotals(digitalObjects);
+    const visible: DigitalObject[] = [];
+    
+    const addVisibleRows = (parentId: string | null, level: number = 0) => {
+      const rowsAtLevel = objectsWithSubtotals.filter(obj => obj.parent_id === parentId && obj.level === level);
+      
+      for (const row of rowsAtLevel) {
+        visible.push(row);
+        
+        // If this row is expanded, add its children
+        if (row.expanded !== false) {
+          addVisibleRows(row.id, level + 1);
+        }
+      }
+    };
+    
+    addVisibleRows(null, 0);
+    return visible;
+  };
+
+  const handleToggleExpand = (id: string) => {
+    setDigitalObjects(prev => 
+      prev.map(obj => 
+        obj.id === id ? { ...obj, expanded: !obj.expanded } : obj
+      )
+    );
+  };
+
+  const handleAddRow = () => {
+    const newId = (Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1).toString();
+    const newRow: DigitalObject = {
+      id: newId,
+      name: "New Item",
+      object_type: "item",
+      description: "",
+      status: "planning",
+      cost: 0,
+      progress: 0,
+      level: 0,
+      parent_id: null,
+      expanded: true
+    };
+    
+    setDigitalObjects(prev => [...prev, newRow]);
+    toast({
+      title: "Row Added",
+      description: "New item added successfully",
+    });
+  };
 
   const handleFieldClick = (obj: DigitalObject, field: keyof DigitalObject) => {
     setEditingField({ id: obj.id, field });
@@ -256,7 +323,7 @@ export const useDigitalObjects = () => {
   };
 
   return {
-    digitalObjects,
+    digitalObjects: getVisibleRows(),
     loading,
     editingField,
     editingData,
@@ -268,6 +335,8 @@ export const useDigitalObjects = () => {
     handleCancel,
     handleDragEnd,
     handleIndent,
-    handleOutdent
+    handleOutdent,
+    handleToggleExpand,
+    handleAddRow
   };
 };

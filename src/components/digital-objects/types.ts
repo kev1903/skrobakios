@@ -8,6 +8,7 @@ export interface DigitalObject {
   progress: number;
   level: number;
   parent_id: string | null;
+  expanded?: boolean;
 }
 
 export interface DigitalObjectsPageProps {

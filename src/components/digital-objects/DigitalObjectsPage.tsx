@@ -19,7 +19,9 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     handleCancel,
     handleDragEnd,
     handleIndent,
-    handleOutdent
+    handleOutdent,
+    handleToggleExpand,
+    handleAddRow
   } = useDigitalObjects();
 
   return (
@@ -40,6 +42,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
             selectedIds={selectedIds}
             onIndent={handleIndent}
             onOutdent={handleOutdent}
+            onAddRow={handleAddRow}
           />
           
           <DigitalObjectsTable
@@ -54,6 +57,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
             onCancel={handleCancel}
             onEditingDataChange={setEditingData}
             onDragEnd={handleDragEnd}
+            onToggleExpand={handleToggleExpand}
           />
         </div>
       </div>

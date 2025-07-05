@@ -1,4 +1,4 @@
-import { Edit, Check, X, GripVertical } from "lucide-react";
+import { Edit, Check, X, GripVertical, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ interface DigitalObjectRowProps {
   onCancel: () => void;
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
+  onToggleExpand: (id: string) => void;
 }
 
 export const DigitalObjectRow = ({
@@ -32,7 +33,8 @@ export const DigitalObjectRow = ({
   onSave,
   onCancel,
   onEditingDataChange,
-  onKeyDown
+  onKeyDown,
+  onToggleExpand
 }: DigitalObjectRowProps) => {
   const isSelected = selectedIds.includes(obj.id);
 
@@ -47,6 +49,52 @@ export const DigitalObjectRow = ({
 
   const isFieldEditing = (field: keyof DigitalObject) => {
     return editingField?.id === obj.id && editingField?.field === field;
+  };
+
+  // Check if this row has children (is a parent row)
+  const hasChildren = obj.level === 0 || (obj.parent_id === null);
+
+  const renderNameWithExpandButton = () => {
+    const nameContent = isFieldEditing('name') ? (
+      <Input
+        type="text"
+        value={editingData.name as string || ''}
+        onChange={(e) => onEditingDataChange({ 
+          ...editingData, 
+          name: e.target.value 
+        })}
+        onKeyDown={onKeyDown}
+        className="h-6 bg-white/10 border-white/20 text-white text-xs"
+        autoFocus
+      />
+    ) : (
+      <div 
+        className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded flex items-center gap-2"
+        onClick={(e) => {
+          e.stopPropagation();
+          onFieldClick(obj, 'name');
+        }}
+      >
+        {hasChildren && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand(obj.id);
+            }}
+            className="text-slate-400 hover:text-white"
+          >
+            {obj.expanded === false ? (
+              <ChevronRight className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
+          </button>
+        )}
+        <span>{obj.name}</span>
+      </div>
+    );
+
+    return nameContent;
   };
 
   const renderEditableCell = (field: keyof DigitalObject, value: any, type: 'text' | 'number' | 'select' = 'text') => {
@@ -118,7 +166,7 @@ export const DigitalObjectRow = ({
             </div>
           </TableCell>
           <TableCell className="text-white font-medium h-8 py-1 text-sm" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
-            {renderEditableCell('name', obj.name)}
+            {renderNameWithExpandButton()}
           </TableCell>
           <TableCell className="text-slate-300 capitalize h-8 py-1 text-sm">
             {renderEditableCell('object_type', obj.object_type)}
