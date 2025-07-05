@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Navigation, Globe, Map, Layers, MapPin } from 'lucide-react';
+import { Navigation, Globe, Map, Layers, MapPin, Bookmark } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,20 +38,64 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
   const [loadingProjects, setLoadingProjects] = useState(false);
   const { toast } = useToast();
 
+  // Save and load view functions
+  const saveCurrentView = () => {
+    if (!map.current) return;
+    
+    const center = map.current.getCenter();
+    const zoom = map.current.getZoom();
+    const bearing = map.current.getBearing();
+    const pitch = map.current.getPitch();
+    
+    const viewState = {
+      center: [center.lng, center.lat],
+      zoom,
+      bearing,
+      pitch,
+      timestamp: Date.now()
+    };
+    
+    localStorage.setItem('mapbox-saved-view', JSON.stringify(viewState));
+    
+    toast({
+      title: "View Saved",
+      description: "Map position saved successfully",
+    });
+  };
+
+  const loadSavedView = () => {
+    try {
+      const savedView = localStorage.getItem('mapbox-saved-view');
+      if (savedView) {
+        return JSON.parse(savedView);
+      }
+    } catch (error) {
+      console.error('Error loading saved view:', error);
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (!mapContainer.current) return;
 
     // Initialize Mapbox
     mapboxgl.accessToken = 'pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWNwcTRjbXgwOHQ5Mm1wdDJhdmZ2amI4In0.Whp6B_EMJajFoWzAGBCs6A';
     
+    // Get saved view or use defaults
+    const savedView = loadSavedView();
+    const initialCenter = savedView?.center || [145.0, -37.0];
+    const initialZoom = savedView?.zoom || 6.5;
+    const initialBearing = savedView?.bearing || 0;
+    const initialPitch = savedView?.pitch || 30;
+    
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: `mapbox://styles/mapbox/${mapStyle}`,
       projection: 'mercator', // Better for regional views
-      zoom: 6.5, // Focused on Victoria state
-      center: [145.0, -37.0], // Victoria, Australia coordinates
-      pitch: 30,
-      bearing: 0,
+      zoom: initialZoom,
+      center: initialCenter,
+      pitch: initialPitch,
+      bearing: initialBearing,
       antialias: true,
       maxBounds: [
         [140.5, -39.5], // Southwest coordinates
@@ -345,6 +389,16 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
             >
               <Layers className="w-4 h-4 mr-2" />
               Tasks
+            </Button>
+            <hr className="border-white/20 my-2" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={saveCurrentView}
+              className="w-full justify-start text-white hover:bg-white/10"
+            >
+              <Bookmark className="w-4 h-4 mr-2" />
+              Save View
             </Button>
           </div>
         </CardContent>
