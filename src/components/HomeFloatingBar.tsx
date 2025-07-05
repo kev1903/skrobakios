@@ -13,13 +13,7 @@ export const HomeFloatingBar = ({
     userProfile
   } = useUser();
   return <div className="fixed top-6 left-0 z-50 w-full">
-      <div style={{
-      background: 'rgba(255, 255, 255, 0.25)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.2)'
-    }} className="flex items-center justify-between rounded-2xl shadow-2xl py-0 px-6 mx-6">
+        <div className="flex items-center justify-between py-0 px-6 mx-6">
         {/* Left side - Search Bar */}
         <div className="flex-1 max-w-md">
           <div className="relative">
