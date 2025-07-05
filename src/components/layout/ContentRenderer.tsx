@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { TaskManagement } from "@/components/TaskManagement";
-import { BusinessDashboard } from "@/components/BusinessDashboard";
+import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
@@ -56,7 +56,7 @@ export const ContentRenderer = ({
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "dashboard":
-      return <BusinessDashboard onSelectProject={onSelectProject} onNavigate={onNavigate} />;
+      return <Mapbox3DEnvironment onNavigate={onNavigate} />;
     case "settings":
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
