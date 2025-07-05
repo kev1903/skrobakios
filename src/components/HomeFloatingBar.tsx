@@ -191,7 +191,10 @@ export const HomeFloatingBar = ({
     {/* Project Section - Full Screen */}
     {isProjectSectionOpen && (
       <div className="fixed inset-0 z-30 pt-24 pb-24">
-        <div className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
+        <div 
+          className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/20">
             <h2 className="text-2xl font-semibold text-white">Projects</h2>
