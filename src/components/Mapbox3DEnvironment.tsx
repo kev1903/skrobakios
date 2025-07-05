@@ -9,15 +9,28 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2, Navigation, Home } from 'lucide-react';
 
+interface Model3D {
+  id: string;
+  name: string;
+  description: string;
+  file_url: string;
+  coordinates: [number, number];
+  scale: number;
+  rotation_x: number;
+  rotation_y: number;
+  rotation_z: number;
+  elevation: number;
+}
+
 interface Mapbox3DEnvironmentProps {
   onNavigate: (page: string) => void;
-  modelUrl?: string;
+  modelId?: string;
   className?: string;
 }
 
 export const Mapbox3DEnvironment = ({ 
   onNavigate,
-  modelUrl = "https://mydomain.com/models/house.glb",
+  modelId,
   className = ""
 }: Mapbox3DEnvironmentProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -27,14 +40,64 @@ export const Mapbox3DEnvironment = ({
   const [error, setError] = useState<string | null>(null);
   const [showModel, setShowModel] = useState(true);
   const [modelLayer, setModelLayer] = useState<any>(null);
+  const [currentModel, setCurrentModel] = useState<Model3D | null>(null);
+  const [availableModels, setAvailableModels] = useState<Model3D[]>([]);
 
-  // Model configuration - Precise GPS coordinates for your project site
-  const MODEL_COORDINATES: [number, number] = [145.032000, -37.820300]; // [lng, lat]
-  const MODEL_SCALE = 0.5;
-  const MODEL_ROTATION_X = Math.PI / 2; // 90 degrees in radians
-  const MODEL_ELEVATION = 1.5; // meters above ground
+  // Load available 3D models from database
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        const { data: models, error } = await supabase
+          .from('model_3d')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error loading 3D models:', error);
+          setError('Failed to load 3D models from database');
+          return;
+        }
+
+        if (!models || models.length === 0) {
+          setError('No 3D models available. Please upload a model first.');
+          return;
+        }
+
+        const formattedModels: Model3D[] = models.map(model => ({
+          id: model.id,
+          name: model.name,
+          description: model.description,
+          file_url: model.file_url,
+          coordinates: model.coordinates && typeof model.coordinates === 'object' && 'x' in model.coordinates && 'y' in model.coordinates 
+            ? [model.coordinates.x as number, model.coordinates.y as number] 
+            : [145.032000, -37.820300],
+          scale: model.scale || 0.5,
+          rotation_x: model.rotation_x || Math.PI / 2,
+          rotation_y: model.rotation_y || 0,
+          rotation_z: model.rotation_z || 0,
+          elevation: model.elevation || 1.5
+        }));
+
+        setAvailableModels(formattedModels);
+        
+        // Select model: use provided modelId, or first available model
+        const selectedModel = modelId 
+          ? formattedModels.find(m => m.id === modelId) || formattedModels[0]
+          : formattedModels[0];
+        
+        setCurrentModel(selectedModel);
+      } catch (err) {
+        console.error('Error loading models:', err);
+        setError('Failed to load 3D models');
+      }
+    };
+
+    loadModels();
+  }, [modelId]);
 
   useEffect(() => {
+    if (!currentModel) return;
+
     const initializeMap = async () => {
       if (!mapContainer.current) return;
 
@@ -63,7 +126,7 @@ export const Mapbox3DEnvironment = ({
           style: 'mapbox://styles/kevin19031994/cmcprh4kj009w01sqbfig9lx6', // Your custom style
           projection: 'mercator',
           zoom: 18, // Close zoom to see the 3D model clearly
-          center: MODEL_COORDINATES,
+          center: currentModel.coordinates,
           pitch: 60, // Angled view to see 3D model better
           bearing: 30,
           antialias: true // Enable antialiasing for better 3D rendering
@@ -143,10 +206,11 @@ export const Mapbox3DEnvironment = ({
 
           // Load GLTF model using Three.js GLTFLoader
           const loader = new GLTFLoader();
-          console.log('Starting to load 3D model from:', modelUrl);
+          console.log('Starting to load 3D model from:', currentModel.file_url);
+          console.log('Model details:', currentModel);
           
           loader.load(
-            modelUrl,
+            currentModel.file_url,
             (gltf) => {
               console.log('3D model loaded successfully');
               
@@ -154,10 +218,12 @@ export const Mapbox3DEnvironment = ({
               this.model = gltf.scene;
               
               // Set initial scale
-              this.model.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+              this.model.scale.set(currentModel.scale, currentModel.scale, currentModel.scale);
               
-              // Set rotation (90 degrees around X-axis to orient properly)
-              this.model.rotation.x = MODEL_ROTATION_X;
+              // Set rotation 
+              this.model.rotation.x = currentModel.rotation_x;
+              this.model.rotation.y = currentModel.rotation_y;
+              this.model.rotation.z = currentModel.rotation_z;
               
               // Enable shadows on all mesh children
               this.model.traverse((child) => {
@@ -174,8 +240,8 @@ export const Mapbox3DEnvironment = ({
 
               // Calculate model position in Mapbox's world coordinates
               const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-                MODEL_COORDINATES,
-                MODEL_ELEVATION
+                currentModel.coordinates,
+                currentModel.elevation
               );
 
               // Set model position and scale based on Mapbox coordinate system
@@ -186,14 +252,14 @@ export const Mapbox3DEnvironment = ({
               );
               
               // Scale the model to match Mapbox's coordinate system
-              const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * MODEL_SCALE;
+              const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * currentModel.scale;
               this.model.scale.setScalar(modelScale);
 
               // Add model to the Three.js scene
               this.scene.add(this.model);
               setIsModelLoading(false);
               
-              console.log('3D model successfully positioned at coordinates:', MODEL_COORDINATES);
+              console.log('3D model successfully positioned at coordinates:', currentModel.coordinates);
               console.log('Model scale:', modelScale);
             },
             (progress) => {
@@ -261,7 +327,7 @@ export const Mapbox3DEnvironment = ({
         map.current.remove();
       }
     };
-  }, [modelUrl, showModel]);
+  }, [currentModel, showModel]);
 
   // Toggle 3D model visibility
   const toggleModelVisibility = () => {
@@ -350,34 +416,41 @@ export const Mapbox3DEnvironment = ({
               </Label>
             </div>
 
-            {/* Model Configuration Info */}
-            <div className="space-y-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-              <div className="font-medium text-gray-800 mb-2">Model Configuration:</div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="font-medium">Location:</span>
-                  <div className="text-xs">{MODEL_COORDINATES[1].toFixed(6)}, {MODEL_COORDINATES[0].toFixed(6)}</div>
-                </div>
-                <div>
-                  <span className="font-medium">Scale:</span>
-                  <div>{MODEL_SCALE}x</div>
-                </div>
-                <div>
-                  <span className="font-medium">Elevation:</span>
-                  <div>{MODEL_ELEVATION}m</div>
-                </div>
-                <div>
-                  <span className="font-medium">Rotation:</span>
-                  <div>90° X-axis</div>
+            {/* Model Information */}
+            {currentModel && (
+              <div className="space-y-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <div className="font-medium text-gray-800 mb-2">{currentModel.name}</div>
+                {currentModel.description && (
+                  <div className="text-xs text-gray-600 mb-2">{currentModel.description}</div>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="font-medium">Location:</span>
+                    <div className="text-xs">{currentModel.coordinates[1].toFixed(6)}, {currentModel.coordinates[0].toFixed(6)}</div>
+                  </div>
+                  <div>
+                    <span className="font-medium">Scale:</span>
+                    <div>{currentModel.scale}x</div>
+                  </div>
+                  <div>
+                    <span className="font-medium">Elevation:</span>
+                    <div>{currentModel.elevation}m</div>
+                  </div>
+                  <div>
+                    <span className="font-medium">Rotation:</span>
+                    <div>{(currentModel.rotation_x * 180 / Math.PI).toFixed(0)}° X-axis</div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Model URL Display */}
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              <div className="font-medium mb-1">Model Source:</div>
-              <div className="break-all">{modelUrl}</div>
-            </div>
+            {currentModel && (
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                <div className="font-medium mb-1">Model Source:</div>
+                <div className="break-all">{currentModel.file_url}</div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -41,6 +41,68 @@ export type Database = {
           },
         ]
       }
+      model_3d: {
+        Row: {
+          coordinates: unknown | null
+          created_at: string
+          description: string | null
+          elevation: number | null
+          file_size: number | null
+          file_url: string
+          id: string
+          name: string
+          project_id: string | null
+          rotation_x: number | null
+          rotation_y: number | null
+          rotation_z: number | null
+          scale: number | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          coordinates?: unknown | null
+          created_at?: string
+          description?: string | null
+          elevation?: number | null
+          file_size?: number | null
+          file_url: string
+          id?: string
+          name: string
+          project_id?: string | null
+          rotation_x?: number | null
+          rotation_y?: number | null
+          rotation_z?: number | null
+          scale?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          coordinates?: unknown | null
+          created_at?: string
+          description?: string | null
+          elevation?: number | null
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          name?: string
+          project_id?: string | null
+          rotation_x?: number | null
+          rotation_y?: number | null
+          rotation_z?: number | null
+          scale?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_model_3d_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
