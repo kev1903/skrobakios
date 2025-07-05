@@ -38,7 +38,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
   };
 
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
       <button
         onClick={() => onNavigate('home')}
         className="pointer-events-auto relative group"
@@ -89,7 +89,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
         )}
 
         {/* Company Name */}
-        <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-8 py-4 shadow-2xl hover:bg-white/15 transition-all duration-300">
+        <div className="relative px-8 py-4">
           <h1 
             className="text-white font-bold text-3xl tracking-wide text-center whitespace-nowrap"
             style={{
@@ -114,9 +114,6 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
               </div>
             </div>
           )}
-
-          {/* Hover effect hint */}
-          <div className="absolute inset-0 rounded-2xl border border-white/0 group-hover:border-white/40 transition-all duration-300" />
         </div>
       </button>
     </div>
