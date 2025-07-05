@@ -462,7 +462,7 @@ export const Mapbox3DEnvironment = ({
           name: uploadFormData.name,
           description: uploadFormData.description + (processingNote ? ` (${processingNote})` : ''),
           file_url: processedFileUrl,
-          coordinates: `POINT(${coordinates[0]} ${coordinates[1]})`,
+          coordinates: `POINT(${coordinates[0]},${coordinates[1]})`, // Fixed comma separation
           scale: fileExt === 'ifc' ? 0.1 : 1.0, // IFC models are often larger scale
           rotation_x: Math.PI / 2, // Default rotation for architectural models
           rotation_y: 0,
