@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Navigation, Globe, Map, Layers, Settings, MapPin } from 'lucide-react';
+import { Navigation, Globe, Map, Layers, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,7 +32,7 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentStyle, setCurrentStyle] = useState('satellite-v9');
+  const mapStyle = 'streets-v12';
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectMarkers, setProjectMarkers] = useState<ProjectMarker[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
@@ -46,7 +46,7 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: `mapbox://styles/mapbox/${currentStyle}`,
+      style: `mapbox://styles/mapbox/${mapStyle}`,
       projection: 'mercator', // Better for regional views
       zoom: 6.5, // Focused on Victoria state
       center: [145.0, -37.0], // Victoria, Australia coordinates
@@ -143,21 +143,7 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
     return () => {
       map.current?.remove();
     };
-  }, [currentStyle]);
-
-  const mapStyles = [
-    { id: 'satellite-v9', name: 'Satellite', icon: Globe },
-    { id: 'streets-v12', name: 'Streets', icon: Map },
-    { id: 'outdoors-v12', name: 'Outdoors', icon: Layers },
-    { id: 'dark-v11', name: 'Dark', icon: Settings },
-  ];
-
-  const changeMapStyle = (styleId: string) => {
-    if (map.current && styleId !== currentStyle) {
-      setCurrentStyle(styleId);
-      map.current.setStyle(`mapbox://styles/mapbox/${styleId}`);
-    }
-  };
+  }, []);
 
   // Fetch projects from Supabase
   const fetchProjects = async () => {
@@ -360,37 +346,6 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
               <Layers className="w-4 h-4 mr-2" />
               Tasks
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Map Style Selector */}
-      <Card className="absolute top-6 right-6 z-40 bg-black/20 backdrop-blur-md border-white/10">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3 mb-4">
-            <Settings className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">Map Style</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {mapStyles.map((style) => {
-              const Icon = style.icon;
-              return (
-                <Button
-                  key={style.id}
-                  variant={currentStyle === style.id ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => changeMapStyle(style.id)}
-                  className={`flex flex-col items-center p-3 h-14 ${
-                    currentStyle === style.id
-                      ? 'bg-white/20 text-white border-white/30'
-                      : 'text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 mb-1" />
-                  <span className="text-xs">{style.name}</span>
-                </Button>
-              );
-            })}
           </div>
         </CardContent>
       </Card>
