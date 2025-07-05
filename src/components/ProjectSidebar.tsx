@@ -1,5 +1,5 @@
 
-import { ArrowLeft, BarChart3, DollarSign, Calendar, CheckSquare, Folder, Users, Settings, Eye, HelpCircle, Box } from "lucide-react";
+import { ArrowLeft, DollarSign, Calendar, CheckSquare, Folder, Users, Settings, Eye, HelpCircle, Box } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -19,13 +19,12 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
 
   const projectNavItems = [
     { id: 'insights', label: 'Dashboard', icon: Eye, page: 'project-detail' },
-    { id: 'digital-twin', label: 'Digital Twin', icon: Box, page: 'project-digital-twin' },
+    { id: 'digital-objects', label: 'Digital Objects', icon: Box, page: 'project-digital-twin' },
     { id: 'cost', label: 'Cost & Contracts', icon: DollarSign, page: 'project-cost' },
     { id: 'schedule', label: 'Schedule', icon: Calendar, page: 'project-schedule' },
     { id: 'tasks', label: 'Tasks', icon: CheckSquare, page: 'project-tasks' },
     { id: 'files', label: 'Files', icon: Folder, page: 'project-files' },
     { id: 'team', label: 'Team', icon: Users, page: 'project-team' },
-    { id: 'wbs', label: 'WBS', icon: BarChart3, page: 'project-wbs' },
   ];
 
   return (

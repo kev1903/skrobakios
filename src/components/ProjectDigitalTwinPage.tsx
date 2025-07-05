@@ -17,7 +17,7 @@ export const ProjectDigitalTwinPage = ({ project, onNavigate }: ProjectDigitalTw
         onNavigate={onNavigate}
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
-        activeSection="digital-twin"
+        activeSection="digital-objects"
       />
 
       {/* Main Content */}
@@ -25,7 +25,7 @@ export const ProjectDigitalTwinPage = ({ project, onNavigate }: ProjectDigitalTw
         <div className="p-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Digital Twin</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Digital Objects</h1>
             <p className="text-white/70">
               Define digital equivalents for real-world items in your construction project
             </p>
