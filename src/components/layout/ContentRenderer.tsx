@@ -28,6 +28,7 @@ import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
+import { ProjectsMapPage } from "@/components/ProjectsMapPage";
 import { Project } from "@/hooks/useProjects";
 
 interface ContentRendererProps {
@@ -70,6 +71,8 @@ export const ContentRenderer = ({
       return <CreateProject onNavigate={onNavigate} />;
     case "projects":
       return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+    case "projects-map":
+      return <ProjectsMapPage />;
     case "project-detail":
       return <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />;
     case "project-tasks":
