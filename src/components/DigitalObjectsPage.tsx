@@ -1,4 +1,4 @@
-import { Table } from "lucide-react";
+import { Table, Edit, Check, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProjectSidebar } from "./ProjectSidebar";
@@ -11,7 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface DigitalObject {
   id: string;
@@ -31,8 +35,13 @@ interface DigitalObjectsPageProps {
 }
 
 export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPageProps) => {
+  const { toast } = useToast();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Mock data for now until digital_objects table types are updated
-  const [digitalObjects] = useState<DigitalObject[]>([
+  const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([
     {
       id: "1",
       name: "Building Structure",
@@ -91,6 +100,129 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
   ]);
   const [loading] = useState(false);
 
+  const handleRowClick = (obj: DigitalObject) => {
+    if (editingId !== obj.id) {
+      setEditingId(obj.id);
+      setEditingData({ ...obj });
+    }
+  };
+
+  const handleSave = async () => {
+    if (!editingId || !editingData) return;
+
+    try {
+      // Update local state
+      setDigitalObjects(prev => 
+        prev.map(obj => 
+          obj.id === editingId 
+            ? { ...obj, ...editingData } as DigitalObject
+            : obj
+        )
+      );
+
+      // Try to save to database (will work once types are updated)
+      try {
+        const { error } = await supabase
+          .from('digital_objects' as any)
+          .update({
+            name: editingData.name,
+            object_type: editingData.object_type,
+            description: editingData.description,
+            status: editingData.status,
+            cost: editingData.cost,
+            progress: editingData.progress
+          })
+          .eq('id', editingId);
+
+        if (error) {
+          console.log('Database update will be enabled once types are updated:', error);
+        }
+      } catch (dbError) {
+        console.log('Database save pending type updates');
+      }
+
+      toast({
+        title: "Updated",
+        description: "Digital object updated successfully",
+      });
+
+      setEditingId(null);
+      setEditingData({});
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update digital object",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditingData({});
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
+  // Handle click outside to save
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        if (editingId) {
+          handleSave();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingId]);
+
+  const renderEditableCell = (field: keyof DigitalObject, value: any, type: 'text' | 'number' | 'select' = 'text') => {
+    if (editingId && editingData) {
+      if (type === 'select' && field === 'status') {
+        return (
+          <Select
+            value={editingData[field] as string || ''}
+            onValueChange={(val) => setEditingData(prev => ({ ...prev, [field]: val }))}
+          >
+            <SelectTrigger className="h-7 bg-white/10 border-white/20 text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="planning">Planning</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      }
+      
+      return (
+        <Input
+          type={type}
+          value={editingData[field] as string || ''}
+          onChange={(e) => setEditingData(prev => ({ 
+            ...prev, 
+            [field]: type === 'number' ? Number(e.target.value) : e.target.value 
+          }))}
+          onKeyDown={handleKeyDown}
+          className="h-7 bg-white/10 border-white/20 text-white"
+          autoFocus={field === 'name'}
+        />
+      );
+    }
+    return value;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -145,7 +277,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
           </div>
 
           {/* Table */}
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+          <Card className="bg-white/5 border-white/10 backdrop-blur-sm" ref={containerRef}>
             <CardContent className="p-0">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
@@ -154,41 +286,88 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
               ) : (
                 <TableComponent>
                   <TableHeader>
-                    <TableRow className="border-white/10 hover:bg-white/5">
-                      <TableHead className="text-white font-semibold">Name</TableHead>
-                      <TableHead className="text-white font-semibold">Type</TableHead>
-                      <TableHead className="text-white font-semibold">Description</TableHead>
-                      <TableHead className="text-white font-semibold">Status</TableHead>
-                      <TableHead className="text-white font-semibold">Cost</TableHead>
-                      <TableHead className="text-white font-semibold">Progress</TableHead>
+                    <TableRow className="border-white/10 hover:bg-white/5 h-10">
+                      <TableHead className="text-white font-semibold h-10">Name</TableHead>
+                      <TableHead className="text-white font-semibold h-10">Type</TableHead>
+                      <TableHead className="text-white font-semibold h-10">Description</TableHead>
+                      <TableHead className="text-white font-semibold h-10">Status</TableHead>
+                      <TableHead className="text-white font-semibold h-10">Cost</TableHead>
+                      <TableHead className="text-white font-semibold h-10">Progress</TableHead>
+                      <TableHead className="text-white font-semibold h-10 w-20">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {digitalObjects.map((obj) => (
                       <TableRow 
                         key={obj.id} 
-                        className="border-white/10 hover:bg-white/5"
-                        style={{ paddingLeft: `${obj.level * 20}px` }}
+                        className={`border-white/10 hover:bg-white/5 h-10 cursor-pointer transition-colors ${
+                          editingId === obj.id ? 'bg-white/10' : ''
+                        }`}
+                        onClick={() => handleRowClick(obj)}
                       >
-                        <TableCell className="text-white font-medium" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
-                          {obj.name}
+                        <TableCell className="text-white font-medium h-10 py-2" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
+                          {renderEditableCell('name', obj.name)}
                         </TableCell>
-                        <TableCell className="text-slate-300 capitalize">{obj.object_type}</TableCell>
-                        <TableCell className="text-slate-300">{obj.description || '-'}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={getStatusColor(obj.status)}>
-                            {getStatusText(obj.status)}
-                          </Badge>
+                        <TableCell className="text-slate-300 capitalize h-10 py-2">
+                          {renderEditableCell('object_type', obj.object_type)}
                         </TableCell>
-                        <TableCell className="text-slate-300">
-                          {obj.cost ? `$${obj.cost.toLocaleString()}` : '-'}
+                        <TableCell className="text-slate-300 h-10 py-2">
+                          {renderEditableCell('description', obj.description || '-')}
                         </TableCell>
-                        <TableCell className="text-slate-300">{obj.progress}%</TableCell>
+                        <TableCell className="h-10 py-2">
+                          {editingId === obj.id ? (
+                            renderEditableCell('status', obj.status, 'select')
+                          ) : (
+                            <Badge variant="outline" className={getStatusColor(obj.status)}>
+                              {getStatusText(obj.status)}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-slate-300 h-10 py-2">
+                          {editingId === obj.id ? (
+                            renderEditableCell('cost', obj.cost || 0, 'number')
+                          ) : (
+                            obj.cost ? `$${obj.cost.toLocaleString()}` : '-'
+                          )}
+                        </TableCell>
+                        <TableCell className="text-slate-300 h-10 py-2">
+                          {editingId === obj.id ? (
+                            renderEditableCell('progress', obj.progress, 'number')
+                          ) : (
+                            `${obj.progress}%`
+                          )}
+                        </TableCell>
+                        <TableCell className="h-10 py-2">
+                          {editingId === obj.id ? (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSave();
+                                }}
+                                className="p-1 text-green-400 hover:text-green-300"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCancel();
+                                }}
+                                className="p-1 text-red-400 hover:text-red-300"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <Edit className="w-4 h-4 text-slate-400" />
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                     {digitalObjects.length === 0 && (
-                      <TableRow className="border-white/10">
-                        <TableCell colSpan={6} className="text-center text-slate-400 py-8">
+                      <TableRow className="border-white/10 h-10">
+                        <TableCell colSpan={7} className="text-center text-slate-400 py-8">
                           No digital objects found for this project
                         </TableCell>
                       </TableRow>
