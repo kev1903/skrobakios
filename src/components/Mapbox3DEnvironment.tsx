@@ -47,12 +47,16 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: `mapbox://styles/mapbox/${currentStyle}`,
-      projection: { name: 'globe' },
-      zoom: 2,
-      center: [0, 20],
-      pitch: 45,
+      projection: 'mercator', // Better for regional views
+      zoom: 6.5, // Focused on Victoria state
+      center: [145.0, -37.0], // Victoria, Australia coordinates
+      pitch: 30,
       bearing: 0,
       antialias: true,
+      maxBounds: [
+        [140.5, -39.5], // Southwest coordinates
+        [150.5, -33.5]  // Northeast coordinates  
+      ]
     });
 
     // Add navigation controls
