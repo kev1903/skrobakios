@@ -143,54 +143,52 @@ export const HomeFloatingBar = ({
       </div>
     )}
 
-    {/* Project Section */}
+    {/* Project Section - Center Area */}
     {isProjectSectionOpen && (
-      <div className="fixed right-0 top-0 w-96 h-full bg-white/10 backdrop-blur-md border-l border-white/20 shadow-2xl z-40 transition-all duration-300">
-        <div className="flex flex-col h-full pt-20">
+      <div className="fixed inset-0 z-30 flex items-center justify-center pt-24 pb-32">
+        <div className="w-full max-w-2xl mx-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl max-h-full overflow-hidden">
           {/* Header */}
-          <div className="flex-shrink-0 px-4 py-4 border-b border-white/20">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Projects</h2>
-              <button
-                onClick={() => setIsProjectSectionOpen(false)}
-                className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-              >
-                <span className="text-white text-sm">×</span>
-              </button>
-            </div>
+          <div className="flex items-center justify-between p-6 border-b border-white/20">
+            <h2 className="text-2xl font-semibold text-white">Projects</h2>
+            <button
+              onClick={() => setIsProjectSectionOpen(false)}
+              className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+            >
+              <span className="text-white text-lg">×</span>
+            </button>
           </div>
           
           {/* Project Content */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-3">
-              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                <h3 className="text-white font-medium mb-2">Sample Project 1</h3>
-                <p className="text-white/70 text-sm mb-3">Construction project in downtown area</p>
-                <div className="flex items-center gap-2">
-                  <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">Active</span>
+          <div className="p-6 overflow-y-auto max-h-96">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 1</h3>
+                <p className="text-white/70 text-sm mb-4">Construction project in downtown area</p>
+                <div className="flex items-center gap-3">
+                  <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs font-medium">Active</span>
                   <span className="text-white/50 text-xs">Due: Dec 2024</span>
                 </div>
               </div>
               
-              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                <h3 className="text-white font-medium mb-2">Sample Project 2</h3>
-                <p className="text-white/70 text-sm mb-3">Residential development phase 1</p>
-                <div className="flex items-center gap-2">
-                  <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">Planning</span>
+              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 2</h3>
+                <p className="text-white/70 text-sm mb-4">Residential development phase 1</p>
+                <div className="flex items-center gap-3">
+                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-medium">Planning</span>
                   <span className="text-white/50 text-xs">Due: Jan 2025</span>
                 </div>
               </div>
-              
-              <button 
-                onClick={() => {
-                  onNavigate('projects');
-                  setIsProjectSectionOpen(false);
-                }}
-                className="w-full bg-white/20 hover:bg-white/30 text-white py-2 px-4 rounded-lg border border-white/30 transition-colors duration-200 text-sm"
-              >
-                View All Projects
-              </button>
             </div>
+            
+            <button 
+              onClick={() => {
+                onNavigate('projects');
+                setIsProjectSectionOpen(false);
+              }}
+              className="w-full mt-6 bg-white/20 hover:bg-white/30 text-white py-3 px-6 rounded-xl border border-white/30 transition-colors duration-200 font-medium"
+            >
+              View All Projects
+            </button>
           </div>
         </div>
       </div>
