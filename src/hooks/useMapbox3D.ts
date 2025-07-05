@@ -57,16 +57,50 @@ export const useMapbox3D = (currentModel: Model3D | null, showModel: boolean) =>
           antialias: true // Enable antialiasing for better 3D rendering
         });
 
-        // Add navigation controls
+        // Add navigation controls to bottom-right
         map.current.addControl(
           new mapboxgl.NavigationControl({
             visualizePitch: true,
           }),
-          'top-right'
+          'bottom-right'
         );
 
-        // Add fullscreen control
-        map.current.addControl(new mapboxgl.FullscreenControl(), 'bottom-right');
+        // Add custom CSS for glassmorphism styling on map controls
+        const style = document.createElement('style');
+        style.textContent = `
+          .mapboxgl-ctrl-group {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+          }
+          
+          .mapboxgl-ctrl-group button {
+            background: transparent !important;
+            border: none !important;
+            color: white !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          .mapboxgl-ctrl-group button:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+          }
+          
+          .mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
+            filter: invert(1) !important;
+          }
+          
+          .mapboxgl-ctrl-compass .mapboxgl-ctrl-compass-arrow {
+            filter: invert(1) !important;
+          }
+          
+          .mapboxgl-ctrl-bottom-right {
+            margin-bottom: 80px !important;
+            margin-right: 20px !important;
+          }
+        `;
+        document.head.appendChild(style);
 
         // Wait for map style to load before adding 3D layer
         map.current.on('style.load', () => {
