@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, Menu, Settings, HelpCircle } from 'lucide-react';
+import { Search, User, Menu, Settings, HelpCircle, BarChart3, Briefcase, Calendar, DollarSign, TrendingUp, Map } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
@@ -72,6 +72,7 @@ export const HomeFloatingBar = ({
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
+              <BarChart3 className="w-4 h-4" />
               <span className="text-sm font-medium">Dashboard</span>
             </button>
             <button
@@ -81,6 +82,7 @@ export const HomeFloatingBar = ({
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
+              <Briefcase className="w-4 h-4" />
               <span className="text-sm font-medium">Projects</span>
             </button>
             <button
@@ -90,6 +92,7 @@ export const HomeFloatingBar = ({
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
+              <Calendar className="w-4 h-4" />
               <span className="text-sm font-medium">Tasks</span>
             </button>
             <button
@@ -99,6 +102,7 @@ export const HomeFloatingBar = ({
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
+              <DollarSign className="w-4 h-4" />
               <span className="text-sm font-medium">Finance</span>
             </button>
             <button
@@ -108,6 +112,7 @@ export const HomeFloatingBar = ({
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
+              <TrendingUp className="w-4 h-4" />
               <span className="text-sm font-medium">Sales</span>
             </button>
             <button
@@ -117,6 +122,7 @@ export const HomeFloatingBar = ({
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
+              <Map className="w-4 h-4" />
               <span className="text-sm font-medium">BIM</span>
             </button>
           </div>
