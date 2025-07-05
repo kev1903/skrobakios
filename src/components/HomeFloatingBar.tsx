@@ -1,19 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, User, Menu, Settings, HelpCircle, Briefcase, Calendar, DollarSign, TrendingUp, Map } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
+import { useProjects, Project } from '@/hooks/useProjects';
 interface HomeFloatingBarProps {
   onNavigate: (page: string) => void;
 }
 export const HomeFloatingBar = ({
   onNavigate
 }: HomeFloatingBarProps) => {
-  const {
-    userProfile
-  } = useUser();
+  const { userProfile } = useUser();
+  const { getProjects } = useProjects();
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const fetchedProjects = await getProjects();
+      setProjects(fetchedProjects.slice(0, 6)); // Show only first 6 projects
+    };
+    fetchProjects();
+  }, [getProjects]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 text-green-300";
+      case "running":
+        return "bg-orange-500/20 text-orange-300";
+      case "pending":
+        return "bg-red-500/20 text-red-300";
+      default:
+        return "bg-gray-500/20 text-gray-300";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "running":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Active";
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
 
   const toggleRibbon = () => {
     setIsRibbonOpen(!isRibbonOpen);
@@ -161,59 +206,20 @@ export const HomeFloatingBar = ({
           {/* Project Content */}
           <div className="p-6 h-full overflow-y-auto">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 1</h3>
-                <p className="text-white/70 text-sm mb-4">Construction project in downtown area</p>
-                <div className="flex items-center gap-3">
-                  <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs font-medium">Active</span>
-                  <span className="text-white/50 text-xs">Due: Dec 2024</span>
+              {projects.map((project) => (
+                <div key={project.id} className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                  <h3 className="text-white font-semibold text-lg mb-3">{project.name}</h3>
+                  <p className="text-white/70 text-sm mb-4">{project.description || 'No description available'}</p>
+                  <div className="flex items-center gap-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                      {getStatusText(project.status)}
+                    </span>
+                    {project.deadline && (
+                      <span className="text-white/50 text-xs">Due: {formatDate(project.deadline)}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 2</h3>
-                <p className="text-white/70 text-sm mb-4">Residential development phase 1</p>
-                <div className="flex items-center gap-3">
-                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-medium">Planning</span>
-                  <span className="text-white/50 text-xs">Due: Jan 2025</span>
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 3</h3>
-                <p className="text-white/70 text-sm mb-4">Office building renovation</p>
-                <div className="flex items-center gap-3">
-                  <span className="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-medium">In Progress</span>
-                  <span className="text-white/50 text-xs">Due: Mar 2025</span>
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 4</h3>
-                <p className="text-white/70 text-sm mb-4">Bridge infrastructure upgrade</p>
-                <div className="flex items-center gap-3">
-                  <span className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-xs font-medium">Review</span>
-                  <span className="text-white/50 text-xs">Due: Apr 2025</span>
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 5</h3>
-                <p className="text-white/70 text-sm mb-4">Retail complex development</p>
-                <div className="flex items-center gap-3">
-                  <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs font-medium">Active</span>
-                  <span className="text-white/50 text-xs">Due: May 2025</span>
-                </div>
-              </div>
-
-              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
-                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 6</h3>
-                <p className="text-white/70 text-sm mb-4">Highway expansion project</p>
-                <div className="flex items-center gap-3">
-                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-medium">Planning</span>
-                  <span className="text-white/50 text-xs">Due: Jun 2025</span>
-                </div>
-              </div>
+              ))}
             </div>
             
             <div className="mt-8 flex justify-center">
