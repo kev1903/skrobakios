@@ -10,6 +10,7 @@ import { TimelineStatusCard } from "./project-settings/TimelineStatusCard";
 import { DangerZoneCard } from "./project-settings/DangerZoneCard";
 import { ProjectOverviewCard } from "./project-settings/ProjectOverviewCard";
 import { ProjectBannerCard } from "./project-settings/ProjectBannerCard";
+import { DigitalObjectsCard } from "./project-settings/DigitalObjectsCard";
 import { ProjectSidebar } from "./ProjectSidebar";
 
 interface ProjectSettingsPageProps {
@@ -228,7 +229,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-white/60">
+            <TabsList className="grid w-full grid-cols-1 lg:grid-cols-5 backdrop-blur-sm bg-white/60">
               <TabsTrigger value="general" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
@@ -236,6 +237,10 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
               <TabsTrigger value="integration" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">Integration</span>
+              </TabsTrigger>
+              <TabsTrigger value="digital-objects" className="flex items-center space-x-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Digital Objects</span>
               </TabsTrigger>
               <TabsTrigger value="timeline" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
@@ -271,6 +276,10 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
                   formData={formData}
                   onInputChange={handleInputChange}
                 />
+              </TabsContent>
+
+              <TabsContent value="digital-objects" className="space-y-6 mt-0">
+                <DigitalObjectsCard project={project} />
               </TabsContent>
 
               <TabsContent value="timeline" className="space-y-6 mt-0">
