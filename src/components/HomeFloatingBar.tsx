@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, Menu } from 'lucide-react';
+import { Search, User, Menu, Settings, HelpCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
@@ -125,6 +125,33 @@ export const HomeFloatingBar = ({
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">BIM</span>
+            </button>
+          </div>
+
+          {/* Support Section */}
+          <div className="border-t border-white/20 px-3 py-4 space-y-1">
+            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              Support
+            </div>
+            <button
+              onClick={() => {
+                onNavigate('settings');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="text-sm font-medium">Settings</span>
+            </button>
+            <button
+              onClick={() => {
+                onNavigate('support');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">Help Center</span>
             </button>
           </div>
         </div>
