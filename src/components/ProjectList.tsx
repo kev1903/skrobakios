@@ -116,17 +116,17 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <TableHead 
-      className="font-medium text-white cursor-pointer hover:bg-white/10 select-none"
+      className="font-medium text-pure-white cursor-pointer hover:bg-white/10 select-none"
       onClick={() => handleSort(field)}
     >
       <div className="flex items-center space-x-2">
         <span>{children}</span>
         <div className="flex flex-col">
           <ArrowUp 
-            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-400' : 'text-white'}`} 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-400' : 'text-pure-white'}`} 
           />
           <ArrowDown 
-            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-400' : 'text-white'}`} 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-400' : 'text-pure-white'}`} 
           />
         </div>
       </div>
@@ -166,21 +166,21 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         <div key={project.id} className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-6 hover:bg-white/15 transition-colors duration-200">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-1">
-                <button
-                  onClick={() => handleProjectClick(project.id)}
-                  className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left"
-                >
-                  {project.name}
-                </button>
-              </h3>
-              <p className="text-sm text-white mb-2">#{project.project_id}</p>
+               <h3 className="text-lg font-semibold text-pure-white mb-1">
+                 <button
+                   onClick={() => handleProjectClick(project.id)}
+                   className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left"
+                 >
+                   {project.name}
+                 </button>
+               </h3>
+               <p className="text-sm text-pure-white mb-2">#{project.project_id}</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-white hover:bg-white/20">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                 <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-pure-white hover:bg-white/20">
+                   <MoreHorizontal className="w-4 h-4" />
+                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem 
@@ -194,18 +194,18 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             </DropdownMenu>
           </div>
           
-          <p className="text-white text-sm mb-4 line-clamp-2">
+          <p className="text-pure-white text-sm mb-4 line-clamp-2">
             {project.description || 'No description available'}
           </p>
           
           <div className="space-y-2 mb-4">
             <div className="flex justify-between text-sm">
-              <span className="text-white">Start Date:</span>
-              <span className="text-white">{project.start_date ? formatDate(project.start_date) : '-'}</span>
+              <span className="text-pure-white">Start Date:</span>
+              <span className="text-pure-white">{project.start_date ? formatDate(project.start_date) : '-'}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-white">Due Date:</span>
-              <span className="text-white">{project.deadline ? formatDate(project.deadline) : '-'}</span>
+              <span className="text-pure-white">Due Date:</span>
+              <span className="text-pure-white">{project.deadline ? formatDate(project.deadline) : '-'}</span>
             </div>
           </div>
           
@@ -233,7 +233,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       <div className="h-full overflow-auto bg-gray-900/90 backdrop-blur-sm">
         <div className="p-8">
           <div className="flex items-center justify-center h-64">
-            <div className="text-white">Loading projects...</div>
+            <div className="text-pure-white">Loading projects...</div>
           </div>
         </div>
       </div>
@@ -258,8 +258,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2 font-poppins">Projects</h1>
-            <p className="text-white font-inter">Manage your construction projects ({projects.length} total)</p>
+            <h1 className="text-3xl font-bold text-pure-white mb-2 font-poppins">Projects</h1>
+            <p className="text-pure-white font-inter">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
             {/* View Toggle Buttons */}
@@ -269,8 +269,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 size="sm"
                 onClick={() => setViewMode('list')}
                 className={`${viewMode === 'list' 
-                  ? 'bg-white/20 text-white hover:bg-white/30' 
-                  : 'text-white hover:text-white hover:bg-white/10'
+                  ? 'bg-white/20 text-pure-white hover:bg-white/30' 
+                  : 'text-pure-white hover:text-pure-white hover:bg-white/10'
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -280,8 +280,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 size="sm"
                 onClick={() => setViewMode('grid')}
                 className={`${viewMode === 'grid' 
-                  ? 'bg-white/20 text-white hover:bg-white/30' 
-                  : 'text-white hover:text-white hover:bg-white/10'
+                  ? 'bg-white/20 text-pure-white hover:bg-white/30' 
+                  : 'text-pure-white hover:text-pure-white hover:bg-white/10'
                 }`}
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -290,7 +290,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/10"
+              className="flex items-center space-x-2 border-white/30 text-pure-white hover:bg-white/10"
             >
               <Filter className="w-4 h-4" />
               <span>Filter</span>
@@ -301,7 +301,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         {/* Projects Content */}
         {projects.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-8 text-center">
-            <div className="text-white mb-4">No projects found</div>
+            <div className="text-pure-white mb-4">No projects found</div>
             <Button
               onClick={() => onNavigate("create-project")}
               className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -349,10 +349,10 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                           className="rounded border-white/30 bg-white/10"
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-white">
+                      <TableCell className="font-mono text-sm text-pure-white">
                         #{project.project_id}
                       </TableCell>
-                      <TableCell className="font-medium text-white">
+                      <TableCell className="font-medium text-pure-white">
                         <button
                           onClick={() => handleProjectClick(project.id)}
                           className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left"
@@ -360,13 +360,13 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                           {project.name}
                         </button>
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-pure-white">
                         {project.description || '-'}
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-pure-white">
                         {project.start_date ? formatDate(project.start_date) : '-'}
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-pure-white">
                         {project.deadline ? formatDate(project.deadline) : '-'}
                       </TableCell>
                       <TableCell>
@@ -380,7 +380,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-white hover:bg-white/20">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-pure-white hover:bg-white/20">
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
