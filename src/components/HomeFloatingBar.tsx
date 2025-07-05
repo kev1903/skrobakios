@@ -145,7 +145,7 @@ export const HomeFloatingBar = ({
 
     {/* Project Section - Full Screen */}
     {isProjectSectionOpen && (
-      <div className="fixed inset-0 z-30 pt-16 pb-24">
+      <div className="fixed inset-0 z-30 pt-24 pb-24">
         <div className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/20">
