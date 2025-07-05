@@ -38,7 +38,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
   };
 
   return (
-    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
       <button
         onClick={() => onNavigate('home')}
         className="pointer-events-auto relative group"
@@ -91,7 +91,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
         {/* Company Name */}
         <div className="relative px-8 py-4">
           <h1 
-            className="text-white font-bold text-3xl tracking-wide text-center whitespace-nowrap"
+            className="text-white font-bold text-2xl tracking-wide text-center whitespace-nowrap"
             style={{
               textShadow: isSpeaking 
                 ? `0 0 ${10 + getGlowIntensity() * 20}px rgba(59, 130, 246, ${getGlowIntensity()})` 
