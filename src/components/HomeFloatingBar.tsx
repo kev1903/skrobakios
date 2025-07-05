@@ -64,16 +64,16 @@ export const HomeFloatingBar = ({
 
     {/* Navigation Ribbon */}
     {isRibbonOpen && (
-      <div className="fixed left-0 top-0 w-64 h-full bg-white/95 backdrop-blur-sm border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
-        <div className="flex flex-col h-full pt-20 bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg shadow-sm">
+      <div className="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+        <div className="flex flex-col h-full pt-20">
           {/* Navigation Items */}
-          <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3 bg-white/25 backdrop-blur-sm border border-white/20 rounded-lg mx-2">
+          <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
             <button
               onClick={() => {
                 onNavigate('dashboard');
                 setIsRibbonOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">Dashboard</span>
             </button>
@@ -82,7 +82,7 @@ export const HomeFloatingBar = ({
                 onNavigate('projects');
                 setIsRibbonOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">Projects</span>
             </button>
@@ -91,7 +91,7 @@ export const HomeFloatingBar = ({
                 onNavigate('tasks');
                 setIsRibbonOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">Tasks</span>
             </button>
@@ -100,7 +100,7 @@ export const HomeFloatingBar = ({
                 onNavigate('finance');
                 setIsRibbonOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">Finance</span>
             </button>
@@ -109,7 +109,7 @@ export const HomeFloatingBar = ({
                 onNavigate('sales');
                 setIsRibbonOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">Sales</span>
             </button>
@@ -118,7 +118,7 @@ export const HomeFloatingBar = ({
                 onNavigate('bim');
                 setIsRibbonOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
               <span className="text-sm font-medium">BIM</span>
             </button>
