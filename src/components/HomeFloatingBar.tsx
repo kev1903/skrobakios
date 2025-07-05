@@ -43,8 +43,12 @@ export const HomeFloatingBar = ({
         {/* Center - Company Logo */}
         <div className="flex-shrink-0 mx-8">
           <div className="flex items-center space-x-3">
-            
-            
+            <button 
+              onClick={() => onNavigate('home')}
+              className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 transition-colors duration-200"
+            >
+              <span className="text-white font-semibold text-lg">Company Name</span>
+            </button>
           </div>
         </div>
 
