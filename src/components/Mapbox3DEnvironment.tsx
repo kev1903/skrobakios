@@ -85,8 +85,11 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
     try {
       const savedView = localStorage.getItem('mapbox-saved-view');
       if (savedView) {
-        return JSON.parse(savedView);
+        const parsedView = JSON.parse(savedView);
+        console.log('Loading saved view:', parsedView);
+        return parsedView;
       }
+      console.log('No saved view found, using defaults');
     } catch (error) {
       console.error('Error loading saved view:', error);
     }
