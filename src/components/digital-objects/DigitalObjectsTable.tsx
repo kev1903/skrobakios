@@ -76,15 +76,15 @@ export const DigitalObjectsTable = ({
           <DragDropContext onDragEnd={onDragEnd}>
             <TableComponent>
               <TableHeader>
-                <TableRow className="border-white/10 hover:bg-white/5 h-10">
-                  <TableHead className="text-white font-semibold h-10 w-8"></TableHead>
-                  <TableHead className="text-white font-semibold h-10">Name</TableHead>
-                  <TableHead className="text-white font-semibold h-10">Type</TableHead>
-                  <TableHead className="text-white font-semibold h-10">Description</TableHead>
-                  <TableHead className="text-white font-semibold h-10">Status</TableHead>
-                  <TableHead className="text-white font-semibold h-10">Cost</TableHead>
-                  <TableHead className="text-white font-semibold h-10">Progress</TableHead>
-                  <TableHead className="text-white font-semibold h-10 w-20">Actions</TableHead>
+                <TableRow className="border-white/10 hover:bg-white/5 h-8">
+                  <TableHead className="text-white font-semibold h-8 w-8"></TableHead>
+                  <TableHead className="text-white font-semibold h-8">Name</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Type</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Description</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Status</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Cost</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Progress</TableHead>
+                  <TableHead className="text-white font-semibold h-8 w-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <Droppable droppableId="digital-objects">
@@ -107,7 +107,7 @@ export const DigitalObjectsTable = ({
                       />
                     ))}
                     {digitalObjects.length === 0 && (
-                      <TableRow className="border-white/10 h-10">
+                      <TableRow className="border-white/10 h-8">
                         <TableCell colSpan={8} className="text-center text-slate-400 py-8">
                           No digital objects found for this project
                         </TableCell>

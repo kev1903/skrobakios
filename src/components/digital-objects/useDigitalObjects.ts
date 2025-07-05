@@ -77,12 +77,14 @@ export const useDigitalObjects = () => {
 
   const handleRowSelect = (id: string, event: React.MouseEvent) => {
     if (event.ctrlKey || event.metaKey) {
+      // Ctrl/Cmd+click: toggle selection
       setSelectedIds(prev => 
         prev.includes(id) 
           ? prev.filter(selectedId => selectedId !== id)
           : [...prev, id]
       );
     } else {
+      // Normal click: select single row
       setSelectedIds([id]);
     }
   };

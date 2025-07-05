@@ -39,6 +39,9 @@ export const DigitalObjectRow = ({
   const handleClick = (event: React.MouseEvent) => {
     if (event.ctrlKey || event.metaKey) {
       onRowSelect(obj.id, event);
+    } else {
+      // Normal click should select the row
+      onRowSelect(obj.id, event);
     }
   };
 
