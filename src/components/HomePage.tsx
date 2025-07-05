@@ -4,6 +4,52 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 
+interface Project {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  status: string;
+  project_id: string;
+}
+
+interface ProjectWithCoordinates extends Project {
+  coordinates?: [number, number];
+}
+
+// Geocode address to coordinates using Mapbox
+const geocodeAddress = async (address: string): Promise<[number, number] | null> => {
+  if (!address || address.trim() === '') return null;
+  
+  try {
+    const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+    if (error || !data?.token) {
+      console.error('Failed to get Mapbox token for geocoding');
+      return null;
+    }
+
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${data.token}&limit=1&country=AU`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Geocoding request failed');
+    }
+
+    const geocodeData = await response.json();
+    
+    if (geocodeData.features && geocodeData.features.length > 0) {
+      const [lng, lat] = geocodeData.features[0].center;
+      return [lng, lat];
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error geocoding address:', address, error);
+    return null;
+  }
+};
+
 interface HomePageProps {
   onNavigate: (page: string) => void;
 }
@@ -15,28 +61,38 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeMap = async () => {
+    const initializeMapWithProjects = async () => {
       if (!mapContainer.current) return;
 
       try {
         // Fetch Mapbox token from edge function
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        const { data: tokenData, error: tokenError } = await supabase.functions.invoke('get-mapbox-token');
         
-        if (error) {
-          console.error('Error fetching Mapbox token:', error);
+        if (tokenError) {
+          console.error('Error fetching Mapbox token:', tokenError);
           setError('Failed to load map configuration');
           setIsLoading(false);
           return;
         }
 
-        if (!data?.token) {
+        if (!tokenData?.token) {
           setError('Mapbox token not available');
           setIsLoading(false);
           return;
         }
 
+        // Fetch projects from database
+        const { data: projectsData, error: projectsError } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (projectsError) {
+          console.error('Error fetching projects:', projectsError);
+        }
+
         // Initialize map with fetched token
-        mapboxgl.accessToken = data.token;
+        mapboxgl.accessToken = tokenData.token;
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
@@ -59,12 +115,15 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
           'top-right'
         );
 
-        // Map style loaded event
-        map.current.on('style.load', () => {
+        // Wait for map to load, then add project markers
+        map.current.on('style.load', async () => {
+          if (projectsData && projectsData.length > 0) {
+            await addProjectMarkers(projectsData);
+          }
           setIsLoading(false);
         });
 
-        // Event listeners for user interaction (removed auto-rotation for regional map)
+        // Event listeners for user interaction
         map.current.on('mousedown', () => {
           // User interaction handled by Mapbox
         });
@@ -88,7 +147,55 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
       }
     };
 
-    initializeMap();
+    const addProjectMarkers = async (projects: Project[]) => {
+      if (!map.current) return;
+
+      // Geocode project addresses and add markers
+      for (const project of projects) {
+        if (!project.location) continue;
+        
+        const coordinates = await geocodeAddress(project.location);
+        if (!coordinates) continue;
+
+        // Create marker element
+        const markerElement = document.createElement('div');
+        markerElement.className = 'project-marker';
+        markerElement.innerHTML = `
+          <div style="
+            background-color: #3b82f6;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <div style="color: white; font-size: 10px; font-weight: bold;">P</div>
+          </div>
+        `;
+
+        // Create popup for project info
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+          <div style="min-width: 200px;">
+            <h3 style="margin: 0 0 8px 0; font-weight: bold;">${project.name}</h3>
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">ID: ${project.project_id}</p>
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">Status: ${project.status || 'Unknown'}</p>
+            ${project.description ? `<p style="margin: 4px 0 0 0; font-size: 12px;">${project.description}</p>` : ''}
+          </div>
+        `);
+
+        // Create and add marker to map
+        new mapboxgl.Marker(markerElement)
+          .setLngLat(coordinates)
+          .setPopup(popup)
+          .addTo(map.current);
+      }
+    };
+
+    initializeMapWithProjects();
 
     // Cleanup
     return () => {

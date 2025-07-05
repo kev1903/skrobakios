@@ -25,7 +25,7 @@ export const businessNavigation: NavigationItem[] = [
   { id: "dashboard", label: "Dashboard", icon: BarChart3 },
   { id: "files", label: "Files", icon: File },
   { id: "projects", label: "Projects", icon: Briefcase },
-  { id: "projects-map", label: "Projects Map", icon: Map },
+  
   { id: "asset", label: "Asset", icon: DollarSign },
   { id: "finance", label: "Finance", icon: TrendingUp },
   { id: "sales", label: "Sales", icon: TrendingUp },
