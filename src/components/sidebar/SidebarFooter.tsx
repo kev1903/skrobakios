@@ -46,13 +46,13 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
   };
 
   return (
-    <SidebarFooterBase className="p-4 border-t border-white/20">
+    <SidebarFooterBase className="p-4 border-t border-white/20 bg-white/5 backdrop-blur-sm">
       <Button
         variant="ghost"
         onClick={() => onNavigate('user-edit')}
-        className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/20 transition-all duration-200 group backdrop-blur-sm hover:shadow-md justify-start"
+        className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/15 hover:backdrop-blur-md transition-all duration-300 group shadow-sm hover:shadow-lg justify-start"
       >
-        <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-blue-700 rounded-full flex items-center justify-center overflow-hidden shadow-lg">
+        <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-blue-700 rounded-full flex items-center justify-center overflow-hidden shadow-lg backdrop-blur-sm">
           {userProfile.avatarUrl ? (
             <img 
               src={userProfile.avatarUrl} 
@@ -76,7 +76,7 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
       <Button 
         variant="ghost"
         onClick={handleLogout}
-        className="w-full flex items-center space-x-3 px-3 py-2 mt-2 text-left rounded-lg hover:bg-red-50/50 transition-all duration-200 text-slate-500 hover:text-red-600 group backdrop-blur-sm hover:shadow-md justify-start"
+        className="w-full flex items-center space-x-3 px-3 py-2 mt-2 text-left rounded-lg hover:bg-red-100/20 hover:backdrop-blur-md transition-all duration-300 text-slate-500 hover:text-red-600 group shadow-sm hover:shadow-lg justify-start"
       >
         <LogOut className="w-4 h-4" />
         {!isCollapsed && <span className="text-sm font-inter">Logout</span>}

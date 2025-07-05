@@ -14,7 +14,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   const isCollapsed = state === 'collapsed';
 
   return (
-    <Sidebar className="backdrop-blur-xl bg-white/60 border-r border-white/20 shadow-xl">
+    <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
       <SidebarHeader isCollapsed={isCollapsed} />
       
       <SidebarMainContent 
