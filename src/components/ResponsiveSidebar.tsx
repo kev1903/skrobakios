@@ -2,20 +2,37 @@
 import React from 'react';
 import { 
   Sidebar,
+  SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { SidebarHeader } from './sidebar/SidebarHeader';
 import { SidebarMainContent } from './sidebar/SidebarMainContent';
 import { SidebarFooter } from './sidebar/SidebarFooter';
 import { ResponsiveSidebarProps } from './sidebar/types';
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
+  const handleRibbonClick = () => {
+    // Navigate to home page (closes current page) and keep sidebar open for navigation
+    onNavigate('home');
+  };
+
   return (
     <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
-      <SidebarHeader isCollapsed={isCollapsed} />
+      <SidebarHeader className="p-4 border-b border-white/20">
+        <Button
+          onClick={handleRibbonClick}
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start text-white hover:bg-white/20 hover:text-white"
+        >
+          <Menu className="w-4 h-4 mr-2" />
+          {!isCollapsed && <span>Navigation</span>}
+        </Button>
+      </SidebarHeader>
       
       <SidebarMainContent 
         currentPage={currentPage}
