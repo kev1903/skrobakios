@@ -14,7 +14,14 @@ export const useMapbox3D = (currentModel: Model3D | null, showModel: boolean) =>
   const [modelLayer, setModelLayer] = useState<any>(null);
 
   useEffect(() => {
-    if (!currentModel) return;
+    if (!currentModel) {
+      console.log('No current model selected');
+      return;
+    }
+
+    console.log('Initializing map with model:', currentModel);
+    console.log('Model coordinates:', currentModel.coordinates);
+    console.log('Show model state:', showModel);
 
     const initializeMap = async () => {
       if (!mapContainer.current) return;
@@ -131,70 +138,51 @@ export const useMapbox3D = (currentModel: Model3D | null, showModel: boolean) =>
           const isIFCFile = currentModel.file_url.toLowerCase().includes('.ifc');
           
           if (isIFCFile) {
-            console.log('IFC file detected - using placeholder model for visualization');
-            // For IFC files, use a placeholder/sample model until conversion is implemented
-            const placeholderModelUrl = 'https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf';
+            console.log('IFC file detected - creating simple building representation');
+            console.log('IFC model details:', currentModel);
             
-            loader.load(
-              placeholderModelUrl,
-              (gltf) => {
-                console.log('Placeholder model loaded for IFC file');
-                this.model = gltf.scene;
-                
-                // Set initial scale (smaller for IFC placeholder)
-                this.model.scale.set(currentModel.scale * 0.5, currentModel.scale * 0.5, currentModel.scale * 0.5);
-                
-                // Set rotation 
-                this.model.rotation.x = currentModel.rotation_x;
-                this.model.rotation.y = currentModel.rotation_y;
-                this.model.rotation.z = currentModel.rotation_z;
-
-                // Enable shadows and enhance materials
-                this.model.traverse((child) => {
-                  if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    
-                    if (child.material) {
-                      child.material.needsUpdate = true;
-                      // Make it more architectural looking
-                      if (child.material.color) {
-                        child.material.color.setHex(0x888888); // Gray color for building-like appearance
-                      }
-                    }
-                  }
-                });
-
-                // Calculate and set position
-                const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-                  currentModel.coordinates,
-                  currentModel.elevation
-                );
-
-                this.model.position.set(
-                  modelAsMercatorCoordinate.x,
-                  modelAsMercatorCoordinate.y,
-                  modelAsMercatorCoordinate.z
-                );
-                
-                const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * currentModel.scale * 0.5;
-                this.model.scale.setScalar(modelScale);
-
-                this.scene.add(this.model);
-                setIsModelLoading(false);
-                
-                console.log('IFC placeholder model successfully positioned at coordinates:', currentModel.coordinates);
-              },
-              (progress) => {
-                const percentage = (progress.loaded / progress.total * 100);
-                console.log('Loading IFC placeholder progress:', percentage.toFixed(1) + '%');
-              },
-              (error) => {
-                console.error('Error loading IFC placeholder model:', error);
-                setError('Failed to load model visualization. IFC file uploaded but needs conversion for 3D display.');
-                setIsModelLoading(false);
-              }
+            // Create a simple building-like geometry for IFC files
+            const buildingGeometry = new THREE.BoxGeometry(10, 15, 8);
+            const buildingMaterial = new THREE.MeshPhongMaterial({ 
+              color: 0x888888,
+              transparent: true,
+              opacity: 0.8
+            });
+            
+            this.model = new THREE.Mesh(buildingGeometry, buildingMaterial);
+            
+            // Enable shadows
+            this.model.castShadow = true;
+            this.model.receiveShadow = true;
+            
+            // Calculate position using Mapbox coordinate system
+            const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+              currentModel.coordinates,
+              currentModel.elevation
             );
+
+            // Set position in Mapbox coordinate system
+            this.model.position.set(
+              modelAsMercatorCoordinate.x,
+              modelAsMercatorCoordinate.y,
+              modelAsMercatorCoordinate.z
+            );
+            
+            // Scale to match Mapbox coordinate system
+            const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits();
+            this.model.scale.setScalar(modelScale);
+
+            // Set rotation 
+            this.model.rotation.x = currentModel.rotation_x;
+            this.model.rotation.y = currentModel.rotation_y;
+            this.model.rotation.z = currentModel.rotation_z;
+
+            this.scene.add(this.model);
+            setIsModelLoading(false);
+            
+            console.log('IFC building representation created at coordinates:', currentModel.coordinates);
+            console.log('Model position:', this.model.position);
+            console.log('Model scale:', modelScale);
           } else {
             // Handle GLTF/GLB files normally
             loader.load(
