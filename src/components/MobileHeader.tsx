@@ -1,9 +1,8 @@
 
-import React from 'react';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import React, { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { User } from 'lucide-react';
+import { User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface MobileHeaderProps {
@@ -38,7 +37,12 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   return (
     <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm md:hidden">
       <div className="flex items-center space-x-3">
-        <SidebarTrigger />
+        <button 
+          onClick={() => onNavigate('home')}
+          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+        >
+          <Menu className="w-4 h-4 text-slate-700" />
+        </button>
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-blue-700 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xs font-poppins">K</span>
