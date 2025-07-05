@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Filter, MoreHorizontal, Eye, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Filter, MoreHorizontal, Eye, ArrowUp, ArrowDown, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,12 +27,14 @@ interface ProjectListProps {
 
 type SortField = 'project_id' | 'name' | 'description' | 'start_date' | 'deadline' | 'status';
 type SortDirection = 'asc' | 'desc';
+type ViewMode = 'list' | 'grid';
 
 export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { getProjects, loading } = useProjects();
   const { toast } = useToast();
 
@@ -50,13 +52,13 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-500/20 text-green-300 border-green-500/30";
       case "running":
-        return "bg-orange-100 text-orange-800 border-orange-200";
+        return "bg-orange-500/20 text-orange-300 border-orange-500/30";
       case "pending":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-red-500/20 text-red-300 border-red-500/30";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
   };
 
@@ -114,17 +116,17 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <TableHead 
-      className="font-medium text-gray-700 cursor-pointer hover:bg-gray-100 select-none"
+      className="font-medium text-white cursor-pointer hover:bg-white/10 select-none"
       onClick={() => handleSort(field)}
     >
       <div className="flex items-center space-x-2">
         <span>{children}</span>
         <div className="flex flex-col">
           <ArrowUp 
-            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-400' : 'text-white/60'}`} 
           />
           <ArrowDown 
-            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-400' : 'text-white/60'}`} 
           />
         </div>
       </div>
@@ -158,12 +160,80 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const isAllSelected = selectedProjects.length === projects.length && projects.length > 0;
   const isIndeterminate = selectedProjects.length > 0 && selectedProjects.length < projects.length;
 
+  const renderGridView = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {getSortedProjects().map((project) => (
+        <div key={project.id} className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-6 hover:bg-white/15 transition-colors duration-200">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-white mb-1">
+                <button
+                  onClick={() => handleProjectClick(project.id)}
+                  className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left"
+                >
+                  {project.name}
+                </button>
+              </h3>
+              <p className="text-sm text-white/70 mb-2">#{project.project_id}</p>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-white hover:bg-white/20">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  className="flex items-center space-x-2"
+                  onClick={() => handleProjectClick(project.id)}
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>View Details</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          <p className="text-white/80 text-sm mb-4 line-clamp-2">
+            {project.description || 'No description available'}
+          </p>
+          
+          <div className="space-y-2 mb-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-white/60">Start Date:</span>
+              <span className="text-white">{project.start_date ? formatDate(project.start_date) : '-'}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-white/60">Due Date:</span>
+              <span className="text-white">{project.deadline ? formatDate(project.deadline) : '-'}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <Badge 
+              variant="outline" 
+              className={getStatusColor(project.status)}
+            >
+              {getStatusText(project.status)}
+            </Badge>
+            <input
+              type="checkbox"
+              checked={selectedProjects.includes(project.id)}
+              onChange={(e) => handleSelectProject(project.id, e.target.checked)}
+              className="rounded border-white/30 bg-white/10"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="h-full overflow-auto bg-gray-50/30 backdrop-blur-sm">
+      <div className="h-full overflow-auto bg-gray-900/90 backdrop-blur-sm">
         <div className="p-8">
           <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading projects...</div>
+            <div className="text-white">Loading projects...</div>
           </div>
         </div>
       </div>
@@ -171,7 +241,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }
 
   return (
-    <div className="h-full overflow-auto bg-gray-50/30 backdrop-blur-sm">
+    <div className="h-full overflow-auto bg-gray-900/90 backdrop-blur-sm">
       <div className="p-8">
         {/* Create New Project Button - Prominent at top */}
         <div className="mb-6">
@@ -188,14 +258,39 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-poppins">Projects</h1>
-            <p className="text-gray-600 font-inter">Manage your construction projects ({projects.length} total)</p>
+            <h1 className="text-3xl font-bold text-white mb-2 font-poppins">Projects</h1>
+            <p className="text-white/70 font-inter">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
+            {/* View Toggle Buttons */}
+            <div className="flex items-center bg-white/10 rounded-lg p-1">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className={`${viewMode === 'list' 
+                  ? 'bg-white/20 text-white hover:bg-white/30' 
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className={`${viewMode === 'grid' 
+                  ? 'bg-white/20 text-white hover:bg-white/30' 
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+            </div>
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/10"
             >
               <Filter className="w-4 h-4" />
               <span>Filter</span>
@@ -203,22 +298,24 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
           </div>
         </div>
 
-        {/* Projects Table */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-          {projects.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="text-gray-500 mb-4">No projects found</div>
-              <Button
-                onClick={() => onNavigate("create-project")}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Create Your First Project
-              </Button>
-            </div>
-          ) : (
+        {/* Projects Content */}
+        {projects.length === 0 ? (
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-8 text-center">
+            <div className="text-white/70 mb-4">No projects found</div>
+            <Button
+              onClick={() => onNavigate("create-project")}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Create Your First Project
+            </Button>
+          </div>
+        ) : viewMode === 'grid' ? (
+          renderGridView()
+        ) : (
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/50">
+                <TableRow className="bg-white/5 border-white/10">
                   <TableHead className="w-12">
                     <input
                       type="checkbox"
@@ -227,7 +324,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                         if (el) el.indeterminate = isIndeterminate;
                       }}
                       onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-gray-300"
+                      className="rounded border-white/30 bg-white/10"
                     />
                   </TableHead>
                   <SortableHeader field="project_id">ID</SortableHeader>
@@ -243,33 +340,33 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 {getSortedProjects().map((project) => {
                   console.log("Rendering project:", project.name, "with ID:", project.id);
                   return (
-                    <TableRow key={project.id} className="hover:bg-gray-50/50">
+                    <TableRow key={project.id} className="hover:bg-white/5 border-white/10">
                       <TableCell>
                         <input
                           type="checkbox"
                           checked={selectedProjects.includes(project.id)}
                           onChange={(e) => handleSelectProject(project.id, e.target.checked)}
-                          className="rounded border-gray-300"
+                          className="rounded border-white/30 bg-white/10"
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-gray-600">
+                      <TableCell className="font-mono text-sm text-white/70">
                         #{project.project_id}
                       </TableCell>
-                      <TableCell className="font-medium text-gray-900">
+                      <TableCell className="font-medium text-white">
                         <button
                           onClick={() => handleProjectClick(project.id)}
-                          className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                          className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left"
                         >
                           {project.name}
                         </button>
                       </TableCell>
-                      <TableCell className="text-gray-600">
+                      <TableCell className="text-white/80">
                         {project.description || '-'}
                       </TableCell>
-                      <TableCell className="text-gray-600">
+                      <TableCell className="text-white/80">
                         {project.start_date ? formatDate(project.start_date) : '-'}
                       </TableCell>
-                      <TableCell className="text-gray-600">
+                      <TableCell className="text-white/80">
                         {project.deadline ? formatDate(project.deadline) : '-'}
                       </TableCell>
                       <TableCell>
@@ -283,7 +380,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-white hover:bg-white/20">
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -303,8 +400,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 })}
               </TableBody>
             </Table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
