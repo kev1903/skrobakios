@@ -1,8 +1,29 @@
-import { Box, MapPin, Calendar, DollarSign, FileText, CheckCircle, Cog } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Table } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { Project } from "@/hooks/useProjects";
+import {
+  Table as TableComponent,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useState } from "react";
+
+interface DigitalObject {
+  id: string;
+  name: string;
+  object_type: string;
+  description: string | null;
+  status: string;
+  cost: number | null;
+  progress: number;
+  level: number;
+  parent_id: string | null;
+}
 
 interface DigitalObjectsPageProps {
   project: Project;
@@ -10,14 +31,74 @@ interface DigitalObjectsPageProps {
 }
 
 export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPageProps) => {
+  // Mock data for now until digital_objects table types are updated
+  const [digitalObjects] = useState<DigitalObject[]>([
+    {
+      id: "1",
+      name: "Building Structure",
+      object_type: "structure",
+      description: "Main building structural components",
+      status: "in_progress",
+      cost: 250000,
+      progress: 65,
+      level: 0,
+      parent_id: null
+    },
+    {
+      id: "2", 
+      name: "Foundation",
+      object_type: "foundation",
+      description: "Building foundation system",
+      status: "completed",
+      cost: 75000,
+      progress: 100,
+      level: 1,
+      parent_id: "1"
+    },
+    {
+      id: "3",
+      name: "Framing", 
+      object_type: "framing",
+      description: "Steel and concrete framing",
+      status: "in_progress",
+      cost: 125000,
+      progress: 45,
+      level: 1,
+      parent_id: "1"
+    },
+    {
+      id: "4",
+      name: "MEP Systems",
+      object_type: "systems", 
+      description: "Mechanical, Electrical, and Plumbing",
+      status: "planning",
+      cost: 180000,
+      progress: 0,
+      level: 0,
+      parent_id: null
+    },
+    {
+      id: "5",
+      name: "HVAC",
+      object_type: "mechanical",
+      description: "Heating, Ventilation, and Air Conditioning", 
+      status: "planning",
+      cost: 85000,
+      progress: 0,
+      level: 1,
+      parent_id: "4"
+    }
+  ]);
+  const [loading] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
         return "bg-green-500/20 text-green-300 border-green-500/30";
-      case "running":
+      case "in_progress":
         return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-      case "pending":
-        return "bg-red-500/20 text-red-300 border-red-500/30";
+      case "planning":
+        return "bg-blue-500/20 text-blue-300 border-blue-500/30";
       default:
         return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
@@ -27,60 +108,14 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     switch (status) {
       case "completed":
         return "Completed";
-      case "running":
+      case "in_progress":
         return "In Progress";
-      case "pending":
-        return "Pending";
+      case "planning":
+        return "Planning";
       default:
         return "Active";
     }
   };
-  const digitalObjectFeatures = [
-    {
-      icon: MapPin,
-      title: "Location & Type",
-      description: "Precise positioning and classification of every building element",
-      color: "bg-blue-500/10 text-blue-400 border-blue-500/30"
-    },
-    {
-      icon: Calendar,
-      title: "Tasks & Schedule",
-      description: "All construction and maintenance tasks linked to each object",
-      color: "bg-green-500/10 text-green-400 border-green-500/30"
-    },
-    {
-      icon: DollarSign,
-      title: "Cost & Budget",
-      description: "Real-time cost tracking and budget management per object",
-      color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30"
-    },
-    {
-      icon: FileText,
-      title: "Documents",
-      description: "All related drawings, specs, and documentation in one place",
-      color: "bg-purple-500/10 text-purple-400 border-purple-500/30"
-    },
-    {
-      icon: CheckCircle,
-      title: "Quality Status",
-      description: "Quality control checks and compliance tracking",
-      color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-    },
-    {
-      icon: Cog,
-      title: "Asset Management",
-      description: "Future maintenance and lifecycle management capabilities",
-      color: "bg-orange-500/10 text-orange-400 border-orange-500/30"
-    }
-  ];
-
-  const objectTypes = [
-    { name: "Slabs", count: 12, status: "In Progress" },
-    { name: "Walls", count: 28, status: "Design Phase" },
-    { name: "Rooms", count: 16, status: "Planning" },
-    { name: "Tasks", count: 45, status: "Active" },
-    { name: "Equipment", count: 8, status: "Procurement" }
-  ];
 
   return (
     <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
@@ -95,143 +130,74 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-          <div className="container mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-              <Box className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Digital Objects</h1>
-              <p className="text-slate-400">Smart data representations of your project components</p>
+        <div className="p-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <Table className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Digital Objects</h1>
+                <p className="text-slate-400">Project component data table</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Main Description */}
-        <Card className="mb-8 bg-white/5 border-white/10 backdrop-blur-sm">
-          <CardContent className="p-8">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-semibold text-white mb-4">
-                Intelligent Project Management Through Digital Objects
-              </h2>
-              <p className="text-lg text-slate-300 max-w-4xl mx-auto leading-relaxed">
-                Digital Objects are smart data representations of real-world components in your project — 
-                like slabs, walls, rooms, tasks, or equipment. Each object stores everything related to that item, 
-                creating a unified intelligent system for your entire project.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {digitalObjectFeatures.map((feature, index) => (
-            <Card key={index} className="bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${feature.color}`}>
-                    <feature.icon className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                    <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Current Objects Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Table */}
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Box className="w-5 h-5" />
-                Current Digital Objects
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {objectTypes.map((type, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-md flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">{type.count}</span>
-                      </div>
-                      <div>
-                        <div className="text-white font-medium">{type.name}</div>
-                        <div className="text-slate-400 text-sm">{type.count} objects</div>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="text-slate-300 border-slate-600">
-                      {type.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="p-0">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-white">Loading digital objects...</div>
+                </div>
+              ) : (
+                <TableComponent>
+                  <TableHeader>
+                    <TableRow className="border-white/10 hover:bg-white/5">
+                      <TableHead className="text-white font-semibold">Name</TableHead>
+                      <TableHead className="text-white font-semibold">Type</TableHead>
+                      <TableHead className="text-white font-semibold">Description</TableHead>
+                      <TableHead className="text-white font-semibold">Status</TableHead>
+                      <TableHead className="text-white font-semibold">Cost</TableHead>
+                      <TableHead className="text-white font-semibold">Progress</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {digitalObjects.map((obj) => (
+                      <TableRow 
+                        key={obj.id} 
+                        className="border-white/10 hover:bg-white/5"
+                        style={{ paddingLeft: `${obj.level * 20}px` }}
+                      >
+                        <TableCell className="text-white font-medium" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
+                          {obj.name}
+                        </TableCell>
+                        <TableCell className="text-slate-300 capitalize">{obj.object_type}</TableCell>
+                        <TableCell className="text-slate-300">{obj.description || '-'}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={getStatusColor(obj.status)}>
+                            {getStatusText(obj.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-slate-300">
+                          {obj.cost ? `$${obj.cost.toLocaleString()}` : '-'}
+                        </TableCell>
+                        <TableCell className="text-slate-300">{obj.progress}%</TableCell>
+                      </TableRow>
+                    ))}
+                    {digitalObjects.length === 0 && (
+                      <TableRow className="border-white/10">
+                        <TableCell colSpan={6} className="text-center text-slate-400 py-8">
+                          No digital objects found for this project
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </TableComponent>
+              )}
             </CardContent>
           </Card>
-
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">AI-Powered Intelligence</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
-                  <h4 className="text-white font-semibold mb-2">Automated Tracking</h4>
-                  <p className="text-slate-300 text-sm">
-                    AI monitors progress, costs, and quality across all digital objects in real-time.
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
-                  <h4 className="text-white font-semibold mb-2">Smart Connections</h4>
-                  <p className="text-slate-300 text-sm">
-                    Every object knows its relationships - from design to construction to maintenance.
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20">
-                  <h4 className="text-white font-semibold mb-2">Predictive Insights</h4>
-                  <p className="text-slate-300 text-sm">
-                    Machine learning identifies potential issues before they become problems.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Bottom CTA */}
-        <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/20 backdrop-blur-sm">
-          <CardContent className="p-8 text-center">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Transform Your Project with Digital Intelligence
-            </h3>
-            <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
-              By turning every building element into a Digital Object, we create one intelligent system 
-              where time, cost, quality, and maintenance are all connected and automated with AI.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button 
-                onClick={() => onNavigate('bim')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
-              >
-                View 3D Environment
-              </button>
-              <button 
-                onClick={() => onNavigate('project-settings')}
-                className="px-6 py-3 bg-white/10 text-white rounded-lg font-semibold hover:bg-white/20 transition-all duration-300 border border-white/20"
-              >
-                Configure Objects
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-          </div>
         </div>
       </div>
     </div>
