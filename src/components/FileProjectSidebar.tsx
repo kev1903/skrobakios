@@ -13,7 +13,7 @@ export const FileProjectSidebar = ({ onNavigate }: FileProjectSidebarProps) => {
   };
 
   return (
-    <div className="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+    <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
       <div className="flex flex-col h-full pt-20">
         {/* Back Button */}
         <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
