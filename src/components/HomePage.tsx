@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 import { ChatBox } from '@/components/ChatBox';
+import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 
 interface Project {
   id: string;
@@ -60,6 +61,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
     const initializeMapWithProjects = async () => {
@@ -232,8 +234,11 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
         </div>
       )}
       
+      {/* Centered Company Name with AI Effects */}
+      <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
+      
       {/* Bottom Chat Box */}
-      <ChatBox onNavigate={onNavigate} />
+      <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
     </div>
   );
 };
