@@ -18,11 +18,11 @@ export const FileProjectSidebar = ({ onNavigate }: FileProjectSidebarProps) => {
         {/* Back Button */}
         <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
           <button
-            onClick={() => onNavigate("dashboard")}
+            onClick={() => onNavigate("home")}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back</span>
+            <span className="text-sm font-medium">Close Page</span>
           </button>
         </div>
 

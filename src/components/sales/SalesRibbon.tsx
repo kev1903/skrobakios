@@ -20,9 +20,8 @@ interface SalesRibbonProps {
 
 export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps) => {
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-    }
+    // Always navigate to home to close the current page
+    onTabChange('home');
   };
 
   const handleNavigate = (page: string) => {
@@ -39,7 +38,7 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-medium">Back to Dashboard</span>
+          <span className="text-sm font-medium">Close Page</span>
         </button>
       </div>
 
