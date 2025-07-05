@@ -28,6 +28,7 @@ import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
+import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
 
 import { Project } from "@/hooks/useProjects";
 
@@ -118,6 +119,8 @@ export const ContentRenderer = ({
     case "sales":
       return <SalesPage onNavigate={onNavigate} />;
     case "bim":
+      return <DigitalObjectsPage onNavigate={onNavigate} />;
+    case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} />;
     case "support":
       return <SupportPage />;
