@@ -28,21 +28,26 @@ const geocodeAddress = async (address: string): Promise<[number, number] | null>
       return null;
     }
 
-    const response = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${data.token}&limit=1&country=AU`
-    );
+    const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${data.token}&limit=1&country=AU`;
+    console.log('Geocoding URL:', geocodeUrl);
+
+    const response = await fetch(geocodeUrl);
     
     if (!response.ok) {
+      console.error('Geocoding request failed with status:', response.status);
       throw new Error('Geocoding request failed');
     }
 
     const geocodeData = await response.json();
+    console.log('Geocoding response for', address, ':', geocodeData);
     
     if (geocodeData.features && geocodeData.features.length > 0) {
       const [lng, lat] = geocodeData.features[0].center;
+      console.log('Parsed coordinates [lng, lat]:', [lng, lat]);
       return [lng, lat];
     }
     
+    console.log('No features found in geocoding response for:', address);
     return null;
   } catch (error) {
     console.error('Error geocoding address:', address, error);
@@ -150,12 +155,24 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
     const addProjectMarkers = async (projects: Project[]) => {
       if (!map.current) return;
 
+      console.log('Adding markers for projects:', projects.length);
+
       // Geocode project addresses and add markers
       for (const project of projects) {
-        if (!project.location) continue;
+        if (!project.location) {
+          console.log('Skipping project without location:', project.name);
+          continue;
+        }
         
+        console.log('Geocoding location for project:', project.name, 'Location:', project.location);
         const coordinates = await geocodeAddress(project.location);
-        if (!coordinates) continue;
+        
+        if (!coordinates) {
+          console.log('Failed to geocode location for project:', project.name);
+          continue;
+        }
+
+        console.log('Geocoded coordinates for', project.name, ':', coordinates);
 
         // Create marker element
         const markerElement = document.createElement('div');
