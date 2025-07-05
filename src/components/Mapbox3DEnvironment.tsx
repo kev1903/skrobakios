@@ -100,7 +100,7 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
     if (!mapContainer.current) return;
 
     // Initialize Mapbox
-    mapboxgl.accessToken = 'pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWNwcTRjbXgwOHQ5Mm1wdDJhdmZ2amI4In0.Whp6B_EMJajFoWzAGBCs6A';
+    mapboxgl.accessToken = 'pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWNvdTU0aXcxOWxrMmtvamd0NjB6ajhjIn0.3mYQ3SZE_DQ0Qiz8t_IA6w';
     
     // Get saved view or use defaults
     const savedView = loadSavedView();
