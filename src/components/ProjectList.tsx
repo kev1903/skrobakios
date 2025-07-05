@@ -123,10 +123,10 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         <span>{children}</span>
         <div className="flex flex-col">
           <ArrowUp 
-            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-400' : 'text-white/60'}`} 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'asc' ? 'text-blue-400' : 'text-white'}`} 
           />
           <ArrowDown 
-            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-400' : 'text-white/60'}`} 
+            className={`w-3 h-3 ${sortField === field && sortDirection === 'desc' ? 'text-blue-400' : 'text-white'}`} 
           />
         </div>
       </div>
@@ -174,7 +174,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                   {project.name}
                 </button>
               </h3>
-              <p className="text-sm text-white/70 mb-2">#{project.project_id}</p>
+              <p className="text-sm text-white mb-2">#{project.project_id}</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -194,17 +194,17 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             </DropdownMenu>
           </div>
           
-          <p className="text-white/80 text-sm mb-4 line-clamp-2">
+          <p className="text-white text-sm mb-4 line-clamp-2">
             {project.description || 'No description available'}
           </p>
           
           <div className="space-y-2 mb-4">
             <div className="flex justify-between text-sm">
-              <span className="text-white/60">Start Date:</span>
+              <span className="text-white">Start Date:</span>
               <span className="text-white">{project.start_date ? formatDate(project.start_date) : '-'}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-white/60">Due Date:</span>
+              <span className="text-white">Due Date:</span>
               <span className="text-white">{project.deadline ? formatDate(project.deadline) : '-'}</span>
             </div>
           </div>
@@ -259,7 +259,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2 font-poppins">Projects</h1>
-            <p className="text-white/70 font-inter">Manage your construction projects ({projects.length} total)</p>
+            <p className="text-white font-inter">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
             {/* View Toggle Buttons */}
@@ -270,7 +270,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 onClick={() => setViewMode('list')}
                 className={`${viewMode === 'list' 
                   ? 'bg-white/20 text-white hover:bg-white/30' 
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  : 'text-white hover:text-white hover:bg-white/10'
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -281,7 +281,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 onClick={() => setViewMode('grid')}
                 className={`${viewMode === 'grid' 
                   ? 'bg-white/20 text-white hover:bg-white/30' 
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  : 'text-white hover:text-white hover:bg-white/10'
                 }`}
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -301,7 +301,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         {/* Projects Content */}
         {projects.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-8 text-center">
-            <div className="text-white/70 mb-4">No projects found</div>
+            <div className="text-white mb-4">No projects found</div>
             <Button
               onClick={() => onNavigate("create-project")}
               className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -349,7 +349,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                           className="rounded border-white/30 bg-white/10"
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-white/70">
+                      <TableCell className="font-mono text-sm text-white">
                         #{project.project_id}
                       </TableCell>
                       <TableCell className="font-medium text-white">
@@ -360,13 +360,13 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                           {project.name}
                         </button>
                       </TableCell>
-                      <TableCell className="text-white/80">
+                      <TableCell className="text-white">
                         {project.description || '-'}
                       </TableCell>
-                      <TableCell className="text-white/80">
+                      <TableCell className="text-white">
                         {project.start_date ? formatDate(project.start_date) : '-'}
                       </TableCell>
-                      <TableCell className="text-white/80">
+                      <TableCell className="text-white">
                         {project.deadline ? formatDate(project.deadline) : '-'}
                       </TableCell>
                       <TableCell>
