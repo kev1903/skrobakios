@@ -361,108 +361,134 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
   }, [projects]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-slate-950">
-      {/* Map Container */}
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Map Container - Full screen */}
       <div ref={mapContainer} className="absolute inset-0" />
       
       {/* Loading Overlay */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-slate-950 flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/90 to-slate-950/90 backdrop-blur-lg flex items-center justify-center z-50">
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <div className="text-white text-xl font-semibold">Loading 3D Environment...</div>
-            <div className="text-slate-400 text-sm">Initializing Mapbox Globe</div>
+            <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto shadow-lg"></div>
+            <div className="text-white text-xl font-semibold tracking-wide">Loading 3D Environment...</div>
+            <div className="text-slate-300 text-sm">Initializing Mapbox Globe</div>
           </div>
         </div>
       )}
 
-      {/* Navigation Panel */}
-      <Card className="absolute top-6 left-6 z-40 bg-black/20 backdrop-blur-md border-white/10">
-        <CardContent className="p-4">
+      {/* Navigation Panel - Enhanced Glassmorphism */}
+      <Card className="absolute top-6 left-6 z-40 bg-black/10 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50">
+        <CardContent className="p-5">
           <div className="flex items-center space-x-3 mb-4">
-            <Navigation className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">Navigation</span>
+            <div className="p-2 rounded-lg bg-white/10 backdrop-blur-sm">
+              <Navigation className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-white font-semibold text-lg">Navigation</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onNavigate('dashboard')}
-              className="w-full justify-start text-white hover:bg-white/10"
+              className="w-full justify-start text-white hover:bg-white/15 hover:backdrop-blur-sm transition-all duration-300 rounded-lg"
             >
-              <Globe className="w-4 h-4 mr-2" />
+              <Globe className="w-4 h-4 mr-3" />
               Dashboard
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onNavigate('projects')}
-              className="w-full justify-start text-white hover:bg-white/10"
+              className="w-full justify-start text-white hover:bg-white/15 hover:backdrop-blur-sm transition-all duration-300 rounded-lg"
             >
-              <Map className="w-4 h-4 mr-2" />
+              <Map className="w-4 h-4 mr-3" />
               Projects
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onNavigate('tasks')}
-              className="w-full justify-start text-white hover:bg-white/10"
+              className="w-full justify-start text-white hover:bg-white/15 hover:backdrop-blur-sm transition-all duration-300 rounded-lg"
             >
-              <Layers className="w-4 h-4 mr-2" />
+              <Layers className="w-4 h-4 mr-3" />
               Tasks
             </Button>
-            <hr className="border-white/20 my-2" />
+            <div className="border-t border-white/20 my-3"></div>
             <Button
               variant="ghost"
               size="sm"
               onClick={saveCurrentView}
-              className="w-full justify-start text-white hover:bg-white/10"
+              className="w-full justify-start text-white hover:bg-white/15 hover:backdrop-blur-sm transition-all duration-300 rounded-lg"
             >
-              <Bookmark className="w-4 h-4 mr-2" />
+              <Bookmark className="w-4 h-4 mr-3" />
               Save View
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Info Panel */}
-      <Card className="absolute bottom-6 left-6 z-40 bg-black/20 backdrop-blur-md border-white/10">
-        <CardContent className="p-4">
-          <div className="text-white space-y-2">
-            <div className="text-sm font-semibold">3D Earth Environment</div>
-            <div className="text-xs text-slate-300">
-              • Click and drag to rotate
-              • Scroll to zoom in/out
-              • Globe auto-rotates when idle
-              • Click project markers for details
+      {/* Info Panel - Enhanced Glassmorphism */}
+      <Card className="absolute bottom-6 left-6 z-40 bg-black/10 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50">
+        <CardContent className="p-5">
+          <div className="text-white space-y-3">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="p-2 rounded-lg bg-white/10 backdrop-blur-sm">
+                <Globe className="w-5 h-5 text-blue-400" />
+              </div>
+              <div className="text-lg font-semibold">3D Earth Environment</div>
+            </div>
+            <div className="text-sm text-slate-200 space-y-2 leading-relaxed">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                <span>Click and drag to rotate</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                <span>Scroll to zoom in/out</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                <span>Globe auto-rotates when idle</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                <span>Click project markers for details</span>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Projects Status Panel */}
-      <Card className="absolute bottom-6 right-6 z-40 bg-black/20 backdrop-blur-md border-white/10">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3 mb-3">
-            <MapPin className="w-5 h-5 text-blue-400" />
-            <span className="text-white font-semibold">Projects</span>
+      {/* Projects Status Panel - Enhanced Glassmorphism */}
+      <Card className="absolute bottom-6 right-6 z-40 bg-black/10 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50">
+        <CardContent className="p-5">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-2 rounded-lg bg-white/10 backdrop-blur-sm">
+              <MapPin className="w-5 h-5 text-blue-400" />
+            </div>
+            <span className="text-white font-semibold text-lg">Projects</span>
           </div>
-          <div className="text-white space-y-2">
+          <div className="text-white space-y-3">
             {loadingProjects ? (
-              <div className="text-xs text-slate-300">Loading projects...</div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                <div className="text-sm text-slate-300">Loading projects...</div>
+              </div>
             ) : (
               <>
-                <div className="text-sm">
-                  <span className="text-blue-400 font-medium">{projectMarkers.length}</span>
-                  <span className="text-slate-300"> on map</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm">
+                  <span className="text-sm text-slate-300">On Map</span>
+                  <span className="text-xl font-bold text-blue-400">{projectMarkers.length}</span>
                 </div>
-                <div className="text-sm">
-                  <span className="text-slate-400 font-medium">{projects.length}</span>
-                  <span className="text-slate-300"> total found</span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 backdrop-blur-sm">
+                  <span className="text-sm text-slate-300">Total Found</span>
+                  <span className="text-xl font-bold text-white">{projects.length}</span>
                 </div>
                 {projects.length > projectMarkers.length && (
-                  <div className="text-xs text-amber-400">
-                    {projects.length - projectMarkers.length} projects missing location data
+                  <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-400/20">
+                    <div className="text-xs text-amber-300 font-medium">
+                      {projects.length - projectMarkers.length} projects missing location data
+                    </div>
                   </div>
                 )}
               </>
