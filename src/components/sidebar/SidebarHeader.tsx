@@ -11,5 +11,5 @@ export const SidebarHeader = ({
     userProfile,
     loading
   } = useUser();
-  return;
+  return null;
 };
