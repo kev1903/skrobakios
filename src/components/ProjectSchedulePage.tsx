@@ -1176,8 +1176,14 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
       {/* Column Rename Dialog */}
       {renamingColumn && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card border border-border rounded-lg p-6 w-96 max-w-[90vw]">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="bg-card border border-border rounded-lg p-6 w-96 max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-lg font-semibold text-foreground mb-4">Rename Column</h3>
             <div className="space-y-4">
               <div>
