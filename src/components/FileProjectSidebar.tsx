@@ -1,67 +1,91 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BarChart3, Calendar, AlertCircle, FileCheck, FileText, Users, Eye, Settings } from "lucide-react";
+import { ArrowLeft, Briefcase, Calendar, DollarSign, TrendingUp, Map, Settings, HelpCircle } from "lucide-react";
 
 interface FileProjectSidebarProps {
   onNavigate: (page: string) => void;
 }
 
 export const FileProjectSidebar = ({ onNavigate }: FileProjectSidebarProps) => {
-  const sidebarItems = [
-    { id: "insights", label: "Insights", icon: BarChart3, active: false },
-    { id: "tasks", label: "Tasks", icon: FileCheck, active: false },
-    { id: "sections", label: "WBS", icon: FileText, active: false },
-    { id: "cost", label: "Cost", icon: BarChart3, active: false },
-    { id: "schedule", label: "Schedule", icon: Calendar, active: false },
-    { id: "issues", label: "Issues", icon: AlertCircle, active: false },
-    { id: "audit", label: "Audit", icon: FileCheck, active: false },
-    { id: "files", label: "Files", icon: FileText, active: true },
-    { id: "media", label: "Media", icon: Eye, active: false },
-    { id: "documents", label: "Documents", icon: FileText, active: false },
-    { id: "setting", label: "Setting", icon: Settings, active: false }
-  ];
+  const handleNavigate = (page: string) => {
+    onNavigate(page);
+  };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <Button
-          variant="ghost"
-          onClick={() => onNavigate("dashboard")}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back</span>
-        </Button>
-        
-        <div className="mb-2">
-          <h2 className="text-lg font-semibold text-gray-900">SK 23003 - Gordon Street, Balwyn</h2>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-              Active
-            </Badge>
-            <span>Last Updated 12h Ago</span>
+    <div className="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+      <div className="flex flex-col h-full pt-20">
+        {/* Back Button */}
+        <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
+          <button
+            onClick={() => onNavigate("dashboard")}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
+          <button
+            onClick={() => handleNavigate('projects')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Briefcase className="w-4 h-4" />
+            <span className="text-sm font-medium">Projects</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('tasks')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Calendar className="w-4 h-4" />
+            <span className="text-sm font-medium">Tasks</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('finance')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <DollarSign className="w-4 h-4" />
+            <span className="text-sm font-medium">Finance</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('sales')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span className="text-sm font-medium">Sales</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('bim')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Map className="w-4 h-4" />
+            <span className="text-sm font-medium">BIM</span>
+          </button>
+        </div>
+
+        {/* Support Section */}
+        <div className="border-t border-white/20 px-3 py-4 space-y-1">
+          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            Support
           </div>
+          <button
+            onClick={() => handleNavigate('settings')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="text-sm font-medium">Settings</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('support')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span className="text-sm font-medium">Help Center</span>
+          </button>
         </div>
       </div>
-
-      <nav className="flex-1 p-4">
-        <div className="space-y-1">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.id}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                item.active
-                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="text-sm font-medium">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Calendar, Users } from 'lucide-react';
+import { ArrowLeft, Briefcase, Calendar, DollarSign, TrendingUp, Map, Settings, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Project } from '@/hooks/useProjects';
 
@@ -9,43 +9,84 @@ interface GanttSidebarProps {
 }
 
 export const GanttSidebar = ({ project, onNavigate }: GanttSidebarProps) => {
-  return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-4 border-b border-gray-200">
-        <Button
-          variant="ghost"
-          onClick={() => onNavigate("project-schedule")}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Schedule</span>
-        </Button>
-        
-        <div className="mb-2">
-          <h2 className="text-lg font-semibold text-gray-900">{project.name}</h2>
-          <p className="text-sm text-gray-500">Gantt Chart View</p>
-        </div>
-      </div>
+  const handleNavigate = (page: string) => {
+    onNavigate(page);
+  };
 
-      <nav className="flex-1 p-4">
-        <div className="space-y-2">
-          <div className="flex items-center space-x-3 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg border border-blue-200">
-            <Calendar className="w-4 h-4" />
-            <span className="text-sm font-medium">Gantt Chart</span>
-          </div>
-          <button 
+  return (
+    <div className="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+      <div className="flex flex-col h-full pt-20">
+        {/* Back Button */}
+        <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
+          <button
             onClick={() => onNavigate("project-schedule")}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back to Schedule</span>
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
+          <button
+            onClick={() => handleNavigate('projects')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Briefcase className="w-4 h-4" />
+            <span className="text-sm font-medium">Projects</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('tasks')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >
             <Calendar className="w-4 h-4" />
-            <span className="text-sm font-medium">Timeline View</span>
+            <span className="text-sm font-medium">Tasks</span>
           </button>
-          <button className="w-full flex items-center space-x-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-            <Users className="w-4 h-4" />
-            <span className="text-sm font-medium">Resource View</span>
+          <button
+            onClick={() => handleNavigate('finance')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <DollarSign className="w-4 h-4" />
+            <span className="text-sm font-medium">Finance</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('sales')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span className="text-sm font-medium">Sales</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('bim')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Map className="w-4 h-4" />
+            <span className="text-sm font-medium">BIM</span>
           </button>
         </div>
-      </nav>
+
+        {/* Support Section */}
+        <div className="border-t border-white/20 px-3 py-4 space-y-1">
+          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            Support
+          </div>
+          <button
+            onClick={() => handleNavigate('settings')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="text-sm font-medium">Settings</span>
+          </button>
+          <button
+            onClick={() => handleNavigate('support')}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span className="text-sm font-medium">Help Center</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
