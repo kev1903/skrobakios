@@ -56,7 +56,7 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
   }, [onNavigate]);
 
   return (
-    <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh' }}>
       {/* Map Container - Full screen */}
       <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
       
