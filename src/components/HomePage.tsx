@@ -39,11 +39,15 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/dark-v11',
-          projection: 'globe',
-          zoom: 1.5,
-          center: [30, 15],
-          pitch: 45,
+          style: 'mapbox://styles/kevin19031994/cmcprh4kj009w01sqbfig9lx6',
+          projection: 'mercator',
+          zoom: 6.5,
+          center: [144.9631, -37.8136], // Melbourne, Victoria
+          pitch: 30,
+          maxBounds: [
+            [140.96, -39.20], // Southwest coordinates of Victoria
+            [149.98, -33.98]  // Northeast coordinates of Victoria
+          ]
         });
 
         // Add navigation controls
@@ -54,65 +58,27 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
           'top-right'
         );
 
-        // Add atmosphere and fog effects
+        // Map style loaded event
         map.current.on('style.load', () => {
-          map.current?.setFog({
-            color: 'rgb(50, 50, 75)',
-            'high-color': 'rgb(100, 100, 150)',
-            'horizon-blend': 0.2,
-          });
           setIsLoading(false);
         });
 
-        // Rotation animation settings
-        const secondsPerRevolution = 240;
-        const maxSpinZoom = 5;
-        const slowSpinZoom = 3;
-        let userInteracting = false;
-        let spinEnabled = true;
-
-        // Spin globe function
-        function spinGlobe() {
-          if (!map.current) return;
-          
-          const zoom = map.current.getZoom();
-          if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
-            let distancePerSecond = 360 / secondsPerRevolution;
-            if (zoom > slowSpinZoom) {
-              const zoomDif = (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
-              distancePerSecond *= zoomDif;
-            }
-            const center = map.current.getCenter();
-            center.lng -= distancePerSecond;
-            map.current.easeTo({ center, duration: 1000, easing: (n) => n });
-          }
-        }
-
-        // Event listeners for interaction
+        // Event listeners for user interaction (removed auto-rotation for regional map)
         map.current.on('mousedown', () => {
-          userInteracting = true;
+          // User interaction handled by Mapbox
         });
         
         map.current.on('dragstart', () => {
-          userInteracting = true;
+          // User interaction handled by Mapbox
         });
         
         map.current.on('mouseup', () => {
-          userInteracting = false;
-          spinGlobe();
+          // User interaction handled by Mapbox
         });
         
         map.current.on('touchend', () => {
-          userInteracting = false;
-          spinGlobe();
+          // User interaction handled by Mapbox
         });
-
-        map.current.on('moveend', () => {
-          spinGlobe();
-        });
-
-        // Start the globe spinning
-        spinGlobe();
 
       } catch (err) {
         console.error('Error initializing map:', err);
