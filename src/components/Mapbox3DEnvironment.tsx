@@ -221,10 +221,80 @@ export const Mapbox3DEnvironment = ({
           console.log('Starting to load 3D model from:', currentModel.file_url);
           console.log('Model details:', currentModel);
           
-          loader.load(
-            currentModel.file_url,
+          // Check if this is an IFC file
+          const isIFCFile = currentModel.file_url.toLowerCase().includes('.ifc');
+          
+          if (isIFCFile) {
+            console.log('IFC file detected - using placeholder model for visualization');
+            // For IFC files, use a placeholder/sample model until conversion is implemented
+            const placeholderModelUrl = 'https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf';
+            
+            loader.load(
+              placeholderModelUrl,
+              (gltf) => {
+                console.log('Placeholder model loaded for IFC file');
+                this.model = gltf.scene;
+                
+                // Set initial scale (smaller for IFC placeholder)
+                this.model.scale.set(currentModel.scale * 0.5, currentModel.scale * 0.5, currentModel.scale * 0.5);
+                
+                // Set rotation 
+                this.model.rotation.x = currentModel.rotation_x;
+                this.model.rotation.y = currentModel.rotation_y;
+                this.model.rotation.z = currentModel.rotation_z;
+
+                // Enable shadows and enhance materials
+                this.model.traverse((child) => {
+                  if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    
+                    if (child.material) {
+                      child.material.needsUpdate = true;
+                      // Make it more architectural looking
+                      if (child.material.color) {
+                        child.material.color.setHex(0x888888); // Gray color for building-like appearance
+                      }
+                    }
+                  }
+                });
+
+                // Calculate and set position
+                const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                  currentModel.coordinates,
+                  currentModel.elevation
+                );
+
+                this.model.position.set(
+                  modelAsMercatorCoordinate.x,
+                  modelAsMercatorCoordinate.y,
+                  modelAsMercatorCoordinate.z
+                );
+                
+                const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * currentModel.scale * 0.5;
+                this.model.scale.setScalar(modelScale);
+
+                this.scene.add(this.model);
+                setIsModelLoading(false);
+                
+                console.log('IFC placeholder model successfully positioned at coordinates:', currentModel.coordinates);
+              },
+              (progress) => {
+                const percentage = (progress.loaded / progress.total * 100);
+                console.log('Loading IFC placeholder progress:', percentage.toFixed(1) + '%');
+              },
+              (error) => {
+                console.error('Error loading IFC placeholder model:', error);
+                setError('Failed to load model visualization. IFC file uploaded but needs conversion for 3D display.');
+                setIsModelLoading(false);
+              }
+            );
+          } else {
+            // Handle GLTF/GLB files normally
+            loader.load(
+              currentModel.file_url,
             (gltf) => {
-              console.log('3D model loaded successfully');
+              console.log('GLTF/GLB model loaded successfully');
               
               // Store the loaded model
               this.model = gltf.scene;
@@ -236,7 +306,7 @@ export const Mapbox3DEnvironment = ({
               this.model.rotation.x = currentModel.rotation_x;
               this.model.rotation.y = currentModel.rotation_y;
               this.model.rotation.z = currentModel.rotation_z;
-              
+
               // Enable shadows on all mesh children
               this.model.traverse((child) => {
                 if (child.isMesh) {
@@ -271,7 +341,7 @@ export const Mapbox3DEnvironment = ({
               this.scene.add(this.model);
               setIsModelLoading(false);
               
-              console.log('3D model successfully positioned at coordinates:', currentModel.coordinates);
+              console.log('GLTF/GLB model successfully positioned at coordinates:', currentModel.coordinates);
               console.log('Model scale:', modelScale);
             },
             (progress) => {
@@ -280,11 +350,12 @@ export const Mapbox3DEnvironment = ({
               console.log('Loading progress:', percentage.toFixed(1) + '%');
             },
             (error) => {
-              console.error('Error loading 3D model:', error);
-              setError('Failed to load 3D model. Please check the model URL.');
+              console.error('Error loading GLTF/GLB model:', error);
+              setError('Failed to load 3D model. Please check the model format and URL.');
               setIsModelLoading(false);
             }
           );
+          }
         },
 
         // Called for each frame to render the model
