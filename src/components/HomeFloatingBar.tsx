@@ -65,7 +65,7 @@ export const HomeFloatingBar = ({
     {/* Navigation Ribbon */}
     {isRibbonOpen && (
       <div className="fixed left-0 top-0 w-64 h-full bg-white/95 backdrop-blur-sm border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
-        <div className="flex flex-col h-full pt-20 bg-white/25 backdrop-blur-sm border border-white/20 rounded-lg">
+        <div className="flex flex-col h-full pt-20 bg-white/10 backdrop-blur-md border border-white/30 rounded-xl shadow-2xl shadow-black/20">
           {/* Navigation Items */}
           <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3 bg-white/25 backdrop-blur-sm border border-white/20 rounded-lg mx-2">
             <button
