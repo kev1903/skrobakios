@@ -4,16 +4,26 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
 import { useProjects, Project } from '@/hooks/useProjects';
+import { ProjectList } from '@/components/ProjectList';
+import { TaskManagement } from '@/components/TaskManagement';
+import { FinancePage } from '@/components/FinancePage';
+import { SalesPage } from '@/components/SalesPage';
+import { Mapbox3DEnvironment } from '@/components/Mapbox3DEnvironment';
+import { SettingsPage } from '@/components/SettingsPage';
+import { SupportPage } from '@/components/SupportPage';
 interface HomeFloatingBarProps {
   onNavigate: (page: string) => void;
+  onSelectProject?: (projectId: string) => void;
 }
 export const HomeFloatingBar = ({
-  onNavigate
+  onNavigate,
+  onSelectProject
 }: HomeFloatingBarProps) => {
   const { userProfile } = useUser();
   const { getProjects } = useProjects();
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
+  const [sidePageContent, setSidePageContent] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
@@ -65,9 +75,32 @@ export const HomeFloatingBar = ({
       // When opening ribbon, navigate to home and open ribbon
       onNavigate('home');
       setIsRibbonOpen(true);
+      setSidePageContent(null); // Clear any side content
     } else {
       // When closing ribbon, just close it
       setIsRibbonOpen(false);
+      setSidePageContent(null); // Clear side content
+    }
+  };
+
+  const renderSidePageContent = () => {
+    switch (sidePageContent) {
+      case 'projects':
+        return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+      case 'tasks':
+        return <TaskManagement onNavigate={onNavigate} />;
+      case 'finance':
+        return <FinancePage onNavigate={onNavigate} />;
+      case 'sales':
+        return <SalesPage onNavigate={onNavigate} />;
+      case 'bim':
+        return <Mapbox3DEnvironment onNavigate={onNavigate} />;
+      case 'settings':
+        return <SettingsPage onNavigate={onNavigate} />;
+      case 'support':
+        return <SupportPage />;
+      default:
+        return null;
     }
   };
 
@@ -115,8 +148,8 @@ export const HomeFloatingBar = ({
           <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
             <button
               onClick={() => {
-                setIsProjectSectionOpen(true);
-                setIsRibbonOpen(false);
+                setSidePageContent('projects');
+                setIsProjectSectionOpen(false);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -125,8 +158,8 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
-                onNavigate('tasks');
-                setIsRibbonOpen(false);
+                setSidePageContent('tasks');
+                setIsRibbonOpen(true);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -135,8 +168,8 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
-                onNavigate('finance');
-                setIsRibbonOpen(false);
+                setSidePageContent('finance');
+                setIsRibbonOpen(true);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -145,8 +178,8 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
-                onNavigate('sales');
-                setIsRibbonOpen(false);
+                setSidePageContent('sales');
+                setIsRibbonOpen(true);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -155,8 +188,8 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
-                onNavigate('bim');
-                setIsRibbonOpen(false);
+                setSidePageContent('bim');
+                setIsRibbonOpen(true);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -172,8 +205,8 @@ export const HomeFloatingBar = ({
             </div>
             <button
               onClick={() => {
-                onNavigate('settings');
-                setIsRibbonOpen(false);
+                setSidePageContent('settings');
+                setIsRibbonOpen(true);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -182,8 +215,8 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
-                onNavigate('support');
-                setIsRibbonOpen(false);
+                setSidePageContent('support');
+                setIsRibbonOpen(true);
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
@@ -191,6 +224,22 @@ export const HomeFloatingBar = ({
               <span className="text-sm font-medium">Help Center</span>
             </button>
           </div>
+        </div>
+      </div>
+    )}
+
+    {/* Side Page Content */}
+    {isRibbonOpen && sidePageContent && (
+      <div className="fixed left-48 top-0 right-0 h-full z-30 bg-white/5 backdrop-blur-sm">
+        <div className="h-full overflow-hidden relative">
+          {/* Close button for side content */}
+          <button
+            onClick={() => setSidePageContent(null)}
+            className="absolute top-4 right-4 z-50 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
+            <span className="text-white text-lg">×</span>
+          </button>
+          {renderSidePageContent()}
         </div>
       </div>
     )}
@@ -249,7 +298,7 @@ export const HomeFloatingBar = ({
     )}
 
     {/* Overlay to close ribbon when clicking outside */}
-    {isRibbonOpen && (
+    {isRibbonOpen && !sidePageContent && (
       <div 
         className="fixed inset-0 bg-black/20 z-30"
         onClick={() => setIsRibbonOpen(false)}

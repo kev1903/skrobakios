@@ -56,7 +56,7 @@ export const ContentRenderer = ({
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
     case "home":
-      return <HomePage onNavigate={onNavigate} />;
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "settings":
