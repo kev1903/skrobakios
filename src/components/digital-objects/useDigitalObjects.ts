@@ -94,27 +94,18 @@ export const useDigitalObjects = () => {
 
     const updatedObjects = digitalObjects.map(obj => {
       if (selectedIds.includes(obj.id)) {
-        // Find potential parent (previous item at same or higher level)
+        // Find the row directly above this one
         const currentIndex = digitalObjects.findIndex(item => item.id === obj.id);
-        let newParentId = null;
-        let newLevel = obj.level + 1;
-
-        for (let i = currentIndex - 1; i >= 0; i--) {
-          const prevItem = digitalObjects[i];
-          if (prevItem.level < newLevel) {
-            newParentId = prevItem.id;
-            break;
-          } else if (prevItem.level === newLevel - 1) {
-            newParentId = prevItem.id;
-            break;
-          }
+        
+        if (currentIndex > 0) {
+          const rowAbove = digitalObjects[currentIndex - 1];
+          
+          return {
+            ...obj,
+            level: rowAbove.level + 1,
+            parent_id: rowAbove.id
+          };
         }
-
-        return {
-          ...obj,
-          level: newLevel,
-          parent_id: newParentId
-        };
       }
       return obj;
     });
@@ -134,9 +125,10 @@ export const useDigitalObjects = () => {
         const newLevel = obj.level - 1;
         let newParentId = null;
 
-        // Find new parent for the outdented item
+        // Find the appropriate parent for the new level
         if (newLevel > 0) {
           const currentIndex = digitalObjects.findIndex(item => item.id === obj.id);
+          // Look backwards to find a parent at the target level - 1
           for (let i = currentIndex - 1; i >= 0; i--) {
             const prevItem = digitalObjects[i];
             if (prevItem.level === newLevel - 1) {
@@ -158,7 +150,7 @@ export const useDigitalObjects = () => {
     setDigitalObjects(updatedObjects);
     toast({
       title: "Outdented",
-      description: `${selectedIds.length} item(s) outdented`,
+      description: `${selectedIds.length} item(s) moved up one level`,
     });
   };
 
