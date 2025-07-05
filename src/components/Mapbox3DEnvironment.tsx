@@ -361,9 +361,9 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
   }, [projects]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 z-0">
       {/* Map Container - Full screen */}
-      <div ref={mapContainer} className="absolute inset-0" />
+      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
       
       {/* Loading Overlay */}
       {!isLoaded && (
