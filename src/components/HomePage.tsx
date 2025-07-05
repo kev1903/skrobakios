@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
+import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -99,6 +100,9 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="absolute inset-0" />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
+      
+      {/* Floating Top Bar */}
+      <HomeFloatingBar />
       
       {/* Loading overlay */}
       {isLoading && (
