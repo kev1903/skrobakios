@@ -42,7 +42,7 @@ export const HomeFloatingBar = ({
 
         {/* Center - Company Name */}
         <div className="flex-1 flex items-center justify-center">
-          <h1 className="text-white font-bold text-xl tracking-wide">Company Name</h1>
+          <h1 className="text-white font-bold text-xl tracking-wide">{userProfile.companyName || "Company Name"}</h1>
         </div>
 
         {/* Right side - User Profile */}
