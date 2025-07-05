@@ -13,6 +13,7 @@ export const useMapbox = ({ savedView }: UseMapboxProps) => {
   const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
+    console.log('useMapbox - Container:', mapContainer.current, 'SavedView:', savedView);
     if (!mapContainer.current) return;
 
     // Initialize Mapbox
@@ -40,6 +41,7 @@ export const useMapbox = ({ savedView }: UseMapboxProps) => {
 
     // Set map ready immediately after creation
     setMapReady(true);
+    console.log('Mapbox created:', map.current);
 
     // Add navigation controls
     map.current.addControl(

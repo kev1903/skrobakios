@@ -22,10 +22,16 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
     saveCurrentView(map);
   };
 
+  console.log('Map3D Environment - Map:', map, 'IsLoaded:', isLoaded);
+
   return (
     <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 z-0">
       {/* Map Container - Full screen */}
-      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0 w-full h-full"
+        style={{ minHeight: '100vh', minWidth: '100vw' }}
+      />
       
       {/* Loading Overlay */}
       {!isLoaded && <LoadingOverlay />}
