@@ -18,7 +18,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
   };
 
   const projectNavItems = [
-    { id: 'insights', label: 'Insights', icon: Eye, page: 'project-detail' },
+    { id: 'insights', label: 'Dashboard', icon: Eye, page: 'project-detail' },
     { id: 'cost', label: 'Cost Analysis', icon: DollarSign, page: 'project-cost' },
     { id: 'schedule', label: 'Schedule', icon: Calendar, page: 'project-schedule' },
     { id: 'tasks', label: 'Tasks', icon: CheckSquare, page: 'project-tasks' },
