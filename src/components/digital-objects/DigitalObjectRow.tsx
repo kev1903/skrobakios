@@ -10,10 +10,10 @@ import { getStatusColor, getStatusText } from "./utils";
 interface DigitalObjectRowProps {
   obj: DigitalObject;
   index: number;
-  editingId: string | null;
+  editingField: {id: string, field: keyof DigitalObject} | null;
   editingData: Partial<DigitalObject>;
   selectedIds: string[];
-  onRowClick: (obj: DigitalObject) => void;
+  onFieldClick: (obj: DigitalObject, field: keyof DigitalObject) => void;
   onRowSelect: (id: string, event: React.MouseEvent) => void;
   onSave: () => void;
   onCancel: () => void;
@@ -24,10 +24,10 @@ interface DigitalObjectRowProps {
 export const DigitalObjectRow = ({
   obj,
   index,
-  editingId,
+  editingField,
   editingData,
   selectedIds,
-  onRowClick,
+  onFieldClick,
   onRowSelect,
   onSave,
   onCancel,
@@ -39,22 +39,25 @@ export const DigitalObjectRow = ({
   const handleClick = (event: React.MouseEvent) => {
     if (event.ctrlKey || event.metaKey) {
       onRowSelect(obj.id, event);
-    } else {
-      onRowClick(obj);
     }
   };
+
+  const isFieldEditing = (field: keyof DigitalObject) => {
+    return editingField?.id === obj.id && editingField?.field === field;
+  };
+
   const renderEditableCell = (field: keyof DigitalObject, value: any, type: 'text' | 'number' | 'select' = 'text') => {
-    if (editingId === obj.id && editingData) {
+    if (isFieldEditing(field)) {
       if (type === 'select' && field === 'status') {
         return (
           <Select
             value={editingData[field] as string || ''}
             onValueChange={(val) => onEditingDataChange({ ...editingData, [field]: val })}
           >
-            <SelectTrigger className="h-7 bg-white/10 border-white/20 text-white">
+            <SelectTrigger className="h-6 bg-white/10 border-white/20 text-white text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-slate-800 border-white/20">
               <SelectItem value="planning">Planning</SelectItem>
               <SelectItem value="in_progress">In Progress</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
@@ -72,12 +75,23 @@ export const DigitalObjectRow = ({
             [field]: type === 'number' ? Number(e.target.value) : e.target.value 
           })}
           onKeyDown={onKeyDown}
-          className="h-7 bg-white/10 border-white/20 text-white"
-          autoFocus={field === 'name'}
+          className="h-6 bg-white/10 border-white/20 text-white text-xs"
+          autoFocus
         />
       );
     }
-    return value;
+    
+    return (
+      <div 
+        className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
+        onClick={(e) => {
+          e.stopPropagation();
+          onFieldClick(obj, field);
+        }}
+      >
+        {value}
+      </div>
+    );
   };
 
   return (
@@ -86,14 +100,12 @@ export const DigitalObjectRow = ({
         <TableRow 
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`border-white/10 hover:bg-white/5 h-10 cursor-pointer transition-colors ${
-            editingId === obj.id ? 'bg-white/10' : ''
-          } ${isSelected ? 'bg-blue-500/20 border-blue-500/30' : ''} ${
-            snapshot.isDragging ? 'bg-white/20 shadow-lg' : ''
-          }`}
+          className={`border-white/10 hover:bg-white/5 h-8 cursor-pointer transition-colors ${
+            isSelected ? 'bg-blue-500/20 border-blue-500/30' : ''
+          } ${snapshot.isDragging ? 'bg-white/20 shadow-lg' : ''}`}
           onClick={handleClick}
         >
-          <TableCell className="h-10 py-2 w-8">
+          <TableCell className="h-8 py-1 w-8">
             <div 
               {...provided.dragHandleProps}
               className="flex items-center justify-center h-full cursor-grab active:cursor-grabbing"
@@ -102,40 +114,64 @@ export const DigitalObjectRow = ({
               <GripVertical className="w-4 h-4 text-slate-400 hover:text-white" />
             </div>
           </TableCell>
-          <TableCell className="text-white font-medium h-10 py-2" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
+          <TableCell className="text-white font-medium h-8 py-1 text-sm" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
             {renderEditableCell('name', obj.name)}
           </TableCell>
-          <TableCell className="text-slate-300 capitalize h-10 py-2">
+          <TableCell className="text-slate-300 capitalize h-8 py-1 text-sm">
             {renderEditableCell('object_type', obj.object_type)}
           </TableCell>
-          <TableCell className="text-slate-300 h-10 py-2">
+          <TableCell className="text-slate-300 h-8 py-1 text-sm">
             {renderEditableCell('description', obj.description || '-')}
           </TableCell>
-          <TableCell className="h-10 py-2">
-            {editingId === obj.id ? (
+          <TableCell className="h-8 py-1 text-sm">
+            {isFieldEditing('status') ? (
               renderEditableCell('status', obj.status, 'select')
             ) : (
-              <Badge variant="outline" className={getStatusColor(obj.status)}>
-                {getStatusText(obj.status)}
-              </Badge>
+              <div 
+                className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFieldClick(obj, 'status');
+                }}
+              >
+                <Badge variant="outline" className={getStatusColor(obj.status)}>
+                  {getStatusText(obj.status)}
+                </Badge>
+              </div>
             )}
           </TableCell>
-          <TableCell className="text-slate-300 h-10 py-2">
-            {editingId === obj.id ? (
+          <TableCell className="text-slate-300 h-8 py-1 text-sm">
+            {isFieldEditing('cost') ? (
               renderEditableCell('cost', obj.cost || 0, 'number')
             ) : (
-              obj.cost ? `$${obj.cost.toLocaleString()}` : '-'
+              <div 
+                className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFieldClick(obj, 'cost');
+                }}
+              >
+                {obj.cost ? `$${obj.cost.toLocaleString()}` : '-'}
+              </div>
             )}
           </TableCell>
-          <TableCell className="text-slate-300 h-10 py-2">
-            {editingId === obj.id ? (
+          <TableCell className="text-slate-300 h-8 py-1 text-sm">
+            {isFieldEditing('progress') ? (
               renderEditableCell('progress', obj.progress, 'number')
             ) : (
-              `${obj.progress}%`
+              <div 
+                className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFieldClick(obj, 'progress');
+                }}
+              >
+                {`${obj.progress}%`}
+              </div>
             )}
           </TableCell>
-          <TableCell className="h-10 py-2">
-            {editingId === obj.id ? (
+          <TableCell className="h-8 py-1">
+            {editingField?.id === obj.id ? (
               <div className="flex gap-1">
                 <button
                   onClick={(e) => {
@@ -144,7 +180,7 @@ export const DigitalObjectRow = ({
                   }}
                   className="p-1 text-green-400 hover:text-green-300"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="w-3 h-3" />
                 </button>
                 <button
                   onClick={(e) => {
@@ -153,11 +189,11 @@ export const DigitalObjectRow = ({
                   }}
                   className="p-1 text-red-400 hover:text-red-300"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             ) : (
-              <Edit className="w-4 h-4 text-slate-400" />
+              <Edit className="w-3 h-3 text-slate-400" />
             )}
           </TableCell>
         </TableRow>

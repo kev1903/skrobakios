@@ -15,10 +15,10 @@ import { DigitalObjectRow } from "./DigitalObjectRow";
 interface DigitalObjectsTableProps {
   digitalObjects: DigitalObject[];
   loading: boolean;
-  editingId: string | null;
+  editingField: {id: string, field: keyof DigitalObject} | null;
   editingData: Partial<DigitalObject>;
   selectedIds: string[];
-  onRowClick: (obj: DigitalObject) => void;
+  onFieldClick: (obj: DigitalObject, field: keyof DigitalObject) => void;
   onRowSelect: (id: string, event: React.MouseEvent) => void;
   onSave: () => void;
   onCancel: () => void;
@@ -29,10 +29,10 @@ interface DigitalObjectsTableProps {
 export const DigitalObjectsTable = ({
   digitalObjects,
   loading,
-  editingId,
+  editingField,
   editingData,
   selectedIds,
-  onRowClick,
+  onFieldClick,
   onRowSelect,
   onSave,
   onCancel,
@@ -53,7 +53,7 @@ export const DigitalObjectsTable = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        if (editingId) {
+        if (editingField) {
           onSave();
         }
       }
@@ -63,7 +63,7 @@ export const DigitalObjectsTable = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [editingId, onSave]);
+  }, [editingField, onSave]);
 
   return (
     <Card className="bg-white/5 border-white/10 backdrop-blur-sm" ref={containerRef}>
@@ -95,10 +95,10 @@ export const DigitalObjectsTable = ({
                         key={obj.id}
                         obj={obj}
                         index={index}
-                        editingId={editingId}
+                        editingField={editingField}
                         editingData={editingData}
                         selectedIds={selectedIds}
-                        onRowClick={onRowClick}
+                        onFieldClick={onFieldClick}
                         onRowSelect={onRowSelect}
                         onSave={onSave}
                         onCancel={onCancel}

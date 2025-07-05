@@ -6,7 +6,7 @@ import { DigitalObject } from "./types";
 
 export const useDigitalObjects = () => {
   const { toast } = useToast();
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<{id: string, field: keyof DigitalObject} | null>(null);
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading] = useState(false);
@@ -70,11 +70,9 @@ export const useDigitalObjects = () => {
     }
   ]);
 
-  const handleRowClick = (obj: DigitalObject) => {
-    if (editingId !== obj.id) {
-      setEditingId(obj.id);
-      setEditingData({ ...obj });
-    }
+  const handleFieldClick = (obj: DigitalObject, field: keyof DigitalObject) => {
+    setEditingField({ id: obj.id, field });
+    setEditingData({ [field]: obj[field] });
   };
 
   const handleRowSelect = (id: string, event: React.MouseEvent) => {
@@ -155,13 +153,13 @@ export const useDigitalObjects = () => {
   };
 
   const handleSave = async () => {
-    if (!editingId || !editingData) return;
+    if (!editingField || !editingData) return;
 
     try {
       // Update local state
       setDigitalObjects(prev => 
         prev.map(obj => 
-          obj.id === editingId 
+          obj.id === editingField.id 
             ? { ...obj, ...editingData } as DigitalObject
             : obj
         )
@@ -171,15 +169,8 @@ export const useDigitalObjects = () => {
       try {
         const { error } = await supabase
           .from('digital_objects' as any)
-          .update({
-            name: editingData.name,
-            object_type: editingData.object_type,
-            description: editingData.description,
-            status: editingData.status,
-            cost: editingData.cost,
-            progress: editingData.progress
-          })
-          .eq('id', editingId);
+          .update(editingData)
+          .eq('id', editingField.id);
 
         if (error) {
           console.log('Database update will be enabled once types are updated:', error);
@@ -193,7 +184,7 @@ export const useDigitalObjects = () => {
         description: "Digital object updated successfully",
       });
 
-      setEditingId(null);
+      setEditingField(null);
       setEditingData({});
     } catch (error) {
       toast({
@@ -205,7 +196,7 @@ export const useDigitalObjects = () => {
   };
 
   const handleCancel = () => {
-    setEditingId(null);
+    setEditingField(null);
     setEditingData({});
   };
 
@@ -265,11 +256,11 @@ export const useDigitalObjects = () => {
   return {
     digitalObjects,
     loading,
-    editingId,
+    editingField,
     editingData,
     selectedIds,
     setEditingData,
-    handleRowClick,
+    handleFieldClick,
     handleRowSelect,
     handleSave,
     handleCancel,

@@ -17,7 +17,7 @@ export const DigitalObjectsHeader = ({ selectedIds, onIndent, onOutdent }: Digit
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white">Digital Objects</h1>
-            <p className="text-slate-400">Project component data table</p>
+            <p className="text-white">Project component data table</p>
           </div>
         </div>
         

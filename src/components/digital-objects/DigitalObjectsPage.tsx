@@ -9,11 +9,11 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
   const {
     digitalObjects,
     loading,
-    editingId,
+    editingField,
     editingData,
     selectedIds,
     setEditingData,
-    handleRowClick,
+    handleFieldClick,
     handleRowSelect,
     handleSave,
     handleCancel,
@@ -45,10 +45,10 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
           <DigitalObjectsTable
             digitalObjects={digitalObjects}
             loading={loading}
-            editingId={editingId}
+            editingField={editingField}
             editingData={editingData}
             selectedIds={selectedIds}
-            onRowClick={handleRowClick}
+            onFieldClick={handleFieldClick}
             onRowSelect={handleRowSelect}
             onSave={handleSave}
             onCancel={handleCancel}
