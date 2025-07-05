@@ -40,7 +40,14 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
 
   // Save and load view functions
   const saveCurrentView = () => {
-    if (!map.current) return;
+    if (!map.current) {
+      toast({
+        title: "Error",
+        description: "Map not initialized",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const center = map.current.getCenter();
     const zoom = map.current.getZoom();
@@ -55,12 +62,23 @@ export const Mapbox3DEnvironment = ({ onNavigate }: Mapbox3DEnvironmentProps) =>
       timestamp: Date.now()
     };
     
-    localStorage.setItem('mapbox-saved-view', JSON.stringify(viewState));
-    
-    toast({
-      title: "View Saved",
-      description: "Map position saved successfully",
-    });
+    try {
+      localStorage.setItem('mapbox-saved-view', JSON.stringify(viewState));
+      
+      toast({
+        title: "View Saved Successfully",
+        description: `Position saved: Zoom ${zoom.toFixed(1)}, Pitch ${pitch.toFixed(0)}°`,
+      });
+      
+      console.log('Saved view state:', viewState);
+    } catch (error) {
+      console.error('Error saving view:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save view position",
+        variant: "destructive",
+      });
+    }
   };
 
   const loadSavedView = () => {
