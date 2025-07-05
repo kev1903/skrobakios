@@ -143,10 +143,10 @@ export const HomeFloatingBar = ({
       </div>
     )}
 
-    {/* Project Section - Center Area */}
+    {/* Project Section - Full Screen */}
     {isProjectSectionOpen && (
-      <div className="fixed inset-0 z-30 flex items-center justify-center pt-24 pb-32">
-        <div className="w-full max-w-2xl mx-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl max-h-full overflow-hidden">
+      <div className="fixed inset-0 z-30 pt-16 pb-24">
+        <div className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/20">
             <h2 className="text-2xl font-semibold text-white">Projects</h2>
@@ -159,8 +159,8 @@ export const HomeFloatingBar = ({
           </div>
           
           {/* Project Content */}
-          <div className="p-6 overflow-y-auto max-h-96">
-            <div className="grid gap-4 md:grid-cols-2">
+          <div className="p-6 h-full overflow-y-auto">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
                 <h3 className="text-white font-semibold text-lg mb-3">Sample Project 1</h3>
                 <p className="text-white/70 text-sm mb-4">Construction project in downtown area</p>
@@ -178,17 +178,55 @@ export const HomeFloatingBar = ({
                   <span className="text-white/50 text-xs">Due: Jan 2025</span>
                 </div>
               </div>
+
+              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 3</h3>
+                <p className="text-white/70 text-sm mb-4">Office building renovation</p>
+                <div className="flex items-center gap-3">
+                  <span className="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-xs font-medium">In Progress</span>
+                  <span className="text-white/50 text-xs">Due: Mar 2025</span>
+                </div>
+              </div>
+
+              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 4</h3>
+                <p className="text-white/70 text-sm mb-4">Bridge infrastructure upgrade</p>
+                <div className="flex items-center gap-3">
+                  <span className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-xs font-medium">Review</span>
+                  <span className="text-white/50 text-xs">Due: Apr 2025</span>
+                </div>
+              </div>
+
+              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 5</h3>
+                <p className="text-white/70 text-sm mb-4">Retail complex development</p>
+                <div className="flex items-center gap-3">
+                  <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs font-medium">Active</span>
+                  <span className="text-white/50 text-xs">Due: May 2025</span>
+                </div>
+              </div>
+
+              <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-colors duration-200">
+                <h3 className="text-white font-semibold text-lg mb-3">Sample Project 6</h3>
+                <p className="text-white/70 text-sm mb-4">Highway expansion project</p>
+                <div className="flex items-center gap-3">
+                  <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-medium">Planning</span>
+                  <span className="text-white/50 text-xs">Due: Jun 2025</span>
+                </div>
+              </div>
             </div>
             
-            <button 
-              onClick={() => {
-                onNavigate('projects');
-                setIsProjectSectionOpen(false);
-              }}
-              className="w-full mt-6 bg-white/20 hover:bg-white/30 text-white py-3 px-6 rounded-xl border border-white/30 transition-colors duration-200 font-medium"
-            >
-              View All Projects
-            </button>
+            <div className="mt-8 flex justify-center">
+              <button 
+                onClick={() => {
+                  onNavigate('projects');
+                  setIsProjectSectionOpen(false);
+                }}
+                className="bg-white/20 hover:bg-white/30 text-white py-3 px-8 rounded-xl border border-white/30 transition-colors duration-200 font-medium"
+              >
+                View All Projects
+              </button>
+            </div>
           </div>
         </div>
       </div>
