@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, Menu, Settings, HelpCircle, BarChart3, Briefcase, Calendar, DollarSign, TrendingUp, Map } from 'lucide-react';
+import { Search, User, Menu, Settings, HelpCircle, Briefcase, Calendar, DollarSign, TrendingUp, Map } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
@@ -65,16 +65,6 @@ export const HomeFloatingBar = ({
         <div className="flex flex-col h-full pt-20">
           {/* Navigation Items */}
           <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
-            <button
-              onClick={() => {
-                onNavigate('dashboard');
-                setIsRibbonOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span className="text-sm font-medium">Dashboard</span>
-            </button>
             <button
               onClick={() => {
                 onNavigate('projects');

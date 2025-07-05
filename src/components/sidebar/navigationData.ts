@@ -3,7 +3,6 @@ import {
   Home, 
   Calendar, 
   Mail, 
-  BarChart3, 
   File, 
   Briefcase, 
   DollarSign, 
@@ -22,7 +21,6 @@ export const generalNavigation: NavigationItem[] = [
 ];
 
 export const businessNavigation: NavigationItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
   { id: "files", label: "Files", icon: File },
   { id: "projects", label: "Projects", icon: Briefcase },
   

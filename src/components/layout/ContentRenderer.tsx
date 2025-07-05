@@ -59,8 +59,6 @@ export const ContentRenderer = ({
       return <HomePage onNavigate={onNavigate} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
-    case "dashboard":
-      return <Mapbox3DEnvironment onNavigate={onNavigate} />;
     case "settings":
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
