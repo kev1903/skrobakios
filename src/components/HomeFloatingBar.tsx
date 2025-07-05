@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, User } from 'lucide-react';
+import { Search, User, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
@@ -14,6 +14,13 @@ export const HomeFloatingBar = ({
   } = useUser();
   return <div className="fixed top-6 left-0 z-50 w-full">
         <div className="flex items-center justify-between py-0 px-6 mx-6">
+        {/* Navigation Menu Icon */}
+        <div className="flex-shrink-0 mr-4">
+          <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
+            <Menu className="w-5 h-5 text-white/80" />
+          </button>
+        </div>
+
         {/* Left side - Search Bar */}
         <div className="flex-1 max-w-md">
           <div className="relative">
