@@ -33,23 +33,16 @@ export const HomeFloatingBar = ({
         </div>
 
         {/* Left side - Search Bar */}
-        <div className="flex-1 max-w-md">
+        <div className="flex-shrink-0 max-w-xs">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 w-4 h-4" />
             <Input type="text" placeholder="Search projects, tasks, files..." className="pl-10 pr-4 text-sm border-white/20 focus:border-white/40 focus:ring-white/30 bg-white/20 backdrop-blur-sm shadow-sm text-white placeholder-white/60 hover:bg-white/25 transition-all duration-200 py-0 px-[36px]" />
           </div>
         </div>
 
-        {/* Center - Company Logo */}
-        <div className="flex-shrink-0 mx-8">
-          <div className="flex items-center space-x-3">
-            <button 
-              onClick={() => onNavigate('home')}
-              className="px-6 py-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 transition-colors duration-200"
-            >
-              <span className="text-white font-semibold text-lg">Company Name</span>
-            </button>
-          </div>
+        {/* Center - Company Name */}
+        <div className="flex-1 flex items-center justify-center">
+          <h1 className="text-white font-bold text-xl tracking-wide">Company Name</h1>
         </div>
 
         {/* Right side - User Profile */}
