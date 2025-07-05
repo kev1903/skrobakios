@@ -2,6 +2,7 @@
 import React from 'react';
 import { TaskManagement } from "@/components/TaskManagement";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
+import { HomePage } from "@/components/HomePage";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
@@ -53,6 +54,8 @@ export const ContentRenderer = ({
   switch (currentPage) {
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
+    case "home":
+      return <HomePage onNavigate={onNavigate} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "dashboard":

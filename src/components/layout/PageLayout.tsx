@@ -10,10 +10,10 @@ interface PageLayoutProps {
 }
 
 export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
-  // Hide main sidebar for auth page, project-specific pages, user edit page, and sales page
-  const showMainSidebar = !["auth", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "project-wbs", "gantt-chart", "user-edit", "sales"].includes(currentPage);
+  // Hide main sidebar for auth page, home page, project-specific pages, user edit page, and sales page
+  const showMainSidebar = !["auth", "home", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "project-wbs", "gantt-chart", "user-edit", "sales"].includes(currentPage);
 
-  if (currentPage === "auth") {
+  if (currentPage === "auth" || currentPage === "home") {
     return (
       <main className="flex-1 overflow-hidden w-full">
         {children}

@@ -9,7 +9,7 @@ import { TopHeader } from "@/components/layout/TopHeader";
 import { useProjectState } from "@/hooks/useProjectState";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState("auth");
+  const [currentPage, setCurrentPage] = useState("home");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
 
   return (
@@ -20,8 +20,8 @@ const Index = () => {
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
-            {/* Floating Search Bar - Show on all pages except auth */}
-            {currentPage !== "auth" && (
+            {/* Floating Search Bar - Show on all pages except auth and home */}
+            {currentPage !== "auth" && currentPage !== "home" && (
               <TopHeader 
                 onNavigate={setCurrentPage}
                 onSelectProject={handleSelectProject}
