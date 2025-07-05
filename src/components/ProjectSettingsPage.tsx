@@ -10,6 +10,7 @@ import { TimelineStatusCard } from "./project-settings/TimelineStatusCard";
 import { DangerZoneCard } from "./project-settings/DangerZoneCard";
 import { ProjectOverviewCard } from "./project-settings/ProjectOverviewCard";
 import { ProjectBannerCard } from "./project-settings/ProjectBannerCard";
+import { ProjectSidebar } from "./ProjectSidebar";
 
 interface ProjectSettingsPageProps {
   project: Project;
@@ -37,11 +38,11 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "bg-green-100 text-green-800 border-green-200";
-      case "in_progress": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "pending": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "on_hold": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "completed": return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "in_progress": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+      case "pending": return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+      case "on_hold": return "bg-red-500/20 text-red-300 border-red-500/30";
+      default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
     }
   };
 
@@ -51,10 +52,10 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       case "in_progress": return "In Progress";
       case "pending": return "Pending";
       case "on_hold": return "On Hold";
-      default: return "Unknown";
+      default: return "Active";
     }
   };
-
+  
   const handleInputChange = (field: string, value: string | { lat: number; lng: number } | { x: number; y: number; scale: number }) => {
     setFormData(prev => ({
       ...prev,

@@ -189,6 +189,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         onNavigate={onNavigate}
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
+        activeSection="insights"
       />
 
       {/* Main Content */}

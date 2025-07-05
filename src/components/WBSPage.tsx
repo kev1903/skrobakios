@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Project } from '@/hooks/useProjects';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
 import { useWBS, WBSItem } from '@/hooks/useWBS';
+import { ProjectSidebar } from './ProjectSidebar';
 
 interface WBSPageProps {
   project: Project;
@@ -30,10 +31,36 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   // Remove the sample data initialization since we're using the database hook
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 80) return 'bg-green-100 text-green-800 border-green-200';
-    if (progress >= 50) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (progress >= 20) return 'bg-orange-100 text-orange-800 border-orange-200';
-    return 'bg-red-100 text-red-800 border-red-200';
+    if (progress >= 80) return 'bg-green-500/20 text-green-300 border-green-500/30';
+    if (progress >= 50) return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+    if (progress >= 20) return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+    return 'bg-red-500/20 text-red-300 border-red-500/30';
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "running":
+        return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+      case "pending":
+        return "bg-red-500/20 text-red-300 border-red-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "running":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Active";
+    }
   };
 
   const toggleExpanded = async (id: string) => {
@@ -308,9 +335,18 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      <ProjectSidebar
+        project={project}
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="wbs"
+      />
+      
+      <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+        {/* Header */}
+        <div className="bg-white/10 backdrop-blur-sm border-b border-white/20 px-6 py-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
@@ -389,22 +425,26 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
           <div className="col-span-1">Progress</div>
           <div className="col-span-2">Actions</div>
         </div>
-      </div>
+        </div>
 
-      {/* WBS Content */}
-      <div className="flex-1 overflow-auto bg-white">
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading WBS items...</div>
-          </div>
-        ) : wbsItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-            <div className="text-lg font-medium">No WBS items found</div>
-            <div className="text-sm mt-1">Click "Add Top Level WBS" to get started</div>
-          </div>
-        ) : (
-          wbsItems.map((item, index) => renderWBSItem(item, index))
-        )}
+        {/* WBS Content */}
+        <div className="flex-1 overflow-auto bg-white/5 backdrop-blur-sm">
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-white/80">Loading WBS items...</div>
+              </div>
+            </div>
+          ) : wbsItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-white/80">
+              <div className="text-lg font-medium">No WBS items found</div>
+              <div className="text-sm mt-1">Click "Add Top Level WBS" to get started</div>
+            </div>
+          ) : (
+            wbsItems.map((item, index) => renderWBSItem(item, index))
+          )}
+        </div>
       </div>
     </div>
   );
