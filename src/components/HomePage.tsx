@@ -102,7 +102,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
       
       {/* Floating Top Bar */}
-      <HomeFloatingBar />
+      <HomeFloatingBar onNavigate={onNavigate} />
       
       {/* Loading overlay */}
       {isLoading && (

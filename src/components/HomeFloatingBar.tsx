@@ -1,7 +1,15 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-export const HomeFloatingBar = () => {
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useUser } from '@/contexts/UserContext';
+
+interface HomeFloatingBarProps {
+  onNavigate: (page: string) => void;
+}
+
+export const HomeFloatingBar = ({ onNavigate }: HomeFloatingBarProps) => {
+  const { userProfile } = useUser();
   return <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-4xl px-6">
       <div style={{
       background: 'rgba(255, 255, 255, 0.25)',
@@ -30,11 +38,19 @@ export const HomeFloatingBar = () => {
           </div>
         </div>
 
-        {/* Right side - Avatar placeholder */}
+        {/* Right side - User Profile */}
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center">
-            <div className="w-6 h-6 bg-white/40 rounded-full"></div>
-          </div>
+          <button 
+            onClick={() => onNavigate('user-edit')}
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
+            <Avatar className="w-6 h-6">
+              <AvatarImage src={userProfile.avatarUrl} alt="Profile" />
+              <AvatarFallback className="bg-white/40 text-white text-xs">
+                <User className="w-3 h-3" />
+              </AvatarFallback>
+            </Avatar>
+          </button>
         </div>
       </div>
     </div>;
