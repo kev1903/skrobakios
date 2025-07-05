@@ -163,7 +163,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const renderGridView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {getSortedProjects().map((project) => (
-        <div key={project.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all duration-300 shadow-lg animate-fade-in">
+        <div key={project.id} className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-black/40 hover:border-white/30 transition-all duration-300 shadow-lg animate-fade-in">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
                <h3 className="text-lg font-semibold text-white mb-1">
@@ -230,7 +230,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   if (loading) {
     return (
-      <div className="h-full overflow-auto backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl">
+      <div className="h-full overflow-auto backdrop-blur-xl bg-black/20 border border-white/10 shadow-2xl">
         <div className="p-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -244,7 +244,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }
 
   return (
-    <div className="h-full overflow-auto backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl">
+    <div className="h-full overflow-auto backdrop-blur-xl bg-black/20 border border-white/10 shadow-2xl">
       <div className="p-8">
         {/* Create New Project Button - Prominent at top */}
         <div className="mb-6">
@@ -303,7 +303,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
         {/* Projects Content */}
         {projects.length === 0 ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-8 text-center shadow-lg">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 p-8 text-center shadow-lg">
             <div className="text-white/80 mb-4">No projects found</div>
             <Button
               onClick={() => onNavigate("create-project")}
@@ -315,10 +315,10 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         ) : viewMode === 'grid' ? (
           renderGridView()
         ) : (
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl overflow-hidden">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors duration-200">
+                <TableRow className="bg-black/40 border-white/10 hover:bg-black/50 transition-colors duration-200">
                   <TableHead className="w-12">
                     <input
                       type="checkbox"
@@ -343,7 +343,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 {getSortedProjects().map((project) => {
                   console.log("Rendering project:", project.name, "with ID:", project.id);
                   return (
-                    <TableRow key={project.id} className="hover:bg-white/5 border-white/10 transition-colors duration-200">
+                    <TableRow key={project.id} className="hover:bg-black/30 border-white/10 transition-colors duration-200">
                       <TableCell>
                         <input
                           type="checkbox"
