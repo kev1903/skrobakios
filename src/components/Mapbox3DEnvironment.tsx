@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Eye, EyeOff, Loader2, Navigation, Home, Upload, MapPin } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Navigation, Home, Upload, MapPin, Minus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Model3D {
@@ -53,6 +53,7 @@ export const Mapbox3DEnvironment = ({
     file: null as File | null
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const { toast } = useToast();
 
   // Load available 3D models from database
@@ -675,174 +676,189 @@ export const Mapbox3DEnvironment = ({
             {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-900 text-lg">3D Model Controls</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={goHome}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <Home className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Upload Section */}
-            <div className="border-t pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-800">Upload IFC Model</h4>
+              <div className="flex items-center space-x-1">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  onClick={() => setShowUploadForm(!showUploadForm)}
-                  className="text-xs"
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  className="text-gray-600 hover:text-gray-900"
                 >
-                  <Upload className="w-3 h-3 mr-1" />
-                  {showUploadForm ? 'Cancel' : 'Upload'}
+                  {isMinimized ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goHome}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <Home className="w-4 h-4" />
                 </Button>
               </div>
-
-              {showUploadForm && (
-                <div className="space-y-3 bg-gray-50 p-3 rounded-lg">
-                  <div>
-                    <Label htmlFor="model-name" className="text-xs font-medium">Model Name *</Label>
-                    <Input
-                      id="model-name"
-                      value={uploadFormData.name}
-                      onChange={(e) => setUploadFormData({...uploadFormData, name: e.target.value})}
-                      placeholder="Enter model name"
-                      className="text-xs h-8"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="model-description" className="text-xs font-medium">Description</Label>
-                    <Textarea
-                      id="model-description"
-                      value={uploadFormData.description}
-                      onChange={(e) => setUploadFormData({...uploadFormData, description: e.target.value})}
-                      placeholder="Optional description"
-                      className="text-xs h-16 resize-none"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="project-address" className="text-xs font-medium">Project Address *</Label>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3 h-3 text-gray-500" />
-                      <Input
-                        id="project-address"
-                        value={uploadFormData.address}
-                        onChange={(e) => setUploadFormData({...uploadFormData, address: e.target.value})}
-                        placeholder="123 Main St, City, Country"
-                        className="text-xs h-8 flex-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="model-file" className="text-xs font-medium">IFC File *</Label>
-                    <Input
-                      id="model-file"
-                      type="file"
-                      accept=".ifc,.gltf,.glb"
-                      onChange={(e) => setUploadFormData({...uploadFormData, file: e.target.files?.[0] || null})}
-                      className="text-xs h-8"
-                    />
-                    <div className="text-xs text-gray-500 mt-1">
-                      Supports: .ifc, .gltf, .glb files
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={handleFileUpload}
-                    disabled={isUploading || !uploadFormData.file || !uploadFormData.name || !uploadFormData.address}
-                    className="w-full h-8 text-xs"
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-3 h-3 mr-1" />
-                        Upload & Place Model
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
             </div>
-            
-            {/* Model Selection */}
-            {availableModels.length > 1 && (
-              <div className="border-t pt-4">
-                <Label className="text-xs font-medium mb-2 block">Available Models</Label>
-                <div className="space-y-1 max-h-24 overflow-y-auto">
-                  {availableModels.map((model) => (
-                    <button
-                      key={model.id}
-                      onClick={() => setCurrentModel(model)}
-                      className={`w-full text-left p-2 rounded text-xs transition-all ${
-                        currentModel?.id === model.id
-                          ? 'bg-blue-100 border border-blue-200'
-                          : 'bg-gray-100 hover:bg-gray-200'
-                      }`}
+
+            {/* Panel Content - Only show when not minimized */}
+            {!isMinimized && (
+              <>
+                {/* Upload Section */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-gray-800">Upload IFC Model</h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowUploadForm(!showUploadForm)}
+                      className="text-xs"
                     >
-                      <div className="font-medium truncate">{model.name}</div>
-                      <div className="text-gray-500 truncate">{model.description || 'No description'}</div>
-                    </button>
-                  ))}
+                      <Upload className="w-3 h-3 mr-1" />
+                      {showUploadForm ? 'Cancel' : 'Upload'}
+                    </Button>
+                  </div>
+
+                  {showUploadForm && (
+                    <div className="space-y-3 bg-gray-50 p-3 rounded-lg">
+                      <div>
+                        <Label htmlFor="model-name" className="text-xs font-medium">Model Name *</Label>
+                        <Input
+                          id="model-name"
+                          value={uploadFormData.name}
+                          onChange={(e) => setUploadFormData({...uploadFormData, name: e.target.value})}
+                          placeholder="Enter model name"
+                          className="text-xs h-8"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="model-description" className="text-xs font-medium">Description</Label>
+                        <Textarea
+                          id="model-description"
+                          value={uploadFormData.description}
+                          onChange={(e) => setUploadFormData({...uploadFormData, description: e.target.value})}
+                          placeholder="Optional description"
+                          className="text-xs h-16 resize-none"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="project-address" className="text-xs font-medium">Project Address *</Label>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3 text-gray-500" />
+                          <Input
+                            id="project-address"
+                            value={uploadFormData.address}
+                            onChange={(e) => setUploadFormData({...uploadFormData, address: e.target.value})}
+                            placeholder="123 Main St, City, Country"
+                            className="text-xs h-8 flex-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="model-file" className="text-xs font-medium">IFC File *</Label>
+                        <Input
+                          id="model-file"
+                          type="file"
+                          accept=".ifc,.gltf,.glb"
+                          onChange={(e) => setUploadFormData({...uploadFormData, file: e.target.files?.[0] || null})}
+                          className="text-xs h-8"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">
+                          Supports: .ifc, .gltf, .glb files
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={handleFileUpload}
+                        disabled={isUploading || !uploadFormData.file || !uploadFormData.name || !uploadFormData.address}
+                        className="w-full h-8 text-xs"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3 h-3 mr-1" />
+                            Upload & Place Model
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-
-            {/* Model Visibility Toggle */}
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border-t pt-4">
-              <Switch
-                id="model-visibility"
-                checked={showModel}
-                onCheckedChange={toggleModelVisibility}
-              />
-              <Label htmlFor="model-visibility" className="flex items-center space-x-2 cursor-pointer">
-                {showModel ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
-                <span className="font-medium">{showModel ? 'Hide' : 'Show'} 3D Model</span>
-              </Label>
-            </div>
-
-            {/* Model Information */}
-            {currentModel && (
-              <div className="space-y-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                <div className="font-medium text-gray-800 mb-2">{currentModel.name}</div>
-                {currentModel.description && (
-                  <div className="text-xs text-gray-600 mb-2">{currentModel.description}</div>
+                
+                {/* Model Selection */}
+                {availableModels.length > 1 && (
+                  <div className="border-t pt-4">
+                    <Label className="text-xs font-medium mb-2 block">Available Models</Label>
+                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                      {availableModels.map((model) => (
+                        <button
+                          key={model.id}
+                          onClick={() => setCurrentModel(model)}
+                          className={`w-full text-left p-2 rounded text-xs transition-all ${
+                            currentModel?.id === model.id
+                              ? 'bg-blue-100 border border-blue-200'
+                              : 'bg-gray-100 hover:bg-gray-200'
+                          }`}
+                        >
+                          <div className="font-medium truncate">{model.name}</div>
+                          <div className="text-gray-500 truncate">{model.description || 'No description'}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="font-medium">Location:</span>
-                    <div className="text-xs">{currentModel.coordinates[1].toFixed(6)}, {currentModel.coordinates[0].toFixed(6)}</div>
-                  </div>
-                  <div>
-                    <span className="font-medium">Scale:</span>
-                    <div>{currentModel.scale}x</div>
-                  </div>
-                  <div>
-                    <span className="font-medium">Elevation:</span>
-                    <div>{currentModel.elevation}m</div>
-                  </div>
-                  <div>
-                    <span className="font-medium">Rotation:</span>
-                    <div>{(currentModel.rotation_x * 180 / Math.PI).toFixed(0)}° X-axis</div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Model URL Display */}
-            {currentModel && (
-              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                <div className="font-medium mb-1">Model Source:</div>
-                <div className="break-all">{currentModel.file_url}</div>
-              </div>
+                {/* Model Visibility Toggle */}
+                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border-t pt-4">
+                  <Switch
+                    id="model-visibility"
+                    checked={showModel}
+                    onCheckedChange={toggleModelVisibility}
+                  />
+                  <Label htmlFor="model-visibility" className="flex items-center space-x-2 cursor-pointer">
+                    {showModel ? <Eye className="w-4 h-4 text-green-600" /> : <EyeOff className="w-4 h-4 text-gray-400" />}
+                    <span className="font-medium">{showModel ? 'Hide' : 'Show'} 3D Model</span>
+                  </Label>
+                </div>
+
+                {/* Model Information */}
+                {currentModel && (
+                  <div className="space-y-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                    <div className="font-medium text-gray-800 mb-2">{currentModel.name}</div>
+                    {currentModel.description && (
+                      <div className="text-xs text-gray-600 mb-2">{currentModel.description}</div>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="font-medium">Location:</span>
+                        <div className="text-xs">{currentModel.coordinates[1].toFixed(6)}, {currentModel.coordinates[0].toFixed(6)}</div>
+                      </div>
+                      <div>
+                        <span className="font-medium">Scale:</span>
+                        <div>{currentModel.scale}x</div>
+                      </div>
+                      <div>
+                        <span className="font-medium">Elevation:</span>
+                        <div>{currentModel.elevation}m</div>
+                      </div>
+                      <div>
+                        <span className="font-medium">Rotation:</span>
+                        <div>{(currentModel.rotation_x * 180 / Math.PI).toFixed(0)}° X-axis</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Model URL Display */}
+                {currentModel && (
+                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                    <div className="font-medium mb-1">Model Source:</div>
+                    <div className="break-all">{currentModel.file_url}</div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
