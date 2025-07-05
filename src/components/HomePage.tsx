@@ -28,26 +28,21 @@ const geocodeAddress = async (address: string): Promise<[number, number] | null>
       return null;
     }
 
-    const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${data.token}&limit=1&country=AU`;
-    console.log('Geocoding URL:', geocodeUrl);
-
-    const response = await fetch(geocodeUrl);
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${data.token}&limit=1&country=AU`
+    );
     
     if (!response.ok) {
-      console.error('Geocoding request failed with status:', response.status);
       throw new Error('Geocoding request failed');
     }
 
     const geocodeData = await response.json();
-    console.log('Geocoding response for', address, ':', geocodeData);
     
     if (geocodeData.features && geocodeData.features.length > 0) {
       const [lng, lat] = geocodeData.features[0].center;
-      console.log('Parsed coordinates [lng, lat]:', [lng, lat]);
       return [lng, lat];
     }
     
-    console.log('No features found in geocoding response for:', address);
     return null;
   } catch (error) {
     console.error('Error geocoding address:', address, error);
@@ -155,29 +150,16 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
     const addProjectMarkers = async (projects: Project[]) => {
       if (!map.current) return;
 
-      console.log('Adding markers for projects:', projects.length);
-
       // Geocode project addresses and add markers
       for (const project of projects) {
-        if (!project.location) {
-          console.log('Skipping project without location:', project.name);
-          continue;
-        }
+        if (!project.location) continue;
         
-        console.log('Geocoding location for project:', project.name, 'Location:', project.location);
         const coordinates = await geocodeAddress(project.location);
-        
-        if (!coordinates) {
-          console.log('Failed to geocode location for project:', project.name);
-          continue;
-        }
-
-        console.log('Geocoded coordinates for', project.name, ':', coordinates);
+        if (!coordinates) continue;
 
         // Create marker element
         const markerElement = document.createElement('div');
         markerElement.className = 'project-marker';
-        markerElement.style.position = 'relative';
         markerElement.innerHTML = `
           <div style="
             background-color: #3b82f6;
@@ -194,38 +176,6 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
             <div style="color: white; font-size: 10px; font-weight: bold;">P</div>
           </div>
         `;
-
-        // Create hover tooltip
-        const tooltip = document.createElement('div');
-        tooltip.className = 'project-tooltip';
-        tooltip.style.cssText = `
-          position: absolute;
-          bottom: 100%;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: rgba(0, 0, 0, 0.8);
-          color: white;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          white-space: nowrap;
-          pointer-events: none;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-          margin-bottom: 5px;
-          z-index: 1000;
-        `;
-        tooltip.textContent = project.name;
-        markerElement.appendChild(tooltip);
-
-        // Add hover events
-        markerElement.addEventListener('mouseenter', () => {
-          tooltip.style.opacity = '1';
-        });
-
-        markerElement.addEventListener('mouseleave', () => {
-          tooltip.style.opacity = '0';
-        });
 
         // Create popup for project info
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
