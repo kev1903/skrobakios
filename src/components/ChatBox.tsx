@@ -61,7 +61,7 @@ export const ChatBox = ({ onNavigate, onSpeakingChange }: ChatBoxProps) => {
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           disabled={isProcessing}
-          className="border-none bg-transparent text-white placeholder-white/60 focus:ring-0 focus:outline-none text-sm flex-1 disabled:opacity-70"
+          className="border-none bg-transparent text-white placeholder-white focus:ring-0 focus:outline-none text-sm flex-1 disabled:opacity-70"
         />
         <Button
           onClick={handleSend}
