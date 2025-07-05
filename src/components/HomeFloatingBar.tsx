@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, User, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -12,11 +12,22 @@ export const HomeFloatingBar = ({
   const {
     userProfile
   } = useUser();
-  return <div className="fixed top-6 left-0 z-50 w-full">
+  const [isRibbonOpen, setIsRibbonOpen] = useState(false);
+
+  const toggleRibbon = () => {
+    setIsRibbonOpen(!isRibbonOpen);
+  };
+
+  return (
+    <>
+      <div className="fixed top-6 left-0 z-50 w-full">
         <div className="flex items-center justify-between py-0 px-6 mx-6">
         {/* Navigation Menu Icon */}
         <div className="flex-shrink-0 mr-4">
-          <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
+          <button 
+            onClick={toggleRibbon}
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
             <Menu className="w-5 h-5 text-white/80" />
           </button>
         </div>
@@ -49,5 +60,71 @@ export const HomeFloatingBar = ({
           </button>
         </div>
       </div>
-    </div>;
+    </div>
+
+    {/* Navigation Ribbon */}
+    {isRibbonOpen && (
+      <div className="fixed left-0 top-0 w-64 h-full bg-white/95 backdrop-blur-sm border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+        <div className="flex flex-col h-full pt-20">
+          {/* Navigation Items */}
+          <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
+            <button
+              onClick={() => {
+                onNavigate('dashboard');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+            >
+              <span className="text-sm font-medium">Dashboard</span>
+            </button>
+            <button
+              onClick={() => {
+                onNavigate('projects');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+            >
+              <span className="text-sm font-medium">Projects</span>
+            </button>
+            <button
+              onClick={() => {
+                onNavigate('tasks');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+            >
+              <span className="text-sm font-medium">Tasks</span>
+            </button>
+            <button
+              onClick={() => {
+                onNavigate('finance');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+            >
+              <span className="text-sm font-medium">Finance</span>
+            </button>
+            <button
+              onClick={() => {
+                onNavigate('sales');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+            >
+              <span className="text-sm font-medium">Sales</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Overlay to close ribbon when clicking outside */}
+    {isRibbonOpen && (
+      <div 
+        className="fixed inset-0 bg-black/20 z-30"
+        onClick={() => setIsRibbonOpen(false)}
+      />
+    )}
+  </>
+  );
 };
