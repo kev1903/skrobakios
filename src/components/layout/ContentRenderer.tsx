@@ -118,6 +118,8 @@ export const ContentRenderer = ({
       return <RecurringPage onNavigate={onNavigate} />;
     case "sales":
       return <SalesPage onNavigate={onNavigate} />;
+    case "bim":
+      return <Mapbox3DEnvironment onNavigate={onNavigate} />;
     case "support":
       return <SupportPage />;
     case "user-edit":

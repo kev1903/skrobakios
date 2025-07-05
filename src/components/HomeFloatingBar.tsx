@@ -113,6 +113,15 @@ export const HomeFloatingBar = ({
             >
               <span className="text-sm font-medium">Sales</span>
             </button>
+            <button
+              onClick={() => {
+                onNavigate('bim');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-white/50 transition-all duration-200 text-left"
+            >
+              <span className="text-sm font-medium">BIM</span>
+            </button>
           </div>
         </div>
       </div>

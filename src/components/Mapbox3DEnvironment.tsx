@@ -211,14 +211,16 @@ export const Mapbox3DEnvironment = ({
 
         // Called for each frame to render the model
         render: function(gl, matrix) {
+          if (!map.current) return;
+          
           // Update Three.js camera with Mapbox's projection matrix
           const rotationX = new THREE.Matrix4().makeRotationAxis(
             new THREE.Vector3(1, 0, 0), 
-            this.map.transform.pitch * Math.PI / 180
+            map.current.transform.pitch * Math.PI / 180
           );
           const rotationZ = new THREE.Matrix4().makeRotationAxis(
             new THREE.Vector3(0, 0, 1), 
-            -this.map.transform.bearing * Math.PI / 180
+            -map.current.transform.bearing * Math.PI / 180
           );
 
           const m = new THREE.Matrix4().fromArray(matrix);
@@ -238,7 +240,9 @@ export const Mapbox3DEnvironment = ({
           this.renderer.render(this.scene, this.camera);
           
           // Ensure map repaints correctly after Three.js rendering
-          this.map.triggerRepaint();
+          if (map.current) {
+            map.current.triggerRepaint();
+          }
         }
       };
 
