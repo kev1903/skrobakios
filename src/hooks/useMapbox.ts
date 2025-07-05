@@ -10,6 +10,7 @@ export const useMapbox = ({ savedView }: UseMapboxProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -36,6 +37,9 @@ export const useMapbox = ({ savedView }: UseMapboxProps) => {
         [150.5, -33.5]  // Northeast coordinates  
       ]
     });
+
+    // Set map ready immediately after creation
+    setMapReady(true);
 
     // Add navigation controls
     map.current.addControl(
@@ -125,7 +129,7 @@ export const useMapbox = ({ savedView }: UseMapboxProps) => {
 
   return {
     mapContainer,
-    map: map.current,
+    map: mapReady ? map.current : null,
     isLoaded
   };
 };
