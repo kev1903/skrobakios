@@ -25,7 +25,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
     { id: 'tasks', label: 'Tasks', icon: CheckSquare, page: 'project-tasks' },
     { id: 'files', label: 'Files', icon: Folder, page: 'project-files' },
     { id: 'team', label: 'Team', icon: Users, page: 'project-team' },
-    { id: 'wbs', label: 'WBS', icon: BarChart3, page: 'project-wbs' },
+    { id: 'digital-objects', label: 'Digital Objects', icon: Box, page: 'bim' },
   ];
 
   return (
