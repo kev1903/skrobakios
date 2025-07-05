@@ -119,7 +119,9 @@ export const ContentRenderer = ({
     case "sales":
       return <SalesPage onNavigate={onNavigate} />;
     case "bim":
-      return <DigitalObjectsPage onNavigate={onNavigate} />;
+      return currentProject ? (
+        <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
+      ) : renderProjectNotFound();
     case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} />;
     case "support":

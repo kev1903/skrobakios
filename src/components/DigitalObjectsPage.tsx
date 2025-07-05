@@ -1,12 +1,40 @@
 import { Box, MapPin, Calendar, DollarSign, FileText, CheckCircle, Cog } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProjectSidebar } from "./ProjectSidebar";
+import { Project } from "@/hooks/useProjects";
 
 interface DigitalObjectsPageProps {
+  project: Project;
   onNavigate: (page: string) => void;
 }
 
-export const DigitalObjectsPage = ({ onNavigate }: DigitalObjectsPageProps) => {
+export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPageProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "running":
+        return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+      case "pending":
+        return "bg-red-500/20 text-red-300 border-red-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "running":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Active";
+    }
+  };
   const digitalObjectFeatures = [
     {
       icon: MapPin,
@@ -55,8 +83,20 @@ export const DigitalObjectsPage = ({ onNavigate }: DigitalObjectsPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="container mx-auto px-6 py-8">
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        project={project}
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="digital-objects"
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+          <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -191,6 +231,8 @@ export const DigitalObjectsPage = ({ onNavigate }: DigitalObjectsPageProps) => {
             </div>
           </CardContent>
         </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
