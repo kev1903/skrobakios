@@ -10,14 +10,12 @@ import {
   Settings, 
   HelpCircle,
   Map,
-  Timer,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
 export const generalNavigation: NavigationItem[] = [
   { id: "home", label: "Home", icon: Home },
   { id: "tasks", label: "My Tasks", icon: Calendar },
-  { id: "time-management", label: "Time Management", icon: Timer },
   { id: "schedules", label: "My Schedules", icon: Calendar },
   { id: "inbox", label: "Inbox", icon: Mail },
 ];
