@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowLeft, User, Clock, DollarSign, Heart, Users, Building2, Lock } from 'lucide-react';
+import { ArrowLeft, User, Clock, DollarSign, Heart, Users, Building2, Lock, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserEditNavigationProps {
   firstName: string;
@@ -21,6 +22,16 @@ export const UserEditNavigation = ({
   onSave, 
   saving 
 }: UserEditNavigationProps) => {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      onNavigate('home');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
   const profileNavItems = [
     { id: 'personal', label: 'Personal', icon: User },
     { id: 'time', label: 'Time', icon: Clock },
@@ -86,6 +97,15 @@ export const UserEditNavigation = ({
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </Button>
+          
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/80 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm font-medium">Log Out</span>
+          </button>
         </div>
       </div>
     </div>
