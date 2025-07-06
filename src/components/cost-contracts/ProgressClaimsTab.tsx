@@ -64,13 +64,13 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
   const getStatusColor = (status: ProgressClaim['status']) => {
     switch (status) {
       case 'Paid':
-        return 'bg-green-500/20 text-green-300 border-green-500/30';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'Submitted':
-        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Draft':
-        return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       default:
-        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -88,22 +88,22 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-inter">Progress Claims</h2>
-          <p className="text-white/70 font-inter">Track project progress claims and payments</p>
+          <h2 className="text-2xl font-bold text-gray-900">Progress Claims</h2>
+          <p className="text-gray-600">Track project progress claims and payments</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-500/80 hover:bg-blue-600/80 text-white backdrop-blur-sm">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Add Claim
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-white/10 backdrop-blur-xl border-white/20 text-white max-w-2xl">
+          <DialogContent className="bg-white border border-gray-200 text-gray-900 max-w-2xl">
             <DialogHeader>
-              <DialogTitle className="font-playfair">Add New Progress Claim</DialogTitle>
+              <DialogTitle className="text-lg font-semibold">Add New Progress Claim</DialogTitle>
             </DialogHeader>
             <div className="p-4">
-              <p className="text-white/70">Progress claim form functionality coming soon...</p>
+              <p className="text-gray-600">Progress claim form functionality coming soon...</p>
             </div>
           </DialogContent>
         </Dialog>
@@ -111,100 +111,84 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Total Claims</p>
-                <p className="text-2xl font-bold text-white font-inter">{claims.length}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-400" />
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Total Claims</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <FileText className="w-4 h-4 text-blue-600" />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{claims.length}</p>
+        </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Total Claimed</p>
-                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totalClaimed)}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-orange-400 text-lg">📋</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Total Claimed</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalClaimed)}</p>
+        </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Paid Amount</p>
-                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(paidAmount)}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-green-400 text-lg">✅</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Paid Amount</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(paidAmount)}</p>
+        </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Outstanding</p>
-                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totalClaimed - paidAmount)}</p>
-              </div>
-              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-purple-400 text-lg">⏳</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Outstanding</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalClaimed - paidAmount)}</p>
+        </div>
       </div>
       
       {/* Claims Table */}
-      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-white font-inter">Claims Register</CardTitle>
+          <CardTitle className="text-lg font-semibold">Claims Register</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-white/10 hover:bg-white/5">
-                  <TableHead className="text-white/90 font-helvetica">Claim No.</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Date Submitted</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Stage/Scope</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Amount Claimed</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">% Contract</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Status</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Due Date</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Notes</TableHead>
+                <TableRow className="border-gray-200 hover:bg-gray-50">
+                  <TableHead className="text-gray-700 font-medium">Claim No.</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Date Submitted</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Stage/Scope</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Amount Claimed</TableHead>
+                  <TableHead className="text-gray-700 font-medium">% Contract</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Due Date</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Notes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {claims.map((claim) => (
-                  <TableRow key={claim.id} className="border-white/10 hover:bg-white/5">
+                  <TableRow key={claim.id} className="border-gray-200 hover:bg-gray-50">
                     <TableCell>
-                      <span className="text-white/90 font-mono font-medium">{claim.claimNo}</span>
+                      <span className="text-gray-900 font-mono font-medium">{claim.claimNo}</span>
                     </TableCell>
                      <TableCell>
-                       <span className="text-white/90 font-helvetica">{format(claim.dateSubmitted, 'dd/MM/yyyy')}</span>
+                       <span className="text-gray-600">{format(claim.dateSubmitted, 'dd/MM/yyyy')}</span>
                      </TableCell>
                      <TableCell>
-                       <span className="text-white/90 font-helvetica">{claim.stageScope}</span>
+                       <span className="text-gray-600">{claim.stageScope}</span>
                      </TableCell>
                      <TableCell>
-                       <span className="text-white/90 font-medium font-helvetica">{formatCurrency(claim.amountClaimed)}</span>
+                       <span className="text-gray-900 font-medium">{formatCurrency(claim.amountClaimed)}</span>
                      </TableCell>
                      <TableCell>
-                       <span className="text-white/90 font-helvetica">{claim.percentContract}%</span>
+                       <span className="text-gray-600">{claim.percentContract}%</span>
                      </TableCell>
                      <TableCell>
                        <Badge variant="outline" className={getStatusColor(claim.status)}>
@@ -212,10 +196,10 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
                        </Badge>
                      </TableCell>
                      <TableCell>
-                       <span className="text-white/70 font-helvetica">{format(claim.paymentDueDate, 'dd/MM/yyyy')}</span>
+                       <span className="text-gray-600">{format(claim.paymentDueDate, 'dd/MM/yyyy')}</span>
                      </TableCell>
                      <TableCell>
-                       <span className="text-white/70 text-sm font-helvetica max-w-xs truncate">{claim.notes}</span>
+                       <span className="text-gray-500 text-sm max-w-xs truncate">{claim.notes}</span>
                      </TableCell>
                   </TableRow>
                 ))}

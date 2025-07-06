@@ -49,9 +49,9 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
 
   const getStatusColor = (remaining: number, budget: number) => {
     const percentRemaining = (remaining / budget) * 100;
-    if (percentRemaining < 0) return 'bg-red-500/20 text-red-300 border-red-500/30';
-    if (percentRemaining < 10) return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
-    return 'bg-green-500/20 text-green-300 border-green-500/30';
+    if (percentRemaining < 0) return 'bg-red-100 text-red-800 border-red-200';
+    if (percentRemaining < 10) return 'bg-orange-100 text-orange-800 border-orange-200';
+    return 'bg-green-100 text-green-800 border-green-200';
   };
 
   const addNewRow = () => {
@@ -104,27 +104,27 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-inter">Cost Breakdown (BOQ)</h2>
-          <p className="text-white/70 font-inter">Manage project budget and cost tracking</p>
+          <h2 className="text-2xl font-bold text-gray-900">Cost Breakdown (BOQ)</h2>
+          <p className="text-gray-600">Manage project budget and cost tracking</p>
         </div>
         <div className="flex gap-3">
           <Button 
             variant="outline" 
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="border-gray-200 text-gray-700 hover:bg-gray-50"
           >
             <Upload className="w-4 h-4 mr-2" />
             Upload BOQ
           </Button>
           <Button 
             variant="outline" 
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="border-gray-200 text-gray-700 hover:bg-gray-50"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
           <Button 
             onClick={addNewRow}
-            className="bg-blue-500/80 hover:bg-blue-600/80 text-white backdrop-blur-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Row
@@ -134,98 +134,82 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Total Budget</p>
-                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totals.budget)}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-blue-400 text-lg">💰</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Total Budget</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totals.budget)}</p>
+        </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Committed</p>
-                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totals.committed)}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-orange-400 text-lg">📋</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Committed</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totals.committed)}</p>
+        </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Paid</p>
-                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totals.paid)}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-green-400 text-lg">✅</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Paid</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totals.paid)}</p>
+        </div>
 
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/70 text-sm font-helvetica">Remaining</p>
-                <p className={`text-2xl font-bold font-inter ${totals.remaining < 0 ? 'text-red-400' : 'text-white'}`}>
-                  {formatCurrency(totals.remaining)}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                <span className="text-purple-400 text-lg">📊</span>
-              </div>
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-600">Remaining</h3>
+            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <p className={`text-2xl font-bold ${totals.remaining < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+            {formatCurrency(totals.remaining)}
+          </p>
+        </div>
       </div>
 
       {/* Cost Breakdown Table */}
-      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-white font-playfair">Cost Breakdown Table</CardTitle>
+          <CardTitle className="text-lg font-semibold">Cost Breakdown Table</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-white/10 hover:bg-white/5">
-                  <TableHead className="text-white/90 font-helvetica">Cost Code</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Trade/Scope</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Budget</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Committed</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Paid</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Remaining</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Status</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Notes</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Actions</TableHead>
+                <TableRow className="border-gray-200 hover:bg-gray-50">
+                  <TableHead className="text-gray-700 font-medium">Cost Code</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Trade/Scope</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Budget</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Committed</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Paid</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Remaining</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Notes</TableHead>
+                  <TableHead className="text-gray-700 font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {costItems.map((item) => (
-                  <TableRow key={item.id} className="border-white/10 hover:bg-white/5">
+                  <TableRow key={item.id} className="border-gray-200 hover:bg-gray-50">
                     <TableCell>
                       {editingId === item.id ? (
                         <Input
                           value={item.costCode}
                           onChange={(e) => updateItem(item.id, 'costCode', e.target.value)}
-                          className="bg-white/10 border-white/20 text-white h-8"
+                          className="bg-white border-gray-200 text-gray-900 h-8"
                         />
                       ) : (
-                        <span className="text-white/90 font-mono">{item.costCode}</span>
+                        <span className="text-gray-900 font-mono">{item.costCode}</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -233,10 +217,10 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                         <Input
                           value={item.tradeScope}
                           onChange={(e) => updateItem(item.id, 'tradeScope', e.target.value)}
-                          className="bg-white/10 border-white/20 text-white h-8"
+                          className="bg-white border-gray-200 text-gray-900 h-8"
                         />
                        ) : (
-                         <span className="text-white/90 font-helvetica">{item.tradeScope}</span>
+                         <span className="text-gray-600">{item.tradeScope}</span>
                        )}
                      </TableCell>
                      <TableCell>
@@ -245,10 +229,10 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                            type="number"
                            value={item.budget}
                            onChange={(e) => updateItem(item.id, 'budget', parseFloat(e.target.value) || 0)}
-                           className="bg-white/10 border-white/20 text-white h-8"
+                           className="bg-white border-gray-200 text-gray-900 h-8"
                          />
                        ) : (
-                         <span className="text-white/90 font-helvetica">{formatCurrency(item.budget)}</span>
+                         <span className="text-gray-600">{formatCurrency(item.budget)}</span>
                        )}
                      </TableCell>
                      <TableCell>
@@ -257,10 +241,10 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                            type="number"
                            value={item.committed}
                            onChange={(e) => updateItem(item.id, 'committed', parseFloat(e.target.value) || 0)}
-                           className="bg-white/10 border-white/20 text-white h-8"
+                           className="bg-white border-gray-200 text-gray-900 h-8"
                          />
                        ) : (
-                         <span className="text-white/90 font-helvetica">{formatCurrency(item.committed)}</span>
+                         <span className="text-gray-600">{formatCurrency(item.committed)}</span>
                        )}
                      </TableCell>
                      <TableCell>
@@ -269,14 +253,14 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                            type="number"
                            value={item.paid}
                            onChange={(e) => updateItem(item.id, 'paid', parseFloat(e.target.value) || 0)}
-                           className="bg-white/10 border-white/20 text-white h-8"
+                           className="bg-white border-gray-200 text-gray-900 h-8"
                          />
                        ) : (
-                         <span className="text-white/90 font-helvetica">{formatCurrency(item.paid)}</span>
+                         <span className="text-gray-600">{formatCurrency(item.paid)}</span>
                        )}
                      </TableCell>
                      <TableCell>
-                       <span className={`font-medium font-helvetica ${item.remaining < 0 ? 'text-red-400' : 'text-white/90'}`}>
+                       <span className={`font-medium ${item.remaining < 0 ? 'text-red-600' : 'text-gray-900'}`}>
                          {formatCurrency(item.remaining)}
                        </span>
                      </TableCell>
@@ -290,10 +274,10 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                         <Input
                           value={item.notes}
                           onChange={(e) => updateItem(item.id, 'notes', e.target.value)}
-                          className="bg-white/10 border-white/20 text-white h-8"
+                          className="bg-white border-gray-200 text-gray-900 h-8"
                         />
                       ) : (
-                        <span className="text-white/70 text-sm font-helvetica">{item.notes}</span>
+                        <span className="text-gray-500 text-sm">{item.notes}</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -302,7 +286,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                           size="sm"
                           variant="ghost"
                           onClick={() => setEditingId(editingId === item.id ? null : item.id)}
-                          className="text-white/70 hover:text-white hover:bg-white/10"
+                          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                         >
                           <Edit3 className="w-4 h-4" />
                         </Button>
@@ -310,7 +294,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                           size="sm"
                           variant="ghost"
                           onClick={() => deleteItem(item.id)}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

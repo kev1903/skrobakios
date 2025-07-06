@@ -149,13 +149,13 @@ export const ContentRenderer = ({
             }}
             activeSection="cost"
           />
-          <div className="flex-1 overflow-auto backdrop-blur-xl bg-white/5 border-l border-white/10">
-            <div className="p-8 ml-48">
+          <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+            <div className="p-8">
               <div className="mb-8">
-                <h1 className="text-4xl font-bold text-white mb-2 font-inter">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   Project Cost & Contract Management
                 </h1>
-                <p className="text-white/80 font-inter">
+                <p className="text-gray-600">
                   Track contracts, cost breakdowns, variations, claims, and payments for construction projects
                 </p>
               </div>
