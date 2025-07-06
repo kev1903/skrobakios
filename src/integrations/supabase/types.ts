@@ -375,6 +375,45 @@ export type Database = {
         }
         Relationships: []
       }
+      task_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          task_id: string
+          updated_at: string
+          uploaded_by_avatar: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          task_id: string
+          updated_at?: string
+          uploaded_by_avatar?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          task_id?: string
+          updated_at?: string
+          uploaded_by_avatar?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: []
+      }
       task_comments: {
         Row: {
           comment: string
