@@ -69,9 +69,7 @@ export const TaskBoardColumn = ({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={`transition-transform ${
-                      snapshot.isDragging ? 'rotate-3 scale-105 shadow-lg' : ''
-                    }`}
+                    className={snapshot.isDragging ? 'shadow-lg' : ''}
                   >
                     <TaskCard 
                       task={task} 
