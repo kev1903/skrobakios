@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User } from 'lucide-react';
+import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
 
@@ -7,12 +7,16 @@ interface TopFloatingBarProps {
   onToggleRibbon: () => void;
   onNavigate: (page: string) => void;
   onOpenSchedule: () => void;
+  showSaveButton: boolean;
+  onSaveMapPosition: () => Promise<void>;
 }
 
 export const TopFloatingBar = ({
   onToggleRibbon,
   onNavigate,
-  onOpenSchedule
+  onOpenSchedule,
+  showSaveButton,
+  onSaveMapPosition
 }: TopFloatingBarProps) => {
   const { userProfile } = useUser();
 
@@ -52,6 +56,16 @@ export const TopFloatingBar = ({
           >
             <CalendarIcon className="w-5 h-5 text-white" />
           </button>
+          
+          {/* Save Map Position Icon */}
+          {showSaveButton && (
+            <button 
+              onClick={onSaveMapPosition}
+              className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+            >
+              <Save className="w-5 h-5 text-white" />
+            </button>
+          )}
           
           {/* Inbox Icon */}
           <button 

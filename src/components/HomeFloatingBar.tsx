@@ -9,11 +9,15 @@ import { OverlayManager } from './home/OverlayManager';
 interface HomeFloatingBarProps {
   onNavigate: (page: string) => void;
   onSelectProject?: (projectId: string) => void;
+  showSaveButton: boolean;
+  onSaveMapPosition: () => Promise<void>;
 }
 
 export const HomeFloatingBar = ({
   onNavigate,
-  onSelectProject
+  onSelectProject,
+  showSaveButton,
+  onSaveMapPosition
 }: HomeFloatingBarProps) => {
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
@@ -57,6 +61,8 @@ export const HomeFloatingBar = ({
         onToggleRibbon={toggleRibbon}
         onNavigate={onNavigate}
         onOpenSchedule={handleOpenSchedule}
+        showSaveButton={showSaveButton}
+        onSaveMapPosition={onSaveMapPosition}
       />
 
       <NavigationRibbon

@@ -308,19 +308,12 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
       
       {/* Floating Top Bar */}
-      <HomeFloatingBar onNavigate={onNavigate} onSelectProject={onSelectProject} />
-      
-      {/* Save Map Position Button */}
-      {showSaveButton && (
-        <div className="fixed top-20 right-6 z-50">
-          <button
-            onClick={saveCurrentMapPosition}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors duration-200 text-sm font-medium"
-          >
-            Save Map Position
-          </button>
-        </div>
-      )}
+      <HomeFloatingBar 
+        onNavigate={onNavigate} 
+        onSelectProject={onSelectProject}
+        showSaveButton={showSaveButton}
+        onSaveMapPosition={saveCurrentMapPosition}
+      />
       
       {/* Loading overlay */}
       {isLoading && (
