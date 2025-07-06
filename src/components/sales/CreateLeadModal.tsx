@@ -39,6 +39,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
     location: '',
     website: '',
     notes: '',
+    project_address: '',
   });
 
   const handleSave = async () => {
@@ -69,6 +70,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
         location: '',
         website: '',
         notes: '',
+        project_address: '',
       });
       
       onClose();
@@ -92,6 +94,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
       location: '',
       website: '',
       notes: '',
+      project_address: '',
     });
     onClose();
   };
@@ -121,9 +124,6 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
               </Button>
               <Button onClick={handleCancel} variant="outline" className="font-inter">
                 Cancel
-              </Button>
-              <Button onClick={onClose} variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <X className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -172,7 +172,20 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
                     <Input
                       value={formData.contact_phone}
                       onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+61 4XX XXX XXX"
+                      className="pl-10 font-inter"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="font-inter text-foreground">Project Address</Label>
+                  <div className="relative mt-1">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      value={formData.project_address}
+                      onChange={(e) => setFormData({ ...formData, project_address: e.target.value })}
+                      placeholder="Enter project address"
                       className="pl-10 font-inter"
                     />
                   </div>
