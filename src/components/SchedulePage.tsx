@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format, addMonths, subMonths, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks, subWeeks, startOfMonth, endOfMonth } from 'date-fns';
+import { format, addMonths, subMonths, addWeeks, subWeeks, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { TimeBlockingCalendar } from './TimeBlockingCalendar';
 
 interface SchedulePageProps {
   onNavigate?: (page: string) => void;
@@ -182,17 +182,11 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-0 overflow-hidden h-[calc(100%-80px)]">
-                <div className="h-full overflow-y-auto p-4">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    month={currentDate}
-                    onMonthChange={setCurrentDate}
-                    className="w-full h-full text-card-foreground [&_.rdp-day]:text-muted-foreground [&_.rdp-day_button]:text-muted-foreground [&_.rdp-day_button]:h-12 [&_.rdp-day_button]:w-12 [&_.rdp-day_button:hover]:bg-accent [&_.rdp-day_button:hover]:text-accent-foreground [&_.rdp-day_button.rdp-day_selected]:bg-primary [&_.rdp-day_button.rdp-day_selected]:text-primary-foreground [&_.rdp-nav_button]:hidden [&_.rdp-caption]:hidden [&_.rdp-head_cell]:text-muted-foreground [&_.rdp-head_cell]:font-semibold [&_.rdp-head_cell]:text-lg [&_.rdp-head_cell]:py-4 [&_.rdp-day_button.rdp-day_today]:bg-accent [&_.rdp-day_button.rdp-day_today]:text-accent-foreground [&_.rdp-day_button.rdp-day_today]:font-semibold [&_.rdp-table]:h-full [&_.rdp-month]:h-full [&_.rdp-day]:text-lg pointer-events-auto"
-                  />
-                </div>
+              <CardContent className="p-2 overflow-hidden h-[calc(100%-80px)]">
+                <TimeBlockingCalendar 
+                  currentDate={currentDate}
+                  onMonthChange={setCurrentDate}
+                />
               </CardContent>
             </Card>
           </div>
