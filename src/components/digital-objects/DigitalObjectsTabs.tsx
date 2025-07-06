@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 interface DigitalObjectsTab {
   id: string;
@@ -15,9 +20,11 @@ interface DigitalObjectsTabsProps {
 
 export const DigitalObjectsTabs = ({ children }: DigitalObjectsTabsProps) => {
   const [tabs, setTabs] = useState<DigitalObjectsTab[]>([
-    { id: "table-1", name: "Digital Objects" }
+    { id: "breakdown-cost", name: "BREAKDOWN COST" },
+    { id: "invoice-tracker", name: "INVOICE TRACKER" },
+    { id: "variation", name: "VARIATION" }
   ]);
-  const [activeTab, setActiveTab] = useState("table-1");
+  const [activeTab, setActiveTab] = useState("breakdown-cost");
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
 
@@ -70,64 +77,115 @@ export const DigitalObjectsTabs = ({ children }: DigitalObjectsTabsProps) => {
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <div className="flex items-center justify-between mb-6">
-        <TabsList className="bg-white/10 border-white/20 h-10">
-          {tabs.map((tab) => (
-            <div key={tab.id} className="flex items-center group">
-              <TabsTrigger 
-                value={tab.id} 
-                className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white hover:bg-white/10 px-3 py-2 flex items-center gap-2"
+    <div className="w-full">
+      {/* Airtable-style tab navigation */}
+      <div className="border-b border-white/10 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            {/* Main Tabs */}
+            <div className="flex items-center bg-slate-800/50 rounded-lg p-1 mr-4">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    px-4 py-2 text-xs font-semibold tracking-wide rounded-md transition-all duration-200
+                    ${activeTab === tab.id 
+                      ? 'bg-blue-600 text-white shadow-lg' 
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    }
+                  `}
+                >
+                  {editingTabId === tab.id ? (
+                    <Input
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onBlur={saveTabName}
+                      className="h-6 w-32 bg-white/10 border-white/20 text-white text-xs"
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <div 
+                      className="flex items-center gap-2"
+                      onDoubleClick={() => startEditingTab(tab.id, tab.name)}
+                    >
+                      <span>{tab.name}</span>
+                      {tabs.length > 1 && activeTab === tab.id && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeTab(tab.id);
+                          }}
+                          className="text-slate-400 hover:text-white transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </button>
+              ))}
+              
+              {/* Add new tab button */}
+              <button
+                onClick={addNewTab}
+                className="px-3 py-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-colors"
               >
-                {editingTabId === tab.id ? (
-                  <Input
-                    value={editingName}
-                    onChange={(e) => setEditingName(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onBlur={saveTabName}
-                    className="h-6 w-24 bg-white/10 border-white/20 text-white text-xs"
-                    autoFocus
-                  />
-                ) : (
-                  <span 
-                    className="cursor-pointer"
-                    onDoubleClick={() => startEditingTab(tab.id, tab.name)}
-                  >
-                    {tab.name}
-                  </span>
-                )}
-                {tabs.length > 1 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0 text-slate-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeTab(tab.id);
-                    }}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                )}
-              </TabsTrigger>
+                <Plus className="h-4 w-4" />
+              </button>
             </div>
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={addNewTab}
-            className="text-white hover:bg-white/20 h-8 w-8 p-0 ml-2"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </TabsList>
+
+            {/* View options dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
+                >
+                  Grid view <ChevronDown className="ml-2 h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-slate-800 border-white/20">
+                <DropdownMenuItem className="text-white hover:bg-white/10">
+                  Grid view
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-white/10">
+                  List view
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Right side controls */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400">3 hidden fields</span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
+            >
+              Filter
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs"
+            >
+              Group
+            </Button>
+          </div>
+        </div>
       </div>
 
+      {/* Tab content */}
       {tabs.map((tab) => (
-        <TabsContent key={tab.id} value={tab.id} className="mt-0">
+        <div key={tab.id} className={activeTab === tab.id ? 'block' : 'hidden'}>
           {children(tab.id)}
-        </TabsContent>
+        </div>
       ))}
-    </Tabs>
+    </div>
   );
 };
