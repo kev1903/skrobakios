@@ -1,11 +1,13 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   User,
   Briefcase,
   Building2,
   Lock,
-  ArrowLeft
+  ArrowLeft,
+  LogOut
 } from 'lucide-react';
 
 interface ProfileNavigationRibbonProps {
@@ -15,12 +17,23 @@ interface ProfileNavigationRibbonProps {
 }
 
 export const ProfileNavigationRibbon = ({ activeTab, onTabChange, onBack }: ProfileNavigationRibbonProps) => {
+  const { signOut } = useAuth();
+  
   const navigationItems = [
     { id: 'personal', label: 'Personal', icon: User },
     { id: 'professional', label: 'Professional', icon: Briefcase },
     { id: 'company', label: 'Company', icon: Building2 },
     { id: 'security', label: 'Security', icon: Lock },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      onBack(); // Navigate back to main page
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <div className="fixed left-0 top-0 w-48 h-full glass-sidebar z-40 transition-all duration-300">
@@ -54,11 +67,21 @@ export const ProfileNavigationRibbon = ({ activeTab, onTabChange, onBack }: Prof
         ))}
       </div>
 
-      {/* Profile Summary */}
-      <div className="border-t border-sidebar-border px-3 py-4">
-        <div className="text-xs font-medium text-sidebar-foreground/70 uppercase tracking-wider px-3 py-2">
-          Profile Settings
+      {/* Actions Section */}
+      <div className="border-t border-sidebar-border px-3 py-4 space-y-3">
+        <div className="text-xs font-medium text-sidebar-foreground/70 uppercase tracking-wider px-3">
+          Actions
         </div>
+        
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 text-left"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="text-sm font-medium">Log Out</span>
+        </button>
+        
         <div className="px-3 py-2 text-xs text-sidebar-foreground/60">
           Update your personal and professional information
         </div>
