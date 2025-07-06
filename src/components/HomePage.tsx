@@ -118,6 +118,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     }
   };
 
+  // Load map configuration only once
   useEffect(() => {
     const loadMapConfiguration = async () => {
       try {
@@ -125,7 +126,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           .from('map_configurations')
           .select('*')
           .eq('is_active', true)
-          .single();
+          .maybeSingle();
 
         if (!configError && config) {
           setMapConfig({
@@ -141,9 +142,12 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     };
 
     loadMapConfiguration();
-    
+  }, []);
+
+  // Initialize map when component mounts and mapConfig is ready
+  useEffect(() => {
     const initializeMapWithProjects = async () => {
-      if (!mapContainer.current) return;
+      if (!mapContainer.current || map.current) return; // Prevent multiple initializations
 
       try {
         // Fetch Mapbox token from edge function
@@ -189,11 +193,9 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           ]
         });
 
-        // Navigation controls hidden as requested
-
         // Wait for map to load, then add project markers
         map.current.on('style.load', async () => {
-          if (projectsData && projectsData.length > 0) {
+          if (projectsData && projectsData.length > 0 && map.current) {
             await addProjectMarkers(projectsData);
           }
           setIsLoading(false);
@@ -208,14 +210,6 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           setShowSaveButton(true);
         });
         
-        map.current.on('mouseup', () => {
-          // User interaction handled by Mapbox
-        });
-        
-        map.current.on('touchend', () => {
-          // User interaction handled by Mapbox
-        });
-
         map.current.on('zoom', () => {
           setShowSaveButton(true);
         });
@@ -236,7 +230,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     };
 
     const addProjectMarkers = async (projects: Project[]) => {
-      if (!map.current) return;
+      if (!map.current || !map.current.getContainer()) return;
 
       // Geocode project addresses and add markers
       for (const project of projects) {
@@ -275,21 +269,38 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           </div>
         `);
 
-        // Create and add marker to map
-        new mapboxgl.Marker(markerElement)
-          .setLngLat(coordinates)
-          .setPopup(popup)
-          .addTo(map.current);
+        // Create and add marker to map - with error handling
+        try {
+          if (map.current && map.current.getContainer()) {
+            new mapboxgl.Marker(markerElement)
+              .setLngLat(coordinates)
+              .setPopup(popup)
+              .addTo(map.current);
+          }
+        } catch (error) {
+          console.error('Error adding marker:', error);
+        }
       }
     };
 
-    initializeMapWithProjects();
+    // Only initialize if we have a valid config (either loaded or default)
+    const timer = setTimeout(() => {
+      initializeMapWithProjects();
+    }, 100); // Small delay to ensure mapConfig is set
 
     // Cleanup
     return () => {
-      map.current?.remove();
+      clearTimeout(timer);
+      if (map.current) {
+        try {
+          map.current.remove();
+          map.current = null;
+        } catch (error) {
+          console.error('Error cleaning up map:', error);
+        }
+      }
     };
-  }, [mapConfig]); // Add mapConfig as dependency
+  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing]); // Only re-run if map config actually changes
 
   return (
     <div className="relative w-full h-screen">
