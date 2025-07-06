@@ -111,44 +111,44 @@ export const CostBreakdownTab = ({
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Total Budget</h3>
-            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
-              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
+        <div className="bg-white p-3 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-xs font-medium text-gray-600">Total Budget</h3>
+            <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totals.budget)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatCurrency(totals.budget)}</p>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Committed</h3>
-            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
-              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
+        <div className="bg-white p-3 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-xs font-medium text-gray-600">Committed</h3>
+            <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totals.committed)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatCurrency(totals.committed)}</p>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Paid</h3>
-            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
-              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
+        <div className="bg-white p-3 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-xs font-medium text-gray-600">Paid</h3>
+            <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totals.paid)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatCurrency(totals.paid)}</p>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Remaining</h3>
-            <div className="w-12 h-8 bg-blue-50 rounded flex items-center justify-center">
-              <div className="w-6 h-4 bg-blue-200 rounded-sm"></div>
+        <div className="bg-white p-3 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-xs font-medium text-gray-600">Remaining</h3>
+            <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
+              <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
             </div>
           </div>
-          <p className={`text-2xl font-bold ${totals.remaining < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+          <p className={`text-xl font-bold ${totals.remaining < 0 ? 'text-red-600' : 'text-gray-900'}`}>
             {formatCurrency(totals.remaining)}
           </p>
         </div>
@@ -156,8 +156,8 @@ export const CostBreakdownTab = ({
 
       {/* Cost Breakdown Table */}
       <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Cost Breakdown Table</CardTitle>
+        <CardHeader className="py-3">
+          <CardTitle className="text-base font-semibold">Cost Breakdown Table</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
