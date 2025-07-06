@@ -18,7 +18,7 @@ export const FullScreenSchedule = ({
     <>
       <div className="fixed inset-0 z-40 pt-16 pb-20">
         <div 
-          className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden hidden"
+          className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button for Schedule */}
