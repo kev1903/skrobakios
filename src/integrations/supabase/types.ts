@@ -83,6 +83,7 @@ export type Database = {
           location: string | null
           notes: string | null
           priority: string
+          project_address: string | null
           source: string
           stage: string
           updated_at: string
@@ -102,6 +103,7 @@ export type Database = {
           location?: string | null
           notes?: string | null
           priority?: string
+          project_address?: string | null
           source?: string
           stage?: string
           updated_at?: string
@@ -121,6 +123,7 @@ export type Database = {
           location?: string | null
           notes?: string | null
           priority?: string
+          project_address?: string | null
           source?: string
           stage?: string
           updated_at?: string
