@@ -11,6 +11,7 @@ import { SalesPage } from '@/components/SalesPage';
 import { Mapbox3DEnvironment } from '@/components/Mapbox3DEnvironment';
 import { SettingsPage } from '@/components/SettingsPage';
 import { SupportPage } from '@/components/SupportPage';
+import { SchedulePage } from '@/components/SchedulePage';
 interface HomeFloatingBarProps {
   onNavigate: (page: string) => void;
   onSelectProject?: (projectId: string) => void;
@@ -25,6 +26,7 @@ export const HomeFloatingBar = ({
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
   const [sidePageContent, setSidePageContent] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isHomeHovered, setIsHomeHovered] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -99,6 +101,8 @@ export const HomeFloatingBar = ({
         return <SettingsPage onNavigate={onNavigate} />;
       case 'support':
         return <SupportPage />;
+      case 'schedule':
+        return <SchedulePage onNavigate={onNavigate} />;
       default:
         return null;
     }
@@ -108,14 +112,39 @@ export const HomeFloatingBar = ({
     <>
       <div className="fixed top-6 left-0 z-50 w-full">
         <div className="flex items-center justify-between py-0 px-6 mx-6">
-        {/* Navigation Menu Icon */}
-        <div className="flex-shrink-0 mr-4">
+        {/* Navigation Menu Icon with Hover Dropdown */}
+        <div className="flex-shrink-0 mr-4 relative">
           <button 
             onClick={toggleRibbon}
+            onMouseEnter={() => setIsHomeHovered(true)}
+            onMouseLeave={() => setIsHomeHovered(false)}
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           >
             <Menu className="w-5 h-5 text-white" />
           </button>
+          
+          {/* Hover Dropdown Menu */}
+          {isHomeHovered && (
+            <div 
+              className="absolute top-12 left-0 w-48 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-xl z-50"
+              onMouseEnter={() => setIsHomeHovered(true)}
+              onMouseLeave={() => setIsHomeHovered(false)}
+            >
+              <div className="p-2">
+                <button
+                  onClick={() => {
+                    setSidePageContent('schedule');
+                    setIsRibbonOpen(true);
+                    setIsHomeHovered(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-white hover:bg-white/20 transition-all duration-200 text-left text-sm"
+                >
+                  <CalendarIcon className="w-4 h-4" />
+                  <span>My Schedule</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Spacer for left side */}
@@ -138,7 +167,10 @@ export const HomeFloatingBar = ({
           
           {/* Schedule Icon */}
           <button 
-            onClick={() => onNavigate('schedule')} 
+            onClick={() => {
+              setSidePageContent('schedule');
+              setIsRibbonOpen(true);
+            }} 
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           >
             <CalendarIcon className="w-5 h-5 text-white" />
