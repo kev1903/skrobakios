@@ -1,210 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DropResult } from "react-beautiful-dnd";
 import { DigitalObject } from "./types";
 
-export const useDigitalObjects = () => {
+export const useDigitalObjects = (projectId?: string) => {
   const { toast } = useToast();
   const [editingField, setEditingField] = useState<{id: string, field: keyof DigitalObject} | null>(null);
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([]);
 
-  // Mock data for now until digital_objects table types are updated
-  const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([
-    {
-      id: "1",
-      name: "Townplanner",
-      object_type: "professional",
-      description: "Planning and zoning consultation",
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null,
-      expanded: true
-    },
-    {
-      id: "2", 
-      name: "INARC",
-      object_type: "professional",
-      description: "Architectural services",
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "3",
-      name: "Site Feature & Re-establishment", 
-      object_type: "site_work",
-      description: "Site preparation and establishment",
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "4",
-      name: "Roof Drainage Design",
-      object_type: "design", 
-      description: "Roof drainage system design",
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "5",
-      name: "Architectural",
-      object_type: "design",
-      description: "Architectural design services", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "6",
-      name: "Project Estimate",
-      object_type: "estimate",
-      description: "Project cost estimation", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "7",
-      name: "Performance Solution Report",
-      object_type: "report",
-      description: "Building performance analysis", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "8",
-      name: "Landscape Designer / Architect",
-      object_type: "professional",
-      description: "Landscape design services", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "9",
-      name: "Interior Designer / Interior Designer",
-      object_type: "professional",
-      description: "Interior design services", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "10",
-      name: "Domestic Building Insurance",
-      object_type: "insurance",
-      description: "Building insurance coverage", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "11",
-      name: "Work Protection Insurance",
-      object_type: "insurance",
-      description: "Work protection insurance", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "12",
-      name: "Geotechnical Soil Testing",
-      object_type: "testing",
-      description: "Soil analysis and testing", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "13",
-      name: "Engineering",
-      object_type: "professional",
-      description: "Engineering services", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "14",
-      name: "Energy Report",
-      object_type: "report",
-      description: "Energy efficiency assessment", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "15",
-      name: "Construction Management Services",
-      object_type: "management",
-      description: "Construction management and supervision", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "16",
-      name: "Civil Drainage Design",
-      object_type: "design",
-      description: "Civil drainage system design", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "17",
-      name: "Building Surveying",
-      object_type: "survey",
-      description: "Building surveying services", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "18",
-      name: "Permit Levy",
-      object_type: "permit",
-      description: "Permit fees and charges", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
-    },
-    {
-      id: "19",
-      name: "CONTINGENCY",
-      object_type: "contingency",
-      description: "Project contingency allowance", 
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null
+  // Load digital objects from database
+  const loadDigitalObjects = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('digital_objects')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error loading digital objects:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load digital objects",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setDigitalObjects(data || []);
+    } catch (error) {
+      console.error('Error loading digital objects:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to load digital objects",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  // Load data on mount
+  useEffect(() => {
+    loadDigitalObjects();
+  }, [projectId]);
 
   // Get visible rows based on expanded state (no subtotal calculation needed)
 
@@ -228,38 +77,142 @@ export const useDigitalObjects = () => {
     return visible;
   };
 
-  const handleToggleExpand = (id: string) => {
+  const handleToggleExpand = async (id: string) => {
+    // Update local state immediately for responsiveness
     setDigitalObjects(prev => 
       prev.map(obj => 
         obj.id === id ? { ...obj, expanded: !obj.expanded } : obj
       )
     );
+
+    // Update database
+    try {
+      const currentObj = digitalObjects.find(obj => obj.id === id);
+      if (currentObj) {
+        const { error } = await supabase
+          .from('digital_objects')
+          .update({ expanded: !currentObj.expanded })
+          .eq('id', id);
+
+        if (error) {
+          console.error('Error updating expand state:', error);
+          // Revert local state on error
+          setDigitalObjects(prev => 
+            prev.map(obj => 
+              obj.id === id ? { ...obj, expanded: currentObj.expanded } : obj
+            )
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Error updating expand state:', error);
+    }
   };
 
-  const handleAddRow = () => {
-    const newId = (Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1).toString();
-    const newRow: DigitalObject = {
-      id: newId,
-      name: "",
-      object_type: "",
-      description: "",
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null,
-      expanded: true
-    };
-    
-    setDigitalObjects(prev => [...prev, newRow]);
-    toast({
-      title: "Row Added",
-      description: "New item added successfully",
-    });
+  const handleAddRow = async () => {
+    try {
+      const newRow = {
+        name: "New Item",
+        object_type: "general",
+        description: "",
+        status: "planning",
+        stage: "4.0 PRELIMINARY",
+        level: 0,
+        parent_id: null,
+        expanded: true,
+        project_id: projectId || null
+      };
+
+      const { data, error } = await supabase
+        .from('digital_objects')
+        .insert(newRow)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setDigitalObjects(prev => [...prev, data]);
+      toast({
+        title: "Row Added",
+        description: "New item added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding row:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add new row",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleImportCSV = (file: File) => {
+  const handleDeleteRow = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('digital_objects')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      setDigitalObjects(prev => prev.filter(obj => obj.id !== id));
+      setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
+      
+      toast({
+        title: "Deleted",
+        description: "Digital object deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting row:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete digital object",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClearTableData = async () => {
+    try {
+      let query = supabase.from('digital_objects').delete();
+      
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      } else {
+        // If no project ID, delete all (be careful with this)
+        query = query.neq('id', '00000000-0000-0000-0000-000000000000'); // This will match all rows
+      }
+
+      const { error } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      setDigitalObjects([]);
+      setSelectedIds([]);
+      
+      toast({
+        title: "Table Cleared",
+        description: "All digital objects have been removed",
+      });
+    } catch (error) {
+      console.error('Error clearing table:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear table data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImportCSV = async (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const text = e.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim());
@@ -286,16 +239,14 @@ export const useDigitalObjects = () => {
           return;
         }
 
-        const newObjects: DigitalObject[] = [];
-        let maxId = Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1;
+        const newObjects = [];
 
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/^"(.*)"$/, '$1'));
           
           if (values.length < headers.length) continue;
 
-          const obj: DigitalObject = {
-            id: maxId.toString(),
+          const obj = {
             name: values[headers.indexOf('name')] || '',
             object_type: values[headers.indexOf('object_type')] || '',
             description: values[headers.indexOf('description')] || null,
@@ -303,35 +254,31 @@ export const useDigitalObjects = () => {
             stage: values[headers.indexOf('stage')] || '4.0 PRELIMINARY',
             level: 0,
             parent_id: null,
-            expanded: true
+            expanded: true,
+            project_id: projectId || null
           };
 
           newObjects.push(obj);
-          maxId++;
         }
 
-        setDigitalObjects(prev => [...prev, ...newObjects]);
-        
-        // Try to save to database
-        newObjects.forEach(async (obj) => {
-          try {
-            const { error } = await supabase
-              .from('digital_objects' as any)
-              .insert(obj);
-            
-            if (error) {
-              console.log('Database insert will be enabled once types are updated:', error);
-            }
-          } catch (dbError) {
-            console.log('Database save pending type updates');
-          }
-        });
+        // Insert all objects into database
+        const { data, error } = await supabase
+          .from('digital_objects')
+          .insert(newObjects)
+          .select();
+
+        if (error) {
+          throw error;
+        }
+
+        setDigitalObjects(prev => [...prev, ...data]);
 
         toast({
           title: "CSV Imported",
           description: `Successfully imported ${newObjects.length} items`,
         });
       } catch (error) {
+        console.error('Error importing CSV:', error);
         toast({
           title: "Import Error",
           description: "Failed to parse CSV file. Please check the format.",
@@ -442,7 +389,17 @@ export const useDigitalObjects = () => {
     if (!editingField || !editingData) return;
 
     try {
-      // Update local state
+      // Update database first
+      const { error } = await supabase
+        .from('digital_objects')
+        .update(editingData)
+        .eq('id', editingField.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state on success
       setDigitalObjects(prev => 
         prev.map(obj => 
           obj.id === editingField.id 
@@ -450,20 +407,6 @@ export const useDigitalObjects = () => {
             : obj
         )
       );
-
-      // Try to save to database (will work once types are updated)
-      try {
-        const { error } = await supabase
-          .from('digital_objects' as any)
-          .update(editingData)
-          .eq('id', editingField.id);
-
-        if (error) {
-          console.log('Database update will be enabled once types are updated:', error);
-        }
-      } catch (dbError) {
-        console.log('Database save pending type updates');
-      }
 
       toast({
         title: "Updated",
@@ -473,6 +416,7 @@ export const useDigitalObjects = () => {
       setEditingField(null);
       setEditingData({});
     } catch (error) {
+      console.error('Error updating digital object:', error);
       toast({
         title: "Error",
         description: "Failed to update digital object",
@@ -618,6 +562,8 @@ export const useDigitalObjects = () => {
     handleOutdent,
     handleToggleExpand,
     handleAddRow,
-    handleImportCSV
+    handleImportCSV,
+    handleDeleteRow,
+    handleClearTableData
   };
 };

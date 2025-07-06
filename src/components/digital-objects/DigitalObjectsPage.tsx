@@ -23,7 +23,9 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     handleOutdent,
     handleToggleExpand,
     handleAddRow,
-    handleImportCSV
+    handleImportCSV,
+    handleDeleteRow,
+    handleClearTableData
   } = useDigitalObjects();
 
   return (
@@ -48,10 +50,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
           
           {/* Tabs Navigation */}
           <DigitalObjectsTabs
-            onClearTableData={(tabId) => {
-              // Handle clearing table data for specific tab
-              console.log(`Clearing data for tab: ${tabId}`);
-            }}
+            onClearTableData={handleClearTableData}
           >
             {(activeTabId) => (
               <>
@@ -76,6 +75,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
                   onEditingDataChange={setEditingData}
                   onDragEnd={handleDragEnd}
                   onToggleExpand={handleToggleExpand}
+                  onDelete={handleDeleteRow}
                 />
               </>
             )}

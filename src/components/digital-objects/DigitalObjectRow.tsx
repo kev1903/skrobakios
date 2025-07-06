@@ -19,6 +19,7 @@ interface DigitalObjectRowProps {
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onToggleExpand: (id: string) => void;
+  onDelete: (id: string) => void;
   hasChildren: boolean;
 }
 
@@ -35,6 +36,7 @@ export const DigitalObjectRow = ({
   onEditingDataChange,
   onKeyDown,
   onToggleExpand,
+  onDelete,
   hasChildren
 }: DigitalObjectRowProps) => {
   const isSelected = selectedIds.includes(obj.id);
@@ -114,6 +116,7 @@ export const DigitalObjectRow = ({
               isEditing={editingField?.id === obj.id}
               onSave={onSave}
               onCancel={onCancel}
+              onDelete={() => onDelete(obj.id)}
             />
           </TableCell>
         </TableRow>
