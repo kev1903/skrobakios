@@ -2,7 +2,7 @@ import { ProjectSidebar } from "../ProjectSidebar";
 import { DigitalObjectsPageProps } from "./types";
 import { DigitalObjectsHeader } from "./DigitalObjectsHeader";
 import { DigitalObjectsTable } from "./DigitalObjectsTable";  
-import { DigitalObjectsTabs } from "./DigitalObjectsTabs";
+import { DigitalObjectsTabs } from "./tab-system/DigitalObjectsTabs";
 import { useDigitalObjects } from "./useDigitalObjects";
 import { getStatusColor, getStatusText } from "./utils";
 
