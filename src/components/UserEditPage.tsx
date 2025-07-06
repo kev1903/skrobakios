@@ -196,7 +196,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
           />
         );
       case 'time':
-        return <TimeSection />;
+        return <TimeSection onNavigate={onNavigate} />;
       case 'finance':
         return <FinanceSection />;
       case 'wellness':

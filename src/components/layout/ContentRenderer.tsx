@@ -29,6 +29,7 @@ import { UserEditPage } from "@/components/UserEditPage";
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
 import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
+import { TimeManagementPage } from "@/components/TimeManagementPage";
 
 import { Project } from "@/hooks/useProjects";
 
@@ -60,6 +61,8 @@ export const ContentRenderer = ({
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
+    case "time-management":
+      return <TimeManagementPage onNavigate={onNavigate} />;
     case "settings":
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
