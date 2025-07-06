@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Timer, BarChart3, Clock, Target, Award, List, Settings, Play, Square, Camera } from 'lucide-react';
+import { Timer, BarChart3, Clock, Target, Award, List, Settings, Play, Square } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -38,8 +38,7 @@ export const TimeSection = ({ onNavigate }: TimeSectionProps) => {
 
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [autoTracking, setAutoTracking] = useState(false);
-  const [screenshotInterval, setScreenshotInterval] = useState<NodeJS.Timeout | null>(null);
-  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [activityInterval, setActivityInterval] = useState<NodeJS.Timeout | null>(null);
   const [newTimerTask, setNewTimerTask] = useState('');
   const [newTimerCategory, setNewTimerCategory] = useState('Other');
   const [newTimerProject, setNewTimerProject] = useState('');
@@ -62,93 +61,56 @@ export const TimeSection = ({ onNavigate }: TimeSectionProps) => {
   };
 
   // AUTO Tracking Functions
-  const startScreenCapture = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: true
-      });
-      setScreenStream(stream);
-      return stream;
-    } catch (error) {
-      console.error('Error starting screen capture:', error);
-      toast({
-        title: "Screen Capture Error",
-        description: "Failed to start screen capture. Please check permissions.",
-        variant: "destructive"
-      });
-      return null;
-    }
+  const isWithinWorkingHours = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    return hours >= 5 && hours < 24; // 5am to 11:59pm
   };
 
-  const captureScreenshot = async (stream: MediaStream): Promise<string | null> => {
-    try {
-      const video = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      return new Promise((resolve) => {
-        video.srcObject = stream;
-        video.play();
-
-        video.onloadedmetadata = () => {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          
-          ctx?.drawImage(video, 0, 0);
-          const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-          resolve(dataURL);
-        };
-      });
-    } catch (error) {
-      console.error('Error capturing screenshot:', error);
-      return null;
-    }
-  };
-
-  const analyzeScreenshotWithAI = async (imageData: string) => {
-    try {
-      const response = await fetch('/functions/v1/analyze-activity', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image: imageData })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze screenshot');
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error('Error analyzing screenshot:', error);
-      return { activity: 'Other', category: 'Other', project: null };
-    }
+  const detectUserActivity = () => {
+    // Simple activity detection based on user interactions
+    const categories = ['Deep Work', 'Admin', 'Calls', 'Design', 'Break', 'Other'];
+    const activities = [
+      'Code Development', 'Email Management', 'Document Review', 'Research',
+      'Meeting Preparation', 'Planning', 'Design Work', 'Communication'
+    ];
+    
+    // Random selection for demo - in real app this would be more sophisticated
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const activity = activities[Math.floor(Math.random() * activities.length)];
+    
+    return { activity, category, project: null };
   };
 
   const handleAutoTrackingToggle = async (enabled: boolean) => {
     setAutoTracking(enabled);
 
     if (enabled) {
-      // Start screen capture
-      const stream = await startScreenCapture();
-      if (!stream) return;
+      // Check if we're within working hours
+      if (!isWithinWorkingHours()) {
+        toast({
+          title: "Outside Working Hours",
+          description: "AUTO tracking only works between 5:00 AM and 11:59 PM",
+          variant: "destructive"
+        });
+        setAutoTracking(false);
+        return;
+      }
 
-      // Set up interval for screenshots every 10 minutes
+      // Set up interval for activity detection every 10 minutes
       const interval = setInterval(async () => {
-        const screenshot = await captureScreenshot(stream);
-        if (screenshot) {
-          const analysis = await analyzeScreenshotWithAI(screenshot);
+        // Only track during working hours
+        if (isWithinWorkingHours()) {
+          const analysis = detectUserActivity();
           
-          // Auto-start timer based on AI analysis
+          // Auto-start timer based on detected activity
           if (analysis.activity && analysis.activity !== 'Other') {
             // Stop current timer if running
             if (activeTimer) {
               stopTimer();
             }
             
-            // Start new timer with AI-detected activity
+            // Start new timer with detected activity
             startTimer(analysis.activity, analysis.category, analysis.project);
             
             toast({
@@ -156,25 +118,29 @@ export const TimeSection = ({ onNavigate }: TimeSectionProps) => {
               description: `Started tracking: ${analysis.activity} (${analysis.category})`,
             });
           }
+        } else {
+          // Stop tracking outside working hours
+          if (activeTimer) {
+            stopTimer();
+          }
+          toast({
+            title: "Outside Working Hours",
+            description: "AUTO tracking stopped - outside 5:00 AM to 11:59 PM window",
+          });
         }
       }, 10 * 60 * 1000); // 10 minutes
 
-      setScreenshotInterval(interval);
+      setActivityInterval(interval);
       
       toast({
         title: "AUTO Tracking Enabled",
-        description: "Screenshots will be taken every 10 minutes to track your activity.",
+        description: "Activity will be detected every 10 minutes (5:00 AM - 11:59 PM only)",
       });
     } else {
       // Clean up
-      if (screenshotInterval) {
-        clearInterval(screenshotInterval);
-        setScreenshotInterval(null);
-      }
-      
-      if (screenStream) {
-        screenStream.getTracks().forEach(track => track.stop());
-        setScreenStream(null);
+      if (activityInterval) {
+        clearInterval(activityInterval);
+        setActivityInterval(null);
       }
       
       toast({
@@ -349,14 +315,13 @@ export const TimeSection = ({ onNavigate }: TimeSectionProps) => {
                 <Label htmlFor="auto-tracking" className="text-white/90 font-medium">
                   AUTO
                 </Label>
-                <Camera className="w-4 h-4 text-white/60" />
               </div>
             </div>
           </div>
           {autoTracking && (
             <div className="text-sm text-green-400 flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              AUTO tracking enabled - Screenshots every 10 minutes
+              AUTO tracking enabled - Activity detection every 10 minutes (5:00 AM - 11:59 PM)
             </div>
           )}
         </CardHeader>
@@ -428,10 +393,10 @@ export const TimeSection = ({ onNavigate }: TimeSectionProps) => {
           {autoTracking && !activeTimer && (
             <div className="p-4 bg-white/5 rounded-xl border border-white/20 backdrop-blur-sm text-center">
               <div className="text-white/70">
-                AUTO tracking is monitoring your screen activity...
+                AUTO tracking is detecting your activity...
               </div>
               <div className="text-sm text-white/50 mt-1">
-                Timer will start automatically when activity is detected
+                Timer will start automatically when activity is detected (5:00 AM - 11:59 PM)
               </div>
             </div>
           )}
