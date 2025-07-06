@@ -7,6 +7,7 @@ import { TaskEditForm } from './TaskEditForm';
 import { TaskEditActions } from './TaskEditActions';
 import { SubtasksList } from './SubtasksList';
 import { TaskCommentsActivity } from './TaskCommentsActivity';
+import { SubmittalWorkflow } from './SubmittalWorkflow';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
 
@@ -98,6 +99,14 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
               // Handle opening subtask as new task - for now just log
               console.log('Opening subtask:', subtask);
             }}
+          />
+        </div>
+
+        {/* Submittal Workflow Section */}
+        <div className="mt-8 pt-6 border-t">
+          <SubmittalWorkflow 
+            taskId={editedTask.id}
+            projectMembers={members.map(m => ({ name: m.name, avatar: m.avatar }))}
           />
         </div>
 
