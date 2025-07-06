@@ -44,7 +44,7 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h2 className="font-semibold text-white">Sales flare</h2>
+            <h2 className="font-semibold text-black">BACK</h2>
             <p className="text-xs text-white/70">The CRM for your team</p>
           </div>
         </div>
