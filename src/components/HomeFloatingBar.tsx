@@ -27,6 +27,7 @@ export const HomeFloatingBar = ({
   const [sidePageContent, setSidePageContent] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isHomeHovered, setIsHomeHovered] = useState(false);
+  const [isScheduleFullScreen, setIsScheduleFullScreen] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -101,8 +102,6 @@ export const HomeFloatingBar = ({
         return <SettingsPage onNavigate={onNavigate} />;
       case 'support':
         return <SupportPage />;
-      case 'schedule':
-        return <SchedulePage onNavigate={onNavigate} />;
       default:
         return null;
     }
@@ -133,8 +132,9 @@ export const HomeFloatingBar = ({
               <div className="p-2">
                 <button
                   onClick={() => {
-                    setSidePageContent('schedule');
-                    setIsRibbonOpen(true);
+                    setIsScheduleFullScreen(true);
+                    setIsRibbonOpen(false);
+                    setSidePageContent(null);
                     setIsHomeHovered(false);
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-white hover:bg-white/20 transition-all duration-200 text-left text-sm"
@@ -168,8 +168,9 @@ export const HomeFloatingBar = ({
           {/* Schedule Icon */}
           <button 
             onClick={() => {
-              setSidePageContent('schedule');
-              setIsRibbonOpen(true);
+              setIsScheduleFullScreen(true);
+              setIsRibbonOpen(false);
+              setSidePageContent(null);
             }} 
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           >
@@ -355,11 +356,38 @@ export const HomeFloatingBar = ({
       </div>
     )}
 
+    {/* Full Screen Schedule Page */}
+    {isScheduleFullScreen && (
+      <div className="fixed inset-0 z-40 pt-16 pb-4">
+        <div 
+          className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button for Schedule */}
+          <button
+            onClick={() => setIsScheduleFullScreen(false)}
+            className="absolute top-4 right-4 z-50 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
+            <span className="text-white text-lg">×</span>
+          </button>
+          <SchedulePage onNavigate={onNavigate} />
+        </div>
+      </div>
+    )}
+
     {/* Overlay to close ribbon when clicking outside */}
     {isRibbonOpen && !sidePageContent && (
       <div 
         className="fixed inset-0 bg-black/20 z-30"
         onClick={() => setIsRibbonOpen(false)}
+      />
+    )}
+    
+    {/* Overlay to close schedule when clicking outside */}
+    {isScheduleFullScreen && (
+      <div 
+        className="fixed inset-0 bg-black/20 z-30"
+        onClick={() => setIsScheduleFullScreen(false)}
       />
     )}
     
