@@ -65,10 +65,10 @@ export const CostContractsPage = ({ onNavigate }: CostContractsPageProps) => {
   return (
     <div className="space-y-8">
       {/* Main Content */}
-      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
+      <Card className="bg-white border border-gray-200 shadow-sm">
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b border-white/20 bg-black/20 backdrop-blur-sm">
+            <div className="border-b border-gray-200 bg-gray-50">
               <TabsList className="w-full grid grid-cols-7 bg-transparent h-auto p-2 gap-1">
                 {tabs.map((tab) => {
                   const IconComponent = tab.icon;
@@ -77,9 +77,9 @@ export const CostContractsPage = ({ onNavigate }: CostContractsPageProps) => {
                       key={tab.id}
                       value={tab.id}
                       className="flex flex-col items-center gap-2 p-4 rounded-2xl
-                        data-[state=active]:bg-white/20 data-[state=active]:text-white
-                        data-[state=inactive]:text-white/70 data-[state=inactive]:hover:text-white
-                        data-[state=inactive]:hover:bg-white/10 transition-all duration-300
+                        data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm
+                        data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
+                        data-[state=inactive]:hover:bg-gray-100 transition-all duration-300
                         text-xs font-medium min-h-[80px]"
                     >
                       <IconComponent className="w-5 h-5" />
