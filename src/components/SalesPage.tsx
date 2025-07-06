@@ -20,7 +20,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
 
   const handleBack = () => {
     if (onNavigate) {
-      onNavigate('dashboard');
+      onNavigate('home');
     }
   };
 

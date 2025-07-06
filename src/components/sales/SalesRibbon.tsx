@@ -39,13 +39,13 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
             variant="ghost" 
             size="sm" 
             onClick={onBack}
-            className="h-8 w-8 p-0 hover:bg-white/10"
+            className="h-8 w-8 p-0 hover:bg-white/10 text-white"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h2 className="font-semibold text-foreground">Sales flare</h2>
-            <p className="text-xs text-muted-foreground">The CRM for your team</p>
+            <h2 className="font-semibold text-white">Sales flare</h2>
+            <p className="text-xs text-white/70">The CRM for your team</p>
           </div>
         </div>
 
