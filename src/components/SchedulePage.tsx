@@ -66,11 +66,11 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
   };
 
   return (
-    <div className="fixed inset-0 overflow-y-auto">
-      <div className="min-h-screen px-6 py-6">
+    <div className="fixed inset-0 overflow-hidden bg-background">
+      <div className="h-full flex flex-col">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-4 mb-2">
+        <div className="px-6 py-4 border-b border-border/20 bg-background/80 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
             <div className="glass-card p-3">
               <CalendarIcon className="w-8 h-8 text-primary" />
             </div>
@@ -82,11 +82,11 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-140px)]">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 h-full overflow-hidden">
           {/* Left Column - Backlog */}
-          <div className="lg:col-span-1">
-            <Card className="glass-card h-full">
-              <CardHeader className="pb-4 border-b border-border/50">
+          <div className="lg:col-span-1 border-r border-border/20">
+            <Card className="glass-card h-full rounded-none">
+              <CardHeader className="pb-4 border-b border-border/50 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-card-foreground heading-modern text-xl flex items-center gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full"></div>
@@ -97,7 +97,7 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-4 overflow-y-auto h-[calc(100%-80px)]">
+              <CardContent className="px-6 py-4 overflow-y-auto h-[calc(100%-80px)]">
                 <div className="space-y-3">
                   {backlogItems.map((item) => (
                     <div
@@ -129,8 +129,8 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
 
           {/* Right Column - Calendar */}
           <div className="lg:col-span-3">
-            <Card className="glass-card h-full">
-              <CardHeader className="pb-4 border-b border-border/50">
+            <Card className="glass-card h-full rounded-none">
+              <CardHeader className="pb-4 border-b border-border/50 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <Button
@@ -182,9 +182,10 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-2 overflow-hidden h-[calc(100%-80px)]">
+              <CardContent className="p-4 overflow-hidden h-[calc(100%-80px)]">
                 <TimeBlockingCalendar 
                   currentDate={currentDate}
+                  viewMode={viewMode}
                   onMonthChange={setCurrentDate}
                 />
               </CardContent>

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -22,6 +22,7 @@ interface TimeBlock {
 
 interface TimeBlockingCalendarProps {
   currentDate: Date;
+  viewMode: 'week' | 'month';
   onMonthChange: (date: Date) => void;
 }
 
@@ -32,7 +33,7 @@ const categoryColors = {
   break: 'bg-orange-500'
 };
 
-export const TimeBlockingCalendar = ({ currentDate, onMonthChange }: TimeBlockingCalendarProps) => {
+export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: TimeBlockingCalendarProps) => {
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,18 +47,36 @@ export const TimeBlockingCalendar = ({ currentDate, onMonthChange }: TimeBlockin
     category: 'work' as TimeBlock['category']
   });
 
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  // Calculate days based on view mode
+  const getDaysForView = () => {
+    if (viewMode === 'week') {
+      const weekStart = startOfWeek(currentDate);
+      const weekEnd = endOfWeek(currentDate);
+      return {
+        days: eachDayOfInterval({ start: weekStart, end: weekEnd }),
+        paddedDays: eachDayOfInterval({ start: weekStart, end: weekEnd }),
+        isCurrentPeriod: () => true // All days in week view are current
+      };
+    } else {
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+      const startDayOfWeek = monthStart.getDay();
+      const paddedDays = [
+        ...Array(startDayOfWeek).fill(null),
+        ...days
+      ];
+      return {
+        days,
+        paddedDays,
+        isCurrentPeriod: (day: Date) => isSameMonth(day, currentDate)
+      };
+    }
+  };
+
+  const { days, paddedDays, isCurrentPeriod } = getDaysForView();
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
-  // Pad with empty cells for proper calendar layout
-  const startDayOfWeek = monthStart.getDay();
-  const paddedDays = [
-    ...Array(startDayOfWeek).fill(null),
-    ...days
-  ];
 
   const handleDayClick = useCallback((day: Date) => {
     setSelectedDate(day);
@@ -157,21 +176,23 @@ export const TimeBlockingCalendar = ({ currentDate, onMonthChange }: TimeBlockin
           }
 
           const dayBlocks = getBlocksForDay(day);
-          const isCurrentMonth = isSameMonth(day, currentDate);
+          const isCurrentPeriodDay = isCurrentPeriod(day);
           const isDayToday = isToday(day);
 
           return (
             <div
               key={day.toISOString()}
-              className={`bg-card/80 backdrop-blur-sm p-2 cursor-pointer hover:bg-accent/50 transition-colors min-h-[120px] flex flex-col ${
-                !isCurrentMonth ? 'opacity-40' : ''
+              className={`bg-card/80 backdrop-blur-sm p-2 cursor-pointer hover:bg-accent/50 transition-colors ${
+                viewMode === 'week' ? 'min-h-[200px]' : 'min-h-[120px]'
+              } flex flex-col ${
+                !isCurrentPeriodDay ? 'opacity-40' : ''
               } ${isDayToday ? 'ring-2 ring-primary' : ''}`}
               onClick={() => handleDayClick(day)}
             >
               <div className={`text-sm font-medium mb-2 ${
                 isDayToday ? 'text-primary font-bold' : 'text-card-foreground'
               }`}>
-                {format(day, 'd')}
+                {viewMode === 'week' ? format(day, 'EEE d') : format(day, 'd')}
               </div>
               
               <div className="flex-1 space-y-1 overflow-y-auto">
