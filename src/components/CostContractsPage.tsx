@@ -63,58 +63,46 @@ export const CostContractsPage = ({ onNavigate }: CostContractsPageProps) => {
   ];
 
   return (
-    <div className="h-full overflow-auto backdrop-blur-xl bg-black/20 border border-white/10 shadow-2xl">
-      <div className="p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2 font-playfair">
-            Project Cost & Contract Management
-          </h1>
-          <p className="text-white/80 font-helvetica">
-            Track contracts, cost breakdowns, variations, claims, and payments for construction projects
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-          <CardContent className="p-0">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="border-b border-white/20 bg-black/20 backdrop-blur-sm">
-                <TabsList className="w-full grid grid-cols-7 bg-transparent h-auto p-2 gap-1">
-                  {tabs.map((tab) => {
-                    const IconComponent = tab.icon;
-                    return (
-                      <TabsTrigger
-                        key={tab.id}
-                        value={tab.id}
-                        className="flex flex-col items-center gap-2 p-4 rounded-2xl
-                          data-[state=active]:bg-white/20 data-[state=active]:text-white
-                          data-[state=inactive]:text-white/70 data-[state=inactive]:hover:text-white
-                          data-[state=inactive]:hover:bg-white/10 transition-all duration-300
-                          text-xs font-medium min-h-[80px]"
-                      >
-                        <IconComponent className="w-5 h-5" />
-                        <span className="text-center leading-tight">{tab.label}</span>
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
-              </div>
-
-              <div className="p-8">
+    <div className="space-y-8">
+      {/* Main Content */}
+      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
+        <CardContent className="p-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="border-b border-white/20 bg-black/20 backdrop-blur-sm">
+              <TabsList className="w-full grid grid-cols-7 bg-transparent h-auto p-2 gap-1">
                 {tabs.map((tab) => {
-                  const Component = tab.component;
+                  const IconComponent = tab.icon;
                   return (
-                    <TabsContent key={tab.id} value={tab.id} className="mt-0">
-                      <Component onNavigate={onNavigate} />
-                    </TabsContent>
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="flex flex-col items-center gap-2 p-4 rounded-2xl
+                        data-[state=active]:bg-white/20 data-[state=active]:text-white
+                        data-[state=inactive]:text-white/70 data-[state=inactive]:hover:text-white
+                        data-[state=inactive]:hover:bg-white/10 transition-all duration-300
+                        text-xs font-medium min-h-[80px]"
+                    >
+                      <IconComponent className="w-5 h-5" />
+                      <span className="text-center leading-tight">{tab.label}</span>
+                    </TabsTrigger>
                   );
                 })}
-              </div>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
+              </TabsList>
+            </div>
+
+            <div className="p-8">
+              {tabs.map((tab) => {
+                const Component = tab.component;
+                return (
+                  <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                    <Component onNavigate={onNavigate} />
+                  </TabsContent>
+                );
+              })}
+            </div>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
