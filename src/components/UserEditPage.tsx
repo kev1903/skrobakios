@@ -5,7 +5,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfilePictureSection } from '@/components/user-edit/ProfilePictureSection';
 import { PersonalInfoSection } from '@/components/user-edit/PersonalInfoSection';
 import { PasswordUpdateSection } from '@/components/user-edit/PasswordUpdateSection';
@@ -20,7 +19,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUser();
   const { profile, loading, saveProfile } = useProfile();
-  const [activeTab, setActiveTab] = useState('personal');
+  const [activeSection, setActiveSection] = useState('personal');
   
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -45,6 +44,13 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   });
 
   const [saving, setSaving] = useState(false);
+
+  const profileNavItems = [
+    { id: 'personal', label: 'Personal', icon: User },
+    { id: 'professional', label: 'Professional', icon: Briefcase },
+    { id: 'company', label: 'Company', icon: Building2 },
+    { id: 'security', label: 'Security', icon: Lock },
+  ];
 
   // Initialize form data when profile loads
   useEffect(() => {
@@ -174,91 +180,23 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     onNavigate('tasks');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
-        <div className="text-slate-600">Loading profile...</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="relative backdrop-blur-xl bg-white/60 border-b border-white/20 shadow-sm">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCancel}
-                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Back</span>
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-                  Edit Profile
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">Update your personal information and preferences</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline" 
-                onClick={handleCancel}
-                disabled={saving}
-                className="backdrop-blur-sm bg-white/60 border-white/30 hover:bg-white/80 text-slate-600 hover:text-slate-800 transition-all duration-200"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={saving}
-                className="backdrop-blur-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-6xl mx-auto p-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 backdrop-blur-sm bg-white/60">
-              <TabsTrigger value="personal" className="flex items-center space-x-2">
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">Personal</span>
-              </TabsTrigger>
-              <TabsTrigger value="professional" className="flex items-center space-x-2">
-                <Briefcase className="w-4 h-4" />
-                <span className="hidden sm:inline">Professional</span>
-              </TabsTrigger>
-              <TabsTrigger value="company" className="flex items-center space-x-2">
-                <Building2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Company</span>
-              </TabsTrigger>
-              <TabsTrigger value="security" className="flex items-center space-x-2">
-                <Lock className="w-4 h-4" />
-                <span className="hidden sm:inline">Security</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="personal" className="space-y-6">
-              {/* Profile Picture Section */}
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'personal':
+        return (
+          <div className="space-y-8">
+            {/* Profile Picture Section */}
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <ProfilePictureSection 
                 avatarUrl={profileData.avatarUrl}
                 firstName={profileData.firstName}
                 lastName={profileData.lastName}
                 onAvatarChange={(avatarUrl) => handleInputChange('avatarUrl', avatarUrl)}
               />
+            </div>
 
-              {/* Personal Information */}
+            {/* Personal Information */}
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <PersonalInfoSection 
                 profileData={{
                   firstName: profileData.firstName,
@@ -269,10 +207,14 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
                 }}
                 onInputChange={handleInputChange}
               />
-            </TabsContent>
-
-            <TabsContent value="professional" className="space-y-6">
-              {/* Professional Information */}
+            </div>
+          </div>
+        );
+      case 'professional':
+        return (
+          <div className="space-y-8">
+            {/* Professional Information */}
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <ProfessionalInfoSection 
                 profileData={{
                   jobTitle: profileData.jobTitle,
@@ -282,10 +224,14 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
                 }}
                 onInputChange={handleInputChange}
               />
-            </TabsContent>
-
-            <TabsContent value="company" className="space-y-6">
-              {/* Company Details */}
+            </div>
+          </div>
+        );
+      case 'company':
+        return (
+          <div className="space-y-8">
+            {/* Company Details */}
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <CompanyDetailsSection 
                 profileData={{
                   companyName: profileData.companyName,
@@ -298,13 +244,109 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
                 }}
                 onInputChange={handleInputChange}
               />
-            </TabsContent>
-
-            <TabsContent value="security" className="space-y-6">
-              {/* Password Update Section */}
+            </div>
+          </div>
+        );
+      case 'security':
+        return (
+          <div className="space-y-8">
+            {/* Password Update Section */}
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <PasswordUpdateSection />
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
+        <div className="text-slate-600">Loading profile...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      {/* Profile Sidebar - Matching Project Layout */}
+      <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+        <div className="flex flex-col h-full pt-20">
+          {/* Back Button */}
+          <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
+            <button
+              onClick={handleCancel}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Close Page</span>
+            </button>
+          </div>
+
+          {/* Profile Info */}
+          <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
+            <div className="text-white text-sm font-medium mb-2 truncate">
+              {profileData.firstName} {profileData.lastName}
+            </div>
+            <div className="text-white/70 text-xs mb-2">Profile Settings</div>
+          </div>
+
+          {/* Profile Navigation Items */}
+          <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
+            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2 mb-1">
+              Profile Navigation
+            </div>
+            {profileNavItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                  activeSection === item.id 
+                    ? 'bg-white/20 text-white border border-white/30' 
+                    : 'text-white/80 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <item.icon className="w-4 h-4" />
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Save Actions */}
+          <div className="border-t border-white/20 px-3 py-4 space-y-2">
+            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              Actions
+            </div>
+            <Button 
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30 transition-all duration-200"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 ml-48 flex flex-col">
+        {/* Content Header */}
+        <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Edit Profile
+          </h1>
+          <p className="text-white/70">
+            Update your personal information and preferences
+          </p>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-auto p-8">
+          <div className="max-w-4xl">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>
