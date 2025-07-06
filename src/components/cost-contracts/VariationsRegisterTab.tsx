@@ -130,8 +130,8 @@ export const VariationsRegisterTab = ({ onNavigate }: VariationsRegisterTabProps
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-playfair">Variations Register</h2>
-          <p className="text-white/70 font-helvetica">Track project variations and change orders</p>
+          <h2 className="text-2xl font-bold text-gray-900">Variations Register</h2>
+          <p className="text-gray-600">Track project variations and change orders</p>
         </div>
         <div className="flex gap-3">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

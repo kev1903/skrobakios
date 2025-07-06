@@ -76,10 +76,10 @@ export const ContractDetailsTab = ({ onNavigate }: ContractDetailsTabProps) => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-playfair">Contract Details</h2>
-          <p className="text-white/70 font-helvetica">Manage project contract information and documentation</p>
+          <h2 className="text-2xl font-bold text-gray-900">Contract Details</h2>
+          <p className="text-gray-600">Manage project contract information and documentation</p>
         </div>
-        <Button onClick={handleSave} className="bg-blue-500/80 hover:bg-blue-600/80 text-white backdrop-blur-sm">
+        <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white">
           <Save className="w-4 h-4 mr-2" />
           Save Contract
         </Button>
@@ -87,18 +87,18 @@ export const ContractDetailsTab = ({ onNavigate }: ContractDetailsTabProps) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Contract Information */}
-        <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-white font-playfair">Contract Information</CardTitle>
+            <CardTitle className="text-lg font-semibold">Contract Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="project" className="text-white/90 font-helvetica">Project</Label>
+              <Label htmlFor="project" className="text-gray-700 font-medium">Project</Label>
               <Select value={formData.project} onValueChange={(value) => handleInputChange('project', value)}>
-                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
-                <SelectContent className="bg-white/90 backdrop-blur-xl border-white/30">
+                <SelectContent className="bg-white border-gray-200">
                   <SelectItem value="project-1">Residential Development - Phase 1</SelectItem>
                   <SelectItem value="project-2">Commercial Office Building</SelectItem>
                   <SelectItem value="project-3">Industrial Warehouse Complex</SelectItem>

@@ -10,8 +10,8 @@ export const CostSummaryDashboard = ({ onNavigate }: CostSummaryDashboardProps) 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-white font-playfair">Cost Summary Dashboard</h2>
-        <p className="text-white/70 font-helvetica">Visual summary of project costs and performance</p>
+        <h2 className="text-2xl font-bold text-gray-900">Cost Summary Dashboard</h2>
+        <p className="text-gray-600">Visual summary of project costs and performance</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

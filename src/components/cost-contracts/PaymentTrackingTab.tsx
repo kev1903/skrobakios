@@ -12,21 +12,21 @@ export const PaymentTrackingTab = ({ onNavigate }: PaymentTrackingTabProps) => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-playfair">Payment Tracking</h2>
-          <p className="text-white/70 font-helvetica">Track supplier and subcontractor payments</p>
+          <h2 className="text-2xl font-bold text-gray-900">Payment Tracking</h2>
+          <p className="text-gray-600">Track supplier and subcontractor payments</p>
         </div>
-        <Button className="bg-blue-500/80 hover:bg-blue-600/80 text-white backdrop-blur-sm">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="w-4 h-4 mr-2" />
           Add Payment
         </Button>
       </div>
       
-      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-white font-playfair">Payment Register</CardTitle>
+          <CardTitle className="text-lg font-semibold">Payment Register</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-white/70">Payment tracking functionality coming soon...</p>
+          <p className="text-gray-600">Payment tracking functionality coming soon...</p>
         </CardContent>
       </Card>
     </div>
