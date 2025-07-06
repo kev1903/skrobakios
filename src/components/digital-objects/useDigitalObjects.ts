@@ -445,7 +445,7 @@ export const useDigitalObjects = () => {
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const { source, destination, draggableId } = result;
+    const { source, destination, draggableId, combine } = result;
     
     // If dropped in the same position, do nothing
     if (source.index === destination.index) return;
@@ -453,45 +453,108 @@ export const useDigitalObjects = () => {
     const draggedObject = digitalObjects.find(obj => obj.id === draggableId);
     if (!draggedObject) return;
 
-    // Get the target object (the row it was dropped on)
-    const dropTargetObject = digitalObjects[destination.index];
-    if (!dropTargetObject) return;
+    const visibleRows = getVisibleRows();
+    const sourceIndex = source.index;
+    const destIndex = destination.index;
 
-    // Update the dragged object to be a child of the target
-    const updatedObjects = digitalObjects.map(obj => {
-      if (obj.id === draggableId) {
-        return {
-          ...obj,
-          parent_id: dropTargetObject.id,
-          level: dropTargetObject.level + 1
-        };
+    let updatedObjects = [...digitalObjects];
+    let toastMessage = "";
+
+    // Handle combining (dropping onto another row to make it a child)
+    if (combine) {
+      const targetId = combine.draggableId;
+      const targetObject = digitalObjects.find(obj => obj.id === targetId);
+      
+      if (targetObject) {
+        updatedObjects = digitalObjects.map(obj => {
+          if (obj.id === draggableId) {
+            return {
+              ...obj,
+              parent_id: targetId,
+              level: targetObject.level + 1
+            };
+          }
+          return obj;
+        });
+        toastMessage = `${draggedObject.name} is now a child of ${targetObject.name}`;
       }
-      return obj;
-    });
+    } else {
+      // Handle reordering (dropping between rows)
+      const targetRow = visibleRows[destIndex];
+      const prevRow = destIndex > 0 ? visibleRows[destIndex - 1] : null;
+      
+      // Remove the dragged object from its current position in full array
+      const draggedIndex = updatedObjects.findIndex(obj => obj.id === draggableId);
+      const [removed] = updatedObjects.splice(draggedIndex, 1);
+      
+      // Determine new position and hierarchy
+      let newParentId = null;
+      let newLevel = 0;
+      let insertIndex = 0;
+      
+      if (destIndex === 0) {
+        // Dropped at the beginning
+        insertIndex = 0;
+        newLevel = 0;
+        newParentId = null;
+      } else if (prevRow) {
+        // Dropped after another row - inherit its level and parent
+        newLevel = prevRow.level;
+        newParentId = prevRow.parent_id;
+        
+        // Find insertion point in full array
+        const prevRowIndex = updatedObjects.findIndex(obj => obj.id === prevRow.id);
+        insertIndex = prevRowIndex + 1;
+        
+        // If the next row (target) is a child of the previous row,
+        // we might want to insert as a child too
+        if (targetRow && targetRow.parent_id === prevRow.id && targetRow.level > prevRow.level) {
+          newLevel = prevRow.level + 1;
+          newParentId = prevRow.id;
+        }
+      } else {
+        // Fallback
+        insertIndex = destIndex;
+      }
+      
+      // Update the dragged object with new hierarchy
+      const updatedDraggedObject = {
+        ...removed,
+        parent_id: newParentId,
+        level: newLevel
+      };
+      
+      // Insert at the new position
+      updatedObjects.splice(insertIndex, 0, updatedDraggedObject);
+      toastMessage = `${draggedObject.name} moved to new position`;
+    }
 
     setDigitalObjects(updatedObjects);
 
     // Try to save to database
     try {
-      supabase
-        .from('digital_objects' as any)
-        .update({
-          parent_id: dropTargetObject.id,
-          level: dropTargetObject.level + 1
-        })
-        .eq('id', draggableId)
-        .then(({ error }) => {
-          if (error) {
-            console.log('Database update will be enabled once types are updated:', error);
-          }
-        });
+      const draggedObj = updatedObjects.find(obj => obj.id === draggableId);
+      if (draggedObj) {
+        supabase
+          .from('digital_objects' as any)
+          .update({
+            parent_id: draggedObj.parent_id,
+            level: draggedObj.level
+          })
+          .eq('id', draggableId)
+          .then(({ error }) => {
+            if (error) {
+              console.log('Database update will be enabled once types are updated:', error);
+            }
+          });
+      }
     } catch (dbError) {
       console.log('Database save pending type updates');
     }
 
     toast({
-      title: "Hierarchy Updated",
-      description: `${draggedObject.name} is now a child of ${dropTargetObject.name}`,
+      title: "Item Moved",
+      description: toastMessage || `${draggedObject.name} repositioned`,
     });
   };
 

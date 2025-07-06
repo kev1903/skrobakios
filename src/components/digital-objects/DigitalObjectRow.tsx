@@ -56,18 +56,19 @@ export const DigitalObjectRow = ({
         <TableRow 
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`border-white/10 hover:bg-white/5 h-8 cursor-pointer transition-colors ${
+          className={`border-white/10 hover:bg-white/5 h-8 cursor-pointer transition-all duration-200 ${
             isSelected ? 'bg-blue-500/20 border-blue-500/30' : ''
-          } ${snapshot.isDragging ? 'bg-white/20 shadow-lg transform rotate-2 z-50' : ''}`}
+          } ${snapshot.isDragging ? 'bg-white/30 shadow-2xl transform scale-105 z-50 border-blue-400/50' : ''}`}
           onClick={handleClick}
         >
           <TableCell className="h-8 py-1 w-8">
             <div 
               {...provided.dragHandleProps}
-              className="flex items-center justify-center h-full cursor-grab active:cursor-grabbing"
+              className="flex items-center justify-center h-full cursor-grab active:cursor-grabbing hover:bg-white/10 rounded transition-colors p-1"
               onClick={(e) => e.stopPropagation()}
+              title="Drag to reorder or nest items"
             >
-              <GripVertical className="w-4 h-4 text-white" />
+              <GripVertical className="w-4 h-4 text-white hover:text-blue-300 transition-colors" />
             </div>
           </TableCell>
           <TableCell className="text-white font-medium h-8 py-1 text-sm" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
