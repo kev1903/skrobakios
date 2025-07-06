@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User, Clock, Tag, FileText } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Button } from '@/components/ui/button';
+import { Check, ChevronsUpDown, Calendar, User, Clock, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Task } from './TaskContext';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
+import { supabase } from '@/integrations/supabase/client';
 interface TaskEditFormProps {
   task: Task;
   onFieldChange: (field: keyof Task, value: any) => void;
@@ -16,9 +21,29 @@ export const TaskEditForm = ({
   onFieldChange,
   projectId
 }: TaskEditFormProps) => {
-  const {
-    members
-  } = useProjectMembers(projectId);
+  const { members } = useProjectMembers(projectId);
+  const [digitalObjects, setDigitalObjects] = useState<Array<{id: string, name: string, stage: string}>>([]);
+  const [digitalObjectOpen, setDigitalObjectOpen] = useState(false);
+
+  // Fetch digital objects on component mount
+  useEffect(() => {
+    const fetchDigitalObjects = async () => {
+      const { data, error } = await supabase
+        .from('digital_objects')
+        .select('id, name, stage')
+        .order('stage')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching digital objects:', error);
+      } else {
+        setDigitalObjects(data || []);
+      }
+    };
+
+    fetchDigitalObjects();
+  }, []);
+
   const handleAssigneeChange = (memberName: string) => {
     if (memberName === 'unassigned') {
       onFieldChange('assignedTo', {
@@ -36,6 +61,60 @@ export const TaskEditForm = ({
     }
   };
   return <div className="space-y-6 mt-6">
+      {/* Digital Object Selection */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 flex items-center">
+          <FileText className="w-4 h-4 mr-2" />
+          Digital Object
+        </label>
+        <Popover open={digitalObjectOpen} onOpenChange={setDigitalObjectOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={digitalObjectOpen}
+              className="w-full justify-between"
+            >
+              {task.digital_object_id
+                ? digitalObjects.find((obj) => obj.id === task.digital_object_id)?.name || "Select digital object..."
+                : "Select digital object..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0">
+            <Command>
+              <CommandInput placeholder="Search digital objects..." />
+              <CommandList>
+                <CommandEmpty>No digital object found.</CommandEmpty>
+                <CommandGroup>
+                  {digitalObjects.map((obj) => (
+                    <CommandItem
+                      key={obj.id}
+                      value={`${obj.name} ${obj.stage}`}
+                      onSelect={() => {
+                        onFieldChange('digital_object_id', obj.id);
+                        setDigitalObjectOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          task.digital_object_id === obj.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-medium">{obj.name}</span>
+                        <span className="text-xs text-muted-foreground">{obj.stage}</span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
       {/* Assignee Dropdown */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -114,14 +193,6 @@ export const TaskEditForm = ({
           Description
         </label>
         <Textarea value={task.description || ''} onChange={e => onFieldChange('description', e.target.value)} placeholder="What is this task about?" className="min-h-[100px]" />
-      </div>
-
-      {/* Category */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
-          Category
-        </label>
-        <Input value={task.category || ''} onChange={e => onFieldChange('category', e.target.value)} placeholder="Enter category..." />
       </div>
     </div>;
 };

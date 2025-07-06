@@ -1,39 +1,33 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Subtask } from './types';
 
 interface AddSubtaskFormProps {
   projectMembers: Array<{ name: string; avatar: string }>;
-  onAddSubtask: (subtask: Subtask) => void;
+  onAddSubtask: (title: string, assignedMember: { name: string; avatar: string }, dueDate: string) => void;
   onCancel: () => void;
 }
 
 export const AddSubtaskForm = ({ projectMembers, onAddSubtask, onCancel }: AddSubtaskFormProps) => {
   const [newSubtask, setNewSubtask] = useState({
     title: '',
+    description: '',
     assignedTo: projectMembers[0] || { name: '', avatar: '' },
     dueDate: ''
   });
 
   const handleAddSubtask = () => {
     if (newSubtask.title.trim()) {
-      const subtask: Subtask = {
-        id: `st${Date.now()}`,
-        title: newSubtask.title,
-        assignedTo: newSubtask.assignedTo,
-        dueDate: newSubtask.dueDate,
-        completed: false
-      };
-      onAddSubtask(subtask);
+      onAddSubtask(newSubtask.title, newSubtask.assignedTo, newSubtask.dueDate);
       setNewSubtask({
         title: '',
+        description: '',
         assignedTo: projectMembers[0] || { name: '', avatar: '' },
         dueDate: ''
       });
-      onCancel();
     }
   };
 
@@ -44,6 +38,12 @@ export const AddSubtaskForm = ({ projectMembers, onAddSubtask, onCancel }: AddSu
           placeholder="Subtask title"
           value={newSubtask.title}
           onChange={(e) => setNewSubtask({ ...newSubtask, title: e.target.value })}
+        />
+        
+        <Textarea
+          placeholder="Description (optional)"
+          value={newSubtask.description}
+          onChange={(e) => setNewSubtask({ ...newSubtask, description: e.target.value })}
         />
         
         <div className="grid grid-cols-2 gap-3">

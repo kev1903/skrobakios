@@ -306,6 +306,102 @@ export type Database = {
         }
         Relationships: []
       }
+      subtasks: {
+        Row: {
+          assigned_to_avatar: string | null
+          assigned_to_name: string | null
+          completed: boolean
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          parent_task_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to_avatar?: string | null
+          assigned_to_name?: string | null
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          parent_task_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to_avatar?: string | null
+          assigned_to_name?: string | null
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          parent_task_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      task_activity_log: {
+        Row: {
+          action_description: string
+          action_type: string
+          created_at: string
+          id: string
+          task_id: string
+          user_avatar: string | null
+          user_name: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          created_at?: string
+          id?: string
+          task_id: string
+          user_avatar?: string | null
+          user_name: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+          user_avatar?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
+      task_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          task_id: string
+          user_avatar: string | null
+          user_name: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          task_id: string
+          user_avatar?: string | null
+          user_name: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+          user_avatar?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to_avatar: string | null
@@ -313,6 +409,7 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          digital_object_id: string | null
           due_date: string | null
           duration: number | null
           id: string
@@ -329,6 +426,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          digital_object_id?: string | null
           due_date?: string | null
           duration?: number | null
           id?: string
@@ -345,6 +443,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          digital_object_id?: string | null
           due_date?: string | null
           duration?: number | null
           id?: string

@@ -11,8 +11,8 @@ export interface Task {
   status: 'Completed' | 'In Progress' | 'Pending' | 'Not Started';
   progress: number;
   description?: string;
-  category?: string;
   duration?: number;
+  digital_object_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -74,8 +74,8 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: task.progress,
         description: task.description,
-        category: task.category,
         duration: task.duration,
+        digital_object_id: task.digital_object_id,
         created_at: task.created_at,
         updated_at: task.updated_at
       }));
@@ -103,8 +103,8 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
       if (updates.status !== undefined) dbUpdates.status = updates.status;
       if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
       if (updates.description !== undefined) dbUpdates.description = updates.description;
-      if (updates.category !== undefined) dbUpdates.category = updates.category;
       if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
+      if (updates.digital_object_id !== undefined) dbUpdates.digital_object_id = updates.digital_object_id;
 
       const { error } = await supabase
         .from('tasks')
@@ -136,7 +136,8 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         status: taskData.status,
         progress: taskData.progress,
         description: taskData.description || null,
-        category: taskData.category || null
+        duration: taskData.duration || null,
+        digital_object_id: taskData.digital_object_id || null
       };
 
       const { data, error } = await supabase
@@ -161,7 +162,8 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         status: data.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: data.progress,
         description: data.description,
-        category: data.category,
+        duration: data.duration,
+        digital_object_id: data.digital_object_id,
         created_at: data.created_at,
         updated_at: data.updated_at
       };

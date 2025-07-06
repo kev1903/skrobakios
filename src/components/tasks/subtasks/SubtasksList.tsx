@@ -4,20 +4,45 @@ import { Button } from '@/components/ui/button';
 import { SubtaskItem } from './SubtaskItem';
 import { AddSubtaskForm } from './AddSubtaskForm';
 import { Subtask, SubtasksListProps } from './types';
+import { useSubtasks } from '@/hooks/useSubtasks';
 
 export const SubtasksList = ({ taskId, projectMembers, onSubtaskClick }: SubtasksListProps) => {
-  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const { subtasks, loading, addSubtask, updateSubtask, deleteSubtask } = useSubtasks(taskId);
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
 
-  const handleAddSubtask = (subtask: Subtask) => {
-    setSubtasks([...subtasks, subtask]);
-    setIsAddingSubtask(false);
+  const handleAddSubtask = async (title: string, assignedMember: { name: string; avatar: string }, dueDate: string) => {
+    try {
+      await addSubtask({
+        parent_task_id: taskId,
+        title,
+        assigned_to_name: assignedMember.name,
+        assigned_to_avatar: assignedMember.avatar,
+        due_date: dueDate || undefined,
+        completed: false
+      });
+      setIsAddingSubtask(false);
+    } catch (error) {
+      console.error('Failed to add subtask:', error);
+    }
   };
 
-  const toggleSubtaskComplete = (subtaskId: string) => {
-    setSubtasks(subtasks.map(st => 
-      st.id === subtaskId ? { ...st, completed: !st.completed } : st
-    ));
+  const toggleSubtaskComplete = async (subtaskId: string) => {
+    const subtask = subtasks.find(st => st.id === subtaskId);
+    if (subtask) {
+      try {
+        await updateSubtask(subtaskId, { completed: !subtask.completed });
+      } catch (error) {
+        console.error('Failed to update subtask:', error);
+      }
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId: string) => {
+    try {
+      await deleteSubtask(subtaskId);
+    } catch (error) {
+      console.error('Failed to delete subtask:', error);
+    }
   };
 
   return (
@@ -50,6 +75,7 @@ export const SubtasksList = ({ taskId, projectMembers, onSubtaskClick }: Subtask
             subtask={subtask}
             onToggleComplete={toggleSubtaskComplete}
             onSubtaskClick={onSubtaskClick}
+            onDelete={handleDeleteSubtask}
           />
         ))}
       </div>
