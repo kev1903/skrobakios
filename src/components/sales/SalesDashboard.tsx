@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { LeadDetailsModal } from './LeadDetailsModal';
 import { 
   Plus,
   Search,
@@ -31,6 +32,10 @@ interface Opportunity {
   lastActivity: string;
 }
 
+interface OpportunityWithStage extends Opportunity {
+  stage: string;
+}
+
 interface Stage {
   id: string;
   name: string;
@@ -42,6 +47,8 @@ interface Stage {
 
 export const SalesDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedLead, setSelectedLead] = useState<OpportunityWithStage | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const stages: Stage[] = [
     {
@@ -290,6 +297,18 @@ export const SalesDashboard = () => {
   const totalOpportunities = stages.reduce((sum, stage) => sum + stage.count, 0);
   const totalValue = stages.reduce((sum, stage) => sum + stage.totalValue, 0);
 
+  const handleLeadClick = (opportunity: Opportunity, stage: string) => {
+    setSelectedLead({ ...opportunity, stage });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveLead = (updatedLead: any) => {
+    // Here you would update the lead in your state/database
+    console.log('Saving lead:', updatedLead);
+    // Update the stages data with the new lead information
+    // This is a simplified version - in a real app you'd update your state management
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'High': return 'bg-destructive/20 text-destructive border-destructive/30';
@@ -410,7 +429,11 @@ export const SalesDashboard = () => {
 
                 <CardContent className="flex-1 space-y-3 pt-0">
                   {stage.opportunities.map((opportunity) => (
-                    <Card key={opportunity.id} className="glass-card hover:glass-hover transition-colors cursor-pointer">
+                    <Card 
+                      key={opportunity.id} 
+                      className="glass-card hover:glass-hover transition-colors cursor-pointer"
+                      onClick={() => handleLeadClick(opportunity, stage.name)}
+                    >
                       <CardContent className="p-4">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
@@ -469,6 +492,19 @@ export const SalesDashboard = () => {
           ))}
         </div>
       </div>
+
+      {/* Lead Details Modal */}
+      {selectedLead && (
+        <LeadDetailsModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedLead(null);
+          }}
+          lead={selectedLead}
+          onSave={handleSaveLead}
+        />
+      )}
     </div>
   );
 };

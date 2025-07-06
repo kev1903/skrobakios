@@ -55,11 +55,13 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
       <div className="relative z-10 flex min-h-screen">
-        {/* Sales Ribbon - Always visible */}
-        <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
+        {/* Sales Ribbon - Fixed sidebar */}
+        <div className="fixed left-0 top-0 h-screen z-50">
+          <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
+        </div>
         
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Main Content Area - Offset by sidebar width */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden ml-64">
           {/* Header */}
           <div className="glass-light border-b border-white/30 px-6 py-6 flex-shrink-0 backdrop-blur-xl">
             <div className="flex items-center justify-between">
