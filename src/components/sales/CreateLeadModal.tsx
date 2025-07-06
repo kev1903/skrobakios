@@ -42,7 +42,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
   });
 
   const handleSave = async () => {
-    if (!formData.company || !formData.contact_name) {
+    if (!formData.contact_name) {
       return; // Basic validation
     }
 
@@ -50,6 +50,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
     try {
       await onSave({
         ...formData,
+        company: formData.contact_name, // Use contact name as company name
         stage: initialStage as any,
         avatar_url: null,
         last_activity: 'Just created',
@@ -112,7 +113,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
             <div className="flex items-center gap-2">
               <Button 
                 onClick={handleSave} 
-                disabled={isLoading || !formData.company || !formData.contact_name}
+                disabled={isLoading || !formData.contact_name}
                 className="font-inter"
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -131,52 +132,8 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
         {/* Content */}
         <div className="flex-1 overflow-auto p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column - Basic Information */}
+            {/* Left Column - Contact Information */}
             <div className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground font-poppins flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-primary" />
-                  Company Information
-                </h3>
-                
-                <div>
-                  <Label className="font-inter text-foreground">Company Name *</Label>
-                  <Input
-                    value={formData.company}
-                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    placeholder="Enter company name"
-                    className="mt-1 font-inter"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label className="font-inter text-foreground">Website</Label>
-                  <div className="relative mt-1">
-                    <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      value={formData.website}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      placeholder="www.company.com"
-                      className="pl-10 font-inter"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="font-inter text-foreground">Location</Label>
-                  <div className="relative mt-1">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      placeholder="City, State/Country"
-                      className="pl-10 font-inter"
-                    />
-                  </div>
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground font-poppins flex items-center gap-2">
                   <User className="w-5 h-5 text-primary" />
