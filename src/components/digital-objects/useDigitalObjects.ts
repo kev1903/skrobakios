@@ -16,6 +16,27 @@ export const useDigitalObjects = () => {
 
   // Construction digital objects data from screenshots
   const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([
+    // 4.0 PRELIMINARY  
+    { id: "pre1", name: "Townplanner", object_type: "professional", description: "Planning and zoning consultation", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null, expanded: true },
+    { id: "pre2", name: "INARC", object_type: "professional", description: "Architectural services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre3", name: "Site Feature & Re-establishment", object_type: "site_work", description: "Site preparation and establishment", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre4", name: "Roof Drainage Design", object_type: "design", description: "Roof drainage system design", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre5", name: "Architectural", object_type: "design", description: "Architectural design services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre6", name: "Project Estimate", object_type: "estimate", description: "Project cost estimation", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre7", name: "Performance Solution Report", object_type: "report", description: "Building performance analysis", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre8", name: "Landscape Designer / Architect", object_type: "professional", description: "Landscape design services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre9", name: "Interior Designer / Interior Designer", object_type: "professional", description: "Interior design services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre10", name: "Domestic Building Insurance", object_type: "insurance", description: "Building insurance coverage", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre11", name: "Work Protection Insurance", object_type: "insurance", description: "Work protection insurance", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre12", name: "Geotechnical Soil Testing", object_type: "testing", description: "Soil analysis and testing", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre13", name: "Engineering", object_type: "professional", description: "Engineering services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre14", name: "Energy Report", object_type: "report", description: "Energy efficiency assessment", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre15", name: "Construction Management Services", object_type: "management", description: "Construction management and supervision", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre16", name: "Civil Drainage Design", object_type: "design", description: "Civil drainage system design", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre17", name: "Building Surveying", object_type: "survey", description: "Building surveying services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre18", name: "Permit Levy", object_type: "permit", description: "Permit fees and charges", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    { id: "pre19", name: "CONTINGENCY", object_type: "contingency", description: "Project contingency allowance", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
+    
     // 4.1 PRE-CONSTRUCTION
     { id: "1", name: "Asset Protection", object_type: "protection", description: "Asset protection measures", status: "planning", stage: "4.1 PRE-CONSTRUCTION", level: 0, parent_id: null, expanded: true },
     { id: "2", name: "Demolition", object_type: "demolition", description: "Demolition work", status: "planning", stage: "4.1 PRE-CONSTRUCTION", level: 0, parent_id: null },
