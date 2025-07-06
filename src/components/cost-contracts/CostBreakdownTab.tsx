@@ -139,7 +139,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Total Budget</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totals.budget)}</p>
+                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totals.budget)}</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-blue-400 text-lg">💰</span>
@@ -153,7 +153,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Committed</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totals.committed)}</p>
+                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totals.committed)}</p>
               </div>
               <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-orange-400 text-lg">📋</span>
@@ -167,7 +167,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Paid</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totals.paid)}</p>
+                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totals.paid)}</p>
               </div>
               <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-green-400 text-lg">✅</span>
@@ -181,7 +181,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Remaining</p>
-                <p className={`text-2xl font-bold ${totals.remaining < 0 ? 'text-red-400' : 'text-white'}`}>
+                <p className={`text-2xl font-bold font-inter ${totals.remaining < 0 ? 'text-red-400' : 'text-white'}`}>
                   {formatCurrency(totals.remaining)}
                 </p>
               </div>
@@ -235,51 +235,51 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                           onChange={(e) => updateItem(item.id, 'tradeScope', e.target.value)}
                           className="bg-white/10 border-white/20 text-white h-8"
                         />
-                      ) : (
-                        <span className="text-white/90">{item.tradeScope}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingId === item.id ? (
-                        <Input
-                          type="number"
-                          value={item.budget}
-                          onChange={(e) => updateItem(item.id, 'budget', parseFloat(e.target.value) || 0)}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      ) : (
-                        <span className="text-white/90">{formatCurrency(item.budget)}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingId === item.id ? (
-                        <Input
-                          type="number"
-                          value={item.committed}
-                          onChange={(e) => updateItem(item.id, 'committed', parseFloat(e.target.value) || 0)}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      ) : (
-                        <span className="text-white/90">{formatCurrency(item.committed)}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {editingId === item.id ? (
-                        <Input
-                          type="number"
-                          value={item.paid}
-                          onChange={(e) => updateItem(item.id, 'paid', parseFloat(e.target.value) || 0)}
-                          className="bg-white/10 border-white/20 text-white h-8"
-                        />
-                      ) : (
-                        <span className="text-white/90">{formatCurrency(item.paid)}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`font-medium ${item.remaining < 0 ? 'text-red-400' : 'text-white/90'}`}>
-                        {formatCurrency(item.remaining)}
-                      </span>
-                    </TableCell>
+                       ) : (
+                         <span className="text-white/90 font-helvetica">{item.tradeScope}</span>
+                       )}
+                     </TableCell>
+                     <TableCell>
+                       {editingId === item.id ? (
+                         <Input
+                           type="number"
+                           value={item.budget}
+                           onChange={(e) => updateItem(item.id, 'budget', parseFloat(e.target.value) || 0)}
+                           className="bg-white/10 border-white/20 text-white h-8"
+                         />
+                       ) : (
+                         <span className="text-white/90 font-helvetica">{formatCurrency(item.budget)}</span>
+                       )}
+                     </TableCell>
+                     <TableCell>
+                       {editingId === item.id ? (
+                         <Input
+                           type="number"
+                           value={item.committed}
+                           onChange={(e) => updateItem(item.id, 'committed', parseFloat(e.target.value) || 0)}
+                           className="bg-white/10 border-white/20 text-white h-8"
+                         />
+                       ) : (
+                         <span className="text-white/90 font-helvetica">{formatCurrency(item.committed)}</span>
+                       )}
+                     </TableCell>
+                     <TableCell>
+                       {editingId === item.id ? (
+                         <Input
+                           type="number"
+                           value={item.paid}
+                           onChange={(e) => updateItem(item.id, 'paid', parseFloat(e.target.value) || 0)}
+                           className="bg-white/10 border-white/20 text-white h-8"
+                         />
+                       ) : (
+                         <span className="text-white/90 font-helvetica">{formatCurrency(item.paid)}</span>
+                       )}
+                     </TableCell>
+                     <TableCell>
+                       <span className={`font-medium font-helvetica ${item.remaining < 0 ? 'text-red-400' : 'text-white/90'}`}>
+                         {formatCurrency(item.remaining)}
+                       </span>
+                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={getStatusColor(item.remaining, item.budget)}>
                         {item.remaining < 0 ? 'Over Budget' : item.remaining / item.budget < 0.1 ? 'Near Budget' : 'On Budget'}
@@ -293,7 +293,7 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
                           className="bg-white/10 border-white/20 text-white h-8"
                         />
                       ) : (
-                        <span className="text-white/70 text-sm">{item.notes}</span>
+                        <span className="text-white/70 text-sm font-helvetica">{item.notes}</span>
                       )}
                     </TableCell>
                     <TableCell>

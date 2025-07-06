@@ -116,7 +116,7 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Total Claims</p>
-                <p className="text-2xl font-bold text-white">{claims.length}</p>
+                <p className="text-2xl font-bold text-white font-inter">{claims.length}</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
                 <FileText className="w-6 h-6 text-blue-400" />
@@ -130,7 +130,7 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Total Claimed</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totalClaimed)}</p>
+                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totalClaimed)}</p>
               </div>
               <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-orange-400 text-lg">📋</span>
@@ -144,7 +144,7 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Paid Amount</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(paidAmount)}</p>
+                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(paidAmount)}</p>
               </div>
               <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-green-400 text-lg">✅</span>
@@ -158,7 +158,7 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-white/70 text-sm font-helvetica">Outstanding</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totalClaimed - paidAmount)}</p>
+                <p className="text-2xl font-bold text-white font-inter">{formatCurrency(totalClaimed - paidAmount)}</p>
               </div>
               <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-purple-400 text-lg">⏳</span>
@@ -194,29 +194,29 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
                     <TableCell>
                       <span className="text-white/90 font-mono font-medium">{claim.claimNo}</span>
                     </TableCell>
-                    <TableCell>
-                      <span className="text-white/90">{format(claim.dateSubmitted, 'dd/MM/yyyy')}</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-white/90">{claim.stageScope}</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-white/90 font-medium">{formatCurrency(claim.amountClaimed)}</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-white/90">{claim.percentContract}%</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={getStatusColor(claim.status)}>
-                        {claim.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-white/70">{format(claim.paymentDueDate, 'dd/MM/yyyy')}</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-white/70 text-sm max-w-xs truncate">{claim.notes}</span>
-                    </TableCell>
+                     <TableCell>
+                       <span className="text-white/90 font-helvetica">{format(claim.dateSubmitted, 'dd/MM/yyyy')}</span>
+                     </TableCell>
+                     <TableCell>
+                       <span className="text-white/90 font-helvetica">{claim.stageScope}</span>
+                     </TableCell>
+                     <TableCell>
+                       <span className="text-white/90 font-medium font-helvetica">{formatCurrency(claim.amountClaimed)}</span>
+                     </TableCell>
+                     <TableCell>
+                       <span className="text-white/90 font-helvetica">{claim.percentContract}%</span>
+                     </TableCell>
+                     <TableCell>
+                       <Badge variant="outline" className={getStatusColor(claim.status)}>
+                         {claim.status}
+                       </Badge>
+                     </TableCell>
+                     <TableCell>
+                       <span className="text-white/70 font-helvetica">{format(claim.paymentDueDate, 'dd/MM/yyyy')}</span>
+                     </TableCell>
+                     <TableCell>
+                       <span className="text-white/70 text-sm font-helvetica max-w-xs truncate">{claim.notes}</span>
+                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
