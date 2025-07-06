@@ -18,15 +18,15 @@ export const FullScreenSchedule = ({
     <>
       <div className="fixed inset-0 z-40 pt-16 pb-20">
         <div 
-          className="w-full h-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden"
+          className="w-full h-full glass-card"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button for Schedule */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-50 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+            className="absolute top-4 right-4 z-50 w-8 h-8 glass-card rounded-full flex items-center justify-center hover:bg-muted transition-colors duration-200"
           >
-            <span className="text-white text-lg">×</span>
+            <span className="text-foreground text-lg">×</span>
           </button>
           <SchedulePage onNavigate={onNavigate} />
         </div>
@@ -34,7 +34,7 @@ export const FullScreenSchedule = ({
       
       {/* Overlay to close schedule when clicking outside */}
       <div 
-        className="fixed inset-0 bg-black/20 z-30"
+        className="fixed inset-0 bg-background/20 backdrop-blur-sm z-30"
         onClick={onClose}
       />
     </>
