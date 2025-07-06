@@ -600,6 +600,95 @@ export type Database = {
           },
         ]
       }
+      time_entries: {
+        Row: {
+          category: string
+          created_at: string
+          duration: number | null
+          end_time: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          project_id: string | null
+          project_name: string | null
+          start_time: string
+          task_activity: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          project_id?: string | null
+          project_name?: string | null
+          start_time: string
+          task_activity: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          duration?: number | null
+          end_time?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          project_id?: string | null
+          project_name?: string | null
+          start_time?: string
+          task_activity?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_tracking_settings: {
+        Row: {
+          category_colors: Json | null
+          created_at: string
+          default_work_end: string | null
+          default_work_start: string | null
+          id: string
+          productive_categories: string[] | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category_colors?: Json | null
+          created_at?: string
+          default_work_end?: string | null
+          default_work_start?: string | null
+          id?: string
+          productive_categories?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category_colors?: Json | null
+          created_at?: string
+          default_work_end?: string | null
+          default_work_start?: string | null
+          id?: string
+          productive_categories?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_invitations: {
         Row: {
           created_at: string
