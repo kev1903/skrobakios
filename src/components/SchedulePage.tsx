@@ -66,41 +66,41 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
   };
 
   return (
-    <div className="h-96 bg-white/5 backdrop-blur-sm overflow-hidden">
+    <div className="h-[calc(100vh-200px)] bg-white/5 backdrop-blur-md border border-white/20 shadow-2xl overflow-hidden mt-20 mb-32 mx-6 rounded-lg">
       <div className="p-6 h-full">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <CalendarIcon className="w-8 h-8 text-white" />
+            <CalendarIcon className="w-6 h-6 text-white" />
             <div>
-              <h1 className="text-2xl font-bold text-white font-poppins">My Schedule</h1>
-              <p className="text-white/70 font-inter">Manage your daily appointments and tasks</p>
+              <h1 className="text-xl font-bold text-white font-poppins">My Schedule</h1>
+              <p className="text-white/70 font-inter text-sm">Manage your daily appointments and tasks</p>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex gap-6 h-full">
+        <div className="flex gap-4 h-[calc(100%-80px)]">
           {/* Left Column - Backlog */}
-          <div className="w-80 flex-shrink-0">
+          <div className="w-72 flex-shrink-0">
             <Card className="bg-white/10 border-white/20 h-full">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white font-poppins">Backlog</CardTitle>
+                  <CardTitle className="text-white font-poppins text-lg">Backlog</CardTitle>
                   <Button size="sm" variant="ghost" className="text-white hover:bg-white/20">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3 overflow-y-auto">
+              <CardContent className="space-y-3 overflow-y-auto max-h-[calc(100%-80px)]">
                 {backlogItems.map((item) => (
                   <div
                     key={item.id}
                     className="p-3 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="text-white font-medium text-sm">{item.title}</h4>
-                      <Badge className={`text-xs ${getPriorityColor(item.priority)}`}>
+                      <h4 className="text-white font-medium text-sm leading-tight">{item.title}</h4>
+                      <Badge className={`text-xs ml-2 flex-shrink-0 ${getPriorityColor(item.priority)}`}>
                         {item.priority}
                       </Badge>
                     </div>
@@ -119,8 +119,8 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
           <div className="flex-1 min-w-0">
             <Card className="bg-white/10 border-white/20 h-full">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -142,12 +142,12 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                     </Button>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-1">
                     <Button
                       variant={viewMode === 'week' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setViewMode('week')}
-                      className={viewMode === 'week' ? '' : 'text-white hover:bg-white/20'}
+                      className={`text-sm ${viewMode === 'week' ? 'bg-primary text-primary-foreground' : 'text-white hover:bg-white/20'}`}
                     >
                       Week
                     </Button>
@@ -155,7 +155,7 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                       variant={viewMode === 'month' ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setViewMode('month')}
-                      className={viewMode === 'month' ? '' : 'text-white hover:bg-white/20'}
+                      className={`text-sm ${viewMode === 'month' ? 'bg-primary text-primary-foreground' : 'text-white hover:bg-white/20'}`}
                     >
                       Month
                     </Button>
@@ -163,14 +163,16 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                 </div>
               </CardHeader>
               <CardContent className="overflow-hidden">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  month={currentDate}
-                  onMonthChange={setCurrentDate}
-                  className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/20 [&_.rdp-day_button.rdp-day_selected]:bg-primary [&_.rdp-day_button.rdp-day_selected]:text-primary-foreground [&_.rdp-nav_button]:text-white [&_.rdp-nav_button:hover]:bg-white/20 [&_.rdp-caption]:text-white pointer-events-auto"
-                />
+                <div className="max-h-[calc(100%-40px)] overflow-y-auto">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    month={currentDate}
+                    onMonthChange={setCurrentDate}
+                    className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/20 [&_.rdp-day_button.rdp-day_selected]:bg-primary [&_.rdp-day_button.rdp-day_selected]:text-primary-foreground [&_.rdp-nav_button]:text-white [&_.rdp-nav_button:hover]:bg-white/20 [&_.rdp-caption]:text-white [&_.rdp-head_cell]:text-white/70 pointer-events-auto"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
