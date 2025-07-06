@@ -69,6 +69,66 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          avatar_url: string | null
+          company: string
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          id: string
+          last_activity: string | null
+          location: string | null
+          notes: string | null
+          priority: string
+          source: string
+          stage: string
+          updated_at: string
+          value: number
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          company: string
+          contact_email?: string | null
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_activity?: string | null
+          location?: string | null
+          notes?: string | null
+          priority?: string
+          source?: string
+          stage?: string
+          updated_at?: string
+          value?: number
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_activity?: string | null
+          location?: string | null
+          notes?: string | null
+          priority?: string
+          source?: string
+          stage?: string
+          updated_at?: string
+          value?: number
+          website?: string | null
+        }
+        Relationships: []
+      }
       member_permissions: {
         Row: {
           allowed: boolean

@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Lead } from '@/hooks/useLeads';
 import { 
   X,
   Save,
@@ -30,35 +31,24 @@ import {
 interface LeadDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lead: {
-    id: string;
-    company: string;
-    contact: string;
-    avatar: string;
-    description: string;
-    value: number;
-    priority: 'High' | 'Medium' | 'Low';
-    source: string;
-    lastActivity: string;
-    stage: string;
-  };
-  onSave: (updatedLead: any) => void;
+  lead: Lead;
+  onSave: (updatedLead: Lead) => void;
 }
 
 export const LeadDetailsModal = ({ isOpen, onClose, lead, onSave }: LeadDetailsModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     company: lead.company,
-    contact: lead.contact,
-    description: lead.description,
-    value: lead.value,
+    contact: lead.contact_name,
+    description: lead.description || '',
+    value: Number(lead.value),
     priority: lead.priority,
     source: lead.source,
-    email: 'contact@company.com', // Mock data
-    phone: '+1 (555) 123-4567', // Mock data
-    address: '123 Business St, City, State 12345', // Mock data
-    website: 'www.company.com', // Mock data
-    notes: 'Initial contact made via website inquiry. Very interested in our services.', // Mock data
+    email: lead.contact_email || '',
+    phone: lead.contact_phone || '',
+    address: lead.location || '',
+    website: lead.website || '',
+    notes: lead.notes || '',
   });
 
   const handleSave = () => {
@@ -69,16 +59,16 @@ export const LeadDetailsModal = ({ isOpen, onClose, lead, onSave }: LeadDetailsM
   const handleCancel = () => {
     setFormData({
       company: lead.company,
-      contact: lead.contact,
-      description: lead.description,
-      value: lead.value,
+      contact: lead.contact_name,
+      description: lead.description || '',
+      value: Number(lead.value),
       priority: lead.priority,
       source: lead.source,
-      email: 'contact@company.com',
-      phone: '+1 (555) 123-4567',
-      address: '123 Business St, City, State 12345',
-      website: 'www.company.com',
-      notes: 'Initial contact made via website inquiry. Very interested in our services.',
+      email: lead.contact_email || '',
+      phone: lead.contact_phone || '',
+      address: lead.location || '',
+      website: lead.website || '',
+      notes: lead.notes || '',
     });
     setIsEditing(false);
   };
@@ -141,9 +131,9 @@ export const LeadDetailsModal = ({ isOpen, onClose, lead, onSave }: LeadDetailsM
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
-                <AvatarImage src={lead.avatar} />
+                <AvatarImage src={lead.avatar_url || ''} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-lg font-poppins">
-                  {lead.contact.split(' ').map(n => n[0]).join('')}
+                  {lead.contact_name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -319,7 +309,7 @@ export const LeadDetailsModal = ({ isOpen, onClose, lead, onSave }: LeadDetailsM
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground font-inter">Last Activity</span>
-                        <span className="font-medium font-inter">{lead.lastActivity}</span>
+                        <span className="font-medium font-inter">{lead.last_activity}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground font-inter">Created</span>
