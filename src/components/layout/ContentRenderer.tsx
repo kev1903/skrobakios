@@ -30,6 +30,7 @@ import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
 import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
 import { TimeManagementPage } from "@/components/TimeManagementPage";
+import { CostContractsPage } from "@/components/CostContractsPage";
 
 import { Project } from "@/hooks/useProjects";
 
@@ -121,6 +122,8 @@ export const ContentRenderer = ({
       return <RecurringPage onNavigate={onNavigate} />;
     case "sales":
       return <SalesPage onNavigate={onNavigate} />;
+    case "cost-contracts":
+      return <CostContractsPage onNavigate={onNavigate} />;
     case "bim":
       return currentProject ? (
         <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />

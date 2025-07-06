@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import { InvitationAcceptPage } from "./components/team/InvitationAcceptPage";
 import { UserInvitationAcceptPage } from "./components/admin/UserInvitationAcceptPage";
+import { CostContractsPage } from "./components/CostContractsPage";
 
 
 const queryClient = new QueryClient();
@@ -19,7 +20,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          
+          <Route path="/cost-contracts" element={<CostContractsPage />} />
           <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
           <Route path="/accept-user-invitation" element={<UserInvitationAcceptPage />} />
         </Routes>
