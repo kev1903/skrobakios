@@ -314,6 +314,7 @@ export type Database = {
           created_at: string
           description: string | null
           due_date: string | null
+          duration: number | null
           id: string
           priority: string
           progress: number
@@ -329,6 +330,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           due_date?: string | null
+          duration?: number | null
           id?: string
           priority?: string
           progress?: number
@@ -344,6 +346,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           due_date?: string | null
+          duration?: number | null
           id?: string
           priority?: string
           progress?: number

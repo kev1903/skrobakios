@@ -17,9 +17,10 @@ interface Subtask {
 interface SubtasksListProps {
   taskId: string;
   projectMembers: Array<{ name: string; avatar: string }>;
+  onSubtaskClick?: (subtask: Subtask) => void;
 }
 
-export const SubtasksList = ({ taskId, projectMembers }: SubtasksListProps) => {
+export const SubtasksList = ({ taskId, projectMembers, onSubtaskClick }: SubtasksListProps) => {
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
@@ -66,29 +67,43 @@ export const SubtasksList = ({ taskId, projectMembers }: SubtasksListProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Subtasks</h3>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setIsAddingSubtask(true)}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Subtask
-        </Button>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setIsAddingSubtask(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add subtask
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Draft subtasks
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-2">
         {subtasks.map((subtask) => (
-          <div key={subtask.id} className="flex items-center space-x-3 p-3 rounded-lg border bg-gray-50 hover:bg-gray-100 transition-colors">
-            <button
-              onClick={() => toggleSubtaskComplete(subtask.id)}
-              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                subtask.completed 
-                  ? 'bg-green-500 border-green-500 text-white' 
-                  : 'border-gray-300 hover:border-green-400'
-              }`}
+            <div key={subtask.id} className="flex items-center space-x-3 p-3 rounded-lg border bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+              onClick={() => onSubtaskClick?.(subtask)}
             >
-              {subtask.completed && <Check className="w-2.5 h-2.5" />}
-            </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSubtaskComplete(subtask.id);
+                }}
+                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  subtask.completed 
+                    ? 'bg-green-500 border-green-500 text-white' 
+                    : 'border-gray-300 hover:border-green-400'
+                }`}
+              >
+                {subtask.completed && <Check className="w-2.5 h-2.5" />}
+              </button>
             
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-medium truncate ${

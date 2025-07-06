@@ -6,6 +6,7 @@ import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
 import { TaskEditActions } from './TaskEditActions';
 import { SubtasksList } from './SubtasksList';
+import { TaskCommentsActivity } from './TaskCommentsActivity';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
 
@@ -77,6 +78,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           task={editedTask} 
           onMarkComplete={handleMarkComplete} 
           onDelete={handleDelete}
+          onTaskNameChange={(newName) => handleFieldChange('taskName', newName)}
         />
 
         <SheetHeader>
@@ -92,8 +94,15 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           <SubtasksList 
             taskId={editedTask.id}
             projectMembers={members.map(m => ({ name: m.name, avatar: m.avatar }))}
+            onSubtaskClick={(subtask) => {
+              // Handle opening subtask as new task - for now just log
+              console.log('Opening subtask:', subtask);
+            }}
           />
         </div>
+
+        {/* Comments and Activity Section */}
+        <TaskCommentsActivity taskId={editedTask.id} />
 
         <TaskEditActions 
           onSave={handleSave} 
