@@ -1,11 +1,10 @@
-import { Edit, Check, X, GripVertical, ChevronDown, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { GripVertical } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Draggable } from "react-beautiful-dnd";
 import { DigitalObject } from "./types";
-import { getStatusColor, getStatusText } from "./utils";
+import { EditableCell } from "./EditableCell";
+import { NameCellWithExpand } from "./NameCellWithExpand";
+import { ActionButtons } from "./ActionButtons";
 
 interface DigitalObjectRowProps {
   obj: DigitalObject;
@@ -51,100 +50,6 @@ export const DigitalObjectRow = ({
     return editingField?.id === obj.id && editingField?.field === field;
   };
 
-  // Check if this row has children (is a parent row)
-  const hasChildren = obj.level === 0 || (obj.parent_id === null);
-
-  const renderNameWithExpandButton = () => {
-    const nameContent = isFieldEditing('name') ? (
-      <Input
-        type="text"
-        value={editingData.name as string || ''}
-        onChange={(e) => onEditingDataChange({ 
-          ...editingData, 
-          name: e.target.value 
-        })}
-        onKeyDown={onKeyDown}
-        className="h-6 bg-white/10 border-white/20 text-white text-xs"
-        autoFocus
-      />
-    ) : (
-      <div 
-        className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded flex items-center gap-2"
-        onClick={(e) => {
-          e.stopPropagation();
-          onFieldClick(obj, 'name');
-        }}
-      >
-        {hasChildren && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleExpand(obj.id);
-            }}
-            className="text-white hover:text-slate-300"
-          >
-            {obj.expanded === false ? (
-              <ChevronRight className="w-3 h-3" />
-            ) : (
-              <ChevronDown className="w-3 h-3" />
-            )}
-          </button>
-        )}
-        <span>{obj.name}</span>
-      </div>
-    );
-
-    return nameContent;
-  };
-
-  const renderEditableCell = (field: keyof DigitalObject, value: any, type: 'text' | 'number' | 'select' = 'text') => {
-    if (isFieldEditing(field)) {
-      if (type === 'select' && field === 'status') {
-        return (
-          <Select
-            value={editingData[field] as string || ''}
-            onValueChange={(val) => onEditingDataChange({ ...editingData, [field]: val })}
-          >
-            <SelectTrigger className="h-6 bg-white/10 border-white/20 text-white text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-white/20">
-              <SelectItem value="planning">Planning</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        );
-      }
-      
-      return (
-        <Input
-          type={type}
-          value={editingData[field] as string || ''}
-          onChange={(e) => onEditingDataChange({ 
-            ...editingData, 
-            [field]: type === 'number' ? Number(e.target.value) : e.target.value 
-          })}
-          onKeyDown={onKeyDown}
-          className="h-6 bg-white/10 border-white/20 text-white text-xs"
-          autoFocus
-        />
-      );
-    }
-    
-    return (
-      <div 
-        className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
-        onClick={(e) => {
-          e.stopPropagation();
-          onFieldClick(obj, field);
-        }}
-      >
-        {value}
-      </div>
-    );
-  };
-
   return (
     <Draggable key={obj.id} draggableId={obj.id} index={index}>
       {(provided, snapshot) => (
@@ -166,86 +71,85 @@ export const DigitalObjectRow = ({
             </div>
           </TableCell>
           <TableCell className="text-white font-medium h-8 py-1 text-sm" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>
-            {renderNameWithExpandButton()}
+            <NameCellWithExpand
+              obj={obj}
+              isEditing={isFieldEditing('name')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+              onToggleExpand={onToggleExpand}
+            />
           </TableCell>
           <TableCell className="text-slate-300 capitalize h-8 py-1 text-sm">
-            {renderEditableCell('object_type', obj.object_type)}
+            <EditableCell
+              obj={obj}
+              field="object_type"
+              value={obj.object_type}
+              isEditing={isFieldEditing('object_type')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+            />
           </TableCell>
           <TableCell className="text-slate-300 h-8 py-1 text-sm">
-            {renderEditableCell('description', obj.description || '-')}
+            <EditableCell
+              obj={obj}
+              field="description"
+              value={obj.description}
+              isEditing={isFieldEditing('description')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+            />
           </TableCell>
           <TableCell className="h-8 py-1 text-sm">
-            {isFieldEditing('status') ? (
-              renderEditableCell('status', obj.status, 'select')
-            ) : (
-              <div 
-                className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFieldClick(obj, 'status');
-                }}
-              >
-                <Badge variant="outline" className={getStatusColor(obj.status)}>
-                  {getStatusText(obj.status)}
-                </Badge>
-              </div>
-            )}
+            <EditableCell
+              obj={obj}
+              field="status"
+              value={obj.status}
+              isEditing={isFieldEditing('status')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+              type="select"
+            />
           </TableCell>
           <TableCell className="text-slate-300 h-8 py-1 text-sm">
-            {isFieldEditing('cost') ? (
-              renderEditableCell('cost', obj.cost || 0, 'number')
-            ) : (
-              <div 
-                className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFieldClick(obj, 'cost');
-                }}
-              >
-                {obj.cost ? `$${obj.cost.toLocaleString()}` : '-'}
-              </div>
-            )}
+            <EditableCell
+              obj={obj}
+              field="cost"
+              value={obj.cost}
+              isEditing={isFieldEditing('cost')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+              type="number"
+            />
           </TableCell>
           <TableCell className="text-slate-300 h-8 py-1 text-sm">
-            {isFieldEditing('progress') ? (
-              renderEditableCell('progress', obj.progress, 'number')
-            ) : (
-              <div 
-                className="cursor-pointer hover:bg-white/10 px-2 py-1 rounded"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFieldClick(obj, 'progress');
-                }}
-              >
-                {`${obj.progress}%`}
-              </div>
-            )}
+            <EditableCell
+              obj={obj}
+              field="progress"
+              value={obj.progress}
+              isEditing={isFieldEditing('progress')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+              type="number"
+            />
           </TableCell>
           <TableCell className="h-8 py-1">
-            {editingField?.id === obj.id ? (
-              <div className="flex gap-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSave();
-                  }}
-                  className="p-1 text-green-400 hover:text-green-300"
-                >
-                  <Check className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCancel();
-                  }}
-                  className="p-1 text-red-400 hover:text-red-300"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
-              <Edit className="w-3 h-3 text-slate-400" />
-            )}
+            <ActionButtons
+              isEditing={editingField?.id === obj.id}
+              onSave={onSave}
+              onCancel={onCancel}
+            />
           </TableCell>
         </TableRow>
       )}
