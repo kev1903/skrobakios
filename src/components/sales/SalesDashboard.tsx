@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LeadDetailsModal } from './LeadDetailsModal';
+import { CreateLeadModal } from './CreateLeadModal';
 import { useLeads, Lead } from '@/hooks/useLeads';
 import { 
   Plus,
@@ -51,7 +52,9 @@ export const SalesDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { leads, leadsByStage, isLoading, error, updateLead } = useLeads();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedStage, setSelectedStage] = useState('');
+  const { leads, leadsByStage, isLoading, error, updateLead, createLead } = useLeads();
 
   const stageConfig = [
     { id: 'Lead', name: 'Lead', color: 'bg-blue-500' },
@@ -75,6 +78,15 @@ export const SalesDashboard = () => {
 
   const handleSaveLead = async (updatedLead: Lead) => {
     await updateLead(updatedLead.id, updatedLead);
+  };
+
+  const handleCreateOpportunity = (stage: string) => {
+    setSelectedStage(stage);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateLead = async (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
+    await createLead(leadData);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -271,6 +283,7 @@ export const SalesDashboard = () => {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-center glass-card border-dashed hover:bg-muted font-inter"
+                      onClick={() => handleCreateOpportunity(stage.id)}
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Opportunity
@@ -295,6 +308,14 @@ export const SalesDashboard = () => {
           onSave={handleSaveLead}
         />
       )}
+
+      {/* Create Lead Modal */}
+      <CreateLeadModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        initialStage={selectedStage}
+        onSave={handleCreateLead}
+      />
     </div>
   );
 };
