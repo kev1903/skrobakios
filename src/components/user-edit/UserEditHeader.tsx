@@ -26,9 +26,9 @@ export const UserEditHeader = ({ onCancel, onSave, saving }: UserEditHeaderProps
             </Button>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-                Edit Profile
+                Time Management Dashboard
               </h1>
-              <p className="text-sm text-slate-500 mt-1">Update your personal information and preferences</p>
+              <p className="text-sm text-slate-500 mt-1">Track, analyze, and optimize how you spend your time</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">

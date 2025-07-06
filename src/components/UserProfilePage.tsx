@@ -232,10 +232,10 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gradient">
-                  Edit Profile
+                  Time Management Dashboard
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Update your personal information and preferences
+                  Track, analyze, and optimize how you spend your time
                 </p>
               </div>
               <div className="flex items-center space-x-3">

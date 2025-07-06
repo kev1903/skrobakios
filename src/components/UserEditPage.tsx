@@ -251,10 +251,10 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         {/* Content Header */}
         <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
           <h1 className="text-3xl font-bold text-white mb-2">
-            Edit Profile
+            Time Management Dashboard
           </h1>
           <p className="text-white/70">
-            Update your personal information and preferences
+            Track, analyze, and optimize how you spend your time
           </p>
         </div>
 
