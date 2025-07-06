@@ -178,6 +178,16 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
+                onNavigate('cost-contracts');
+                setIsRibbonOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+            >
+              <DollarSign className="w-4 h-4" />
+              <span className="text-sm font-medium">Cost & Contracts</span>
+            </button>
+            <button
+              onClick={() => {
                 setSidePageContent('sales');
                 setIsRibbonOpen(true);
               }}
