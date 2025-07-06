@@ -40,6 +40,13 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
       {/* Main Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         <div className="p-8">
+          {/* Page Title */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-white mb-1">Digital Objects</h1>
+            <p className="text-white">Manage project digital objects and deliverables</p>
+          </div>
+          
+          {/* Tabs Navigation */}
           <DigitalObjectsTabs>
             {(activeTabId) => (
               <>

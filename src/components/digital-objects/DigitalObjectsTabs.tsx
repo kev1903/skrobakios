@@ -79,7 +79,7 @@ export const DigitalObjectsTabs = ({ children }: DigitalObjectsTabsProps) => {
   return (
     <div className="w-full">
       {/* Airtable-style tab navigation */}
-      <div className="border-b border-white/10 mb-6">
+      <div className="border-b border-white/10 mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {/* Main Tabs */}
