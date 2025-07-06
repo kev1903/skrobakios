@@ -67,9 +67,9 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      <div className="h-full flex flex-col">
+      <div className="h-screen flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-border/20 bg-background/80 backdrop-blur-sm">
+        <div className="shrink-0 px-6 py-4 border-b border-border/20 bg-background/80 backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <div className="glass-card p-3">
               <CalendarIcon className="w-8 h-8 text-primary" />
@@ -82,7 +82,7 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 h-full overflow-hidden">
+        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-4 overflow-hidden">
           {/* Left Column - Backlog */}
           <div className="lg:col-span-1 border-r border-border/20">
             <Card className="glass-card h-full rounded-none">
