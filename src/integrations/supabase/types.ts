@@ -9,6 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      digital_objects: {
+        Row: {
+          created_at: string
+          description: string | null
+          expanded: boolean | null
+          id: string
+          level: number
+          name: string
+          object_type: string
+          parent_id: string | null
+          project_id: string | null
+          stage: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          expanded?: boolean | null
+          id?: string
+          level?: number
+          name: string
+          object_type: string
+          parent_id?: string | null
+          project_id?: string | null
+          stage?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          expanded?: boolean | null
+          id?: string
+          level?: number
+          name?: string
+          object_type?: string
+          parent_id?: string | null
+          project_id?: string | null
+          stage?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digital_objects_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "digital_objects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "digital_objects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_permissions: {
         Row: {
           allowed: boolean
