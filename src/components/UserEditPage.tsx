@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, Briefcase, Building2, Lock } from 'lucide-react';
+import { ArrowLeft, User, Briefcase, Building2, Lock, Clock, DollarSign, Heart, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -47,7 +47,10 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
 
   const profileNavItems = [
     { id: 'personal', label: 'Personal', icon: User },
-    { id: 'professional', label: 'Professional', icon: Briefcase },
+    { id: 'time', label: 'Time', icon: Clock },
+    { id: 'finance', label: 'Finance', icon: DollarSign },
+    { id: 'wellness', label: 'Wellness', icon: Heart },
+    { id: 'family', label: 'Family', icon: Users },
     { id: 'company', label: 'Company', icon: Building2 },
     { id: 'security', label: 'Security', icon: Lock },
   ];
@@ -208,11 +211,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
                 onInputChange={handleInputChange}
               />
             </div>
-          </div>
-        );
-      case 'professional':
-        return (
-          <div className="space-y-8">
+
             {/* Professional Information */}
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <ProfessionalInfoSection 
@@ -224,6 +223,54 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
                 }}
                 onInputChange={handleInputChange}
               />
+            </div>
+          </div>
+        );
+      case 'time':
+        return (
+          <div className="space-y-8">
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+              <div className="text-center py-12">
+                <Clock className="w-16 h-16 text-white/60 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Time Management</h3>
+                <p className="text-white/70">Configure your time preferences and schedules</p>
+              </div>
+            </div>
+          </div>
+        );
+      case 'finance':
+        return (
+          <div className="space-y-8">
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+              <div className="text-center py-12">
+                <DollarSign className="w-16 h-16 text-white/60 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Financial Information</h3>
+                <p className="text-white/70">Manage your financial preferences and settings</p>
+              </div>
+            </div>
+          </div>
+        );
+      case 'wellness':
+        return (
+          <div className="space-y-8">
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+              <div className="text-center py-12">
+                <Heart className="w-16 h-16 text-white/60 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Wellness & Health</h3>
+                <p className="text-white/70">Track your wellness goals and health information</p>
+              </div>
+            </div>
+          </div>
+        );
+      case 'family':
+        return (
+          <div className="space-y-8">
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 text-white/60 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Family Information</h3>
+                <p className="text-white/70">Manage your family details and relationships</p>
+              </div>
             </div>
           </div>
         );
