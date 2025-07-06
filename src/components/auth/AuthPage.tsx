@@ -29,7 +29,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      onNavigate("dashboard");
+      onNavigate("home");
     }
   }, [isAuthenticated, loading, onNavigate]);
 
@@ -58,7 +58,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
         }
       } else {
         setSuccess("Login successful! Redirecting...");
-        setTimeout(() => onNavigate("dashboard"), 1000);
+        setTimeout(() => onNavigate("home"), 1000);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");

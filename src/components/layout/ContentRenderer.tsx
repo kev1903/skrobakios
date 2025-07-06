@@ -147,6 +147,12 @@ export const ContentRenderer = ({
       return <SupportPage />;
     case "user-edit":
       return <UserEditPage onNavigate={onNavigate} />;
+    case "inbox":
+    case "asset":
+    case "schedules":
+      // Redirect incomplete pages to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     default:
       return <AuthPage onNavigate={onNavigate} />;
   }

@@ -8,7 +8,7 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { useProjectState } from "@/hooks/useProjectState";
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState("home");
+  const [currentPage, setCurrentPage] = useState("auth");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
 
   return (
