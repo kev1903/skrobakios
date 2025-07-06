@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, ThumbsUp, Paperclip, MessageSquare, Link, Maximize2, Trash2, ArrowRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Check, ThumbsUp, Paperclip, MessageSquare, Link, Maximize2, Trash2, ArrowRight, Edit2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,9 +20,65 @@ interface TaskEditHeaderProps {
   task: Task;
   onMarkComplete: () => void;
   onDelete: () => void;
+  onTaskNameChange?: (newName: string) => void;
 }
 
-export const TaskEditHeader = ({ task, onMarkComplete, onDelete }: TaskEditHeaderProps) => {
+interface EditableTaskNameProps {
+  taskName: string;
+  onTaskNameChange?: (newName: string) => void;
+}
+
+const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(taskName);
+
+  const handleSave = () => {
+    if (editValue.trim() && onTaskNameChange) {
+      onTaskNameChange(editValue.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditValue(taskName);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center space-x-2 flex-1">
+        <Input
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleSave}
+          className="text-xl font-semibold"
+          autoFocus
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+      onClick={() => setIsEditing(true)}
+    >
+      <h2 className="text-xl font-semibold">{taskName}</h2>
+      <Edit2 className="w-4 h-4 text-gray-400" />
+    </div>
+  );
+};
+
+export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange }: TaskEditHeaderProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -89,7 +146,10 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete }: TaskEditHeade
       {/* Task Title and Priority */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{task.taskName}</h2>
+          <EditableTaskName 
+            taskName={task.taskName} 
+            onTaskNameChange={(newName) => onTaskNameChange?.(newName)}
+          />
           <div className="flex items-center space-x-2">
             <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
               {task.priority}

@@ -12,6 +12,7 @@ export interface Task {
   progress: number;
   description?: string;
   category?: string;
+  duration?: number;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +75,7 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         progress: task.progress,
         description: task.description,
         category: task.category,
+        duration: task.duration,
         created_at: task.created_at,
         updated_at: task.updated_at
       }));
@@ -102,6 +104,7 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
       if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
       if (updates.description !== undefined) dbUpdates.description = updates.description;
       if (updates.category !== undefined) dbUpdates.category = updates.category;
+      if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
 
       const { error } = await supabase
         .from('tasks')

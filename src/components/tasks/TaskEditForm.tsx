@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User, FileText } from 'lucide-react';
+import { Calendar, User, FileText, Clock } from 'lucide-react';
 import { Task } from './TaskContext';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
 
@@ -105,6 +105,43 @@ export const TaskEditForm = ({ task, onFieldChange, projectId }: TaskEditFormPro
           type="date"
           value={task.dueDate}
           onChange={(e) => onFieldChange('dueDate', e.target.value)}
+        />
+      </div>
+
+      {/* Status */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 flex items-center">
+          <Clock className="w-4 h-4 mr-2" />
+          Status
+        </label>
+        <Select
+          value={task.status}
+          onValueChange={(value) => onFieldChange('status', value as Task['status'])}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+            <SelectItem value="Not Started">Not Started</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="In Progress">In Progress</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Duration */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">
+          Duration (hours)
+        </label>
+        <Input
+          type="number"
+          min="0"
+          step="0.5"
+          value={task.duration || ''}
+          onChange={(e) => onFieldChange('duration', e.target.value ? parseFloat(e.target.value) : undefined)}
+          placeholder="Enter duration in hours..."
         />
       </div>
 
