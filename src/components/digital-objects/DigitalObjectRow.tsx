@@ -81,7 +81,7 @@ export const DigitalObjectRow = ({
               e.stopPropagation();
               onToggleExpand(obj.id);
             }}
-            className="text-slate-400 hover:text-white"
+            className="text-white hover:text-slate-300"
           >
             {obj.expanded === false ? (
               <ChevronRight className="w-3 h-3" />
@@ -153,7 +153,7 @@ export const DigitalObjectRow = ({
           {...provided.draggableProps}
           className={`border-white/10 hover:bg-white/5 h-8 cursor-pointer transition-colors ${
             isSelected ? 'bg-blue-500/20 border-blue-500/30' : ''
-          } ${snapshot.isDragging ? 'bg-white/20 shadow-lg' : ''}`}
+          } ${snapshot.isDragging ? 'bg-white/20 shadow-lg transform rotate-2 z-50' : ''}`}
           onClick={handleClick}
         >
           <TableCell className="h-8 py-1 w-8">
@@ -162,7 +162,7 @@ export const DigitalObjectRow = ({
               className="flex items-center justify-center h-full cursor-grab active:cursor-grabbing"
               onClick={(e) => e.stopPropagation()}
             >
-              <GripVertical className="w-4 h-4 text-slate-400 hover:text-white" />
+              <GripVertical className="w-4 h-4 text-white" />
             </div>
           </TableCell>
           <TableCell className="text-white font-medium h-8 py-1 text-sm" style={{ paddingLeft: `${obj.level * 20 + 16}px` }}>

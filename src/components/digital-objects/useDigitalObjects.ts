@@ -119,11 +119,11 @@ export const useDigitalObjects = () => {
     const newId = (Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1).toString();
     const newRow: DigitalObject = {
       id: newId,
-      name: "New Item",
-      object_type: "item",
+      name: "",
+      object_type: "",
       description: "",
       status: "planning",
-      cost: 0,
+      cost: null,
       progress: 0,
       level: 0,
       parent_id: null,
