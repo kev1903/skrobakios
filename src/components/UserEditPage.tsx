@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, Briefcase, Building2, Lock, Clock, DollarSign, Heart, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Button } from '@/components/ui/button';
-import { ProfilePictureSection } from '@/components/user-edit/ProfilePictureSection';
-import { PersonalInfoSection } from '@/components/user-edit/PersonalInfoSection';
-import { PasswordUpdateSection } from '@/components/user-edit/PasswordUpdateSection';
-import { ProfessionalInfoSection } from '@/components/user-edit/ProfessionalInfoSection';
-import { CompanyDetailsSection } from '@/components/user-edit/CompanyDetailsSection';
+import { UserEditNavigation } from '@/components/user-edit/UserEditNavigation';
+import { PersonalSection } from '@/components/user-profile/PersonalSection';
+import { TimeSection } from '@/components/user-profile/TimeSection';
+import { FinanceSection } from '@/components/user-profile/FinanceSection';
+import { WellnessSection } from '@/components/user-profile/WellnessSection';
+import { FamilySection } from '@/components/user-profile/FamilySection';
+import { CompanySection } from '@/components/user-profile/CompanySection';
+import { SecuritySection } from '@/components/user-profile/SecuritySection';
 
 interface UserEditPageProps {
   onNavigate: (page: string) => void;
@@ -45,15 +46,6 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
 
   const [saving, setSaving] = useState(false);
 
-  const profileNavItems = [
-    { id: 'personal', label: 'Personal', icon: User },
-    { id: 'time', label: 'Time', icon: Clock },
-    { id: 'finance', label: 'Finance', icon: DollarSign },
-    { id: 'wellness', label: 'Wellness', icon: Heart },
-    { id: 'family', label: 'Family', icon: Users },
-    { id: 'company', label: 'Company', icon: Building2 },
-    { id: 'security', label: 'Security', icon: Lock },
-  ];
 
   // Initialize form data when profile loads
   useEffect(() => {
@@ -187,122 +179,47 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     switch (activeSection) {
       case 'personal':
         return (
-          <div className="space-y-8">
-            {/* Profile Picture Section */}
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <ProfilePictureSection 
-                avatarUrl={profileData.avatarUrl}
-                firstName={profileData.firstName}
-                lastName={profileData.lastName}
-                onAvatarChange={(avatarUrl) => handleInputChange('avatarUrl', avatarUrl)}
-              />
-            </div>
-
-            {/* Personal Information */}
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <PersonalInfoSection 
-                profileData={{
-                  firstName: profileData.firstName,
-                  lastName: profileData.lastName,
-                  email: profileData.email,
-                  phone: profileData.phone,
-                  birthDate: profileData.birthDate,
-                }}
-                onInputChange={handleInputChange}
-              />
-            </div>
-
-            {/* Professional Information */}
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <ProfessionalInfoSection 
-                profileData={{
-                  jobTitle: profileData.jobTitle,
-                  location: profileData.location,
-                  website: profileData.website,
-                  bio: profileData.bio,
-                }}
-                onInputChange={handleInputChange}
-              />
-            </div>
-          </div>
+          <PersonalSection 
+            profileData={{
+              avatarUrl: profileData.avatarUrl,
+              firstName: profileData.firstName,
+              lastName: profileData.lastName,
+              email: profileData.email,
+              phone: profileData.phone,
+              birthDate: profileData.birthDate,
+              jobTitle: profileData.jobTitle,
+              location: profileData.location,
+              website: profileData.website,
+              bio: profileData.bio,
+            }}
+            onInputChange={handleInputChange}
+          />
         );
       case 'time':
-        return (
-          <div className="space-y-8">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <div className="text-center py-12">
-                <Clock className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Time Management</h3>
-                <p className="text-white/70">Configure your time preferences and schedules</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <TimeSection />;
       case 'finance':
-        return (
-          <div className="space-y-8">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <div className="text-center py-12">
-                <DollarSign className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Financial Information</h3>
-                <p className="text-white/70">Manage your financial preferences and settings</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <FinanceSection />;
       case 'wellness':
-        return (
-          <div className="space-y-8">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <div className="text-center py-12">
-                <Heart className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Wellness & Health</h3>
-                <p className="text-white/70">Track your wellness goals and health information</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <WellnessSection />;
       case 'family':
-        return (
-          <div className="space-y-8">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <div className="text-center py-12">
-                <Users className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">Family Information</h3>
-                <p className="text-white/70">Manage your family details and relationships</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <FamilySection />;
       case 'company':
         return (
-          <div className="space-y-8">
-            {/* Company Details */}
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <CompanyDetailsSection 
-                profileData={{
-                  companyName: profileData.companyName,
-                  abn: profileData.abn,
-                  companyWebsite: profileData.companyWebsite,
-                  companyAddress: profileData.companyAddress,
-                  companyMembers: profileData.companyMembers,
-                  companyLogo: profileData.companyLogo,
-                  companySlogan: profileData.companySlogan,
-                }}
-                onInputChange={handleInputChange}
-              />
-            </div>
-          </div>
+          <CompanySection 
+            profileData={{
+              companyName: profileData.companyName,
+              abn: profileData.abn,
+              companyWebsite: profileData.companyWebsite,
+              companyAddress: profileData.companyAddress,
+              companyMembers: profileData.companyMembers,
+              companyLogo: profileData.companyLogo,
+              companySlogan: profileData.companySlogan,
+            }}
+            onInputChange={handleInputChange}
+          />
         );
       case 'security':
-        return (
-          <div className="space-y-8">
-            {/* Password Update Section */}
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <PasswordUpdateSection />
-            </div>
-          </div>
-        );
+        return <SecuritySection />;
       default:
         return null;
     }
@@ -319,63 +236,15 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
   return (
     <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
       {/* Profile Sidebar - Matching Project Layout */}
-      <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
-        <div className="flex flex-col h-full pt-20">
-          {/* Back Button */}
-          <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
-            <button
-              onClick={() => onNavigate('home')}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-medium">Close Page</span>
-            </button>
-          </div>
-
-          {/* Profile Info */}
-          <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
-            <div className="text-white text-sm font-medium mb-2 truncate">
-              {profileData.firstName} {profileData.lastName}
-            </div>
-            <div className="text-white/70 text-xs mb-2">Profile Settings</div>
-          </div>
-
-          {/* Profile Navigation Items */}
-          <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2 mb-1">
-              Profile Navigation
-            </div>
-            {profileNavItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                  activeSection === item.id 
-                    ? 'bg-white/20 text-white border border-white/30' 
-                    : 'text-white/80 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Save Actions */}
-          <div className="border-t border-white/20 px-3 py-4 space-y-2">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-              Actions
-            </div>
-            <Button 
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30 transition-all duration-200"
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        </div>
-      </div>
+      <UserEditNavigation 
+        firstName={profileData.firstName}
+        lastName={profileData.lastName}
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        onNavigate={onNavigate}
+        onSave={handleSave}
+        saving={saving}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 ml-48 flex flex-col">

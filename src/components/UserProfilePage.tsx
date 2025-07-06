@@ -165,6 +165,10 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
               phone: profileData.phone,
               birthDate: profileData.birthDate,
               avatarUrl: profileData.avatarUrl,
+              jobTitle: profileData.jobTitle,
+              location: profileData.location,
+              website: profileData.website,
+              bio: profileData.bio,
             }}
             onInputChange={handleInputChange}
           />
