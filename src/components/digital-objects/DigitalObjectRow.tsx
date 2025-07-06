@@ -19,6 +19,7 @@ interface DigitalObjectRowProps {
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onToggleExpand: (id: string) => void;
+  hasChildren: boolean;
 }
 
 export const DigitalObjectRow = ({
@@ -33,7 +34,8 @@ export const DigitalObjectRow = ({
   onCancel,
   onEditingDataChange,
   onKeyDown,
-  onToggleExpand
+  onToggleExpand,
+  hasChildren
 }: DigitalObjectRowProps) => {
   const isSelected = selectedIds.includes(obj.id);
 
@@ -80,18 +82,7 @@ export const DigitalObjectRow = ({
               onEditingDataChange={onEditingDataChange}
               onKeyDown={onKeyDown}
               onToggleExpand={onToggleExpand}
-            />
-          </TableCell>
-          <TableCell className="text-slate-300 capitalize h-8 py-1 text-sm">
-            <EditableCell
-              obj={obj}
-              field="object_type"
-              value={obj.object_type}
-              isEditing={isFieldEditing('object_type')}
-              editingData={editingData}
-              onFieldClick={onFieldClick}
-              onEditingDataChange={onEditingDataChange}
-              onKeyDown={onKeyDown}
+              hasChildren={hasChildren}
             />
           </TableCell>
           <TableCell className="text-slate-300 h-8 py-1 text-sm">
@@ -104,19 +95,6 @@ export const DigitalObjectRow = ({
               onFieldClick={onFieldClick}
               onEditingDataChange={onEditingDataChange}
               onKeyDown={onKeyDown}
-            />
-          </TableCell>
-          <TableCell className="h-8 py-1 text-sm">
-            <EditableCell
-              obj={obj}
-              field="status"
-              value={obj.status}
-              isEditing={isFieldEditing('status')}
-              editingData={editingData}
-              onFieldClick={onFieldClick}
-              onEditingDataChange={onEditingDataChange}
-              onKeyDown={onKeyDown}
-              type="select"
             />
           </TableCell>
           <TableCell className="text-slate-300 h-8 py-1 text-sm">

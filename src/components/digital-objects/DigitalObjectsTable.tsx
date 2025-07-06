@@ -43,6 +43,11 @@ export const DigitalObjectsTable = ({
 }: DigitalObjectsTableProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Calculate which objects have children
+  const getHasChildren = (objId: string) => {
+    return digitalObjects.some(obj => obj.parent_id === objId);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       onSave();
@@ -81,9 +86,7 @@ export const DigitalObjectsTable = ({
                 <TableRow className="border-white/10 hover:bg-white/5 h-8">
                   <TableHead className="text-white font-semibold h-8 w-8"></TableHead>
                   <TableHead className="text-white font-semibold h-8">Name</TableHead>
-                  <TableHead className="text-white font-semibold h-8">Type</TableHead>
                   <TableHead className="text-white font-semibold h-8">Description</TableHead>
-                  <TableHead className="text-white font-semibold h-8">Status</TableHead>
                   <TableHead className="text-white font-semibold h-8">Stage</TableHead>
                   <TableHead className="text-white font-semibold h-8 w-20">Actions</TableHead>
                 </TableRow>
@@ -106,11 +109,12 @@ export const DigitalObjectsTable = ({
                         onEditingDataChange={onEditingDataChange}
                         onKeyDown={handleKeyDown}
                         onToggleExpand={onToggleExpand}
+                        hasChildren={getHasChildren(obj.id)}
                       />
                     ))}
                     {digitalObjects.length === 0 && (
                       <TableRow className="border-white/10 h-8">
-                        <TableCell colSpan={7} className="text-center text-slate-400 py-8">
+                        <TableCell colSpan={5} className="text-center text-slate-400 py-8">
                           No digital objects found for this project
                         </TableCell>
                       </TableRow>

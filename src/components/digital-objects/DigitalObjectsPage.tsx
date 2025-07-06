@@ -1,7 +1,8 @@
 import { ProjectSidebar } from "../ProjectSidebar";
 import { DigitalObjectsPageProps } from "./types";
 import { DigitalObjectsHeader } from "./DigitalObjectsHeader";
-import { DigitalObjectsTable } from "./DigitalObjectsTable";
+import { DigitalObjectsTable } from "./DigitalObjectsTable";  
+import { DigitalObjectsTabs } from "./DigitalObjectsTabs";
 import { useDigitalObjects } from "./useDigitalObjects";
 import { getStatusColor, getStatusText } from "./utils";
 
@@ -39,28 +40,34 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
       {/* Main Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         <div className="p-8">
-          <DigitalObjectsHeader 
-            selectedIds={selectedIds}
-            onIndent={handleIndent}
-            onOutdent={handleOutdent}
-            onAddRow={handleAddRow}
-            onImportCSV={handleImportCSV}
-          />
-          
-          <DigitalObjectsTable
-            digitalObjects={digitalObjects}
-            loading={loading}
-            editingField={editingField}
-            editingData={editingData}
-            selectedIds={selectedIds}
-            onFieldClick={handleFieldClick}
-            onRowSelect={handleRowSelect}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            onEditingDataChange={setEditingData}
-            onDragEnd={handleDragEnd}
-            onToggleExpand={handleToggleExpand}
-          />
+          <DigitalObjectsTabs>
+            {(activeTabId) => (
+              <>
+                <DigitalObjectsHeader 
+                  selectedIds={selectedIds}
+                  onIndent={handleIndent}
+                  onOutdent={handleOutdent}
+                  onAddRow={handleAddRow}
+                  onImportCSV={handleImportCSV}
+                />
+                
+                <DigitalObjectsTable
+                  digitalObjects={digitalObjects}
+                  loading={loading}
+                  editingField={editingField}
+                  editingData={editingData}
+                  selectedIds={selectedIds}
+                  onFieldClick={handleFieldClick}
+                  onRowSelect={handleRowSelect}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                  onEditingDataChange={setEditingData}
+                  onDragEnd={handleDragEnd}
+                  onToggleExpand={handleToggleExpand}
+                />
+              </>
+            )}
+          </DigitalObjectsTabs>
         </div>
       </div>
     </div>

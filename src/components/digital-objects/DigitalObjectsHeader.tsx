@@ -33,7 +33,7 @@ export const DigitalObjectsHeader = ({
     <div className="flex items-center justify-between mb-6">
       <div>
         <h1 className="text-2xl font-bold text-white mb-1">Digital Objects</h1>
-        <p className="text-slate-400">Manage project digital objects and deliverables</p>
+        <p className="text-white">Manage project digital objects and deliverables</p>
       </div>
       
       <div className="flex items-center gap-2">

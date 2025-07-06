@@ -10,6 +10,7 @@ interface NameCellWithExpandProps {
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onToggleExpand: (id: string) => void;
+  hasChildren: boolean;
 }
 
 export const NameCellWithExpand = ({
@@ -19,11 +20,9 @@ export const NameCellWithExpand = ({
   onFieldClick,
   onEditingDataChange,
   onKeyDown,
-  onToggleExpand
+  onToggleExpand,
+  hasChildren
 }: NameCellWithExpandProps) => {
-  // Check if this row has children (is a parent row)
-  const hasChildren = obj.level === 0 || (obj.parent_id === null);
-
   if (isEditing) {
     return (
       <Input
