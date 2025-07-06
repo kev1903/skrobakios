@@ -124,14 +124,14 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
   return (
     <>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="flex flex-col md:flex-row gap-6 md:h-full">
           {statusColumns.map((column) => (
             <Droppable key={column.id} droppableId={column.id}>
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4 transition-colors ${
+                  className={`flex-1 md:w-64 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4 transition-colors ${
                     snapshot.isDraggingOver ? 'bg-white/20 border-white/40' : ''
                   }`}
                 >

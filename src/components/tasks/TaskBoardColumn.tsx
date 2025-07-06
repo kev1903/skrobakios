@@ -69,7 +69,11 @@ export const TaskBoardColumn = ({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={snapshot.isDragging ? 'shadow-lg' : ''}
+                    style={{
+                      ...provided.draggableProps.style,
+                      cursor: snapshot.isDragging ? 'grabbing' : 'grab'
+                    }}
+                    className={`${snapshot.isDragging ? 'shadow-2xl' : ''}`}
                   >
                     <TaskCard 
                       task={task} 

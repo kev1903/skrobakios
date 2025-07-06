@@ -32,7 +32,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-md transition-all cursor-grab active:cursor-grabbing group" onClick={handleClick}>
+    <Card className="hover:shadow-md transition-all group" onClick={handleClick}>
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between">
