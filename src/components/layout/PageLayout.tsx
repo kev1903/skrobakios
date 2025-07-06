@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 interface PageLayoutProps {
@@ -10,9 +9,6 @@ interface PageLayoutProps {
 }
 
 export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
-  // Hide main sidebar for auth page, home page, project-specific pages, user edit page, and sales page
-  const showMainSidebar = !["auth", "home", "project-detail", "project-tasks", "project-files", "project-settings", "project-schedule", "project-team", "project-wbs", "gantt-chart", "bim", "user-edit", "sales"].includes(currentPage);
-
   if (currentPage === "auth" || currentPage === "home") {
     return (
       <main className="flex-1 overflow-hidden w-full">
@@ -26,17 +22,9 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin"}
     >
-      {showMainSidebar ? (
-        <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
-          <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 rounded-l-2xl ml-2 my-2 mr-2">
-            {children}
-          </main>
-        </AppSidebar>
-      ) : (
-        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
-          {children}
-        </main>
-      )}
+      <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
+        {children}
+      </main>
     </ProtectedRoute>
   );
 };
