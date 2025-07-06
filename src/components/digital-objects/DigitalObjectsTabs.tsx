@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, ChevronDown, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,16 +37,35 @@ export const DigitalObjectsTabs = ({ children, onClearTableData }: DigitalObject
     { id: "variation", name: "VARIATION" }
   ]);
   const [activeTab, setActiveTab] = useState("breakdown-cost");
+  const [previousTab, setPreviousTab] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [deleteConfirmTab, setDeleteConfirmTab] = useState<string | null>(null);
   const [clearConfirmTab, setClearConfirmTab] = useState<string | null>(null);
 
+  const handleTabSwitch = (newTabId: string) => {
+    if (newTabId === activeTab || isAnimating) return;
+    
+    setIsAnimating(true);
+    setPreviousTab(activeTab);
+    
+    // Start slide out animation, then switch after 150ms
+    setTimeout(() => {
+      setActiveTab(newTabId);
+      // Reset animation state after slide in completes
+      setTimeout(() => {
+        setIsAnimating(false);
+        setPreviousTab(null);
+      }, 300);
+    }, 150);
+  };
+
   const addNewTab = () => {
     const newId = `table-${Date.now()}`;
     const newTab = { id: newId, name: `Table ${tabs.length + 1}` };
     setTabs([...tabs, newTab]);
-    setActiveTab(newId);
+    handleTabSwitch(newId);
   };
 
   const removeTab = (tabId: string) => {
@@ -107,7 +126,7 @@ export const DigitalObjectsTabs = ({ children, onClearTableData }: DigitalObject
               {tabs.map((tab) => (
                 <div key={tab.id} className="flex items-center">
                   <button
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabSwitch(tab.id)}
                     className={`
                       px-4 py-2 text-xs font-semibold tracking-wide rounded-l-md transition-all duration-200
                       ${activeTab === tab.id 
@@ -235,12 +254,36 @@ export const DigitalObjectsTabs = ({ children, onClearTableData }: DigitalObject
         </div>
       </div>
 
-      {/* Tab content */}
-      {tabs.map((tab) => (
-        <div key={tab.id} className={activeTab === tab.id ? 'block' : 'hidden'}>
-          {children(tab.id)}
-        </div>
-      ))}
+      {/* Tab content with sliding animation */}
+      <div className="relative overflow-hidden">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          const isPrevious = previousTab === tab.id;
+          const shouldShow = isActive || (isPrevious && isAnimating);
+          
+          if (!shouldShow) return null;
+          
+          let animationClass = '';
+          if (isAnimating) {
+            if (isPrevious) {
+              // Slide out to the left
+              animationClass = 'animate-[slide-out-left_150ms_ease-in-out_forwards]';
+            } else if (isActive) {
+              // Slide in from the right  
+              animationClass = 'animate-[slide-in-right_300ms_ease-in-out_150ms_both]';
+            }
+          }
+          
+          return (
+            <div 
+              key={tab.id} 
+              className={`${isActive && !isAnimating ? 'block' : 'absolute inset-0'} ${animationClass}`}
+            >
+              {children(tab.id)}
+            </div>
+          );
+        })}
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteConfirmTab} onOpenChange={() => setDeleteConfirmTab(null)}>
