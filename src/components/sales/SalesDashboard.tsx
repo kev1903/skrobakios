@@ -99,13 +99,13 @@ export const SalesDashboard = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <Card key={index}>
+          <Card key={index} className="glass-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-foreground">{stat.title}</CardTitle>
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-2xl font-bold text-foreground">{stat.value}</div>
               <p className="text-xs text-muted-foreground">{stat.change}</p>
             </CardContent>
           </Card>
@@ -114,27 +114,27 @@ export const SalesDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Projects */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
-            <CardTitle>Active Projects</CardTitle>
-            <CardDescription>Current projects and their status</CardDescription>
+            <CardTitle className="text-foreground">Active Projects</CardTitle>
+            <CardDescription className="text-muted-foreground">Current projects and their status</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {activeProjects.map((project, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+              <div key={index} className="flex items-center justify-between p-4 glass border-white/20 rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-semibold">{project.name}</h4>
-                  <p className="text-sm text-gray-600">{project.client}</p>
+                  <h4 className="font-semibold text-foreground">{project.name}</h4>
+                  <p className="text-sm text-muted-foreground">{project.client}</p>
                   <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="outline">{project.status}</Badge>
-                    <span className="text-sm text-green-600 font-medium">{project.budget}</span>
+                    <Badge variant="outline" className="border-white/30">{project.status}</Badge>
+                    <span className="text-sm text-green-400 font-medium">{project.budget}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-medium">{project.completion}%</div>
-                  <div className="w-20 bg-gray-200 rounded-full h-2 mt-1">
+                  <div className="text-sm font-medium text-foreground">{project.completion}%</div>
+                  <div className="w-20 bg-white/20 rounded-full h-2 mt-1">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full" 
+                      className="bg-primary h-2 rounded-full" 
                       style={{ width: `${project.completion}%` }}
                     ></div>
                   </div>
@@ -145,19 +145,19 @@ export const SalesDashboard = () => {
         </Card>
 
         {/* Recent Activity */}
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates and changes</CardDescription>
+            <CardTitle className="text-foreground">Recent Activity</CardTitle>
+            <CardDescription className="text-muted-foreground">Latest updates and changes</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentActivity.map((activity, index) => (
               <div key={index} className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-sm text-gray-600">{activity.item}</p>
-                  <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
+                  <p className="text-sm font-medium text-foreground">{activity.action}</p>
+                  <p className="text-sm text-muted-foreground">{activity.item}</p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">{activity.time}</p>
                 </div>
               </div>
             ))}

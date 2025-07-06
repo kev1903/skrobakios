@@ -50,18 +50,18 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 w-full overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* Sales Ribbon - Always visible */}
       <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
       
       {/* Main Content Area - Properly offset to account for wider ribbon */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden ml-64">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
+        <div className="glass-light border-b border-white/20 px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Sales CRM</h1>
-              <p className="text-gray-600 mt-1">Manage your sales pipeline and customer relationships</p>
+              <h1 className="text-3xl font-bold text-foreground">Sales CRM</h1>
+              <p className="text-muted-foreground mt-1">Manage your sales pipeline and customer relationships</p>
             </div>
           </div>
         </div>
