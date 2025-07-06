@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useTaskContext } from './TaskContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -21,6 +24,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
   const [description, setDescription] = useState('');
   const [selectedDigitalObject, setSelectedDigitalObject] = useState('');
   const [digitalObjects, setDigitalObjects] = useState<Array<{id: string, name: string, stage: string}>>([]);
+  const [open, setOpen] = useState(false);
   const { addTask } = useTaskContext();
 
   // Fetch digital objects on component mount
@@ -86,21 +90,52 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="digital-object">Digital Object *</Label>
-            <Select value={selectedDigitalObject} onValueChange={setSelectedDigitalObject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a digital object..." />
-              </SelectTrigger>
-              <SelectContent>
-                {digitalObjects.map((obj) => (
-                  <SelectItem key={obj.id} value={obj.id}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{obj.name}</span>
-                      <span className="text-xs text-muted-foreground">{obj.stage}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-full justify-between"
+                >
+                  {selectedDigitalObject
+                    ? digitalObjects.find((obj) => obj.id === selectedDigitalObject)?.name
+                    : "Select a digital object..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search digital objects..." />
+                  <CommandList>
+                    <CommandEmpty>No digital object found.</CommandEmpty>
+                    <CommandGroup>
+                      {digitalObjects.map((obj) => (
+                        <CommandItem
+                          key={obj.id}
+                          value={`${obj.name} ${obj.stage}`}
+                          onSelect={() => {
+                            setSelectedDigitalObject(obj.id);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedDigitalObject === obj.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium">{obj.name}</span>
+                            <span className="text-xs text-muted-foreground">{obj.stage}</span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="task-name">Task Name *</Label>
