@@ -124,6 +124,8 @@ export const ContentRenderer = ({
       return <SalesPage onNavigate={onNavigate} />;
     case "cost-contracts":
       return <CostContractsPage onNavigate={onNavigate} />;
+    case "project-cost":
+      return <CostContractsPage onNavigate={onNavigate} />;
     case "bim":
       return currentProject ? (
         <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
