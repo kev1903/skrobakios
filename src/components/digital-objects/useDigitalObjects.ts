@@ -20,8 +20,6 @@ export const useDigitalObjects = () => {
       description: "Planning and zoning consultation",
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null,
       expanded: true
@@ -33,8 +31,6 @@ export const useDigitalObjects = () => {
       description: "Architectural services",
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -45,8 +41,6 @@ export const useDigitalObjects = () => {
       description: "Site preparation and establishment",
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -57,8 +51,6 @@ export const useDigitalObjects = () => {
       description: "Roof drainage system design",
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -69,8 +61,6 @@ export const useDigitalObjects = () => {
       description: "Architectural design services", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -81,8 +71,6 @@ export const useDigitalObjects = () => {
       description: "Project cost estimation", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -93,8 +81,6 @@ export const useDigitalObjects = () => {
       description: "Building performance analysis", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -105,8 +91,6 @@ export const useDigitalObjects = () => {
       description: "Landscape design services", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -117,8 +101,6 @@ export const useDigitalObjects = () => {
       description: "Interior design services", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -129,8 +111,6 @@ export const useDigitalObjects = () => {
       description: "Building insurance coverage", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -141,8 +121,6 @@ export const useDigitalObjects = () => {
       description: "Work protection insurance", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -153,8 +131,6 @@ export const useDigitalObjects = () => {
       description: "Soil analysis and testing", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -165,8 +141,6 @@ export const useDigitalObjects = () => {
       description: "Engineering services", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -177,8 +151,6 @@ export const useDigitalObjects = () => {
       description: "Energy efficiency assessment", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -189,8 +161,6 @@ export const useDigitalObjects = () => {
       description: "Construction management and supervision", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -201,8 +171,6 @@ export const useDigitalObjects = () => {
       description: "Civil drainage system design", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -213,8 +181,6 @@ export const useDigitalObjects = () => {
       description: "Building surveying services", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -225,8 +191,6 @@ export const useDigitalObjects = () => {
       description: "Permit fees and charges", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     },
@@ -237,33 +201,18 @@ export const useDigitalObjects = () => {
       description: "Project contingency allowance", 
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null
     }
   ]);
 
-  // Calculate subtotals for parent rows
-  const calculateSubtotals = (objects: DigitalObject[]) => {
-    return objects.map(obj => {
-      const children = objects.filter(child => child.parent_id === obj.id);
-      if (children.length > 0) {
-        const totalCost = children.reduce((sum, child) => sum + (child.cost || 0), 0);
-        const avgProgress = Math.round(children.reduce((sum, child) => sum + child.progress, 0) / children.length);
-        return { ...obj, cost: totalCost, progress: avgProgress };
-      }
-      return obj;
-    });
-  };
+  // Get visible rows based on expanded state (no subtotal calculation needed)
 
-  // Get visible rows based on expanded state
   const getVisibleRows = () => {
-    const objectsWithSubtotals = calculateSubtotals(digitalObjects);
     const visible: DigitalObject[] = [];
     
     const addVisibleRows = (parentId: string | null, level: number = 0) => {
-      const rowsAtLevel = objectsWithSubtotals.filter(obj => obj.parent_id === parentId && obj.level === level);
+      const rowsAtLevel = digitalObjects.filter(obj => obj.parent_id === parentId && obj.level === level);
       
       for (const row of rowsAtLevel) {
         visible.push(row);
@@ -296,8 +245,6 @@ export const useDigitalObjects = () => {
       description: "",
       status: "planning",
       stage: "4.0 PRELIMINARY",
-      cost: null,
-      progress: 0,
       level: 0,
       parent_id: null,
       expanded: true
@@ -308,6 +255,92 @@ export const useDigitalObjects = () => {
       title: "Row Added",
       description: "New item added successfully",
     });
+  };
+
+  const handleImportCSV = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+          toast({
+            title: "Invalid CSV",
+            description: "CSV must have at least a header row and one data row",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const requiredHeaders = ['name', 'object_type', 'description', 'status', 'stage'];
+        
+        const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+        if (missingHeaders.length > 0) {
+          toast({
+            title: "Missing Columns",
+            description: `CSV must include columns: ${missingHeaders.join(', ')}`,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        const newObjects: DigitalObject[] = [];
+        let maxId = Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1;
+
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',').map(v => v.trim().replace(/^"(.*)"$/, '$1'));
+          
+          if (values.length < headers.length) continue;
+
+          const obj: DigitalObject = {
+            id: maxId.toString(),
+            name: values[headers.indexOf('name')] || '',
+            object_type: values[headers.indexOf('object_type')] || '',
+            description: values[headers.indexOf('description')] || null,
+            status: values[headers.indexOf('status')] || 'planning',
+            stage: values[headers.indexOf('stage')] || '4.0 PRELIMINARY',
+            level: 0,
+            parent_id: null,
+            expanded: true
+          };
+
+          newObjects.push(obj);
+          maxId++;
+        }
+
+        setDigitalObjects(prev => [...prev, ...newObjects]);
+        
+        // Try to save to database
+        newObjects.forEach(async (obj) => {
+          try {
+            const { error } = await supabase
+              .from('digital_objects' as any)
+              .insert(obj);
+            
+            if (error) {
+              console.log('Database insert will be enabled once types are updated:', error);
+            }
+          } catch (dbError) {
+            console.log('Database save pending type updates');
+          }
+        });
+
+        toast({
+          title: "CSV Imported",
+          description: `Successfully imported ${newObjects.length} items`,
+        });
+      } catch (error) {
+        toast({
+          title: "Import Error",
+          description: "Failed to parse CSV file. Please check the format.",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    reader.readAsText(file);
   };
 
   const handleFieldClick = (obj: DigitalObject, field: keyof DigitalObject) => {
@@ -339,10 +372,21 @@ export const useDigitalObjects = () => {
         
         if (currentIndex > 0) {
           const rowAbove = digitalObjects[currentIndex - 1];
+          const newLevel = rowAbove.level + 1;
+          
+          // Enforce maximum 5 levels (0-4)
+          if (newLevel > 4) {
+            toast({
+              title: "Maximum Indent Level",
+              description: "Cannot indent beyond 5 levels",
+              variant: "destructive"
+            });
+            return obj;
+          }
           
           return {
             ...obj,
-            level: rowAbove.level + 1,
+            level: newLevel,
             parent_id: rowAbove.id
           };
         }
@@ -573,6 +617,7 @@ export const useDigitalObjects = () => {
     handleIndent,
     handleOutdent,
     handleToggleExpand,
-    handleAddRow
+    handleAddRow,
+    handleImportCSV
   };
 };

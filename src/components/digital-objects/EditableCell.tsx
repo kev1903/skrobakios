@@ -65,10 +65,6 @@ export const EditableCell = ({
     <Badge variant="outline" className={getStatusColor(obj.status)}>
       {getStatusText(obj.status)}
     </Badge>
-  ) : field === 'cost' ? (
-    obj.cost ? `$${obj.cost.toLocaleString()}` : '-'
-  ) : field === 'progress' ? (
-    `${obj.progress}%`
   ) : (
     value || '-'
   );

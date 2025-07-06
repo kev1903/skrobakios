@@ -4,8 +4,6 @@ export interface DigitalObject {
   object_type: string;
   description: string | null;
   status: string;
-  cost: number | null;
-  progress: number;
   stage: string;
   level: number;
   parent_id: string | null;

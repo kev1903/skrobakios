@@ -131,32 +131,6 @@ export const DigitalObjectRow = ({
               onKeyDown={onKeyDown}
             />
           </TableCell>
-          <TableCell className="text-slate-300 h-8 py-1 text-sm">
-            <EditableCell
-              obj={obj}
-              field="cost"
-              value={obj.cost}
-              isEditing={isFieldEditing('cost')}
-              editingData={editingData}
-              onFieldClick={onFieldClick}
-              onEditingDataChange={onEditingDataChange}
-              onKeyDown={onKeyDown}
-              type="number"
-            />
-          </TableCell>
-          <TableCell className="text-slate-300 h-8 py-1 text-sm">
-            <EditableCell
-              obj={obj}
-              field="progress"
-              value={obj.progress}
-              isEditing={isFieldEditing('progress')}
-              editingData={editingData}
-              onFieldClick={onFieldClick}
-              onEditingDataChange={onEditingDataChange}
-              onKeyDown={onKeyDown}
-              type="number"
-            />
-          </TableCell>
           <TableCell className="h-8 py-1">
             <ActionButtons
               isEditing={editingField?.id === obj.id}

@@ -21,7 +21,8 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     handleIndent,
     handleOutdent,
     handleToggleExpand,
-    handleAddRow
+    handleAddRow,
+    handleImportCSV
   } = useDigitalObjects();
 
   return (
@@ -43,6 +44,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
             onIndent={handleIndent}
             onOutdent={handleOutdent}
             onAddRow={handleAddRow}
+            onImportCSV={handleImportCSV}
           />
           
           <DigitalObjectsTable
