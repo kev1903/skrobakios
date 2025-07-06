@@ -25,7 +25,7 @@ interface ProjectListProps {
   onSelectProject?: (projectId: string) => void;
 }
 
-type SortField = 'project_id' | 'name' | 'description' | 'start_date' | 'deadline' | 'status';
+type SortField = 'project_id' | 'name' | 'description' | 'contract_price' | 'location' | 'priority' | 'start_date' | 'deadline' | 'status';
 type SortDirection = 'asc' | 'desc';
 type ViewMode = 'list' | 'grid';
 
@@ -198,16 +198,28 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             {project.description || 'No description available'}
           </p>
           
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-white/70">Start Date:</span>
-              <span className="text-white/80">{project.start_date ? formatDate(project.start_date) : '-'}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-white/70">Due Date:</span>
-              <span className="text-white/80">{project.deadline ? formatDate(project.deadline) : '-'}</span>
-            </div>
-          </div>
+           <div className="space-y-2 mb-4">
+             <div className="flex justify-between text-sm">
+               <span className="text-white/70">Contract Price:</span>
+               <span className="text-white/80">{project.contract_price || '-'}</span>
+             </div>
+             <div className="flex justify-between text-sm">
+               <span className="text-white/70">Location:</span>
+               <span className="text-white/80">{project.location || '-'}</span>
+             </div>
+             <div className="flex justify-between text-sm">
+               <span className="text-white/70">Priority:</span>
+               <span className="text-white/80">{project.priority || '-'}</span>
+             </div>
+             <div className="flex justify-between text-sm">
+               <span className="text-white/70">Start Date:</span>
+               <span className="text-white/80">{project.start_date ? formatDate(project.start_date) : '-'}</span>
+             </div>
+             <div className="flex justify-between text-sm">
+               <span className="text-white/70">Due Date:</span>
+               <span className="text-white/80">{project.deadline ? formatDate(project.deadline) : '-'}</span>
+             </div>
+           </div>
           
           <div className="flex items-center justify-between">
             <Badge 
@@ -330,12 +342,15 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                       className="rounded border-white/30 bg-white/10 text-white focus:ring-white/30"
                     />
                   </TableHead>
-                  <SortableHeader field="project_id">ID</SortableHeader>
-                  <SortableHeader field="name">Project Name</SortableHeader>
-                  <SortableHeader field="description">Description</SortableHeader>
-                  <SortableHeader field="start_date">Start Date</SortableHeader>
-                  <SortableHeader field="deadline">Due Date</SortableHeader>
-                  <SortableHeader field="status">Status</SortableHeader>
+                   <SortableHeader field="project_id">ID</SortableHeader>
+                   <SortableHeader field="name">Project Name</SortableHeader>
+                   <SortableHeader field="description">Description</SortableHeader>
+                   <SortableHeader field="contract_price">Contract Price</SortableHeader>
+                   <SortableHeader field="location">Location</SortableHeader>
+                   <SortableHeader field="priority">Priority</SortableHeader>
+                   <SortableHeader field="start_date">Start Date</SortableHeader>
+                   <SortableHeader field="deadline">Due Date</SortableHeader>
+                   <SortableHeader field="status">Status</SortableHeader>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -363,15 +378,24 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                           {project.name}
                         </button>
                       </TableCell>
-                      <TableCell className="text-white/80">
-                        {project.description || '-'}
-                      </TableCell>
-                      <TableCell className="text-white/80">
-                        {project.start_date ? formatDate(project.start_date) : '-'}
-                      </TableCell>
-                      <TableCell className="text-white/80">
-                        {project.deadline ? formatDate(project.deadline) : '-'}
-                      </TableCell>
+                       <TableCell className="text-white/80">
+                         {project.description || '-'}
+                       </TableCell>
+                       <TableCell className="text-white/80">
+                         {project.contract_price || '-'}
+                       </TableCell>
+                       <TableCell className="text-white/80">
+                         {project.location || '-'}
+                       </TableCell>
+                       <TableCell className="text-white/80">
+                         {project.priority || '-'}
+                       </TableCell>
+                       <TableCell className="text-white/80">
+                         {project.start_date ? formatDate(project.start_date) : '-'}
+                       </TableCell>
+                       <TableCell className="text-white/80">
+                         {project.deadline ? formatDate(project.deadline) : '-'}
+                       </TableCell>
                       <TableCell>
                         <Badge 
                           variant="outline" 
