@@ -2,7 +2,7 @@ import { ProjectSidebar } from "../ProjectSidebar";
 import { DigitalObjectsPageProps } from "./types";
 import { DigitalObjectsHeader } from "./DigitalObjectsHeader";
 import { DigitalObjectsTable } from "./DigitalObjectsTable";  
-import { DigitalObjectsTabs } from "./tab-system/DigitalObjectsTabs";
+import { DigitalObjectsTabs } from "./DigitalObjectsTabs";
 import { useDigitalObjects } from "./useDigitalObjects";
 import { getStatusColor, getStatusText } from "./utils";
 
@@ -23,9 +23,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     handleOutdent,
     handleToggleExpand,
     handleAddRow,
-    handleImportCSV,
-    handleDeleteRow,
-    handleClearTableData
+    handleImportCSV
   } = useDigitalObjects();
 
   return (
@@ -42,16 +40,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
       {/* Main Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         <div className="p-8">
-          {/* Page Title */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white mb-1">Digital Objects</h1>
-            <p className="text-white">Manage project digital objects and deliverables</p>
-          </div>
-          
-          {/* Tabs Navigation */}
-          <DigitalObjectsTabs
-            onClearTableData={handleClearTableData}
-          >
+          <DigitalObjectsTabs>
             {(activeTabId) => (
               <>
                 <DigitalObjectsHeader 
@@ -75,7 +64,6 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
                   onEditingDataChange={setEditingData}
                   onDragEnd={handleDragEnd}
                   onToggleExpand={handleToggleExpand}
-                  onDelete={handleDeleteRow}
                 />
               </>
             )}

@@ -25,7 +25,6 @@ interface DigitalObjectsTableProps {
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
   onDragEnd: (result: any) => void;
   onToggleExpand: (id: string) => void;
-  onDelete: (id: string) => void;
 }
 
 export const DigitalObjectsTable = ({
@@ -40,8 +39,7 @@ export const DigitalObjectsTable = ({
   onCancel,
   onEditingDataChange,
   onDragEnd,
-  onToggleExpand,
-  onDelete
+  onToggleExpand
 }: DigitalObjectsTableProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -112,7 +110,6 @@ export const DigitalObjectsTable = ({
                         onKeyDown={handleKeyDown}
                         onToggleExpand={onToggleExpand}
                         hasChildren={getHasChildren(obj.id)}
-                        onDelete={onDelete}
                       />
                     ))}
                     {digitalObjects.length === 0 && (
