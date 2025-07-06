@@ -95,63 +95,63 @@ export const ProjectsDashboard = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active': return 'bg-green-100 text-green-700';
-      case 'On Hold': return 'bg-yellow-100 text-yellow-700';
-      case 'Completed': return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'Active': return 'bg-green-500/20 text-green-700 border-green-500/30';
+      case 'On Hold': return 'bg-orange-500/20 text-orange-700 border-orange-500/30';
+      case 'Completed': return 'bg-blue-500/20 text-blue-700 border-blue-500/30';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const ProjectCard = ({ project }: { project: any }) => (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="glass-card hover:glass-hover transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="font-semibold text-lg">{project.name}</h3>
-            <p className="text-sm text-gray-600">{project.address}</p>
-            <p className="text-sm text-gray-600">Client: {project.client}</p>
+            <h3 className="font-semibold text-lg text-foreground font-poppins">{project.name}</h3>
+            <p className="text-sm text-muted-foreground font-inter">{project.address}</p>
+            <p className="text-sm text-muted-foreground font-inter">Client: {project.client}</p>
           </div>
           <Badge className={getStatusColor(project.status)}>{project.status}</Badge>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <p className="text-sm text-gray-500">Budget vs Actual</p>
-            <p className="font-medium text-green-600">{project.budget}</p>
-            <p className="text-sm text-gray-600">Spent: {project.actual}</p>
+            <p className="text-sm text-muted-foreground font-inter">Budget vs Actual</p>
+            <p className="font-medium text-primary font-poppins">{project.budget}</p>
+            <p className="text-sm text-muted-foreground font-inter">Spent: {project.actual}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Completion</p>
+            <p className="text-sm text-muted-foreground font-inter">Completion</p>
             <div className="flex items-center space-x-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div className="flex-1 bg-muted rounded-full h-2">
                 <div 
-                  className="bg-blue-600 h-2 rounded-full" 
+                  className="bg-primary h-2 rounded-full" 
                   style={{ width: `${project.completion}%` }}
                 ></div>
               </div>
-              <span className="text-sm font-medium">{project.completion}%</span>
+              <span className="text-sm font-medium font-inter">{project.completion}%</span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Users className="w-4 h-4 text-gray-400" />
+            <Users className="w-4 h-4 text-muted-foreground" />
             <div className="flex -space-x-2">
               {project.team.slice(0, 3).map((member: any, index: number) => (
-                <Avatar key={index} className="w-6 h-6 border-2 border-white">
+                <Avatar key={index} className="w-6 h-6 border-2 border-background">
                   <AvatarImage src={member.avatar} />
-                  <AvatarFallback className="text-xs">{member.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+                  <AvatarFallback className="text-xs bg-primary text-primary-foreground">{member.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
                 </Avatar>
               ))}
               {project.team.length > 3 && (
-                <div className="w-6 h-6 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center">
+                <div className="w-6 h-6 bg-muted rounded-full border-2 border-background flex items-center justify-center">
                   <span className="text-xs">+{project.team.length - 3}</span>
                 </div>
               )}
             </div>
           </div>
-          <Button size="sm" variant="outline">View Details</Button>
+          <Button size="sm" variant="outline" className="font-inter">View Details</Button>
         </div>
       </CardContent>
     </Card>
@@ -162,10 +162,10 @@ export const ProjectsDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Projects Dashboard</h2>
-          <p className="text-gray-600">Manage and track all your projects</p>
+          <h2 className="text-2xl font-bold text-foreground font-poppins">Projects Dashboard</h2>
+          <p className="text-muted-foreground font-inter">Manage and track all your projects</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button className="bg-primary hover:bg-primary/90 font-inter">
           <Plus className="w-4 h-4 mr-2" />
           New Project
         </Button>
@@ -180,7 +180,7 @@ export const ProjectsDashboard = () => {
               placeholder="Search projects..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 font-inter"
             />
           </div>
           <Select>
@@ -232,10 +232,10 @@ export const ProjectsDashboard = () => {
           ))}
         </div>
       ) : (
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
-            <CardTitle>All Projects</CardTitle>
-            <CardDescription>Detailed view of all projects</CardDescription>
+            <CardTitle className="text-foreground font-poppins">All Projects</CardTitle>
+            <CardDescription className="font-inter">Detailed view of all projects</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>

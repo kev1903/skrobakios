@@ -8,10 +8,10 @@ export const LeadsPage = () => {
     <div className="space-y-6">
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="text-foreground">Lead Contacts</CardTitle>
+          <CardTitle className="text-foreground font-poppins">Lead Contacts</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Lead contacts management coming soon...</p>
+          <p className="text-muted-foreground font-inter">Lead contacts management coming soon...</p>
         </CardContent>
       </Card>
     </div>

@@ -39,51 +39,51 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
             variant="ghost" 
             size="sm" 
             onClick={onBack}
-            className="h-8 w-8 p-0 hover:bg-white/10 text-white"
+            className="h-8 w-8 p-0 hover:bg-white/10 text-sidebar-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h2 className="font-semibold text-black">BACK</h2>
-            <p className="text-xs text-white/70">The CRM for your team</p>
+            <h2 className="font-semibold text-foreground font-poppins">BACK</h2>
+            <p className="text-xs text-muted-foreground font-inter">The CRM for your team</p>
           </div>
         </div>
 
         {/* Task Management Section */}
         <div className="space-y-1">
-          <h3 className="text-xs font-medium text-muted-foreground mb-2">Task Management</h3>
+          <h3 className="text-xs font-medium text-muted-foreground mb-2 font-inter uppercase tracking-wider">Task Management</h3>
           <div className="space-y-1">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>All Task</span>
-              <span className="text-xs">(30)</span>
+              <span className="text-xs text-muted-foreground">(30)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Lead</span>
-              <span className="text-xs">(5)</span>
+              <span className="text-xs text-muted-foreground">(5)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Contacted</span>
-              <span className="text-xs">(6)</span>
+              <span className="text-xs text-muted-foreground">(6)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Qualified</span>
-              <span className="text-xs">(4)</span>
+              <span className="text-xs text-muted-foreground">(4)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Proposal made</span>
-              <span className="text-xs">(15)</span>
+              <span className="text-xs text-muted-foreground">(15)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Won</span>
-              <span className="text-xs">(10)</span>
+              <span className="text-xs text-muted-foreground">(10)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Lost</span>
-              <span className="text-xs">(5)</span>
+              <span className="text-xs text-muted-foreground">(5)</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
               <span>Fridge</span>
-              <span className="text-xs">(5)</span>
+              <span className="text-xs text-muted-foreground">(5)</span>
             </div>
           </div>
         </div>
@@ -96,17 +96,17 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
             <Button
               key={item.id}
               variant={activeTab === item.id ? 'secondary' : 'ghost'}
-              className={`w-full justify-start text-left ${
+              className={`w-full justify-start text-left font-inter ${
                 activeTab === item.id 
-                  ? 'bg-white/20 text-foreground' 
-                  : 'text-muted-foreground hover:bg-white/10 hover:text-foreground'
+                  ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
+                  : 'text-sidebar-foreground hover:bg-white/10 hover:text-sidebar-accent-foreground'
               }`}
               onClick={() => onTabChange(item.id)}
             >
               <item.icon className="w-4 h-4 mr-3" />
               <span className="flex-1">{item.label}</span>
               {item.badge && (
-                <Badge variant="secondary" className="ml-auto text-xs">
+                <Badge variant="secondary" className="ml-auto text-xs bg-primary/20 text-primary-foreground">
                   {item.badge}
                 </Badge>
               )}
@@ -117,12 +117,12 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
         {/* Additional Sections */}
         <div className="mt-8 space-y-4">
           <div>
-            <h4 className="text-xs font-medium text-muted-foreground mb-2">Admin & Users Accounts</h4>
+            <h4 className="text-xs font-medium text-muted-foreground mb-2 font-inter uppercase tracking-wider">Admin & Users Accounts</h4>
             <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Lead Contacts</div>
-              <div className="text-sm text-muted-foreground">Opportunities</div>
-              <div className="text-sm text-muted-foreground">Product Campaigns</div>
-              <div className="text-sm text-muted-foreground">Insights</div>
+              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Lead Contacts</div>
+              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Opportunities</div>
+              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Product Campaigns</div>
+              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Insights</div>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
       <div className="p-4 border-t border-white/20">
         <div className="flex -space-x-2">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="w-8 h-8 rounded-full bg-primary ring-2 ring-background flex items-center justify-center">
+            <div key={i} className="w-8 h-8 rounded-full bg-primary ring-2 ring-sidebar-background flex items-center justify-center hover:scale-110 transition-transform">
               <span className="text-xs text-primary-foreground font-medium">{i}</span>
             </div>
           ))}

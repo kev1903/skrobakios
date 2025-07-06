@@ -50,26 +50,31 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Sales Ribbon - Always visible */}
-      <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
-      {/* Main Content Area - Properly offset to account for wider ribbon */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <div className="glass-light border-b border-white/30 px-6 py-6 flex-shrink-0 backdrop-blur-xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">Sales CRM</h1>
-              <p className="text-slate-600 mt-1">Manage your sales pipeline and customer relationships</p>
+      <div className="relative z-10 flex min-h-screen">
+        {/* Sales Ribbon - Always visible */}
+        <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
+        
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Header */}
+          <div className="glass-light border-b border-white/30 px-6 py-6 flex-shrink-0 backdrop-blur-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground font-poppins">Sales CRM</h1>
+                <p className="text-muted-foreground mt-1 font-inter">Manage your sales pipeline and customer relationships</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-auto bg-gradient-to-br from-slate-50/80 to-blue-50/80">
-          <div className="p-6 space-y-6 max-w-7xl mx-auto">
-            {renderContent()}
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto">
+            <div className="p-6 space-y-6 max-w-7xl mx-auto">
+              {renderContent()}
+            </div>
           </div>
         </div>
       </div>

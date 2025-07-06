@@ -122,29 +122,29 @@ export const ClientProfilePage = () => {
   return (
     <div className="space-y-6">
       {/* Client Header */}
-      <Card>
+      <Card className="glass-card">
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
               <Avatar className="w-20 h-20">
                 <AvatarImage src={selectedClient.avatar} />
-                <AvatarFallback className="text-lg">
+                <AvatarFallback className="text-lg bg-primary text-primary-foreground">
                   {selectedClient.name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-2xl font-bold">{selectedClient.name}</h2>
-                <p className="text-gray-600 mb-2">{selectedClient.company}</p>
+                <h2 className="text-2xl font-bold text-foreground font-poppins">{selectedClient.name}</h2>
+                <p className="text-muted-foreground mb-2 font-inter">{selectedClient.company}</p>
                 <div className="space-y-1">
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-muted-foreground font-inter">
                     <Mail className="w-4 h-4 mr-2" />
                     {selectedClient.email}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-muted-foreground font-inter">
                     <Phone className="w-4 h-4 mr-2" />
                     {selectedClient.phone}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-muted-foreground font-inter">
                     <MapPin className="w-4 h-4 mr-2" />
                     {selectedClient.address}
                   </div>
@@ -152,11 +152,11 @@ export const ClientProfilePage = () => {
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button variant="outline">
+              <Button variant="outline" className="font-inter">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Send Email
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-primary hover:bg-primary/90 font-inter">
                 <Send className="w-4 h-4 mr-2" />
                 Send Proposal
               </Button>
@@ -175,20 +175,20 @@ export const ClientProfilePage = () => {
         </TabsList>
 
         <TabsContent value="communications">
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Communications Log</CardTitle>
-              <CardDescription>All communications with this client</CardDescription>
+              <CardTitle className="text-foreground font-poppins">Communications Log</CardTitle>
+              <CardDescription className="font-inter">All communications with this client</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="font-inter">Type</TableHead>
+                    <TableHead className="font-inter">Subject</TableHead>
+                    <TableHead className="font-inter">Date</TableHead>
+                    <TableHead className="font-inter">Status</TableHead>
+                    <TableHead className="font-inter">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -197,15 +197,15 @@ export const ClientProfilePage = () => {
                       <TableCell>
                         <Badge variant="outline">{comm.type}</Badge>
                       </TableCell>
-                      <TableCell className="font-medium">{comm.subject}</TableCell>
-                      <TableCell>{comm.date}</TableCell>
+                      <TableCell className="font-medium font-inter">{comm.subject}</TableCell>
+                      <TableCell className="font-inter">{comm.date}</TableCell>
                       <TableCell>
-                        <Badge className={comm.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}>
+                        <Badge className={comm.status === 'Completed' ? 'bg-green-500/20 text-green-700 border-green-500/30' : 'bg-blue-500/20 text-blue-700 border-blue-500/30'}>
                           {comm.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button size="sm" variant="outline">View</Button>
+                        <Button size="sm" variant="outline" className="font-inter">View</Button>
                       </TableCell>
                     </TableRow>
                   ))}

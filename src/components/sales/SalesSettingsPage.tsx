@@ -23,10 +23,10 @@ export const SalesSettingsPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Settings className="w-8 h-8 text-blue-600" />
+        <Settings className="w-8 h-8 text-primary" />
         <div>
-          <h2 className="text-2xl font-bold">Sales CRM Settings</h2>
-          <p className="text-gray-600">Configure your CRM system preferences</p>
+          <h2 className="text-2xl font-bold text-foreground font-poppins">Sales CRM Settings</h2>
+          <p className="text-muted-foreground font-inter">Configure your CRM system preferences</p>
         </div>
       </div>
 
@@ -42,39 +42,40 @@ export const SalesSettingsPage = () => {
 
         <TabsContent value="general">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
-                <CardTitle>Company Information</CardTitle>
-                <CardDescription>Basic company details for estimates and communications</CardDescription>
+                <CardTitle className="text-foreground font-poppins">Company Information</CardTitle>
+                <CardDescription className="font-inter">Basic company details for estimates and communications</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="company-name">Company Name</Label>
-                  <Input id="company-name" defaultValue="Construction Pro LLC" />
+                  <Label htmlFor="company-name" className="font-inter">Company Name</Label>
+                  <Input id="company-name" defaultValue="Construction Pro LLC" className="font-inter" />
                 </div>
                 <div>
-                  <Label htmlFor="company-address">Address</Label>
+                  <Label htmlFor="company-address" className="font-inter">Address</Label>
                   <Textarea 
                     id="company-address" 
                     rows={3}
                     defaultValue="123 Business Street&#10;Melbourne VIC 3000&#10;Australia"
+                    className="font-inter"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="company-phone">Phone</Label>
-                    <Input id="company-phone" defaultValue="+61 3 9000 0000" />
+                    <Label htmlFor="company-phone" className="font-inter">Phone</Label>
+                    <Input id="company-phone" defaultValue="+61 3 9000 0000" className="font-inter" />
                   </div>
                   <div>
-                    <Label htmlFor="company-email">Email</Label>
-                    <Input id="company-email" defaultValue="info@constructionpro.com.au" />
+                    <Label htmlFor="company-email" className="font-inter">Email</Label>
+                    <Input id="company-email" defaultValue="info@constructionpro.com.au" className="font-inter" />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="company-website">Website</Label>
-                  <Input id="company-website" defaultValue="www.constructionpro.com.au" />
+                  <Label htmlFor="company-website" className="font-inter">Website</Label>
+                  <Input id="company-website" defaultValue="www.constructionpro.com.au" className="font-inter" />
                 </div>
-                <Button>Save Changes</Button>
+                <Button className="font-inter">Save Changes</Button>
               </CardContent>
             </Card>
 

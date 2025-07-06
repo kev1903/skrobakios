@@ -292,10 +292,10 @@ export const SalesDashboard = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'High': return 'bg-red-100 text-red-700 border-red-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'Low': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'High': return 'bg-destructive/20 text-destructive border-destructive/30';
+      case 'Medium': return 'bg-orange-500/20 text-orange-700 border-orange-500/30';
+      case 'Low': return 'bg-green-500/20 text-green-700 border-green-500/30';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -303,50 +303,50 @@ export const SalesDashboard = () => {
     <div className="space-y-6 h-full flex flex-col">
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
+        <Card className="glass-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Total Opportunities</p>
-                <p className="text-2xl font-bold text-slate-800">{totalOpportunities}</p>
+                <p className="text-sm font-medium text-muted-foreground font-inter">Total Opportunities</p>
+                <p className="text-2xl font-bold text-foreground font-poppins">{totalOpportunities}</p>
               </div>
-              <Building2 className="w-8 h-8 text-blue-600" />
+              <Building2 className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
+        <Card className="glass-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Pipeline Value</p>
-                <p className="text-2xl font-bold text-slate-800">${totalValue.toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground font-inter">Pipeline Value</p>
+                <p className="text-2xl font-bold text-foreground font-poppins">${totalValue.toLocaleString()}</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-600" />
+              <DollarSign className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
+        <Card className="glass-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Active Leads</p>
-                <p className="text-2xl font-bold text-slate-800">{stages[0].count}</p>
+                <p className="text-sm font-medium text-muted-foreground font-inter">Active Leads</p>
+                <p className="text-2xl font-bold text-foreground font-poppins">{stages[0].count}</p>
               </div>
-              <Users className="w-8 h-8 text-blue-600" />
+              <Users className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
+        <Card className="glass-card">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Won This Month</p>
-                <p className="text-2xl font-bold text-slate-800">{stages[4].count}</p>
+                <p className="text-sm font-medium text-muted-foreground font-inter">Won This Month</p>
+                <p className="text-2xl font-bold text-foreground font-poppins">{stages[4].count}</p>
               </div>
-              <Clock className="w-8 h-8 text-purple-600" />
+              <Clock className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -361,14 +361,14 @@ export const SalesDashboard = () => {
               placeholder="Search opportunities..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 glass border-white/20 w-64"
+              className="pl-10 glass-card border-border w-64 font-inter"
             />
           </div>
           <Select>
-            <SelectTrigger className="w-40 glass border-white/20">
+            <SelectTrigger className="w-40 glass-card border-border font-inter">
               <SelectValue placeholder="All Sources" />
             </SelectTrigger>
-            <SelectContent className="glass-card border-white/20">
+            <SelectContent className="glass-card border-border">
               <SelectItem value="all">All Sources</SelectItem>
               <SelectItem value="website">Website</SelectItem>
               <SelectItem value="referral">Referral</SelectItem>
@@ -376,7 +376,7 @@ export const SalesDashboard = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-inter">
           <Plus className="w-4 h-4 mr-2" />
           Create Opportunity
         </Button>
@@ -392,10 +392,10 @@ export const SalesDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${stage.color}`} />
-                      <CardTitle className="text-sm font-semibold text-foreground">
+                      <CardTitle className="text-sm font-semibold text-foreground font-inter">
                         {stage.name}
                       </CardTitle>
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground">
                         {stage.count}
                       </Badge>
                     </div>
@@ -410,7 +410,7 @@ export const SalesDashboard = () => {
 
                 <CardContent className="flex-1 space-y-3 pt-0">
                   {stage.opportunities.map((opportunity) => (
-                    <Card key={opportunity.id} className="glass border-white/20 hover:bg-white/10 transition-colors cursor-pointer">
+                    <Card key={opportunity.id} className="glass-card hover:glass-hover transition-colors cursor-pointer">
                       <CardContent className="p-4">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
@@ -422,8 +422,8 @@ export const SalesDashboard = () => {
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <h4 className="font-semibold text-sm text-foreground">{opportunity.company}</h4>
-                                <p className="text-xs text-muted-foreground">{opportunity.contact}</p>
+                                <h4 className="font-semibold text-sm text-foreground font-poppins">{opportunity.company}</h4>
+                                <p className="text-xs text-muted-foreground font-inter">{opportunity.contact}</p>
                               </div>
                             </div>
                             <Badge variant="outline" className={`text-xs ${getPriorityColor(opportunity.priority)}`}>
@@ -431,23 +431,23 @@ export const SalesDashboard = () => {
                             </Badge>
                           </div>
                           
-                          <p className="text-sm text-muted-foreground">{opportunity.description}</p>
+                          <p className="text-sm text-muted-foreground font-inter">{opportunity.description}</p>
                           
                           <div className="flex items-center justify-between">
-                            <div className="text-lg font-bold text-green-400">
+                            <div className="text-lg font-bold text-primary font-poppins">
                               ${opportunity.value.toLocaleString()}
                             </div>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
                                 <Phone className="w-3 h-3" />
                               </Button>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
                                 <Mail className="w-3 h-3" />
                               </Button>
                             </div>
                           </div>
                           
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground font-inter">
                             <span>{opportunity.source}</span>
                             <span>{opportunity.lastActivity}</span>
                           </div>
@@ -458,7 +458,7 @@ export const SalesDashboard = () => {
                   
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-center glass border-white/20 border-dashed hover:bg-white/10"
+                    className="w-full justify-center glass-card border-dashed hover:bg-muted font-inter"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Opportunity
