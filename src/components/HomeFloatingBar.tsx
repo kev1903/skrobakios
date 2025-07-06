@@ -178,8 +178,9 @@ export const HomeFloatingBar = ({
             </button>
             <button
               onClick={() => {
-                setSidePageContent('sales');
-                setIsRibbonOpen(true);
+                onNavigate('sales'); // Navigate to full-screen sales page
+                setIsRibbonOpen(false); // Close the ribbon completely
+                setSidePageContent(null); // Clear side content
               }}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
             >
