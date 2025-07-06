@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TaskManagement } from "@/components/TaskManagement";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
@@ -32,9 +31,7 @@ import { WBSPage } from "@/components/WBSPage";
 import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 import { CostContractsPage } from "@/components/CostContractsPage";
-
 import { Project } from "@/hooks/useProjects";
-
 interface ContentRendererProps {
   currentPage: string;
   onNavigate: (page: string) => void;
@@ -42,20 +39,16 @@ interface ContentRendererProps {
   selectedProject: string | null;
   currentProject: Project | null;
 }
-
-export const ContentRenderer = ({ 
-  currentPage, 
-  onNavigate, 
-  onSelectProject, 
-  selectedProject, 
-  currentProject 
+export const ContentRenderer = ({
+  currentPage,
+  onNavigate,
+  onSelectProject,
+  selectedProject,
+  currentProject
 }: ContentRendererProps) => {
-  const renderProjectNotFound = () => (
-    <div className="flex items-center justify-center h-full">
+  const renderProjectNotFound = () => <div className="flex items-center justify-center h-full">
       <p className="text-slate-500">Project not found</p>
-    </div>
-  );
-
+    </div>;
   switch (currentPage) {
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
@@ -78,33 +71,19 @@ export const ContentRenderer = ({
     case "project-detail":
       return <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />;
     case "project-tasks":
-      return currentProject ? (
-        <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <ProjectTasksPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-files":
-      return currentProject ? (
-        <ProjectFilePage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <ProjectFilePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-settings":
-      return currentProject ? (
-        <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-schedule":
-      return currentProject ? (
-        <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-team":
-      return currentProject ? (
-        <ProjectTeamPage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <ProjectTeamPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-wbs":
-      return currentProject ? (
-        <WBSPage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <WBSPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "gantt-chart":
-      return currentProject ? (
-        <GanttChartPage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <GanttChartPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "upload":
       return <UploadProject onNavigate={onNavigate} />;
     case "files":
@@ -126,48 +105,42 @@ export const ContentRenderer = ({
     case "cost-contracts":
       return <CostContractsPage onNavigate={onNavigate} />;
     case "project-cost":
-      return currentProject ? (
-        <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
-          <ProjectSidebar
-            project={currentProject}
-            onNavigate={onNavigate}
-            getStatusColor={(status: string) => {
-              switch (status) {
-                case "completed": return "bg-green-500/20 text-green-300 border-green-500/30";
-                case "running": return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-                case "pending": return "bg-red-500/20 text-red-300 border-red-500/30";
-                default: return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-              }
-            }}
-            getStatusText={(status: string) => {
-              switch (status) {
-                case "completed": return "Completed";
-                case "running": return "In Progress";
-                case "pending": return "Pending";
-                default: return "Active";
-              }
-            }}
-            activeSection="cost"
-          />
+      return currentProject ? <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+          <ProjectSidebar project={currentProject} onNavigate={onNavigate} getStatusColor={(status: string) => {
+          switch (status) {
+            case "completed":
+              return "bg-green-500/20 text-green-300 border-green-500/30";
+            case "running":
+              return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+            case "pending":
+              return "bg-red-500/20 text-red-300 border-red-500/30";
+            default:
+              return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+          }
+        }} getStatusText={(status: string) => {
+          switch (status) {
+            case "completed":
+              return "Completed";
+            case "running":
+              return "In Progress";
+            case "pending":
+              return "Pending";
+            default:
+              return "Active";
+          }
+        }} activeSection="cost" />
           <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
             <div className="p-8">
               <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  Project Cost & Contract Management
-                </h1>
-                <p className="text-gray-600">
-                  Track contracts, cost breakdowns, variations, claims, and payments for construction projects
-                </p>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">Cost Management</h1>
+                
               </div>
               <CostContractsPage onNavigate={onNavigate} />
             </div>
           </div>
-        </div>
-      ) : renderProjectNotFound();
+        </div> : renderProjectNotFound();
     case "bim":
-      return currentProject ? (
-        <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
-      ) : renderProjectNotFound();
+      return currentProject ? <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} />;
     case "support":
