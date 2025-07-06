@@ -5,7 +5,7 @@ import { Task, useTaskContext } from './TaskContext';
 import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
 import { TaskEditActions } from './TaskEditActions';
-import { SubtasksList } from './SubtasksList';
+import { SubtasksList } from './subtasks';
 import { TaskCommentsActivity } from './TaskCommentsActivity';
 import { SubmittalWorkflow } from './SubmittalWorkflow';
 import { useIsMobile } from '@/hooks/use-mobile';
