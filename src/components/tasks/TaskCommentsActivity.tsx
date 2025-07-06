@@ -1,72 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageSquare, Activity, Send, ThumbsUp } from 'lucide-react';
-
-interface Comment {
-  id: string;
-  author: { name: string; avatar: string };
-  content: string;
-  timestamp: string;
-}
-
-interface ActivityItem {
-  id: string;
-  author: { name: string; avatar: string };
-  action: string;
-  timestamp: string;
-  type: 'task_created' | 'task_completed' | 'comment_added' | 'task_updated';
-}
+import { useTaskComments } from '@/hooks/useTaskComments';
+import { useTaskActivity } from '@/hooks/useTaskActivity';
 
 interface TaskCommentsActivityProps {
   taskId: string;
 }
 
 export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: '1',
-      author: { name: 'Zayra Panaligan', avatar: '' },
-      content: 'PDF link: https://enassee.sharepoint.com/.../ESqJOTUPnVKmvPdeBL_6FwB2h_82Ru-9fo62yDqziyxw?e=TnyLH0',
-      timestamp: '29 Jun, 2023'
-    }
-  ]);
-
-  const [activities, setActivities] = useState<ActivityItem[]>([
-    {
-      id: '1',
-      author: { name: 'Kevin Enassee', avatar: '' },
-      action: 'created this task',
-      timestamp: '28 Jun, 2023',
-      type: 'task_created'
-    },
-    {
-      id: '2',
-      author: { name: 'Kevin Enassee', avatar: '' },
-      action: 'completed this task',
-      timestamp: '11 Jun, 2024',
-      type: 'task_completed'
-    }
-  ]);
-
+  const { comments, addComment, loading: commentsLoading } = useTaskComments(taskId);
+  const { activities, loading: activitiesLoading } = useTaskActivity(taskId);
   const [newComment, setNewComment] = useState('');
-  const [collaborators] = useState([
-    { name: 'Kevin Enassee', avatar: '' },
-    { name: 'Zayra Panaligan', avatar: '' }
-  ]);
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (newComment.trim()) {
-      const comment: Comment = {
-        id: Date.now().toString(),
-        author: { name: 'Current User', avatar: '' },
-        content: newComment.trim(),
-        timestamp: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-      };
-      setComments([...comments, comment]);
-      setNewComment('');
+      try {
+        await addComment({
+          task_id: taskId,
+          user_name: 'Current User', // Replace with actual user context
+          user_avatar: '',
+          comment: newComment.trim()
+        });
+        setNewComment('');
+      } catch (error) {
+        console.error('Failed to add comment:', error);
+      }
     }
   };
 
@@ -76,15 +38,25 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
     }
   };
 
-  const getActivityIcon = (type: ActivityItem['type']) => {
-    switch (type) {
+  const getActivityIcon = (actionType: string) => {
+    switch (actionType) {
       case 'task_completed':
         return <div className="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
           <div className="w-1.5 h-1.5 bg-white rounded-full" />
         </div>;
+      case 'task_updated':
+        return <div className="w-3 h-3 rounded-full bg-blue-500" />;
       default:
         return <div className="w-3 h-3 rounded-full bg-gray-400" />;
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   };
 
   return (
@@ -104,34 +76,40 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
         <TabsContent value="comments" className="space-y-4">
           {/* Comments List */}
           <div className="space-y-4">
-            {comments.map((comment) => (
-              <div key={comment.id} className="flex space-x-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={comment.author.avatar} />
-                  <AvatarFallback className="text-xs">
-                    {comment.author.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-sm">{comment.author.name}</span>
-                    <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                    <Button variant="ghost" size="sm" className="h-6 px-2">
-                      <ThumbsUp className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    {comment.content.includes('http') ? (
-                      <a href={comment.content} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        {comment.content}
-                      </a>
-                    ) : (
-                      comment.content
-                    )}
+            {commentsLoading ? (
+              <div className="text-center py-4 text-gray-500">Loading comments...</div>
+            ) : comments.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">No comments yet</div>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} className="flex space-x-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={comment.user_avatar} />
+                    <AvatarFallback className="text-xs">
+                      {comment.user_name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="font-medium text-sm">{comment.user_name}</span>
+                      <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                      <Button variant="ghost" size="sm" className="h-6 px-2">
+                        <ThumbsUp className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    <div className="text-sm text-gray-700">
+                      {comment.comment.includes('http') ? (
+                        <a href={comment.comment} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          {comment.comment}
+                        </a>
+                      ) : (
+                        comment.comment
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Add Comment */}
@@ -148,19 +126,7 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
                 className="min-h-[60px] resize-none"
               />
               <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Collaborators</span>
-                  <div className="flex -space-x-1">
-                    {collaborators.map((collaborator, index) => (
-                      <Avatar key={index} className="w-6 h-6 border-2 border-white">
-                        <AvatarImage src={collaborator.avatar} />
-                        <AvatarFallback className="text-xs">
-                          {collaborator.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    ))}
-                  </div>
-                </div>
+                <span className="text-xs text-gray-500">⌘ + Enter to send</span>
                 <Button onClick={handleAddComment} disabled={!newComment.trim()} size="sm">
                   <Send className="w-4 h-4 mr-2" />
                   Comment
@@ -173,29 +139,32 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
         <TabsContent value="activity" className="space-y-4">
           {/* Activity List */}
           <div className="space-y-4">
-            {activities.map((activity) => (
-              <div key={activity.id} className="flex space-x-3">
-                <div className="flex flex-col items-center">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={activity.author.avatar} />
-                    <AvatarFallback className="text-xs">
-                      {activity.author.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  {getActivityIcon(activity.type)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="font-medium text-sm">{activity.author.name}</span>
-                    <span className="text-sm text-gray-600">{activity.action}</span>
-                    <span className="text-xs text-gray-500">• {activity.timestamp}</span>
-                    <Button variant="ghost" size="sm" className="h-6 px-2">
-                      <ThumbsUp className="w-3 h-3" />
-                    </Button>
+            {activitiesLoading ? (
+              <div className="text-center py-4 text-gray-500">Loading activity...</div>
+            ) : activities.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">No activity yet</div>
+            ) : (
+              activities.map((activity) => (
+                <div key={activity.id} className="flex space-x-3">
+                  <div className="flex flex-col items-center">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={activity.user_avatar} />
+                      <AvatarFallback className="text-xs">
+                        {activity.user_name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    {getActivityIcon(activity.action_type)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="font-medium text-sm">{activity.user_name}</span>
+                      <span className="text-sm text-gray-600">{activity.action_description}</span>
+                      <span className="text-xs text-gray-500">• {formatDate(activity.created_at)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </TabsContent>
       </Tabs>

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Check, MoreVertical, Trash2, FileText } from 'lucide-react';
+import { Check, MoreVertical, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Subtask } from './types';
+import { SubtaskSubmittal } from './SubtaskSubmittal';
 
 interface SubtaskItemProps {
   subtask: Subtask;
@@ -70,9 +71,10 @@ export const SubtaskItem = ({ subtask, onToggleComplete, onSubtaskClick, onDelet
         )}
         
         {/* Submittal indicator */}
-        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
-          <FileText className="w-4 h-4" />
-        </Button>
+        <SubtaskSubmittal 
+          subtaskId={subtask.id}
+          subtaskTitle={subtask.title}
+        />
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

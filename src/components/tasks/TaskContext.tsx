@@ -113,6 +113,44 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
 
       if (error) throw error;
 
+      // Log activity for significant changes
+      const activityPromises = [];
+      if (updates.status !== undefined) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: 'Current User',
+            action_type: 'status_change',
+            action_description: `changed status to ${updates.status}`
+          })
+        );
+      }
+      if (updates.assignedTo !== undefined) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: 'Current User',
+            action_type: 'assignment_change',
+            action_description: `assigned to ${updates.assignedTo.name}`
+          })
+        );
+      }
+      if (updates.progress !== undefined && updates.progress === 100) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: 'Current User',
+            action_type: 'task_completed',
+            action_description: 'completed this task'
+          })
+        );
+      }
+
+      // Execute activity logging (don't await to avoid blocking UI)
+      if (activityPromises.length > 0) {
+        Promise.all(activityPromises).catch(console.error);
+      }
+
       // Update local state immediately for better UX
       setTasks(prev => prev.map(task => 
         task.id === taskId ? { ...task, ...updates } : task
