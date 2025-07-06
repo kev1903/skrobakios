@@ -66,10 +66,10 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
   };
 
   return (
-    <div className="h-full pt-8 pb-16 overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="fixed inset-0 overflow-y-auto">
+      <div className="min-h-screen px-6 py-6">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center gap-4 mb-2">
             <div className="glass-card p-3">
               <CalendarIcon className="w-8 h-8 text-primary" />
@@ -82,10 +82,10 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-140px)]">
           {/* Left Column - Backlog */}
           <div className="lg:col-span-1">
-            <Card className="glass-card h-[600px]">
+            <Card className="glass-card h-full">
               <CardHeader className="pb-4 border-b border-border/50">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-card-foreground heading-modern text-xl flex items-center gap-2">
@@ -129,7 +129,7 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
 
           {/* Right Column - Calendar */}
           <div className="lg:col-span-3">
-            <Card className="glass-card h-[600px]">
+            <Card className="glass-card h-full">
               <CardHeader className="pb-4 border-b border-border/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -183,7 +183,7 @@ export const SchedulePage = ({ onNavigate }: SchedulePageProps) => {
                 </div>
               </CardHeader>
               <CardContent className="p-6 overflow-hidden">
-                <div className="h-[calc(100%-40px)] overflow-y-auto">
+                <div className="h-[calc(100%-100px)] overflow-y-auto">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
