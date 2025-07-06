@@ -303,50 +303,50 @@ export const SalesDashboard = () => {
     <div className="space-y-6 h-full flex flex-col">
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="glass-card border-primary/20">
+        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Opportunities</p>
-                <p className="text-2xl font-bold text-foreground">{totalOpportunities}</p>
+                <p className="text-sm font-medium text-slate-600">Total Opportunities</p>
+                <p className="text-2xl font-bold text-slate-800">{totalOpportunities}</p>
               </div>
-              <Building2 className="w-8 h-8 text-primary" />
+              <Building2 className="w-8 h-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="glass-card border-green-400/20">
+        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pipeline Value</p>
-                <p className="text-2xl font-bold text-foreground">${totalValue.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-600">Pipeline Value</p>
+                <p className="text-2xl font-bold text-slate-800">${totalValue.toLocaleString()}</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-400" />
+              <DollarSign className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="glass-card border-blue-400/20">
+        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Leads</p>
-                <p className="text-2xl font-bold text-foreground">{stages[0].count}</p>
+                <p className="text-sm font-medium text-slate-600">Active Leads</p>
+                <p className="text-2xl font-bold text-slate-800">{stages[0].count}</p>
               </div>
-              <Users className="w-8 h-8 text-blue-400" />
+              <Users className="w-8 h-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="glass-card border-purple-400/20">
+        <Card className="bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Won This Month</p>
-                <p className="text-2xl font-bold text-foreground">{stages[4].count}</p>
+                <p className="text-sm font-medium text-slate-600">Won This Month</p>
+                <p className="text-2xl font-bold text-slate-800">{stages[4].count}</p>
               </div>
-              <Clock className="w-8 h-8 text-purple-400" />
+              <Clock className="w-8 h-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
