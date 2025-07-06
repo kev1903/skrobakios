@@ -132,6 +132,45 @@ export type Database = {
         }
         Relationships: []
       }
+      map_configurations: {
+        Row: {
+          bearing: number | null
+          center_lat: number
+          center_lng: number
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          pitch: number | null
+          updated_at: string
+          zoom: number
+        }
+        Insert: {
+          bearing?: number | null
+          center_lat: number
+          center_lng: number
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          pitch?: number | null
+          updated_at?: string
+          zoom: number
+        }
+        Update: {
+          bearing?: number | null
+          center_lat?: number
+          center_lng?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          pitch?: number | null
+          updated_at?: string
+          zoom?: number
+        }
+        Relationships: []
+      }
       member_permissions: {
         Row: {
           allowed: boolean

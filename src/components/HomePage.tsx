@@ -63,8 +63,85 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [mapConfig, setMapConfig] = useState({
+    center: [144.9631, -37.8136] as [number, number],
+    zoom: 6.5,
+    pitch: 30,
+    bearing: 0
+  });
+  const [showSaveButton, setShowSaveButton] = useState(false);
+
+  const saveCurrentMapPosition = async () => {
+    if (!map.current) return;
+
+    const center = map.current.getCenter();
+    const zoom = map.current.getZoom();
+    const pitch = map.current.getPitch();
+    const bearing = map.current.getBearing();
+
+    try {
+      // First, deactivate the current active configuration
+      await supabase
+        .from('map_configurations')
+        .update({ is_active: false })
+        .eq('is_active', true);
+
+      // Insert new configuration
+      const { error } = await supabase
+        .from('map_configurations')
+        .insert({
+          name: `saved_${new Date().toISOString()}`,
+          center_lng: center.lng,
+          center_lat: center.lat,
+          zoom: zoom,
+          pitch: pitch,
+          bearing: bearing,
+          is_active: true
+        });
+
+      if (error) {
+        console.error('Error saving map configuration:', error);
+      } else {
+        console.log('Map position saved successfully!');
+        setShowSaveButton(false);
+        
+        // Update local state
+        setMapConfig({
+          center: [center.lng, center.lat],
+          zoom: zoom,
+          pitch: pitch,
+          bearing: bearing
+        });
+      }
+    } catch (error) {
+      console.error('Error saving map configuration:', error);
+    }
+  };
 
   useEffect(() => {
+    const loadMapConfiguration = async () => {
+      try {
+        const { data: config, error: configError } = await supabase
+          .from('map_configurations')
+          .select('*')
+          .eq('is_active', true)
+          .single();
+
+        if (!configError && config) {
+          setMapConfig({
+            center: [config.center_lng, config.center_lat],
+            zoom: config.zoom,
+            pitch: config.pitch || 30,
+            bearing: config.bearing || 0
+          });
+        }
+      } catch (error) {
+        console.error('Error loading map configuration:', error);
+      }
+    };
+
+    loadMapConfiguration();
+    
     const initializeMapWithProjects = async () => {
       if (!mapContainer.current) return;
 
@@ -102,9 +179,10 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           container: mapContainer.current,
           style: 'mapbox://styles/kevin19031994/cmcprh4kj009w01sqbfig9lx6',
           projection: 'mercator',
-          zoom: 6.5,
-          center: [144.9631, -37.8136], // Melbourne, Victoria
-          pitch: 30,
+          zoom: mapConfig.zoom,
+          center: mapConfig.center,
+          pitch: mapConfig.pitch,
+          bearing: mapConfig.bearing,
           maxBounds: [
             [140.96, -39.20], // Southwest coordinates of Victoria
             [149.98, -33.98]  // Northeast coordinates of Victoria
@@ -123,11 +201,11 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
 
         // Event listeners for user interaction
         map.current.on('mousedown', () => {
-          // User interaction handled by Mapbox
+          setShowSaveButton(true);
         });
         
         map.current.on('dragstart', () => {
-          // User interaction handled by Mapbox
+          setShowSaveButton(true);
         });
         
         map.current.on('mouseup', () => {
@@ -136,6 +214,18 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         
         map.current.on('touchend', () => {
           // User interaction handled by Mapbox
+        });
+
+        map.current.on('zoom', () => {
+          setShowSaveButton(true);
+        });
+
+        map.current.on('pitch', () => {
+          setShowSaveButton(true);
+        });
+
+        map.current.on('rotate', () => {
+          setShowSaveButton(true);
         });
 
       } catch (err) {
@@ -199,7 +289,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     return () => {
       map.current?.remove();
     };
-  }, []);
+  }, [mapConfig]); // Add mapConfig as dependency
 
   return (
     <div className="relative w-full h-screen">
@@ -208,6 +298,18 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       
       {/* Floating Top Bar */}
       <HomeFloatingBar onNavigate={onNavigate} onSelectProject={onSelectProject} />
+      
+      {/* Save Map Position Button */}
+      {showSaveButton && (
+        <div className="fixed top-20 right-6 z-50">
+          <button
+            onClick={saveCurrentMapPosition}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg transition-colors duration-200 text-sm font-medium"
+          >
+            Save Map Position
+          </button>
+        </div>
+      )}
       
       {/* Loading overlay */}
       {isLoading && (
