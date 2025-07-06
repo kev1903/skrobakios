@@ -58,7 +58,7 @@ export const CostContractsPage = ({
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="border-b border-gray-200">
-              <TabsList className="w-full grid grid-cols-7 bg-white h-auto p-2 gap-1">
+              <TabsList className="w-full grid grid-cols-7 bg-white h-auto p-2 gap-1 px-[8px]">
                 {tabs.map(tab => {
                 const IconComponent = tab.icon;
                 return <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-1 p-2 rounded-lg
