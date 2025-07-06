@@ -131,8 +131,8 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`rounded-lg p-4 transition-colors ${
-                    snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200' : ''
+                  className={`backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4 transition-colors ${
+                    snapshot.isDraggingOver ? 'bg-white/20 border-white/40' : ''
                   }`}
                 >
                   <TaskBoardColumn
