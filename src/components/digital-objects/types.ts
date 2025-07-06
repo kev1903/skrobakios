@@ -6,6 +6,7 @@ export interface DigitalObject {
   status: string;
   cost: number | null;
   progress: number;
+  stage: string;
   level: number;
   parent_id: string | null;
   expanded?: boolean;

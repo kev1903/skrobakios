@@ -84,6 +84,7 @@ export const DigitalObjectsTable = ({
                   <TableHead className="text-white font-semibold h-8">Type</TableHead>
                   <TableHead className="text-white font-semibold h-8">Description</TableHead>
                   <TableHead className="text-white font-semibold h-8">Status</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Stage</TableHead>
                   <TableHead className="text-white font-semibold h-8">Cost</TableHead>
                   <TableHead className="text-white font-semibold h-8">Progress</TableHead>
                   <TableHead className="text-white font-semibold h-8 w-20">Actions</TableHead>
@@ -111,7 +112,7 @@ export const DigitalObjectsTable = ({
                     ))}
                     {digitalObjects.length === 0 && (
                       <TableRow className="border-white/10 h-8">
-                        <TableCell colSpan={8} className="text-center text-slate-400 py-8">
+                        <TableCell colSpan={10} className="text-center text-slate-400 py-8">
                           No digital objects found for this project
                         </TableCell>
                       </TableRow>

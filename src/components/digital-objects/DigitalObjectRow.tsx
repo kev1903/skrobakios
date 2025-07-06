@@ -121,6 +121,18 @@ export const DigitalObjectRow = ({
           <TableCell className="text-slate-300 h-8 py-1 text-sm">
             <EditableCell
               obj={obj}
+              field="stage"
+              value={obj.stage}
+              isEditing={isFieldEditing('stage')}
+              editingData={editingData}
+              onFieldClick={onFieldClick}
+              onEditingDataChange={onEditingDataChange}
+              onKeyDown={onKeyDown}
+            />
+          </TableCell>
+          <TableCell className="text-slate-300 h-8 py-1 text-sm">
+            <EditableCell
+              obj={obj}
               field="cost"
               value={obj.cost}
               isEditing={isFieldEditing('cost')}
