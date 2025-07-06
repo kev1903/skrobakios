@@ -91,32 +91,32 @@ export const TimelineView = ({
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="text-white font-playfair flex items-center gap-2">
+          <CardTitle className="text-slate-800 flex items-center gap-2">
             <Filter className="w-5 h-5" />
             Timeline Filters
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-4">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-white/70" />
+            <Calendar className="w-4 h-4 text-slate-600" />
             <Input
               type="date"
               value={selectedDate}
               onChange={(e) => handleDateChange(e.target.value)}
-              className="bg-white/10 border-white/20 text-white"
+              className="bg-white/20 border-white/30 text-slate-800"
             />
           </div>
           
           <Select value={selectedProject} onValueChange={handleProjectChange}>
-            <SelectTrigger className="w-full sm:w-48 bg-white/10 border-white/20 text-white">
+            <SelectTrigger className="w-full sm:w-48 bg-white/20 border-white/30 text-slate-800">
               <SelectValue placeholder="Filter by project" />
             </SelectTrigger>
-            <SelectContent className="bg-black/90 border-white/20">
-              <SelectItem value="all" className="text-white">All Projects</SelectItem>
+            <SelectContent className="bg-white/90 backdrop-blur-xl border-white/30">
+              <SelectItem value="all" className="text-slate-800">All Projects</SelectItem>
               {projects.map((project) => (
-                <SelectItem key={project} value={project} className="text-white">
+                <SelectItem key={project} value={project} className="text-slate-800">
                   {project}
                 </SelectItem>
               ))}
@@ -126,9 +126,9 @@ export const TimelineView = ({
       </Card>
 
       {/* Timeline */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="text-white font-playfair">
+          <CardTitle className="text-slate-800">
             Timeline for {format(new Date(selectedDate), 'MMMM dd, yyyy')}
           </CardTitle>
         </CardHeader>
@@ -139,7 +139,7 @@ export const TimelineView = ({
               {timeSlots.map((slot, index) => (
                 <div
                   key={slot.hour}
-                  className="absolute text-xs text-white/70 font-helvetica"
+                  className="absolute text-xs text-slate-600"
                   style={{ top: `${(index / (timeSlots.length - 1)) * 100}%` }}
                 >
                   {slot.label}
@@ -148,12 +148,12 @@ export const TimelineView = ({
             </div>
 
             {/* Timeline background */}
-            <div className="ml-20 relative h-full border-l border-white/20">
+            <div className="ml-20 relative h-full border-l border-slate-200">
               {/* Hour lines */}
               {timeSlots.map((_, index) => (
                 <div
                   key={index}
-                  className="absolute w-full border-t border-white/10"
+                  className="absolute w-full border-t border-slate-100"
                   style={{ top: `${(index / (timeSlots.length - 1)) * 100}%` }}
                 />
               ))}
@@ -177,36 +177,36 @@ export const TimelineView = ({
                             minHeight: '24px'
                           }}
                         >
-                          <div className="text-white text-xs font-medium truncate font-helvetica">
+                          <div className="text-white text-xs font-medium truncate">
                             {entry.task_activity}
                           </div>
                           {entry.duration && entry.duration > 30 && (
-                            <div className="text-white/80 text-xs mt-1 font-helvetica">
+                            <div className="text-white/80 text-xs mt-1">
                               {entry.category}
                             </div>
                           )}
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-black/90 border-white/20 text-white">
+                      <TooltipContent className="bg-white/95 backdrop-blur-xl border-white/30 text-slate-800">
                         <div className="space-y-1">
                           <div className="font-medium">{entry.task_activity}</div>
-                          <div className="text-sm text-white/80">
+                          <div className="text-sm text-slate-600">
                             {format(new Date(entry.start_time), 'HH:mm')} - 
                             {entry.end_time ? format(new Date(entry.end_time), 'HH:mm') : 'Running'}
                           </div>
-                          <div className="text-sm text-white/80">
+                          <div className="text-sm text-slate-600">
                             Duration: {entry.duration ? formatDuration(entry.duration) : 'Active'}
                           </div>
-                          <div className="text-sm text-white/80">
+                          <div className="text-sm text-slate-600">
                             Category: {entry.category}
                           </div>
                           {entry.project_name && (
-                            <div className="text-sm text-white/80">
+                            <div className="text-sm text-slate-600">
                               Project: {entry.project_name}
                             </div>
                           )}
                           {entry.notes && (
-                            <div className="text-sm text-white/60 max-w-48">
+                            <div className="text-sm text-slate-500 max-w-48">
                               {entry.notes}
                             </div>
                           )}
@@ -220,9 +220,9 @@ export const TimelineView = ({
               {/* Empty state */}
               {dayEntries.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center text-white/50">
+                  <div className="text-center text-slate-400">
                     <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p className="font-helvetica">No time entries for this date</p>
+                    <p>No time entries for this date</p>
                     <p className="text-sm mt-1">Start tracking your time to see it here</p>
                   </div>
                 </div>

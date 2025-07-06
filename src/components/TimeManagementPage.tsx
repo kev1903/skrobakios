@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Timer, BarChart3 } from 'lucide-react';
+import { Timer, BarChart3, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTimeTracking, DEFAULT_CATEGORY_COLORS } from '@/hooks/useTimeTracking';
@@ -62,76 +63,96 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-white">Loading time tracking data...</div>
+      <div className="h-full flex items-center justify-center">
+        <div className="text-slate-600">Loading time tracking data...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-white font-playfair mb-2">
-              Time Management Dashboard
-            </h1>
-            <p className="text-white/70 font-helvetica">
-              Track, analyze, and optimize how you spend your time
-            </p>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
+        <div className="px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onNavigate('home')}
+                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="font-medium">Back</span>
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+                  Time Management Dashboard
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">Track, analyze, and optimize how you spend your time</p>
+              </div>
+            </div>
+            <TimeTrackingSettings
+              settings={settings}
+              onUpdateSettings={updateSettings}
+              onExportData={handleExportData}
+            />
           </div>
-          <TimeTrackingSettings
-            settings={settings}
-            onUpdateSettings={updateSettings}
-            onExportData={handleExportData}
-          />
         </div>
+      </div>
 
-        {/* Daily Summary */}
-        <DailySummary stats={dailyStats} />
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Daily Summary */}
+          <DailySummary stats={dailyStats} />
 
-        {/* Main Tabs */}
-        <Tabs defaultValue="tracking" className="space-y-6">
-          <TabsList className="bg-white/10 border-white/20 backdrop-blur-xl">
-            <TabsTrigger 
-              value="tracking" 
-              className="data-[state=active]:bg-white/20 text-white font-helvetica"
-            >
-              <Timer className="w-4 h-4 mr-2" />
-              Time Tracking
-            </TabsTrigger>
-            <TabsTrigger 
-              value="timeline" 
-              className="data-[state=active]:bg-white/20 text-white font-helvetica"
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Timeline View
-            </TabsTrigger>
-          </TabsList>
+          {/* Main Tabs */}
+          <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl">
+            <CardContent className="p-6">
+              <Tabs defaultValue="tracking" className="space-y-6">
+                <TabsList className="backdrop-blur-xl bg-white/60 border border-white/20 shadow-sm">
+                  <TabsTrigger 
+                    value="tracking" 
+                    className="data-[state=active]:bg-white/80 data-[state=active]:shadow-sm text-slate-700 font-medium"
+                  >
+                    <Timer className="w-4 h-4 mr-2" />
+                    Time Tracking
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="timeline" 
+                    className="data-[state=active]:bg-white/80 data-[state=active]:shadow-sm text-slate-700 font-medium"
+                  >
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Timeline View
+                  </TabsTrigger>
+                </TabsList>
 
-          <TabsContent value="tracking" className="space-y-6">
-            <TimeTrackingTable
-              entries={timeEntries}
-              activeTimer={activeTimer}
-              onStartTimer={startTimer}
-              onStopTimer={stopTimer}
-              onUpdateEntry={updateTimeEntry}
-              onDeleteEntry={deleteTimeEntry}
-              onDuplicateEntry={duplicateTimeEntry}
-              categoryColors={categoryColors}
-            />
-          </TabsContent>
+                <TabsContent value="tracking" className="space-y-6">
+                  <TimeTrackingTable
+                    entries={timeEntries}
+                    activeTimer={activeTimer}
+                    onStartTimer={startTimer}
+                    onStopTimer={stopTimer}
+                    onUpdateEntry={updateTimeEntry}
+                    onDeleteEntry={deleteTimeEntry}
+                    onDuplicateEntry={duplicateTimeEntry}
+                    categoryColors={categoryColors}
+                  />
+                </TabsContent>
 
-          <TabsContent value="timeline" className="space-y-6">
-            <TimelineView
-              entries={timeEntries}
-              categoryColors={categoryColors}
-              onDateFilter={handleDateFilter}
-              onProjectFilter={handleProjectFilter}
-            />
-          </TabsContent>
-        </Tabs>
+                <TabsContent value="timeline" className="space-y-6">
+                  <TimelineView
+                    entries={timeEntries}
+                    categoryColors={categoryColors}
+                    onDateFilter={handleDateFilter}
+                    onProjectFilter={handleProjectFilter}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

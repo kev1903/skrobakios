@@ -73,16 +73,16 @@ export const TimeTrackingTable = ({
   return (
     <div className="space-y-6">
       {/* Timer Controls */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="text-white font-playfair">Live Timer</CardTitle>
+          <CardTitle className="text-slate-800">Live Timer</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {activeTimer ? (
-            <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/20">
+            <div className="flex items-center justify-between p-4 bg-white/20 rounded-xl border border-white/30 backdrop-blur-sm">
               <div className="flex-1">
-                <div className="font-medium text-white">{activeTimer.task_activity}</div>
-                <div className="text-sm text-white/70">
+                <div className="font-medium text-slate-800">{activeTimer.task_activity}</div>
+                <div className="text-sm text-slate-600">
                   {activeTimer.category} • Started at {formatTime(activeTimer.start_time)} • 
                   <span className="font-medium"> {formatDuration(getCurrentTimerDuration())}</span>
                 </div>
@@ -103,16 +103,16 @@ export const TimeTrackingTable = ({
                 placeholder="What are you working on?"
                 value={newTimerTask}
                 onChange={(e) => setNewTimerTask(e.target.value)}
-                className="flex-1 bg-white/10 border-white/20 text-white placeholder-white/50"
+                className="flex-1 bg-white/20 border-white/30 text-slate-800 placeholder-slate-500"
                 onKeyPress={(e) => e.key === 'Enter' && handleStartTimer()}
               />
               <Select value={newTimerCategory} onValueChange={setNewTimerCategory}>
-                <SelectTrigger className="w-full sm:w-40 bg-white/10 border-white/20 text-white">
+                <SelectTrigger className="w-full sm:w-40 bg-white/20 border-white/30 text-slate-800">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/90 border-white/20">
+                <SelectContent className="bg-white/90 backdrop-blur-xl border-white/30">
                   {DEFAULT_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="text-white">
+                    <SelectItem key={cat} value={cat} className="text-slate-800">
                       <div className="flex items-center gap-2">
                         <div 
                           className="w-3 h-3 rounded-full" 
@@ -128,12 +128,12 @@ export const TimeTrackingTable = ({
                 placeholder="Project (optional)"
                 value={newTimerProject}
                 onChange={(e) => setNewTimerProject(e.target.value)}
-                className="w-full sm:w-40 bg-white/10 border-white/20 text-white placeholder-white/50"
+                className="w-full sm:w-40 bg-white/20 border-white/30 text-slate-800 placeholder-slate-500"
               />
               <Button
                 onClick={handleStartTimer}
                 disabled={!newTimerTask.trim()}
-                className="bg-primary hover:bg-primary/80"
+                className="bg-blue-500 hover:bg-blue-600 text-white"
               >
                 <Play className="w-4 h-4 mr-2" />
                 Start
@@ -144,38 +144,38 @@ export const TimeTrackingTable = ({
       </Card>
 
       {/* Time Entries Table */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader>
-          <CardTitle className="text-white font-playfair">Time Entries</CardTitle>
+          <CardTitle className="text-slate-800">Time Entries</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-white/20 hover:bg-white/5">
-                  <TableHead className="text-white/90 font-helvetica">Start Time</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">End Time</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Duration</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Task/Activity</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Category</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Project</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Notes</TableHead>
-                  <TableHead className="text-white/90 font-helvetica">Actions</TableHead>
+                <TableRow className="border-slate-200 hover:bg-slate-50">
+                  <TableHead className="text-slate-700 font-medium">Start Time</TableHead>
+                  <TableHead className="text-slate-700 font-medium">End Time</TableHead>
+                  <TableHead className="text-slate-700 font-medium">Duration</TableHead>
+                  <TableHead className="text-slate-700 font-medium">Task/Activity</TableHead>
+                  <TableHead className="text-slate-700 font-medium">Category</TableHead>
+                  <TableHead className="text-slate-700 font-medium">Project</TableHead>
+                  <TableHead className="text-slate-700 font-medium">Notes</TableHead>
+                  <TableHead className="text-slate-700 font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {entries.map((entry) => (
-                  <TableRow key={entry.id} className="border-white/10 hover:bg-white/5">
-                    <TableCell className="text-white/90 font-helvetica">
+                  <TableRow key={entry.id} className="border-slate-100 hover:bg-slate-50">
+                    <TableCell className="text-slate-800">
                       {formatTime(entry.start_time)}
                     </TableCell>
-                    <TableCell className="text-white/90 font-helvetica">
+                    <TableCell className="text-slate-800">
                       {entry.end_time ? formatTime(entry.end_time) : (entry.is_active ? 'Running...' : '-')}
                     </TableCell>
-                    <TableCell className="text-white/90 font-helvetica font-medium">
+                    <TableCell className="text-slate-800 font-medium">
                       {entry.is_active ? formatDuration(getCurrentTimerDuration()) : formatDuration(entry.duration)}
                     </TableCell>
-                    <TableCell className="text-white font-medium">
+                    <TableCell className="text-slate-900 font-medium">
                       {entry.task_activity}
                     </TableCell>
                     <TableCell>
@@ -184,13 +184,13 @@ export const TimeTrackingTable = ({
                           className="w-3 h-3 rounded-full" 
                           style={{ backgroundColor: categoryColors[entry.category] || '#6B7280' }}
                         />
-                        <span className="text-white/90 font-helvetica">{entry.category}</span>
+                        <span className="text-slate-800">{entry.category}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-white/90 font-helvetica">
+                    <TableCell className="text-slate-800">
                       {entry.project_name || '-'}
                     </TableCell>
-                    <TableCell className="text-white/70 font-helvetica text-sm max-w-32 truncate">
+                    <TableCell className="text-slate-600 text-sm max-w-32 truncate">
                       {entry.notes || '-'}
                     </TableCell>
                     <TableCell>
@@ -200,21 +200,21 @@ export const TimeTrackingTable = ({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-white/70 hover:text-white hover:bg-white/10"
+                              className="text-slate-600 hover:text-slate-800 hover:bg-slate-100"
                               onClick={() => setEditingEntry({ ...entry })}
                             >
                               <Edit2 className="w-4 h-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="bg-black/90 border-white/20 text-white">
+                          <DialogContent className="bg-white/95 backdrop-blur-xl border-white/30">
                             <DialogHeader>
-                              <DialogTitle className="font-playfair">Edit Time Entry</DialogTitle>
+                              <DialogTitle className="text-slate-800">Edit Time Entry</DialogTitle>
                             </DialogHeader>
                             {editingEntry && (
                               <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
-                                    <Label className="text-white/90">Start Time</Label>
+                                    <Label className="text-slate-700">Start Time</Label>
                                     <Input
                                       type="datetime-local"
                                       value={format(new Date(editingEntry.start_time), "yyyy-MM-dd'T'HH:mm")}
@@ -222,11 +222,11 @@ export const TimeTrackingTable = ({
                                         ...editingEntry,
                                         start_time: new Date(e.target.value).toISOString()
                                       })}
-                                      className="bg-white/10 border-white/20 text-white"
+                                      className="bg-white/50 border-white/30 text-slate-800"
                                     />
                                   </div>
                                   <div>
-                                    <Label className="text-white/90">End Time</Label>
+                                    <Label className="text-slate-700">End Time</Label>
                                     <Input
                                       type="datetime-local"
                                       value={editingEntry.end_time ? format(new Date(editingEntry.end_time), "yyyy-MM-dd'T'HH:mm") : ''}
@@ -234,26 +234,26 @@ export const TimeTrackingTable = ({
                                         ...editingEntry,
                                         end_time: e.target.value ? new Date(e.target.value).toISOString() : null
                                       })}
-                                      className="bg-white/10 border-white/20 text-white"
+                                      className="bg-white/50 border-white/30 text-slate-800"
                                     />
                                   </div>
                                 </div>
                                 
                                 <div>
-                                  <Label className="text-white/90">Task/Activity</Label>
+                                  <Label className="text-slate-700">Task/Activity</Label>
                                   <Input
                                     value={editingEntry.task_activity}
                                     onChange={(e) => setEditingEntry({
                                       ...editingEntry,
                                       task_activity: e.target.value
                                     })}
-                                    className="bg-white/10 border-white/20 text-white"
+                                    className="bg-white/50 border-white/30 text-slate-800"
                                   />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
-                                    <Label className="text-white/90">Category</Label>
+                                    <Label className="text-slate-700">Category</Label>
                                     <Select
                                       value={editingEntry.category}
                                       onValueChange={(value) => setEditingEntry({
@@ -261,12 +261,12 @@ export const TimeTrackingTable = ({
                                         category: value
                                       })}
                                     >
-                                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                                      <SelectTrigger className="bg-white/50 border-white/30 text-slate-800">
                                         <SelectValue />
                                       </SelectTrigger>
-                                      <SelectContent className="bg-black/90 border-white/20">
+                                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30">
                                         {DEFAULT_CATEGORIES.map((cat) => (
-                                          <SelectItem key={cat} value={cat} className="text-white">
+                                          <SelectItem key={cat} value={cat} className="text-slate-800">
                                             <div className="flex items-center gap-2">
                                               <div 
                                                 className="w-3 h-3 rounded-full" 
@@ -280,28 +280,28 @@ export const TimeTrackingTable = ({
                                     </Select>
                                   </div>
                                   <div>
-                                    <Label className="text-white/90">Project</Label>
+                                    <Label className="text-slate-700">Project</Label>
                                     <Input
                                       value={editingEntry.project_name || ''}
                                       onChange={(e) => setEditingEntry({
                                         ...editingEntry,
                                         project_name: e.target.value || null
                                       })}
-                                      className="bg-white/10 border-white/20 text-white"
+                                      className="bg-white/50 border-white/30 text-slate-800"
                                       placeholder="Optional"
                                     />
                                   </div>
                                 </div>
 
                                 <div>
-                                  <Label className="text-white/90">Notes</Label>
+                                  <Label className="text-slate-700">Notes</Label>
                                   <Textarea
                                     value={editingEntry.notes || ''}
                                     onChange={(e) => setEditingEntry({
                                       ...editingEntry,
                                       notes: e.target.value || null
                                     })}
-                                    className="bg-white/10 border-white/20 text-white"
+                                    className="bg-white/50 border-white/30 text-slate-800"
                                     placeholder="Optional notes..."
                                     rows={3}
                                   />
@@ -326,7 +326,7 @@ export const TimeTrackingTable = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-white/70 hover:text-white hover:bg-white/10"
+                          className="text-slate-600 hover:text-slate-800 hover:bg-slate-100"
                           onClick={() => onDuplicateEntry(entry)}
                         >
                           <Copy className="w-4 h-4" />
@@ -335,7 +335,7 @@ export const TimeTrackingTable = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
                           onClick={() => onDeleteEntry(entry.id)}
                         >
                           <Trash2 className="w-4 h-4" />

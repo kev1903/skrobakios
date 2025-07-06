@@ -30,33 +30,33 @@ export const DailySummary = ({ stats }: DailySummaryProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {/* Total Hours */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-white/90 font-helvetica">
+          <CardTitle className="text-sm font-medium text-slate-700">
             Total Hours
           </CardTitle>
-          <Clock className="h-4 w-4 text-blue-400" />
+          <Clock className="h-4 w-4 text-blue-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white font-playfair">
+          <div className="text-2xl font-bold text-slate-800">
             {formatHours(stats.totalHours)}
           </div>
-          <p className="text-xs text-white/60 font-helvetica">
+          <p className="text-xs text-slate-500">
             Tracked today
           </p>
         </CardContent>
       </Card>
 
       {/* Productive Hours */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-white/90 font-helvetica">
+          <CardTitle className="text-sm font-medium text-slate-700">
             Productive Hours
           </CardTitle>
-          <Target className="h-4 w-4 text-green-400" />
+          <Target className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white font-playfair">
+          <div className="text-2xl font-bold text-slate-800">
             {formatHours(stats.productiveHours)}
           </div>
           <div className="mt-2">
@@ -65,7 +65,7 @@ export const DailySummary = ({ stats }: DailySummaryProps) => {
               className="h-2"
             />
           </div>
-          <p className="text-xs text-white/60 mt-2 font-helvetica">
+          <p className="text-xs text-slate-500 mt-2">
             {stats.totalHours > 0 
               ? `${Math.round((stats.productiveHours / stats.totalHours) * 100)}% of total time`
               : 'No time tracked yet'
@@ -75,15 +75,15 @@ export const DailySummary = ({ stats }: DailySummaryProps) => {
       </Card>
 
       {/* Focus Score */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-white/90 font-helvetica">
+          <CardTitle className="text-sm font-medium text-slate-700">
             Focus Score
           </CardTitle>
-          <Award className="h-4 w-4 text-purple-400" />
+          <Award className="h-4 w-4 text-purple-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white font-playfair">
+          <div className="text-2xl font-bold text-slate-800">
             {stats.focusScore}%
           </div>
           <div className="mt-2">
@@ -92,25 +92,25 @@ export const DailySummary = ({ stats }: DailySummaryProps) => {
               className="h-2"
             />
           </div>
-          <p className="text-xs text-white/60 mt-2 font-helvetica">
+          <p className="text-xs text-slate-500 mt-2">
             Time spent in deep work
           </p>
         </CardContent>
       </Card>
 
       {/* Entry Count */}
-      <Card className="border-white/20 bg-white/10 backdrop-blur-xl">
+      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-white/90 font-helvetica">
+          <CardTitle className="text-sm font-medium text-slate-700">
             Time Entries
           </CardTitle>
-          <List className="h-4 w-4 text-orange-400" />
+          <List className="h-4 w-4 text-orange-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white font-playfair">
+          <div className="text-2xl font-bold text-slate-800">
             {stats.entryCount}
           </div>
-          <p className="text-xs text-white/60 font-helvetica">
+          <p className="text-xs text-slate-500">
             Logged today
           </p>
         </CardContent>
@@ -118,28 +118,28 @@ export const DailySummary = ({ stats }: DailySummaryProps) => {
 
       {/* Top Tasks */}
       {stats.topTasks.length > 0 && (
-        <Card className="border-white/20 bg-white/10 backdrop-blur-xl md:col-span-2 lg:col-span-4">
+        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 md:col-span-2 lg:col-span-4">
           <CardHeader>
-            <CardTitle className="text-white font-playfair flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-yellow-400" />
+            <CardTitle className="text-slate-800 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-yellow-500" />
               Top Tasks by Time
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {stats.topTasks.map((task, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/10 text-white text-xs font-bold">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold">
                       {index + 1}
                     </div>
                     <div>
-                      <div className="text-white font-medium font-helvetica truncate max-w-32">
+                      <div className="text-slate-800 font-medium truncate max-w-32">
                         {task.task}
                       </div>
                     </div>
                   </div>
-                  <div className="text-white/80 text-sm font-helvetica">
+                  <div className="text-slate-600 text-sm font-medium">
                     {formatMinutes(task.minutes)}
                   </div>
                 </div>
