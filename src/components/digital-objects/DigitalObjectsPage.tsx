@@ -47,7 +47,12 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
           </div>
           
           {/* Tabs Navigation */}
-          <DigitalObjectsTabs>
+          <DigitalObjectsTabs
+            onClearTableData={(tabId) => {
+              // Handle clearing table data for specific tab
+              console.log(`Clearing data for tab: ${tabId}`);
+            }}
+          >
             {(activeTabId) => (
               <>
                 <DigitalObjectsHeader 
