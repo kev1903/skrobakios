@@ -61,11 +61,11 @@ export const CostContractsPage = ({
               <TabsList className="w-full grid grid-cols-7 bg-white h-auto p-2 gap-1">
                 {tabs.map(tab => {
                 const IconComponent = tab.icon;
-                return <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-2 p-4 rounded-lg
+                return <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-1 p-2 rounded-lg
                         data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600
                         data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
                         data-[state=inactive]:hover:bg-gray-50 transition-all duration-200
-                        text-xs font-medium min-h-[80px]">
+                        text-xs font-medium min-h-[40px]">
                       
                       <span className="text-center leading-tight">{tab.label}</span>
                     </TabsTrigger>;
