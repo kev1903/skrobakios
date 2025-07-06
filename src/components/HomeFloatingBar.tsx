@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, Menu, Settings, HelpCircle, Briefcase, Calendar, DollarSign, TrendingUp, Map } from 'lucide-react';
+import { Search, User, Menu, Settings, HelpCircle, Briefcase, Calendar, DollarSign, TrendingUp, Map, ClipboardList, Calendar as CalendarIcon, Inbox } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
@@ -126,8 +126,33 @@ export const HomeFloatingBar = ({
         <div className="flex-1">
         </div>
 
-        {/* Right side - User Profile */}
-        <div className="flex-shrink-0">
+        {/* Right side - Icons and User Profile */}
+        <div className="flex-shrink-0 flex items-center gap-3">
+          {/* Task Icon */}
+          <button 
+            onClick={() => onNavigate('tasks')} 
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
+            <ClipboardList className="w-5 h-5 text-white" />
+          </button>
+          
+          {/* Schedule Icon */}
+          <button 
+            onClick={() => onNavigate('schedule')} 
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
+            <CalendarIcon className="w-5 h-5 text-white" />
+          </button>
+          
+          {/* Inbox Icon */}
+          <button 
+            onClick={() => onNavigate('inbox')} 
+            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          >
+            <Inbox className="w-5 h-5 text-white" />
+          </button>
+          
+          {/* User Profile */}
           <button onClick={() => onNavigate('user-edit')} className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
             <Avatar className="w-6 h-6">
               <AvatarImage src={userProfile.avatarUrl} alt="Profile" />

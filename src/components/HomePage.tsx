@@ -111,13 +111,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           ]
         });
 
-        // Add navigation controls
-        map.current.addControl(
-          new mapboxgl.NavigationControl({
-            visualizePitch: true,
-          }),
-          'top-right'
-        );
+        // Navigation controls hidden as requested
 
         // Wait for map to load, then add project markers
         map.current.on('style.load', async () => {
