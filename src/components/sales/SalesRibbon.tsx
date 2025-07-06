@@ -1,105 +1,142 @@
 
 import React from 'react';
-import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
-  Briefcase,
+  BarChart3,
+  Users,
+  FileText,
+  Target,
   Calendar,
-  DollarSign,
-  TrendingUp,
-  Map,
   Settings,
-  HelpCircle,
-  ArrowLeft
+  ArrowLeft,
+  Building2
 } from 'lucide-react';
 
 interface SalesRibbonProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  onBack?: () => void;
+  onBack: () => void;
 }
 
 export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps) => {
-  const handleBack = () => {
-    // Always navigate to home to close the current page
-    onTabChange('home');
-  };
-
-  const handleNavigate = (page: string) => {
-    // For now, we'll call onTabChange to maintain compatibility
-    onTabChange(page);
-  };
+  const menuItems = [
+    { id: 'dashboard', label: 'Opportunities', icon: BarChart3, badge: '1236' },
+    { id: 'leads', label: 'Lead Contacts', icon: Users, badge: null },
+    { id: 'clients', label: 'All Clients', icon: Building2, badge: null },
+    { id: 'projects', label: 'Projects', icon: Target, badge: null },
+    { id: 'estimates', label: 'Estimates', icon: FileText, badge: null },
+    { id: 'submittals', label: 'Submittals', icon: Calendar, badge: null },
+    { id: 'settings', label: 'Settings', icon: Settings, badge: null }
+  ];
 
   return (
-    <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
-      {/* Back Button Header */}
-      <div className="flex-shrink-0 p-4 border-b border-white/20">
-        <button
-          onClick={handleBack}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white hover:bg-white/30 transition-all duration-200"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-medium">Close Page</span>
-        </button>
-      </div>
-
-      {/* Navigation Items */}
-      <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
-        <button
-          onClick={() => handleNavigate('projects')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <Briefcase className="w-4 h-4" />
-          <span className="text-sm font-medium">Projects</span>
-        </button>
-        <button
-          onClick={() => handleNavigate('tasks')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <Calendar className="w-4 h-4" />
-          <span className="text-sm font-medium">Tasks</span>
-        </button>
-        <button
-          onClick={() => handleNavigate('finance')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <DollarSign className="w-4 h-4" />
-          <span className="text-sm font-medium">Finance</span>
-        </button>
-        <button
-          onClick={() => handleNavigate('sales')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <TrendingUp className="w-4 h-4" />
-          <span className="text-sm font-medium">Sales</span>
-        </button>
-        <button
-          onClick={() => handleNavigate('bim')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <Map className="w-4 h-4" />
-          <span className="text-sm font-medium">BIM</span>
-        </button>
-      </div>
-
-      {/* Support Section */}
-      <div className="border-t border-white/20 px-3 py-4 space-y-1">
-        <div className="text-xs font-medium text-white uppercase tracking-wider px-3 py-2">
-          Support
+    <div className="w-64 glass-sidebar border-r border-white/20 h-screen flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-white/20">
+        <div className="flex items-center gap-3 mb-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onBack}
+            className="h-8 w-8 p-0 hover:bg-white/10"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h2 className="font-semibold text-foreground">Sales flare</h2>
+            <p className="text-xs text-muted-foreground">The CRM for your team</p>
+          </div>
         </div>
-        <button
-          onClick={() => handleNavigate('settings')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <Settings className="w-4 h-4" />
-          <span className="text-sm font-medium">Settings</span>
-        </button>
-        <button
-          onClick={() => handleNavigate('support')}
-          className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-        >
-          <HelpCircle className="w-4 h-4" />
-          <span className="text-sm font-medium">Help Center</span>
-        </button>
+
+        {/* Task Management Section */}
+        <div className="space-y-1">
+          <h3 className="text-xs font-medium text-muted-foreground mb-2">Task Management</h3>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>All Task</span>
+              <span className="text-xs">(30)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Lead</span>
+              <span className="text-xs">(5)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Contacted</span>
+              <span className="text-xs">(6)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Qualified</span>
+              <span className="text-xs">(4)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Proposal made</span>
+              <span className="text-xs">(15)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Won</span>
+              <span className="text-xs">(10)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Lost</span>
+              <span className="text-xs">(5)</span>
+            </div>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Fridge</span>
+              <span className="text-xs">(5)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex-1 p-4">
+        <div className="space-y-2">
+          {menuItems.map((item) => (
+            <Button
+              key={item.id}
+              variant={activeTab === item.id ? 'secondary' : 'ghost'}
+              className={`w-full justify-start text-left ${
+                activeTab === item.id 
+                  ? 'bg-white/20 text-foreground' 
+                  : 'text-muted-foreground hover:bg-white/10 hover:text-foreground'
+              }`}
+              onClick={() => onTabChange(item.id)}
+            >
+              <item.icon className="w-4 h-4 mr-3" />
+              <span className="flex-1">{item.label}</span>
+              {item.badge && (
+                <Badge variant="secondary" className="ml-auto text-xs">
+                  {item.badge}
+                </Badge>
+              )}
+            </Button>
+          ))}
+        </div>
+
+        {/* Additional Sections */}
+        <div className="mt-8 space-y-4">
+          <div>
+            <h4 className="text-xs font-medium text-muted-foreground mb-2">Admin & Users Accounts</h4>
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">Lead Contacts</div>
+              <div className="text-sm text-muted-foreground">Opportunities</div>
+              <div className="text-sm text-muted-foreground">Product Campaigns</div>
+              <div className="text-sm text-muted-foreground">Insights</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Team Members */}
+      <div className="p-4 border-t border-white/20">
+        <div className="flex -space-x-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="w-8 h-8 rounded-full bg-primary ring-2 ring-background flex items-center justify-center">
+              <span className="text-xs text-primary-foreground font-medium">{i}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
