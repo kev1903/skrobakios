@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useUser } from '@/contexts/UserContext';
 
 export interface Task {
   id: string;
@@ -43,6 +44,7 @@ interface TaskProviderProps {
 export const TaskProvider = ({ children }: TaskProviderProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const { userProfile } = useUser();
 
   // No fallback tasks - fetch only from database
 
@@ -115,11 +117,15 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
 
       // Log activity for significant changes
       const activityPromises = [];
+      const userName = `${userProfile.firstName} ${userProfile.lastName}`.trim() || 'Anonymous User';
+      const userAvatar = userProfile.avatarUrl || '';
+      
       if (updates.status !== undefined) {
         activityPromises.push(
           supabase.from('task_activity_log').insert({
             task_id: taskId,
-            user_name: 'Current User',
+            user_name: userName,
+            user_avatar: userAvatar,
             action_type: 'status_change',
             action_description: `changed status to ${updates.status}`
           })
@@ -129,7 +135,8 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         activityPromises.push(
           supabase.from('task_activity_log').insert({
             task_id: taskId,
-            user_name: 'Current User',
+            user_name: userName,
+            user_avatar: userAvatar,
             action_type: 'assignment_change',
             action_description: `assigned to ${updates.assignedTo.name}`
           })
@@ -139,13 +146,58 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
         activityPromises.push(
           supabase.from('task_activity_log').insert({
             task_id: taskId,
-            user_name: 'Current User',
+            user_name: userName,
+            user_avatar: userAvatar,
             action_type: 'task_completed',
             action_description: 'completed this task'
           })
         );
       }
-
+      if (updates.taskName !== undefined) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: userName,
+            user_avatar: userAvatar,
+            action_type: 'task_updated',
+            action_description: 'updated task name'
+          })
+        );
+      }
+      if (updates.description !== undefined) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: userName,
+            user_avatar: userAvatar,
+            action_type: 'task_updated',
+            action_description: 'updated task description'
+          })
+        );
+      }
+      if (updates.dueDate !== undefined) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: userName,
+            user_avatar: userAvatar,
+            action_type: 'task_updated',
+            action_description: 'updated due date'
+          })
+        );
+      }
+      if (updates.duration !== undefined) {
+        activityPromises.push(
+          supabase.from('task_activity_log').insert({
+            task_id: taskId,
+            user_name: userName,
+            user_avatar: userAvatar,
+            action_type: 'task_updated',
+            action_description: 'updated expected time'
+          })
+        );
+      }
+      
       // Execute activity logging (don't await to avoid blocking UI)
       if (activityPromises.length > 0) {
         Promise.all(activityPromises).catch(console.error);

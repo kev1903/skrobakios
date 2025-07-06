@@ -80,6 +80,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           onMarkComplete={handleMarkComplete} 
           onDelete={handleDelete}
           onTaskNameChange={(newName) => handleFieldChange('taskName', newName)}
+          onSave={handleSave}
         />
 
         <SheetHeader>

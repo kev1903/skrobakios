@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Check, ThumbsUp, Paperclip, MessageSquare, Link, Maximize2, Trash2, ArrowRight, Edit2 } from 'lucide-react';
+import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, ArrowRight, Edit2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,12 +15,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Task } from './TaskContext';
+import { TaskAttachments } from './TaskAttachments';
 
 interface TaskEditHeaderProps {
   task: Task;
   onMarkComplete: () => void;
   onDelete: () => void;
   onTaskNameChange?: (newName: string) => void;
+  onSave?: () => void;
 }
 
 interface EditableTaskNameProps {
@@ -78,7 +80,7 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
   );
 };
 
-export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange }: TaskEditHeaderProps) => {
+export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange, onSave }: TaskEditHeaderProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -120,11 +122,9 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
         
         <div className="flex items-center space-x-1">
           <Button variant="ghost" size="sm">
-            <ThumbsUp className="w-4 h-4" />
+            <Timer className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm">
-            <Paperclip className="w-4 h-4" />
-          </Button>
+          <TaskAttachments taskId={task.id} onSave={onSave} />
           <Button variant="ghost" size="sm">
             <MessageSquare className="w-4 h-4" />
           </Button>

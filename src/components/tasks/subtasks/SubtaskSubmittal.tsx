@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useUser } from '@/contexts/UserContext';
 
 type SubmittalStatus = 'not_submitted' | 'submitted' | 'under_review' | 'approved' | 'rejected';
 
@@ -18,6 +19,8 @@ export const SubtaskSubmittal = ({ subtaskId, subtaskTitle }: SubtaskSubmittalPr
   const [status, setStatus] = useState<SubmittalStatus>('not_submitted');
   const [files, setFiles] = useState<File[]>([]);
   const [reviewComments, setReviewComments] = useState('');
+  const [submittalComment, setSubmittalComment] = useState('');
+  const { userProfile } = useUser();
 
   const getStatusColor = (status: SubmittalStatus) => {
     switch (status) {
@@ -114,6 +117,16 @@ export const SubtaskSubmittal = ({ subtaskId, subtaskTitle }: SubtaskSubmittalPr
                     ))}
                   </div>
                 )}
+
+                <div>
+                  <label className="text-sm font-medium">Submittal Comment</label>
+                  <Textarea
+                    value={submittalComment}
+                    onChange={(e) => setSubmittalComment(e.target.value)}
+                    placeholder="Add a comment about this submittal..."
+                    className="mt-1"
+                  />
+                </div>
                 
                 <Button onClick={handleSubmit} disabled={files.length === 0} className="w-full">
                   Submit for Review

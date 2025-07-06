@@ -24,6 +24,8 @@ export const TaskEditForm = ({
   const { members } = useProjectMembers(projectId);
   const [digitalObjects, setDigitalObjects] = useState<Array<{id: string, name: string, stage: string}>>([]);
   const [digitalObjectOpen, setDigitalObjectOpen] = useState(false);
+  const [expectedTimeValue, setExpectedTimeValue] = useState('');
+  const [expectedTimeUnit, setExpectedTimeUnit] = useState<'minutes' | 'days'>('days');
 
   // Fetch digital objects on component mount
   useEffect(() => {
@@ -43,6 +45,33 @@ export const TaskEditForm = ({
 
     fetchDigitalObjects();
   }, []);
+
+  // Initialize expected time from task duration
+  useEffect(() => {
+    if (task.duration) {
+      // Assume task.duration is in days, convert if less than 1 day to minutes
+      if (task.duration < 1) {
+        setExpectedTimeValue((task.duration * 24 * 60).toString());
+        setExpectedTimeUnit('minutes');
+      } else {
+        setExpectedTimeValue(task.duration.toString());
+        setExpectedTimeUnit('days');
+      }
+    }
+  }, [task.duration]);
+
+  const handleExpectedTimeChange = (value: string, unit: 'minutes' | 'days') => {
+    const numValue = parseFloat(value) || 0;
+    let durationInDays = numValue;
+    
+    if (unit === 'minutes') {
+      durationInDays = numValue / (24 * 60); // Convert minutes to days
+    }
+    
+    onFieldChange('duration', durationInDays);
+    setExpectedTimeValue(value);
+    setExpectedTimeUnit(unit);
+  };
 
   const handleAssigneeChange = (memberName: string) => {
     if (memberName === 'unassigned') {
@@ -174,16 +203,28 @@ export const TaskEditForm = ({
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700 flex items-center">
             <Clock className="w-4 h-4 mr-2" />
-            Duration (days)
+            Expected Time
           </label>
-          <Input 
-            type="number" 
-            value={task.duration || ''} 
-            onChange={e => onFieldChange('duration', parseFloat(e.target.value) || null)} 
-            placeholder="0"
-            min="0"
-            step="0.5"
-          />
+          <div className="flex space-x-2">
+            <Input 
+              type="number" 
+              value={expectedTimeValue} 
+              onChange={e => handleExpectedTimeChange(e.target.value, expectedTimeUnit)} 
+              placeholder="0"
+              min="0"
+              step="1"
+              className="flex-1"
+            />
+            <Select value={expectedTimeUnit} onValueChange={(value: 'minutes' | 'days') => handleExpectedTimeChange(expectedTimeValue, value)}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="minutes">min</SelectItem>
+                <SelectItem value="days">days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

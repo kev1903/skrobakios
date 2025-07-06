@@ -3,9 +3,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Activity, Send, ThumbsUp } from 'lucide-react';
+import { MessageSquare, Activity, Send, Timer } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
+import { useUser } from '@/contexts/UserContext';
 
 interface TaskCommentsActivityProps {
   taskId: string;
@@ -15,14 +16,15 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
   const { comments, addComment, loading: commentsLoading } = useTaskComments(taskId);
   const { activities, loading: activitiesLoading } = useTaskActivity(taskId);
   const [newComment, setNewComment] = useState('');
+  const { userProfile } = useUser();
 
   const handleAddComment = async () => {
     if (newComment.trim()) {
       try {
         await addComment({
           task_id: taskId,
-          user_name: 'Current User', // Replace with actual user context
-          user_avatar: '',
+          user_name: `${userProfile.firstName} ${userProfile.lastName}`.trim() || 'Anonymous User',
+          user_avatar: userProfile.avatarUrl,
           comment: newComment.trim()
         });
         setNewComment('');
@@ -94,7 +96,7 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
                       <span className="font-medium text-sm">{comment.user_name}</span>
                       <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
                       <Button variant="ghost" size="sm" className="h-6 px-2">
-                        <ThumbsUp className="w-3 h-3" />
+                        <Timer className="w-3 h-3" />
                       </Button>
                     </div>
                     <div className="text-sm text-gray-700">
@@ -115,7 +117,10 @@ export const TaskCommentsActivity = ({ taskId }: TaskCommentsActivityProps) => {
           {/* Add Comment */}
           <div className="flex space-x-3">
             <Avatar className="w-8 h-8">
-              <AvatarFallback className="text-xs">U</AvatarFallback>
+              <AvatarImage src={userProfile.avatarUrl} />
+              <AvatarFallback className="text-xs">
+                {`${userProfile.firstName} ${userProfile.lastName}`.split(' ').map(n => n[0]).join('') || 'U'}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-2">
               <Textarea
