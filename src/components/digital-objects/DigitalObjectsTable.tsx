@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { useRef, useEffect } from "react";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { DigitalObject } from "./types";
 import { DigitalObjectRow } from "./DigitalObjectRow";
 
@@ -18,6 +19,7 @@ interface DigitalObjectsTableProps {
   editingField: {id: string, field: keyof DigitalObject} | null;
   editingData: Partial<DigitalObject>;
   selectedIds: string[];
+  stageSortDirection: 'asc' | 'desc' | null;
   onFieldClick: (obj: DigitalObject, field: keyof DigitalObject) => void;
   onRowSelect: (id: string, event: React.MouseEvent) => void;
   onSave: () => void;
@@ -25,6 +27,7 @@ interface DigitalObjectsTableProps {
   onEditingDataChange: (data: Partial<DigitalObject>) => void;
   onDragEnd: (result: any) => void;
   onToggleExpand: (id: string) => void;
+  onStageSort: () => void;
 }
 
 export const DigitalObjectsTable = ({
@@ -33,13 +36,15 @@ export const DigitalObjectsTable = ({
   editingField,
   editingData,
   selectedIds,
+  stageSortDirection,
   onFieldClick,
   onRowSelect,
   onSave,
   onCancel,
   onEditingDataChange,
   onDragEnd,
-  onToggleExpand
+  onToggleExpand,
+  onStageSort
 }: DigitalObjectsTableProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -85,9 +90,19 @@ export const DigitalObjectsTable = ({
               <TableHeader>
                 <TableRow className="border-white/10 hover:bg-white/5 h-8">
                   <TableHead className="text-white font-semibold h-8 w-8"></TableHead>
-                  <TableHead className="text-white font-semibold h-8">Name</TableHead>
+                  <TableHead className="text-white font-semibold h-8">Name</TableHead>  
                   <TableHead className="text-white font-semibold h-8">Description</TableHead>
-                  <TableHead className="text-white font-semibold h-8">Stage</TableHead>
+                  <TableHead className="text-white font-semibold h-8">
+                    <button 
+                      onClick={onStageSort}
+                      className="flex items-center gap-1 hover:text-blue-300 transition-colors"
+                    >
+                      Stage
+                      {stageSortDirection === null && <ArrowUpDown className="w-4 h-4" />}
+                      {stageSortDirection === 'asc' && <ArrowUp className="w-4 h-4" />}
+                      {stageSortDirection === 'desc' && <ArrowDown className="w-4 h-4" />}
+                    </button>
+                  </TableHead>
                   <TableHead className="text-white font-semibold h-8 w-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>

@@ -13,6 +13,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     editingField,
     editingData,
     selectedIds,
+    stageSortDirection,
     setEditingData,
     handleFieldClick,
     handleRowSelect,
@@ -23,7 +24,8 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     handleOutdent,
     handleToggleExpand,
     handleAddRow,
-    handleImportCSV
+    handleImportCSV,
+    handleStageSort
   } = useDigitalObjects();
 
   return (
@@ -57,6 +59,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
                   editingField={editingField}
                   editingData={editingData}
                   selectedIds={selectedIds}
+                  stageSortDirection={stageSortDirection}
                   onFieldClick={handleFieldClick}
                   onRowSelect={handleRowSelect}
                   onSave={handleSave}
@@ -64,6 +67,7 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
                   onEditingDataChange={setEditingData}
                   onDragEnd={handleDragEnd}
                   onToggleExpand={handleToggleExpand}
+                  onStageSort={handleStageSort}
                 />
               </>
             )}
