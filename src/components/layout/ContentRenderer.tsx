@@ -152,10 +152,10 @@ export const ContentRenderer = ({
           <div className="flex-1 overflow-auto backdrop-blur-xl bg-white/5 border-l border-white/10">
             <div className="p-8 ml-48">
               <div className="mb-8">
-                <h1 className="text-4xl font-bold text-white mb-2 font-playfair">
+                <h1 className="text-4xl font-bold text-white mb-2 font-inter">
                   Project Cost & Contract Management
                 </h1>
-                <p className="text-white/80 font-helvetica">
+                <p className="text-white/80 font-inter">
                   Track contracts, cost breakdowns, variations, claims, and payments for construction projects
                 </p>
               </div>

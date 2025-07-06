@@ -104,8 +104,8 @@ export const CostBreakdownTab = ({ onNavigate }: CostBreakdownTabProps) => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-playfair">Cost Breakdown (BOQ)</h2>
-          <p className="text-white/70 font-helvetica">Manage project budget and cost tracking</p>
+          <h2 className="text-2xl font-bold text-white font-inter">Cost Breakdown (BOQ)</h2>
+          <p className="text-white/70 font-inter">Manage project budget and cost tracking</p>
         </div>
         <div className="flex gap-3">
           <Button 

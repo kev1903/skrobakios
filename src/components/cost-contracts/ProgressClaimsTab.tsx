@@ -88,8 +88,8 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white font-playfair">Progress Claims</h2>
-          <p className="text-white/70 font-helvetica">Track project progress claims and payments</p>
+          <h2 className="text-2xl font-bold text-white font-inter">Progress Claims</h2>
+          <p className="text-white/70 font-inter">Track project progress claims and payments</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -171,7 +171,7 @@ export const ProgressClaimsTab = ({ onNavigate }: ProgressClaimsTabProps) => {
       {/* Claims Table */}
       <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
         <CardHeader>
-          <CardTitle className="text-white font-playfair">Claims Register</CardTitle>
+          <CardTitle className="text-white font-inter">Claims Register</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
