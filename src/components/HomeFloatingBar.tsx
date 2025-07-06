@@ -18,7 +18,6 @@ export const HomeFloatingBar = ({
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
   const [sidePageContent, setSidePageContent] = useState<string | null>(null);
-  const [isHomeHovered, setIsHomeHovered] = useState(false);
   const [isScheduleFullScreen, setIsScheduleFullScreen] = useState(false);
 
   const toggleRibbon = () => {
@@ -41,7 +40,6 @@ export const HomeFloatingBar = ({
     setIsScheduleFullScreen(true);
     setIsRibbonOpen(false);
     setSidePageContent(null);
-    setIsHomeHovered(false);
   };
 
   const handleCloseRibbon = () => {
@@ -56,8 +54,6 @@ export const HomeFloatingBar = ({
   return (
     <>
       <TopFloatingBar
-        isHomeHovered={isHomeHovered}
-        setIsHomeHovered={setIsHomeHovered}
         onToggleRibbon={toggleRibbon}
         onNavigate={onNavigate}
         onOpenSchedule={handleOpenSchedule}
