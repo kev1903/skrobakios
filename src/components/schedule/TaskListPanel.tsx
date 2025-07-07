@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { ModernGanttTask } from './types';
@@ -14,6 +14,7 @@ interface TaskListPanelProps {
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onDragEnd: (result: DropResult) => void;
+  width?: number;
 }
 
 export const TaskListPanel = ({
@@ -26,14 +27,48 @@ export const TaskListPanel = ({
   onEditingValueChange,
   onSaveEdit,
   onCancelEdit,
-  onDragEnd
+  onDragEnd,
+  width = 600
 }: TaskListPanelProps) => {
-  const getStatusColor = (status: number): string => {
-    if (status === 100) return 'text-emerald-600';
-    if (status > 50) return 'text-blue-600';
-    if (status > 0) return 'text-amber-600';
-    return 'text-slate-500';
+  const [columnWidths, setColumnWidths] = useState({
+    rowNumber: 60,
+    title: 200,
+    duration: 80,
+    startDate: 100,
+    endDate: 100,
+    dependencies: 160
+  });
+
+  const handleColumnResize = (column: string, newWidth: number) => {
+    setColumnWidths(prev => ({
+      ...prev,
+      [column]: Math.max(50, newWidth) // Minimum width of 50px
+    }));
   };
+
+  const ResizeHandle = ({ column }: { column: string }) => (
+    <div
+      className="absolute right-0 top-0 w-1 h-full cursor-col-resize bg-slate-300 opacity-0 hover:opacity-100 hover:bg-blue-400 transition-opacity"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        const startX = e.clientX;
+        const startWidth = columnWidths[column as keyof typeof columnWidths];
+        
+        const handleMouseMove = (e: MouseEvent) => {
+          const diff = e.clientX - startX;
+          handleColumnResize(column, startWidth + diff);
+        };
+        
+        const handleMouseUp = () => {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+        };
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+      }}
+    />
+  );
 
   const renderEditableCell = (
     task: ModernGanttTask,
@@ -77,16 +112,54 @@ export const TaskListPanel = ({
   };
 
   return (
-    <div className="w-[700px] bg-white border-r border-slate-200 flex flex-col">
+    <div 
+      className="bg-white border-r border-slate-200 flex flex-col"
+      style={{ width: `${width}px` }}
+    >
       {/* Column Headers */}
       <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4">
-        <div className="w-12 text-sm font-medium text-slate-700 text-center flex-shrink-0">#</div>
-        <div className="w-48 text-sm font-medium text-slate-700 flex-shrink-0 px-2">Title</div>
-        <div className="w-20 text-sm font-medium text-slate-700 text-center flex-shrink-0">Duration</div>
-        <div className="w-24 text-sm font-medium text-slate-700 text-center flex-shrink-0">Start Date</div>
-        <div className="w-24 text-sm font-medium text-slate-700 text-center flex-shrink-0">End Date</div>
-        <div className="w-20 text-sm font-medium text-slate-700 text-center flex-shrink-0">Status</div>
-        <div className="w-32 text-sm font-medium text-slate-700 text-center flex-shrink-0">Dependencies</div>
+        <div 
+          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+          style={{ width: `${columnWidths.rowNumber}px` }}
+        >
+          #
+          <ResizeHandle column="rowNumber" />
+        </div>
+        <div 
+          className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-200"
+          style={{ width: `${columnWidths.title}px` }}
+        >
+          Title
+          <ResizeHandle column="title" />
+        </div>
+        <div 
+          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+          style={{ width: `${columnWidths.duration}px` }}
+        >
+          Duration
+          <ResizeHandle column="duration" />
+        </div>
+        <div 
+          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+          style={{ width: `${columnWidths.startDate}px` }}
+        >
+          Start Date
+          <ResizeHandle column="startDate" />
+        </div>
+        <div 
+          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+          style={{ width: `${columnWidths.endDate}px` }}
+        >
+          End Date
+          <ResizeHandle column="endDate" />
+        </div>
+        <div 
+          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative"
+          style={{ width: `${columnWidths.dependencies}px` }}
+        >
+          Dependencies
+          <ResizeHandle column="dependencies" />
+        </div>
       </div>
 
       {/* Task Rows */}
@@ -117,14 +190,20 @@ export const TaskListPanel = ({
                         </div>
 
                          {/* Row Number */}
-                         <div className="w-12 text-center flex-shrink-0">
+                         <div 
+                           className="text-center flex-shrink-0 border-r border-slate-100"
+                           style={{ width: `${columnWidths.rowNumber}px` }}
+                         >
                            <span className="text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                             {task.rowNumber}
+                             {index + 1}
                            </span>
                          </div>
 
                          {/* Title */}
-                         <div className="w-48 flex items-center flex-shrink-0 px-2 min-w-0">
+                         <div 
+                           className="flex items-center flex-shrink-0 px-2 min-w-0 border-r border-slate-100"
+                           style={{ width: `${columnWidths.title}px` }}
+                         >
                            <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center min-w-0 w-full">
                              {task.children && task.children.length > 0 && (
                                <button
@@ -152,7 +231,10 @@ export const TaskListPanel = ({
                          </div>
                          
                          {/* Duration */}
-                         <div className="w-20 text-center flex-shrink-0">
+                         <div 
+                           className="text-center flex-shrink-0 border-r border-slate-100"
+                           style={{ width: `${columnWidths.duration}px` }}
+                         >
                            {renderEditableCell(
                              task,
                              'duration',
@@ -163,7 +245,10 @@ export const TaskListPanel = ({
                          </div>
                          
                          {/* Start Date */}
-                         <div className="w-24 text-center flex-shrink-0">
+                         <div 
+                           className="text-center flex-shrink-0 border-r border-slate-100"
+                           style={{ width: `${columnWidths.startDate}px` }}
+                         >
                            {renderEditableCell(
                              task,
                              'startDate',
@@ -174,7 +259,10 @@ export const TaskListPanel = ({
                          </div>
                          
                          {/* End Date */}
-                         <div className="w-24 text-center flex-shrink-0">
+                         <div 
+                           className="text-center flex-shrink-0 border-r border-slate-100"
+                           style={{ width: `${columnWidths.endDate}px` }}
+                         >
                            {renderEditableCell(
                              task,
                              'endDate',
@@ -184,19 +272,11 @@ export const TaskListPanel = ({
                            )}
                          </div>
                          
-                         {/* Status */}
-                         <div className="w-20 text-center flex-shrink-0">
-                           {renderEditableCell(
-                             task,
-                             'status',
-                             task.status,
-                             'number',
-                             `w-full text-sm font-medium text-center ${getStatusColor(task.status)}`
-                           )}
-                         </div>
-                         
                          {/* Dependencies */}
-                         <div className="w-32 text-center flex-shrink-0 px-2 min-w-0">
+                         <div 
+                           className="text-center flex-shrink-0 px-2 min-w-0"
+                           style={{ width: `${columnWidths.dependencies}px` }}
+                         >
                            {renderEditableCell(
                              task,
                              'dependencies',

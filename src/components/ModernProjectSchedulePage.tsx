@@ -39,6 +39,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
   const [editingValue, setEditingValue] = useState<string>('');
   const [scrollPosition, setScrollPosition] = useState(0);
   const [timelineHeader, setTimelineHeader] = useState<TimelineHeader>(generateTimelineHeaders());
+  const [taskListWidth, setTaskListWidth] = useState(600);
 
   // Task data with enhanced structure
   const [tasks, setTasks] = useState<ModernGanttTask[]>([
@@ -574,7 +575,38 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
             onSaveEdit={saveEdit}
             onCancelEdit={cancelEdit}
             onDragEnd={handleDragEnd}
+            width={taskListWidth}
           />
+
+          {/* Resizable Divider */}
+          <div
+            className="w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors relative group"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const startX = e.clientX;
+              const startWidth = taskListWidth;
+              
+              const handleMouseMove = (e: MouseEvent) => {
+                const diff = e.clientX - startX;
+                const newWidth = Math.max(300, Math.min(1000, startWidth + diff));
+                setTaskListWidth(newWidth);
+              };
+              
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          >
+            <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
+              <div className="w-3 h-8 bg-slate-400 group-hover:bg-blue-500 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="w-0.5 h-4 bg-white rounded"></div>
+              </div>
+            </div>
+          </div>
 
           <TimelinePanel
             tasks={flatTasks}
