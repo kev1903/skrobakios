@@ -564,32 +564,32 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
         </div>
 
         {/* Toolbar */}
-        <div className="h-12 bg-white border-b border-slate-200 flex items-center justify-end px-6">
+        <div className="h-12 bg-slate-100 border-b border-slate-300 flex items-center justify-end px-6 shadow-sm">
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" title="Decrease Indent">
-              <ChevronLeft className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Decrease Indent" className="hover:bg-slate-200">
+              <ChevronLeft className="w-4 h-4 text-slate-700" />
             </Button>
-            <Button variant="ghost" size="sm" title="Increase Indent">
-              <ChevronRight className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Increase Indent" className="hover:bg-slate-200">
+              <ChevronRight className="w-4 h-4 text-slate-700" />
             </Button>
-            <div className="w-px h-6 bg-slate-200 mx-2" />
-            <Button variant="ghost" size="sm" title="Zoom In">
-              <ZoomIn className="w-4 h-4" />
+            <div className="w-px h-6 bg-slate-400 mx-2" />
+            <Button variant="ghost" size="sm" title="Zoom In" className="hover:bg-slate-200">
+              <ZoomIn className="w-4 h-4 text-slate-700" />
             </Button>
-            <Button variant="ghost" size="sm" title="Zoom Out">
-              <ZoomOut className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Zoom Out" className="hover:bg-slate-200">
+              <ZoomOut className="w-4 h-4 text-slate-700" />
             </Button>
-            <div className="w-px h-6 bg-slate-200 mx-2" />
-            <Button variant="ghost" size="sm" title="Critical Path">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <div className="w-px h-6 bg-slate-400 mx-2" />
+            <Button variant="ghost" size="sm" title="Critical Path" className="hover:bg-slate-200">
+              <svg className="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
               </svg>
             </Button>
-            <Button variant="ghost" size="sm" title="Settings">
-              <Settings className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Settings" className="hover:bg-slate-200">
+              <Settings className="w-4 h-4 text-slate-700" />
             </Button>
-            <Button variant="ghost" size="sm" title="Expand All">
-              <ChevronDown className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Expand All" className="hover:bg-slate-200">
+              <ChevronDown className="w-4 h-4 text-slate-700" />
             </Button>
           </div>
         </div>
