@@ -566,10 +566,10 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
         {/* Toolbar */}
         <div className="h-12 bg-white border-b border-slate-200 flex items-center px-6">
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" title="Outdent">
+            <Button variant="ghost" size="sm" title="Outdent" className="h-8 w-8 p-0">
               <IndentDecrease className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" title="Indent">
+            <Button variant="ghost" size="sm" title="Indent" className="h-8 w-8 p-0">
               <IndentIncrease className="w-4 h-4" />
             </Button>
             <div className="w-px h-6 bg-slate-200 mx-2" />
