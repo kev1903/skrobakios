@@ -311,7 +311,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
   };
 
   return (
-    <div className="h-screen flex bg-slate-50">
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
       {/* Project Sidebar */}
       <ProjectSidebar 
         project={project} 
@@ -322,7 +322,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-white ml-48">
+      <div className="flex-1 flex flex-col bg-white ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10">
         {/* Top Header */}
         <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6">
           <div className="flex items-center space-x-4">
