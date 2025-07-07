@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, Plus, MoreHorizontal, Download, Eye, EyeOff } from 'lucide-react';
-import { IndentDecrease, IndentIncrease, Baseline, Settings, Expand, Bold, Italic, Underline, Strikethrough, Link, Palette, AlignLeft, ZoomIn, ZoomOut, Type, Hash } from 'lucide-react';
+import { IndentDecrease, IndentIncrease, Baseline, Settings, Expand } from 'lucide-react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { 
@@ -566,73 +566,13 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
         {/* Toolbar */}
         <div className="h-12 bg-white border-b border-slate-200 flex items-center justify-end px-6">
           <div className="flex items-center space-x-2">
-            {/* Text Formatting */}
-            <div className="flex items-center space-x-1">
-              <select className="text-sm border border-slate-200 rounded px-2 py-1 bg-white" defaultValue="Arial">
-                <option>Arial</option>
-                <option>Times</option>
-                <option>Helvetica</option>
-              </select>
-              <select className="text-sm border border-slate-200 rounded px-2 py-1 bg-white w-16" defaultValue="10">
-                <option>8</option>
-                <option>10</option>
-                <option>12</option>
-                <option>14</option>
-              </select>
-            </div>
-            
-            <div className="w-px h-6 bg-slate-200 mx-1" />
-            
-            {/* Text Style Icons */}
-            <Button variant="ghost" size="sm" title="Bold">
-              <Bold className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Italic">
-              <Italic className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Underline">
-              <Underline className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Strikethrough">
-              <Strikethrough className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Link">
-              <Link className="w-4 h-4" />
-            </Button>
-            
-            <div className="w-px h-6 bg-slate-200 mx-1" />
-            
-            {/* Color and Alignment */}
-            <Button variant="ghost" size="sm" title="Text Color">
-              <Type className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Highlight Color">
-              <Palette className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Align">
-              <AlignLeft className="w-4 h-4" />
-            </Button>
-            
-            <div className="w-px h-6 bg-slate-200 mx-1" />
-            
-            {/* Zoom Controls */}
-            <Button variant="ghost" size="sm" title="Zoom In">
-              <ZoomIn className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" title="Zoom Out">
-              <ZoomOut className="w-4 h-4" />
-            </Button>
-            
-            <div className="w-px h-6 bg-slate-200 mx-2" />
-            
-            {/* Original Icons */}
             <Button variant="ghost" size="sm" title="Outdent">
               <IndentDecrease className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="sm" title="Indent">
               <IndentIncrease className="w-4 h-4" />
             </Button>
-            <div className="w-px h-6 bg-slate-200 mx-1" />
+            <div className="w-px h-6 bg-slate-200 mx-2" />
             <Button variant="ghost" size="sm" title="Baseline">
               <Baseline className="w-4 h-4" />
             </Button>
