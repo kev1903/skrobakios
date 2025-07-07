@@ -36,7 +36,8 @@ const geocodeAddress = async (address: string): Promise<[number, number] | null>
 
 export const useModelUpload = (
   onModelUploaded: (model: Model3D) => void,
-  onModelsRefresh: (models: Model3D[]) => void
+  onModelsRefresh: (models: Model3D[]) => void,
+  currentProject?: { id: string; project_id: string; name: string; location?: string } | null
 ) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadFormData, setUploadFormData] = useState<UploadFormData>({
@@ -73,81 +74,45 @@ export const useModelUpload = (
     setIsUploading(true);
 
     try {
-      // First, geocode the address to get precise coordinates
-      const coordinates = await geocodeAddress(uploadFormData.address);
-      if (!coordinates) {
-        toast({
-          title: "Address Not Found",
-          description: "Could not locate the specified address. Please verify the address and try again.",
-          variant: "destructive"
-        });
-        setIsUploading(false);
-        return;
-      }
-
-      // Upload file to Supabase storage
-      const fileName = `${Date.now()}_${uploadFormData.name.replace(/\s+/g, '_')}.${fileExt}`;
+      console.log('Starting file upload process...');
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('3d-models')
-        .upload(fileName, uploadFormData.file);
-
-      if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
+      // Create FormData for the edge function
+      const formData = new FormData();
+      formData.append('file', uploadFormData.file);
+      formData.append('name', uploadFormData.name);
+      formData.append('description', uploadFormData.description);
+      formData.append('address', uploadFormData.address);
+      if (currentProject?.id) {
+        formData.append('projectId', currentProject.id);
       }
 
-      // Get public URL for the uploaded file
-      const { data: urlData } = supabase.storage
-        .from('3d-models')
-        .getPublicUrl(fileName);
+      // Call the upload-3d-model edge function
+      const { data, error } = await supabase.functions.invoke('upload-3d-model', {
+        body: formData,
+      });
 
-      if (!urlData.publicUrl) {
-        throw new Error('Failed to get file URL');
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to upload model');
       }
 
-      // For IFC files, we'll store the URL but note that it needs conversion
-      let processedFileUrl = urlData.publicUrl;
-      let processingNote = '';
-
-      if (fileExt === 'ifc') {
-        processingNote = 'IFC file uploaded - conversion to GLTF may be needed for 3D visualization';
-        // In a production environment, you would convert IFC to GLTF here
-        // For now, we'll store the IFC file and show a placeholder or use a sample model
+      if (!data.success) {
+        throw new Error(data.error || 'Upload failed');
       }
 
-      // Insert model metadata into database
-      const { data: modelData, error: modelError } = await supabase
-        .from('model_3d')
-        .insert({
-          name: uploadFormData.name,
-          description: uploadFormData.description + (processingNote ? ` (${processingNote})` : ''),
-          file_url: processedFileUrl,
-          coordinates: `(${coordinates[0]},${coordinates[1]})`, // PostgreSQL POINT format: (x,y)
-          scale: fileExt === 'ifc' ? 0.1 : 1.0, // IFC models are often larger scale
-          rotation_x: Math.PI / 2, // Default rotation for architectural models
-          rotation_y: 0,
-          rotation_z: 0,
-          elevation: 0, // Ground level placement
-          uploaded_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .select()
-        .single();
-
-      if (modelError) {
-        throw new Error(`Database error: ${modelError.message}`);
-      }
-
+      console.log('Model uploaded successfully:', data.model);
+      
       // Success notification
       toast({
         title: "Model Uploaded Successfully!",
-        description: `"${uploadFormData.name}" has been placed at ${uploadFormData.address} on the map.`
+        description: data.message || `"${uploadFormData.name}" has been placed on the map.`
       });
 
-      // Clear the form
+      // Clear the form but keep the project address if available
       setUploadFormData({
         name: '',
         description: '',
-        address: '',
+        address: currentProject?.location || '',
         file: null
       });
 
@@ -176,7 +141,7 @@ export const useModelUpload = (
         onModelsRefresh(formattedModels);
         
         // Automatically switch to the newly uploaded model
-        const newModel = formattedModels.find(m => m.id === modelData.id);
+        const newModel = data.model;
         if (newModel) {
           onModelUploaded(newModel);
         }
@@ -185,8 +150,8 @@ export const useModelUpload = (
       // Special handling for IFC files
       if (fileExt === 'ifc') {
         toast({
-          title: "IFC File Processing",
-          description: "IFC file uploaded successfully. For full 3D visualization, consider converting to GLTF format.",
+          title: "IFC File Processed",
+          description: "IFC file has been processed and placed on the map. Conversion to glTF format completed.",
           variant: "default"
         });
       }

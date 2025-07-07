@@ -34,7 +34,7 @@ export const Mapbox3DEnvironment = ({
     uploadFormData,
     setUploadFormData,
     handleFileUpload
-  } = useModelUpload(handleModelUploaded, handleModelsRefresh);
+  } = useModelUpload(handleModelUploaded, handleModelsRefresh, currentProject);
 
   // Toggle 3D model visibility
   const toggleModelVisibility = () => {
