@@ -52,13 +52,13 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-500/20 text-green-300 border-green-500/30";
+        return "bg-green-500/20 text-green-700 border-green-500/30";
       case "running":
-        return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+        return "bg-orange-500/20 text-orange-700 border-orange-500/30";
       case "pending":
-        return "bg-red-500/20 text-red-300 border-red-500/30";
+        return "bg-red-500/20 text-red-700 border-red-500/30";
       default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+        return "bg-gray-500/20 text-gray-700 border-gray-500/30";
     }
   };
 
@@ -116,17 +116,17 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <TableHead 
-      className="font-medium text-white cursor-pointer hover:bg-white/10 select-none transition-colors duration-200"
+      className="font-medium text-foreground cursor-pointer hover:bg-muted/50 select-none transition-colors duration-200"
       onClick={() => handleSort(field)}
     >
       <div className="flex items-center space-x-2">
         <span>{children}</span>
         <div className="flex flex-col">
           <ArrowUp 
-            className={`w-3 h-3 transition-colors duration-200 ${sortField === field && sortDirection === 'asc' ? 'text-blue-400' : 'text-white/60'}`} 
+            className={`w-3 h-3 transition-colors duration-200 ${sortField === field && sortDirection === 'asc' ? 'text-primary' : 'text-muted-foreground'}`} 
           />
           <ArrowDown 
-            className={`w-3 h-3 transition-colors duration-200 ${sortField === field && sortDirection === 'desc' ? 'text-blue-400' : 'text-white/60'}`} 
+            className={`w-3 h-3 transition-colors duration-200 ${sortField === field && sortDirection === 'desc' ? 'text-primary' : 'text-muted-foreground'}`} 
           />
         </div>
       </div>
@@ -163,28 +163,28 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const renderGridView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {getSortedProjects().map((project) => (
-        <div key={project.id} className="bg-black/30 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-black/40 hover:border-white/30 transition-all duration-300 shadow-lg animate-fade-in">
+        <div key={project.id} className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-               <h3 className="text-lg font-semibold text-white mb-1">
+               <h3 className="text-lg font-semibold text-foreground mb-1">
                  <button
                    onClick={() => handleProjectClick(project.id)}
-                   className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left transition-colors duration-200"
+                   className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
                  >
                    {project.name}
                  </button>
                </h3>
-               <p className="text-sm text-white/80 mb-2">#{project.project_id}</p>
+               <p className="text-sm text-muted-foreground mb-2">#{project.project_id}</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                 <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-200">
+                 <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200">
                    <MoreHorizontal className="w-4 h-4" />
                  </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
+              <DropdownMenuContent align="end" className="bg-card border border-border shadow-xl">
                 <DropdownMenuItem 
-                  className="flex items-center space-x-2 text-white hover:bg-white/20 focus:bg-white/20 transition-colors duration-200"
+                  className="flex items-center space-x-2 text-foreground hover:bg-muted focus:bg-muted transition-colors duration-200"
                   onClick={() => handleProjectClick(project.id)}
                 >
                   <Eye className="w-4 h-4" />
@@ -194,30 +194,30 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             </DropdownMenu>
           </div>
           
-          <p className="text-white/80 text-sm mb-4 line-clamp-2">
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
             {project.description || 'No description available'}
           </p>
           
            <div className="space-y-2 mb-4">
              <div className="flex justify-between text-sm">
-               <span className="text-white/70">Contract Price:</span>
-               <span className="text-white/80">{project.contract_price || '-'}</span>
+               <span className="text-muted-foreground">Contract Price:</span>
+               <span className="text-foreground">{project.contract_price || '-'}</span>
              </div>
              <div className="flex justify-between text-sm">
-               <span className="text-white/70">Location:</span>
-               <span className="text-white/80">{project.location || '-'}</span>
+               <span className="text-muted-foreground">Location:</span>
+               <span className="text-foreground">{project.location || '-'}</span>
              </div>
              <div className="flex justify-between text-sm">
-               <span className="text-white/70">Priority:</span>
-               <span className="text-white/80">{project.priority || '-'}</span>
+               <span className="text-muted-foreground">Priority:</span>
+               <span className="text-foreground">{project.priority || '-'}</span>
              </div>
              <div className="flex justify-between text-sm">
-               <span className="text-white/70">Start Date:</span>
-               <span className="text-white/80">{project.start_date ? formatDate(project.start_date) : '-'}</span>
+               <span className="text-muted-foreground">Start Date:</span>
+               <span className="text-foreground">{project.start_date ? formatDate(project.start_date) : '-'}</span>
              </div>
              <div className="flex justify-between text-sm">
-               <span className="text-white/70">Due Date:</span>
-               <span className="text-white/80">{project.deadline ? formatDate(project.deadline) : '-'}</span>
+               <span className="text-muted-foreground">Due Date:</span>
+               <span className="text-foreground">{project.deadline ? formatDate(project.deadline) : '-'}</span>
              </div>
            </div>
           
@@ -232,7 +232,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
               type="checkbox"
               checked={selectedProjects.includes(project.id)}
               onChange={(e) => handleSelectProject(project.id, e.target.checked)}
-              className="rounded border-white/30 bg-white/10 text-white focus:ring-white/30"
+              className="rounded border-input bg-background text-primary focus:ring-primary/30"
             />
           </div>
         </div>
@@ -242,12 +242,15 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   if (loading) {
     return (
-      <div className="h-full overflow-auto backdrop-blur-xl bg-black/20 border border-white/10 shadow-2xl">
-        <div className="p-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-              <div className="text-white/80">Loading projects...</div>
+      <div className="fixed inset-0 bg-background z-40 overflow-auto">
+        <div className="min-h-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+          <div className="relative z-10 p-8">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-muted-foreground">Loading projects...</div>
+              </div>
             </div>
           </div>
         </div>
@@ -256,13 +259,15 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }
 
   return (
-    <div className="h-full overflow-auto backdrop-blur-xl bg-black/20 border border-white/10 shadow-2xl">
-      <div className="p-8">
+    <div className="fixed inset-0 bg-background z-40 overflow-auto">
+      <div className="min-h-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+        <div className="relative z-10 p-8">
         {/* Create New Project Button - Prominent at top */}
         <div className="mb-6">
           <Button
             onClick={() => onNavigate("create-project")}
-            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
             size="lg"
           >
             <Plus className="w-5 h-5" />
@@ -273,20 +278,17 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2 font-poppins">Projects</h1>
-            <p className="text-white/80 font-inter">Manage your construction projects ({projects.length} total)</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2 font-poppins">Projects</h1>
+            <p className="text-muted-foreground font-inter">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
             {/* View Toggle Buttons */}
-            <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20">
+            <div className="flex items-center bg-muted rounded-lg p-1 border border-border">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className={`${viewMode === 'list' 
-                  ? 'bg-white/20 text-white hover:bg-white/30 border border-white/30' 
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-                } transition-all duration-200`}
+                className="transition-all duration-200"
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -294,10 +296,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className={`${viewMode === 'grid' 
-                  ? 'bg-white/20 text-white hover:bg-white/30 border border-white/30' 
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-                } transition-all duration-200`}
+                className="transition-all duration-200"
               >
                 <LayoutGrid className="w-4 h-4" />
               </Button>
@@ -305,7 +304,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center space-x-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:border-white/40 transition-all duration-200"
+              className="flex items-center space-x-2 transition-all duration-200"
             >
               <Filter className="w-4 h-4" />
               <span>Filter</span>
@@ -315,11 +314,11 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
         {/* Projects Content */}
         {projects.length === 0 ? (
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 p-8 text-center shadow-lg">
-            <div className="text-white/80 mb-4">No projects found</div>
+          <div className="bg-card border border-border rounded-xl p-8 text-center shadow-sm">
+            <div className="text-muted-foreground mb-4">No projects found</div>
             <Button
               onClick={() => onNavigate("create-project")}
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Create Your First Project
             </Button>
@@ -327,10 +326,10 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         ) : viewMode === 'grid' ? (
           renderGridView()
         ) : (
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-black/40 border-white/10 hover:bg-black/50 transition-colors duration-200">
+                <TableRow className="bg-muted/50 border-border hover:bg-muted transition-colors duration-200">
                   <TableHead className="w-12">
                     <input
                       type="checkbox"
@@ -339,7 +338,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                         if (el) el.indeterminate = isIndeterminate;
                       }}
                       onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-white/30 bg-white/10 text-white focus:ring-white/30"
+                      className="rounded border-input bg-background text-primary focus:ring-primary/30"
                     />
                   </TableHead>
                    <SortableHeader field="project_id">ID</SortableHeader>
@@ -358,42 +357,42 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 {getSortedProjects().map((project) => {
                   console.log("Rendering project:", project.name, "with ID:", project.id);
                   return (
-                    <TableRow key={project.id} className="hover:bg-black/30 border-white/10 transition-colors duration-200">
+                    <TableRow key={project.id} className="hover:bg-muted/50 border-border transition-colors duration-200">
                       <TableCell>
                         <input
                           type="checkbox"
                           checked={selectedProjects.includes(project.id)}
                           onChange={(e) => handleSelectProject(project.id, e.target.checked)}
-                          className="rounded border-white/30 bg-white/10 text-white focus:ring-white/30"
+                          className="rounded border-input bg-background text-primary focus:ring-primary/30"
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-white/80">
+                      <TableCell className="font-mono text-sm text-muted-foreground">
                         #{project.project_id}
                       </TableCell>
-                      <TableCell className="font-medium text-white">
+                      <TableCell className="font-medium text-foreground">
                         <button
                           onClick={() => handleProjectClick(project.id)}
-                          className="text-blue-300 hover:text-blue-200 hover:underline cursor-pointer text-left transition-colors duration-200"
+                          className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
                         >
                           {project.name}
                         </button>
                       </TableCell>
-                       <TableCell className="text-white/80">
+                       <TableCell className="text-muted-foreground">
                          {project.description || '-'}
                        </TableCell>
-                       <TableCell className="text-white/80">
+                       <TableCell className="text-muted-foreground">
                          {project.contract_price || '-'}
                        </TableCell>
-                       <TableCell className="text-white/80">
+                       <TableCell className="text-muted-foreground">
                          {project.location || '-'}
                        </TableCell>
-                       <TableCell className="text-white/80">
+                       <TableCell className="text-muted-foreground">
                          {project.priority || '-'}
                        </TableCell>
-                       <TableCell className="text-white/80">
+                       <TableCell className="text-muted-foreground">
                          {project.start_date ? formatDate(project.start_date) : '-'}
                        </TableCell>
-                       <TableCell className="text-white/80">
+                       <TableCell className="text-muted-foreground">
                          {project.deadline ? formatDate(project.deadline) : '-'}
                        </TableCell>
                       <TableCell>
@@ -407,13 +406,13 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-200">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200">
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
+                          <DropdownMenuContent align="end" className="bg-card border border-border shadow-xl">
                             <DropdownMenuItem 
-                              className="flex items-center space-x-2 text-white hover:bg-white/20 focus:bg-white/20 transition-colors duration-200"
+                              className="flex items-center space-x-2 text-foreground hover:bg-muted focus:bg-muted transition-colors duration-200"
                               onClick={() => handleProjectClick(project.id)}
                             >
                               <Eye className="w-4 h-4" />
@@ -429,6 +428,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             </Table>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
