@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown, Calendar, User, Clock, FileText } from 'lucide-react';
+import { Check, ChevronsUpDown, Calendar, User, Clock, FileText, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Task } from './TaskContext';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
@@ -189,6 +189,43 @@ export const TaskEditForm = ({
               </SelectItem>)}
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Status and Priority side by side */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 flex items-center">
+            <Flag className="w-4 h-4 mr-2" />
+            Status
+          </label>
+          <Select value={task.status} onValueChange={(value) => onFieldChange('status', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+              <SelectItem value="Not Started">Not Started</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="In Progress">In Progress</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 flex items-center">
+            <Flag className="w-4 h-4 mr-2" />
+            Priority
+          </label>
+          <Select value={task.priority} onValueChange={(value) => onFieldChange('priority', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+              <SelectItem value="Low">Low</SelectItem>
+              <SelectItem value="Medium">Medium</SelectItem>
+              <SelectItem value="High">High</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Due Date and Duration side by side */}
