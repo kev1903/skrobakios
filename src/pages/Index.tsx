@@ -15,8 +15,8 @@ const Index = () => {
     <AuthProvider>
       <UserProvider>
         <TaskProvider>
-          {currentPage === "sales" ? (
-            // Sales CRM takes full screen - no main layout wrapper
+          {currentPage === "sales" || currentPage === "projects" ? (
+            // Sales CRM and Projects take full screen - no main layout wrapper
             <ContentRenderer 
               currentPage={currentPage}
               onNavigate={setCurrentPage}
