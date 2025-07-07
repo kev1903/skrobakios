@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Filter, Plus, MoreHorizontal, Download, Settings, Eye, EyeOff, GripVertical } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { Filter, Plus, MoreHorizontal, Download, Settings, Eye, EyeOff } from 'lucide-react';
+import { DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -13,24 +10,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Project } from '@/hooks/useProjects';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
-
-interface ModernGanttTask {
-  id: string;
-  title: string;
-  duration: string;
-  status: number; // percentage
-  startDate?: string;
-  endDate?: string;
-  level: number;
-  children?: ModernGanttTask[];
-  expanded?: boolean;
-  color?: string;
-  barStyle?: {
-    left: string;
-    width: string;
-    backgroundColor: string;
-  };
-}
+import { TaskListPanel } from '@/components/schedule/TaskListPanel';
+import { TimelinePanel } from '@/components/schedule/TimelinePanel';
+import { ModernGanttTask, TimelineHeader } from '@/components/schedule/types';
+import { 
+  generateTimelineHeaders, 
+  updateTaskWithCalculations, 
+  generateTaskColor,
+  calculateBarPosition 
+} from '@/components/schedule/utils';
 
 interface ModernProjectSchedulePageProps {
   project: Project;
@@ -40,52 +28,66 @@ interface ModernProjectSchedulePageProps {
 export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProjectSchedulePageProps) => {
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['strategy', 'design', 'development', 'testing']));
   const [hideCompleted, setHideCompleted] = useState(false);
-  const [editingField, setEditingField] = useState<{taskId: string, field: 'title' | 'duration' | 'status'} | null>(null);
+  const [editingField, setEditingField] = useState<{taskId: string, field: string} | null>(null);
   const [editingValue, setEditingValue] = useState<string>('');
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [timelineHeader, setTimelineHeader] = useState<TimelineHeader>(generateTimelineHeaders());
 
-  // Task data matching the reference image structure
+  // Task data with enhanced structure
   const [tasks, setTasks] = useState<ModernGanttTask[]>([
     {
       id: 'strategy',
       title: 'Strategy',
-      duration: '9 days',
+      duration: 9,
       status: 98,
+      startDate: '2024-11-01',
+      endDate: '2024-11-10',
+      dependencies: [],
       level: 0,
       expanded: true,
       children: [
         {
           id: 'goals',
           title: 'Goals',
-          duration: '6 days',
+          duration: 6,
           status: 100,
+          startDate: '2024-11-01',
+          endDate: '2024-11-07',
+          dependencies: [],
           level: 1,
           barStyle: {
             left: '2%',
-            width: '28%',
+            width: '15%',
             backgroundColor: '#3B82F6'
           }
         },
         {
           id: 'target-audience',
           title: 'Target Audience',
-          duration: '4 days',
+          duration: 4,
           status: 100,
+          startDate: '2024-11-08',
+          endDate: '2024-11-12',
+          dependencies: ['goals'],
           level: 1,
           barStyle: {
-            left: '32%',
-            width: '20%',
+            left: '18%',
+            width: '10%',
             backgroundColor: '#06B6D4'
           }
         },
         {
           id: 'competitor-research',
           title: 'Competitor Research',
-          duration: '2 days',
+          duration: 2,
           status: 80,
+          startDate: '2024-11-13',
+          endDate: '2024-11-15',
+          dependencies: ['target-audience'],
           level: 1,
           barStyle: {
-            left: '54%',
-            width: '12%',
+            left: '30%',
+            width: '5%',
             backgroundColor: '#10B981'
           }
         }
@@ -94,47 +96,62 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     {
       id: 'design',
       title: 'Design',
-      duration: '10 days',
+      duration: 10,
       status: 25,
+      startDate: '2024-11-16',
+      endDate: '2024-11-26',
+      dependencies: ['competitor-research'],
       level: 0,
       expanded: true,
       children: [
         {
           id: 'user-experience',
           title: 'User Experience',
-          duration: '3 days',
+          duration: 3,
           status: 60,
+          startDate: '2024-11-16',
+          endDate: '2024-11-19',
+          dependencies: ['competitor-research'],
           level: 1,
           barStyle: {
-            left: '68%',
-            width: '18%',
+            left: '36%',
+            width: '7%',
             backgroundColor: '#8B5CF6'
           }
         },
         {
           id: 'user-interface',
           title: 'User Interface',
-          duration: '6 days',
+          duration: 6,
           status: 40,
+          startDate: '2024-11-20',
+          endDate: '2024-11-26',
+          dependencies: ['user-experience'],
           level: 1,
           barStyle: {
-            left: '88%',
-            width: '12%',
+            left: '45%',
+            width: '15%',
             backgroundColor: '#8B5CF6'
           }
         },
         {
           id: 'icons-pack',
           title: 'Icons Pack',
-          duration: '3 days',
+          duration: 3,
           status: 0,
+          startDate: '2024-11-27',
+          endDate: '2024-11-30',
+          dependencies: ['user-interface'],
           level: 1
         },
         {
           id: 'style-guide',
           title: 'Style Guide',
-          duration: '8 days',
+          duration: 8,
           status: 0,
+          startDate: '2024-12-01',
+          endDate: '2024-12-09',
+          dependencies: ['icons-pack'],
           level: 1
         }
       ]
@@ -142,30 +159,42 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     {
       id: 'development',
       title: 'Development',
-      duration: '12 days',
+      duration: 12,
       status: 0,
+      startDate: '2024-12-10',
+      endDate: '2024-12-22',
+      dependencies: ['style-guide'],
       level: 0,
       expanded: true,
       children: [
         {
           id: 'back-end',
           title: 'Back-End',
-          duration: '7 days',
+          duration: 7,
           status: 0,
+          startDate: '2024-12-10',
+          endDate: '2024-12-17',
+          dependencies: ['style-guide'],
           level: 1
         },
         {
           id: 'api',
           title: 'API',
-          duration: '4 days',
+          duration: 4,
           status: 0,
+          startDate: '2024-12-18',
+          endDate: '2024-12-22',
+          dependencies: ['back-end'],
           level: 1
         },
         {
           id: 'front-end',
           title: 'Front-End',
-          duration: '8 days',
+          duration: 8,
           status: 0,
+          startDate: '2024-12-15',
+          endDate: '2024-12-23',
+          dependencies: ['back-end'],
           level: 1
         }
       ]
@@ -173,16 +202,22 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     {
       id: 'testing',
       title: 'Testing',
-      duration: '8 days',
+      duration: 8,
       status: 0,
+      startDate: '2024-12-24',
+      endDate: '2025-01-01',
+      dependencies: ['front-end', 'api'],
       level: 0,
       expanded: true,
       children: [
         {
           id: 'user-experience-testing',
           title: 'User Experience Testing',
-          duration: '6 days',
+          duration: 6,
           status: 0,
+          startDate: '2024-12-24',
+          endDate: '2024-12-30',
+          dependencies: ['front-end'],
           level: 1
         }
       ]
@@ -216,18 +251,32 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     return result;
   };
 
-  const updateTask = (taskId: string, field: 'title' | 'duration' | 'status', value: string | number) => {
+  const updateTask = (taskId: string, field: string, value: string | number) => {
     setTasks(prevTasks => {
       const updateTaskRecursively = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
         return tasks.map(task => {
           if (task.id === taskId) {
-            const updatedTask = { ...task, [field]: value };
-            // Auto-generate bar style for tasks with duration and status
-            if ((field === 'duration' || field === 'status') && updatedTask.level > 0) {
-              if (!updatedTask.barStyle && updatedTask.status > 0) {
-                updatedTask.barStyle = generateBarStyle(updatedTask.id, updatedTask.status);
+            let updatedTask = { ...task };
+            
+            if (field === 'dependencies') {
+              updatedTask.dependencies = String(value).split(',').map(dep => dep.trim()).filter(dep => dep);
+            } else if (field === 'duration' || field === 'startDate' || field === 'endDate') {
+              updatedTask = updateTaskWithCalculations(
+                task, 
+                field as 'duration' | 'startDate' | 'endDate', 
+                value,
+                timelineHeader.startDate,
+                timelineHeader.endDate
+              );
+            } else {
+              // Handle other field updates
+              if (field === 'title') {
+                updatedTask.title = String(value);
+              } else if (field === 'status') {
+                updatedTask.status = Number(value);
               }
             }
+            
             return updatedTask;
           }
           if (task.children) {
@@ -240,25 +289,38 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     });
   };
 
-  const generateBarStyle = (taskId: string, status: number) => {
-    // Simple algorithm to generate bar positions based on task ID
-    const hash = taskId.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
-      return a & a;
-    }, 0);
-    const left = Math.abs(hash % 60) + 10;
-    const width = Math.max(15, Math.abs(hash % 25) + 10);
-    const colors = ['#3B82F6', '#06B6D4', '#10B981', '#8B5CF6', '#F59E0B'];
-    const color = colors[Math.abs(hash) % colors.length];
-    
-    return {
-      left: `${left}%`,
-      width: `${width}%`,
-      backgroundColor: color
-    };
-  };
+  // Initialize bar styles for tasks with dates
+  useEffect(() => {
+    setTasks(prevTasks => {
+      const updateBarStyles = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
+        return tasks.map(task => {
+          if (task.startDate && task.endDate && task.level > 0) {
+            const barPosition = calculateBarPosition(
+              task.startDate,
+              task.endDate,
+              timelineHeader.startDate,
+              timelineHeader.endDate
+            );
+            return {
+              ...task,
+              barStyle: {
+                ...barPosition,
+                backgroundColor: task.barStyle?.backgroundColor || generateTaskColor(task.id)
+              },
+              children: task.children ? updateBarStyles(task.children) : undefined
+            };
+          }
+          return {
+            ...task,
+            children: task.children ? updateBarStyles(task.children) : undefined
+          };
+        });
+      };
+      return updateBarStyles(prevTasks);
+    });
+  }, [timelineHeader]);
 
-  const startEditing = (taskId: string, field: 'title' | 'duration' | 'status', currentValue: string | number) => {
+  const startEditing = (taskId: string, field: string, currentValue: string | number) => {
     setEditingField({ taskId, field });
     setEditingValue(String(currentValue));
   };
@@ -271,6 +333,8 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     
     if (field === 'status') {
       value = Math.max(0, Math.min(100, parseInt(editingValue) || 0));
+    } else if (field === 'duration') {
+      value = Math.max(1, parseInt(editingValue) || 1);
     }
     
     updateTask(taskId, field, value);
@@ -328,8 +392,11 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     const newTask: ModernGanttTask = {
       id: `task-${Date.now()}`,
       title: 'New Task',
-      duration: '1 day',
+      duration: 1,
       status: 0,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      dependencies: [],
       level: parentId ? 1 : 0,
     };
 
@@ -360,21 +427,6 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     setExpandedTasks(prev => parentId ? new Set([...prev, parentId]) : prev);
   };
 
-  const getStatusColor = (status: number): string => {
-    if (status === 100) return 'text-emerald-600';
-    if (status > 50) return 'text-blue-600';
-    if (status > 0) return 'text-amber-600';
-    return 'text-slate-500';
-  };
-
-  const generateTimelineHeaders = () => {
-    const months = ['Nov 2024', 'Dec 2024'];
-    const days = Array.from({ length: 20 }, (_, i) => 21 + i);
-    
-    return { months, days };
-  };
-
-  const { months, days } = generateTimelineHeaders();
   const flatTasks = flattenTasks(tasks);
 
   const getProjectStatusColor = (status: string) => {
@@ -478,219 +530,27 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           </div>
         </div>
 
-        {/* Gantt Chart */}
+        {/* Enhanced Gantt Chart */}
         <div className="flex-1 flex">
-          {/* Left Panel - Task List */}
-          <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
-            {/* Column Headers */}
-            <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4">
-              <div className="flex-1 text-sm font-medium text-slate-700">Title</div>
-              <div className="w-20 text-sm font-medium text-slate-700 text-center">Duration</div>
-              <div className="w-16 text-sm font-medium text-slate-700 text-center">Status</div>
-            </div>
+          <TaskListPanel
+            tasks={flatTasks}
+            expandedTasks={expandedTasks}
+            editingField={editingField}
+            editingValue={editingValue}
+            onToggleExpanded={toggleExpanded}
+            onStartEditing={startEditing}
+            onEditingValueChange={setEditingValue}
+            onSaveEdit={saveEdit}
+            onCancelEdit={cancelEdit}
+            onDragEnd={handleDragEnd}
+          />
 
-            {/* Task Rows */}
-            <div className="flex-1 overflow-auto">
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="task-list">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                    >
-                      {flatTasks.map((task, index) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className={`h-12 border-b border-slate-100 flex items-center px-4 hover:bg-slate-50 group ${
-                                snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''
-                              }`}
-                            >
-                              {/* Drag Handle */}
-                              <div
-                                {...provided.dragHandleProps}
-                                className="mr-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
-                              >
-                                <GripVertical className="w-4 h-4 text-slate-400" />
-                              </div>
-
-                              <div className="flex-1 flex items-center">
-                                <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center">
-                                  {task.children && task.children.length > 0 && (
-                                    <button
-                                      onClick={() => toggleExpanded(task.id)}
-                                      className="mr-2 p-1 hover:bg-slate-200 rounded transition-colors"
-                                    >
-                                      {expandedTasks.has(task.id) ? (
-                                        <ChevronDown className="w-3 h-3 text-slate-600" />
-                                      ) : (
-                                        <ChevronRight className="w-3 h-3 text-slate-600" />
-                                      )}
-                                    </button>
-                                  )}
-                                  
-                                  {/* Editable Title */}
-                                  {editingField?.taskId === task.id && editingField?.field === 'title' ? (
-                                    <input
-                                      type="text"
-                                      value={editingValue}
-                                      onChange={(e) => setEditingValue(e.target.value)}
-                                      onBlur={saveEdit}
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter') saveEdit();
-                                        if (e.key === 'Escape') cancelEdit();
-                                      }}
-                                      className="text-sm border border-blue-300 rounded px-1 py-0.5 bg-white"
-                                      autoFocus
-                                    />
-                                  ) : (
-                                    <span 
-                                      className={`text-sm cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded ${
-                                        task.level === 0 ? 'font-medium text-slate-900' : 'text-slate-700'
-                                      }`}
-                                      onClick={() => startEditing(task.id, 'title', task.title)}
-                                    >
-                                      {task.title}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              {/* Editable Duration */}
-                              <div className="w-20 text-center">
-                                {editingField?.taskId === task.id && editingField?.field === 'duration' ? (
-                                  <input
-                                    type="text"
-                                    value={editingValue}
-                                    onChange={(e) => setEditingValue(e.target.value)}
-                                    onBlur={saveEdit}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEdit();
-                                      if (e.key === 'Escape') cancelEdit();
-                                    }}
-                                    className="w-16 text-sm border border-blue-300 rounded px-1 py-0.5 text-center"
-                                    autoFocus
-                                  />
-                                ) : (
-                                  <span 
-                                    className="text-sm text-slate-600 cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded"
-                                    onClick={() => startEditing(task.id, 'duration', task.duration)}
-                                  >
-                                    {task.duration}
-                                  </span>
-                                )}
-                              </div>
-                              
-                              {/* Editable Status */}
-                              <div className="w-16 text-center">
-                                {editingField?.taskId === task.id && editingField?.field === 'status' ? (
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={editingValue}
-                                    onChange={(e) => setEditingValue(e.target.value)}
-                                    onBlur={saveEdit}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEdit();
-                                      if (e.key === 'Escape') cancelEdit();
-                                    }}
-                                    className="w-12 px-1 py-0.5 text-xs border border-blue-300 rounded text-center"
-                                    autoFocus
-                                  />
-                                ) : (
-                                  <span 
-                                    className={`text-sm font-medium cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded ${getStatusColor(task.status)}`}
-                                    onClick={() => startEditing(task.id, 'status', task.status)}
-                                  >
-                                    {task.status}%
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-          </div>
-
-          {/* Right Panel - Timeline */}
-          <div className="flex-1 bg-white">
-            {/* Timeline Header */}
-            <div className="h-12 bg-slate-50 border-b border-slate-200">
-              <div className="flex h-full">
-                {months.map((month, i) => (
-                  <div key={month} className="flex-1 border-r border-slate-200 last:border-r-0">
-                    <div className="h-6 flex items-center justify-center text-sm font-medium text-slate-900 border-b border-slate-200">
-                      {month}
-                    </div>
-                    <div className="h-6 flex">
-                      {days.slice(i * 10, (i + 1) * 10).map(day => (
-                        <div key={day} className="flex-1 flex items-center justify-center text-xs text-slate-500 border-r border-slate-100 last:border-r-0">
-                          {day}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Timeline Grid and Bars */}
-            <div className="relative">
-              {flatTasks.map((task, index) => (
-                <div
-                  key={task.id}
-                  className="h-12 border-b border-slate-100 relative group hover:bg-slate-50"
-                >
-                  {/* Grid Lines */}
-                  <div className="absolute inset-0 flex">
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div key={i} className="flex-1 border-r border-slate-100 last:border-r-0"></div>
-                    ))}
-                  </div>
-
-                  {/* Task Bar */}
-                  {task.barStyle && (
-                    <div className="absolute inset-0 flex items-center px-1">
-                      <div
-                        className="h-6 rounded-lg flex items-center px-2 shadow-sm group-hover:shadow-md transition-shadow relative overflow-hidden"
-                        style={{
-                          left: task.barStyle.left,
-                          width: task.barStyle.width,
-                          backgroundColor: task.barStyle.backgroundColor,
-                        }}
-                      >
-                        {/* Progress Fill */}
-                        <div
-                          className="absolute inset-0 bg-white/20 rounded-lg"
-                          style={{ width: `${task.status}%` }}
-                        ></div>
-                        
-                        <span className="text-xs text-white font-medium relative z-10 truncate">
-                          {task.title}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Milestone or no bar tasks */}
-                  {!task.barStyle && task.status > 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <TimelinePanel
+            tasks={flatTasks}
+            timelineHeader={timelineHeader}
+            scrollPosition={scrollPosition}
+            onScroll={setScrollPosition}
+          />
         </div>
 
         {/* Bottom Status Bar */}

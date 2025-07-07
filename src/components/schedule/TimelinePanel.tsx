@@ -1,0 +1,144 @@
+import React from 'react';
+import { ModernGanttTask, TimelineHeader } from './types';
+
+interface TimelinePanelProps {
+  tasks: ModernGanttTask[];
+  timelineHeader: TimelineHeader;
+  scrollPosition: number;
+  onScroll: (position: number) => void;
+}
+
+export const TimelinePanel = ({
+  tasks,
+  timelineHeader,
+  scrollPosition,
+  onScroll
+}: TimelinePanelProps) => {
+  const { months, days } = timelineHeader;
+  
+  // Calculate total width needed for timeline (each day gets a minimum width)
+  const dayWidth = 40; // pixels per day
+  const totalWidth = days.length * dayWidth;
+  const containerWidth = 800; // approximate visible width
+  
+  return (
+    <div className="flex-1 bg-white relative">
+      {/* Timeline Header */}
+      <div className="h-12 bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
+        <div 
+          className="flex h-full"
+          style={{ 
+            width: `${totalWidth}px`,
+            transform: `translateX(-${scrollPosition}px)`
+          }}
+        >
+          {/* Month Headers */}
+          <div className="flex w-full">
+            {months.map((month, monthIndex) => {
+              const monthDays = days.filter((_, dayIndex) => {
+                const dayMonth = Math.floor(dayIndex / 31); // Approximate
+                return dayMonth === monthIndex;
+              });
+              
+              return (
+                <div 
+                  key={month} 
+                  className="border-r border-slate-200 last:border-r-0"
+                  style={{ minWidth: `${monthDays.length * dayWidth}px` }}
+                >
+                  <div className="h-6 flex items-center justify-center text-sm font-medium text-slate-900 border-b border-slate-200">
+                    {month}
+                  </div>
+                  <div className="h-6 flex">
+                    {monthDays.map((day, dayIndex) => (
+                      <div 
+                        key={`${monthIndex}-${day}`} 
+                        className="flex items-center justify-center text-xs text-slate-500 border-r border-slate-100 last:border-r-0"
+                        style={{ width: `${dayWidth}px` }}
+                      >
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Scrollable Timeline Content */}
+      <div 
+        className="flex-1 overflow-x-auto overflow-y-hidden"
+        onScroll={(e) => onScroll(e.currentTarget.scrollLeft)}
+      >
+        <div style={{ width: `${totalWidth}px` }}>
+          {/* Timeline Grid and Bars */}
+          <div className="relative">
+            {tasks.map((task, index) => (
+              <div
+                key={task.id}
+                className="h-12 border-b border-slate-100 relative group hover:bg-slate-50"
+              >
+                {/* Grid Lines */}
+                <div className="absolute inset-0 flex">
+                  {days.map((day, dayIndex) => (
+                    <div 
+                      key={`grid-${dayIndex}`} 
+                      className="border-r border-slate-100 last:border-r-0"
+                      style={{ width: `${dayWidth}px` }}
+                    ></div>
+                  ))}
+                </div>
+
+                {/* Task Bar */}
+                {task.barStyle && (
+                  <div className="absolute inset-0 flex items-center px-1">
+                    <div
+                      className="h-6 rounded-lg flex items-center px-2 shadow-sm group-hover:shadow-md transition-shadow relative overflow-hidden"
+                      style={{
+                        left: task.barStyle.left,
+                        width: task.barStyle.width,
+                        backgroundColor: task.barStyle.backgroundColor,
+                      }}
+                    >
+                      {/* Progress Fill */}
+                      <div
+                        className="absolute inset-0 bg-white/20 rounded-lg"
+                        style={{ width: `${task.status}%` }}
+                      ></div>
+                      
+                      <span className="text-xs text-white font-medium relative z-10 truncate">
+                        {task.title}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Milestone for tasks without bars */}
+                {!task.barStyle && task.status > 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Horizontal Scroll Indicator */}
+      {totalWidth > containerWidth && (
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-slate-100 border-t border-slate-200">
+          <div 
+            className="h-full bg-slate-400 rounded"
+            style={{
+              width: `${(containerWidth / totalWidth) * 100}%`,
+              marginLeft: `${(scrollPosition / totalWidth) * 100}%`
+            }}
+          ></div>
+        </div>
+      )}
+    </div>
+  );
+};
