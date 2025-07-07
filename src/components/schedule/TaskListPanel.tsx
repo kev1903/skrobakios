@@ -125,45 +125,44 @@ export const TaskListPanel = ({
            }}
       >
         {/* Column Headers */}
-        <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center sticky top-0 z-10">
-          <div className="w-8 flex-shrink-0"></div> {/* Space for drag handle */}
+        <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4 sticky top-0 z-10">
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
             style={{ width: `${columnWidths.rowNumber}px` }}
           >
             #
             <ResizeHandle column="rowNumber" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 flex-shrink-0 relative border-r border-slate-200 flex items-center px-2"
+            className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-200"
             style={{ width: `${columnWidths.title}px` }}
           >
             Title
             <ResizeHandle column="title" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
             style={{ width: `${columnWidths.duration}px` }}
           >
             Duration
             <ResizeHandle column="duration" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
             style={{ width: `${columnWidths.startDate}px` }}
           >
             Start Date
             <ResizeHandle column="startDate" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
             style={{ width: `${columnWidths.endDate}px` }}
           >
             End Date
             <ResizeHandle column="endDate" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative flex items-center justify-center px-2"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative"
             style={{ width: `${columnWidths.dependencies}px` }}
           >
             Dependencies
@@ -184,21 +183,21 @@ export const TaskListPanel = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`h-12 border-b border-slate-100 flex items-center hover:bg-slate-50 group ${
+                        className={`h-12 border-b border-slate-100 flex items-center px-4 hover:bg-slate-50 group ${
                           snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''
                         }`}
                       >
                         {/* Drag Handle */}
                         <div
                           {...provided.dragHandleProps}
-                          className="w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing flex-shrink-0"
+                          className="mr-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
                         >
                           <GripVertical className="w-4 h-4 text-slate-400" />
                         </div>
 
                          {/* Row Number */}
                          <div 
-                           className="text-center flex-shrink-0 border-r border-slate-100 flex items-center justify-center"
+                           className="text-center flex-shrink-0 border-r border-slate-100"
                            style={{ width: `${columnWidths.rowNumber}px` }}
                          >
                            <span className="text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
@@ -208,7 +207,7 @@ export const TaskListPanel = ({
 
                          {/* Title */}
                          <div 
-                           className="flex items-center flex-shrink-0 min-w-0 border-r border-slate-100 px-2"
+                           className="flex items-center flex-shrink-0 px-2 min-w-0 border-r border-slate-100"
                            style={{ width: `${columnWidths.title}px` }}
                          >
                            <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center min-w-0 w-full">
@@ -239,7 +238,7 @@ export const TaskListPanel = ({
                          
                          {/* Duration */}
                          <div 
-                           className="text-center flex-shrink-0 border-r border-slate-100 flex items-center justify-center"
+                           className="text-center flex-shrink-0 border-r border-slate-100"
                            style={{ width: `${columnWidths.duration}px` }}
                          >
                            {renderEditableCell(
@@ -253,7 +252,7 @@ export const TaskListPanel = ({
                          
                          {/* Start Date */}
                          <div 
-                           className="text-center flex-shrink-0 border-r border-slate-100 flex items-center justify-center"
+                           className="text-center flex-shrink-0 border-r border-slate-100"
                            style={{ width: `${columnWidths.startDate}px` }}
                          >
                            {renderEditableCell(
@@ -267,7 +266,7 @@ export const TaskListPanel = ({
                          
                          {/* End Date */}
                          <div 
-                           className="text-center flex-shrink-0 border-r border-slate-100 flex items-center justify-center"
+                           className="text-center flex-shrink-0 border-r border-slate-100"
                            style={{ width: `${columnWidths.endDate}px` }}
                          >
                            {renderEditableCell(
@@ -281,7 +280,7 @@ export const TaskListPanel = ({
                          
                          {/* Dependencies */}
                          <div 
-                           className="text-center flex-shrink-0 min-w-0 flex items-center justify-center px-2"
+                           className="text-center flex-shrink-0 px-2 min-w-0"
                            style={{ width: `${columnWidths.dependencies}px` }}
                          >
                            {renderEditableCell(
