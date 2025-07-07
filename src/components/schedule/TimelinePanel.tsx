@@ -26,44 +26,59 @@ export const TimelinePanel = ({
       {/* Timeline Header */}
       <div className="h-12 bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
         <div 
-          className="flex h-full"
+          className="flex h-full overflow-hidden"
           style={{ 
             width: `${totalWidth}px`,
             transform: `translateX(-${scrollPosition}px)`
           }}
         >
-          {/* Month Headers */}
-          <div className="flex w-full">
-            {months.map((month, monthIndex) => {
-              const monthDays = days.filter((_, dayIndex) => {
-                const dayMonth = Math.floor(dayIndex / 31); // Approximate
-                return dayMonth === monthIndex;
-              });
-              
-              return (
-                <div 
-                  key={month} 
-                  className="border-r border-slate-200 last:border-r-0"
-                  style={{ minWidth: `${monthDays.length * dayWidth}px` }}
-                >
-                  <div className="h-6 flex items-center justify-center text-sm font-medium text-slate-900 border-b border-slate-200">
-                    {month}
-                  </div>
-                  <div className="h-6 flex">
-                    {monthDays.map((day, dayIndex) => (
+          {/* Month and Day Headers */}
+          {months.map((month, monthIndex) => {
+            // Calculate how many days belong to this month
+            const monthStartDay = monthIndex === 0 ? 0 : months.slice(0, monthIndex).reduce((acc, _, i) => {
+              const monthDate = new Date(timelineHeader.startDate);
+              monthDate.setMonth(monthDate.getMonth() + i);
+              return acc + new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+            }, 0);
+            
+            const currentMonthDate = new Date(timelineHeader.startDate);
+            currentMonthDate.setMonth(currentMonthDate.getMonth() + monthIndex);
+            const daysInCurrentMonth = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + 1, 0).getDate();
+            
+            return (
+              <div 
+                key={month} 
+                className="flex flex-col border-r border-slate-200 last:border-r-0"
+                style={{ width: `${daysInCurrentMonth * dayWidth}px` }}
+              >
+                {/* Month Header */}
+                <div className="h-6 flex items-center justify-center text-sm font-medium text-slate-900 border-b border-slate-200 bg-slate-50">
+                  {month}
+                </div>
+                
+                {/* Days Header */}
+                <div className="h-6 flex">
+                  {Array.from({ length: daysInCurrentMonth }, (_, dayIndex) => {
+                    const dayNumber = dayIndex + 1;
+                    const dayDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth(), dayNumber);
+                    const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
+                    
+                    return (
                       <div 
-                        key={`${monthIndex}-${day}`} 
-                        className="flex items-center justify-center text-xs text-slate-500 border-r border-slate-100 last:border-r-0"
+                        key={dayNumber}
+                        className={`flex items-center justify-center text-xs border-r border-slate-100 last:border-r-0 ${
+                          isWeekend ? 'bg-slate-100 text-slate-400' : 'text-slate-500'
+                        }`}
                         style={{ width: `${dayWidth}px` }}
                       >
-                        {day}
+                        {dayNumber}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -80,16 +95,24 @@ export const TimelinePanel = ({
                 key={task.id}
                 className="h-12 border-b border-slate-100 relative group hover:bg-slate-50"
               >
-                {/* Grid Lines */}
-                <div className="absolute inset-0 flex">
-                  {days.map((day, dayIndex) => (
+              {/* Grid Lines with Weekend Highlighting */}
+              <div className="absolute inset-0 flex">
+                {Array.from({ length: Math.ceil(totalWidth / dayWidth) }).map((_, dayIndex) => {
+                  const currentDate = new Date(timelineHeader.startDate);
+                  currentDate.setDate(currentDate.getDate() + dayIndex);
+                  const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+                  
+                  return (
                     <div 
                       key={`grid-${dayIndex}`} 
-                      className="border-r border-slate-100 last:border-r-0"
+                      className={`border-r border-slate-100 last:border-r-0 ${
+                        isWeekend ? 'bg-slate-50' : ''
+                      }`}
                       style={{ width: `${dayWidth}px` }}
                     ></div>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
 
                 {/* Task Bar */}
                 {task.barStyle && (

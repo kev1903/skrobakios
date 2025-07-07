@@ -180,16 +180,16 @@ export const TaskListPanel = ({
                           )}
                         </div>
                         
-                        {/* Dependencies */}
-                        <div className="flex-1 text-center">
-                          {renderEditableCell(
-                            task,
-                            'dependencies',
-                            task.dependencies.join(', '),
-                            'text',
-                            'text-xs text-slate-500 text-center'
-                          )}
-                        </div>
+        {/* Dependencies */}
+        <div className="flex-1 text-center px-2">
+          {renderEditableCell(
+            task,
+            'dependencies',
+            task.dependencies.join(', '),
+            'text',
+            'text-xs text-slate-500 text-center min-w-0 truncate'
+          )}
+        </div>
                       </div>
                     )}
                   </Draggable>

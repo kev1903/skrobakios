@@ -17,7 +17,11 @@ import {
   generateTimelineHeaders, 
   updateTaskWithCalculations, 
   generateTaskColor,
-  calculateBarPosition 
+  calculateBarPosition,
+  validateDependencies,
+  autoScheduleTask,
+  flattenTasks,
+  calculateProjectStats
 } from '@/components/schedule/utils';
 
 interface ModernProjectSchedulePageProps {
@@ -236,7 +240,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     });
   };
 
-  const flattenTasks = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
+  const flattenTasksLocal = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
     const result: ModernGanttTask[] = [];
     
     for (const task of tasks) {
@@ -244,7 +248,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       
       result.push(task);
       if (task.children && expandedTasks.has(task.id)) {
-        result.push(...flattenTasks(task.children));
+        result.push(...flattenTasksLocal(task.children));
       }
     }
     
@@ -259,14 +263,26 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
             let updatedTask = { ...task };
             
             if (field === 'dependencies') {
-              updatedTask.dependencies = String(value).split(',').map(dep => dep.trim()).filter(dep => dep);
+              const dependencies = String(value).split(',').map(dep => dep.trim()).filter(dep => dep);
+              const { isValid, conflicts } = validateDependencies(prevTasks, taskId, dependencies);
+              
+              if (isValid) {
+                updatedTask.dependencies = dependencies;
+                // Auto-schedule task based on new dependencies
+                updatedTask = autoScheduleTask(updatedTask, flattenTasks(prevTasks));
+              } else {
+                console.warn('Dependency validation failed:', conflicts);
+                // You could show a toast notification here
+                return task; // Return unchanged task
+              }
             } else if (field === 'duration' || field === 'startDate' || field === 'endDate') {
               updatedTask = updateTaskWithCalculations(
                 task, 
                 field as 'duration' | 'startDate' | 'endDate', 
                 value,
                 timelineHeader.startDate,
-                timelineHeader.endDate
+                timelineHeader.endDate,
+                flattenTasks(prevTasks)
               );
             } else {
               // Handle other field updates
@@ -427,7 +443,8 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     setExpandedTasks(prev => parentId ? new Set([...prev, parentId]) : prev);
   };
 
-  const flatTasks = flattenTasks(tasks);
+  const flatTasks = flattenTasksLocal(tasks);
+  const projectStats = calculateProjectStats(tasks);
 
   const getProjectStatusColor = (status: string) => {
     switch (status) {
@@ -553,26 +570,32 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           />
         </div>
 
-        {/* Bottom Status Bar */}
-        <div className="h-10 bg-slate-50 border-t border-slate-200 flex items-center justify-between px-6 text-sm text-slate-600">
+        {/* Bottom Status Bar with Enhanced Project Stats */}
+        <div className="h-12 bg-slate-50 border-t border-slate-200 flex items-center justify-between px-6 text-sm text-slate-600">
           <div className="flex items-center space-x-4">
-            <span>{flatTasks.length} tasks</span>
+            <span>{projectStats.totalTasks} tasks</span>
             <span>•</span>
-            <span>{flatTasks.filter(t => t.status === 100).length} completed</span>
+            <span>{projectStats.completedTasks} completed</span>
+            <span>•</span>
+            <span>{projectStats.remainingTasks} remaining</span>
+            {projectStats.criticalPath.length > 0 && (
+              <>
+                <span>•</span>
+                <span className="text-amber-600 font-medium">Critical path: {projectStats.criticalPath.length} tasks</span>
+              </>
+            )}
           </div>
           
           <div className="flex items-center space-x-2">
             <span>Overall Progress:</span>
-            <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div className="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                style={{ 
-                  width: `${Math.round(flatTasks.reduce((sum, task) => sum + task.status, 0) / flatTasks.length)}%` 
-                }}
+                className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: `${projectStats.averageProgress}%` }}
               ></div>
             </div>
-            <span className="font-medium">
-              {Math.round(flatTasks.reduce((sum, task) => sum + task.status, 0) / flatTasks.length)}%
+            <span className="font-medium text-slate-900">
+              {projectStats.averageProgress}%
             </span>
           </div>
         </div>
