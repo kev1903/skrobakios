@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Project } from '@/hooks/useProjects';
+import { ProjectSidebar } from '@/components/ProjectSidebar';
 
 interface ModernGanttTask {
   id: string;
@@ -283,29 +284,45 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
   const { months, days } = generateTimelineHeaders();
   const flatTasks = flattenTasks(tasks);
 
+  const getProjectStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "running":
+        return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+      case "pending":
+        return "bg-red-500/20 text-red-300 border-red-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+    }
+  };
+
+  const getProjectStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "running":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Active";
+    }
+  };
+
   return (
     <div className="h-screen flex bg-slate-50">
-      {/* Modern Sidebar */}
-      <div className="w-16 bg-slate-900 flex flex-col items-center py-4 space-y-4">
-        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-          <div className="w-3 h-3 bg-slate-900 rounded"></div>
-        </div>
-        
-        {/* Sidebar Icons */}
-        {[
-          '≡', '📊', '📋', '👥', '⚙️', '📁', '🔧', '+'
-        ].map((icon, i) => (
-          <button
-            key={i}
-            className="w-10 h-10 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg flex items-center justify-center transition-colors text-lg"
-          >
-            {icon}
-          </button>
-        ))}
-      </div>
+      {/* Project Sidebar */}
+      <ProjectSidebar 
+        project={project} 
+        onNavigate={onNavigate} 
+        getStatusColor={getProjectStatusColor}
+        getStatusText={getProjectStatusText}
+        activeSection="schedule"
+      />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-white ml-48">
         {/* Top Header */}
         <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6">
           <div className="flex items-center space-x-4">
