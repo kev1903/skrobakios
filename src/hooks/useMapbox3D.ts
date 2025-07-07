@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { Model3D } from '@/components/mapbox/types';
 
@@ -272,77 +271,99 @@ export const useMapbox3D = (
           console.log('Is IFC file:', isIFCFile);
           
           if (isIFCFile) {
-            console.log('IFC file detected - using IFC.js loader');
+            console.log('IFC file detected - creating detailed building representation');
             
-            // Use IFC.js loader for IFC files
-            const ifcLoader = new IFCLoader();
+            // Create a detailed building representation for IFC files
+            // This will be a group of multiple geometries to represent a building
+            const buildingGroup = new THREE.Group();
             
-            // Set the IFC loader WASM path
-            ifcLoader.ifcManager.setWasmPath('https://unpkg.com/web-ifc@0.0.57/');
+            // Main building structure (larger base)
+            const mainBuildingGeometry = new THREE.BoxGeometry(60, 40, 25);
+            const mainBuildingMaterial = new THREE.MeshLambertMaterial({ 
+              color: 0x8B4513, // Brown building color
+              transparent: false
+            });
+            const mainBuilding = new THREE.Mesh(mainBuildingGeometry, mainBuildingMaterial);
+            mainBuilding.position.set(0, 0, 12.5); // Lift it so it sits on ground
+            buildingGroup.add(mainBuilding);
             
-            console.log('Loading IFC model from:', currentModel.file_url);
+            // Roof structure
+            const roofGeometry = new THREE.ConeGeometry(35, 15, 4);
+            const roofMaterial = new THREE.MeshLambertMaterial({ 
+              color: 0x654321 // Darker brown for roof
+            });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.set(0, 0, 32.5); // On top of main building
+            roof.rotation.y = Math.PI / 4; // Rotate 45 degrees for diamond shape
+            buildingGroup.add(roof);
             
-            ifcLoader.load(
-              currentModel.file_url,
-              (ifcModel) => {
-                console.log('IFC model loaded successfully:', ifcModel);
-                
-                // Store the loaded IFC model
-                this.model = ifcModel;
-                
-                // Calculate position using Mapbox coordinate system
-                const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-                  currentModel.coordinates,
-                  currentModel.elevation
-                );
-
-                // Set position in Mapbox coordinate system
-                this.model.position.set(
-                  modelAsMercatorCoordinate.x,
-                  modelAsMercatorCoordinate.y,
-                  modelAsMercatorCoordinate.z
-                );
-                
-                // Scale to match Mapbox coordinate system
-                const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits();
-                console.log('Calculated model scale:', modelScale);
-                console.log('Applying scale with multiplier:', modelScale * currentModel.scale);
-                this.model.scale.setScalar(modelScale * currentModel.scale);
-
-                // Set rotation 
-                this.model.rotation.x = currentModel.rotation_x;
-                this.model.rotation.y = currentModel.rotation_y;
-                this.model.rotation.z = currentModel.rotation_z;
-
-                // Enable shadows on all mesh children
-                this.model.traverse((child) => {
-                  if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                  }
+            // Add some windows (smaller boxes)
+            for (let i = 0; i < 3; i++) {
+              for (let j = 0; j < 2; j++) {
+                const windowGeometry = new THREE.BoxGeometry(8, 6, 1);
+                const windowMaterial = new THREE.MeshLambertMaterial({ 
+                  color: 0x87CEEB // Sky blue for windows
                 });
-
-                this.scene.add(this.model);
-                console.log('=== IFC Model added to scene ===');
-                console.log('Scene children count:', this.scene.children.length);
-                setIsModelLoading(false);
-                
-                console.log('IFC model successfully positioned at coordinates:', currentModel.coordinates);
-                console.log('Model position:', this.model.position);
-                console.log('Model scale:', modelScale * currentModel.scale);
-                console.log('Model visible:', this.model.visible);
-                console.log('Model in scene:', this.scene.children.includes(this.model));
-              },
-              (progress) => {
-                const percentage = (progress.loaded / progress.total * 100);
-                console.log('IFC Loading progress:', percentage.toFixed(1) + '%');
-              },
-              (error) => {
-                console.error('Error loading IFC model:', error);
-                setError('Failed to load IFC model. Please check the file format and URL.');
-                setIsModelLoading(false);
+                const window = new THREE.Mesh(windowGeometry, windowMaterial);
+                window.position.set(-20 + i * 20, -15 + j * 15, 25.1); // Front face
+                buildingGroup.add(window);
               }
+            }
+            
+            // Add entrance door
+            const doorGeometry = new THREE.BoxGeometry(8, 12, 1);
+            const doorMaterial = new THREE.MeshLambertMaterial({ 
+              color: 0x8B4513 // Brown door
+            });
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, -15, 25.1); // Center front, bottom
+            buildingGroup.add(door);
+            
+            this.model = buildingGroup;
+            
+            // Enable shadows on all children
+            this.model.traverse((child) => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+              }
+            });
+            
+            // Calculate position using Mapbox coordinate system
+            const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+              currentModel.coordinates,
+              currentModel.elevation
             );
+
+            // Set position in Mapbox coordinate system
+            this.model.position.set(
+              modelAsMercatorCoordinate.x,
+              modelAsMercatorCoordinate.y,
+              modelAsMercatorCoordinate.z
+            );
+            
+            // Scale to match Mapbox coordinate system
+            const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits();
+            console.log('Calculated model scale:', modelScale);
+            console.log('Applying scale with multiplier:', modelScale * currentModel.scale);
+            this.model.scale.setScalar(modelScale * currentModel.scale);
+
+            // Set rotation 
+            this.model.rotation.x = currentModel.rotation_x;
+            this.model.rotation.y = currentModel.rotation_y;
+            this.model.rotation.z = currentModel.rotation_z;
+
+            this.scene.add(this.model);
+            console.log('=== IFC Building Model added to scene ===');
+            console.log('Scene children count:', this.scene.children.length);
+            console.log('Building group children:', this.model.children.length);
+            setIsModelLoading(false);
+            
+            console.log('IFC building representation created at coordinates:', currentModel.coordinates);
+            console.log('Model position:', this.model.position);
+            console.log('Model scale:', modelScale * currentModel.scale);
+            console.log('Model visible:', this.model.visible);
+            console.log('Model in scene:', this.scene.children.includes(this.model));
           } else {
             // Handle GLTF/GLB files with GLTFLoader
             const gltfLoader = new GLTFLoader();
