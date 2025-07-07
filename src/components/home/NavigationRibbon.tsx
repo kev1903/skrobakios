@@ -29,13 +29,6 @@ export const NavigationRibbon = ({
             <span className="text-sm font-medium">Projects</span>
           </button>
           <button
-            onClick={() => onSidePageSelect('tasks')}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-          >
-            <Calendar className="w-4 h-4" />
-            <span className="text-sm font-medium">Tasks</span>
-          </button>
-          <button
             onClick={() => onSidePageSelect('finance')}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >

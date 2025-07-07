@@ -15,7 +15,6 @@ import { NavigationItem } from './types';
 
 export const generalNavigation: NavigationItem[] = [
   { id: "home", label: "Home", icon: Home },
-  { id: "tasks", label: "My Tasks", icon: Calendar },
   { id: "schedules", label: "My Schedules", icon: Calendar },
   { id: "inbox", label: "Inbox", icon: Mail },
 ];
