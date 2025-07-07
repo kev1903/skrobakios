@@ -1,1 +1,4 @@
 project_id = "xtawnkhvxgxylhxwqnmm"
+
+[functions.upload-3d-model]
+verify_jwt = false
