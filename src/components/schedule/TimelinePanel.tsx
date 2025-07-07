@@ -1,5 +1,6 @@
 import React from 'react';
 import { ModernGanttTask, TimelineHeader } from './types';
+import { DependencyArrows } from './DependencyArrows';
 
 interface TimelinePanelProps {
   tasks: ModernGanttTask[];
@@ -90,6 +91,14 @@ export const TimelinePanel = ({
         <div style={{ width: `${totalWidth}px` }}>
           {/* Timeline Grid and Bars */}
           <div className="relative">
+            {/* Dependency Arrows */}
+            <DependencyArrows
+              tasks={tasks}
+              dayWidth={dayWidth}
+              taskHeight={48} // 12 * 4 = 48px (h-12 class)
+              timelineStartDate={timelineHeader.startDate}
+            />
+            
             {tasks.map((task, index) => (
               <div
                 key={task.id}

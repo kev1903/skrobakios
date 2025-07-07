@@ -63,7 +63,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 100,
           startDate: '2024-11-01',
           endDate: '2024-11-07',
-          dependencies: [],
+          dependencies: [], // No dependencies for first task
           level: 1,
           barStyle: {
             left: '2%',
@@ -78,7 +78,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 100,
           startDate: '2024-11-08',
           endDate: '2024-11-12',
-          dependencies: [],
+          dependencies: [2], // Depends on Goals (row 2)
           level: 1,
           barStyle: {
             left: '18%',
@@ -93,7 +93,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 80,
           startDate: '2024-11-13',
           endDate: '2024-11-15',
-          dependencies: [],
+          dependencies: [3], // Depends on Target Audience (row 3)
           level: 1,
           barStyle: {
             left: '30%',
@@ -110,7 +110,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       status: 25,
       startDate: '2024-11-16',
       endDate: '2024-11-26',
-      dependencies: [],
+      dependencies: [4], // Depends on Competitor Research (row 4)
       level: 0,
       expanded: true,
       children: [
@@ -121,7 +121,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 60,
           startDate: '2024-11-16',
           endDate: '2024-11-19',
-          dependencies: [],
+          dependencies: [4], // Depends on Competitor Research (row 4)
           level: 1,
           barStyle: {
             left: '36%',
@@ -136,7 +136,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 40,
           startDate: '2024-11-20',
           endDate: '2024-11-26',
-          dependencies: [],
+          dependencies: [6], // Depends on User Experience (row 6)
           level: 1,
           barStyle: {
             left: '45%',
@@ -151,7 +151,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-11-27',
           endDate: '2024-11-30',
-          dependencies: [],
+          dependencies: [7], // Depends on User Interface (row 7)
           level: 1
         },
         {
@@ -161,7 +161,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-12-01',
           endDate: '2024-12-09',
-          dependencies: [],
+          dependencies: [8], // Depends on Icons Pack (row 8)
           level: 1
         }
       ]
