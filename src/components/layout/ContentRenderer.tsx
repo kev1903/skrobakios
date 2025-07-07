@@ -6,7 +6,7 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
-import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
+import { ModernProjectSchedulePage } from "@/components/ModernProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { ProjectTeamPage } from "@/components/ProjectTeamPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
@@ -77,7 +77,7 @@ export const ContentRenderer = ({
     case "project-settings":
       return currentProject ? <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-schedule":
-      return currentProject ? <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-team":
       return currentProject ? <ProjectTeamPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-wbs":
