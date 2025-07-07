@@ -8,6 +8,7 @@ import { TaskEditActions } from './TaskEditActions';
 import { SubtasksList } from './subtasks';
 import { TaskCommentsActivity } from './TaskCommentsActivity';
 import { SubmittalWorkflow } from './SubmittalWorkflow';
+import { TaskAttachmentsDisplay } from './TaskAttachmentsDisplay';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
 
@@ -90,6 +91,9 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
             projectId={projectId}
           />
         </SheetHeader>
+
+        {/* Attachments Section */}
+        <TaskAttachmentsDisplay taskId={editedTask.id} />
 
         {/* Subtasks Section */}
         <div className="mt-8 pt-6 border-t">
