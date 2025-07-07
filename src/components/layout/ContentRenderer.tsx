@@ -81,7 +81,7 @@ export const ContentRenderer = ({
     case "project-team":
       return currentProject ? <ProjectTeamPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-digital-twin":
-      return currentProject ? <Mapbox3DEnvironment onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} /> : renderProjectNotFound();
     case "project-wbs":
       return currentProject ? <WBSPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "gantt-chart":
@@ -144,7 +144,7 @@ export const ContentRenderer = ({
     case "bim":
       return currentProject ? <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "3d-environment":
-      return <Mapbox3DEnvironment onNavigate={onNavigate} />;
+      return <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={null} />;
     case "support":
       return <SupportPage />;
     case "user-edit":

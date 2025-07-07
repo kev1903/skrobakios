@@ -11,7 +11,8 @@ import { Mapbox3DEnvironmentProps, Model3D } from './mapbox/types';
 export const Mapbox3DEnvironment = ({ 
   onNavigate,
   modelId,
-  className = ""
+  className = "",
+  currentProject
 }: Mapbox3DEnvironmentProps) => {
   const [showModel, setShowModel] = useState(true);
   
@@ -98,6 +99,7 @@ export const Mapbox3DEnvironment = ({
           isUploading={isUploading}
           onUpload={handleFileUpload}
           onRemoveModel={removeModel}
+          currentProject={currentProject}
         />
       )}
 

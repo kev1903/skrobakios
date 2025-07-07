@@ -22,4 +22,10 @@ export interface Mapbox3DEnvironmentProps {
   onNavigate: (page: string) => void;
   modelId?: string;
   className?: string;
+  currentProject?: {
+    id: string;
+    project_id: string;
+    name: string;
+    location?: string;
+  } | null;
 }

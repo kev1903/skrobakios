@@ -18,6 +18,12 @@ interface ControlsPanelProps {
   isUploading: boolean;
   onUpload: () => void;
   onRemoveModel: (modelId: string) => void;
+  currentProject?: {
+    id: string;
+    project_id: string;
+    name: string;
+    location?: string;
+  } | null;
 }
 
 export const ControlsPanel = ({
@@ -31,7 +37,8 @@ export const ControlsPanel = ({
   setUploadFormData,
   isUploading,
   onUpload,
-  onRemoveModel
+  onRemoveModel,
+  currentProject
 }: ControlsPanelProps) => {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -78,6 +85,7 @@ export const ControlsPanel = ({
               setUploadFormData={setUploadFormData}
               isUploading={isUploading}
               onUpload={onUpload}
+              currentProject={currentProject}
             />
             
             <ModelSelector

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Upload, Loader2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,12 @@ interface UploadFormProps {
   setUploadFormData: (data: UploadFormData) => void;
   isUploading: boolean;
   onUpload: () => void;
+  currentProject?: {
+    id: string;
+    project_id: string;
+    name: string;
+    location?: string;
+  } | null;
 }
 
 export const UploadForm = ({
@@ -21,8 +27,18 @@ export const UploadForm = ({
   uploadFormData,
   setUploadFormData,
   isUploading,
-  onUpload
+  onUpload,
+  currentProject
 }: UploadFormProps) => {
+  // Auto-populate project address when current project is available
+  useEffect(() => {
+    if (currentProject?.location && !uploadFormData.address) {
+      setUploadFormData({
+        ...uploadFormData,
+        address: currentProject.location
+      });
+    }
+  }, [currentProject, uploadFormData, setUploadFormData]);
   return (
     <div className="border-t pt-4">
       <div className="flex items-center justify-between mb-3">
@@ -63,17 +79,27 @@ export const UploadForm = ({
           </div>
 
           <div>
-            <Label htmlFor="project-address" className="text-xs font-medium">Project Address *</Label>
+            <Label htmlFor="project-address" className="text-xs font-medium">
+              Project Address *
+              {currentProject?.location && (
+                <span className="text-green-600 font-normal ml-1">(from project)</span>
+              )}
+            </Label>
             <div className="flex items-center gap-2">
               <MapPin className="w-3 h-3 text-gray-500" />
               <Input
                 id="project-address"
                 value={uploadFormData.address}
                 onChange={(e) => setUploadFormData({...uploadFormData, address: e.target.value})}
-                placeholder="123 Main St, City, Country"
+                placeholder={currentProject?.location || "123 Main St, City, Country"}
                 className="text-xs h-8 flex-1"
               />
             </div>
+            {currentProject?.location && (
+              <div className="text-xs text-green-600 mt-1">
+                Using address from project: {currentProject.name}
+              </div>
+            )}
           </div>
 
           <div>
