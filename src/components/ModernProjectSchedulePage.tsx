@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, Plus, MoreHorizontal, Download, Eye, EyeOff } from 'lucide-react';
-import { IndentDecrease, IndentIncrease, Baseline, Settings, Expand } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings, Expand, ZoomIn, ZoomOut } from 'lucide-react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { 
@@ -566,16 +566,20 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
         {/* Toolbar */}
         <div className="h-12 bg-white border-b border-slate-200 flex items-center justify-end px-6">
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" title="Outdent">
-              <IndentDecrease className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Decrease Indent">
+              <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" title="Indent">
-              <IndentIncrease className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Increase Indent">
+              <ChevronRight className="w-4 h-4" />
             </Button>
             <div className="w-px h-6 bg-slate-200 mx-2" />
-            <Button variant="ghost" size="sm" title="Baseline">
-              <Baseline className="w-4 h-4" />
+            <Button variant="ghost" size="sm" title="Zoom In">
+              <ZoomIn className="w-4 h-4" />
             </Button>
+            <Button variant="ghost" size="sm" title="Zoom Out">
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <div className="w-px h-6 bg-slate-200 mx-2" />
             <Button variant="ghost" size="sm" title="Critical Path">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
