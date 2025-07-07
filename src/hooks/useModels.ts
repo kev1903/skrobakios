@@ -63,11 +63,39 @@ export const useModels = (modelId?: string) => {
     setAvailableModels(models);
   };
 
+  const removeModel = async (modelId: string) => {
+    try {
+      const { error } = await supabase
+        .from('model_3d')
+        .delete()
+        .eq('id', modelId);
+
+      if (error) {
+        console.error('Error removing model:', error);
+        setError('Failed to remove model');
+        return;
+      }
+
+      // Update local state
+      const updatedModels = availableModels.filter(model => model.id !== modelId);
+      setAvailableModels(updatedModels);
+      
+      // If the removed model was the current model, select the first available model
+      if (currentModel?.id === modelId) {
+        setCurrentModel(updatedModels.length > 0 ? updatedModels[0] : null);
+      }
+    } catch (err) {
+      console.error('Error removing model:', err);
+      setError('Failed to remove model');
+    }
+  };
+
   return {
     availableModels,
     currentModel,
     setCurrentModel,
     error,
-    refreshModels
+    refreshModels,
+    removeModel
   };
 };

@@ -16,7 +16,7 @@ export const Mapbox3DEnvironment = ({
   const [showModel, setShowModel] = useState(true);
   
   // Use custom hooks
-  const { availableModels, currentModel, setCurrentModel, error: modelError } = useModels(modelId);
+  const { availableModels, currentModel, setCurrentModel, error: modelError, removeModel } = useModels(modelId);
   const { mapContainer, isLoading, isModelLoading, error: mapError, flyToModel } = useMapbox3D(currentModel, showModel);
   
   const handleModelUploaded = (model: Model3D) => {
@@ -97,12 +97,13 @@ export const Mapbox3DEnvironment = ({
           setUploadFormData={setUploadFormData}
           isUploading={isUploading}
           onUpload={handleFileUpload}
+          onRemoveModel={removeModel}
         />
       )}
 
       {/* Navigation Instructions - Bottom Left */}
       {!isLoading && !error && (
-        <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white text-sm z-40 max-w-sm">
+        <div className="absolute bottom-4 left-80 ml-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white text-sm z-40 max-w-sm">
           <div className="font-medium mb-2">Map Controls:</div>
           <div className="space-y-1">
             <div>• Click and drag to rotate view</div>
