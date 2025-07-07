@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, Plus, MoreHorizontal, Download, Eye, EyeOff } from 'lucide-react';
 import { IndentDecrease, IndentIncrease, Baseline, Settings, Expand } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, Link, AlignLeft } from 'lucide-react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { 
@@ -571,6 +572,25 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
             </Button>
             <Button variant="ghost" size="sm" title="Indent" className="h-8 w-8 p-0">
               <IndentIncrease className="w-4 h-4" />
+            </Button>
+            <div className="w-px h-6 bg-slate-200 mx-2" />
+            <Button variant="ghost" size="sm" title="Bold" className="h-8 w-8 p-0">
+              <Bold className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Italic" className="h-8 w-8 p-0">
+              <Italic className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Underline" className="h-8 w-8 p-0">
+              <Underline className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Strikethrough" className="h-8 w-8 p-0">
+              <Strikethrough className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Link" className="h-8 w-8 p-0">
+              <Link className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" title="Align Left" className="h-8 w-8 p-0">
+              <AlignLeft className="w-4 h-4" />
             </Button>
             <div className="w-px h-6 bg-slate-200 mx-2" />
             <Button variant="ghost" size="sm" title="Baseline">
