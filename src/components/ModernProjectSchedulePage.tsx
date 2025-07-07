@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Filter, Plus, MoreHorizontal, Download, Settings, Eye, EyeOff } from 'lucide-react';
+import { ChevronDown, ChevronRight, Filter, Plus, MoreHorizontal, Download, Settings, Eye, EyeOff, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +40,8 @@ interface ModernProjectSchedulePageProps {
 export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProjectSchedulePageProps) => {
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['strategy', 'design', 'development', 'testing']));
   const [hideCompleted, setHideCompleted] = useState(false);
-  const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<{taskId: string, field: 'title' | 'duration' | 'status'} | null>(null);
+  const [editingValue, setEditingValue] = useState<string>('');
 
   // Task data matching the reference image structure
   const [tasks, setTasks] = useState<ModernGanttTask[]>([
@@ -214,12 +216,19 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     return result;
   };
 
-  const updateTaskStatus = (taskId: string, newStatus: number) => {
+  const updateTask = (taskId: string, field: 'title' | 'duration' | 'status', value: string | number) => {
     setTasks(prevTasks => {
       const updateTaskRecursively = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
         return tasks.map(task => {
           if (task.id === taskId) {
-            return { ...task, status: newStatus };
+            const updatedTask = { ...task, [field]: value };
+            // Auto-generate bar style for tasks with duration and status
+            if ((field === 'duration' || field === 'status') && updatedTask.level > 0) {
+              if (!updatedTask.barStyle && updatedTask.status > 0) {
+                updatedTask.barStyle = generateBarStyle(updatedTask.id, updatedTask.status);
+              }
+            }
+            return updatedTask;
           }
           if (task.children) {
             return { ...task, children: updateTaskRecursively(task.children) };
@@ -229,6 +238,90 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       };
       return updateTaskRecursively(prevTasks);
     });
+  };
+
+  const generateBarStyle = (taskId: string, status: number) => {
+    // Simple algorithm to generate bar positions based on task ID
+    const hash = taskId.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const left = Math.abs(hash % 60) + 10;
+    const width = Math.max(15, Math.abs(hash % 25) + 10);
+    const colors = ['#3B82F6', '#06B6D4', '#10B981', '#8B5CF6', '#F59E0B'];
+    const color = colors[Math.abs(hash) % colors.length];
+    
+    return {
+      left: `${left}%`,
+      width: `${width}%`,
+      backgroundColor: color
+    };
+  };
+
+  const startEditing = (taskId: string, field: 'title' | 'duration' | 'status', currentValue: string | number) => {
+    setEditingField({ taskId, field });
+    setEditingValue(String(currentValue));
+  };
+
+  const saveEdit = () => {
+    if (!editingField) return;
+    
+    const { taskId, field } = editingField;
+    let value: string | number = editingValue;
+    
+    if (field === 'status') {
+      value = Math.max(0, Math.min(100, parseInt(editingValue) || 0));
+    }
+    
+    updateTask(taskId, field, value);
+    setEditingField(null);
+    setEditingValue('');
+  };
+
+  const cancelEdit = () => {
+    setEditingField(null);
+    setEditingValue('');
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    const { destination, source } = result;
+    
+    if (!destination || destination.index === source.index) {
+      return;
+    }
+
+    const newFlatTasks = Array.from(flatTasks);
+    const [reorderedTask] = newFlatTasks.splice(source.index, 1);
+    newFlatTasks.splice(destination.index, 0, reorderedTask);
+
+    // Rebuild the task hierarchy
+    rebuildTaskHierarchy(newFlatTasks);
+  };
+
+  const rebuildTaskHierarchy = (flatTaskList: ModernGanttTask[]) => {
+    // This is a simplified rebuild - in a real app you'd need more sophisticated logic
+    // to maintain proper parent-child relationships
+    const newTasks: ModernGanttTask[] = [];
+    
+    for (const task of flatTaskList) {
+      if (task.level === 0) {
+        const parentTask = { ...task, children: [] };
+        // Find all children for this parent
+        for (const childTask of flatTaskList) {
+          if (childTask.level === 1 && flatTaskList.indexOf(childTask) > flatTaskList.indexOf(task)) {
+            const nextParentIndex = flatTaskList.findIndex((t, i) => 
+              i > flatTaskList.indexOf(childTask) && t.level === 0
+            );
+            if (nextParentIndex === -1 || nextParentIndex > flatTaskList.indexOf(childTask)) {
+              parentTask.children!.push(childTask);
+            }
+          }
+        }
+        newTasks.push(parentTask);
+      }
+    }
+    
+    setTasks(newTasks);
   };
 
   const addTask = (parentId?: string) => {
@@ -398,61 +491,133 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
 
             {/* Task Rows */}
             <div className="flex-1 overflow-auto">
-              {flatTasks.map((task, index) => (
-                <div
-                  key={task.id}
-                  className="h-12 border-b border-slate-100 flex items-center px-4 hover:bg-slate-50 group"
-                >
-                  <div className="flex-1 flex items-center">
-                    <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center">
-                      {task.children && task.children.length > 0 && (
-                        <button
-                          onClick={() => toggleExpanded(task.id)}
-                          className="mr-2 p-1 hover:bg-slate-200 rounded transition-colors"
-                        >
-                          {expandedTasks.has(task.id) ? (
-                            <ChevronDown className="w-3 h-3 text-slate-600" />
-                          ) : (
-                            <ChevronRight className="w-3 h-3 text-slate-600" />
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="task-list">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {flatTasks.map((task, index) => (
+                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={`h-12 border-b border-slate-100 flex items-center px-4 hover:bg-slate-50 group ${
+                                snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''
+                              }`}
+                            >
+                              {/* Drag Handle */}
+                              <div
+                                {...provided.dragHandleProps}
+                                className="mr-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
+                              >
+                                <GripVertical className="w-4 h-4 text-slate-400" />
+                              </div>
+
+                              <div className="flex-1 flex items-center">
+                                <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center">
+                                  {task.children && task.children.length > 0 && (
+                                    <button
+                                      onClick={() => toggleExpanded(task.id)}
+                                      className="mr-2 p-1 hover:bg-slate-200 rounded transition-colors"
+                                    >
+                                      {expandedTasks.has(task.id) ? (
+                                        <ChevronDown className="w-3 h-3 text-slate-600" />
+                                      ) : (
+                                        <ChevronRight className="w-3 h-3 text-slate-600" />
+                                      )}
+                                    </button>
+                                  )}
+                                  
+                                  {/* Editable Title */}
+                                  {editingField?.taskId === task.id && editingField?.field === 'title' ? (
+                                    <input
+                                      type="text"
+                                      value={editingValue}
+                                      onChange={(e) => setEditingValue(e.target.value)}
+                                      onBlur={saveEdit}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') saveEdit();
+                                        if (e.key === 'Escape') cancelEdit();
+                                      }}
+                                      className="text-sm border border-blue-300 rounded px-1 py-0.5 bg-white"
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    <span 
+                                      className={`text-sm cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded ${
+                                        task.level === 0 ? 'font-medium text-slate-900' : 'text-slate-700'
+                                      }`}
+                                      onClick={() => startEditing(task.id, 'title', task.title)}
+                                    >
+                                      {task.title}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Editable Duration */}
+                              <div className="w-20 text-center">
+                                {editingField?.taskId === task.id && editingField?.field === 'duration' ? (
+                                  <input
+                                    type="text"
+                                    value={editingValue}
+                                    onChange={(e) => setEditingValue(e.target.value)}
+                                    onBlur={saveEdit}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                    className="w-16 text-sm border border-blue-300 rounded px-1 py-0.5 text-center"
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <span 
+                                    className="text-sm text-slate-600 cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded"
+                                    onClick={() => startEditing(task.id, 'duration', task.duration)}
+                                  >
+                                    {task.duration}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {/* Editable Status */}
+                              <div className="w-16 text-center">
+                                {editingField?.taskId === task.id && editingField?.field === 'status' ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={editingValue}
+                                    onChange={(e) => setEditingValue(e.target.value)}
+                                    onBlur={saveEdit}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                    className="w-12 px-1 py-0.5 text-xs border border-blue-300 rounded text-center"
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <span 
+                                    className={`text-sm font-medium cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded ${getStatusColor(task.status)}`}
+                                    onClick={() => startEditing(task.id, 'status', task.status)}
+                                  >
+                                    {task.status}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           )}
-                        </button>
-                      )}
-                      <span className={`text-sm ${task.level === 0 ? 'font-medium text-slate-900' : 'text-slate-700'}`}>
-                        {task.title}
-                      </span>
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
                     </div>
-                  </div>
-                  
-                  <div className="w-20 text-center">
-                    <span className="text-sm text-slate-600">{task.duration}</span>
-                  </div>
-                  
-                  <div className="w-16 text-center">
-                    {editingTask === task.id ? (
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={task.status}
-                        onChange={(e) => updateTaskStatus(task.id, parseInt(e.target.value) || 0)}
-                        onBlur={() => setEditingTask(null)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') setEditingTask(null);
-                        }}
-                        className="w-12 px-1 py-0.5 text-xs border border-slate-300 rounded text-center"
-                        autoFocus
-                      />
-                    ) : (
-                      <span 
-                        className={`text-sm font-medium cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded ${getStatusColor(task.status)}`}
-                        onClick={() => setEditingTask(task.id)}
-                      >
-                        {task.status}%
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                  )}
+                </Droppable>
+              </DragDropContext>
             </div>
           </div>
 
