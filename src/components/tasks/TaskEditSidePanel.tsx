@@ -22,6 +22,7 @@ interface TaskEditSidePanelProps {
 export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEditSidePanelProps) => {
   const { updateTask, deleteTask } = useTaskContext();
   const [editedTask, setEditedTask] = useState<Task | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isMobile = useIsMobile();
   const { members } = useProjectMembers(projectId);
 
@@ -30,9 +31,11 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
     console.log('TaskEditSidePanel isOpen:', isOpen);
     if (task) {
       setEditedTask({ ...task });
+      setHasUnsavedChanges(false);
     } else {
       // Clear edited task when task becomes null to prevent stale data
       setEditedTask(null);
+      setHasUnsavedChanges(false);
     }
   }, [task, isOpen]);
 
@@ -41,11 +44,21 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
     return null;
   }
 
-  const handleSave = () => {
-    if (editedTask) {
-      updateTask(editedTask.id, editedTask);
-      onClose();
+  const handleSave = async () => {
+    if (editedTask && hasUnsavedChanges) {
+      try {
+        await updateTask(editedTask.id, editedTask);
+        setHasUnsavedChanges(false);
+      } catch (error) {
+        console.error('Error saving task:', error);
+      }
     }
+  };
+
+  const handleClose = async () => {
+    // Auto-save before closing if there are unsaved changes
+    await handleSave();
+    onClose();
   };
 
   const handleFieldChange = (field: keyof Task, value: any) => {
@@ -54,12 +67,30 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         ...editedTask,
         [field]: value
       });
+      setHasUnsavedChanges(true);
     }
   };
 
-  const handleMarkComplete = () => {
-    handleFieldChange('status', 'Completed');
-    handleFieldChange('progress', 100);
+  const handleMarkComplete = async () => {
+    if (editedTask) {
+      const updates = {
+        status: 'Completed' as const,
+        progress: 100
+      };
+      
+      // Update local state immediately
+      setEditedTask({
+        ...editedTask,
+        ...updates
+      });
+      
+      // Save to database immediately
+      try {
+        await updateTask(editedTask.id, updates);
+      } catch (error) {
+        console.error('Error marking task as complete:', error);
+      }
+    }
   };
 
   const handleDelete = async () => {
@@ -70,7 +101,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
+    <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent 
         className={`${
           isMobile 
@@ -123,7 +154,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
 
         <TaskEditActions 
           onSave={handleSave} 
-          onCancel={onClose} 
+          onCancel={handleClose} 
         />
       </SheetContent>
     </Sheet>
