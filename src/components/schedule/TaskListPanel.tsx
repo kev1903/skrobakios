@@ -19,6 +19,11 @@ interface TaskListPanelProps {
   width?: number;
 }
 
+interface CellSelection {
+  taskId: string;
+  field: string;
+}
+
 export const TaskListPanel = ({
   tasks,
   expandedTasks,
@@ -41,6 +46,10 @@ export const TaskListPanel = ({
     dependencies: 160
   });
 
+  const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<CellSelection | null>(null);
+
   const [contextMenu, setContextMenu] = useState<{
     visible: boolean;
     x: number;
@@ -52,6 +61,95 @@ export const TaskListPanel = ({
     y: 0,
     column: ''
   });
+
+  // Helper function to create cell identifier
+  const getCellId = (taskId: string, field: string) => `${taskId}-${field}`;
+
+  // Helper function to check if cell is selected
+  const isCellSelected = (taskId: string, field: string) => 
+    selectedCells.has(getCellId(taskId, field));
+
+  // Handle cell selection
+  const handleCellSelection = (taskId: string, field: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const cellId = getCellId(taskId, field);
+    
+    if (!event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      // Single selection - clear other selections
+      setSelectedCells(new Set([cellId]));
+    } else if (event.ctrlKey || event.metaKey) {
+      // Multi-selection with Ctrl/Cmd
+      setSelectedCells(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(cellId)) {
+          newSet.delete(cellId);
+        } else {
+          newSet.add(cellId);
+        }
+        return newSet;
+      });
+    }
+  };
+
+  // Handle mouse down for drag selection
+  const handleMouseDown = (taskId: string, field: string, event: React.MouseEvent) => {
+    if (event.button !== 0) return; // Only left mouse button
+    
+    setIsSelecting(true);
+    setSelectionStart({ taskId, field });
+    
+    const cellId = getCellId(taskId, field);
+    if (!event.ctrlKey && !event.metaKey) {
+      setSelectedCells(new Set([cellId]));
+    }
+  };
+
+  // Handle mouse enter for drag selection
+  const handleMouseEnter = (taskId: string, field: string) => {
+    if (!isSelecting || !selectionStart) return;
+
+    const startTaskIndex = tasks.findIndex(t => t.id === selectionStart.taskId);
+    const endTaskIndex = tasks.findIndex(t => t.id === taskId);
+    
+    const fields = ['title', 'duration', 'startDate', 'endDate', 'dependencies'];
+    const startFieldIndex = fields.indexOf(selectionStart.field);
+    const endFieldIndex = fields.indexOf(field);
+
+    const minTaskIndex = Math.min(startTaskIndex, endTaskIndex);
+    const maxTaskIndex = Math.max(startTaskIndex, endTaskIndex);
+    const minFieldIndex = Math.min(startFieldIndex, endFieldIndex);
+    const maxFieldIndex = Math.max(startFieldIndex, endFieldIndex);
+
+    const newSelection = new Set<string>();
+    
+    for (let taskIndex = minTaskIndex; taskIndex <= maxTaskIndex; taskIndex++) {
+      for (let fieldIndex = minFieldIndex; fieldIndex <= maxFieldIndex; fieldIndex++) {
+        const task = tasks[taskIndex];
+        const fieldName = fields[fieldIndex];
+        if (task && fieldName) {
+          newSelection.add(getCellId(task.id, fieldName));
+        }
+      }
+    }
+    
+    setSelectedCells(newSelection);
+  };
+
+  // Handle mouse up to end selection
+  const handleMouseUp = () => {
+    setIsSelecting(false);
+    setSelectionStart(null);
+  };
+
+  // Add global mouse up listener
+  React.useEffect(() => {
+    if (isSelecting) {
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => document.removeEventListener('mouseup', handleMouseUp);
+    }
+  }, [isSelecting]);
 
   const handleContextMenu = (e: React.MouseEvent, column: string) => {
     e.preventDefault();
@@ -123,38 +221,59 @@ export const TaskListPanel = ({
     className: string = ''
   ) => {
     const isEditing = editingField?.taskId === task.id && editingField?.field === field;
+    const isSelected = isCellSelected(task.id, field);
     
     if (isEditing) {
       return (
-        <input
-          type={inputType}
-          value={editingValue}
-          onChange={(e) => onEditingValueChange(e.target.value)}
-          onBlur={onSaveEdit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') onSaveEdit();
-            if (e.key === 'Escape') onCancelEdit();
-          }}
-          className={`border border-blue-300 rounded px-1 py-0.5 bg-white ${className}`}
-          autoFocus
-        />
+        <div
+          className={`relative ${isSelected ? 'bg-blue-100' : ''}`}
+          onMouseDown={(e) => handleMouseDown(task.id, field, e)}
+          onMouseEnter={() => handleMouseEnter(task.id, field)}
+        >
+          <input
+            type={inputType}
+            value={editingValue}
+            onChange={(e) => onEditingValueChange(e.target.value)}
+            onBlur={onSaveEdit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') onSaveEdit();
+              if (e.key === 'Escape') onCancelEdit();
+            }}
+            className={`border border-blue-300 rounded px-1 py-0.5 bg-white w-full ${className}`}
+            autoFocus
+          />
+        </div>
       );
     }
     
     return (
-      <span 
-        className={`cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded ${className}`}
-        onClick={() => onStartEditing(task.id, field, value)}
+      <div
+        className={`relative cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded transition-colors ${
+          isSelected ? 'bg-blue-100 border-2 border-blue-400' : ''
+        } ${className}`}
+        onClick={(e) => {
+          if (!isSelecting) {
+            handleCellSelection(task.id, field, e);
+            onStartEditing(task.id, field, value);
+          }
+        }}
+        onMouseDown={(e) => {
+          if (e.detail > 1) return; // Prevent double-click issues
+          handleMouseDown(task.id, field, e);
+        }}
+        onMouseEnter={() => handleMouseEnter(task.id, field)}
       >
-        {field === 'duration' ? 
-          `${value}d` : 
-          field === 'dependencies' ? 
-            (value || 'Click to add row numbers') : 
-            (field === 'startDate' || field === 'endDate') ?
-              formatDateDisplay(String(value)) :
-              value
-        }
-      </span>
+        <span className="select-none">
+          {field === 'duration' ? 
+            `${value}d` : 
+            field === 'dependencies' ? 
+              (value || 'Click to add row numbers') : 
+              (field === 'startDate' || field === 'endDate') ?
+                formatDateDisplay(String(value)) :
+                value
+          }
+        </span>
+      </div>
     );
   };
 
