@@ -1,11 +1,12 @@
 export interface ModernGanttTask {
   id: string;
+  rowNumber?: number; // Auto-generated row number for Smartsheet-style dependencies
   title: string;
   duration: number; // Changed to number (days)
   status: number; // percentage
   startDate: string; // ISO date string
   endDate: string; // ISO date string
-  dependencies: string[]; // Array of task IDs
+  dependencies: number[]; // Array of row numbers (Smartsheet style)
   level: number;
   children?: ModernGanttTask[];
   expanded?: boolean;

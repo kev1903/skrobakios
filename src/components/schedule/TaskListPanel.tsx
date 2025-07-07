@@ -69,7 +69,7 @@ export const TaskListPanel = ({
         {field === 'duration' ? 
           `${value}d` : 
           field === 'dependencies' ? 
-            (value || 'Click to add') : 
+            (value || 'Click to add row numbers') : 
             value
         }
       </span>
@@ -77,9 +77,10 @@ export const TaskListPanel = ({
   };
 
   return (
-    <div className="w-[600px] bg-white border-r border-slate-200 flex flex-col">
+    <div className="w-[700px] bg-white border-r border-slate-200 flex flex-col">
       {/* Column Headers */}
       <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4">
+        <div className="w-12 text-sm font-medium text-slate-700 text-center">#</div>
         <div className="w-48 text-sm font-medium text-slate-700">Title</div>
         <div className="w-20 text-sm font-medium text-slate-700 text-center">Duration</div>
         <div className="w-24 text-sm font-medium text-slate-700 text-center">Start Date</div>
@@ -113,6 +114,13 @@ export const TaskListPanel = ({
                           className="mr-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
                         >
                           <GripVertical className="w-4 h-4 text-slate-400" />
+                        </div>
+
+                        {/* Row Number */}
+                        <div className="w-12 text-center">
+                          <span className="text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                            {task.rowNumber}
+                          </span>
                         </div>
 
                         {/* Title */}

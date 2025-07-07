@@ -21,7 +21,10 @@ import {
   validateDependencies,
   autoScheduleTask,
   flattenTasks,
-  calculateProjectStats
+  calculateProjectStats,
+  assignRowNumbers,
+  parseDependencies,
+  formatDependencies
 } from '@/components/schedule/utils';
 
 interface ModernProjectSchedulePageProps {
@@ -263,13 +266,13 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
             let updatedTask = { ...task };
             
             if (field === 'dependencies') {
-              const dependencies = String(value).split(',').map(dep => dep.trim()).filter(dep => dep);
-              const { isValid, conflicts } = validateDependencies(prevTasks, taskId, dependencies);
+              const dependencies = parseDependencies(String(value));
+              const { isValid, conflicts } = validateDependencies(prevTasks, task.rowNumber!, dependencies);
               
               if (isValid) {
                 updatedTask.dependencies = dependencies;
                 // Auto-schedule task based on new dependencies
-                updatedTask = autoScheduleTask(updatedTask, flattenTasks(prevTasks));
+                updatedTask = autoScheduleTask(updatedTask, flattenTasksLocal(prevTasks));
               } else {
                 console.warn('Dependency validation failed:', conflicts);
                 // You could show a toast notification here
@@ -282,7 +285,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
                 value,
                 timelineHeader.startDate,
                 timelineHeader.endDate,
-                flattenTasks(prevTasks)
+                flattenTasksLocal(prevTasks)
               );
             } else {
               // Handle other field updates
@@ -336,6 +339,11 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     });
   }, [timelineHeader]);
 
+  // Auto-assign row numbers when tasks change
+  useEffect(() => {
+    setTasks(prevTasks => assignRowNumbers(prevTasks));
+  }, []);
+
   const startEditing = (taskId: string, field: string, currentValue: string | number) => {
     setEditingField({ taskId, field });
     setEditingValue(String(currentValue));
@@ -351,6 +359,9 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       value = Math.max(0, Math.min(100, parseInt(editingValue) || 0));
     } else if (field === 'duration') {
       value = Math.max(1, parseInt(editingValue) || 1);
+    } else if (field === 'dependencies') {
+      // Keep as string for parsing later
+      value = editingValue;
     }
     
     updateTask(taskId, field, value);
@@ -441,6 +452,9 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     });
 
     setExpandedTasks(prev => parentId ? new Set([...prev, parentId]) : prev);
+    
+    // Reassign row numbers after adding new task
+    setTasks(currentTasks => assignRowNumbers(currentTasks));
   };
 
   const flatTasks = flattenTasksLocal(tasks);

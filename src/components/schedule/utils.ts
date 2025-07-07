@@ -95,36 +95,79 @@ export const generateTimelineHeaders = (
   };
 };
 
-// Validate and resolve task dependencies
+// Auto-assign row numbers to tasks in hierarchical structure
+export const assignRowNumbers = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
+  let rowCounter = 1;
+  
+  const assignRecursively = (taskList: ModernGanttTask[]): ModernGanttTask[] => {
+    return taskList.map(task => {
+      const updatedTask = { ...task, rowNumber: rowCounter++ };
+      
+      if (task.children && task.children.length > 0) {
+        updatedTask.children = assignRecursively(task.children);
+      }
+      
+      return updatedTask;
+    });
+  };
+  
+  return assignRecursively(tasks);
+};
+
+// Parse dependency string (row numbers) into array
+export const parseDependencies = (dependencyString: string): number[] => {
+  if (!dependencyString || dependencyString.trim() === '') {
+    return [];
+  }
+  
+  return dependencyString
+    .split(',')
+    .map(dep => parseInt(dep.trim()))
+    .filter(dep => !isNaN(dep) && dep > 0);
+};
+
+// Format dependencies array back to string for display
+export const formatDependencies = (dependencies: number[]): string => {
+  return dependencies.join(', ');
+};
+
+// Validate and resolve task dependencies using row numbers
 export const validateDependencies = (
   tasks: ModernGanttTask[],
-  taskId: string,
-  dependencies: string[]
+  taskRowNumber: number,
+  dependencies: number[]
 ): { isValid: boolean; conflicts: string[] } => {
   const conflicts: string[] = [];
+  const flatTasks = flattenTasks(tasks);
   
-  // Check for circular dependencies
-  const checkCircular = (currentId: string, path: string[] = []): boolean => {
-    if (path.includes(currentId)) {
-      conflicts.push(`Circular dependency detected: ${path.join(' -> ')} -> ${currentId}`);
+  // Check for self-dependency
+  if (dependencies.includes(taskRowNumber)) {
+    conflicts.push("Task cannot depend on itself");
+    return { isValid: false, conflicts };
+  }
+  
+  // Check for circular dependencies using row numbers
+  const checkCircular = (currentRowNumber: number, path: number[] = []): boolean => {
+    if (path.includes(currentRowNumber)) {
+      conflicts.push(`Circular dependency detected: ${path.join(' → ')} → ${currentRowNumber}`);
       return false;
     }
     
-    const task = findTaskById(tasks, currentId);
+    const task = flatTasks.find(t => t.rowNumber === currentRowNumber);
     if (!task || !task.dependencies) return true;
     
-    return task.dependencies.every(depId => 
-      checkCircular(depId, [...path, currentId])
+    return task.dependencies.every(depRowNumber => 
+      checkCircular(depRowNumber, [...path, currentRowNumber])
     );
   };
   
-  const isValid = dependencies.every(depId => {
-    const depTask = findTaskById(tasks, depId);
+  const isValid = dependencies.every(depRowNumber => {
+    const depTask = flatTasks.find(t => t.rowNumber === depRowNumber);
     if (!depTask) {
-      conflicts.push(`Dependency task "${depId}" not found`);
+      conflicts.push(`Dependency row ${depRowNumber} not found`);
       return false;
     }
-    return checkCircular(depId, [taskId]);
+    return checkCircular(depRowNumber, [taskRowNumber]);
   });
   
   return { isValid, conflicts };
@@ -142,7 +185,13 @@ export const findTaskById = (tasks: ModernGanttTask[], id: string): ModernGanttT
   return null;
 };
 
-// Auto-schedule task based on dependencies
+// Find task by row number in flat structure
+export const findTaskByRowNumber = (tasks: ModernGanttTask[], rowNumber: number): ModernGanttTask | null => {
+  const flatTasks = flattenTasks(tasks);
+  return flatTasks.find(task => task.rowNumber === rowNumber) || null;
+};
+
+// Auto-schedule task based on dependencies using row numbers
 export const autoScheduleTask = (
   task: ModernGanttTask,
   allTasks: ModernGanttTask[]
@@ -152,10 +201,11 @@ export const autoScheduleTask = (
   }
   
   let latestEndDate = task.startDate;
+  const flatTasks = flattenTasks(allTasks);
   
-  // Find the latest end date among dependencies
-  for (const depId of task.dependencies) {
-    const depTask = findTaskById(allTasks, depId);
+  // Find the latest end date among dependencies using row numbers
+  for (const depRowNumber of task.dependencies) {
+    const depTask = flatTasks.find(t => t.rowNumber === depRowNumber);
     if (depTask && depTask.endDate) {
       if (new Date(depTask.endDate) > new Date(latestEndDate)) {
         latestEndDate = depTask.endDate;
@@ -294,9 +344,12 @@ export const findCriticalPath = (tasks: ModernGanttTask[]): string[] => {
     
     let maxDepDuration = 0;
     if (task.dependencies) {
-      for (const depId of task.dependencies) {
-        const depDuration = calculatePathDuration(depId, new Set(visited));
-        maxDepDuration = Math.max(maxDepDuration, depDuration);
+      for (const depRowNumber of task.dependencies) {
+        const depTask = flatTasks.find(t => t.rowNumber === depRowNumber);
+        if (depTask) {
+          const depDuration = calculatePathDuration(depTask.id, new Set(visited));
+          maxDepDuration = Math.max(maxDepDuration, depDuration);
+        }
       }
     }
     
