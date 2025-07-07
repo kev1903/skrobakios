@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Edit3, Info, Filter, ArrowUpDown, Lock, Snowflake, EyeOff, X, Settings, MoreHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { ModernGanttTask } from './types';
 
@@ -38,6 +39,49 @@ export const TaskListPanel = ({
     endDate: 100,
     dependencies: 160
   });
+
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    column: string;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    column: ''
+  });
+
+  const handleContextMenu = (e: React.MouseEvent, column: string) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      column
+    });
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleContextMenuAction = (action: string) => {
+    console.log(`Action: ${action} on column: ${contextMenu.column}`);
+    // Add your logic here for each action
+    handleContextMenuClose();
+  };
+
+  // Close context menu on click outside
+  React.useEffect(() => {
+    const handleClick = () => {
+      if (contextMenu.visible) {
+        handleContextMenuClose();
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [contextMenu.visible]);
 
   const handleColumnResize = (column: string, newWidth: number) => {
     setColumnWidths(prev => ({
@@ -130,43 +174,49 @@ export const TaskListPanel = ({
           <div className="w-8 flex-shrink-0"></div>
           
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-100"
             style={{ width: `${columnWidths.rowNumber}px` }}
+            onContextMenu={(e) => handleContextMenu(e, 'rowNumber')}
           >
             #
             <ResizeHandle column="rowNumber" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-100 flex items-center"
+            className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-100 flex items-center cursor-pointer hover:bg-slate-100"
             style={{ width: `${columnWidths.title}px` }}
+            onContextMenu={(e) => handleContextMenu(e, 'title')}
           >
             Title
             <ResizeHandle column="title" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-100"
             style={{ width: `${columnWidths.duration}px` }}
+            onContextMenu={(e) => handleContextMenu(e, 'duration')}
           >
             Duration
             <ResizeHandle column="duration" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-100"
             style={{ width: `${columnWidths.startDate}px` }}
+            onContextMenu={(e) => handleContextMenu(e, 'startDate')}
           >
             Start Date
             <ResizeHandle column="startDate" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-100"
             style={{ width: `${columnWidths.endDate}px` }}
+            onContextMenu={(e) => handleContextMenu(e, 'endDate')}
           >
             End Date
             <ResizeHandle column="endDate" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative flex items-center justify-center"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative flex items-center justify-center cursor-pointer hover:bg-slate-100"
             style={{ width: `${columnWidths.dependencies}px` }}
+            onContextMenu={(e) => handleContextMenu(e, 'dependencies')}
           >
             Dependencies
             <ResizeHandle column="dependencies" />
@@ -303,7 +353,119 @@ export const TaskListPanel = ({
              )}
            </Droppable>
          </DragDropContext>
-      </div>
+       </div>
+      
+      {/* Context Menu */}
+      {contextMenu.visible && (
+        <div
+          className="fixed bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50 min-w-48"
+          style={{
+            left: `${contextMenu.x}px`,
+            top: `${contextMenu.y}px`,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('insertLeft')}
+            >
+              <Plus className="w-4 h-4" />
+              Insert Column Left
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('insertRight')}
+            >
+              <Plus className="w-4 h-4" />
+              Insert Column Right
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('deleteColumn')}
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Column
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('renameColumn')}
+            >
+              <Edit3 className="w-4 h-4" />
+              Rename Column...
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('editDescription')}
+            >
+              <Info className="w-4 h-4" />
+              Edit Column Description...
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('filter')}
+            >
+              <Filter className="w-4 h-4" />
+              Filter...
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('sortRows')}
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              Sort Rows...
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('lockColumn')}
+            >
+              <Lock className="w-4 h-4" />
+              Lock Column
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('freezeColumn')}
+            >
+              <Snowflake className="w-4 h-4" />
+              Freeze Column
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('hideColumn')}
+            >
+              <EyeOff className="w-4 h-4" />
+              Hide Column
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('closeGantt')}
+            >
+              <X className="w-4 h-4" />
+              Close Gantt
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('editProjectSettings')}
+            >
+              <Settings className="w-4 h-4" />
+              Edit Project Settings...
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+              onClick={() => handleContextMenuAction('editColumnProperties')}
+            >
+              <MoreHorizontal className="w-4 h-4" />
+              Edit Column Properties...
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
