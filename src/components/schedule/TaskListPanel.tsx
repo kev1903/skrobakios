@@ -80,13 +80,13 @@ export const TaskListPanel = ({
     <div className="w-[700px] bg-white border-r border-slate-200 flex flex-col">
       {/* Column Headers */}
       <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4">
-        <div className="w-12 text-sm font-medium text-slate-700 text-center">#</div>
-        <div className="w-48 text-sm font-medium text-slate-700">Title</div>
-        <div className="w-20 text-sm font-medium text-slate-700 text-center">Duration</div>
-        <div className="w-24 text-sm font-medium text-slate-700 text-center">Start Date</div>
-        <div className="w-24 text-sm font-medium text-slate-700 text-center">End Date</div>
-        <div className="w-20 text-sm font-medium text-slate-700 text-center">Status</div>
-        <div className="flex-1 text-sm font-medium text-slate-700 text-center">Dependencies</div>
+        <div className="w-12 text-sm font-medium text-slate-700 text-center flex-shrink-0">#</div>
+        <div className="w-48 text-sm font-medium text-slate-700 flex-shrink-0 px-2">Title</div>
+        <div className="w-20 text-sm font-medium text-slate-700 text-center flex-shrink-0">Duration</div>
+        <div className="w-24 text-sm font-medium text-slate-700 text-center flex-shrink-0">Start Date</div>
+        <div className="w-24 text-sm font-medium text-slate-700 text-center flex-shrink-0">End Date</div>
+        <div className="w-20 text-sm font-medium text-slate-700 text-center flex-shrink-0">Status</div>
+        <div className="w-32 text-sm font-medium text-slate-700 text-center flex-shrink-0">Dependencies</div>
       </div>
 
       {/* Task Rows */}
@@ -116,93 +116,95 @@ export const TaskListPanel = ({
                           <GripVertical className="w-4 h-4 text-slate-400" />
                         </div>
 
-                        {/* Row Number */}
-                        <div className="w-12 text-center">
-                          <span className="text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                            {task.rowNumber}
-                          </span>
-                        </div>
+                         {/* Row Number */}
+                         <div className="w-12 text-center flex-shrink-0">
+                           <span className="text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                             {task.rowNumber}
+                           </span>
+                         </div>
 
-                        {/* Title */}
-                        <div className="w-48 flex items-center">
-                          <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center">
-                            {task.children && task.children.length > 0 && (
-                              <button
-                                onClick={() => onToggleExpanded(task.id)}
-                                className="mr-2 p-1 hover:bg-slate-200 rounded transition-colors"
-                              >
-                                {expandedTasks.has(task.id) ? (
-                                  <ChevronDown className="w-3 h-3 text-slate-600" />
-                                ) : (
-                                  <ChevronRight className="w-3 h-3 text-slate-600" />
-                                )}
-                              </button>
-                            )}
-                            
-                            {renderEditableCell(
-                              task,
-                              'title',
-                              task.title,
-                              'text',
-                              `text-sm ${task.level === 0 ? 'font-medium text-slate-900' : 'text-slate-700'}`
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Duration */}
-                        <div className="w-20 text-center">
-                          {renderEditableCell(
-                            task,
-                            'duration',
-                            task.duration,
-                            'number',
-                            'w-16 text-sm text-slate-600 text-center'
-                          )}
-                        </div>
-                        
-                        {/* Start Date */}
-                        <div className="w-24 text-center">
-                          {renderEditableCell(
-                            task,
-                            'startDate',
-                            task.startDate,
-                            'date',
-                            'w-20 text-xs text-slate-600 text-center'
-                          )}
-                        </div>
-                        
-                        {/* End Date */}
-                        <div className="w-24 text-center">
-                          {renderEditableCell(
-                            task,
-                            'endDate',
-                            task.endDate,
-                            'date',
-                            'w-20 text-xs text-slate-600 text-center'
-                          )}
-                        </div>
-                        
-                        {/* Status */}
-                        <div className="w-20 text-center">
-                          {renderEditableCell(
-                            task,
-                            'status',
-                            task.status,
-                            'number',
-                            `w-12 text-sm font-medium text-center ${getStatusColor(task.status)}`
-                          )}
-                        </div>
-                        
-        {/* Dependencies */}
-        <div className="flex-1 text-center px-2">
-          {renderEditableCell(
-            task,
-            'dependencies',
-            task.dependencies && task.dependencies.length > 0 ? task.dependencies.join(', ') : '',
-            'text',
-            'text-xs text-slate-500 text-center min-w-0 truncate'
-          )}
-        </div>
+                         {/* Title */}
+                         <div className="w-48 flex items-center flex-shrink-0 px-2 min-w-0">
+                           <div style={{ marginLeft: `${task.level * 16}px` }} className="flex items-center min-w-0 w-full">
+                             {task.children && task.children.length > 0 && (
+                               <button
+                                 onClick={() => onToggleExpanded(task.id)}
+                                 className="mr-2 p-1 hover:bg-slate-200 rounded transition-colors flex-shrink-0"
+                               >
+                                 {expandedTasks.has(task.id) ? (
+                                   <ChevronDown className="w-3 h-3 text-slate-600" />
+                                 ) : (
+                                   <ChevronRight className="w-3 h-3 text-slate-600" />
+                                 )}
+                               </button>
+                             )}
+                             
+                             <div className="min-w-0">
+                               {renderEditableCell(
+                                 task,
+                                 'title',
+                                 task.title,
+                                 'text',
+                                 `text-sm truncate ${task.level === 0 ? 'font-medium text-slate-900' : 'text-slate-700'}`
+                               )}
+                             </div>
+                           </div>
+                         </div>
+                         
+                         {/* Duration */}
+                         <div className="w-20 text-center flex-shrink-0">
+                           {renderEditableCell(
+                             task,
+                             'duration',
+                             task.duration,
+                             'number',
+                             'w-full text-sm text-slate-600 text-center'
+                           )}
+                         </div>
+                         
+                         {/* Start Date */}
+                         <div className="w-24 text-center flex-shrink-0">
+                           {renderEditableCell(
+                             task,
+                             'startDate',
+                             task.startDate,
+                             'date',
+                             'w-full text-xs text-slate-600 text-center'
+                           )}
+                         </div>
+                         
+                         {/* End Date */}
+                         <div className="w-24 text-center flex-shrink-0">
+                           {renderEditableCell(
+                             task,
+                             'endDate',
+                             task.endDate,
+                             'date',
+                             'w-full text-xs text-slate-600 text-center'
+                           )}
+                         </div>
+                         
+                         {/* Status */}
+                         <div className="w-20 text-center flex-shrink-0">
+                           {renderEditableCell(
+                             task,
+                             'status',
+                             task.status,
+                             'number',
+                             `w-full text-sm font-medium text-center ${getStatusColor(task.status)}`
+                           )}
+                         </div>
+                         
+                         {/* Dependencies */}
+                         <div className="w-32 text-center flex-shrink-0 px-2 min-w-0">
+                           {renderEditableCell(
+                             task,
+                             'dependencies',
+                             task.dependencies && task.dependencies.length > 0 ? task.dependencies.join(', ') : '',
+                             'text',
+                             'w-full text-xs text-slate-500 text-center truncate'
+                           )}
+                         </div>
                       </div>
                     )}
                   </Draggable>
