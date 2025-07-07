@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { IFCLoader } from 'web-ifc-three/IFCLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { Model3D } from '@/components/mapbox/types';
 
@@ -262,8 +263,6 @@ export const useMapbox3D = (
           this.renderer.shadowMap.enabled = true;
           this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-          // Load GLTF model using Three.js GLTFLoader
-          const loader = new GLTFLoader();
           console.log('=== Starting model load process ===');
           console.log('Loading 3D model from:', currentModel.file_url);
           console.log('Model details:', currentModel);
@@ -273,123 +272,145 @@ export const useMapbox3D = (
           console.log('Is IFC file:', isIFCFile);
           
           if (isIFCFile) {
-            console.log('IFC file detected - creating simple building representation');
-            console.log('IFC model details:', currentModel);
+            console.log('IFC file detected - using IFC.js loader');
             
-            // Create a more prominent building-like geometry for IFC files
-            const buildingGeometry = new THREE.BoxGeometry(50, 30, 20); // Made larger
-            const buildingMaterial = new THREE.MeshPhongMaterial({ 
-              color: 0xff6600, // Changed to orange color to make it more visible
-              transparent: false, // Made opaque
-              side: THREE.DoubleSide // Ensure it's visible from all angles
-            });
+            // Use IFC.js loader for IFC files
+            const ifcLoader = new IFCLoader();
             
-            this.model = new THREE.Mesh(buildingGeometry, buildingMaterial);
+            // Set the IFC loader WASM path
+            ifcLoader.ifcManager.setWasmPath('https://unpkg.com/web-ifc@0.0.57/');
             
-            // Enable shadows
-            this.model.castShadow = true;
-            this.model.receiveShadow = true;
+            console.log('Loading IFC model from:', currentModel.file_url);
             
-            // Calculate position using Mapbox coordinate system
-            const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-              currentModel.coordinates,
-              currentModel.elevation
-            );
-
-            // Set position in Mapbox coordinate system
-            this.model.position.set(
-              modelAsMercatorCoordinate.x,
-              modelAsMercatorCoordinate.y,
-              modelAsMercatorCoordinate.z
-            );
-            
-            // Scale to match Mapbox coordinate system
-            const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits();
-            console.log('Calculated model scale:', modelScale);
-            console.log('Applying scale with multiplier:', modelScale * currentModel.scale);
-            this.model.scale.setScalar(modelScale * currentModel.scale);
-
-            // Set rotation 
-            this.model.rotation.x = currentModel.rotation_x;
-            this.model.rotation.y = currentModel.rotation_y;
-            this.model.rotation.z = currentModel.rotation_z;
-
-            this.scene.add(this.model);
-            console.log('=== Model added to scene ===');
-            console.log('Scene children count:', this.scene.children.length);
-            setIsModelLoading(false);
-            
-            console.log('IFC building representation created at coordinates:', currentModel.coordinates);
-            console.log('Model position:', this.model.position);
-            console.log('Model scale:', modelScale * currentModel.scale);
-            console.log('Model visible:', this.model.visible);
-            console.log('Model in scene:', this.scene.children.includes(this.model));
-          } else {
-            // Handle GLTF/GLB files normally
-            loader.load(
+            ifcLoader.load(
               currentModel.file_url,
-            (gltf) => {
-              console.log('GLTF/GLB model loaded successfully');
-              
-              // Store the loaded model
-              this.model = gltf.scene;
-              
-              // Set initial scale
-              this.model.scale.set(currentModel.scale, currentModel.scale, currentModel.scale);
-              
-              // Set rotation 
-              this.model.rotation.x = currentModel.rotation_x;
-              this.model.rotation.y = currentModel.rotation_y;
-              this.model.rotation.z = currentModel.rotation_z;
+              (ifcModel) => {
+                console.log('IFC model loaded successfully:', ifcModel);
+                
+                // Store the loaded IFC model
+                this.model = ifcModel;
+                
+                // Calculate position using Mapbox coordinate system
+                const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                  currentModel.coordinates,
+                  currentModel.elevation
+                );
 
-              // Enable shadows on all mesh children
-              this.model.traverse((child) => {
-                if (child.isMesh) {
-                  child.castShadow = true;
-                  child.receiveShadow = true;
-                  
-                  // Enhance material properties for better rendering
-                  if (child.material) {
-                    child.material.needsUpdate = true;
+                // Set position in Mapbox coordinate system
+                this.model.position.set(
+                  modelAsMercatorCoordinate.x,
+                  modelAsMercatorCoordinate.y,
+                  modelAsMercatorCoordinate.z
+                );
+                
+                // Scale to match Mapbox coordinate system
+                const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits();
+                console.log('Calculated model scale:', modelScale);
+                console.log('Applying scale with multiplier:', modelScale * currentModel.scale);
+                this.model.scale.setScalar(modelScale * currentModel.scale);
+
+                // Set rotation 
+                this.model.rotation.x = currentModel.rotation_x;
+                this.model.rotation.y = currentModel.rotation_y;
+                this.model.rotation.z = currentModel.rotation_z;
+
+                // Enable shadows on all mesh children
+                this.model.traverse((child) => {
+                  if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
                   }
-                }
-              });
+                });
 
-              // Calculate model position in Mapbox's world coordinates
-              const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-                currentModel.coordinates,
-                currentModel.elevation
-              );
+                this.scene.add(this.model);
+                console.log('=== IFC Model added to scene ===');
+                console.log('Scene children count:', this.scene.children.length);
+                setIsModelLoading(false);
+                
+                console.log('IFC model successfully positioned at coordinates:', currentModel.coordinates);
+                console.log('Model position:', this.model.position);
+                console.log('Model scale:', modelScale * currentModel.scale);
+                console.log('Model visible:', this.model.visible);
+                console.log('Model in scene:', this.scene.children.includes(this.model));
+              },
+              (progress) => {
+                const percentage = (progress.loaded / progress.total * 100);
+                console.log('IFC Loading progress:', percentage.toFixed(1) + '%');
+              },
+              (error) => {
+                console.error('Error loading IFC model:', error);
+                setError('Failed to load IFC model. Please check the file format and URL.');
+                setIsModelLoading(false);
+              }
+            );
+          } else {
+            // Handle GLTF/GLB files with GLTFLoader
+            const gltfLoader = new GLTFLoader();
+            
+            gltfLoader.load(
+              currentModel.file_url,
+              (gltf) => {
+                console.log('GLTF/GLB model loaded successfully');
+                
+                // Store the loaded model
+                this.model = gltf.scene;
+                
+                // Set initial scale
+                this.model.scale.set(currentModel.scale, currentModel.scale, currentModel.scale);
+                
+                // Set rotation 
+                this.model.rotation.x = currentModel.rotation_x;
+                this.model.rotation.y = currentModel.rotation_y;
+                this.model.rotation.z = currentModel.rotation_z;
 
-              // Set model position and scale based on Mapbox coordinate system
-              this.model.position.set(
-                modelAsMercatorCoordinate.x,
-                modelAsMercatorCoordinate.y,
-                modelAsMercatorCoordinate.z
-              );
-              
-              // Scale the model to match Mapbox's coordinate system
-              const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * currentModel.scale;
-              this.model.scale.setScalar(modelScale);
+                // Enable shadows on all mesh children
+                this.model.traverse((child) => {
+                  if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    
+                    // Enhance material properties for better rendering
+                    if (child.material) {
+                      child.material.needsUpdate = true;
+                    }
+                  }
+                });
 
-              // Add model to the Three.js scene
-              this.scene.add(this.model);
-              setIsModelLoading(false);
-              
-              console.log('GLTF/GLB model successfully positioned at coordinates:', currentModel.coordinates);
-              console.log('Model scale:', modelScale);
-            },
-            (progress) => {
-              // Loading progress callback
-              const percentage = (progress.loaded / progress.total * 100);
-              console.log('Loading progress:', percentage.toFixed(1) + '%');
-            },
-            (error) => {
-              console.error('Error loading GLTF/GLB model:', error);
-              setError('Failed to load 3D model. Please check the model format and URL.');
-              setIsModelLoading(false);
-            }
-          );
+                // Calculate model position in Mapbox's world coordinates
+                const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                  currentModel.coordinates,
+                  currentModel.elevation
+                );
+
+                // Set model position and scale based on Mapbox coordinate system
+                this.model.position.set(
+                  modelAsMercatorCoordinate.x,
+                  modelAsMercatorCoordinate.y,
+                  modelAsMercatorCoordinate.z
+                );
+                
+                // Scale the model to match Mapbox's coordinate system
+                const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() * currentModel.scale;
+                this.model.scale.setScalar(modelScale);
+
+                // Add model to the Three.js scene
+                this.scene.add(this.model);
+                setIsModelLoading(false);
+                
+                console.log('GLTF/GLB model successfully positioned at coordinates:', currentModel.coordinates);
+                console.log('Model scale:', modelScale);
+              },
+              (progress) => {
+                // Loading progress callback
+                const percentage = (progress.loaded / progress.total * 100);
+                console.log('GLTF Loading progress:', percentage.toFixed(1) + '%');
+              },
+              (error) => {
+                console.error('Error loading GLTF/GLB model:', error);
+                setError('Failed to load 3D model. Please check the model format and URL.');
+                setIsModelLoading(false);
+              }
+            );
           }
         },
 

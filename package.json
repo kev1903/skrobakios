@@ -64,6 +64,8 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.178.0",
     "vaul": "^0.9.3",
+    "web-ifc": "^0.0.68",
+    "web-ifc-three": "^0.0.126",
     "zod": "^3.23.8"
   },
   "devDependencies": {
