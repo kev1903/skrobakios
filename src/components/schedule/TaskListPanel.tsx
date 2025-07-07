@@ -116,54 +116,60 @@ export const TaskListPanel = ({
       className="bg-white border-r border-slate-200 flex flex-col"
       style={{ width: `${width}px` }}
     >
-      {/* Column Headers */}
-      <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4">
-        <div 
-          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
-          style={{ width: `${columnWidths.rowNumber}px` }}
-        >
-          #
-          <ResizeHandle column="rowNumber" />
+      {/* Task Rows with Headers that Scroll Together */}
+      <div className="flex-1 overflow-auto"
+           onScroll={(e) => {
+             // Sync scroll with timeline if needed
+             const scrollLeft = e.currentTarget.scrollLeft;
+             // This could be connected to timeline scroll sync
+           }}
+      >
+        {/* Column Headers */}
+        <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4 sticky top-0 z-10">
+          <div 
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            style={{ width: `${columnWidths.rowNumber}px` }}
+          >
+            #
+            <ResizeHandle column="rowNumber" />
+          </div>
+          <div 
+            className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-200"
+            style={{ width: `${columnWidths.title}px` }}
+          >
+            Title
+            <ResizeHandle column="title" />
+          </div>
+          <div 
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            style={{ width: `${columnWidths.duration}px` }}
+          >
+            Duration
+            <ResizeHandle column="duration" />
+          </div>
+          <div 
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            style={{ width: `${columnWidths.startDate}px` }}
+          >
+            Start Date
+            <ResizeHandle column="startDate" />
+          </div>
+          <div 
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            style={{ width: `${columnWidths.endDate}px` }}
+          >
+            End Date
+            <ResizeHandle column="endDate" />
+          </div>
+          <div 
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative"
+            style={{ width: `${columnWidths.dependencies}px` }}
+          >
+            Dependencies
+            <ResizeHandle column="dependencies" />
+          </div>
         </div>
-        <div 
-          className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-200"
-          style={{ width: `${columnWidths.title}px` }}
-        >
-          Title
-          <ResizeHandle column="title" />
-        </div>
-        <div 
-          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
-          style={{ width: `${columnWidths.duration}px` }}
-        >
-          Duration
-          <ResizeHandle column="duration" />
-        </div>
-        <div 
-          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
-          style={{ width: `${columnWidths.startDate}px` }}
-        >
-          Start Date
-          <ResizeHandle column="startDate" />
-        </div>
-        <div 
-          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
-          style={{ width: `${columnWidths.endDate}px` }}
-        >
-          End Date
-          <ResizeHandle column="endDate" />
-        </div>
-        <div 
-          className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative"
-          style={{ width: `${columnWidths.dependencies}px` }}
-        >
-          Dependencies
-          <ResizeHandle column="dependencies" />
-        </div>
-      </div>
-
-      {/* Task Rows */}
-      <div className="flex-1 overflow-auto">
+        {/* Task List */}
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="task-list">
             {(provided) => (
@@ -289,11 +295,11 @@ export const TaskListPanel = ({
                     )}
                   </Draggable>
                 ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+                 {provided.placeholder}
+               </div>
+             )}
+           </Droppable>
+         </DragDropContext>
       </div>
     </div>
   );
