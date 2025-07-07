@@ -64,7 +64,7 @@ export const DependencyArrows = ({
     return paths;
   };
 
-  // Generate SVG path for arrow
+  // Generate smooth, elegant SVG path for arrow
   const generateArrowPath = (path: ArrowPath): string | null => {
     const fromPosition = getTaskBarPosition(path.fromTask);
     const toPosition = getTaskBarPosition(path.toTask);
@@ -75,48 +75,93 @@ export const DependencyArrows = ({
     const fromY = (path.fromIndex * taskHeight) + (taskHeight / 2);
     const toY = (path.toIndex * taskHeight) + (taskHeight / 2);
     
-    // Start from the end of the predecessor task
-    const startX = fromPosition.endX;
+    // Precise connection points - end of predecessor, start of successor
+    const startX = fromPosition.endX + 2; // Small offset for visual clarity
     const startY = fromY;
-    
-    // End at the start of the successor task
-    const endX = toPosition.startX;
+    const endX = toPosition.startX - 8; // Space for arrowhead
     const endY = toY;
     
-    // Create a path with proper curves for readability
-    const midX = startX + ((endX - startX) / 2);
-    const controlOffset = 20;
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
-    if (Math.abs(endY - startY) < 5) {
-      // Horizontal line for same-level tasks
-      return `M ${startX} ${startY} L ${endX - 8} ${endY}`;
-    } else {
-      // Curved path for different-level tasks
+    // Create elegant curves based on distance and direction
+    if (Math.abs(deltaY) < 8) {
+      // Nearly horizontal - simple smooth line
+      const midX = startX + (deltaX * 0.7);
       return `M ${startX} ${startY} 
-              L ${midX - controlOffset} ${startY} 
-              Q ${midX} ${startY} ${midX} ${startY + ((endY - startY) / 2)}
-              Q ${midX} ${endY} ${midX + controlOffset} ${endY}
-              L ${endX - 8} ${endY}`;
+              C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
+    } else if (deltaY > 0) {
+      // Downward dependency - smooth S-curve
+      const controlDistance = Math.min(Math.abs(deltaX) * 0.4, 60);
+      const control1X = startX + controlDistance;
+      const control2X = endX - controlDistance;
+      const midY = startY + (deltaY * 0.6);
+      
+      return `M ${startX} ${startY} 
+              C ${control1X} ${startY}, ${control1X} ${midY}, ${startX + (deltaX * 0.3)} ${midY}
+              S ${control2X} ${endY}, ${endX} ${endY}`;
+    } else {
+      // Upward dependency - elegant arch
+      const archHeight = Math.max(20, Math.abs(deltaY) * 0.3);
+      const control1X = startX + (deltaX * 0.3);
+      const control1Y = startY - archHeight;
+      const control2X = endX - (deltaX * 0.3);
+      const control2Y = endY - archHeight;
+      
+      return `M ${startX} ${startY} 
+              C ${control1X} ${control1Y}, ${control2X} ${control2Y}, ${endX} ${endY}`;
     }
   };
 
-  // Create arrowhead marker
-  const ArrowMarker = () => (
+  // Create elegant arrowhead markers with gradients
+  const ArrowMarkers = () => (
     <defs>
+      {/* Gradient for depth */}
+      <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#1d4ed8" stopOpacity="1" />
+      </linearGradient>
+      
+      {/* Drop shadow filter */}
+      <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="1" dy="1" stdDeviation="1" floodColor="rgba(0,0,0,0.15)" />
+      </filter>
+      
+      {/* Main arrowhead */}
       <marker
         id="arrowhead"
-        markerWidth="10"
-        markerHeight="7"
-        refX="9"
-        refY="3.5"
+        markerWidth="12"
+        markerHeight="8"
+        refX="11"
+        refY="4"
         orient="auto"
         markerUnits="strokeWidth"
       >
-        <polygon
-          points="0 0, 10 3.5, 0 7"
-          fill="#64748b"
-          stroke="#64748b"
-          strokeWidth="1"
+        <path
+          d="M 0 0 L 12 4 L 0 8 L 3 4 Z"
+          fill="url(#arrowGradient)"
+          stroke="#1d4ed8"
+          strokeWidth="0.5"
+          filter="url(#dropShadow)"
+        />
+      </marker>
+      
+      {/* Hover state arrowhead */}
+      <marker
+        id="arrowheadHover"
+        markerWidth="12"
+        markerHeight="8"
+        refX="11"
+        refY="4"
+        orient="auto"
+        markerUnits="strokeWidth"
+      >
+        <path
+          d="M 0 0 L 12 4 L 0 8 L 3 4 Z"
+          fill="#3b82f6"
+          stroke="#1d4ed8"
+          strokeWidth="0.5"
         />
       </marker>
     </defs>
@@ -140,31 +185,73 @@ export const DependencyArrows = ({
       height={totalHeight}
       style={{ overflow: 'visible' }}
     >
-      <ArrowMarker />
+      <ArrowMarkers />
       
       {dependencyPaths.map((path, index) => {
         const pathString = generateArrowPath(path);
         if (!pathString) return null;
         
+        // Determine arrow color based on task type/status
+        const getArrowColor = () => {
+          if (path.toTask.status === 100) return '#10b981'; // Green for completed
+          if (path.toTask.status > 0) return '#3b82f6'; // Blue for in progress  
+          return '#64748b'; // Gray for not started
+        };
+        
+        const arrowColor = getArrowColor();
+        
         return (
-          <g key={`dependency-${path.fromTask.id}-${path.toTask.id}-${index}`}>
+          <g 
+            key={`dependency-${path.fromTask.id}-${path.toTask.id}-${index}`}
+            className="dependency-arrow-group"
+          >
+            {/* Subtle glow effect */}
+            <path
+              d={pathString}
+              fill="none"
+              stroke={arrowColor}
+              strokeWidth="3"
+              opacity="0.3"
+              markerEnd="url(#arrowhead)"
+              filter="url(#dropShadow)"
+            />
+            
             {/* Main arrow line */}
             <path
               d={pathString}
               fill="none"
-              stroke="#64748b"
+              stroke={arrowColor}
               strokeWidth="2"
               markerEnd="url(#arrowhead)"
-              className="drop-shadow-sm"
+              className="transition-all duration-200"
+              style={{
+                strokeDasharray: path.toTask.status === 0 ? '5,3' : 'none', // Dashed for future tasks
+              }}
             />
             
-            {/* Hover area for interaction */}
+            {/* Interactive hover area */}
             <path
               d={pathString}
               fill="none"
               stroke="transparent"
-              strokeWidth="8"
-              className="pointer-events-auto cursor-pointer hover:stroke-blue-300"
+              strokeWidth="12"
+              className="pointer-events-auto cursor-pointer transition-all duration-200 hover:stroke-blue-400 hover:stroke-opacity-20"
+              onMouseEnter={(e) => {
+                // Enhance arrow on hover
+                const mainPath = e.currentTarget.previousElementSibling as SVGPathElement;
+                if (mainPath) {
+                  mainPath.style.strokeWidth = '3';
+                  mainPath.style.filter = 'url(#dropShadow)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                // Reset arrow on leave
+                const mainPath = e.currentTarget.previousElementSibling as SVGPathElement;
+                if (mainPath) {
+                  mainPath.style.strokeWidth = '2';
+                  mainPath.style.filter = 'none';
+                }
+              }}
             >
               <title>{`${path.fromTask.title} → ${path.toTask.title}`}</title>
             </path>
