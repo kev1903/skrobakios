@@ -261,12 +261,12 @@ export const useMapbox3D = (
             console.log('IFC file detected - creating simple building representation');
             console.log('IFC model details:', currentModel);
             
-            // Create a simple building-like geometry for IFC files
-            const buildingGeometry = new THREE.BoxGeometry(10, 15, 8);
+            // Create a more prominent building-like geometry for IFC files
+            const buildingGeometry = new THREE.BoxGeometry(50, 30, 20); // Made larger
             const buildingMaterial = new THREE.MeshPhongMaterial({ 
-              color: 0x888888,
-              transparent: true,
-              opacity: 0.8
+              color: 0xff6600, // Changed to orange color to make it more visible
+              transparent: false, // Made opaque
+              side: THREE.DoubleSide // Ensure it's visible from all angles
             });
             
             this.model = new THREE.Mesh(buildingGeometry, buildingMaterial);
@@ -290,7 +290,9 @@ export const useMapbox3D = (
             
             // Scale to match Mapbox coordinate system
             const modelScale = modelAsMercatorCoordinate.meterInMercatorCoordinateUnits();
-            this.model.scale.setScalar(modelScale);
+            console.log('Calculated model scale:', modelScale);
+            console.log('Applying scale with multiplier:', modelScale * currentModel.scale);
+            this.model.scale.setScalar(modelScale * currentModel.scale);
 
             // Set rotation 
             this.model.rotation.x = currentModel.rotation_x;
@@ -302,7 +304,9 @@ export const useMapbox3D = (
             
             console.log('IFC building representation created at coordinates:', currentModel.coordinates);
             console.log('Model position:', this.model.position);
-            console.log('Model scale:', modelScale);
+            console.log('Model scale:', modelScale * currentModel.scale);
+            console.log('Model visible:', this.model.visible);
+            console.log('Model in scene:', this.scene.children.includes(this.model));
           } else {
             // Handle GLTF/GLB files normally
             loader.load(
@@ -421,7 +425,11 @@ export const useMapbox3D = (
     // Cleanup function
     return () => {
       if (map.current) {
-        map.current.remove();
+        try {
+          map.current.remove();
+        } catch (error) {
+          console.warn('Error during map cleanup:', error);
+        }
       }
     };
   }, [currentModel, showModel]);
