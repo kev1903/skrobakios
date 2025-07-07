@@ -80,6 +80,8 @@ export const ContentRenderer = ({
       return currentProject ? <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-team":
       return currentProject ? <ProjectTeamPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+    case "project-digital-twin":
+      return currentProject ? <Mapbox3DEnvironment onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-wbs":
       return currentProject ? <WBSPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "gantt-chart":
