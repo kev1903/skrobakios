@@ -10,14 +10,15 @@ export const useModels = (modelId?: string) => {
   // Load available 3D models from database
   useEffect(() => {
     const loadModels = async () => {
-      console.log('Loading 3D models...');
+      console.log('🔍 [useModels] Starting to load 3D models...');
+      console.log('🔍 [useModels] Looking for modelId:', modelId);
       try {
         const { data: models, error } = await supabase
           .from('model_3d')
           .select('*')
           .order('created_at', { ascending: false });
 
-        console.log('Raw models from database:', models);
+        console.log('🔍 [useModels] Raw models from database:', models);
 
         if (error) {
           console.error('Error loading 3D models:', error);
@@ -26,6 +27,7 @@ export const useModels = (modelId?: string) => {
         }
 
         if (!models || models.length === 0) {
+          console.log('🚨 [useModels] No 3D models found in database');
           setError('No 3D models available. Please upload a model first.');
           return;
         }

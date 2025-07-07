@@ -14,6 +14,10 @@ export const Mapbox3DEnvironment = ({
   className = "",
   currentProject
 }: Mapbox3DEnvironmentProps) => {
+  console.log('🏢 [Mapbox3DEnvironment] Component rendering');
+  console.log('🏢 [Mapbox3DEnvironment] modelId:', modelId);
+  console.log('🏢 [Mapbox3DEnvironment] currentProject:', currentProject);
+  
   const [showModel, setShowModel] = useState(true);
   
   // Use custom hooks

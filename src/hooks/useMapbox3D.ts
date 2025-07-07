@@ -144,18 +144,18 @@ export const useMapbox3D = (
 
   // Initialize map with 3D model when available
   useEffect(() => {
-    console.log('=== useMapbox3D useEffect triggered ===');
-    console.log('currentModel:', currentModel);
-    console.log('showModel:', showModel);
+    console.log('🗺️ [useMapbox3D] useEffect triggered');
+    console.log('🗺️ [useMapbox3D] currentModel:', currentModel);
+    console.log('🗺️ [useMapbox3D] showModel:', showModel);
     
     if (!currentModel) {
-      console.log('No current model selected - exiting');
+      console.log('🗺️ [useMapbox3D] No current model selected - exiting');
       return;
     }
 
-    console.log('Initializing map with model:', currentModel);
-    console.log('Model coordinates:', currentModel.coordinates);
-    console.log('Show model state:', showModel);
+    console.log('🗺️ [useMapbox3D] Initializing map with model:', currentModel);
+    console.log('🗺️ [useMapbox3D] Model coordinates:', currentModel.coordinates);
+    console.log('🗺️ [useMapbox3D] Show model state:', showModel);
 
     const initializeMap = async () => {
       if (!mapContainer.current) return;
