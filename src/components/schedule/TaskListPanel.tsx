@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
 import { Plus, Trash2, Edit3, Info, Filter, ArrowUpDown, Lock, Snowflake, EyeOff, X, Settings, MoreHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { ModernGanttTask } from './types';
+import { formatDateDisplay } from './utils';
 
 interface TaskListPanelProps {
   tasks: ModernGanttTask[];
@@ -149,7 +150,9 @@ export const TaskListPanel = ({
           `${value}d` : 
           field === 'dependencies' ? 
             (value || 'Click to add row numbers') : 
-            value
+            (field === 'startDate' || field === 'endDate') ?
+              formatDateDisplay(String(value)) :
+              value
         }
       </span>
     );
