@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, Plus, MoreHorizontal, Download, Eye, EyeOff } from 'lucide-react';
-import { ChevronLeft, ChevronRight, Settings, Expand, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings, ChevronDown, ZoomIn, ZoomOut } from 'lucide-react';
 import { DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { 
@@ -589,7 +589,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
               <Settings className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="sm" title="Expand All">
-              <Expand className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4" />
             </Button>
           </div>
         </div>
