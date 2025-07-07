@@ -144,8 +144,12 @@ export const useMapbox3D = (
 
   // Initialize map with 3D model when available
   useEffect(() => {
+    console.log('=== useMapbox3D useEffect triggered ===');
+    console.log('currentModel:', currentModel);
+    console.log('showModel:', showModel);
+    
     if (!currentModel) {
-      console.log('No current model selected');
+      console.log('No current model selected - exiting');
       return;
     }
 
@@ -190,7 +194,8 @@ export const useMapbox3D = (
 
         // Wait for map style to load before adding 3D layer
         map.current.on('style.load', () => {
-          console.log('Map style loaded, adding 3D layer...');
+          console.log('=== Map style loaded, starting 3D layer setup ===');
+          console.log('Current model for 3D layer:', currentModel);
           add3DModelLayer();
           setIsLoading(false);
         });
@@ -204,7 +209,14 @@ export const useMapbox3D = (
 
     // Custom 3D Layer for Three.js integration with Mapbox
     const add3DModelLayer = () => {
-      if (!map.current) return;
+      console.log('=== add3DModelLayer called ===');
+      console.log('Map current:', !!map.current);
+      console.log('Model to add:', currentModel);
+      
+      if (!map.current) {
+        console.error('Map not available in add3DModelLayer');
+        return;
+      }
 
       setIsModelLoading(true);
 
@@ -216,6 +228,7 @@ export const useMapbox3D = (
         
         // Called when the layer is added to the map
         onAdd: function(map, gl) {
+          console.log('=== 3D Layer onAdd called ===');
           console.log('Adding 3D layer to map...');
           
           // Initialize Three.js scene
@@ -251,11 +264,13 @@ export const useMapbox3D = (
 
           // Load GLTF model using Three.js GLTFLoader
           const loader = new GLTFLoader();
-          console.log('Starting to load 3D model from:', currentModel.file_url);
+          console.log('=== Starting model load process ===');
+          console.log('Loading 3D model from:', currentModel.file_url);
           console.log('Model details:', currentModel);
           
           // Check if this is an IFC file
           const isIFCFile = currentModel.file_url.toLowerCase().includes('.ifc');
+          console.log('Is IFC file:', isIFCFile);
           
           if (isIFCFile) {
             console.log('IFC file detected - creating simple building representation');
@@ -300,6 +315,8 @@ export const useMapbox3D = (
             this.model.rotation.z = currentModel.rotation_z;
 
             this.scene.add(this.model);
+            console.log('=== Model added to scene ===');
+            console.log('Scene children count:', this.scene.children.length);
             setIsModelLoading(false);
             
             console.log('IFC building representation created at coordinates:', currentModel.coordinates);
@@ -414,10 +431,11 @@ export const useMapbox3D = (
       };
 
       // Add the custom 3D layer to the Mapbox map
+      console.log('=== Adding custom layer to map ===');
       map.current.addLayer(customLayer);
       setModelLayer(customLayer);
       
-      console.log('Custom 3D layer added to map');
+      console.log('=== Custom 3D layer added to map successfully ===');
     };
 
     initializeMap();
@@ -435,6 +453,8 @@ export const useMapbox3D = (
   }, [currentModel, showModel]);
 
   const flyToModel = (model: Model3D) => {
+    console.log('=== flyToModel called ===');
+    console.log('Flying to model coordinates:', model.coordinates);
     if (map.current) {
       map.current.flyTo({
         center: model.coordinates,
@@ -442,6 +462,9 @@ export const useMapbox3D = (
         pitch: 60,
         bearing: 30
       });
+      console.log('Map flyTo executed');
+    } else {
+      console.error('Map not available for flyTo');
     }
   };
 
