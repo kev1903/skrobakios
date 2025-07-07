@@ -18,7 +18,7 @@ export const Mapbox3DEnvironment = ({
   
   // Use custom hooks
   const { availableModels, currentModel, setCurrentModel, error: modelError, removeModel } = useModels(modelId);
-  const { mapContainer, isLoading, isModelLoading, error: mapError, flyToModel } = useMapbox3D(currentModel, showModel);
+  const { mapContainer, isLoading, isModelLoading, error: mapError, flyToModel } = useMapbox3D(currentModel, showModel, currentProject);
   
   const handleModelUploaded = (model: Model3D) => {
     setCurrentModel(model);

@@ -5,14 +5,144 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { supabase } from '@/integrations/supabase/client';
 import { Model3D } from '@/components/mapbox/types';
 
-export const useMapbox3D = (currentModel: Model3D | null, showModel: boolean) => {
+export const useMapbox3D = (
+  currentModel: Model3D | null, 
+  showModel: boolean, 
+  currentProject?: { id: string; project_id: string; name: string; location?: string } | null
+) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modelLayer, setModelLayer] = useState<any>(null);
+  // Geocode address to coordinates
+  const geocodeAddress = async (address: string): Promise<[number, number] | null> => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'Lovable-Digital-Twin/1.0'
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Geocoding request failed');
+      }
 
+      const geocodeData = await response.json();
+      
+      if (geocodeData && geocodeData.length > 0) {
+        const [lng, lat] = [parseFloat(geocodeData[0].lon), parseFloat(geocodeData[0].lat)];
+        return [lng, lat];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error geocoding address:', error);
+      return null;
+    }
+  };
+
+  // Initialize map based on project location when no model is available
+  useEffect(() => {
+    if (currentModel) return; // Skip if we have a model (handled by other useEffect)
+    
+    const initializeProjectMap = async () => {
+      if (!mapContainer.current) return;
+
+      console.log('Initializing map for project:', currentProject?.name);
+      console.log('Project location:', currentProject?.location);
+
+      try {
+        // Fetch Mapbox token from edge function
+        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        
+        if (error) {
+          console.error('Error fetching Mapbox token:', error);
+          setError('Failed to load map configuration');
+          setIsLoading(false);
+          return;
+        }
+
+        if (!data?.token) {
+          setError('Mapbox token not available');
+          setIsLoading(false);
+          return;
+        }
+
+        // Determine map center based on project location
+        let mapCenter: [number, number] = [145.032000, -37.820300]; // Default Melbourne
+        
+        if (currentProject?.location) {
+          console.log('Geocoding project address:', currentProject.location);
+          const coordinates = await geocodeAddress(currentProject.location);
+          if (coordinates) {
+            mapCenter = coordinates;
+            console.log('Using geocoded coordinates:', mapCenter);
+          } else {
+            console.log('Geocoding failed, using default coordinates');
+          }
+        } else {
+          console.log('No project location available, using default coordinates');
+        }
+
+        // Initialize map with fetched token
+        mapboxgl.accessToken = data.token;
+        
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/kevin19031994/cmcprh4kj009w01sqbfig9lx6',
+          projection: 'mercator',
+          zoom: currentProject?.location ? 16 : 12, // Closer zoom if we have a specific address
+          center: mapCenter,
+          pitch: currentProject?.location ? 45 : 0, // Angled view for project locations
+          bearing: 0,
+          antialias: true
+        });
+
+        // Add a marker for the project location if available
+        if (currentProject?.location) {
+          new mapboxgl.Marker({
+            color: '#3b82f6',
+            scale: 1.2
+          })
+          .setLngLat(mapCenter)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 })
+              .setHTML(`<div class="font-semibold">${currentProject.name}</div><div class="text-sm text-gray-600">${currentProject.location}</div>`)
+          )
+          .addTo(map.current);
+
+          console.log('Added project marker at:', mapCenter);
+        }
+
+        // Wait for map style to load
+        map.current.on('style.load', () => {
+          console.log('Project map style loaded');
+          setIsLoading(false);
+        });
+
+      } catch (err) {
+        console.error('Error initializing project map:', err);
+        setError('Failed to initialize map');
+        setIsLoading(false);
+      }
+    };
+
+    initializeProjectMap();
+
+    // Cleanup function
+    return () => {
+      if (map.current) {
+        map.current.remove();
+      }
+    };
+  }, [currentProject, currentModel]);
+
+  // Initialize map with 3D model when available
   useEffect(() => {
     if (!currentModel) {
       console.log('No current model selected');
