@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { UploadForm } from './UploadForm';
 import { ModelSelector } from './ModelSelector';
 import { ModelControls } from './ModelControls';
-import { ModelInfo } from './ModelInfo';
 import { Model3D, UploadFormData } from './types';
 
 interface ControlsPanelProps {
@@ -92,8 +91,6 @@ export const ControlsPanel = ({
               showModel={showModel}
               onToggleVisibility={onToggleVisibility}
             />
-
-            {currentModel && <ModelInfo model={currentModel} />}
           </div>
         )}
 
