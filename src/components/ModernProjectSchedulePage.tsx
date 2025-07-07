@@ -72,7 +72,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 100,
           startDate: '2024-11-08',
           endDate: '2024-11-12',
-          dependencies: ['goals'],
+          dependencies: [],
           level: 1,
           barStyle: {
             left: '18%',
@@ -87,7 +87,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 80,
           startDate: '2024-11-13',
           endDate: '2024-11-15',
-          dependencies: ['target-audience'],
+          dependencies: [],
           level: 1,
           barStyle: {
             left: '30%',
@@ -104,7 +104,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       status: 25,
       startDate: '2024-11-16',
       endDate: '2024-11-26',
-      dependencies: ['competitor-research'],
+      dependencies: [],
       level: 0,
       expanded: true,
       children: [
@@ -115,7 +115,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 60,
           startDate: '2024-11-16',
           endDate: '2024-11-19',
-          dependencies: ['competitor-research'],
+          dependencies: [],
           level: 1,
           barStyle: {
             left: '36%',
@@ -130,7 +130,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 40,
           startDate: '2024-11-20',
           endDate: '2024-11-26',
-          dependencies: ['user-experience'],
+          dependencies: [],
           level: 1,
           barStyle: {
             left: '45%',
@@ -145,7 +145,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-11-27',
           endDate: '2024-11-30',
-          dependencies: ['user-interface'],
+          dependencies: [],
           level: 1
         },
         {
@@ -155,7 +155,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-12-01',
           endDate: '2024-12-09',
-          dependencies: ['icons-pack'],
+          dependencies: [],
           level: 1
         }
       ]
@@ -167,7 +167,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       status: 0,
       startDate: '2024-12-10',
       endDate: '2024-12-22',
-      dependencies: ['style-guide'],
+      dependencies: [],
       level: 0,
       expanded: true,
       children: [
@@ -178,7 +178,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-12-10',
           endDate: '2024-12-17',
-          dependencies: ['style-guide'],
+          dependencies: [],
           level: 1
         },
         {
@@ -188,7 +188,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-12-18',
           endDate: '2024-12-22',
-          dependencies: ['back-end'],
+          dependencies: [],
           level: 1
         },
         {
@@ -198,7 +198,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-12-15',
           endDate: '2024-12-23',
-          dependencies: ['back-end'],
+          dependencies: [],
           level: 1
         }
       ]
@@ -210,7 +210,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       status: 0,
       startDate: '2024-12-24',
       endDate: '2025-01-01',
-      dependencies: ['front-end', 'api'],
+      dependencies: [],
       level: 0,
       expanded: true,
       children: [
@@ -221,7 +221,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
           status: 0,
           startDate: '2024-12-24',
           endDate: '2024-12-30',
-          dependencies: ['front-end'],
+          dependencies: [],
           level: 1
         }
       ]

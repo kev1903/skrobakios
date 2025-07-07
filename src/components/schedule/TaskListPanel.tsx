@@ -66,7 +66,12 @@ export const TaskListPanel = ({
         className={`cursor-pointer hover:bg-slate-200 px-1 py-0.5 rounded ${className}`}
         onClick={() => onStartEditing(task.id, field, value)}
       >
-        {field === 'duration' ? `${value}d` : value}
+        {field === 'duration' ? 
+          `${value}d` : 
+          field === 'dependencies' ? 
+            (value || 'Click to add') : 
+            value
+        }
       </span>
     );
   };
@@ -185,7 +190,7 @@ export const TaskListPanel = ({
           {renderEditableCell(
             task,
             'dependencies',
-            task.dependencies.join(', '),
+            task.dependencies && task.dependencies.length > 0 ? task.dependencies.join(', ') : '',
             'text',
             'text-xs text-slate-500 text-center min-w-0 truncate'
           )}
