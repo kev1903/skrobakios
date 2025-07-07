@@ -94,7 +94,13 @@ export const useSubtasks = (taskId: string) => {
   };
 
   useEffect(() => {
-    loadSubtasks();
+    // Clear previous subtasks when taskId changes
+    setSubtasks([]);
+    setLoading(false);
+    
+    if (taskId) {
+      loadSubtasks();
+    }
   }, [taskId]);
 
   return {

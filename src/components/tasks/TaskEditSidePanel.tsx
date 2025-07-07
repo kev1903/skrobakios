@@ -30,6 +30,9 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
     console.log('TaskEditSidePanel isOpen:', isOpen);
     if (task) {
       setEditedTask({ ...task });
+    } else {
+      // Clear edited task when task becomes null to prevent stale data
+      setEditedTask(null);
     }
   }, [task, isOpen]);
 

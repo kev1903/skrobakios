@@ -24,7 +24,13 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAttachments();
+    // Clear previous attachments when taskId changes
+    setAttachments([]);
+    setLoading(false);
+    
+    if (taskId) {
+      loadAttachments();
+    }
   }, [taskId]);
 
   const loadAttachments = async () => {

@@ -54,7 +54,13 @@ export const useTaskActivity = (taskId: string) => {
   };
 
   useEffect(() => {
-    loadActivities();
+    // Clear previous activities when taskId changes
+    setActivities([]);
+    setLoading(false);
+    
+    if (taskId) {
+      loadActivities();
+    }
   }, [taskId]);
 
   return {

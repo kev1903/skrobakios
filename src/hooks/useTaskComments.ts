@@ -53,7 +53,13 @@ export const useTaskComments = (taskId: string) => {
   };
 
   useEffect(() => {
-    loadComments();
+    // Clear previous comments when taskId changes
+    setComments([]);
+    setLoading(false);
+    
+    if (taskId) {
+      loadComments();
+    }
   }, [taskId]);
 
   return {
