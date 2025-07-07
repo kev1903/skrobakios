@@ -10,11 +10,14 @@ export const useModels = (modelId?: string) => {
   // Load available 3D models from database
   useEffect(() => {
     const loadModels = async () => {
+      console.log('Loading 3D models...');
       try {
         const { data: models, error } = await supabase
           .from('model_3d')
           .select('*')
           .order('created_at', { ascending: false });
+
+        console.log('Raw models from database:', models);
 
         if (error) {
           console.error('Error loading 3D models:', error);
@@ -27,21 +30,42 @@ export const useModels = (modelId?: string) => {
           return;
         }
 
-        const formattedModels: Model3D[] = models.map(model => ({
-          id: model.id,
-          name: model.name,
-          description: model.description,
-          file_url: model.file_url,
-          coordinates: model.coordinates && typeof model.coordinates === 'object' && 'x' in model.coordinates && 'y' in model.coordinates 
-            ? [model.coordinates.x as number, model.coordinates.y as number] 
-            : [145.032000, -37.820300],
-          scale: model.scale || 0.5,
-          rotation_x: model.rotation_x || Math.PI / 2,
-          rotation_y: model.rotation_y || 0,
-          rotation_z: model.rotation_z || 0,
-          elevation: model.elevation || 1.5
-        }));
+        const formattedModels: Model3D[] = models.map(model => {
+          console.log('Processing model:', model.name, 'coordinates:', model.coordinates);
+          
+          // Parse coordinates from PostgreSQL point format
+          let coordinates: [number, number] = [145.032000, -37.820300]; // Default
+          
+          if (model.coordinates) {
+            if (typeof model.coordinates === 'object' && 'x' in model.coordinates && 'y' in model.coordinates) {
+              // Object format {x: number, y: number}
+              coordinates = [model.coordinates.x as number, model.coordinates.y as number];
+            } else if (typeof model.coordinates === 'string') {
+              // String format like "(145.056633,-37.791865)"
+              const match = model.coordinates.match(/\(([^,]+),([^)]+)\)/);
+              if (match) {
+                coordinates = [parseFloat(match[1]), parseFloat(match[2])];
+              }
+            }
+          }
+          
+          console.log('Parsed coordinates for', model.name, ':', coordinates);
+          
+          return {
+            id: model.id,
+            name: model.name,
+            description: model.description,
+            file_url: model.file_url,
+            coordinates,
+            scale: model.scale || 0.5,
+            rotation_x: model.rotation_x || Math.PI / 2,
+            rotation_y: model.rotation_y || 0,
+            rotation_z: model.rotation_z || 0,
+            elevation: model.elevation || 1.5
+          };
+        });
 
+        console.log('Formatted models:', formattedModels);
         setAvailableModels(formattedModels);
         
         // Select model: use provided modelId, or first available model
@@ -49,6 +73,7 @@ export const useModels = (modelId?: string) => {
           ? formattedModels.find(m => m.id === modelId) || formattedModels[0]
           : formattedModels[0];
         
+        console.log('Selected model:', selectedModel);
         setCurrentModel(selectedModel);
       } catch (err) {
         console.error('Error loading models:', err);
