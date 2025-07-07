@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
 import { Plus, Trash2, Edit3, Info, Filter, ArrowUpDown, Lock, Snowflake, EyeOff, X, Settings, MoreHorizontal } from 'lucide-react';
+import { Scissors, Copy, ClipboardPaste, History, MessageSquare, ExternalLink, Calculator, FileText, Link2 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { ModernGanttTask } from './types';
 import { formatDateDisplay } from './utils';
@@ -60,6 +61,16 @@ export const TaskListPanel = ({
     x: 0,
     y: 0,
     column: ''
+  });
+
+  const [cellContextMenu, setCellContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0
   });
 
   // Helper function to create cell identifier
@@ -171,16 +182,47 @@ export const TaskListPanel = ({
     handleContextMenuClose();
   };
 
-  // Close context menu on click outside
+  // Handle cell right-click context menu
+  const handleCellContextMenu = (e: React.MouseEvent, taskId: string, field: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // If the cell isn't selected, select it first
+    if (!isCellSelected(taskId, field)) {
+      const cellId = getCellId(taskId, field);
+      setSelectedCells(new Set([cellId]));
+    }
+    
+    setCellContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+
+  const handleCellContextMenuClose = () => {
+    setCellContextMenu(prev => ({ ...prev, visible: false }));
+  };
+
+  const handleCellContextMenuAction = (action: string) => {
+    console.log(`Cell action: ${action} on ${selectedCells.size} selected cells`);
+    // Add your logic here for each cell action
+    handleCellContextMenuClose();
+  };
+
+  // Close context menus on click outside
   React.useEffect(() => {
     const handleClick = () => {
       if (contextMenu.visible) {
         handleContextMenuClose();
       }
+      if (cellContextMenu.visible) {
+        handleCellContextMenuClose();
+      }
     };
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [contextMenu.visible]);
+  }, [contextMenu.visible, cellContextMenu.visible]);
 
   const handleColumnResize = (column: string, newWidth: number) => {
     setColumnWidths(prev => ({
@@ -262,6 +304,7 @@ export const TaskListPanel = ({
           handleMouseDown(task.id, field, e);
         }}
         onMouseEnter={() => handleMouseEnter(task.id, field)}
+        onContextMenu={(e) => handleCellContextMenu(e, task.id, field)}
       >
         <span className="select-none">
           {field === 'duration' ? 
@@ -584,6 +627,170 @@ export const TaskListPanel = ({
             >
               <MoreHorizontal className="w-4 h-4" />
               Edit Column Properties...
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Cell Context Menu */}
+      {cellContextMenu.visible && (
+        <div
+          className="fixed bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50 min-w-52"
+          style={{
+            left: `${cellContextMenu.x}px`,
+            top: `${cellContextMenu.y}px`,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+              onClick={() => handleCellContextMenuAction('cut')}
+            >
+              <div className="flex items-center gap-3">
+                <Scissors className="w-4 h-4" />
+                Cut
+              </div>
+              <span className="text-xs text-slate-400">Ctrl + X</span>
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+              onClick={() => handleCellContextMenuAction('copy')}
+            >
+              <div className="flex items-center gap-3">
+                <Copy className="w-4 h-4" />
+                Copy
+              </div>
+              <span className="text-xs text-slate-400">Ctrl + C</span>
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+              onClick={() => handleCellContextMenuAction('paste')}
+            >
+              <div className="flex items-center gap-3">
+                <ClipboardPaste className="w-4 h-4" />
+                Paste
+              </div>
+              <span className="text-xs text-slate-400">Ctrl + V</span>
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+              onClick={() => handleCellContextMenuAction('pasteSpecial')}
+            >
+              <div className="flex items-center gap-3">
+                <ClipboardPaste className="w-4 h-4" />
+                Paste Special...
+              </div>
+              <span className="text-xs text-slate-400">Ctrl + Shift + V</span>
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('clearContents')}
+            >
+              <X className="w-4 h-4" />
+              Clear Contents
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('viewHistory')}
+            >
+              <History className="w-4 h-4" />
+              View Cell History...
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('insertRow')}
+            >
+              <Plus className="w-4 h-4" />
+              Insert Row
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('insertKey')}
+            >
+              <Plus className="w-4 h-4" />
+              Insert Key
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('deleteRow')}
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Row
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('addComment')}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Add a Row Comment
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('rowActions')}
+            >
+              <Settings className="w-4 h-4" />
+              Row Actions...
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('generateFormula')}
+            >
+              <Calculator className="w-4 h-4" />
+              Generate formula
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('generateContent')}
+            >
+              <FileText className="w-4 h-4" />
+              Generate content
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('linkFromCell')}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Link from Cell in Other Sheet...
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('manageReferences')}
+            >
+              <Link2 className="w-4 h-4" />
+              Manage References...
+            </button>
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-between"
+              onClick={() => handleCellContextMenuAction('hyperlink')}
+            >
+              <div className="flex items-center gap-3">
+                <Link2 className="w-4 h-4" />
+                Hyperlink...
+              </div>
+              <span className="text-xs text-slate-400">Ctrl + K</span>
+            </button>
+          </div>
+          
+          <div className="border-t border-slate-100 py-1">
+            <button
+              className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
+              onClick={() => handleCellContextMenuAction('convertToFormula')}
+            >
+              <Calculator className="w-4 h-4" />
+              Convert to Column Formula
             </button>
           </div>
         </div>
