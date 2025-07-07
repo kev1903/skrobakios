@@ -125,44 +125,47 @@ export const TaskListPanel = ({
            }}
       >
         {/* Column Headers */}
-        <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center px-4 sticky top-0 z-10">
+        <div className="h-12 bg-slate-50 border-b border-slate-200 flex items-center sticky top-0 z-10">
+          {/* Drag Handle Space - matches row structure */}
+          <div className="w-8 flex-shrink-0"></div>
+          
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
             style={{ width: `${columnWidths.rowNumber}px` }}
           >
             #
             <ResizeHandle column="rowNumber" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-200"
+            className="text-sm font-medium text-slate-700 flex-shrink-0 px-2 relative border-r border-slate-100 flex items-center"
             style={{ width: `${columnWidths.title}px` }}
           >
             Title
             <ResizeHandle column="title" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
             style={{ width: `${columnWidths.duration}px` }}
           >
             Duration
             <ResizeHandle column="duration" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
             style={{ width: `${columnWidths.startDate}px` }}
           >
             Start Date
             <ResizeHandle column="startDate" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-200"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative border-r border-slate-100 flex items-center justify-center"
             style={{ width: `${columnWidths.endDate}px` }}
           >
             End Date
             <ResizeHandle column="endDate" />
           </div>
           <div 
-            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative"
+            className="text-sm font-medium text-slate-700 text-center flex-shrink-0 relative flex items-center justify-center"
             style={{ width: `${columnWidths.dependencies}px` }}
           >
             Dependencies
@@ -183,14 +186,14 @@ export const TaskListPanel = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`h-12 border-b border-slate-100 flex items-center px-4 hover:bg-slate-50 group ${
+                        className={`h-12 border-b border-slate-100 flex items-center hover:bg-slate-50 group ${
                           snapshot.isDragging ? 'bg-blue-50 shadow-lg' : ''
                         }`}
                       >
                         {/* Drag Handle */}
                         <div
                           {...provided.dragHandleProps}
-                          className="mr-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
+                          className="w-8 flex-shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
                         >
                           <GripVertical className="w-4 h-4 text-slate-400" />
                         </div>
