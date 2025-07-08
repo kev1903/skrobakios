@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,8 +28,32 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
   const { toast } = useToast();
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [autoSync, setAutoSync] = useState(true);
+  const [connectionInfo, setConnectionInfo] = useState<{
+    tenant_name?: string;
+    connected_at?: string;
+  } | null>(null);
+
+  // Check connection status on component mount
+  useEffect(() => {
+    checkConnectionStatus();
+
+    // Listen for OAuth completion messages
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data === 'xero-auth-success') {
+        toast({
+          title: 'Connected to Xero',
+          description: 'Successfully connected to your Xero account.',
+        });
+        checkConnectionStatus();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const handleConnect = async () => {
     setIsConnecting(true);
@@ -79,16 +103,21 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
       
       if (error) throw error;
       
-      if (data.connected) {
+      if (data?.connected && data?.connection) {
         setIsConnected(true);
-        setLastSync(new Date());
-        toast({
-          title: 'Connected to Xero',
-          description: 'Successfully connected to your Xero account.',
-        });
+        setConnectionInfo(data.connection);
+        if (data.connection.connected_at) {
+          setLastSync(new Date(data.connection.connected_at));
+        }
+      } else {
+        setIsConnected(false);
+        setConnectionInfo(null);
+        setLastSync(null);
       }
     } catch (error) {
       console.error('Status check error:', error);
+      setIsConnected(false);
+      setConnectionInfo(null);
     }
   };
 
@@ -117,6 +146,7 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
   };
 
   const handleSync = async () => {
+    setIsSyncing(true);
     try {
       const { error } = await supabase.functions.invoke('xero-sync', {
         body: { action: 'sync' }
@@ -136,6 +166,8 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
         description: 'Failed to sync data from Xero. Please try again.',
         variant: 'destructive'
       });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -238,9 +270,9 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
                     {lastSync ? lastSync.toLocaleString() : 'Never'}
                   </p>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleSync}>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Sync Now
+                <Button variant="outline" size="sm" onClick={handleSync} disabled={isSyncing}>
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                  {isSyncing ? 'Syncing...' : 'Sync Now'}
                 </Button>
               </div>
             </div>
