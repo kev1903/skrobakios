@@ -91,7 +91,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
         {/* Company Name */}
         <div className="relative px-8 py-4">
           <h1 
-            className="text-white font-bold text-2xl tracking-wide text-center whitespace-nowrap"
+            className="text-pure-white font-bold text-2xl tracking-wide text-center whitespace-nowrap heading-modern"
             style={{
               textShadow: isSpeaking 
                 ? `0 0 ${10 + getGlowIntensity() * 20}px rgba(59, 130, 246, ${getGlowIntensity()})` 
@@ -99,7 +99,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
               transition: isSpeaking ? 'none' : 'text-shadow 0.3s ease-out'
             }}
           >
-            {userProfile.companyName || "Company Name"}
+            {userProfile.companyName || "SKROBAKI"}
           </h1>
           
           {/* AI Status Indicator */}
@@ -110,7 +110,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
                   className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"
                   style={{ opacity: getGlowIntensity() }}
                 />
-                <span className="text-xs text-blue-200 font-medium">AI Speaking</span>
+                <span className="text-xs text-blue-200 font-medium body-modern">AI Speaking</span>
               </div>
             </div>
           )}

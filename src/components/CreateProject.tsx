@@ -77,8 +77,9 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-6">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -91,7 +92,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back</span>
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Create Project</h1>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">Create Project</h1>
           </div>
           <div className="flex items-center space-x-3">
             <Button variant="outline" onClick={handleCancel}>
@@ -107,23 +108,23 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
         </div>
 
         {/* Main Form */}
-        <Card className="bg-white">
+        <Card className="glass-card">
           <CardContent className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
               <div className="space-y-6">
                 {/* Project Image Upload */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Project Image
                   </Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50">
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center glass">
                     <div className="flex flex-col items-center">
                       <Upload className="w-8 h-8 text-blue-500 mb-2" />
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground body-modern">
                         Click to upload or drag and drop
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1 body-modern">
                         SVG, PNG or JPG (max 800x400)
                       </p>
                     </div>
@@ -140,7 +141,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project ID */}
                 <div>
-                  <Label htmlFor="projectId" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="projectId" className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Project ID
                   </Label>
                   <Input
@@ -153,7 +154,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project Name */}
                 <div>
-                  <Label htmlFor="projectName" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="projectName" className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Project Name *
                   </Label>
                   <Input
@@ -168,7 +169,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Location */}
                 <div>
-                  <Label htmlFor="location" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="location" className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Location
                   </Label>
                   <Input
@@ -182,7 +183,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Start Date */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Start Date
                   </Label>
                   <Popover>
@@ -212,7 +213,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Contract Price */}
                 <div>
-                  <Label htmlFor="contractPrice" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="contractPrice" className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Contract Price
                   </Label>
                   <Input
@@ -229,7 +230,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
               <div className="space-y-6">
                 {/* Deadline */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Deadline
                   </Label>
                   <Popover>
@@ -259,7 +260,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project Status */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Project Status
                   </Label>
                   <select
@@ -275,7 +276,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Project Priority */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Project Priority
                   </Label>
                   <select
@@ -293,7 +294,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Invite */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Invite
                   </Label>
                   <Button
@@ -306,7 +307,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
                 {/* Description */}
                 <div>
-                  <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="description" className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Description
                   </Label>
                   <Textarea

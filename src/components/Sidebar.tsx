@@ -16,15 +16,15 @@ export const Sidebar = ({ currentPage, onNavigate }: SidebarProps) => {
   ];
 
   return (
-    <div className="w-64 bg-white/10 backdrop-blur-xl border-r border-white/20 flex flex-col shadow-2xl shadow-black/10">
-      <div className="p-6 border-b border-white/20 bg-white/5 backdrop-blur-sm">
+    <div className="w-64 glass-sidebar flex flex-col shadow-2xl shadow-black/10">
+      <div className="p-6 border-b border-white/20 glass-light">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-500/80 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
             <File className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">EstimateAI</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-300">Construction Estimating</p>
+            <h1 className="text-xl font-bold text-sidebar-foreground heading-modern">SKROBAKI</h1>
+            <p className="text-sm text-sidebar-foreground/70 body-modern">Construction Management</p>
           </div>
         </div>
       </div>
@@ -37,27 +37,27 @@ export const Sidebar = ({ currentPage, onNavigate }: SidebarProps) => {
               key={item.id}
               onClick={() => onNavigate(item.id)}
               className={cn(
-                "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-300 backdrop-blur-sm",
+                "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-all duration-300",
                 currentPage === item.id
-                  ? "bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-400/30 shadow-lg"
-                  : "text-gray-600 dark:text-gray-300 hover:bg-white/10 hover:text-gray-900 dark:hover:text-white hover:shadow-md hover:backdrop-blur-md"
+                  ? "bg-sidebar-accent text-sidebar-primary border border-sidebar-primary/30 shadow-lg"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground hover:shadow-md"
               )}
             >
               <Icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium heading-modern">{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/20 bg-white/5 backdrop-blur-sm">
-        <div className="flex items-center space-x-3 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm">
-          <div className="w-8 h-8 bg-gray-500/30 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md">
-            <User className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+      <div className="p-4 border-t border-sidebar-border glass-light">
+        <div className="flex items-center space-x-3 px-4 py-2 rounded-lg glass">
+          <div className="w-8 h-8 bg-sidebar-accent rounded-full flex items-center justify-center shadow-md">
+            <User className="w-4 h-4 text-sidebar-foreground" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-white">Demo User</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">demo@estimateai.com</p>
+            <p className="text-sm font-medium text-sidebar-foreground heading-modern">Demo User</p>
+            <p className="text-xs text-sidebar-foreground/70 body-modern">demo@skrobaki.com</p>
           </div>
         </div>
       </div>

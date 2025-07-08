@@ -126,16 +126,16 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
     <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-slate-600 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-white font-bold text-xl font-poppins">K</span>
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span className="text-primary-foreground font-bold text-xl heading-modern">S</span>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern mb-2">
-            Welcome to KAKSIK
+          <h1 className="text-3xl font-bold text-gradient heading-modern mb-2">
+            Welcome to SKROBAKI
           </h1>
-          <p className="text-slate-600 font-inter">Modern workspace management platform</p>
+          <p className="text-muted-foreground body-modern">Modern construction management platform</p>
         </div>
 
-        <Card className="backdrop-blur-xl bg-white/60 border border-white/20 shadow-xl">
+        <Card className="glass-card shadow-xl">
           <CardContent className="p-6">
             {error && (
               <Alert className="mb-4 border-red-200 bg-red-50">
@@ -191,9 +191,9 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                     </div>
                   </div>
                   
-                  <Button 
+                   <Button 
                     type="submit"
-                    className="w-full bg-gradient-to-r from-slate-600 to-blue-700 hover:from-slate-700 hover:to-blue-800"
+                    className="w-full"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
@@ -251,9 +251,9 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                     </div>
                   </div>
                   
-                  <Button 
+                   <Button 
                     type="submit"
-                    className="w-full bg-gradient-to-r from-slate-600 to-blue-700 hover:from-slate-700 hover:to-blue-800"
+                    className="w-full"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}

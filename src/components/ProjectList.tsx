@@ -278,8 +278,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2 font-poppins">Projects</h1>
-            <p className="text-muted-foreground font-inter">Manage your construction projects ({projects.length} total)</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2 heading-modern">Projects</h1>
+            <p className="text-muted-foreground body-modern">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
             {/* View Toggle Buttons */}
