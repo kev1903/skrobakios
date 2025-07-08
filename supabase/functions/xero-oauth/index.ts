@@ -75,10 +75,17 @@ async function handleOAuthCallback(req: Request) {
       .select('user_id')
       .eq('state', state)
       .gte('expires_at', new Date().toISOString())
-      .single()
+      .maybeSingle()
 
-    if (stateError || !stateRecord) {
-      console.error('❌ Invalid or expired state:', stateError)
+    console.log('🔍 State query result:', { stateRecord, stateError })
+
+    if (stateError) {
+      console.error('❌ Database error checking state:', stateError)
+      throw new Error(`Database error: ${stateError.message}`)
+    }
+    
+    if (!stateRecord) {
+      console.error('❌ Invalid or expired state - no matching record found')
       return new Response(`
         <html>
           <body>
