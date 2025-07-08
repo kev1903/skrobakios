@@ -229,17 +229,19 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                   
                   {/* Typography */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground font-poppins">Typography</h3>
+                    <h3 className="text-lg font-semibold text-foreground font-manrope">Typography</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-3">
                         <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Primary Font - Poppins</h4>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Primary Font - Manrope</h4>
                           <div className="p-3 border rounded-lg bg-muted/20">
-                            <p className="font-poppins text-2xl font-bold">Headlines & Titles</p>
-                            <p className="font-poppins text-lg font-semibold">Subheadings</p>
-                            <p className="font-poppins text-base font-medium">Navigation</p>
+                            <p className="font-manrope text-2xl font-bold">Headlines & Titles</p>
+                            <p className="font-manrope text-lg font-semibold">Subheadings</p>
+                            <p className="font-manrope text-base font-medium">Navigation & UI Elements</p>
                           </div>
                         </div>
+                      </div>
+                      <div className="space-y-3">
                         <div>
                           <h4 className="text-sm font-medium text-muted-foreground mb-2">Body Font - Inter</h4>
                           <div className="p-3 border rounded-lg bg-muted/20">
@@ -249,28 +251,12 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Accent Font - Playfair</h4>
-                          <div className="p-3 border rounded-lg bg-muted/20">
-                            <p className="font-playfair text-2xl font-bold">Elegant Headings</p>
-                            <p className="font-playfair text-lg">Special Occasions</p>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-muted-foreground mb-2">System Font - Helvetica</h4>
-                          <div className="p-3 border rounded-lg bg-muted/20">
-                            <p className="font-helvetica text-base">System messages</p>
-                            <p className="font-helvetica text-sm">Technical content</p>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
                   {/* Color Palette */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground font-poppins">Color Palette</h3>
+                    <h3 className="text-lg font-semibold text-foreground font-manrope">Color Palette</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="space-y-3">
                         <h4 className="text-sm font-medium text-muted-foreground">Primary Colors</h4>
@@ -334,32 +320,20 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
 
                   {/* Glassmorphism Effects */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground font-poppins">Glassmorphism Effects</h3>
+                    <h3 className="text-lg font-semibold text-foreground font-manrope">Glassmorphism Effects</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-muted-foreground">Glass Variants</h4>
-                        <div className="space-y-3">
-                          <div className="p-4 glass rounded-xl">
-                            <p className="text-sm font-medium">Standard Glass</p>
-                            <p className="text-xs text-muted-foreground">25% opacity, 20px blur</p>
-                          </div>
-                          <div className="p-4 glass-light rounded-xl">
-                            <p className="text-sm font-medium">Light Glass</p>
-                            <p className="text-xs text-muted-foreground">40% opacity, enhanced visibility</p>
-                          </div>
+                        <h4 className="text-sm font-medium text-muted-foreground">Standard Glass</h4>
+                        <div className="p-4 glass rounded-xl">
+                          <p className="text-sm font-medium">Standard Glass Effect</p>
+                          <p className="text-xs text-muted-foreground">25% opacity, 20px backdrop blur</p>
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-muted-foreground">Interactive States</h4>
-                        <div className="space-y-3">
-                          <div className="p-4 glass glass-hover rounded-xl cursor-pointer">
-                            <p className="text-sm font-medium">Hover Effect</p>
-                            <p className="text-xs text-muted-foreground">Enhances opacity on interaction</p>
-                          </div>
-                          <div className="p-4 glass-card">
-                            <p className="text-sm font-medium">Card Component</p>
-                            <p className="text-xs text-muted-foreground">Pre-styled with rounded corners</p>
-                          </div>
+                        <h4 className="text-sm font-medium text-muted-foreground">Hover Effect</h4>
+                        <div className="p-4 glass glass-hover rounded-xl cursor-pointer">
+                          <p className="text-sm font-medium">Interactive Hover State</p>
+                          <p className="text-xs text-muted-foreground">Enhanced opacity on interaction</p>
                         </div>
                       </div>
                     </div>
@@ -367,7 +341,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
 
                   {/* Spacing & Layout */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground font-poppins">Spacing & Layout</h3>
+                    <h3 className="text-lg font-semibold text-foreground font-manrope">Spacing & Layout</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
                         <h4 className="text-sm font-medium text-muted-foreground">Border Radius</h4>
@@ -402,14 +376,12 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
 
                   {/* Components Showcase */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground font-poppins">Component Examples</h3>
+                    <h3 className="text-lg font-semibold text-foreground font-manrope">Component Examples</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-3">
                         <h4 className="text-sm font-medium text-muted-foreground">Buttons</h4>
                         <div className="flex flex-wrap gap-2">
                           <Button size="sm">Primary</Button>
-                          <Button variant="outline" size="sm">Outline</Button>
-                          <Button variant="secondary" size="sm">Secondary</Button>
                           <Button variant="ghost" size="sm">Ghost</Button>
                         </div>
                       </div>
@@ -427,33 +399,41 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
 
                   {/* Usage Guidelines */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground font-poppins">Usage Guidelines</h3>
+                    <h3 className="text-lg font-semibold text-foreground font-manrope">Usage Guidelines</h3>
                     <div className="p-4 border rounded-lg bg-muted/20 space-y-3">
                       <div>
                         <h4 className="text-sm font-medium text-foreground mb-2">Typography Hierarchy</h4>
                         <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                          <li>Use Poppins for all headings and navigation elements</li>
+                          <li>Use Manrope for all headings, titles, and navigation elements</li>
                           <li>Use Inter for body text, descriptions, and UI content</li>
-                          <li>Use Playfair Display sparingly for elegant accent text</li>
                           <li>Maintain consistent font weights: 400 (normal), 500 (medium), 600 (semibold), 700 (bold)</li>
+                          <li>Ensure clear hierarchy with size and weight variations</li>
                         </ul>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-foreground mb-2">Color Usage</h4>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Button Usage</h4>
                         <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                          <li>Always use HSL semantic tokens instead of direct color values</li>
-                          <li>Primary colors for call-to-action buttons and important elements</li>
-                          <li>Muted colors for secondary information and backgrounds</li>
-                          <li>Ensure proper contrast ratios for accessibility</li>
+                          <li>Use Primary buttons for main call-to-action elements</li>
+                          <li>Use Ghost buttons for secondary actions and subtle interactions</li>
+                          <li>Maintain consistent sizing and spacing across the platform</li>
                         </ul>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-foreground mb-2">Glassmorphism Best Practices</h4>
                         <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                          <li>Use glass effects for overlay components and modals</li>
-                          <li>Apply glass-hover for interactive elements</li>
+                          <li>Use standard glass effects for overlay components and modals</li>
+                          <li>Apply glass-hover for interactive elements to enhance user feedback</li>
                           <li>Combine with subtle animations for enhanced user experience</li>
                           <li>Ensure readability with appropriate backdrop blur levels</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Color System</h4>
+                        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Always use HSL semantic tokens instead of direct color values</li>
+                          <li>Primary colors for call-to-action buttons and important elements</li>
+                          <li>Muted colors for secondary information and backgrounds</li>
+                          <li>Ensure proper contrast ratios for accessibility compliance</li>
                         </ul>
                       </div>
                     </div>

@@ -21,9 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'inter': ['Inter', 'sans-serif'],
-				'poppins': ['Poppins', 'sans-serif'],
-				'helvetica': ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
-				'playfair': ['Playfair Display', 'serif'],
+				'manrope': ['Manrope', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
