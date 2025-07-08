@@ -50,11 +50,11 @@ export const CostContractsPage = ({
   }];
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto">
         {/* Clean Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gradient heading-modern mb-2">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gradient heading-modern mb-2">
             Cost Management
           </h1>
           <p className="text-muted-foreground body-modern">
@@ -63,19 +63,19 @@ export const CostContractsPage = ({
         </div>
 
         {/* Unified Content Container */}
-        <div className="glass-card min-h-[600px]">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full">
+        <div className="glass-card">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Clean Tab Navigation */}
-            <div className="border-b border-border/50 px-8 pt-6">
-              <TabsList className="grid grid-cols-6 bg-muted/20 h-12 p-1 rounded-lg">
+            <div className="border-b border-border/50 px-6 pt-4">
+              <TabsList className="grid grid-cols-6 bg-muted/20 h-10 p-1 rounded-lg">
                 {tabs.map(tab => {
                   const IconComponent = tab.icon;
                   return (
                     <TabsTrigger 
                       key={tab.id} 
                       value={tab.id} 
-                      className="flex items-center gap-2 px-4 py-2 rounded-md
-                        data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                      className="flex items-center gap-2 px-3 py-2 rounded-md
+                        data-[state=active]:bg-background data-[state=active]:text-foreground 
                         data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
                         transition-all duration-200 text-sm font-medium heading-modern"
                     >
@@ -88,11 +88,11 @@ export const CostContractsPage = ({
             </div>
 
             {/* Content Area */}
-            <div className="p-8">
+            <div className="p-6">
               {tabs.map(tab => {
                 const Component = tab.component;
                 return (
-                  <TabsContent key={tab.id} value={tab.id} className="mt-0 h-full">
+                  <TabsContent key={tab.id} value={tab.id} className="mt-0">
                     <Component onNavigate={onNavigate} />
                   </TabsContent>
                 );

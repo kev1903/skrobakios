@@ -132,13 +132,7 @@ export const ContentRenderer = ({
           }
         }} activeSection="cost" />
           <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
-            <div className="p-8">
-              <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Cost Management</h1>
-                
-              </div>
-              <CostContractsPage onNavigate={onNavigate} />
-            </div>
+            <CostContractsPage onNavigate={onNavigate} />
           </div>
         </div> : renderProjectNotFound();
     case "bim":
