@@ -165,20 +165,85 @@ serve(async (req) => {
       }
 
       case 'status': {
-        // Check connection status
+        // Check connection status and refresh token if needed
         const { data: connection } = await supabase
           .from('xero_connections')
           .select('*')
           .eq('user_id', user.id)
           .single()
 
+        if (!connection) {
+          return new Response(
+            JSON.stringify({ 
+              connected: false,
+              connection: null
+            }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 200 
+            }
+          )
+        }
+
+        // Check if token needs refresh
+        const now = new Date()
+        const expiresAt = new Date(connection.expires_at)
+        
+        if (now >= expiresAt) {
+          console.log('Token expired, refreshing...')
+          // Refresh token
+          const xeroClientId = Deno.env.get('XERO_CLIENT_ID')
+          const xeroClientSecret = Deno.env.get('XERO_CLIENT_SECRET')
+
+          const refreshResponse = await fetch('https://identity.xero.com/connect/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Authorization': `Basic ${btoa(`${xeroClientId}:${xeroClientSecret}`)}`
+            },
+            body: new URLSearchParams({
+              grant_type: 'refresh_token',
+              refresh_token: connection.refresh_token
+            })
+          })
+
+          if (!refreshResponse.ok) {
+            console.error('Failed to refresh access token')
+            return new Response(
+              JSON.stringify({ 
+                connected: false,
+                connection: null,
+                error: 'Token refresh failed - please reconnect'
+              }),
+              { 
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 200 
+              }
+            )
+          }
+
+          const tokens = await refreshResponse.json()
+
+          // Update stored tokens
+          await supabase
+            .from('xero_connections')
+            .update({
+              access_token: tokens.access_token,
+              refresh_token: tokens.refresh_token,
+              expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString()
+            })
+            .eq('user_id', user.id)
+
+          console.log('Token refreshed successfully')
+        }
+
         return new Response(
           JSON.stringify({ 
-            connected: !!connection,
-            connection: connection ? {
+            connected: true,
+            connection: {
               tenant_name: connection.tenant_name,
               connected_at: connection.connected_at
-            } : null
+            }
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
