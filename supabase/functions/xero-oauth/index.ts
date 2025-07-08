@@ -12,21 +12,23 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    console.log('Request method:', req.method)
-    console.log('Request URL:', req.url)
-    
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+  console.log('Request method:', req.method)
+  console.log('Request URL:', req.url)
 
-    // Handle GET requests (OAuth callback from Xero)
-    if (req.method === 'GET') {
+  // Initialize Supabase client
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  // Handle GET requests (OAuth callback from Xero) - NO AUTH REQUIRED
+  if (req.method === 'GET') {
+    try {
       const url = new URL(req.url)
       const code = url.searchParams.get('code')
       const state = url.searchParams.get('state')
       const error = url.searchParams.get('error')
+
+      console.log('OAuth callback - code:', !!code, 'state:', !!state, 'error:', error)
 
       if (error) {
         console.error('OAuth error:', error)
@@ -80,6 +82,7 @@ serve(async (req) => {
       })
 
       if (!tokenResponse.ok) {
+        console.error('Token exchange failed:', await tokenResponse.text())
         throw new Error('Failed to exchange code for tokens')
       }
 
@@ -113,6 +116,8 @@ serve(async (req) => {
         .delete()
         .eq('state', state)
 
+      console.log('OAuth callback completed successfully')
+
       // Close popup window
       return new Response(`
         <html>
@@ -126,9 +131,26 @@ serve(async (req) => {
       `, {
         headers: { 'Content-Type': 'text/html' }
       })
-    }
 
-    // Handle POST requests (require authentication)
+    } catch (error) {
+      console.error('OAuth callback error:', error)
+      return new Response(`
+        <html>
+          <body>
+            <script>
+              window.opener.postMessage('xero-auth-error', '*');
+              window.close();
+            </script>
+          </body>
+        </html>
+      `, {
+        headers: { 'Content-Type': 'text/html' }
+      })
+    }
+  }
+
+  // Handle POST requests (require authentication)
+  try {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       throw new Error('No authorization header')
