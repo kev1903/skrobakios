@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, Shield, User, Bell, Palette, Globe, Users } from 'lucide-react';
+import { ArrowLeft, Settings, Shield, User, Bell, Palette, Globe, Users, Plug } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AdminPanel } from './admin/AdminPanel';
 import { RoleManagement } from './admin/RoleManagement';
 import { useTheme } from '@/hooks/useTheme';
+import { IntegrationsTab } from './integrations/IntegrationsTab';
 
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
@@ -51,7 +52,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
       <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 backdrop-blur-sm bg-white/60">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 backdrop-blur-sm bg-white/60">
               <TabsTrigger value="general" className="flex items-center space-x-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
@@ -67,6 +68,10 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
               <TabsTrigger value="appearance" className="flex items-center space-x-2">
                 <Palette className="w-4 h-4" />
                 <span className="hidden sm:inline">Appearance</span>
+              </TabsTrigger>
+              <TabsTrigger value="integrations" className="flex items-center space-x-2">
+                <Plug className="w-4 h-4" />
+                <span className="hidden sm:inline">Integrations</span>
               </TabsTrigger>
               {isSuperAdmin && (
                 <>
@@ -441,6 +446,10 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
 
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="integrations" className="space-y-6">
+              <IntegrationsTab />
             </TabsContent>
 
             {isSuperAdmin && (
