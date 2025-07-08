@@ -18,7 +18,114 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Get user from request
+    // Handle GET requests (OAuth callback from Xero)
+    if (req.method === 'GET') {
+      const url = new URL(req.url)
+      const code = url.searchParams.get('code')
+      const state = url.searchParams.get('state')
+      const error = url.searchParams.get('error')
+
+      if (error) {
+        console.error('OAuth error:', error)
+        return new Response(`
+          <html>
+            <body>
+              <script>
+                window.opener.postMessage('xero-auth-error', '*');
+                window.close();
+              </script>
+            </body>
+          </html>
+        `, {
+          headers: { 'Content-Type': 'text/html' }
+        })
+      }
+
+      if (!code || !state) {
+        return new Response('Missing code or state', { status: 400 })
+      }
+
+      // Verify state and get user_id
+      const { data: stateRecord } = await supabase
+        .from('xero_oauth_states')
+        .select('user_id')
+        .eq('state', state)
+        .gte('expires_at', new Date().toISOString())
+        .single()
+
+      if (!stateRecord) {
+        return new Response('Invalid or expired state', { status: 400 })
+      }
+
+      // Get Xero credentials
+      const xeroClientId = Deno.env.get('XERO_CLIENT_ID')
+      const xeroClientSecret = Deno.env.get('XERO_CLIENT_SECRET')
+      const xeroRedirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/xero-oauth`
+
+      // Exchange code for tokens
+      const tokenResponse = await fetch('https://identity.xero.com/connect/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${btoa(`${xeroClientId}:${xeroClientSecret}`)}`
+        },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: xeroRedirectUri
+        })
+      })
+
+      if (!tokenResponse.ok) {
+        throw new Error('Failed to exchange code for tokens')
+      }
+
+      const tokens = await tokenResponse.json()
+
+      // Get tenant information
+      const connectionsResponse = await fetch('https://api.xero.com/connections', {
+        headers: {
+          'Authorization': `Bearer ${tokens.access_token}`
+        }
+      })
+
+      const connections = await connectionsResponse.json()
+
+      // Store tokens and connection info
+      await supabase
+        .from('xero_connections')
+        .upsert({
+          user_id: stateRecord.user_id,
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+          tenant_id: connections[0]?.tenantId,
+          tenant_name: connections[0]?.tenantName,
+          connected_at: new Date().toISOString()
+        })
+
+      // Clean up state
+      await supabase
+        .from('xero_oauth_states')
+        .delete()
+        .eq('state', state)
+
+      // Close popup window
+      return new Response(`
+        <html>
+          <body>
+            <script>
+              window.opener.postMessage('xero-auth-success', '*');
+              window.close();
+            </script>
+          </body>
+        </html>
+      `, {
+        headers: { 'Content-Type': 'text/html' }
+      })
+    }
+
+    // Handle POST requests (require authentication)
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       throw new Error('No authorization header')
