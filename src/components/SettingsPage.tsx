@@ -180,17 +180,18 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
             </TabsContent>
 
             <TabsContent value="appearance" className="space-y-6">
+              {/* Theme Settings */}
               <Card className="backdrop-blur-sm bg-white/60 dark:bg-slate-900/60 border-white/30 dark:border-slate-700/30">
                 <CardHeader>
-                  <CardTitle>Appearance Settings</CardTitle>
+                  <CardTitle>Theme Settings</CardTitle>
                   <CardDescription>
-                    Customize the look and feel of the application
+                    Customize the visual appearance of the application
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-sm font-medium">Theme</h4>
+                      <h4 className="text-sm font-medium">Theme Mode</h4>
                       <p className="text-sm text-slate-500">Choose between light and dark mode</p>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -210,6 +211,254 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                     </div>
                     <Button variant="outline" size="sm">Disabled</Button>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Design System Guide */}
+              <Card className="backdrop-blur-sm bg-white/60 dark:bg-slate-900/60 border-white/30 dark:border-slate-700/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Palette className="w-5 h-5" />
+                    <span>Design System Guide</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Complete design kit documentation for platform consistency
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  
+                  {/* Typography */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground font-poppins">Typography</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Primary Font - Poppins</h4>
+                          <div className="p-3 border rounded-lg bg-muted/20">
+                            <p className="font-poppins text-2xl font-bold">Headlines & Titles</p>
+                            <p className="font-poppins text-lg font-semibold">Subheadings</p>
+                            <p className="font-poppins text-base font-medium">Navigation</p>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Body Font - Inter</h4>
+                          <div className="p-3 border rounded-lg bg-muted/20">
+                            <p className="font-inter text-base">Body text and paragraphs</p>
+                            <p className="font-inter text-sm">Small text and descriptions</p>
+                            <p className="font-inter text-xs">Captions and labels</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">Accent Font - Playfair</h4>
+                          <div className="p-3 border rounded-lg bg-muted/20">
+                            <p className="font-playfair text-2xl font-bold">Elegant Headings</p>
+                            <p className="font-playfair text-lg">Special Occasions</p>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-muted-foreground mb-2">System Font - Helvetica</h4>
+                          <div className="p-3 border rounded-lg bg-muted/20">
+                            <p className="font-helvetica text-base">System messages</p>
+                            <p className="font-helvetica text-sm">Technical content</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Color Palette */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground font-poppins">Color Palette</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Primary Colors</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary border"></div>
+                            <div>
+                              <p className="text-sm font-medium">Primary</p>
+                              <p className="text-xs text-muted-foreground">hsl(220 14.3% 25.9%)</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary-foreground border"></div>
+                            <div>
+                              <p className="text-sm font-medium">Primary Foreground</p>
+                              <p className="text-xs text-muted-foreground">hsl(210 40% 98%)</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Background Colors</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-background border"></div>
+                            <div>
+                              <p className="text-sm font-medium">Background</p>
+                              <p className="text-xs text-muted-foreground">hsl(240 10% 98%)</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-muted border"></div>
+                            <div>
+                              <p className="text-sm font-medium">Muted</p>
+                              <p className="text-xs text-muted-foreground">hsl(210 40% 96.1%)</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Accent Colors</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-accent border"></div>
+                            <div>
+                              <p className="text-sm font-medium">Accent</p>
+                              <p className="text-xs text-muted-foreground">hsl(210 40% 96.1%)</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-lg bg-destructive border"></div>
+                            <div>
+                              <p className="text-sm font-medium">Destructive</p>
+                              <p className="text-xs text-muted-foreground">hsl(0 84.2% 60.2%)</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Glassmorphism Effects */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground font-poppins">Glassmorphism Effects</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Glass Variants</h4>
+                        <div className="space-y-3">
+                          <div className="p-4 glass rounded-xl">
+                            <p className="text-sm font-medium">Standard Glass</p>
+                            <p className="text-xs text-muted-foreground">25% opacity, 20px blur</p>
+                          </div>
+                          <div className="p-4 glass-light rounded-xl">
+                            <p className="text-sm font-medium">Light Glass</p>
+                            <p className="text-xs text-muted-foreground">40% opacity, enhanced visibility</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Interactive States</h4>
+                        <div className="space-y-3">
+                          <div className="p-4 glass glass-hover rounded-xl cursor-pointer">
+                            <p className="text-sm font-medium">Hover Effect</p>
+                            <p className="text-xs text-muted-foreground">Enhances opacity on interaction</p>
+                          </div>
+                          <div className="p-4 glass-card">
+                            <p className="text-sm font-medium">Card Component</p>
+                            <p className="text-xs text-muted-foreground">Pre-styled with rounded corners</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Spacing & Layout */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground font-poppins">Spacing & Layout</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Border Radius</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-8 bg-primary rounded-sm"></div>
+                            <span className="text-sm">Small (sm): calc(0.75rem - 4px)</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-8 bg-primary rounded-md"></div>
+                            <span className="text-sm">Medium (md): calc(0.75rem - 2px)</span>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-8 bg-primary rounded-lg"></div>
+                            <span className="text-sm">Large (lg): 0.75rem</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Animations</h4>
+                        <div className="space-y-2">
+                          <div className="p-2 bg-muted rounded-md animate-fade-in">
+                            <span className="text-sm">Fade In Animation</span>
+                          </div>
+                          <div className="p-2 bg-muted rounded-md animate-slide-in">
+                            <span className="text-sm">Slide In Animation</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Components Showcase */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground font-poppins">Component Examples</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Buttons</h4>
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm">Primary</Button>
+                          <Button variant="outline" size="sm">Outline</Button>
+                          <Button variant="secondary" size="sm">Secondary</Button>
+                          <Button variant="ghost" size="sm">Ghost</Button>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-muted-foreground">Badges</h4>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge>Default</Badge>
+                          <Badge variant="secondary">Secondary</Badge>
+                          <Badge variant="outline">Outline</Badge>
+                          <Badge variant="destructive">Destructive</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Usage Guidelines */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground font-poppins">Usage Guidelines</h3>
+                    <div className="p-4 border rounded-lg bg-muted/20 space-y-3">
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Typography Hierarchy</h4>
+                        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Use Poppins for all headings and navigation elements</li>
+                          <li>Use Inter for body text, descriptions, and UI content</li>
+                          <li>Use Playfair Display sparingly for elegant accent text</li>
+                          <li>Maintain consistent font weights: 400 (normal), 500 (medium), 600 (semibold), 700 (bold)</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Color Usage</h4>
+                        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Always use HSL semantic tokens instead of direct color values</li>
+                          <li>Primary colors for call-to-action buttons and important elements</li>
+                          <li>Muted colors for secondary information and backgrounds</li>
+                          <li>Ensure proper contrast ratios for accessibility</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground mb-2">Glassmorphism Best Practices</h4>
+                        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                          <li>Use glass effects for overlay components and modals</li>
+                          <li>Apply glass-hover for interactive elements</li>
+                          <li>Combine with subtle animations for enhanced user experience</li>
+                          <li>Ensure readability with appropriate backdrop blur levels</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
                 </CardContent>
               </Card>
             </TabsContent>
