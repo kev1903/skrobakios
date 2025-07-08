@@ -20,13 +20,32 @@ export const CostBreakdownTab = ({
     formatCurrency,
     totals
   } = useCostBreakdown();
-  return <div className="space-y-8">
-      
-
+  
+  return (
+    <div className="space-y-6">
       {/* Summary Cards */}
       <CostSummaryCards totals={totals} formatCurrency={formatCurrency} />
 
       {/* Cost Breakdown Table */}
-      <CostBreakdownTable costItems={costItems} editingId={editingId} setEditingId={setEditingId} updateItem={updateItem} deleteItem={deleteItem} formatCurrency={formatCurrency} />
-    </div>;
+      <div className="glass-light rounded-xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-foreground heading-modern">
+            Cost Breakdown Details
+          </h3>
+          <Button onClick={addNewRow} className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Add Item
+          </Button>
+        </div>
+        <CostBreakdownTable 
+          costItems={costItems} 
+          editingId={editingId} 
+          setEditingId={setEditingId} 
+          updateItem={updateItem} 
+          deleteItem={deleteItem} 
+          formatCurrency={formatCurrency} 
+        />
+      </div>
+    </div>
+  );
 };

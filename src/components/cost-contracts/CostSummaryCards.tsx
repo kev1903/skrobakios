@@ -7,48 +7,45 @@ interface CostSummaryCardsProps {
 }
 
 export const CostSummaryCards = ({ totals, formatCurrency }: CostSummaryCardsProps) => {
+  const metrics = [
+    {
+      label: 'Total Budget',
+      value: totals.budget,
+      color: 'text-primary'
+    },
+    {
+      label: 'Committed',
+      value: totals.committed,
+      color: 'text-primary'
+    },
+    {
+      label: 'Paid',
+      value: totals.paid,
+      color: 'text-primary'
+    },
+    {
+      label: 'Remaining',
+      value: totals.remaining,
+      color: totals.remaining < 0 ? 'text-destructive' : 'text-primary'
+    }
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div className="bg-white p-3 rounded-lg border border-gray-200">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xs font-medium text-gray-600">Total Budget</h3>
-          <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
-            <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
+    <div className="glass-light rounded-xl p-6 mb-8">
+      <h3 className="text-lg font-semibold text-foreground heading-modern mb-4">
+        Financial Overview
+      </h3>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {metrics.map((metric, index) => (
+          <div key={index} className="text-center">
+            <p className="text-sm text-muted-foreground body-modern mb-1">
+              {metric.label}
+            </p>
+            <p className={`text-2xl font-bold heading-modern ${metric.color}`}>
+              {formatCurrency(metric.value)}
+            </p>
           </div>
-        </div>
-        <p className="text-xl font-bold text-gray-900">{formatCurrency(totals.budget)}</p>
-      </div>
-
-      <div className="bg-white p-3 rounded-lg border border-gray-200">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xs font-medium text-gray-600">Committed</h3>
-          <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
-            <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
-          </div>
-        </div>
-        <p className="text-xl font-bold text-gray-900">{formatCurrency(totals.committed)}</p>
-      </div>
-
-      <div className="bg-white p-3 rounded-lg border border-gray-200">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xs font-medium text-gray-600">Paid</h3>
-          <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
-            <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
-          </div>
-        </div>
-        <p className="text-xl font-bold text-gray-900">{formatCurrency(totals.paid)}</p>
-      </div>
-
-      <div className="bg-white p-3 rounded-lg border border-gray-200">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xs font-medium text-gray-600">Remaining</h3>
-          <div className="w-8 h-6 bg-blue-50 rounded flex items-center justify-center">
-            <div className="w-4 h-3 bg-blue-200 rounded-sm"></div>
-          </div>
-        </div>
-        <p className={`text-xl font-bold ${totals.remaining < 0 ? 'text-red-600' : 'text-gray-900'}`}>
-          {formatCurrency(totals.remaining)}
-        </p>
+        ))}
       </div>
     </div>
   );

@@ -15,20 +15,21 @@ interface CostContractsPageProps {
 export const CostContractsPage = ({
   onNavigate
 }: CostContractsPageProps) => {
-  const [activeTab, setActiveTab] = useState('contract-details');
+  const [activeTab, setActiveTab] = useState('cost-breakdown');
+  
   const tabs = [{
-    id: 'contract-details',
-    label: 'Contract Details',
-    icon: FileText,
-    component: ContractDetailsTab
-  }, {
     id: 'cost-breakdown',
     label: 'Cost Breakdown',
     icon: Calculator,
     component: CostBreakdownTab
   }, {
+    id: 'contract-details',
+    label: 'Contract Details',
+    icon: FileText,
+    component: ContractDetailsTab
+  }, {
     id: 'variations',
-    label: 'Variations Register',
+    label: 'Variations',
     icon: FileCheck,
     component: VariationsRegisterTab
   }, {
@@ -42,47 +43,63 @@ export const CostContractsPage = ({
     icon: CreditCard,
     component: PaymentTrackingTab
   }, {
-    id: 'cost-summary',
-    label: 'Cost Summary',
-    icon: BarChart3,
-    component: CostSummaryDashboard
-  }, {
     id: 'documents',
-    label: 'Document Upload',
+    label: 'Documents',
     icon: Upload,
     component: DocumentUploadTab
   }];
-  return <div className="space-y-8">
-      {/* Main Content */}
-      <Card className="mb-8">
-        <CardContent className="p-0">
+
+  return (
+    <div className="min-h-screen p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gradient heading-modern mb-2">
+            Cost Management
+          </h1>
+          <p className="text-muted-foreground body-modern">
+            Track and manage project costs, contracts, and financial performance
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div className="glass-card">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b border-gray-200">
-              <TabsList className="w-full grid grid-cols-7 bg-white h-auto p-2 gap-1 px-[8px]">
+            <div className="border-b border-border bg-muted/30 rounded-t-2xl">
+              <TabsList className="w-full grid grid-cols-6 bg-transparent h-auto p-4 gap-2">
                 {tabs.map(tab => {
-                const IconComponent = tab.icon;
-                return <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-1 p-2 rounded-lg
-                        data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600
-                        data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
-                        data-[state=inactive]:hover:bg-gray-50 transition-all duration-200
-                        text-xs font-medium min-h-[40px]">
-                      
-                      <span className="text-center leading-tight">{tab.label}</span>
-                    </TabsTrigger>;
-              })}
+                  const IconComponent = tab.icon;
+                  return (
+                    <TabsTrigger 
+                      key={tab.id} 
+                      value={tab.id} 
+                      className="flex items-center gap-2 p-3 rounded-lg
+                        data-[state=active]:bg-primary data-[state=active]:text-primary-foreground
+                        data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground
+                        data-[state=inactive]:hover:bg-accent transition-all duration-200
+                        text-sm font-medium heading-modern min-h-[48px]"
+                    >
+                      <IconComponent className="w-4 h-4" />
+                      <span className="hidden sm:inline">{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
               </TabsList>
             </div>
 
             <div className="p-8">
               {tabs.map(tab => {
-              const Component = tab.component;
-              return <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                const Component = tab.component;
+                return (
+                  <TabsContent key={tab.id} value={tab.id} className="mt-0">
                     <Component onNavigate={onNavigate} />
-                  </TabsContent>;
-            })}
+                  </TabsContent>
+                );
+              })}
             </div>
           </Tabs>
-        </CardContent>
-      </Card>
-    </div>;
+        </div>
+      </div>
+    </div>
+  );
 };
