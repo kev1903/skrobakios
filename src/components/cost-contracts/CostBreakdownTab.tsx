@@ -22,21 +22,27 @@ export const CostBreakdownTab = ({
   } = useCostBreakdown();
   
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
+    <div className="space-y-8">
+      {/* Clean Financial Overview */}
       <CostSummaryCards totals={totals} formatCurrency={formatCurrency} />
 
-      {/* Cost Breakdown Table */}
-      <div className="glass-light rounded-xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-foreground heading-modern">
-            Cost Breakdown Details
-          </h3>
+      {/* Main Table with Integrated Header */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground heading-modern">
+              Cost Breakdown
+            </h2>
+            <p className="text-sm text-muted-foreground body-modern mt-1">
+              Detailed breakdown of project costs and expenses
+            </p>
+          </div>
           <Button onClick={addNewRow} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Add Item
           </Button>
         </div>
+        
         <CostBreakdownTable 
           costItems={costItems} 
           editingId={editingId} 

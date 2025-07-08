@@ -30,43 +30,38 @@ export const CostSummaryDashboard = ({ onNavigate }: CostSummaryDashboardProps) 
 
   return (
     <div className="space-y-8">
-      {/* Overview Metrics */}
-      <div className="glass-light rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-foreground heading-modern mb-6">
-          Project Financial Summary
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {summaryMetrics.map((metric, index) => {
-            const IconComponent = metric.icon;
-            return (
-              <div key={index} className="text-center p-4 rounded-lg bg-accent/30">
-                <IconComponent className="w-8 h-8 text-primary mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground body-modern mb-1">
-                  {metric.label}
-                </p>
-                <p className="text-2xl font-bold text-foreground heading-modern mb-1">
-                  {metric.value}
-                </p>
-                <p className="text-xs text-muted-foreground body-modern">
-                  {metric.trend} from last month
-                </p>
-              </div>
-            );
-          })}
-        </div>
+      {/* Clean Summary Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {summaryMetrics.map((metric, index) => {
+          const IconComponent = metric.icon;
+          return (
+            <div key={index} className="text-center p-6 rounded-xl bg-muted/20 border border-border/50">
+              <IconComponent className="w-10 h-10 text-primary mx-auto mb-4" />
+              <p className="text-sm text-muted-foreground body-modern mb-2">
+                {metric.label}
+              </p>
+              <p className="text-3xl font-bold text-foreground heading-modern mb-2">
+                {metric.value}
+              </p>
+              <p className="text-xs text-muted-foreground body-modern">
+                {metric.trend} from last month
+              </p>
+            </div>
+          );
+        })}
       </div>
       
-      {/* Analytics Placeholder */}
-      <div className="glass-light rounded-xl p-8 text-center">
-        <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-        <h4 className="text-xl font-semibold text-foreground heading-modern mb-2">
-          Cost Analytics
-        </h4>
-        <p className="text-muted-foreground body-modern mb-4">
-          Interactive charts and detailed analytics coming soon
+      {/* Analytics Section */}
+      <div className="text-center py-16 px-8 rounded-xl bg-muted/10 border border-border/30">
+        <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+        <h3 className="text-2xl font-semibold text-foreground heading-modern mb-3">
+          Advanced Analytics
+        </h3>
+        <p className="text-muted-foreground body-modern max-w-md mx-auto mb-6">
+          Interactive charts, cost trends, budget analysis, and performance metrics will be available here
         </p>
-        <div className="text-sm text-muted-foreground body-modern">
-          This section will include cost trends, budget analysis, and performance metrics
+        <div className="text-sm text-muted-foreground/70 body-modern">
+          Coming soon in the next update
         </div>
       </div>
     </div>
