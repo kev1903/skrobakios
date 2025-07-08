@@ -931,6 +931,222 @@ export type Database = {
           },
         ]
       }
+      xero_accounts: {
+        Row: {
+          class: string | null
+          code: string | null
+          created_at: string
+          enable_payments_to_account: boolean | null
+          id: string
+          name: string
+          show_in_expense_claims: boolean | null
+          sync_timestamp: string
+          tax_type: string | null
+          type: string | null
+          updated_at: string
+          user_id: string
+          xero_account_id: string
+        }
+        Insert: {
+          class?: string | null
+          code?: string | null
+          created_at?: string
+          enable_payments_to_account?: boolean | null
+          id?: string
+          name: string
+          show_in_expense_claims?: boolean | null
+          sync_timestamp: string
+          tax_type?: string | null
+          type?: string | null
+          updated_at?: string
+          user_id: string
+          xero_account_id: string
+        }
+        Update: {
+          class?: string | null
+          code?: string | null
+          created_at?: string
+          enable_payments_to_account?: boolean | null
+          id?: string
+          name?: string
+          show_in_expense_claims?: boolean | null
+          sync_timestamp?: string
+          tax_type?: string | null
+          type?: string | null
+          updated_at?: string
+          user_id?: string
+          xero_account_id?: string
+        }
+        Relationships: []
+      }
+      xero_connections: {
+        Row: {
+          access_token: string
+          connected_at: string
+          created_at: string
+          expires_at: string
+          id: string
+          last_sync: string | null
+          refresh_token: string
+          tenant_id: string
+          tenant_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          connected_at?: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_sync?: string | null
+          refresh_token: string
+          tenant_id: string
+          tenant_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          connected_at?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_sync?: string | null
+          refresh_token?: string
+          tenant_id?: string
+          tenant_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xero_contacts: {
+        Row: {
+          contact_status: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_customer: boolean | null
+          is_supplier: boolean | null
+          name: string
+          phone: string | null
+          sync_timestamp: string
+          updated_at: string
+          user_id: string
+          xero_contact_id: string
+        }
+        Insert: {
+          contact_status?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_customer?: boolean | null
+          is_supplier?: boolean | null
+          name: string
+          phone?: string | null
+          sync_timestamp: string
+          updated_at?: string
+          user_id: string
+          xero_contact_id: string
+        }
+        Update: {
+          contact_status?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_customer?: boolean | null
+          is_supplier?: boolean | null
+          name?: string
+          phone?: string | null
+          sync_timestamp?: string
+          updated_at?: string
+          user_id?: string
+          xero_contact_id?: string
+        }
+        Relationships: []
+      }
+      xero_invoices: {
+        Row: {
+          amount_due: number | null
+          contact_name: string | null
+          created_at: string
+          currency_code: string | null
+          date: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string | null
+          reference: string | null
+          status: string | null
+          sync_timestamp: string
+          total: number | null
+          type: string | null
+          updated_at: string
+          user_id: string
+          xero_invoice_id: string
+        }
+        Insert: {
+          amount_due?: number | null
+          contact_name?: string | null
+          created_at?: string
+          currency_code?: string | null
+          date?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          reference?: string | null
+          status?: string | null
+          sync_timestamp: string
+          total?: number | null
+          type?: string | null
+          updated_at?: string
+          user_id: string
+          xero_invoice_id: string
+        }
+        Update: {
+          amount_due?: number | null
+          contact_name?: string | null
+          created_at?: string
+          currency_code?: string | null
+          date?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          reference?: string | null
+          status?: string | null
+          sync_timestamp?: string
+          total?: number | null
+          type?: string | null
+          updated_at?: string
+          user_id?: string
+          xero_invoice_id?: string
+        }
+        Relationships: []
+      }
+      xero_oauth_states: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          state?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
