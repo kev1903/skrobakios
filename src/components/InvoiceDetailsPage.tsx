@@ -48,6 +48,17 @@ interface XeroAccount {
   type: string | null;
 }
 
+interface InvoiceAllocation {
+  id: string;
+  account_id: string | null;
+  project_id: string | null;
+  digital_object_id: string | null;
+  allocated_amount: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export const InvoiceDetailsPage = () => {
   const { invoiceId } = useParams();
   const navigate = useNavigate();
@@ -58,6 +69,7 @@ export const InvoiceDetailsPage = () => {
   const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([]);
   const [accounts, setAccounts] = useState<XeroAccount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [existingAllocation, setExistingAllocation] = useState<InvoiceAllocation | null>(null);
   
   // Allocation states
   const [selectedAccount, setSelectedAccount] = useState<string>("");
@@ -71,6 +83,7 @@ export const InvoiceDetailsPage = () => {
       fetchInvoiceData();
       fetchProjects();
       fetchAccounts();
+      fetchExistingAllocation();
     }
   }, [invoiceId]);
 
@@ -145,6 +158,36 @@ export const InvoiceDetailsPage = () => {
       console.error('Error fetching accounts:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchExistingAllocation = async () => {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) return;
+
+      const { data, error } = await supabase
+        .from('invoice_allocations')
+        .select('*')
+        .eq('invoice_id', invoiceId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching existing allocation:', error);
+        return;
+      }
+
+      if (data) {
+        setExistingAllocation(data);
+        // Pre-populate form with existing allocation data
+        setSelectedAccount(data.account_id || "");
+        setSelectedProject(data.project_id || "");
+        setSelectedDigitalObject(data.digital_object_id || "");
+        setNotes(data.notes || "");
+      }
+    } catch (error) {
+      console.error('Error fetching existing allocation:', error);
     }
   };
 
@@ -325,6 +368,73 @@ export const InvoiceDetailsPage = () => {
           <span>{isSaving ? 'Saving...' : 'Save Allocation'}</span>
         </Button>
       </div>
+
+      {/* Existing Reconciliation Status */}
+      {existingAllocation && (
+        <div className="mb-6">
+          <Card className="border-green-200 bg-green-50">
+            <CardHeader>
+              <CardTitle className="text-green-800 flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span>Reconciliation Status</span>
+              </CardTitle>
+              <CardDescription className="text-green-700">
+                This invoice has been reconciled on {formatDate(existingAllocation.created_at)}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-green-700">Account</Label>
+                  <p className="text-sm text-green-800 font-medium">
+                    {accounts.find(a => a.id === existingAllocation.account_id)?.name || 'N/A'}
+                  </p>
+                  {existingAllocation.account_id && accounts.find(a => a.id === existingAllocation.account_id)?.code && (
+                    <p className="text-xs text-green-600">
+                      ({accounts.find(a => a.id === existingAllocation.account_id)?.code})
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-green-700">Project</Label>
+                  <p className="text-sm text-green-800">
+                    {existingAllocation.project_id 
+                      ? projects.find(p => p.id === existingAllocation.project_id)?.name || 'Unknown Project'
+                      : 'Not allocated'
+                    }
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-green-700">Digital Object</Label>
+                  <p className="text-sm text-green-800">
+                    {existingAllocation.digital_object_id 
+                      ? digitalObjects.find(o => o.id === existingAllocation.digital_object_id)?.name || 'Unknown Object'
+                      : 'Not allocated'
+                    }
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-green-700">Allocated Amount</Label>
+                  <p className="text-sm text-green-800 font-medium">
+                    {formatCurrency(existingAllocation.allocated_amount, invoice?.currency_code)}
+                  </p>
+                </div>
+              </div>
+              {existingAllocation.notes && (
+                <div className="mt-4">
+                  <Label className="text-sm font-medium text-green-700">Notes</Label>
+                  <p className="text-sm text-green-800 bg-green-100 p-2 rounded border">
+                    {existingAllocation.notes}
+                  </p>
+                </div>
+              )}
+              <div className="mt-4 text-xs text-green-600">
+                Last updated: {formatDate(existingAllocation.updated_at)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Invoice Information */}
