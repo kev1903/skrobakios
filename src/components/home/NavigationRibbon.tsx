@@ -29,7 +29,10 @@ export const NavigationRibbon = ({
             <span className="text-sm font-medium">Projects</span>
           </button>
           <button
-            onClick={() => onSidePageSelect('finance')}
+            onClick={() => {
+              onNavigate('finance');
+              onClose();
+            }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >
             <DollarSign className="w-4 h-4" />
