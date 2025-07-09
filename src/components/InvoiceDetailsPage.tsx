@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Building, FolderTree, Save, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -62,6 +63,7 @@ export const InvoiceDetailsPage = () => {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [selectedDigitalObject, setSelectedDigitalObject] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -182,6 +184,7 @@ export const InvoiceDetailsPage = () => {
         project_id: selectedProject || null,
         digital_object_id: selectedDigitalObject || null,
         allocated_amount: invoice?.total || null,
+        notes: notes || null,
         user_id: user.id
       };
 
@@ -473,6 +476,18 @@ export const InvoiceDetailsPage = () => {
                 )}
               </div>
             )}
+
+            {/* Notes Section */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Add any additional notes about this allocation..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
 
             {/* Allocation Summary */}
             {(selectedAccount || selectedProject || selectedDigitalObject) && (
