@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 import { ChatBox } from '@/components/ChatBox';
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
+import { AiChatBar } from '@/components/AiChatBar';
 
 interface Project {
   id: string;
@@ -309,10 +310,8 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           max-width: 350px;
           padding: 0;
           font-family: ui-sans-serif, system-ui, sans-serif;
-          background: hsl(var(--background));
           border-radius: 12px;
           overflow: hidden;
-          box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
         `;
 
         popupContent.innerHTML = `
@@ -558,6 +557,9 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       
       {/* Bottom Chat Box */}
       <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
+      
+      {/* AI Chat Bar */}
+      <AiChatBar />
     </div>
   );
 };
