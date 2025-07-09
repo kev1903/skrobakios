@@ -73,6 +73,7 @@ export const InvoicesTable = () => {
       const { data, error } = await supabase
         .from('xero_invoices')
         .select('*')
+        .eq('type', 'ACCREC') // Filter for accounts receivable invoices only
         .order('created_at', { ascending: false });
 
       if (error) {

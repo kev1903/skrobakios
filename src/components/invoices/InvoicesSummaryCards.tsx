@@ -34,7 +34,8 @@ export const InvoicesSummaryCards = () => {
     try {
       const { data: invoices, error } = await supabase
         .from('xero_invoices')
-        .select('*');
+        .select('*')
+        .eq('type', 'ACCREC'); // Filter for accounts receivable invoices only
 
       if (error) {
         console.error('Error fetching invoice stats:', error);
