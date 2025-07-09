@@ -74,6 +74,45 @@ export type Database = {
           },
         ]
       }
+      invoice_allocations: {
+        Row: {
+          account_id: string | null
+          allocated_amount: number | null
+          created_at: string
+          digital_object_id: string | null
+          id: string
+          invoice_id: string
+          notes: string | null
+          project_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          allocated_amount?: number | null
+          created_at?: string
+          digital_object_id?: string | null
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          project_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          allocated_amount?: number | null
+          created_at?: string
+          digital_object_id?: string | null
+          id?: string
+          invoice_id?: string
+          notes?: string | null
+          project_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           avatar_url: string | null

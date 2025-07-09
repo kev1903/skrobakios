@@ -158,8 +158,51 @@ export const InvoiceDetailsPage = () => {
 
     setIsSaving(true);
     try {
-      // Here you would typically save the allocation to a database table
-      // For now, we'll just show a success message
+      // Get current user ID
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User not authenticated');
+      }
+
+      // First check if allocation already exists
+      const { data: existingAllocation, error: checkError } = await supabase
+        .from('invoice_allocations')
+        .select('*')
+        .eq('invoice_id', invoiceId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      const allocationData = {
+        invoice_id: invoiceId,
+        account_id: selectedAccount,
+        project_id: selectedProject || null,
+        digital_object_id: selectedDigitalObject || null,
+        allocated_amount: invoice?.total || null,
+        user_id: user.id
+      };
+
+      let result;
+      if (existingAllocation) {
+        // Update existing allocation
+        result = await supabase
+          .from('invoice_allocations')
+          .update(allocationData)
+          .eq('id', existingAllocation.id);
+      } else {
+        // Create new allocation
+        result = await supabase
+          .from('invoice_allocations')
+          .insert([allocationData]);
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
       toast({
         title: "Success",
         description: "Invoice allocation saved successfully",
