@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface InvoiceStats {
-  outstandingCount: number;
-  outstandingTotal: number;
+  authorisedCount: number;
+  authorisedTotal: number;
   overdueCount: number;
   overdueTotal: number;
   expectedThisWeekCount: number;
@@ -16,8 +16,8 @@ interface InvoiceStats {
 
 export const InvoicesSummaryCards = () => {
   const [stats, setStats] = useState<InvoiceStats>({
-    outstandingCount: 0,
-    outstandingTotal: 0,
+    authorisedCount: 0,
+    authorisedTotal: 0,
     overdueCount: 0,
     overdueTotal: 0,
     expectedThisWeekCount: 0,
@@ -56,7 +56,7 @@ export const InvoicesSummaryCards = () => {
       nextFriday.setDate(today.getDate() + (daysUntilFriday === 0 ? 7 : daysUntilFriday));
       nextFriday.setHours(23, 59, 59, 999); // End of Friday
 
-      const outstanding = invoices.filter(inv => inv.status !== 'PAID' && parseFloat(String(inv.amount_due || 0)) > 0);
+      const authorised = invoices.filter(inv => inv.status === 'AUTHORISED');
       const overdue = invoices.filter(inv => {
         if (inv.status === 'PAID') return false;
         if (!inv.due_date) return false;
@@ -73,8 +73,8 @@ export const InvoicesSummaryCards = () => {
       const currency = invoices[0]?.currency_code || 'USD';
 
       setStats({
-        outstandingCount: outstanding.length,
-        outstandingTotal: outstanding.reduce((sum, inv) => sum + parseFloat(String(inv.amount_due || 0)), 0),
+        authorisedCount: authorised.length,
+        authorisedTotal: authorised.reduce((sum, inv) => sum + parseFloat(String(inv.total || 0)), 0),
         overdueCount: overdue.length,
         overdueTotal: overdue.reduce((sum, inv) => sum + parseFloat(String(inv.amount_due || 0)), 0),
         expectedThisWeekCount: expectedThisWeek.length,
@@ -117,11 +117,11 @@ export const InvoicesSummaryCards = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-gray-600">
-            Total of {stats.outstandingCount} outstanding invoices
+            Total of {stats.authorisedCount} authorised invoices
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(stats.outstandingTotal, stats.currency)}</div>
+          <div className="text-2xl font-bold">{formatCurrency(stats.authorisedTotal, stats.currency)}</div>
         </CardContent>
       </Card>
 
