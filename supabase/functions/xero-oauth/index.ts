@@ -203,6 +203,8 @@ async function handleOAuthCallback(req: Request) {
         tenant_id: connections[0]?.tenantId,
         tenant_name: connections[0]?.tenantName,
         connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id'
       })
 
     if (insertError) {
