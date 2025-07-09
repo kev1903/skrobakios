@@ -25,10 +25,10 @@ export const InvoicesPage = ({ onNavigate }: InvoicesPageProps) => {
         onNavigate={onNavigate || (() => navigate('/'))} 
         onInvoicesSync={handleInvoicesSync}
       />
-      <InvoicesSummaryCards />
-      <InvoicesChart />
-      <InvoicesWarningBanner />
-      <InvoicesTable key={refreshTrigger} />
+      <InvoicesSummaryCards key={`summary-${refreshTrigger}`} />
+      <InvoicesChart key={`chart-${refreshTrigger}`} />
+      <InvoicesWarningBanner key={`warning-${refreshTrigger}`} />
+      <InvoicesTable key={`table-${refreshTrigger}`} />
     </div>
   );
 };

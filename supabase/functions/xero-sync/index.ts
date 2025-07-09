@@ -89,6 +89,26 @@ serve(async (req) => {
       case 'sync': {
         console.log('Starting Xero data sync for user:', user.id)
 
+        // Helper function to parse .NET JSON dates
+        const parseXeroDate = (dateString: string | null): string | null => {
+          if (!dateString) return null;
+          
+          // Handle .NET JSON date format: /Date(1705881600000+0000)/
+          const match = dateString.match(/\/Date\((\d+)([+-]\d{4})?\)\//);
+          if (match) {
+            const timestamp = parseInt(match[1]);
+            return new Date(timestamp).toISOString().split('T')[0]; // Return YYYY-MM-DD format
+          }
+          
+          // Handle ISO date format
+          if (dateString.includes('T')) {
+            return new Date(dateString).toISOString().split('T')[0];
+          }
+          
+          // Return as-is if already in YYYY-MM-DD format
+          return dateString;
+        };
+
         // Sync invoices
         const invoicesResponse = await fetch(
           `https://api.xero.com/api.xro/2.0/Invoices?where=Date%3E%3DDateTime(2024,1,1)`,
@@ -112,8 +132,8 @@ serve(async (req) => {
               xero_invoice_id: invoice.InvoiceID,
               invoice_number: invoice.InvoiceNumber,
               contact_name: invoice.Contact?.Name,
-              date: invoice.Date,
-              due_date: invoice.DueDateString,
+              date: parseXeroDate(invoice.Date),
+              due_date: parseXeroDate(invoice.DueDateString || invoice.DueDate),
               total: parseFloat(invoice.Total || 0),
               amount_due: parseFloat(invoice.AmountDue || 0),
               status: invoice.Status,
@@ -122,6 +142,8 @@ serve(async (req) => {
               reference: invoice.Reference,
               sync_timestamp: new Date().toISOString()
             }))
+
+            console.log('Sample invoice data:', JSON.stringify(invoicesToInsert[0], null, 2))
 
             await supabase
               .from('xero_invoices')
