@@ -22,7 +22,10 @@ export const NavigationRibbon = ({
         {/* Navigation Items */}
         <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
           <button
-            onClick={() => onSidePageSelect('projects')}
+            onClick={() => {
+              onNavigate('projects');
+              onClose();
+            }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >
             <Briefcase className="w-4 h-4" />
@@ -49,7 +52,10 @@ export const NavigationRibbon = ({
             <span className="text-sm font-medium">Sales</span>
           </button>
           <button
-            onClick={() => onSidePageSelect('bim')}
+            onClick={() => {
+              onNavigate('bim');
+              onClose();
+            }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >
             <Map className="w-4 h-4" />
@@ -63,14 +69,20 @@ export const NavigationRibbon = ({
             Support
           </div>
           <button
-            onClick={() => onSidePageSelect('settings')}
+            onClick={() => {
+              onNavigate('settings');
+              onClose();
+            }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >
             <Settings className="w-4 h-4" />
             <span className="text-sm font-medium">Settings</span>
           </button>
           <button
-            onClick={() => onSidePageSelect('support')}
+            onClick={() => {
+              onNavigate('support');
+              onClose();
+            }}
             className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
           >
             <HelpCircle className="w-4 h-4" />
