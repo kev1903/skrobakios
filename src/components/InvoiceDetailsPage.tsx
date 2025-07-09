@@ -2,16 +2,13 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, Building, FolderTree, Save, AlertCircle, Check, ChevronsUpDown } from "lucide-react";
+import { ArrowLeft, Building, FolderTree, Save, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 interface XeroInvoice {
   id: string;
@@ -65,13 +62,7 @@ export const InvoiceDetailsPage = () => {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [selectedDigitalObject, setSelectedDigitalObject] = useState<string>("");
-  const [notes, setNotes] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
-  
-  // Combobox open states
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [projectOpen, setProjectOpen] = useState(false);
-  const [digitalObjectOpen, setDigitalObjectOpen] = useState(false);
 
   useEffect(() => {
     if (invoiceId) {
@@ -191,7 +182,6 @@ export const InvoiceDetailsPage = () => {
         project_id: selectedProject || null,
         digital_object_id: selectedDigitalObject || null,
         allocated_amount: invoice?.total || null,
-        notes: notes || null,
         user_id: user.id
       };
 
@@ -415,52 +405,23 @@ export const InvoiceDetailsPage = () => {
               <Label htmlFor="account-select">
                 Account <span className="text-red-500">*</span>
               </Label>
-              <Popover open={accountOpen} onOpenChange={setAccountOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={accountOpen}
-                    className="w-full justify-between"
-                  >
-                    {selectedAccount
-                      ? accounts.find((account) => account.id === selectedAccount)?.name
-                      : "Select an account"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput placeholder="Search accounts..." />
-                    <CommandEmpty>No account found.</CommandEmpty>
-                    <CommandGroup>
-                      {accounts.map((account) => (
-                        <CommandItem
-                          key={account.id}
-                          value={account.name}
-                          onSelect={() => {
-                            setSelectedAccount(account.id === selectedAccount ? "" : account.id);
-                            setAccountOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedAccount === account.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{account.name}</span>
-                            {account.code && (
-                              <span className="text-xs text-gray-500">({account.code})</span>
-                            )}
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                <SelectTrigger id="account-select">
+                  <SelectValue placeholder="Select an account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium">{account.name}</span>
+                        {account.code && (
+                          <span className="text-xs text-gray-500">({account.code})</span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {accounts.length === 0 && (
                 <p className="text-xs text-gray-500">No accounts found. Sync with Xero to load accounts.</p>
               )}
@@ -469,119 +430,49 @@ export const InvoiceDetailsPage = () => {
             {/* Project Selection */}
             <div className="space-y-2">
               <Label htmlFor="project-select">Project (Optional)</Label>
-              <Popover open={projectOpen} onOpenChange={setProjectOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={projectOpen}
-                    className="w-full justify-between"
-                  >
-                    {selectedProject
-                      ? projects.find((project) => project.id === selectedProject)?.name
-                      : "Select a project"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
-                  <Command>
-                    <CommandInput placeholder="Search projects..." />
-                    <CommandEmpty>No project found.</CommandEmpty>
-                    <CommandGroup>
-                      {projects.map((project) => (
-                        <CommandItem
-                          key={project.id}
-                          value={project.name}
-                          onSelect={() => {
-                            setSelectedProject(project.id === selectedProject ? "" : project.id);
-                            setProjectOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedProject === project.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          <div>
-                            <p className="font-medium">{project.name}</p>
-                            <p className="text-xs text-gray-500">{project.project_id}</p>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger id="project-select">
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      <div>
+                        <p className="font-medium">{project.name}</p>
+                        <p className="text-xs text-gray-500">{project.project_id}</p>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Digital Object Selection */}
             {selectedProject && (
               <div className="space-y-2">
                 <Label htmlFor="digital-object-select">Digital Object (Optional)</Label>
-                <Popover open={digitalObjectOpen} onOpenChange={setDigitalObjectOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={digitalObjectOpen}
-                      className="w-full justify-between"
-                    >
-                      {selectedDigitalObject
-                        ? digitalObjects.find((object) => object.id === selectedDigitalObject)?.name
-                        : "Select a digital object"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput placeholder="Search digital objects..." />
-                      <CommandEmpty>No digital object found.</CommandEmpty>
-                      <CommandGroup>
-                        {digitalObjects.map((object) => (
-                          <CommandItem
-                            key={object.id}
-                            value={object.name}
-                            onSelect={() => {
-                              setSelectedDigitalObject(object.id === selectedDigitalObject ? "" : object.id);
-                              setDigitalObjectOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedDigitalObject === object.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            <div>
-                              <p className="font-medium">{object.name}</p>
-                              <p className="text-xs text-gray-500">
-                                {object.object_type} • {object.stage}
-                              </p>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <Select value={selectedDigitalObject} onValueChange={setSelectedDigitalObject}>
+                  <SelectTrigger id="digital-object-select">
+                    <SelectValue placeholder="Select a digital object" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {digitalObjects.map((object) => (
+                      <SelectItem key={object.id} value={object.id}>
+                        <div>
+                          <p className="font-medium">{object.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {object.object_type} • {object.stage}
+                          </p>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {digitalObjects.length === 0 && (
                   <p className="text-xs text-gray-500">No digital objects found in selected project.</p>
                 )}
               </div>
             )}
-
-            {/* Notes Section */}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Add any additional notes about this allocation..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-              />
-            </div>
 
             {/* Allocation Summary */}
             {(selectedAccount || selectedProject || selectedDigitalObject) && (
