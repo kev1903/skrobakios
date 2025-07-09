@@ -214,22 +214,42 @@ async function handleOAuthCallback(req: Request) {
 
   } catch (error) {
     console.error('💥 OAuth callback error:', error)
-    console.error('💥 Error details:', error.message)
-    console.error('💥 Error stack:', error.stack)
+    console.error('💥 Error details:', error?.message || 'No error message')
+    console.error('💥 Error stack:', error?.stack || 'No stack trace')
+    console.error('💥 Error type:', typeof error)
+    console.error('💥 Error object:', JSON.stringify(error, null, 2))
     
     // Return more detailed error information for debugging
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    let errorMessage = 'Unknown error'
+    
+    if (error instanceof Error) {
+      errorMessage = error.message
+    } else if (typeof error === 'string') {
+      errorMessage = error
+    } else if (error && typeof error === 'object') {
+      errorMessage = error.message || error.toString() || 'Object error without message'
+    }
     
     return new Response(`
       <html>
         <body>
           <h1>Authentication Error</h1>
           <p>Something went wrong during authentication: ${errorMessage}</p>
-          <p>Please check the console logs and try again.</p>
+          <p>Error type: ${typeof error}</p>
+          <p>Please check the edge function logs for more details.</p>
+          <details>
+            <summary>Error Details (for debugging)</summary>
+            <pre>${JSON.stringify({ 
+              message: errorMessage, 
+              type: typeof error,
+              hasStack: !!(error?.stack),
+              timestamp: new Date().toISOString()
+            }, null, 2)}</pre>
+          </details>
           <script>
             if (window.opener) {
               window.opener.postMessage('xero-auth-error', '*');
-              window.close();
+              setTimeout(() => window.close(), 1000);
             } else {
               setTimeout(() => window.close(), 3000);
             }

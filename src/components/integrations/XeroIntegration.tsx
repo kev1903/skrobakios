@@ -108,9 +108,12 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
 
   const checkConnectionStatus = async () => {
     try {
+      console.log('🔍 Checking Xero connection status...');
       const { data, error } = await supabase.functions.invoke('xero-oauth', {
         body: { action: 'status' }
       });
+      
+      console.log('🔍 Status response:', { data, error });
       
       if (error) {
         console.error('Status check error:', error);
@@ -122,18 +125,20 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
       }
       
       if (data?.connected && data?.connection) {
+        console.log('✅ Connection active:', data.connection);
         setIsConnected(true);
         setConnectionInfo(data.connection);
         if (data.connection.connected_at) {
           setLastSync(new Date(data.connection.connected_at));
         }
       } else {
+        console.log('❌ No active connection:', data);
         setIsConnected(false);
         setConnectionInfo(null);
         setLastSync(null);
         
         // If the response indicates token refresh failed, show appropriate message
-        if (data?.error?.includes('refresh failed')) {
+        if (data?.error?.includes('refresh failed') || data?.error?.includes('expired')) {
           toast({
             title: 'Connection Expired',
             description: 'Your Xero connection has expired. Please reconnect.',
@@ -145,6 +150,7 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
       console.error('Status check error:', error);
       setIsConnected(false);
       setConnectionInfo(null);
+      setLastSync(null);
     }
   };
 
