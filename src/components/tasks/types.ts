@@ -1,6 +1,7 @@
 export interface Task {
   id: string;
   project_id: string;
+  projectName?: string;
   taskName: string;
   priority: 'High' | 'Medium' | 'Low';
   assignedTo: { name: string; avatar: string };

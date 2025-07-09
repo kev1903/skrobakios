@@ -1,5 +1,6 @@
 import React from 'react';
 import { TaskManagement } from "@/components/TaskManagement";
+import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
 import { ProjectDetail } from "@/components/ProjectDetail";
@@ -56,6 +57,8 @@ export const ContentRenderer = ({
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
+    case "my-tasks":
+      return <MyTasksPage onNavigate={onNavigate} />;
     case "time-management":
       return <TimeManagementPage onNavigate={onNavigate} />;
     case "settings":
