@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
@@ -8,8 +9,17 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { useProjectState } from "@/hooks/useProjectState";
 
 const Index = () => {
+  const [searchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState("auth");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
+
+  // Handle URL parameters for direct navigation
+  useEffect(() => {
+    const pageParam = searchParams.get('page');
+    if (pageParam) {
+      setCurrentPage(pageParam);
+    }
+  }, [searchParams]);
 
   return (
     <AuthProvider>

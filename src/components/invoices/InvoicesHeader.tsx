@@ -47,10 +47,23 @@ export const InvoicesHeader = ({
       setIsSyncing(false);
     }
   };
+  
+  const handleBackClick = () => {
+    console.log('Back button clicked!');
+    console.log('onNavigate:', onNavigate);
+    if (onNavigate) {
+      console.log('Calling onNavigate with "finance"');
+      onNavigate('finance');
+    } else {
+      console.log('Calling navigate with "/finance"');
+      navigate('/finance');
+    }
+  };
+  
   return <div className="mb-8">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={() => onNavigate ? onNavigate('finance') : navigate('/finance')} className="flex items-center space-x-2">
+          <Button variant="ghost" size="sm" onClick={handleBackClick} className="flex items-center space-x-2">
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </Button>
