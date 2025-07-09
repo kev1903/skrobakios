@@ -10,17 +10,22 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   ArrowLeft, 
   Search, 
   Plus, 
-  FileText, 
-  Calendar,
-  DollarSign,
   Eye,
-  Edit
+  Edit,
+  Settings,
+  MoreVertical
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
@@ -97,10 +102,9 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
     estimate.estimate_number.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalEstimates = estimates.length;
-  const totalValue = estimates.reduce((sum, estimate) => sum + (estimate.total_amount || 0), 0);
-  const acceptedEstimates = estimates.filter(e => e.status === 'accepted').length;
-  const pendingEstimates = estimates.filter(e => e.status === 'sent').length;
+  const handleNewEstimate = () => {
+    window.location.href = '/estimates/new';
+  };
 
   if (loading) {
     return (
@@ -111,160 +115,165 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => onNavigate('sales')}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Sales</span>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Estimates</h1>
-            <p className="text-muted-foreground">Manage your project estimates and proposals</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+      
+      <div className="relative z-10 p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onNavigate('sales')}
+              className="flex items-center space-x-2 hover:bg-white/20 backdrop-blur-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Sales</span>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground font-poppins">Construction Estimating</h1>
+              <p className="text-muted-foreground font-inter">Create detailed estimates with graphical take-offs and cost analysis</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="glass-light border-white/20">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="glass-light border-white/20 backdrop-blur-xl">
+                <DropdownMenuItem className="hover:bg-white/10">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Estimating Library
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-white/10">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Manage Libraries
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button 
+              onClick={handleNewEstimate}
+              className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Estimate</span>
+            </Button>
           </div>
         </div>
-        <Button className="flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>New Estimate</span>
-        </Button>
-      </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Estimates</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEstimates}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Accepted</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{acceptedEstimates}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{pendingEstimates}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Search estimates..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        {/* Search and Filters */}
+        <div className="flex items-center justify-between">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Search estimates..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 glass-light border-white/20 backdrop-blur-sm"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" className="glass-light border-white/20">
+              Export PDF
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {/* Estimates Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Estimate #</TableHead>
-                <TableHead>Estimate Name</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Expiry</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEstimates.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    No estimates found
-                  </TableCell>
+        {/* Estimates Table */}
+        <Card className="glass-light border-white/20 backdrop-blur-xl shadow-xl">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-white/10 hover:bg-white/5">
+                  <TableHead className="text-foreground font-semibold">Estimate #</TableHead>
+                  <TableHead className="text-foreground font-semibold">Estimate Name</TableHead>
+                  <TableHead className="text-foreground font-semibold">Client</TableHead>
+                  <TableHead className="text-foreground font-semibold">Date</TableHead>
+                  <TableHead className="text-foreground font-semibold">Expiry</TableHead>
+                  <TableHead className="text-foreground font-semibold">Status</TableHead>
+                  <TableHead className="text-right text-foreground font-semibold">Amount</TableHead>
+                  <TableHead className="text-center text-foreground font-semibold">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredEstimates.map((estimate) => (
-                  <TableRow key={estimate.id} className="hover:bg-muted/50">
-                    <TableCell className="font-medium">
-                      {estimate.estimate_number}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{estimate.estimate_name}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{estimate.client_name}</div>
-                        <div className="text-sm text-muted-foreground">{estimate.client_email}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(estimate.estimate_date), 'MMM dd, yyyy')}
-                    </TableCell>
-                    <TableCell>
-                      {estimate.expiry_date ? format(new Date(estimate.expiry_date), 'MMM dd, yyyy') : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={getStatusBadgeVariant(estimate.status)}
-                        className={`capitalize ${getStatusColor(estimate.status)}`}
-                      >
-                        {estimate.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      ${estimate.total_amount?.toLocaleString() || '0'}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center space-x-2">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="w-4 h-4" />
-                        </Button>
+              </TableHeader>
+              <TableBody>
+                {filteredEstimates.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
+                          <Plus className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium">No estimates found</p>
+                          <p className="text-sm">Create your first estimate to get started</p>
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ) : (
+                  filteredEstimates.map((estimate) => (
+                    <TableRow key={estimate.id} className="hover:bg-white/5 transition-all duration-200 border-white/5">
+                      <TableCell className="font-medium text-foreground">
+                        {estimate.estimate_number}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium text-foreground">{estimate.estimate_name}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium text-foreground">{estimate.client_name}</div>
+                          <div className="text-sm text-muted-foreground">{estimate.client_email}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {format(new Date(estimate.estimate_date), 'MMM dd, yyyy')}
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {estimate.expiry_date ? format(new Date(estimate.expiry_date), 'MMM dd, yyyy') : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={getStatusBadgeVariant(estimate.status)}
+                          className="capitalize"
+                        >
+                          {estimate.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-medium text-foreground">
+                        ${estimate.total_amount?.toLocaleString() || '0'}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="hover:bg-white/10">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="glass-light border-white/20 backdrop-blur-xl">
+                            <DropdownMenuItem className="hover:bg-white/10">
+                              <Eye className="w-4 h-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-white/10">
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

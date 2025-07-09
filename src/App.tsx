@@ -10,6 +10,7 @@ import { UserInvitationAcceptPage } from "./components/admin/UserInvitationAccep
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
+import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
 
 // Wrapper component for InvoicesPage with proper navigation
@@ -42,6 +43,21 @@ const EstimatesPageWrapper = () => {
   return <EstimatesPage onNavigate={handleNavigate} />;
 };
 
+// Wrapper component for EstimateCreationPage with proper navigation
+const EstimateCreationPageWrapper = () => {
+  const navigate = useNavigate();
+  
+  const handleNavigate = (page: string) => {
+    if (page === 'estimates') {
+      navigate('/estimates');
+    } else {
+      navigate(`/?page=${page}`);
+    }
+  };
+
+  return <EstimateCreationPage onNavigate={handleNavigate} />;
+};
+
 
 const queryClient = new QueryClient();
 
@@ -57,6 +73,7 @@ const App = () => (
           <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
           <Route path="/cost-contracts" element={<CostContractsPage />} />
           <Route path="/estimates" element={<EstimatesPageWrapper />} />
+          <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
           <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
           <Route path="/accept-user-invitation" element={<UserInvitationAcceptPage />} />
         </Routes>
