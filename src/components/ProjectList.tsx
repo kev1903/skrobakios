@@ -276,18 +276,6 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
           </Button>
         </div>
 
-        {/* Create New Project Button - Prominent at top */}
-        <div className="mb-6">
-          <Button
-            onClick={() => onNavigate("create-project")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
-            size="lg"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Create New Project</span>
-          </Button>
-        </div>
-
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -295,6 +283,14 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             <p className="text-muted-foreground body-modern">Manage your construction projects ({projects.length} total)</p>
           </div>
           <div className="flex items-center space-x-3">
+            <Button
+              onClick={() => onNavigate("create-project")}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2 transition-all duration-300 shadow-lg hover:shadow-xl"
+              size="sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+New Project</span>
+            </Button>
             {/* View Toggle Buttons */}
             <div className="flex items-center bg-muted rounded-lg p-1 border border-border">
               <Button
