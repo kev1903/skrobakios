@@ -141,7 +141,8 @@ async function handleOAuthCallback(req: Request) {
     }
 
     const tokens = await tokenResponse.json()
-    console.log('✅ Tokens received')
+    console.log('✅ Token response received:', JSON.stringify(tokens, null, 2))
+    console.log('🔍 Token fields available:', Object.keys(tokens))
 
     // Get tenant information
     console.log('🔄 Fetching tenant info...')
@@ -156,13 +157,23 @@ async function handleOAuthCallback(req: Request) {
 
     // Store tokens and connection info
     console.log('💾 Storing connection data...')
+    console.log('🔍 About to store:', {
+      user_id: stateRecord.user_id,
+      has_access_token: !!tokens.access_token,
+      has_refresh_token: !!tokens.refresh_token,
+      refresh_token_value: tokens.refresh_token,
+      expires_in: tokens.expires_in,
+      tenant_id: connections[0]?.tenantId,
+      tenant_name: connections[0]?.tenantName
+    })
+    
     const { error: insertError } = await supabase
       .from('xero_connections')
       .upsert({
         user_id: stateRecord.user_id,
         access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+        refresh_token: tokens.refresh_token || tokens.access_token, // Fallback if refresh_token is missing
+        expires_at: new Date(Date.now() + (tokens.expires_in || 1800) * 1000).toISOString(),
         tenant_id: connections[0]?.tenantId,
         tenant_name: connections[0]?.tenantName,
         connected_at: new Date().toISOString()
