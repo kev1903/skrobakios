@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Filter, MoreHorizontal, Eye, ArrowUp, ArrowDown, LayoutGrid, List } from "lucide-react";
+import { Plus, Filter, MoreHorizontal, Eye, ArrowUp, ArrowDown, LayoutGrid, List, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -263,6 +263,19 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       <div className="min-h-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
         <div className="relative z-10 p-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => onNavigate("home")}
+            className="flex items-center space-x-2 text-foreground hover:text-primary"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Home</span>
+          </Button>
+        </div>
+
         {/* Create New Project Button - Prominent at top */}
         <div className="mb-6">
           <Button
