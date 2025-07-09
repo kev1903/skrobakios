@@ -10,27 +10,27 @@ export const MyTasksHeader = ({
   onNavigate 
 }: MyTasksHeaderProps) => {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">MY TASKS</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-foreground mb-1">MY TASKS</h1>
+          <p className="text-muted-foreground text-sm">
             {tasksCount === 0 ? 'No tasks assigned to you' : `${tasksCount} ${tasksCount === 1 ? 'task' : 'tasks'} assigned to you`}
           </p>
         </div>
-        <div className="flex items-center space-x-4">
-          <Button 
-            onClick={() => onNavigate("projects")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Task
-          </Button>
-        </div>
       </div>
 
-      {/* View Mode Toggle */}
-      <div className="flex items-center justify-end space-x-2">
+      {/* Controls Row */}
+      <div className="flex items-center justify-between">
+        <Button 
+          onClick={() => onNavigate("projects")}
+          size="sm"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          +New Task
+        </Button>
+        
         <div className="flex items-center bg-muted rounded-lg p-1">
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
