@@ -302,94 +302,124 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           hoverTooltip.style.display = 'none';
         });
 
-        // Create redesigned popup with better styling
+        // Create redesigned popup with better styling and proper alignment
         const popupContent = document.createElement('div');
         popupContent.style.cssText = `
-          min-width: 280px;
+          min-width: 300px;
+          max-width: 350px;
           padding: 0;
           font-family: ui-sans-serif, system-ui, sans-serif;
+          background: hsl(var(--background));
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
         `;
 
         popupContent.innerHTML = `
           <div style="
-            padding: 20px;
+            padding: 24px;
             border-bottom: 1px solid hsl(var(--border));
           ">
             <h3 style="
-              margin: 0 0 8px 0; 
+              margin: 0 0 16px 0; 
               font-size: 18px;
               font-weight: 600;
               color: hsl(var(--foreground));
-              line-height: 1.4;
+              line-height: 1.3;
+              padding-right: 20px;
             ">${project.name}</h3>
+            
             <div style="
               display: flex;
-              align-items: center;
-              gap: 8px;
-              margin-bottom: 4px;
+              flex-direction: column;
+              gap: 12px;
             ">
-              <span style="
-                font-size: 12px;
-                color: hsl(var(--muted-foreground));
-                font-weight: 500;
-              ">ID:</span>
-              <span style="
-                font-size: 12px;
-                color: hsl(var(--foreground));
-                font-family: monospace;
-                background: hsl(var(--muted));
-                padding: 2px 6px;
-                border-radius: 4px;
-              ">${project.project_id}</span>
+              <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              ">
+                <span style="
+                  font-size: 12px;
+                  color: hsl(var(--muted-foreground));
+                  font-weight: 500;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                ">ID</span>
+                <span style="
+                  font-size: 12px;
+                  color: hsl(var(--foreground));
+                  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+                  background: hsl(var(--muted));
+                  padding: 4px 8px;
+                  border-radius: 6px;
+                  font-weight: 500;
+                ">${project.project_id}</span>
+              </div>
+              
+              <div style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              ">
+                <span style="
+                  font-size: 12px;
+                  color: hsl(var(--muted-foreground));
+                  font-weight: 500;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                ">Status</span>
+                <span style="
+                  font-size: 12px;
+                  color: hsl(var(--primary));
+                  font-weight: 600;
+                  background: hsl(var(--primary) / 0.1);
+                  padding: 4px 12px;
+                  border-radius: 12px;
+                  text-transform: capitalize;
+                ">${project.status || 'Unknown'}</span>
+              </div>
             </div>
-            <div style="
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              margin-bottom: ${project.description ? '12px' : '0'};
-            ">
-              <span style="
-                font-size: 12px;
-                color: hsl(var(--muted-foreground));
-                font-weight: 500;
-              ">Status:</span>
-              <span style="
-                font-size: 12px;
-                color: hsl(var(--primary));
-                font-weight: 500;
-                background: hsl(var(--primary) / 0.1);
-                padding: 2px 8px;
-                border-radius: 12px;
-              ">${project.status || 'Unknown'}</span>
-            </div>
+            
             ${project.description ? `
-              <p style="
-                margin: 0;
-                font-size: 14px;
-                color: hsl(var(--muted-foreground));
-                line-height: 1.4;
-              ">${project.description}</p>
+              <div style="
+                margin-top: 16px;
+                padding-top: 16px;
+                border-top: 1px solid hsl(var(--border));
+              ">
+                <p style="
+                  margin: 0;
+                  font-size: 14px;
+                  color: hsl(var(--muted-foreground));
+                  line-height: 1.5;
+                ">${project.description}</p>
+              </div>
             ` : ''}
           </div>
+          
           <div style="
-            padding: 16px 20px;
+            padding: 20px 24px;
           ">
             <button id="open-project-btn" style="
               width: 100%;
-              background: hsl(var(--primary));
-              color: hsl(var(--primary-foreground));
+              background: hsl(var(--foreground));
+              color: hsl(var(--background));
               border: none;
               border-radius: 8px;
-              padding: 10px 16px;
+              padding: 12px 20px;
               font-size: 14px;
-              font-weight: 500;
+              font-weight: 600;
               cursor: pointer;
-              transition: background-color 0.2s ease;
+              transition: all 0.2s ease;
               display: flex;
               align-items: center;
               justify-content: center;
               gap: 8px;
-            " onmouseover="this.style.background='hsl(var(--primary) / 0.9)'" onmouseout="this.style.background='hsl(var(--primary))'">
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            " 
+            onmouseover="this.style.background='hsl(var(--foreground) / 0.9)'; this.style.transform='translateY(-1px)'" 
+            onmouseout="this.style.background='hsl(var(--foreground))'; this.style.transform='translateY(0)'">
               <span>OPEN PROJECT</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M7 17L17 7"></path>
@@ -405,6 +435,46 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           closeOnClick: true,
           className: 'custom-popup'
         }).setDOMContent(popupContent);
+
+        // Style the close button after popup opens
+        popup.on('open', () => {
+          // Style the close button
+          const closeButton = document.querySelector('.mapboxgl-popup-close-button') as HTMLElement;
+          if (closeButton) {
+            closeButton.style.cssText = `
+              position: absolute;
+              right: 8px;
+              top: 8px;
+              width: 32px;
+              height: 32px;
+              background: hsl(var(--muted));
+              color: hsl(var(--foreground));
+              border: none;
+              border-radius: 50%;
+              font-size: 18px;
+              font-weight: 700;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: all 0.2s ease;
+              z-index: 1000;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            `;
+            
+            closeButton.addEventListener('mouseenter', () => {
+              closeButton.style.background = 'hsl(var(--destructive))';
+              closeButton.style.color = 'hsl(var(--destructive-foreground))';
+              closeButton.style.transform = 'scale(1.1)';
+            });
+            
+            closeButton.addEventListener('mouseleave', () => {
+              closeButton.style.background = 'hsl(var(--muted))';
+              closeButton.style.color = 'hsl(var(--foreground))';
+              closeButton.style.transform = 'scale(1)';
+            });
+          }
+        });
 
         // Add click handler for the OPEN PROJECT button
         popup.on('open', () => {
