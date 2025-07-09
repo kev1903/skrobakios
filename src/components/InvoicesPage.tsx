@@ -21,7 +21,7 @@ export const InvoicesPage = ({ onNavigate }: InvoicesPageProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <InvoicesHeader 
-        onNavigate={onNavigate || (() => navigate('/'))} 
+        onNavigate={onNavigate || (() => navigate('/finance'))} 
         onInvoicesSync={handleInvoicesSync}
       />
       <InvoicesSummaryCards key={`summary-${refreshTrigger}`} />
