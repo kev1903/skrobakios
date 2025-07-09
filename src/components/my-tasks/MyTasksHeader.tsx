@@ -21,35 +21,37 @@ export const MyTasksHeader = ({
       </div>
 
       {/* Controls Row */}
-      <div className="flex items-center justify-between">
-        <Button 
-          onClick={() => onNavigate("projects")}
-          size="sm"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          +New Task
-        </Button>
-        
-        <div className="flex items-center bg-muted rounded-lg p-1">
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'ghost'}
+      <div className="flex items-center justify-end">
+        <div className="flex items-center space-x-3">
+          <Button 
+            onClick={() => onNavigate("projects")}
             size="sm"
-            onClick={() => onViewModeChange('list')}
-            className="px-3 py-1.5 h-auto"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            <List className="w-4 h-4 mr-1" />
-            List
+            <Plus className="w-4 h-4 mr-1" />
+            +New Task
           </Button>
-          <Button
-            variant={viewMode === 'grid' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => onViewModeChange('grid')}
-            className="px-3 py-1.5 h-auto"
-          >
-            <Grid3X3 className="w-4 h-4 mr-1" />
-            Grid
-          </Button>
+          
+          <div className="flex items-center bg-muted rounded-lg p-1">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onViewModeChange('list')}
+              className="px-3 py-1.5 h-auto"
+            >
+              <List className="w-4 h-4 mr-1" />
+              List
+            </Button>
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onViewModeChange('grid')}
+              className="px-3 py-1.5 h-auto"
+            >
+              <Grid3X3 className="w-4 h-4 mr-1" />
+              Grid
+            </Button>
+          </div>
         </div>
       </div>
     </div>
