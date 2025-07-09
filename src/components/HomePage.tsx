@@ -239,11 +239,11 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         const coordinates = await geocodeAddress(project.location);
         if (!coordinates) continue;
 
-        // Create marker element
+        // Create marker element with hover effects
         const markerElement = document.createElement('div');
         markerElement.className = 'project-marker';
         markerElement.innerHTML = `
-          <div style="
+          <div class="marker-pin" style="
             background-color: #3b82f6;
             width: 24px;
             height: 24px;
@@ -254,20 +254,170 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
           ">
             <div style="color: white; font-size: 10px; font-weight: bold;">P</div>
           </div>
         `;
 
-        // Create popup for project info
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div style="min-width: 200px;">
-            <h3 style="margin: 0 0 8px 0; font-weight: bold;">${project.name}</h3>
-            <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">ID: ${project.project_id}</p>
-            <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">Status: ${project.status || 'Unknown'}</p>
-            ${project.description ? `<p style="margin: 4px 0 0 0; font-size: 12px;">${project.description}</p>` : ''}
+        // Create hover tooltip
+        const hoverTooltip = document.createElement('div');
+        hoverTooltip.className = 'hover-tooltip';
+        hoverTooltip.style.cssText = `
+          position: absolute;
+          background: hsl(var(--background));
+          border: 1px solid hsl(var(--border));
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12px;
+          font-weight: 500;
+          color: hsl(var(--foreground));
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 1000;
+          transform: translateY(-100%);
+          margin-top: -8px;
+          display: none;
+        `;
+        hoverTooltip.textContent = project.name;
+        markerElement.appendChild(hoverTooltip);
+
+        // Add hover effects
+        markerElement.addEventListener('mouseenter', () => {
+          const pin = markerElement.querySelector('.marker-pin') as HTMLElement;
+          if (pin) {
+            pin.style.transform = 'scale(1.1)';
+            pin.style.backgroundColor = '#2563eb';
+          }
+          hoverTooltip.style.display = 'block';
+        });
+
+        markerElement.addEventListener('mouseleave', () => {
+          const pin = markerElement.querySelector('.marker-pin') as HTMLElement;
+          if (pin) {
+            pin.style.transform = 'scale(1)';
+            pin.style.backgroundColor = '#3b82f6';
+          }
+          hoverTooltip.style.display = 'none';
+        });
+
+        // Create redesigned popup with better styling
+        const popupContent = document.createElement('div');
+        popupContent.style.cssText = `
+          min-width: 280px;
+          background: hsl(var(--background));
+          border-radius: 12px;
+          padding: 0;
+          font-family: ui-sans-serif, system-ui, sans-serif;
+        `;
+
+        popupContent.innerHTML = `
+          <div style="
+            padding: 20px;
+            border-bottom: 1px solid hsl(var(--border));
+          ">
+            <h3 style="
+              margin: 0 0 8px 0; 
+              font-size: 18px;
+              font-weight: 600;
+              color: hsl(var(--foreground));
+              line-height: 1.4;
+            ">${project.name}</h3>
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 4px;
+            ">
+              <span style="
+                font-size: 12px;
+                color: hsl(var(--muted-foreground));
+                font-weight: 500;
+              ">ID:</span>
+              <span style="
+                font-size: 12px;
+                color: hsl(var(--foreground));
+                font-family: monospace;
+                background: hsl(var(--muted));
+                padding: 2px 6px;
+                border-radius: 4px;
+              ">${project.project_id}</span>
+            </div>
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: ${project.description ? '12px' : '0'};
+            ">
+              <span style="
+                font-size: 12px;
+                color: hsl(var(--muted-foreground));
+                font-weight: 500;
+              ">Status:</span>
+              <span style="
+                font-size: 12px;
+                color: hsl(var(--primary));
+                font-weight: 500;
+                background: hsl(var(--primary) / 0.1);
+                padding: 2px 8px;
+                border-radius: 12px;
+              ">${project.status || 'Unknown'}</span>
+            </div>
+            ${project.description ? `
+              <p style="
+                margin: 0;
+                font-size: 14px;
+                color: hsl(var(--muted-foreground));
+                line-height: 1.4;
+              ">${project.description}</p>
+            ` : ''}
           </div>
-        `);
+          <div style="
+            padding: 16px 20px;
+          ">
+            <button id="open-project-btn" style="
+              width: 100%;
+              background: hsl(var(--primary));
+              color: hsl(var(--primary-foreground));
+              border: none;
+              border-radius: 8px;
+              padding: 10px 16px;
+              font-size: 14px;
+              font-weight: 500;
+              cursor: pointer;
+              transition: background-color 0.2s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+            " onmouseover="this.style.background='hsl(var(--primary) / 0.9)'" onmouseout="this.style.background='hsl(var(--primary))'">
+              <span>OPEN PROJECT</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7"></path>
+                <path d="M7 7h10v10"></path>
+              </svg>
+            </button>
+          </div>
+        `;
+
+        const popup = new mapboxgl.Popup({ 
+          offset: 25,
+          closeButton: true,
+          closeOnClick: true,
+          className: 'custom-popup'
+        }).setDOMContent(popupContent);
+
+        // Add click handler for the OPEN PROJECT button
+        popup.on('open', () => {
+          const openBtn = document.getElementById('open-project-btn');
+          if (openBtn && onSelectProject) {
+            openBtn.addEventListener('click', () => {
+              onSelectProject(project.id);
+              popup.remove();
+            });
+          }
+        });
 
         // Create and add marker to map - with error handling
         try {
