@@ -76,18 +76,6 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
           ))}
         </div>
 
-        {/* Additional Sections */}
-        <div className="mt-8 space-y-4">
-          <div>
-            <h4 className="text-xs font-medium text-muted-foreground mb-2 font-inter uppercase tracking-wider">Admin & Users Accounts</h4>
-            <div className="space-y-1">
-              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Lead Contacts</div>
-              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Opportunities</div>
-              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Product Campaigns</div>
-              <div className="text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors cursor-pointer">Insights</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Team Members */}
