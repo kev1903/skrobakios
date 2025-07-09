@@ -203,11 +203,18 @@ async function handleOAuthCallback(req: Request) {
 
   } catch (error) {
     console.error('💥 OAuth callback error:', error)
+    console.error('💥 Error details:', error.message)
+    console.error('💥 Error stack:', error.stack)
+    
+    // Return more detailed error information for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    
     return new Response(`
       <html>
         <body>
           <h1>Authentication Error</h1>
-          <p>Something went wrong during authentication. Please try again.</p>
+          <p>Something went wrong during authentication: ${errorMessage}</p>
+          <p>Please check the console logs and try again.</p>
           <script>
             if (window.opener) {
               window.opener.postMessage('xero-auth-error', '*');
