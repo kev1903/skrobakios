@@ -51,7 +51,7 @@ export const InvoicesHeader = ({ onNavigate, onInvoicesSync }: InvoicesHeaderPro
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => navigate('/')}
+            onClick={() => onNavigate ? onNavigate('finance') : navigate('/finance')}
             className="flex items-center space-x-2"
           >
             <ArrowLeft className="w-4 h-4" />

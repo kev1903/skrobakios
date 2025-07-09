@@ -9,8 +9,8 @@ interface InvoiceStats {
   outstandingTotal: number;
   overdueCount: number;
   overdueTotal: number;
-  pastDueCount: number;
-  pastDueTotal: number;
+  expectedThisWeekCount: number;
+  expectedThisWeekTotal: number;
   currency: string;
 }
 
@@ -20,8 +20,8 @@ export const InvoicesSummaryCards = () => {
     outstandingTotal: 0,
     overdueCount: 0,
     overdueTotal: 0,
-    pastDueCount: 0,
-    pastDueTotal: 0,
+    expectedThisWeekCount: 0,
+    expectedThisWeekTotal: 0,
     currency: 'USD'
   });
   const [loading, setLoading] = useState(true);
@@ -47,11 +47,26 @@ export const InvoicesSummaryCards = () => {
       }
 
       const now = new Date();
+      
+      // Calculate next Friday
+      const today = new Date();
+      const daysUntilFriday = (5 - today.getDay() + 7) % 7; // 5 = Friday
+      const nextFriday = new Date(today);
+      nextFriday.setDate(today.getDate() + (daysUntilFriday === 0 ? 7 : daysUntilFriday));
+      nextFriday.setHours(23, 59, 59, 999); // End of Friday
+
       const outstanding = invoices.filter(inv => inv.status !== 'PAID' && parseFloat(String(inv.amount_due || 0)) > 0);
       const overdue = invoices.filter(inv => {
         if (inv.status === 'PAID') return false;
         if (!inv.due_date) return false;
         return new Date(inv.due_date) < now;
+      });
+      
+      const expectedThisWeek = invoices.filter(inv => {
+        if (inv.status === 'PAID') return false;
+        if (!inv.due_date) return false;
+        const dueDate = new Date(inv.due_date);
+        return dueDate >= now && dueDate <= nextFriday && parseFloat(String(inv.amount_due || 0)) > 0;
       });
       
       const currency = invoices[0]?.currency_code || 'USD';
@@ -61,8 +76,8 @@ export const InvoicesSummaryCards = () => {
         outstandingTotal: outstanding.reduce((sum, inv) => sum + parseFloat(String(inv.amount_due || 0)), 0),
         overdueCount: overdue.length,
         overdueTotal: overdue.reduce((sum, inv) => sum + parseFloat(String(inv.amount_due || 0)), 0),
-        pastDueCount: overdue.length, // Same as overdue for simplicity
-        pastDueTotal: overdue.reduce((sum, inv) => sum + parseFloat(String(inv.amount_due || 0)), 0),
+        expectedThisWeekCount: expectedThisWeek.length,
+        expectedThisWeekTotal: expectedThisWeek.reduce((sum, inv) => sum + parseFloat(String(inv.amount_due || 0)), 0),
         currency
       });
     } catch (error) {
@@ -122,13 +137,12 @@ export const InvoicesSummaryCards = () => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600 flex items-center space-x-2">
-            <span>Total of {stats.pastDueCount} past expected date invoices</span>
-            {stats.pastDueCount > 0 && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
+          <CardTitle className="text-sm font-medium text-gray-600">
+            Total of {stats.expectedThisWeekCount} expected payments until Friday
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(stats.pastDueTotal, stats.currency)}</div>
+          <div className="text-2xl font-bold">{formatCurrency(stats.expectedThisWeekTotal, stats.currency)}</div>
         </CardContent>
       </Card>
     </div>
