@@ -54,28 +54,6 @@ export const ProjectGridView = ({
             {project.description || 'No description available'}
           </p>
           
-           <div className="space-y-2 mb-4">
-             <div className="flex justify-between text-sm">
-               <span className="text-muted-foreground">Contract Price:</span>
-               <span className="text-foreground">{project.contract_price || '-'}</span>
-             </div>
-             <div className="flex justify-between text-sm">
-               <span className="text-muted-foreground">Location:</span>
-               <span className="text-foreground">{project.location || '-'}</span>
-             </div>
-             <div className="flex justify-between text-sm">
-               <span className="text-muted-foreground">Priority:</span>
-               <span className="text-foreground">{project.priority || '-'}</span>
-             </div>
-             <div className="flex justify-between text-sm">
-               <span className="text-muted-foreground">Start Date:</span>
-               <span className="text-foreground">{project.start_date ? formatDate(project.start_date) : '-'}</span>
-             </div>
-             <div className="flex justify-between text-sm">
-               <span className="text-muted-foreground">Due Date:</span>
-               <span className="text-foreground">{project.deadline ? formatDate(project.deadline) : '-'}</span>
-             </div>
-           </div>
           
           <div className="flex items-center justify-between">
             <Badge 

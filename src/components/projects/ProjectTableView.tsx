@@ -51,11 +51,6 @@ export const ProjectTableView = ({
              <SortableTableHeader field="project_id" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>ID</SortableTableHeader>
              <SortableTableHeader field="name" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Project Name</SortableTableHeader>
              <SortableTableHeader field="description" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Description</SortableTableHeader>
-             <SortableTableHeader field="contract_price" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Contract Price</SortableTableHeader>
-             <SortableTableHeader field="location" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Location</SortableTableHeader>
-             <SortableTableHeader field="priority" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Priority</SortableTableHeader>
-             <SortableTableHeader field="start_date" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Start Date</SortableTableHeader>
-             <SortableTableHeader field="deadline" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Due Date</SortableTableHeader>
              <SortableTableHeader field="status" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Status</SortableTableHeader>
             <TableHead className="w-12"></TableHead>
           </TableRow>
@@ -86,21 +81,6 @@ export const ProjectTableView = ({
                 </TableCell>
                  <TableCell className="text-muted-foreground">
                    {project.description || '-'}
-                 </TableCell>
-                 <TableCell className="text-muted-foreground">
-                   {project.contract_price || '-'}
-                 </TableCell>
-                 <TableCell className="text-muted-foreground">
-                   {project.location || '-'}
-                 </TableCell>
-                 <TableCell className="text-muted-foreground">
-                   {project.priority || '-'}
-                 </TableCell>
-                 <TableCell className="text-muted-foreground">
-                   {project.start_date ? formatDate(project.start_date) : '-'}
-                 </TableCell>
-                 <TableCell className="text-muted-foreground">
-                   {project.deadline ? formatDate(project.deadline) : '-'}
                  </TableCell>
                 <TableCell>
                   <Badge 

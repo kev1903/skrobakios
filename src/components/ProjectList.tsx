@@ -7,6 +7,7 @@ import { ProjectListProps, SortField, SortDirection, ViewMode } from "./projects
 import { ProjectListHeader } from "./projects/ProjectListHeader";
 import { ProjectGridView } from "./projects/ProjectGridView";
 import { ProjectTableView } from "./projects/ProjectTableView";
+import { ProjectDashboardView } from "./projects/ProjectDashboardView";
 import { ProjectLoadingState } from "./projects/ProjectLoadingState";
 import { ProjectEmptyState } from "./projects/ProjectEmptyState";
 
@@ -115,6 +116,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
           {/* Projects Content */}
           {projects.length === 0 ? (
             <ProjectEmptyState onNavigate={onNavigate} />
+          ) : viewMode === 'dashboard' ? (
+            <ProjectDashboardView projects={getSortedProjects()} />
           ) : viewMode === 'grid' ? (
             <ProjectGridView
               projects={getSortedProjects()}

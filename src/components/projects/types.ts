@@ -5,9 +5,9 @@ export interface ProjectListProps {
   onSelectProject?: (projectId: string) => void;
 }
 
-export type SortField = 'project_id' | 'name' | 'description' | 'contract_price' | 'location' | 'priority' | 'start_date' | 'deadline' | 'status';
+export type SortField = 'project_id' | 'name' | 'description' | 'status';
 export type SortDirection = 'asc' | 'desc';
-export type ViewMode = 'list' | 'grid';
+export type ViewMode = 'list' | 'grid' | 'dashboard';
 
 export interface ProjectListHeaderProps {
   projectsCount: number;

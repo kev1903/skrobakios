@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, LayoutGrid, List } from "lucide-react";
+import { Plus, Filter, LayoutGrid, List, BarChart3 } from "lucide-react";
 import { ProjectListHeaderProps, ViewMode } from "./types";
 
 export const ProjectListHeader = ({ 
@@ -40,6 +40,14 @@ export const ProjectListHeader = ({
             className="transition-all duration-200"
           >
             <LayoutGrid className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'dashboard' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => onViewModeChange('dashboard')}
+            className="transition-all duration-200"
+          >
+            <BarChart3 className="w-4 h-4" />
           </Button>
         </div>
         <Button
