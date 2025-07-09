@@ -36,8 +36,8 @@ export const ProjectTableView = ({
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50 border-border hover:bg-muted transition-colors duration-200 h-10">
-            <TableHead className="w-10 py-2">
+          <TableRow className="bg-muted/50 border-border hover:bg-muted transition-colors duration-200 h-8">
+            <TableHead className="w-10 py-1">
               <input
                 type="checkbox"
                 checked={isAllSelected}
@@ -52,15 +52,15 @@ export const ProjectTableView = ({
              <SortableTableHeader field="name" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Project Name</SortableTableHeader>
              <SortableTableHeader field="description" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Description</SortableTableHeader>
              <SortableTableHeader field="status" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Status</SortableTableHeader>
-            <TableHead className="w-10 py-2"></TableHead>
+            <TableHead className="w-10 py-1"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {projects.map((project) => {
             console.log("Rendering project:", project.name, "with ID:", project.id);
             return (
-              <TableRow key={project.id} className="hover:bg-muted/50 border-border transition-colors duration-200 h-12">
-                <TableCell className="py-2">
+              <TableRow key={project.id} className="hover:bg-muted/50 border-border transition-colors duration-200 h-9">
+                <TableCell className="py-1">
                   <input
                     type="checkbox"
                     checked={selectedProjects.includes(project.id)}
@@ -68,10 +68,10 @@ export const ProjectTableView = ({
                     className="rounded border-input bg-background text-primary focus:ring-primary/30 scale-90"
                   />
                 </TableCell>
-                <TableCell className="font-mono text-sm text-muted-foreground py-2">
+                <TableCell className="font-mono text-sm text-muted-foreground py-1">
                   #{project.project_id}
                 </TableCell>
-                <TableCell className="font-medium text-foreground py-2">
+                <TableCell className="font-medium text-foreground py-1">
                   <button
                     onClick={() => onProjectClick(project.id)}
                     className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
@@ -79,10 +79,10 @@ export const ProjectTableView = ({
                     {project.name}
                   </button>
                 </TableCell>
-                 <TableCell className="text-muted-foreground py-2">
+                 <TableCell className="text-muted-foreground py-1">
                    {project.description || '-'}
                  </TableCell>
-                <TableCell className="py-2">
+                <TableCell className="py-1">
                   <Badge 
                     variant="outline" 
                     className={getStatusColor(project.status)}
@@ -90,7 +90,7 @@ export const ProjectTableView = ({
                     {getStatusText(project.status)}
                   </Badge>
                 </TableCell>
-                <TableCell className="py-2">
+                <TableCell className="py-1">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="w-6 h-6 p-0 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200">

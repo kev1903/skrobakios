@@ -10,7 +10,7 @@ export const SortableTableHeader = ({
   onSort 
 }: SortableHeaderProps) => (
   <TableHead 
-    className="font-medium text-foreground cursor-pointer hover:bg-muted/50 select-none transition-colors duration-200 py-2"
+    className="font-medium text-foreground cursor-pointer hover:bg-muted/50 select-none transition-colors duration-200 py-1"
     onClick={() => onSort(field)}
   >
     <div className="flex items-center space-x-1">
