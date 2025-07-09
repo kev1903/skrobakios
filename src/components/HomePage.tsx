@@ -306,8 +306,6 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         const popupContent = document.createElement('div');
         popupContent.style.cssText = `
           min-width: 280px;
-          background: hsl(var(--background));
-          border-radius: 12px;
           padding: 0;
           font-family: ui-sans-serif, system-ui, sans-serif;
         `;
