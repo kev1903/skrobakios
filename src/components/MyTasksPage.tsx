@@ -183,27 +183,29 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
           />
 
           {/* Tasks Content */}
-          {tasks.length === 0 ? (
-            <MyTasksEmptyState onNavigate={onNavigate} />
-          ) : viewMode === 'grid' ? (
-            <MyTasksGridView
-              tasks={getSortedTasks()}
-              selectedTasks={selectedTasks}
-              onSelectTask={handleSelectTask}
-              onTaskClick={handleTaskClick}
-            />
-          ) : (
-            <MyTasksTableView
-              tasks={getSortedTasks()}
-              selectedTasks={selectedTasks}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              onSelectAll={handleSelectAll}
-              onSelectTask={handleSelectTask}
-              onTaskClick={handleTaskClick}
-            />
-          )}
+          <div className="mt-2">
+            {tasks.length === 0 ? (
+              <MyTasksEmptyState onNavigate={onNavigate} />
+            ) : viewMode === 'grid' ? (
+              <MyTasksGridView
+                tasks={getSortedTasks()}
+                selectedTasks={selectedTasks}
+                onSelectTask={handleSelectTask}
+                onTaskClick={handleTaskClick}
+              />
+            ) : (
+              <MyTasksTableView
+                tasks={getSortedTasks()}
+                selectedTasks={selectedTasks}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                onSelectAll={handleSelectAll}
+                onSelectTask={handleSelectTask}
+                onTaskClick={handleTaskClick}
+              />
+            )}
+          </div>
         </div>
       </div>
 
