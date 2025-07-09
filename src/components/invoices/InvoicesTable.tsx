@@ -19,14 +19,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Filter, 
   MoreHorizontal, 
   AlertTriangle,
-  ArrowUpDown
+  ArrowUpDown,
+  Eye,
+  Edit,
+  FileText
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface XeroInvoice {
   id: string;
@@ -48,6 +58,7 @@ export const InvoicesTable = () => {
   const [invoices, setInvoices] = useState<XeroInvoice[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchInvoices();
@@ -300,9 +311,30 @@ export const InvoicesTable = () => {
                   {formatCurrency(invoice.amount_due, invoice.currency_code)}
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem 
+                        onClick={() => navigate(`/invoice-details/${invoice.id}`)}
+                        className="flex items-center space-x-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>View Details</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="flex items-center space-x-2">
+                        <Edit className="w-4 h-4" />
+                        <span>Edit Invoice</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="flex items-center space-x-2">
+                        <FileText className="w-4 h-4" />
+                        <span>Download PDF</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))
