@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Plus, Download, Filter, MoreHorizontal, Eye, Edit, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,11 @@ interface TaskManagementProps {
 }
 
 export const TaskManagement = ({ onNavigate }: TaskManagementProps) => {
+  // Redirect to the new MY TASKS page
+  React.useEffect(() => {
+    onNavigate("my-tasks");
+  }, [onNavigate]);
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const tasks = [
