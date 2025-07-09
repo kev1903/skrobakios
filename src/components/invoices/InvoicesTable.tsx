@@ -133,6 +133,11 @@ export const InvoicesTable = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Calculate total amount due for filtered invoices
+  const totalAmountDue = filteredInvoices.reduce((sum, invoice) => {
+    return sum + (invoice.amount_due || 0);
+  }, 0);
+
   const handleStatusFilterChange = (status: string, checked: boolean) => {
     if (checked) {
       setStatusFilters([...statusFilters, status]);
@@ -324,26 +329,26 @@ export const InvoicesTable = () => {
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>
-              <div className="flex items-center space-x-1">
-                <span>Invoice Date</span>
-                <ArrowUpDown className="w-4 h-4" />
-              </div>
-            </TableHead>
             <TableHead>Due Date</TableHead>
             <TableHead>Invoice Number</TableHead>
             <TableHead>Contact</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-center">Allocation</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead className="text-right">Amount Due</TableHead>
+            <TableHead className="text-center">Reconciled</TableHead>
+            <TableHead className="text-right">
+              <div className="flex flex-col items-end">
+                <span>Amount Due</span>
+                <span className="text-xs font-normal text-gray-500">
+                  Total: {formatCurrency(totalAmountDue, filteredInvoices[0]?.currency_code)}
+                </span>
+              </div>
+            </TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredInvoices.length === 0 ? (
+           {filteredInvoices.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                 {invoices.length === 0 
                   ? "No invoices found. Connect to Xero and sync your data to see invoices here." 
                   : "No invoices match your search criteria."
@@ -360,14 +365,6 @@ export const InvoicesTable = () => {
                       handleSelectInvoice(invoice.id, checked as boolean)
                     }
                   />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <span>{formatDate(invoice.date)}</span>
-                    {isOverdue(invoice.due_date, invoice.status) && (
-                      <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                    )}
-                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
@@ -393,9 +390,6 @@ export const InvoicesTable = () => {
                   {allocatedInvoices.has(invoice.id) && (
                     <Check className="w-5 h-5 text-green-600 mx-auto" />
                   )}
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(invoice.total, invoice.currency_code)}
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCurrency(invoice.amount_due, invoice.currency_code)}
