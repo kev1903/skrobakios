@@ -1,14 +1,49 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface InvoicesHeaderProps {
   onNavigate?: (page: string) => void;
+  onInvoicesSync?: () => void;
 }
 
-export const InvoicesHeader = ({ onNavigate }: InvoicesHeaderProps) => {
+export const InvoicesHeader = ({ onNavigate, onInvoicesSync }: InvoicesHeaderProps) => {
   const navigate = useNavigate();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { toast } = useToast();
+
+  const handleSyncInvoices = async () => {
+    try {
+      setIsSyncing(true);
+      
+      const { data, error } = await supabase.functions.invoke('xero-sync', {
+        body: { action: 'sync' }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invoices synced successfully from Xero",
+      });
+
+      // Notify parent to refresh the table
+      onInvoicesSync?.();
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to sync invoices. Please ensure you're connected to Xero.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -28,8 +63,13 @@ export const InvoicesHeader = ({ onNavigate }: InvoicesHeaderProps) => {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <Button className="flex items-center space-x-2">
-            <span>Sync Invoices</span>
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={handleSyncInvoices}
+            disabled={isSyncing}
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Syncing...' : 'Sync Invoices'}</span>
           </Button>
         </div>
       </div>
