@@ -1,7 +1,6 @@
 
 import { InvoicesHeader } from "./invoices/InvoicesHeader";
 import { InvoicesSummaryCards } from "./invoices/InvoicesSummaryCards";
-import { InvoicesChart } from "./invoices/InvoicesChart";
 import { InvoicesWarningBanner } from "./invoices/InvoicesWarningBanner";
 import { InvoicesTable } from "./invoices/InvoicesTable";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +25,6 @@ export const InvoicesPage = ({ onNavigate }: InvoicesPageProps) => {
         onInvoicesSync={handleInvoicesSync}
       />
       <InvoicesSummaryCards key={`summary-${refreshTrigger}`} />
-      <InvoicesChart key={`chart-${refreshTrigger}`} />
       <InvoicesWarningBanner key={`warning-${refreshTrigger}`} />
       <InvoicesTable key={`table-${refreshTrigger}`} />
     </div>

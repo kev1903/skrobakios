@@ -398,9 +398,9 @@ export const InvoiceDetailsPage = () => {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <FolderTree className="w-5 h-5" />
-              <span>Allocation</span>
+              <span>Reconcile</span>
             </CardTitle>
-            <CardDescription>Assign this invoice to accounts and projects</CardDescription>
+            <CardDescription>Reconcile this invoice to accounts and projects</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Account Selection */}

@@ -32,7 +32,8 @@ import {
   ArrowUpDown,
   Eye,
   Edit,
-  FileText
+  FileText,
+  Check
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -56,12 +57,14 @@ export const InvoicesTable = () => {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [invoices, setInvoices] = useState<XeroInvoice[]>([]);
+  const [allocatedInvoices, setAllocatedInvoices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchInvoices();
+    fetchAllocatedInvoices();
   }, []);
 
   const fetchInvoices = async () => {
@@ -92,6 +95,24 @@ export const InvoicesTable = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllocatedInvoices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('invoice_allocations')
+        .select('invoice_id');
+
+      if (error) {
+        console.error('Error fetching allocated invoices:', error);
+        return;
+      }
+
+      const allocatedIds = new Set(data?.map(allocation => allocation.invoice_id) || []);
+      setAllocatedInvoices(allocatedIds);
+    } catch (error) {
+      console.error('Error fetching allocated invoices:', error);
     }
   };
 
@@ -250,6 +271,7 @@ export const InvoicesTable = () => {
             <TableHead>Invoice Number</TableHead>
             <TableHead>Contact</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead className="text-center">Allocation</TableHead>
             <TableHead className="text-right">Total</TableHead>
             <TableHead className="text-right">Amount Due</TableHead>
             <TableHead className="w-12"></TableHead>
@@ -258,7 +280,7 @@ export const InvoicesTable = () => {
         <TableBody>
           {filteredInvoices.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                 {invoices.length === 0 
                   ? "No invoices found. Connect to Xero and sync your data to see invoices here." 
                   : "No invoices match your search criteria."
@@ -303,6 +325,11 @@ export const InvoicesTable = () => {
                 <TableCell>{invoice.contact_name || 'N/A'}</TableCell>
                 <TableCell>
                   {getStatusBadge(invoice.status)}
+                </TableCell>
+                <TableCell className="text-center">
+                  {allocatedInvoices.has(invoice.id) && (
+                    <Check className="w-5 h-5 text-green-600 mx-auto" />
+                  )}
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCurrency(invoice.total, invoice.currency_code)}
@@ -368,7 +395,10 @@ export const InvoicesTable = () => {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={fetchInvoices}
+            onClick={() => {
+              fetchInvoices();
+              fetchAllocatedInvoices();
+            }}
             className="flex items-center space-x-2"
           >
             <span>Refresh</span>
