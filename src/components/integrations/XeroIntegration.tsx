@@ -36,9 +36,16 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
     connected_at?: string;
   } | null>(null);
 
-  // Check connection status on component mount
+  // Check connection status on component mount and periodically
   useEffect(() => {
     checkConnectionStatus();
+    
+    // Set up periodic status checks (every 5 minutes)
+    const statusInterval = setInterval(() => {
+      if (isConnected) {
+        checkConnectionStatus();
+      }
+    }, 5 * 60 * 1000); // 5 minutes
 
     // Listen for OAuth completion messages
     const handleMessage = (event: MessageEvent) => {
@@ -52,8 +59,12 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
     };
 
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+    
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      clearInterval(statusInterval);
+    };
+  }, [isConnected]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
@@ -101,7 +112,14 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
         body: { action: 'status' }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Status check error:', error);
+        // If there's an error, assume disconnected but don't throw
+        setIsConnected(false);
+        setConnectionInfo(null);
+        setLastSync(null);
+        return;
+      }
       
       if (data?.connected && data?.connection) {
         setIsConnected(true);
@@ -113,6 +131,15 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
         setIsConnected(false);
         setConnectionInfo(null);
         setLastSync(null);
+        
+        // If the response indicates token refresh failed, show appropriate message
+        if (data?.error?.includes('refresh failed')) {
+          toast({
+            title: 'Connection Expired',
+            description: 'Your Xero connection has expired. Please reconnect.',
+            variant: 'destructive'
+          });
+        }
       }
     } catch (error) {
       console.error('Status check error:', error);
@@ -148,24 +175,59 @@ export const XeroIntegration = ({ onBack }: XeroIntegrationProps) => {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      const { error } = await supabase.functions.invoke('xero-sync', {
+      const { data, error } = await supabase.functions.invoke('xero-sync', {
         body: { action: 'sync' }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Sync error:', error);
+        throw new Error(error.message || 'Failed to sync data from Xero');
+      }
       
       setLastSync(new Date());
-      toast({
-        title: 'Sync Complete',
-        description: 'Successfully synced data from Xero.',
-      });
+      
+      // Show detailed sync results if available
+      if (data?.results) {
+        const { results } = data;
+        const successMsg = `Synced ${results.invoices} invoices, ${results.contacts} contacts, ${results.accounts} accounts`;
+        
+        toast({
+          title: 'Sync Complete',
+          description: results.errors.length > 0 
+            ? `${successMsg}. Some errors occurred.`
+            : successMsg,
+          variant: results.errors.length > 0 ? 'destructive' : 'default'
+        });
+        
+        // Log any errors for debugging
+        if (results.errors.length > 0) {
+          console.warn('Sync errors:', results.errors);
+        }
+      } else {
+        toast({
+          title: 'Sync Complete',
+          description: 'Successfully synced data from Xero.',
+        });
+      }
     } catch (error) {
       console.error('Sync error:', error);
-      toast({
-        title: 'Sync Failed',
-        description: 'Failed to sync data from Xero. Please try again.',
-        variant: 'destructive'
-      });
+      
+      // Check if it's a connection issue
+      if (error.message?.includes('No Xero connection found')) {
+        setIsConnected(false);
+        setConnectionInfo(null);
+        toast({
+          title: 'Connection Lost',
+          description: 'Your Xero connection has been lost. Please reconnect.',
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Sync Failed',
+          description: error.message || 'Failed to sync data from Xero. Please try again.',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setIsSyncing(false);
     }

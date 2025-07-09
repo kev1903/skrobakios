@@ -172,7 +172,7 @@ async function handleOAuthCallback(req: Request) {
       .upsert({
         user_id: stateRecord.user_id,
         access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token || tokens.access_token, // Fallback if refresh_token is missing
+        refresh_token: tokens.refresh_token,
         expires_at: new Date(Date.now() + (tokens.expires_in || 1800) * 1000).toISOString(),
         tenant_id: connections[0]?.tenantId,
         tenant_name: connections[0]?.tenantName,
@@ -388,14 +388,17 @@ serve(async (req) => {
 
           const tokens = await refreshResponse.json()
 
-          // Update stored tokens
+          // Update stored tokens with better handling
+          const updatedConnection = {
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token || connection.refresh_token, // Keep existing if new one not provided
+            expires_at: new Date(Date.now() + (tokens.expires_in || 1800) * 1000).toISOString(),
+            last_sync: new Date().toISOString()
+          }
+          
           await supabase
             .from('xero_connections')
-            .update({
-              access_token: tokens.access_token,
-              refresh_token: tokens.refresh_token,
-              expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString()
-            })
+            .update(updatedConnection)
             .eq('user_id', user.id)
 
           console.log('✅ Token refreshed successfully')
