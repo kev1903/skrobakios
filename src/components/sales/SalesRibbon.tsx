@@ -49,44 +49,6 @@ export const SalesRibbon = ({ activeTab, onTabChange, onBack }: SalesRibbonProps
           </div>
         </div>
 
-        {/* Task Management Section */}
-        <div className="space-y-1">
-          <h3 className="text-xs font-medium text-muted-foreground mb-2 font-inter uppercase tracking-wider">Task Management</h3>
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>All Task</span>
-              <span className="text-xs text-muted-foreground">(30)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Lead</span>
-              <span className="text-xs text-muted-foreground">(5)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Contacted</span>
-              <span className="text-xs text-muted-foreground">(6)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Qualified</span>
-              <span className="text-xs text-muted-foreground">(4)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Proposal made</span>
-              <span className="text-xs text-muted-foreground">(15)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Won</span>
-              <span className="text-xs text-muted-foreground">(10)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Lost</span>
-              <span className="text-xs text-muted-foreground">(5)</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-sidebar-foreground hover:bg-white/10 px-2 py-1 rounded transition-colors">
-              <span>Fridge</span>
-              <span className="text-xs text-muted-foreground">(5)</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Navigation */}
