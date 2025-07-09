@@ -345,7 +345,7 @@ serve(async (req) => {
       case 'initiate': {
         console.log('🚀 Initiating OAuth flow...')
         // Generate OAuth URL
-        const scopes = 'openid profile email accounting.transactions accounting.contacts accounting.settings'
+        const scopes = 'openid profile email offline_access accounting.transactions accounting.contacts accounting.settings'
         const state = crypto.randomUUID()
         
         // Store state in database for verification
