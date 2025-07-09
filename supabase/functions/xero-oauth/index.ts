@@ -143,6 +143,21 @@ async function handleOAuthCallback(req: Request) {
     const tokens = await tokenResponse.json()
     console.log('✅ Token response received:', JSON.stringify(tokens, null, 2))
     console.log('🔍 Token fields available:', Object.keys(tokens))
+    console.log('🔍 Access token present:', !!tokens.access_token)
+    console.log('🔍 Refresh token present:', !!tokens.refresh_token)
+    console.log('🔍 Refresh token value:', tokens.refresh_token)
+
+    // Validate required tokens
+    if (!tokens.access_token) {
+      console.error('❌ No access token in response')
+      throw new Error('No access token received from Xero')
+    }
+
+    if (!tokens.refresh_token) {
+      console.error('❌ No refresh token in response')
+      console.error('❌ Full token response:', JSON.stringify(tokens, null, 2))
+      throw new Error('No refresh token received from Xero - this is required for maintaining the connection')
+    }
 
     // Get tenant information
     console.log('🔄 Fetching tenant info...')
@@ -152,8 +167,19 @@ async function handleOAuthCallback(req: Request) {
       }
     })
 
+    if (!connectionsResponse.ok) {
+      console.error('❌ Failed to fetch tenant info:', await connectionsResponse.text())
+      throw new Error('Failed to get tenant information from Xero')
+    }
+
     const connections = await connectionsResponse.json()
     console.log('✅ Tenant info received:', connections[0]?.tenantName)
+    console.log('🔍 Tenant details:', JSON.stringify(connections[0], null, 2))
+
+    if (!connections || connections.length === 0) {
+      console.error('❌ No Xero organizations found')
+      throw new Error('No Xero organizations found for this account')
+    }
 
     // Store tokens and connection info
     console.log('💾 Storing connection data...')
@@ -161,7 +187,7 @@ async function handleOAuthCallback(req: Request) {
       user_id: stateRecord.user_id,
       has_access_token: !!tokens.access_token,
       has_refresh_token: !!tokens.refresh_token,
-      refresh_token_value: tokens.refresh_token,
+      refresh_token_length: tokens.refresh_token?.length || 0,
       expires_in: tokens.expires_in,
       tenant_id: connections[0]?.tenantId,
       tenant_name: connections[0]?.tenantName
