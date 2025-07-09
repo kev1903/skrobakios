@@ -74,6 +74,118 @@ export type Database = {
           },
         ]
       }
+      estimate_line_items: {
+        Row: {
+          created_at: string
+          estimate_id: string
+          id: string
+          item_description: string
+          line_total: number | null
+          quantity: number
+          sort_order: number | null
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimate_id: string
+          id?: string
+          item_description: string
+          line_total?: number | null
+          quantity?: number
+          sort_order?: number | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimate_id?: string
+          id?: string
+          item_description?: string
+          line_total?: number | null
+          quantity?: number
+          sort_order?: number | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_line_items_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimates: {
+        Row: {
+          client_email: string | null
+          client_name: string | null
+          created_at: string
+          created_by: string | null
+          estimate_date: string
+          estimate_name: string
+          estimate_number: string
+          expiry_date: string | null
+          id: string
+          last_modified_by: string | null
+          notes: string | null
+          project_id: string | null
+          status: string
+          subtotal: number | null
+          tax_amount: number | null
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          estimate_date?: string
+          estimate_name: string
+          estimate_number: string
+          expiry_date?: string | null
+          id?: string
+          last_modified_by?: string | null
+          notes?: string | null
+          project_id?: string | null
+          status?: string
+          subtotal?: number | null
+          tax_amount?: number | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          estimate_date?: string
+          estimate_name?: string
+          estimate_number?: string
+          expiry_date?: string | null
+          id?: string
+          last_modified_by?: string | null
+          notes?: string | null
+          project_id?: string | null
+          status?: string
+          subtotal?: number | null
+          tax_amount?: number | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_allocations: {
         Row: {
           account_id: string | null

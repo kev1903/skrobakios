@@ -24,6 +24,15 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    if (tab === 'estimates') {
+      // Navigate to the dedicated estimates page
+      window.location.href = '/estimates';
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -57,7 +66,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
       <div className="relative z-10 flex min-h-screen">
         {/* Sales Ribbon - Fixed sidebar */}
         <div className="fixed left-0 top-0 h-screen z-50">
-          <SalesRibbon activeTab={activeTab} onTabChange={setActiveTab} onBack={handleBack} />
+          <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
         </div>
         
         {/* Main Content Area - Offset by sidebar width */}
