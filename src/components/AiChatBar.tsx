@@ -108,7 +108,7 @@ export const AiChatBar = () => {
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span className="font-medium text-sm">AI Assistant</span>
+          <span className="font-medium text-sm">Skai</span>
         </div>
         <div className="flex items-center space-x-1">
           <Button
@@ -138,7 +138,7 @@ export const AiChatBar = () => {
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground text-sm py-8">
                   <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>Hi! I'm your AI assistant.</p>
+                  <p>Hi! I'm Skai.</p>
                   <p>Ask me anything about your projects!</p>
                 </div>
               )}
