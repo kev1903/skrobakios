@@ -59,6 +59,7 @@ export const InvoicesTable = () => {
   const [invoices, setInvoices] = useState<XeroInvoice[]>([]);
   const [allocatedInvoices, setAllocatedInvoices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -117,10 +118,28 @@ export const InvoicesTable = () => {
     }
   };
 
-  const filteredInvoices = invoices.filter(invoice => 
-    invoice.invoice_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    invoice.contact_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Get all unique statuses from invoices
+  const availableStatuses = [...new Set(invoices.map(invoice => invoice.status).filter(Boolean))];
+
+  const filteredInvoices = invoices.filter(invoice => {
+    // Search filter
+    const matchesSearch = invoice.invoice_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.contact_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Status filter
+    const matchesStatus = statusFilters.length === 0 || 
+      (invoice.status && statusFilters.includes(invoice.status));
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleStatusFilterChange = (status: string, checked: boolean) => {
+    if (checked) {
+      setStatusFilters([...statusFilters, status]);
+    } else {
+      setStatusFilters(statusFilters.filter(s => s !== status));
+    }
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -221,10 +240,53 @@ export const InvoicesTable = () => {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" className="flex items-center space-x-2">
-            <Filter className="w-4 h-4" />
-            <span>Filters</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center space-x-2">
+                <Filter className="w-4 h-4" />
+                <span>Filters</span>
+                {statusFilters.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {statusFilters.length}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <div className="p-2">
+                <div className="text-sm font-medium mb-2">Filter by Status</div>
+                {availableStatuses.map((status) => (
+                  <div key={status} className="flex items-center space-x-2 py-1">
+                    <Checkbox
+                      id={`status-${status}`}
+                      checked={statusFilters.includes(status)}
+                      onCheckedChange={(checked) => 
+                        handleStatusFilterChange(status, checked as boolean)
+                      }
+                    />
+                    <label 
+                      htmlFor={`status-${status}`}
+                      className="text-sm cursor-pointer flex-1"
+                    >
+                      {status}
+                    </label>
+                  </div>
+                ))}
+                {statusFilters.length > 0 && (
+                  <div className="mt-2 pt-2 border-t">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStatusFilters([])}
+                      className="w-full text-xs"
+                    >
+                      Clear filters
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="flex items-center space-x-4">
