@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,65 +25,73 @@ import {
   AlertTriangle,
   ArrowUpDown
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-const invoiceData = [
-  {
-    id: "1",
-    expectedDate: "27 May '25",
-    originalDueDate: "27 May '25",
-    invoiceNumber: "INV-0282",
-    invoicedTo: "CourtScopes",
-    amountExpected: "164.14",
-    overdue: true,
-    draft: true,
-    hasWarning: true,
-    includedInCashFlow: true,
-  },
-  {
-    id: "2",
-    expectedDate: "18 Jun '25",
-    originalDueDate: "18 Jun '25",
-    invoiceNumber: "INV-0290",
-    invoicedTo: "Niranjith & Suresha Kumaraperu",
-    amountExpected: "6,602.10",
-    overdue: true,
-    draft: true,
-    hasWarning: true,
-    includedInCashFlow: true,
-  },
-  {
-    id: "3",
-    expectedDate: "25 Jun '25",
-    originalDueDate: "25 Jun '25",
-    invoiceNumber: "INV-0295 | 36 Mole St, Brighton",
-    invoicedTo: "Vertex Windows Pty Ltd",
-    amountExpected: "495.00",
-    overdue: true,
-    draft: false,
-    hasWarning: true,
-    includedInCashFlow: true,
-  },
-  {
-    id: "4",
-    expectedDate: "25 Jun '25",
-    originalDueDate: "25 Jun '25",
-    invoiceNumber: "INV-0294",
-    invoicedTo: "Patrick & Nomsa",
-    amountExpected: "5,951.00",
-    overdue: true,
-    draft: true,
-    hasWarning: true,
-    includedInCashFlow: true,
-  },
-];
-
+interface XeroInvoice {
+  id: string;
+  xero_invoice_id: string;
+  invoice_number: string | null;
+  contact_name: string | null;
+  date: string | null;
+  due_date: string | null;
+  status: string | null;
+  total: number | null;
+  amount_due: number | null;
+  currency_code: string | null;
+  type: string | null;
+  reference: string | null;
+}
 export const InvoicesTable = () => {
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [invoices, setInvoices] = useState<XeroInvoice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const fetchInvoices = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('xero_invoices')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching invoices:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch invoices from Xero",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setInvoices(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error", 
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredInvoices = invoices.filter(invoice => 
+    invoice.invoice_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    invoice.contact_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedInvoices(invoiceData.map(invoice => invoice.id));
+      setSelectedInvoices(filteredInvoices.map(invoice => invoice.id));
     } else {
       setSelectedInvoices([]);
     }
@@ -96,6 +104,73 @@ export const InvoicesTable = () => {
       setSelectedInvoices(selectedInvoices.filter(id => id !== invoiceId));
     }
   };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: '2-digit'
+    });
+  };
+
+  const formatCurrency = (amount: number | null, currency: string | null = 'USD') => {
+    if (amount === null) return 'N/A';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency || 'USD',
+    }).format(amount);
+  };
+
+  const getStatusBadge = (status: string | null) => {
+    if (!status) return null;
+    
+    const statusLower = status.toLowerCase();
+    let variant: "default" | "secondary" | "destructive" | "outline" = "outline";
+    let className = "";
+
+    switch (statusLower) {
+      case 'paid':
+        variant = "default";
+        className = "bg-green-100 text-green-800 border-green-300";
+        break;
+      case 'draft':
+        variant = "outline";
+        className = "bg-gray-100 text-gray-600 border-gray-300";
+        break;
+      case 'authorised':
+      case 'sent':
+        variant = "outline";
+        className = "bg-blue-100 text-blue-800 border-blue-300";
+        break;
+      case 'overdue':
+        variant = "destructive";
+        className = "bg-red-100 text-red-800 border-red-300";
+        break;
+      default:
+        variant = "outline";
+    }
+
+    return (
+      <Badge variant={variant} className={className}>
+        {status.toUpperCase()}
+      </Badge>
+    );
+  };
+
+  const isOverdue = (dueDate: string | null, status: string | null) => {
+    if (!dueDate || status?.toLowerCase() === 'paid') return false;
+    return new Date(dueDate) < new Date();
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-2 text-gray-600">Loading invoices...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border">
@@ -150,73 +225,123 @@ export const InvoicesTable = () => {
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedInvoices.length === invoiceData.length}
+                checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
             <TableHead>
               <div className="flex items-center space-x-1">
-                <span>Expected date</span>
+                <span>Invoice Date</span>
                 <ArrowUpDown className="w-4 h-4" />
               </div>
             </TableHead>
-            <TableHead>Original due date</TableHead>
-            <TableHead>Invoice number</TableHead>
-            <TableHead>Invoiced to</TableHead>
-            <TableHead className="text-right">Amount expected</TableHead>
-            <TableHead className="text-center">Include in cash flow</TableHead>
+            <TableHead>Due Date</TableHead>
+            <TableHead>Invoice Number</TableHead>
+            <TableHead>Contact</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Total</TableHead>
+            <TableHead className="text-right">Amount Due</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoiceData.map((invoice) => (
-            <TableRow key={invoice.id}>
-              <TableCell>
-                <Checkbox
-                  checked={selectedInvoices.includes(invoice.id)}
-                  onCheckedChange={(checked) => 
-                    handleSelectInvoice(invoice.id, checked as boolean)
-                  }
-                />
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-2">
-                  <span>{invoice.expectedDate}</span>
-                  {invoice.hasWarning && (
-                    <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>{invoice.originalDueDate}</TableCell>
-              <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-              <TableCell>{invoice.invoicedTo}</TableCell>
-              <TableCell className="text-right font-medium">
-                {invoice.amountExpected}
-              </TableCell>
-              <TableCell className="text-center">
-                <div className="w-3 h-3 bg-blue-500 rounded-full mx-auto"></div>
-              </TableCell>
-              <TableCell>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+          {filteredInvoices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                {invoices.length === 0 
+                  ? "No invoices found. Connect to Xero and sync your data to see invoices here." 
+                  : "No invoices match your search criteria."
+                }
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            filteredInvoices.map((invoice) => (
+              <TableRow key={invoice.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedInvoices.includes(invoice.id)}
+                    onCheckedChange={(checked) => 
+                      handleSelectInvoice(invoice.id, checked as boolean)
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <span>{formatDate(invoice.date)}</span>
+                    {isOverdue(invoice.due_date, invoice.status) && (
+                      <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <span>{formatDate(invoice.due_date)}</span>
+                    {isOverdue(invoice.due_date, invoice.status) && (
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">
+                        OVERDUE
+                      </Badge>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">
+                  {invoice.invoice_number || 'N/A'}
+                  {invoice.reference && (
+                    <div className="text-xs text-gray-500 mt-1">{invoice.reference}</div>
+                  )}
+                </TableCell>
+                <TableCell>{invoice.contact_name || 'N/A'}</TableCell>
+                <TableCell>
+                  {getStatusBadge(invoice.status)}
+                </TableCell>
+                <TableCell className="text-right font-medium">
+                  {formatCurrency(invoice.total, invoice.currency_code)}
+                </TableCell>
+                <TableCell className="text-right font-medium">
+                  {formatCurrency(invoice.amount_due, invoice.currency_code)}
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="sm">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 
-      {/* Status badges for reference */}
-      <div className="p-4 border-t bg-gray-50 flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600">Status indicators:</span>
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-            OVERDUE
-          </Badge>
-          <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
-            DRAFT
-          </Badge>
+      {/* Summary Footer */}
+      <div className="p-4 border-t bg-gray-50 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-600">
+            Showing {filteredInvoices.length} of {invoices.length} invoices
+          </span>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Status indicators:</span>
+            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+              PAID
+            </Badge>
+            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+              SENT
+            </Badge>
+            <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
+              DRAFT
+            </Badge>
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+              OVERDUE
+            </Badge>
+          </div>
         </div>
+        {filteredInvoices.length > 0 && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={fetchInvoices}
+            className="flex items-center space-x-2"
+          >
+            <span>Refresh</span>
+          </Button>
+        )}
       </div>
     </div>
   );

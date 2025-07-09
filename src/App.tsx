@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import { InvitationAcceptPage } from "./components/team/InvitationAcceptPage";
 import { UserInvitationAcceptPage } from "./components/admin/UserInvitationAcceptPage";
 import { CostContractsPage } from "./components/CostContractsPage";
+import { InvoicesPage } from "./components/InvoicesPage";
 
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/invoices" element={<InvoicesPage onNavigate={() => {}} />} />
           <Route path="/cost-contracts" element={<CostContractsPage />} />
           <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
           <Route path="/accept-user-invitation" element={<UserInvitationAcceptPage />} />

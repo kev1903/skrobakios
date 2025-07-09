@@ -1,12 +1,14 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface InvoicesHeaderProps {
   onNavigate?: (page: string) => void;
 }
 
 export const InvoicesHeader = ({ onNavigate }: InvoicesHeaderProps) => {
+  const navigate = useNavigate();
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -14,15 +16,15 @@ export const InvoicesHeader = ({ onNavigate }: InvoicesHeaderProps) => {
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={() => onNavigate?.("finance")}
+            onClick={() => navigate('/')}
             className="flex items-center space-x-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Finance</span>
+            <span>Back to Dashboard</span>
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Invoices</h1>
-            <p className="text-gray-600">Manage and track all your invoices</p>
+            <p className="text-gray-600">Manage and track all your invoices synced from Xero</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">

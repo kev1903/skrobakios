@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface FinanceHeaderProps {
   onNavigate?: (page: string) => void;
@@ -8,6 +9,7 @@ interface FinanceHeaderProps {
 }
 
 export const FinanceHeader = ({ onNavigate, onOpenSettings }: FinanceHeaderProps) => {
+  const navigate = useNavigate();
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -24,7 +26,7 @@ export const FinanceHeader = ({ onNavigate, onOpenSettings }: FinanceHeaderProps
           </Button>
           <Button 
             className="flex items-center space-x-2"
-            onClick={() => onNavigate?.("invoices")}
+            onClick={() => navigate('/invoices')}
           >
             <span>INVOICES</span>
           </Button>
