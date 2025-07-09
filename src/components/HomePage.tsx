@@ -303,6 +303,14 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           hoverTooltip.style.display = 'none';
         });
 
+        // Add click handler to the pin itself
+        markerElement.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (onSelectProject) {
+            onSelectProject(project.id);
+          }
+        });
+
         // Create redesigned popup with better styling and proper alignment
         const popupContent = document.createElement('div');
         popupContent.style.cssText = `
