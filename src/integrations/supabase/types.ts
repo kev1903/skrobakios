@@ -1307,9 +1307,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      get_role_level: {
+        Args: { role_name: Database["public"]["Enums"]["user_role"] }
+        Returns: number
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_minimum_role_level: {
+        Args: { min_level: number }
+        Returns: boolean
       }
       has_role_or_higher: {
         Args: { required_role: Database["public"]["Enums"]["user_role"] }
