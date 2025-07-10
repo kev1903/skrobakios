@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from './types';
-import { ROLES } from './types';
+import { ROLES, ROLE_DISPLAY_NAMES } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDisplayRoleToDatabase } from '@/utils/roleMapping';
 
@@ -213,7 +213,7 @@ export const AddUserDialog = ({ open, onOpenChange, onUserInvited }: AddUserDial
                 {/* Updated roles list - now using centralized ROLES array */}
                 {ROLES.map((roleOption) => (
                   <SelectItem key={roleOption} value={roleOption}>
-                    {roleOption}
+                    {ROLE_DISPLAY_NAMES[roleOption]}
                   </SelectItem>
                 ))}
               </SelectContent>

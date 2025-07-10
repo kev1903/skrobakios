@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from '../types';
-import { ROLES } from '../types';
+import { ROLES, ROLE_DISPLAY_NAMES } from '../types';
 import { useUserInvitation } from '../hooks/useUserInvitation';
 import { validateInvitationForm } from '../utils/formValidation';
 
@@ -97,7 +97,7 @@ export const UserInvitationForm = ({ onCancel, onSuccess }: UserInvitationFormPr
             <SelectContent>
               {ROLES.map((role) => (
                 <SelectItem key={role} value={role}>
-                  {role}
+                  {ROLE_DISPLAY_NAMES[role]}
                 </SelectItem>
               ))}
             </SelectContent>
