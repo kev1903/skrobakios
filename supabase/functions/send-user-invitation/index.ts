@@ -208,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: 'Invitation System <onboarding@resend.dev>', // Using Resend's verified domain
-          to: [email],
+          to: ['kevin@skrobaki.com'], // Temporary: using verified email for testing
           subject: 'Account Setup Required',
           html: `
             <h2>Account Setup</h2>
