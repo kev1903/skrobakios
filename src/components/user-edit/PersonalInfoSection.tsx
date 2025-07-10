@@ -59,7 +59,12 @@ export const PersonalInfoSection = ({ profileData, onInputChange }: PersonalInfo
             type="email"
             value={profileData.email}
             onChange={(e) => onInputChange('email', e.target.value)}
-            className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
+            readOnly={!!profileData.email} // Make read-only if pre-populated
+            className={`backdrop-blur-sm border-white/30 focus:border-blue-300 transition-all duration-200 ${
+              profileData.email 
+                ? 'bg-gray-100/60 cursor-not-allowed text-gray-700' 
+                : 'bg-white/60 focus:bg-white/80'
+            }`}
           />
         </div>
 

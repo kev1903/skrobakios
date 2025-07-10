@@ -71,8 +71,8 @@ export default function Signup() {
         .from("user_invitations")
         .select("*")
         .eq("token", token)
-        .eq("used_at", null)
-        .single();
+        .is("used_at", null)
+        .maybeSingle();
 
       if (error || !data) {
         toast({
@@ -128,6 +128,16 @@ export default function Signup() {
     e.preventDefault();
     
     if (!invitation) return;
+
+    // Validate required fields
+    if (!personalData.firstName.trim() || !personalData.lastName.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in your first and last name.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     if (passwordData.password !== passwordData.confirmPassword) {
       toast({
@@ -257,73 +267,102 @@ export default function Signup() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Profile Picture Section */}
-            <ProfilePictureSection
-              avatarUrl={avatarUrl}
-              firstName={personalData.firstName || "New"}
-              lastName={personalData.lastName || "User"}
-              onAvatarChange={handleAvatarChange}
-            />
+          {loadingInvitation && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin mr-2" />
+              <span className="text-muted-foreground">Loading invitation details...</span>
+            </div>
+          )}
 
-            {/* Personal Information Section */}
-            <PersonalInfoSection
-              profileData={personalData}
-              onInputChange={handlePersonalInfoChange}
-            />
+          {!loadingInvitation && invitation && (
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Profile Picture Section */}
+              <div className="animate-fade-in">
+                <ProfilePictureSection
+                  avatarUrl={avatarUrl}
+                  firstName={personalData.firstName || "New"}
+                  lastName={personalData.lastName || "User"}
+                  onAvatarChange={handleAvatarChange}
+                />
+              </div>
 
-            {/* Password Fields */}
-            <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center space-x-3 text-slate-800">
-                  <span className="text-xl font-semibold">Account Security</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password *</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={passwordData.password}
-                      onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Personal Information Section */}
+              <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <PersonalInfoSection
+                  profileData={personalData}
+                  onInputChange={handlePersonalInfoChange}
+                />
+              </div>
 
-            {/* Professional Information Section */}
-            <ProfessionalInfoSection
-              profileData={professionalData}
-              onInputChange={handleProfessionalInfoChange}
-            />
+              {/* Password Fields */}
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+                  <CardHeader className="pb-6">
+                    <CardTitle className="flex items-center space-x-3 text-slate-800">
+                      <span className="text-xl font-semibold">Account Security</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Password *</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          value={passwordData.password}
+                          onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
+                          required
+                          minLength={6}
+                          className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          value={passwordData.confirmPassword}
+                          onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                          required
+                          minLength={6}
+                          className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Profile...
-                </>
-              ) : (
-                "Create Profile"
-              )}
-            </Button>
-          </form>
+              {/* Professional Information Section */}
+              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <ProfessionalInfoSection
+                  profileData={professionalData}
+                  onInputChange={handleProfessionalInfoChange}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
+                  disabled={loading || !personalData.firstName.trim() || !personalData.lastName.trim() || !passwordData.password || !passwordData.confirmPassword}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Profile...
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg">Create Profile</span>
+                      <span className="ml-2 text-sm opacity-90">✨</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
