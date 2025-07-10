@@ -209,17 +209,25 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: 'Invitation System <onboarding@resend.dev>', // Using Resend's verified domain
           to: [email],
-          subject: 'You\'ve been invited to join our platform',
+          subject: 'Account Access - Action Required',
           html: `
-            <h1>Welcome ${name}!</h1>
-            <p>You've been invited by ${invitedBy} to join our platform with the role of <strong>${role}</strong>.</p>
-            <p>Please click the link below to complete your registration:</p>
-            <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
-               style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-              Accept Invitation
-            </a>
-            <p>This invitation will expire in 7 days.</p>
-            <p>If you have any questions, please contact your administrator.</p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2>Account Access Invitation</h2>
+              <p>Hello ${name},</p>
+              <p>${invitedBy} has created an account for you with <strong>${role}</strong> access.</p>
+              <p>To activate your account, please click the link below:</p>
+              <p>
+                <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
+                   style="display: inline-block; background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 16px 0;">
+                  Activate Account
+                </a>
+              </p>
+              <p>Or copy and paste this link in your browser:</p>
+              <p style="word-break: break-all; color: #666;">
+                ${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}
+              </p>
+              <p><small>This link will expire in 7 days. If you have questions, please contact ${invitedBy}.</small></p>
+            </div>
           `,
         }),
       });
