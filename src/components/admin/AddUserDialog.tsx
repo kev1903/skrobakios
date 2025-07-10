@@ -36,6 +36,9 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  // Debug: Log the roles being used
+  console.log('AddUserDialog ROLES:', ROLES);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -193,6 +196,7 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
+                {/* Updated roles list - now using centralized ROLES array */}
                 {ROLES.map((roleOption) => (
                   <SelectItem key={roleOption} value={roleOption}>
                     {roleOption}

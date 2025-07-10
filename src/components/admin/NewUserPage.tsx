@@ -31,6 +31,9 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
     role: 'Client Viewer' as UserRole,
   });
 
+  // Debug: Log the roles being used
+  console.log('NewUserPage ROLES:', ROLES);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
