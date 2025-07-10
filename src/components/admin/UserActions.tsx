@@ -17,7 +17,7 @@ interface UserActionsProps {
   onReactivateUser: (userId: string) => void;
 }
 
-const isSuperAdmin = (role: string) => role === 'Super Admin';
+const isSuperAdmin = (role: string) => role === 'superadmin';
 
 export const UserActions = ({
   user,

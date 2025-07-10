@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Shield } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+import { ROLES, ROLE_DISPLAY_NAMES } from './types';
 
 type UserRole = Database['public']['Enums']['user_role'];
 
@@ -66,7 +67,7 @@ export const UserRoleManager = ({ users, onRoleUpdate, loading = false }: UserRo
                 <SelectItem key={user.id} value={user.id}>
                   <div className="flex items-center justify-between w-full">
                     <span>{user.email}</span>
-                    <span className="text-xs text-slate-500 ml-2">({user.role || 'user'})</span>
+                    <span className="text-xs text-slate-500 ml-2">({ROLE_DISPLAY_NAMES[user.role as keyof typeof ROLE_DISPLAY_NAMES] || 'User'})</span>
                   </div>
                 </SelectItem>
               ))}
@@ -77,7 +78,7 @@ export const UserRoleManager = ({ users, onRoleUpdate, loading = false }: UserRo
         {selectedUserData && (
           <div className="p-3 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-600">
-              <strong>Current Role:</strong> {selectedUserData.role || 'user'}
+              <strong>Current Role:</strong> {ROLE_DISPLAY_NAMES[selectedUserData.role as keyof typeof ROLE_DISPLAY_NAMES] || 'User'}
             </div>
             <div className="text-sm text-slate-500 mt-1">
               User: {selectedUserData.email}
@@ -91,10 +92,12 @@ export const UserRoleManager = ({ users, onRoleUpdate, loading = false }: UserRo
             <SelectTrigger>
               <SelectValue placeholder="Choose a role" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="user">User</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="superadmin">Super Admin</SelectItem>
+             <SelectContent>
+               {ROLES.map((role) => (
+                 <SelectItem key={role} value={role}>
+                   {ROLE_DISPLAY_NAMES[role]}
+                 </SelectItem>
+               ))}
             </SelectContent>
           </Select>
         </div>

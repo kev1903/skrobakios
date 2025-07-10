@@ -74,12 +74,39 @@ const roleConfig = {
     ),
     system: true
   },
+  admin: {
+    name: 'Admin',
+    description: 'Administrative access with user management capabilities',
+    permissions: createPermissions(
+      ['user_management', 'role_management', 'company_settings', 'admin_panel'],
+      ['project_management', 'project_create', 'project_edit', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view']
+    ),
+    system: false
+  },
+  user: {
+    name: 'User',
+    description: 'Standard user with basic project access',
+    permissions: createPermissions(
+      [],
+      ['project_view', 'task_view', 'file_access', 'progress_view']
+    ),
+    system: false
+  },
   project_manager: {
     name: 'Project Manager',
     description: 'Manage projects, teams, and project-related activities',
     permissions: createPermissions(
       ['expense_tracking'],
       ['project_management', 'project_create', 'project_edit', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view', 'schedule_management']
+    ),
+    system: false
+  },
+  project_admin: {
+    name: 'Project Admin',
+    description: 'Advanced project administration with team management',
+    permissions: createPermissions(
+      ['expense_tracking'],
+      ['project_management', 'project_create', 'project_edit', 'project_delete', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view', 'estimation_tools', 'schedule_management']
     ),
     system: false
   },
@@ -93,11 +120,20 @@ const roleConfig = {
     system: false
   },
   subcontractor: {
-    name: 'SubContractor',
+    name: 'Subcontractor',
     description: 'External contractor with specific task access',
     permissions: createPermissions(
       [],
       ['task_management', 'task_view', 'file_access', 'file_upload', 'progress_view']
+    ),
+    system: false
+  },
+  estimator: {
+    name: 'Estimator',
+    description: 'Estimation and costing specialist',
+    permissions: createPermissions(
+      ['expense_tracking'],
+      ['project_view', 'task_view', 'estimation_tools', 'progress_view']
     ),
     system: false
   },
