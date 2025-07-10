@@ -241,24 +241,59 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Final invitation:", invitation);
 
-    // Create invited user profile
-    const { data: profile, error: profileError } = await supabaseClient
+    // Handle profile creation/update
+    console.log("Handling profile creation/update...");
+    
+    // Check if profile already exists
+    const { data: existingProfile, error: profileCheckError } = await supabaseClient
       .from("profiles")
-      .insert({
-        email,
-        first_name: name.split(' ')[0] || '',
-        last_name: name.split(' ').slice(1).join(' ') || '',
-        status: 'invited'
-      })
-      .select()
+      .select("*")
+      .eq("email", email)
       .single();
 
-    if (profileError) {
-      console.error("Profile creation error:", profileError);
-      // Don't fail the whole operation if profile creation fails
-      console.log("Continuing without profile creation");
+    if (profileCheckError && profileCheckError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error("Error checking existing profile:", profileCheckError);
+    }
+
+    if (existingProfile) {
+      console.log("Profile already exists, updating status to invited");
+      const { data: updatedProfile, error: updateProfileError } = await supabaseClient
+        .from("profiles")
+        .update({ 
+          status: 'invited',
+          first_name: name.split(' ')[0] || existingProfile.first_name,
+          last_name: name.split(' ').slice(1).join(' ') || existingProfile.last_name,
+        })
+        .eq("email", email)
+        .select()
+        .single();
+
+      if (updateProfileError) {
+        console.error("Profile update error:", updateProfileError);
+      } else {
+        console.log("Profile updated successfully:", updatedProfile);
+      }
     } else {
-      console.log("Invited user profile created:", profile);
+      // Create new profile
+      console.log("Creating new profile...");
+      const { data: newProfile, error: createProfileError } = await supabaseClient
+        .from("profiles")
+        .insert({
+          email,
+          first_name: name.split(' ')[0] || '',
+          last_name: name.split(' ').slice(1).join(' ') || '',
+          status: 'invited'
+        })
+        .select()
+        .single();
+
+      if (createProfileError) {
+        console.error("Profile creation error:", createProfileError);
+        // Don't fail the whole operation if profile creation fails
+        console.log("Continuing without profile creation");
+      } else {
+        console.log("New profile created successfully:", newProfile);
+      }
     }
 
     // Note: User role will be created when the user signs up and the trigger activates
@@ -373,7 +408,7 @@ const handler = async (req: Request): Promise<Response> => {
       const emailResult = await emailResponse.json();
       console.log("Email sent successfully. FULL RESPONSE:", {
         emailId: emailResult.id,
-        from: 'info@skrobaki.com',
+        from: 'kevin@skrobaki.com',
         to: email,
         status: 'sent',
         resendResponse: emailResult

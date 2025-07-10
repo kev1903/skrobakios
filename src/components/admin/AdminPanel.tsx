@@ -11,7 +11,6 @@ import { UsersList } from './UsersList';
 import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
 import { AccessManagementTable, type AccessUser, type UserRole, type UserStatus } from './AccessManagementTable';
-import { AddUserDialog } from './AddUserDialog';
 import { EmailTestButton } from './EmailTestButton';
 import { useAccessUsers } from '@/hooks/useAccessUsers';
 import { useAdminData } from './useAdminData';
@@ -23,7 +22,6 @@ interface AdminPanelProps {
 export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   const { isSuperAdmin } = useAuth();
   const { toast } = useToast();
-  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const { users: adminUsers, loading: adminLoading, error: adminError, success } = useAdminData();
   const { 
     users: accessUsers, 
@@ -140,7 +138,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   };
 
   const handleAddNewUser = () => {
-    setShowAddUserDialog(true);
+    console.log('Add new user functionality handled by UserInvitationManager');
   };
 
   if (!isSuperAdmin) {
@@ -182,11 +180,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
         onAddNewUser={handleAddNewUser}
       />
       
-      <AddUserDialog
-        open={showAddUserDialog}
-        onOpenChange={setShowAddUserDialog}
-        onUserInvited={refetchUsers}
-      />
+      {/* User invitation dialog is handled by UserInvitationManager */}
     </div>
   );
 };
