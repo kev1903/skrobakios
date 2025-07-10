@@ -74,10 +74,36 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Authentication successful for user:", user.id);
 
+    // Check if user has permission to send invitations (superadmin only)
+    const { data: userRole, error: roleError } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (roleError || !userRole) {
+      console.error("Failed to get user role:", roleError);
+      return new Response(
+        JSON.stringify({ error: "Unable to verify user permissions" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("User role:", userRole.role);
+
+    if (userRole.role !== 'superadmin') {
+      return new Response(
+        JSON.stringify({ error: "Only superadmins can send user invitations" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Map role
     const mapRoleToDbRole = (role: string): string => {
       switch (role) {
         case 'Super Admin': return 'superadmin';
+        case 'Admin': return 'admin';
+        case 'User': return 'user';
         case 'Project Manager': return 'project_manager';
         case 'Project Admin': return 'project_admin';
         case 'Consultant': return 'consultant';
