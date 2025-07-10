@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save } from 'lucide-react';
+import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
 
@@ -66,14 +66,22 @@ export const TopFloatingBar = ({
               <Save className="w-5 h-5 text-white" />
             </button>
           )}
-          
-          {/* Inbox Icon */}
-          <button 
-            onClick={() => onNavigate('inbox')} 
-            className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-          >
-            <Inbox className="w-5 h-5 text-white" />
-          </button>
+           
+           {/* Notification Icon */}
+           <button 
+             onClick={() => onNavigate('notifications')} 
+             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+           >
+             <Bell className="w-5 h-5 text-white" />
+           </button>
+           
+           {/* Inbox Icon */}
+           <button 
+             onClick={() => onNavigate('inbox')} 
+             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+           >
+             <Inbox className="w-5 h-5 text-white" />
+           </button>
           
           {/* User Profile */}
           <button onClick={() => onNavigate('user-edit')} className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
