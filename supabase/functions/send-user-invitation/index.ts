@@ -193,6 +193,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email using Resend
     console.log("Attempting to send invitation email...");
+    console.log("Email configuration:", {
+      hasResendKey: !!resendApiKey,
+      recipientEmail: email,
+      senderDomain: "onboarding@resend.dev" // Using Resend's verified domain for testing
+    });
     
     try {
       const emailResponse = await fetch('https://api.resend.com/emails', {
@@ -202,7 +207,7 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'System <noreply@yourdomain.com>',
+          from: 'Invitation System <onboarding@resend.dev>', // Using Resend's verified domain
           to: [email],
           subject: 'You\'ve been invited to join our platform',
           html: `
@@ -221,7 +226,14 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (!emailResponse.ok) {
         const emailError = await emailResponse.text();
-        console.error("Failed to send email:", emailError);
+        console.error("Failed to send email. Status:", emailResponse.status);
+        console.error("Email error response:", emailError);
+        console.error("Request details:", {
+          url: 'https://api.resend.com/emails',
+          method: 'POST',
+          hasAuth: !!resendApiKey,
+          keyPrefix: resendApiKey ? resendApiKey.substring(0, 8) + '...' : 'none'
+        });
         
         // Return success but mention email issue
         return new Response(
