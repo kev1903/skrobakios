@@ -11,29 +11,30 @@ import { AdminPanel } from './admin/AdminPanel';
 import { RoleManagement } from './admin/RoleManagement';
 import { useTheme } from '@/hooks/useTheme';
 import { IntegrationsTab } from './integrations/IntegrationsTab';
-
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
 }
-
-export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
-  const { user, userRole, isSuperAdmin, isAdmin } = useAuth();
-  const { theme, setTheme } = useTheme();
+export const SettingsPage = ({
+  onNavigate
+}: SettingsPageProps) => {
+  const {
+    user,
+    userRole,
+    isSuperAdmin,
+    isAdmin
+  } = useAuth();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
-
-  return (
-    <div className="h-full flex flex-col">
+  return <div className="h-full flex flex-col">
       {/* Header */}
       <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigate('dashboard')}
-                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
-              >
+              <Button variant="ghost" size="sm" onClick={() => onNavigate('dashboard')} className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200">
                 <ArrowLeft className="w-4 h-4" />
                 <span className="font-medium">Back</span>
               </Button>
@@ -73,18 +74,16 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                 <Plug className="w-4 h-4" />
                 <span className="hidden sm:inline">Integrations</span>
               </TabsTrigger>
-              {isSuperAdmin && (
-                <>
+              {isSuperAdmin && <>
                   <TabsTrigger value="roles" className="flex items-center space-x-2">
                     <Users className="w-4 h-4" />
                     <span className="hidden sm:inline">Roles</span>
                   </TabsTrigger>
                   <TabsTrigger value="admin" className="flex items-center space-x-2">
                     <Shield className="w-4 h-4" />
-                    <span className="hidden sm:inline">Admin</span>
+                    <span className="hidden sm:inline">Users</span>
                   </TabsTrigger>
-                </>
-              )}
+                </>}
             </TabsList>
 
             <TabsContent value="general" className="space-y-6">
@@ -201,10 +200,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <span className="text-sm text-slate-600 dark:text-slate-400">Light</span>
-                      <Switch
-                        checked={theme === 'dark'}
-                        onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                      />
+                      <Switch checked={theme === 'dark'} onCheckedChange={checked => setTheme(checked ? 'dark' : 'light')} />
                       <span className="text-sm text-slate-600 dark:text-slate-400">Dark</span>
                     </div>
                   </div>
@@ -452,8 +448,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
               <IntegrationsTab />
             </TabsContent>
 
-            {isSuperAdmin && (
-              <>
+            {isSuperAdmin && <>
                 <TabsContent value="roles" className="space-y-6">
                   <RoleManagement onNavigate={onNavigate} />
                 </TabsContent>
@@ -461,11 +456,9 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                 <TabsContent value="admin" className="space-y-6">
                   <AdminPanel onNavigate={onNavigate} />
                 </TabsContent>
-              </>
-            )}
+              </>}
           </Tabs>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
