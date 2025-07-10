@@ -30,7 +30,8 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     loading: accessLoading, 
     error: accessError, 
     updateUserRole: updateAccessUserRole,
-    deleteUser
+    deleteUser,
+    refetchUsers
   } = useAccessUsers();
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
@@ -182,10 +183,8 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       
       <AddUserDialog
         open={showAddUserDialog}
-        onOpenChange={(open) => {
-          setShowAddUserDialog(open);
-          // No need to reload the page - the component will update automatically
-        }}
+        onOpenChange={setShowAddUserDialog}
+        onUserInvited={refetchUsers}
       />
     </div>
   );

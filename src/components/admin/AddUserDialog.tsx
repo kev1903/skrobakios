@@ -26,9 +26,10 @@ import { mapDisplayRoleToDatabase } from '@/utils/roleMapping';
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUserInvited?: () => void;
 }
 
-export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
+export const AddUserDialog = ({ open, onOpenChange, onUserInvited }: AddUserDialogProps) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -119,6 +120,11 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
         title: "User Invited",
         description: `${firstName} ${lastName} has been invited successfully and will receive an email.`,
       });
+      
+      // Refresh the users list immediately
+      if (onUserInvited) {
+        onUserInvited();
+      }
       
       // Reset form and close dialog
       setFirstName('');
