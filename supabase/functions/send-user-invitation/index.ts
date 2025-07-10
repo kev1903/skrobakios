@@ -380,7 +380,7 @@ const handler = async (req: Request): Promise<Response> => {
                   
                   <!-- CTA Button -->
                   <div style="text-align: center; margin: 40px 0;">
-                    <a href="${req.headers.get("origin") || 'https://your-app.com'}/signup?token=${invitation.token}" 
+                    <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
                        style="display: inline-block; background: linear-gradient(135deg, hsl(221.2, 83.2%, 53.3%) 0%, hsl(262.1, 83.3%, 57.8%) 100%); color: hsl(210, 40%, 98%); text-decoration: none; padding: 16px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; letter-spacing: -0.025em; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                        Complete Account Setup
                     </a>
@@ -391,7 +391,7 @@ const handler = async (req: Request): Promise<Response> => {
                       If the button doesn't work, copy and paste this link:
                     </p>
                     <p style="margin: 0; font-size: 14px; color: hsl(221.2, 83.2%, 53.3%); word-break: break-all; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;">
-                      ${req.headers.get("origin") || 'https://your-app.com'}/signup?token=${invitation.token}
+                      ${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}
                     </p>
                   </div>
                 </div>
