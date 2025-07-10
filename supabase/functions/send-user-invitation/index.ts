@@ -171,157 +171,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Note: User role will be created when the user signs up and the trigger activates
 
-    // Try to import and use Resend
-    try {
-      const { Resend } = await import("npm:resend@2.0.0");
-      console.log("Resend imported successfully");
-      
-      const resend = new Resend(resendApiKey);
-      console.log("Resend client created");
-
-      const invitationUrl = `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`;
-      
-      console.log("Sending email with details:", {
-        from: "KAKSIK <noreply@skrobaki.com>",
-        to: email,
-        subject: `You're invited to join KAKSIK as ${role}`,
-        invitationUrl
-      });
-      
-      // Additional email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        console.error("Invalid email format:", email);
-        return new Response(
-          JSON.stringify({ error: "Invalid email format" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      console.log("Attempting to send email with details:", {
-        from: "KAKSIK Support <support@skrobaki.com>",
-        to: email,
-        subject: `You're invited to join KAKSIK as ${role}`,
-        resendApiKey: !!resendApiKey
-      });
-      
-      const emailResult = await resend.emails.send({
-        from: "KAKSIK Support <onboarding@resend.dev>",
-        to: [email],
-        subject: `You're invited to join KAKSIK as ${role}`,
-        html: `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="utf-8">
-            <title>KAKSIK Invitation</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h1 style="color: #2563eb;">Welcome to KAKSIK!</h1>
-              <p>Hello ${name},</p>
-              <p>You've been invited by ${invitedBy} to join KAKSIK as a <strong>${role}</strong>.</p>
-              <div style="margin: 30px 0; text-align: center;">
-                <a href="${invitationUrl}" 
-                   style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                  Accept Invitation
-                </a>
-              </div>
-              <p style="color: #666; font-size: 14px;">
-                If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href="${invitationUrl}">${invitationUrl}</a>
-              </p>
-              <p style="color: #666; font-size: 14px;">
-                This invitation will expire in 7 days.
-              </p>
-            </div>
-          </body>
-          </html>
-        `,
-        text: `
-Welcome to KAKSIK!
-
-Hello ${name},
-
-You've been invited by ${invitedBy} to join KAKSIK as a ${role}.
-
-Accept your invitation by visiting this link:
-${invitationUrl}
-
-This invitation will expire in 7 days.
-
-Best regards,
-The KAKSIK Team
-        `,
-      });
-
-      console.log("Email send attempt completed. Result:", {
-        success: !emailResult.error,
-        emailId: emailResult.data?.id,
-        error: emailResult.error
-      });
-
-      if (emailResult.error) {
-        console.error("Email sending failed:", emailResult.error);
-        
-        // Check for specific error types
-        if (emailResult.error.message?.includes("verify a domain")) {
-          return new Response(
-            JSON.stringify({ 
-              error: "Domain verification required", 
-              details: "Please verify your domain at resend.com/domains to send emails to other recipients. Currently, you can only send emails to your verified email address.",
-              resendError: emailResult.error.message
-            }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        
-        if (emailResult.error.message?.includes("rate limit")) {
-          return new Response(
-            JSON.stringify({ 
-              error: "Rate limit exceeded", 
-              details: "Too many emails sent. Please try again in a few minutes.",
-              resendError: emailResult.error.message
-            }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        
-        return new Response(
-          JSON.stringify({ 
-            error: "Failed to send email", 
-            details: emailResult.error.message,
-            errorName: emailResult.error.name
-          }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      console.log("Email sent successfully:", emailResult);
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          invitation, 
-          emailId: emailResult.data?.id,
-          emailDetails: {
-            to: email,
-            from: "KAKSIK <noreply@skrobaki.com>",
-            subject: `You're invited to join KAKSIK as ${role}`
-          }
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-
-    } catch (resendError) {
-      console.error("Resend import/usage error:", resendError);
-      return new Response(
-        JSON.stringify({ 
-          error: "Email service error", 
-          details: resendError.message 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // For now, skip email sending due to domain verification requirements
+    // Return success with invitation details
+    console.log("Invitation created successfully, skipping email for now");
+    
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        invitation,
+        message: "User invitation created successfully. Email sending is temporarily disabled - please notify the user manually.",
+        invitationUrl: `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
 
   } catch (error: any) {
     console.error("Function error:", error);
