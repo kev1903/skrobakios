@@ -51,6 +51,10 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
     setIsSubmitting(true);
     
     try {
+      console.log('=== STARTING USER INVITATION ===');
+      console.log('Form data:', { firstName, lastName, email, role });
+      console.log('Role type:', typeof role);
+      console.log('Role value:', `"${role}"`);
       console.log('Starting user invitation process...', { firstName, lastName, email, role });
       
       // Check if user with this email already exists
@@ -79,6 +83,12 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
       }
 
       console.log('Current user verified, calling edge function...');
+      console.log('About to call edge function with payload:', {
+        email: email.trim(),
+        name: `${firstName.trim()} ${lastName.trim()}`,
+        role: role,
+        invitedBy: currentUser.user.email || 'Admin'
+      });
 
       // Call edge function to send invitation email and create records
       const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('send-user-invitation', {

@@ -20,29 +20,56 @@ export const fetchUsersData = async (): Promise<AccessUser[]> => {
 
   if (fetchError) throw fetchError;
 
-  // Get user roles separately
+  // Get user roles separately for active users
   const { data: rolesData, error: rolesError } = await supabase
     .from('user_roles')
     .select('user_id, role');
 
   if (rolesError) throw rolesError;
 
-  // Create a map of user roles for quick lookup
+  // Get invitation roles for invited users
+  const { data: invitationData, error: invitationError } = await supabase
+    .from('user_invitations')
+    .select('email, invited_role')
+    .is('used_at', null); // Only get unused invitations
+
+  if (invitationError) throw invitationError;
+
+  // Create maps for quick lookup
   const rolesMap = new Map<string, DatabaseRole['role']>();
   (rolesData as DatabaseRole[]).forEach(role => {
     rolesMap.set(role.user_id, role.role);
   });
 
-  const accessUsers: AccessUser[] = (data as DatabaseProfile[]).map(user => ({
-    id: user.id,
-    first_name: user.first_name || 'Unknown',
-    last_name: user.last_name || 'User',
-    email: user.email || '',
-    company: user.company || 'No Company',
-    role: mapDatabaseRoleToDisplayRole(rolesMap.get(user.user_id || '') || 'user'),
-    status: user.status === 'invited' ? 'Invited' as const : 'Active' as const,
-    avatar: user.avatar_url || undefined,
-  }));
+  const invitationRolesMap = new Map<string, string>();
+  (invitationData || []).forEach(invitation => {
+    invitationRolesMap.set(invitation.email, invitation.invited_role);
+  });
+
+  const accessUsers: AccessUser[] = (data as DatabaseProfile[]).map(user => {
+    let userRole: string;
+    
+    if (user.status === 'invited') {
+      // For invited users, get role from invitations table
+      userRole = invitationRolesMap.get(user.email || '') || 'client_viewer';
+      console.log(`Invited user ${user.email}: role from invitation = ${userRole}`);
+    } else {
+      // For active users, get role from user_roles table
+      userRole = rolesMap.get(user.user_id || '') || 'client_viewer';
+      console.log(`Active user ${user.email}: role from user_roles = ${userRole}`);
+    }
+
+    return {
+      id: user.id,
+      first_name: user.first_name || 'Unknown',
+      last_name: user.last_name || 'User',
+      email: user.email || '',
+      company: user.company || 'No Company',
+      role: mapDatabaseRoleToDisplayRole(userRole),
+      status: user.status === 'invited' ? 'Invited' as const : 'Active' as const,
+      avatar: user.avatar_url || undefined,
+    };
+  });
 
   return accessUsers;
 };
