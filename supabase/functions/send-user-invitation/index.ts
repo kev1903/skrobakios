@@ -209,25 +209,14 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: 'Invitation System <onboarding@resend.dev>', // Using Resend's verified domain
           to: [email],
-          subject: 'Account Access - Action Required',
+          subject: 'Account Setup Required',
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2>Account Access Invitation</h2>
-              <p>Hello ${name},</p>
-              <p>${invitedBy} has created an account for you with <strong>${role}</strong> access.</p>
-              <p>To activate your account, please click the link below:</p>
-              <p>
-                <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
-                   style="display: inline-block; background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 16px 0;">
-                  Activate Account
-                </a>
-              </p>
-              <p>Or copy and paste this link in your browser:</p>
-              <p style="word-break: break-all; color: #666;">
-                ${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}
-              </p>
-              <p><small>This link will expire in 7 days. If you have questions, please contact ${invitedBy}.</small></p>
-            </div>
+            <h2>Account Setup</h2>
+            <p>Hello ${name},</p>
+            <p>An account has been created for you by ${invitedBy}.</p>
+            <p>Click this link to set up your account:</p>
+            <p><a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}">Set Up Account</a></p>
+            <p>Link expires in 7 days.</p>
           `,
         }),
       });
