@@ -313,12 +313,23 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Note: User role will be created when the user signs up and the trigger activates
 
+    // Get current email configuration from database
+    const { data: emailConfig } = await supabaseClient
+      .from("system_configurations")
+      .select("config_value")
+      .eq("config_key", "email_sender_address")
+      .eq("is_active", true)
+      .single();
+
+    const senderEmail = emailConfig?.config_value || 'kevin@skrobaki.com';
+    
     // Send email using Resend
     console.log("Attempting to send invitation email...");
     console.log("Email configuration:", {
       hasResendKey: !!resendApiKey,
       recipientEmail: email,
-      senderDomain: "onboarding@resend.dev" // Using Resend's verified domain for testing
+      senderEmail: senderEmail,
+      configFromDb: !!emailConfig
     });
     
     try {
@@ -329,7 +340,7 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Kevin <kevin@skrobaki.com>', // Using verified domain (you must verify skrobaki.com in Resend)
+          from: `Kevin <${senderEmail}>`, // Using configured sender from database
           to: [email], // Back to sending to the actual recipient
           subject: 'Welcome - Complete Your Account Setup',
           html: `
@@ -407,6 +418,19 @@ const handler = async (req: Request): Promise<Response> => {
           hasAuth: !!resendApiKey,
           keyPrefix: resendApiKey ? resendApiKey.substring(0, 8) + '...' : 'none'
         });
+
+        // Log failed email sending
+        await supabaseClient
+          .from("email_sending_log")
+          .insert({
+            recipient_email: email,
+            sender_email: senderEmail,
+            email_type: 'user_invitation',
+            status: 'failed',
+            error_message: emailError,
+            invitation_token: invitation.token,
+            created_by: user.id
+          });
         
         // Return success but mention email issue
         return new Response(
@@ -423,11 +447,24 @@ const handler = async (req: Request): Promise<Response> => {
       const emailResult = await emailResponse.json();
       console.log("Email sent successfully. FULL RESPONSE:", {
         emailId: emailResult.id,
-        from: 'kevin@skrobaki.com',
+        from: senderEmail,
         to: email,
         status: 'sent',
         resendResponse: emailResult
       });
+
+      // Log successful email sending
+      await supabaseClient
+        .from("email_sending_log")
+        .insert({
+          recipient_email: email,
+          sender_email: senderEmail,
+          email_type: 'user_invitation',
+          status: 'sent',
+          resend_email_id: emailResult.id,
+          invitation_token: invitation.token,
+          created_by: user.id
+        });
       
       // Let's try to get delivery info if available
       if (emailResult.id) {
@@ -448,13 +485,27 @@ const handler = async (req: Request): Promise<Response> => {
       
     } catch (emailError) {
       console.error("Email sending error:", emailError);
+
+      // Log failed email sending
+      await supabaseClient
+        .from("email_sending_log")
+        .insert({
+          recipient_email: email,
+          sender_email: senderEmail,
+          email_type: 'user_invitation',
+          status: 'failed',
+          error_message: emailError.message,
+          invitation_token: invitation.token,
+          created_by: user.id
+        });
       
       // Return success but mention email issue
       return new Response(
         JSON.stringify({ 
           success: true, 
           invitation,
-          message: `User invitation created successfully, but email sending failed: ${emailError}. Please notify the user manually.`,
+          emailError: emailError.message,
+          message: "User invitation created successfully, but email sending failed. Please notify the user manually.",
           invitationUrl: `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

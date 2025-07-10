@@ -74,6 +74,45 @@ export type Database = {
           },
         ]
       }
+      email_sending_log: {
+        Row: {
+          created_by: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          invitation_token: string | null
+          recipient_email: string
+          resend_email_id: string | null
+          sender_email: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          created_by?: string | null
+          email_type: string
+          error_message?: string | null
+          id?: string
+          invitation_token?: string | null
+          recipient_email: string
+          resend_email_id?: string | null
+          sender_email: string
+          sent_at?: string | null
+          status: string
+        }
+        Update: {
+          created_by?: string | null
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          invitation_token?: string | null
+          recipient_email?: string
+          resend_email_id?: string | null
+          sender_email?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       estimate_line_items: {
         Row: {
           created_at: string
@@ -633,6 +672,39 @@ export type Database = {
           parent_task_id?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      system_configurations: {
+        Row: {
+          config_key: string
+          config_value: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
         }
         Relationships: []
       }
