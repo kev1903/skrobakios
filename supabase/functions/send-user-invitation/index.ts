@@ -279,7 +279,7 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Invitation System <info@skrobaki.com>', // Using your verified domain
+          from: 'Kevin <kevin@skrobaki.com>', // Using Kevin's real email address
           to: [email], // Back to sending to the actual recipient
           subject: 'Welcome - Complete Your Account Setup',
           html: `
