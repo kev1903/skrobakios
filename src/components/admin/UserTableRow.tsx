@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { UserActions } from './UserActions';
 import type { AccessUser, UserRole, UserStatus } from './types';
-import { ROLES } from './types';
+import { ROLES, ROLE_DISPLAY_NAMES } from './types';
 
 interface UserTableRowProps {
   user: AccessUser;
@@ -32,7 +32,7 @@ const getInitials = (firstName: string, lastName: string) => {
   return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
 };
 
-const isSuperAdmin = (role: UserRole) => role === 'Super Admin';
+const isSuperAdmin = (role: UserRole) => role === 'superadmin';
 
 export const UserTableRow = ({
   user,
@@ -77,7 +77,7 @@ export const UserTableRow = ({
           <SelectContent>
             {ROLES.map((role) => (
               <SelectItem key={role} value={role}>
-                {role}
+                {ROLE_DISPLAY_NAMES[role]}
               </SelectItem>
             ))}
           </SelectContent>

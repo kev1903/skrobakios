@@ -1,10 +1,14 @@
 export type UserRole = 
-  | 'Super Admin'
-  | 'Project Manager'
-  | 'Consultant'
-  | 'SubContractor'
-  | 'Accounts'
-  | 'Client Viewer';
+  | 'superadmin'
+  | 'admin'
+  | 'user'
+  | 'project_manager'
+  | 'project_admin'
+  | 'consultant'
+  | 'subcontractor'
+  | 'estimator'
+  | 'accounts'
+  | 'client_viewer';
 
 export type UserStatus = 'Active' | 'Suspended' | 'Invited';
 
@@ -32,10 +36,28 @@ export interface AccessManagementTableProps {
 }
 
 export const ROLES: UserRole[] = [
-  'Super Admin',
-  'Project Manager',
-  'Consultant',
-  'SubContractor',
-  'Accounts',
-  'Client Viewer',
+  'superadmin',
+  'admin',
+  'user',
+  'project_manager',
+  'project_admin',
+  'consultant',
+  'subcontractor',
+  'estimator',
+  'accounts',
+  'client_viewer',
 ];
+
+// Role display names for UI
+export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
+  'superadmin': 'Super Admin',
+  'admin': 'Admin',
+  'user': 'User',
+  'project_manager': 'Project Manager',
+  'project_admin': 'Project Admin',
+  'consultant': 'Consultant',
+  'subcontractor': 'Subcontractor',
+  'estimator': 'Estimator',
+  'accounts': 'Accounts',
+  'client_viewer': 'Client Viewer',
+};

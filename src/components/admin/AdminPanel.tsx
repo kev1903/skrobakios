@@ -176,7 +176,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
       
       <AccessManagementTable
         users={accessUsers}
-        currentUserRole="Super Admin"
+        currentUserRole="superadmin"
         onRoleChange={handleRoleChange}
         onStatusChange={handleStatusChange}
         onViewUser={handleViewUser}

@@ -9,6 +9,7 @@ import { UserPlus, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { ROLES, ROLE_DISPLAY_NAMES, type UserRole } from './types';
 
 interface UserInvitationManagerProps {
   onNavigate?: (page: string) => void;
@@ -18,7 +19,7 @@ interface UserInvitationManagerProps {
 export const UserInvitationManager = ({ onNavigate, onSuccess }: UserInvitationManagerProps = {}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'superadmin' | 'admin' | 'user' | 'project_manager' | 'project_admin' | 'consultant' | 'subcontractor' | 'estimator' | 'accounts' | 'client_viewer'>('user');
+  const [role, setRole] = useState<UserRole>('user');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -124,21 +125,16 @@ export const UserInvitationManager = ({ onNavigate, onSuccess }: UserInvitationM
 
           <div>
             <Label htmlFor="role">Role</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as typeof role)}>
+            <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="superadmin">Super Admin</SelectItem>
-                <SelectItem value="project_manager">Project Manager</SelectItem>
-                <SelectItem value="project_admin">Project Admin</SelectItem>
-                <SelectItem value="consultant">Consultant</SelectItem>
-                <SelectItem value="subcontractor">SubContractor</SelectItem>
-                <SelectItem value="estimator">Estimator</SelectItem>
-                <SelectItem value="accounts">Accounts</SelectItem>
-                <SelectItem value="client_viewer">Client Viewer</SelectItem>
+                {ROLES.map((roleOption) => (
+                  <SelectItem key={roleOption} value={roleOption}>
+                    {ROLE_DISPLAY_NAMES[roleOption]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

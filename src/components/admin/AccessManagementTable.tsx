@@ -16,7 +16,7 @@ import type { AccessManagementTableProps, UserRole } from './types';
 // Re-export types for backward compatibility
 export type { AccessUser, UserRole, UserStatus, AccessManagementTableProps } from './types';
 
-const isAdmin = (role: UserRole) => role === 'Super Admin' || role === 'Project Manager';
+const isAdmin = (role: UserRole) => role === 'superadmin' || role === 'project_manager';
 
 export const AccessManagementTable = ({
   users,
