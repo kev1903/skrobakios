@@ -15,17 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole } from './types';
-
-const ROLES: UserRole[] = [
-  'Super Admin',
-  'Project Manager',
-  'Project Admin',
-  'Consultant',
-  'SubContractor',
-  'Estimator',
-  'Accounts',
-  'Client Viewer',
-];
+import { ROLES } from './types';
 
 interface NewUserPageProps {
   onNavigate: (page: string) => void;
