@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { UserRole } from './types';
+import { ROLES } from './types';
 import { supabase } from '@/integrations/supabase/client';
 import { mapDisplayRoleToDatabase } from '@/utils/roleMapping';
 
@@ -26,16 +27,6 @@ interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const ROLES: UserRole[] = [
-  'Project Manager',
-  'Project Admin',
-  'Consultant',
-  'SubContractor',
-  'Estimator',
-  'Accounts',
-  'Client Viewer',
-];
 
 export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
   const [firstName, setFirstName] = useState('');
