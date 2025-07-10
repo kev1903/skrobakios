@@ -12,6 +12,7 @@ import { UserInvitationManager } from './UserInvitationManager';
 import { UserInvitationsList } from './UserInvitationsList';
 import { AccessManagementTable, type AccessUser, type UserRole, type UserStatus } from './AccessManagementTable';
 import { AddUserDialog } from './AddUserDialog';
+import { EmailTestButton } from './EmailTestButton';
 import { useAccessUsers } from '@/hooks/useAccessUsers';
 import { useAdminData } from './useAdminData';
 
@@ -161,7 +162,10 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <AdminHeader onNavigate={onNavigate} />
+      <div className="flex items-center justify-between">
+        <AdminHeader onNavigate={onNavigate} />
+        <EmailTestButton />
+      </div>
       <AdminAlerts error={accessError || adminError} success={success} />
       
       <AccessManagementTable

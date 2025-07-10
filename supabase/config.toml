@@ -1,5 +1,8 @@
 project_id = "xtawnkhvxgxylhxwqnmm"
 
+[functions.test-email]
+verify_jwt = false
+
 [functions.upload-3d-model]
 verify_jwt = false
 

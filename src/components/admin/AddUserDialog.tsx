@@ -101,6 +101,7 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
       });
 
       console.log('Edge function response:', { invitationResult, invitationError });
+      console.log('Invitation result details:', invitationResult);
 
       if (invitationError) {
         console.error('Error calling invitation function:', invitationError);
