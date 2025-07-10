@@ -7,21 +7,20 @@ export const mapDatabaseRoleToDisplayRole = (dbRole: string): UserRole => {
       return 'Super Admin';
     case 'project_manager':
       return 'Project Manager';
-    case 'project_admin':
-      return 'Project Admin';
     case 'consultant':
       return 'Consultant';
     case 'subcontractor':
       return 'SubContractor';
-    case 'estimator':
-      return 'Estimator';
     case 'accounts':
       return 'Accounts';
     case 'client_viewer':
       return 'Client Viewer';
-    case 'admin': // Legacy role mapping
+    // Legacy role mappings - these should be migrated
+    case 'project_admin':
+    case 'admin':
       return 'Project Manager';
-    case 'user': // Legacy role mapping
+    case 'estimator':
+    case 'user':
     default:
       return 'Client Viewer';
   }
@@ -33,14 +32,10 @@ export const mapDisplayRoleToDatabase = (newRole: UserRole): DatabaseRole['role'
       return 'superadmin';
     case 'Project Manager':
       return 'project_manager';
-    case 'Project Admin':
-      return 'project_admin';
     case 'Consultant':
       return 'consultant';
     case 'SubContractor':
       return 'subcontractor';
-    case 'Estimator':
-      return 'estimator';
     case 'Accounts':
       return 'accounts';
     case 'Client Viewer':

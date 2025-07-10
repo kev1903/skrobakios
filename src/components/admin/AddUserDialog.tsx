@@ -36,9 +36,6 @@ export const AddUserDialog = ({ open, onOpenChange }: AddUserDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Debug: Log the roles being used
-  console.log('AddUserDialog ROLES:', ROLES);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     

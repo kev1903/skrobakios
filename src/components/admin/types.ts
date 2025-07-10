@@ -1,10 +1,8 @@
 export type UserRole = 
   | 'Super Admin'
   | 'Project Manager'
-  | 'Project Admin'
   | 'Consultant'
   | 'SubContractor'
-  | 'Estimator'
   | 'Accounts'
   | 'Client Viewer';
 
@@ -36,10 +34,8 @@ export interface AccessManagementTableProps {
 export const ROLES: UserRole[] = [
   'Super Admin',
   'Project Manager',
-  'Project Admin',
   'Consultant',
   'SubContractor',
-  'Estimator',
   'Accounts',
   'Client Viewer',
 ];

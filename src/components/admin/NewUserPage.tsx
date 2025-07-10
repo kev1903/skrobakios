@@ -31,9 +31,6 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
     role: 'Client Viewer' as UserRole,
   });
 
-  // Debug: Log the roles being used
-  console.log('NewUserPage ROLES:', ROLES);
-
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -78,10 +75,8 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
       case 'Super Admin':
         return 'superadmin';
       case 'Project Manager':
-      case 'Project Admin':
       case 'Consultant':
       case 'SubContractor':
-      case 'Estimator':
       case 'Accounts':
         return 'admin';
       default:

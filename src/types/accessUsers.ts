@@ -11,5 +11,5 @@ export interface DatabaseProfile {
 
 export interface DatabaseRole {
   user_id: string;
-  role: 'superadmin' | 'admin' | 'user' | 'project_manager' | 'project_admin' | 'consultant' | 'subcontractor' | 'estimator' | 'accounts' | 'client_viewer';
+  role: 'superadmin' | 'project_manager' | 'consultant' | 'subcontractor' | 'accounts' | 'client_viewer';
 }

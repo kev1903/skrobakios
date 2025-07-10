@@ -83,15 +83,6 @@ const roleConfig = {
     ),
     system: false
   },
-  project_admin: {
-    name: 'Project Admin',
-    description: 'Administrative access to projects with team management',
-    permissions: createPermissions(
-      [],
-      ['project_management', 'project_edit', 'project_view', 'team_management', 'task_management', 'task_view', 'file_access', 'file_upload', 'progress_view', 'schedule_management']
-    ),
-    system: false
-  },
   consultant: {
     name: 'Consultant',
     description: 'External consultant with limited project access',
@@ -107,15 +98,6 @@ const roleConfig = {
     permissions: createPermissions(
       [],
       ['task_management', 'task_view', 'file_access', 'file_upload', 'progress_view']
-    ),
-    system: false
-  },
-  estimator: {
-    name: 'Estimator',
-    description: 'Cost estimation and project quoting specialist',
-    permissions: createPermissions(
-      ['expense_tracking'],
-      ['project_view', 'task_view', 'file_access', 'progress_view']
     ),
     system: false
   },
