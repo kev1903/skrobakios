@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import { InvitationAcceptPage } from "./components/team/InvitationAcceptPage";
 import { UserInvitationAcceptPage } from "./components/admin/UserInvitationAcceptPage";
+import { AuthProvider } from "./contexts/AuthContext";
+import { UserProvider } from "./contexts/UserContext";
 import Signup from "./pages/Signup";
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
@@ -76,7 +78,13 @@ const App = () => (
           <Route path="/estimates" element={<EstimatesPageWrapper />} />
           <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
           <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
-          <Route path="/accept-user-invitation" element={<Signup />} />
+          <Route path="/accept-user-invitation" element={
+            <AuthProvider>
+              <UserProvider>
+                <UserInvitationAcceptPage />
+              </UserProvider>
+            </AuthProvider>
+          } />
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </BrowserRouter>
