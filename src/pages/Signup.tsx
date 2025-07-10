@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, User } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { ProfilePictureSection } from "@/components/user-edit/ProfilePictureSection";
+import { PersonalInfoSection } from "@/components/user-edit/PersonalInfoSection";
+import { ProfessionalInfoSection } from "@/components/user-edit/ProfessionalInfoSection";
 
 interface InvitationData {
   email: string;
@@ -27,21 +28,27 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [loadingInvitation, setLoadingInvitation] = useState(true);
   const [invitation, setInvitation] = useState<InvitationData | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [personalData, setPersonalData] = useState({
     firstName: "",
     lastName: "",
-    password: "",
-    confirmPassword: "",
-    company: "",
-    jobTitle: "",
+    email: "",
     phone: "",
-    bio: "",
+    birthDate: ""
+  });
+
+  const [professionalData, setProfessionalData] = useState({
+    jobTitle: "",
     location: "",
-    website: ""
+    website: "",
+    bio: ""
+  });
+
+  const [passwordData, setPasswordData] = useState({
+    password: "",
+    confirmPassword: ""
   });
 
   useEffect(() => {
@@ -90,6 +97,8 @@ export default function Signup() {
       }
 
       setInvitation(data);
+      // Pre-populate email since it's read-only
+      setPersonalData(prev => ({ ...prev, email: data.email }));
     } catch (error) {
       console.error("Error fetching invitation:", error);
       toast({
@@ -103,40 +112,16 @@ export default function Signup() {
     }
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handlePersonalInfoChange = (field: string, value: string) => {
+    setPersonalData(prev => ({ ...prev, [field]: value }));
   };
 
-  const uploadAvatar = async (userId: string): Promise<string | null> => {
-    if (!avatarFile) return null;
+  const handleProfessionalInfoChange = (field: string, value: string) => {
+    setProfessionalData(prev => ({ ...prev, [field]: value }));
+  };
 
-    const fileExt = avatarFile.name.split('.').pop();
-    const fileName = `${userId}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(`public/${fileName}`, avatarFile, {
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error("Avatar upload error:", uploadError);
-      return null;
-    }
-
-    const { data } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(`public/${fileName}`);
-
-    return data.publicUrl;
+  const handleAvatarChange = (newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,7 +129,7 @@ export default function Signup() {
     
     if (!invitation) return;
 
-    if (formData.password !== formData.confirmPassword) {
+    if (passwordData.password !== passwordData.confirmPassword) {
       toast({
         title: "Password mismatch",
         description: "Passwords do not match.",
@@ -153,7 +138,7 @@ export default function Signup() {
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (passwordData.password.length < 6) {
       toast({
         title: "Password too short",
         description: "Password must be at least 6 characters long.",
@@ -168,11 +153,11 @@ export default function Signup() {
       // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: invitation.email,
-        password: formData.password,
+        password: passwordData.password,
         options: {
           data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName
+            first_name: personalData.firstName,
+            last_name: personalData.lastName
           },
           emailRedirectTo: `${window.location.origin}/`
         }
@@ -196,25 +181,19 @@ export default function Signup() {
         return;
       }
 
-      // Upload avatar if provided
-      let avatarUrl = null;
-      if (avatarFile) {
-        avatarUrl = await uploadAvatar(authData.user.id);
-      }
-
       // Update the profile with additional information
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          company: formData.company || null,
-          job_title: formData.jobTitle || null,
-          phone: formData.phone || null,
-          bio: formData.bio || null,
-          location: formData.location || null,
-          website: formData.website || null,
-          avatar_url: avatarUrl,
+          first_name: personalData.firstName,
+          last_name: personalData.lastName,
+          phone: personalData.phone || null,
+          birth_date: personalData.birthDate || null,
+          job_title: professionalData.jobTitle || null,
+          location: professionalData.location || null,
+          website: professionalData.website || null,
+          bio: professionalData.bio || null,
+          avatar_url: avatarUrl || null,
           status: 'active'
         })
         .eq("email", invitation.email);
@@ -278,152 +257,70 @@ export default function Signup() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar Upload */}
-            <div className="flex flex-col items-center space-y-4">
-              <div className="relative">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={avatarPreview} />
-                  <AvatarFallback className="text-lg">
-                    <User className="h-8 w-8" />
-                  </AvatarFallback>
-                </Avatar>
-                <Label
-                  htmlFor="avatar"
-                  className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors"
-                >
-                  <Upload className="h-4 w-4" />
-                  <input
-                    id="avatar"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                  />
-                </Label>
-              </div>
-              <span className="text-sm text-muted-foreground">Upload your profile picture</span>
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Profile Picture Section */}
+            <ProfilePictureSection
+              avatarUrl={avatarUrl}
+              firstName={personalData.firstName || "New"}
+              lastName={personalData.lastName || "User"}
+              onAvatarChange={handleAvatarChange}
+            />
 
-            {/* Personal Information */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
-                <Input
-                  id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
+            {/* Personal Information Section */}
+            <PersonalInfoSection
+              profileData={personalData}
+              onInputChange={handlePersonalInfoChange}
+            />
 
             {/* Password Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="password">Password *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
+            <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center space-x-3 text-slate-800">
+                  <span className="text-xl font-semibold">Account Security</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password *</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={passwordData.password}
+                      onChange={(e) => setPasswordData({ ...passwordData, password: e.target.value })}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Professional Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="company">Company</Label>
-                <Input
-                  id="company"
-                  value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input
-                  id="jobTitle"
-                  value={formData.jobTitle}
-                  onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                />
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                type="url"
-                value={formData.website}
-                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                placeholder="https://example.com"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                rows={3}
-                placeholder="Tell us about yourself..."
-              />
-            </div>
+            {/* Professional Information Section */}
+            <ProfessionalInfoSection
+              profileData={professionalData}
+              onInputChange={handleProfessionalInfoChange}
+            />
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Account...
+                  Creating Profile...
                 </>
               ) : (
-                "Complete Setup"
+                "Create Profile"
               )}
             </Button>
           </form>
