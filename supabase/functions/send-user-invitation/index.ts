@@ -245,13 +245,19 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       const emailResult = await emailResponse.json();
-      console.log("Email sent successfully. Response details:", {
+      console.log("Email sent successfully. FULL RESPONSE:", {
         emailId: emailResult.id,
-        from: 'onboarding@resend.dev',
+        from: 'info@skrobaki.com',
         to: email,
-        status: 'sent'
+        status: 'sent',
+        resendResponse: emailResult
       });
-      console.log("Full email response:", emailResult);
+      
+      // Let's try to get delivery info if available
+      if (emailResult.id) {
+        console.log("EMAIL SUCCESSFULLY QUEUED FOR DELIVERY with ID:", emailResult.id);
+        console.log("Check Resend dashboard for delivery status:", `https://resend.com/emails/${emailResult.id}`);
+      }
       
       return new Response(
         JSON.stringify({ 
