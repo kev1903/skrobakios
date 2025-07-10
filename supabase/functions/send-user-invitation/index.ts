@@ -329,7 +329,7 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Kevin <onboarding@resend.dev>', // Using Resend's verified domain for reliable delivery
+          from: 'Kevin <kevin@skrobaki.com>', // Using verified domain (you must verify skrobaki.com in Resend)
           to: [email], // Back to sending to the actual recipient
           subject: 'Welcome - Complete Your Account Setup',
           html: `
