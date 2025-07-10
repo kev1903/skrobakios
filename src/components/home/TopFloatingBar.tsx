@@ -1,7 +1,9 @@
 import React from 'react';
 import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { NotificationBadge } from '@/components/ui/notification-badge';
 import { useUser } from '@/contexts/UserContext';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface TopFloatingBarProps {
   onToggleRibbon: () => void;
@@ -19,6 +21,7 @@ export const TopFloatingBar = ({
   onSaveMapPosition
 }: TopFloatingBarProps) => {
   const { userProfile } = useUser();
+  const { unreadCount } = useNotifications();
 
   return (
     <div className="fixed top-6 left-0 z-50 w-full">
@@ -68,12 +71,14 @@ export const TopFloatingBar = ({
           )}
            
            {/* Notification Icon */}
-           <button 
-             onClick={() => onNavigate('notifications')} 
-             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-           >
-             <Bell className="w-5 h-5 text-white" />
-           </button>
+           <NotificationBadge count={unreadCount}>
+             <button 
+               onClick={() => onNavigate('notifications')} 
+               className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+             >
+               <Bell className="w-5 h-5 text-white" />
+             </button>
+           </NotificationBadge>
            
            {/* Inbox Icon */}
            <button 
