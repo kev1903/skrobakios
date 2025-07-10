@@ -248,7 +248,13 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       const emailResult = await emailResponse.json();
-      console.log("Email sent successfully:", emailResult);
+      console.log("Email sent successfully. Response details:", {
+        emailId: emailResult.id,
+        from: 'onboarding@resend.dev',
+        to: email,
+        status: 'sent'
+      });
+      console.log("Full email response:", emailResult);
       
       return new Response(
         JSON.stringify({ 
