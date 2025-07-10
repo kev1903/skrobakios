@@ -31,6 +31,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     deleteUser,
     refetchUsers
   } = useAccessUsers();
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     updateAccessUserRole(userId, newRole);
@@ -138,7 +139,12 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   };
 
   const handleAddNewUser = () => {
-    console.log('Add new user functionality handled by UserInvitationManager');
+    setShowInviteDialog(true);
+  };
+
+  const handleInviteSuccess = () => {
+    setShowInviteDialog(false);
+    refetchUsers(); // Refresh the users list
   };
 
   if (!isSuperAdmin) {
@@ -180,7 +186,23 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
         onAddNewUser={handleAddNewUser}
       />
       
-      {/* User invitation dialog is handled by UserInvitationManager */}
+      {showInviteDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <UserInvitationManager 
+              onNavigate={onNavigate}
+              onSuccess={handleInviteSuccess}
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => setShowInviteDialog(false)}
+              className="mt-4 w-full"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
