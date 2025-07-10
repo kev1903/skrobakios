@@ -108,9 +108,24 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Map role - using the same mapping as frontend
+    // Map role - handle both old display names and new database roles
     const mapRoleToDbRole = (role: string): string => {
       console.log("Input role received:", role);
+      
+      // Valid database roles that can be used directly
+      const validDbRoles = [
+        'superadmin', 'admin', 'user', 'project_manager', 
+        'project_admin', 'consultant', 'subcontractor', 
+        'estimator', 'accounts', 'client_viewer'
+      ];
+      
+      // If it's already a valid database role, use it directly
+      if (validDbRoles.includes(role)) {
+        console.log("Role is already a valid database role:", role);
+        return role;
+      }
+      
+      // Legacy mapping for old display names (for backward compatibility)
       switch (role) {
         case 'Super Admin': 
           return 'superadmin';
@@ -126,14 +141,14 @@ const handler = async (req: Request): Promise<Response> => {
           return 'client_viewer';
         // Legacy mappings for backward compatibility
         case 'Admin': 
-          console.log("Warning: Using legacy 'Admin' role, mapping to 'project_manager'");
-          return 'project_manager';
+          console.log("Warning: Using legacy 'Admin' role, mapping to 'admin'");
+          return 'admin';
         case 'User': 
-          console.log("Warning: Using legacy 'User' role, mapping to 'client_viewer'");
-          return 'client_viewer';
+          console.log("Warning: Using legacy 'User' role, mapping to 'user'");
+          return 'user';
         default: 
-          console.log("Warning: Unknown role '" + role + "', defaulting to 'client_viewer'");
-          return 'client_viewer';
+          console.log("Warning: Unknown role '" + role + "', defaulting to 'user'");
+          return 'user';
       }
     };
 
