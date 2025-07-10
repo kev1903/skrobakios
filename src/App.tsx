@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import { InvitationAcceptPage } from "./components/team/InvitationAcceptPage";
 import { UserInvitationAcceptPage } from "./components/admin/UserInvitationAcceptPage";
+import Signup from "./pages/Signup";
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
           <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
           <Route path="/accept-user-invitation" element={<UserInvitationAcceptPage />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

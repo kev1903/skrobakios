@@ -351,55 +351,64 @@ const handler = async (req: Request): Promise<Response> => {
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Account Setup</title>
             </head>
-            <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f8f9fa;">
-              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; color: hsl(222.2, 84%, 4.9%); background-color: hsl(0, 0%, 98%);">
+              <div style="max-width: 600px; margin: 40px auto; background-color: hsl(0, 0%, 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid hsl(214.3, 31.8%, 91.4%);">
                 
                 <!-- Header -->
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
-                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 300;">Welcome to Our Platform</h1>
+                <div style="background: linear-gradient(135deg, hsl(221.2, 83.2%, 53.3%) 0%, hsl(262.1, 83.3%, 57.8%) 100%); padding: 48px 32px; text-align: center;">
+                  <h1 style="margin: 0; color: hsl(210, 40%, 98%); font-size: 32px; font-weight: 600; letter-spacing: -0.025em;">Welcome to Our Platform</h1>
+                  <p style="margin: 12px 0 0 0; color: hsl(210, 40%, 98%); opacity: 0.9; font-size: 16px;">You're invited to join our team</p>
                 </div>
                 
                 <!-- Content -->
-                <div style="padding: 40px 30px;">
-                  <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 400;">Hello ${name},</h2>
+                <div style="padding: 48px 32px;">
+                  <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="display: inline-block; padding: 12px 24px; background-color: hsl(210, 40%, 98%); border: 1px solid hsl(214.3, 31.8%, 91.4%); border-radius: 8px; margin-bottom: 24px;">
+                      <span style="color: hsl(221.2, 83.2%, 53.3%); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.025em;">${role} ACCESS</span>
+                    </div>
+                  </div>
                   
-                  <p style="margin: 0 0 20px 0; font-size: 16px; color: #555555;">
-                    You've been invited by <strong>${invitedBy}</strong> to join our platform with <strong>${role}</strong> access.
+                  <h2 style="margin: 0 0 16px 0; color: hsl(222.2, 84%, 4.9%); font-size: 24px; font-weight: 600;">Hello ${name},</h2>
+                  
+                  <p style="margin: 0 0 24px 0; font-size: 16px; color: hsl(215.4, 16.3%, 46.9%); line-height: 1.7;">
+                    <strong style="color: hsl(222.2, 84%, 4.9%);">${invitedBy}</strong> has invited you to join our platform with <strong style="color: hsl(221.2, 83.2%, 53.3%);">${role}</strong> access.
                   </p>
                   
-                  <p style="margin: 0 0 30px 0; font-size: 16px; color: #555555;">
-                    To complete your account setup and start using the platform, please click the button below:
+                  <p style="margin: 0 0 32px 0; font-size: 16px; color: hsl(215.4, 16.3%, 46.9%); line-height: 1.7;">
+                    To complete your account setup and start collaborating with the team, click the button below:
                   </p>
                   
                   <!-- CTA Button -->
-                  <div style="text-align: center; margin: 30px 0;">
-                    <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
-                       style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 6px; font-size: 16px; font-weight: 500; border: none; cursor: pointer; transition: all 0.3s ease;">
-                      Complete Account Setup
+                  <div style="text-align: center; margin: 40px 0;">
+                    <a href="${req.headers.get("origin") || 'https://your-app.com'}/signup?token=${invitation.token}" 
+                       style="display: inline-block; background: linear-gradient(135deg, hsl(221.2, 83.2%, 53.3%) 0%, hsl(262.1, 83.3%, 57.8%) 100%); color: hsl(210, 40%, 98%); text-decoration: none; padding: 16px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; letter-spacing: -0.025em; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                       Complete Account Setup
                     </a>
                   </div>
                   
-                  <p style="margin: 30px 0 0 0; font-size: 14px; color: #777777; line-height: 1.5;">
-                    If the button doesn't work, you can copy and paste this link into your browser:
-                  </p>
-                  <p style="margin: 10px 0 0 0; font-size: 14px; color: #667eea; word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; border-left: 3px solid #667eea;">
-                    ${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}
-                  </p>
+                  <div style="background-color: hsl(210, 40%, 98%); border: 1px solid hsl(214.3, 31.8%, 91.4%); border-radius: 8px; padding: 24px; margin: 32px 0;">
+                    <p style="margin: 0 0 12px 0; font-size: 14px; color: hsl(215.4, 16.3%, 46.9%); font-weight: 500;">
+                      If the button doesn't work, copy and paste this link:
+                    </p>
+                    <p style="margin: 0; font-size: 14px; color: hsl(221.2, 83.2%, 53.3%); word-break: break-all; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;">
+                      ${req.headers.get("origin") || 'https://your-app.com'}/signup?token=${invitation.token}
+                    </p>
+                  </div>
                 </div>
                 
                 <!-- Footer -->
-                <div style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
-                  <p style="margin: 0 0 10px 0; font-size: 14px; color: #777777;">
+                <div style="background-color: hsl(210, 40%, 98%); padding: 32px; text-align: center; border-top: 1px solid hsl(214.3, 31.8%, 91.4%);">
+                  <p style="margin: 0 0 8px 0; font-size: 14px; color: hsl(215.4, 16.3%, 46.9%);">
                     This invitation will expire in 7 days for security purposes.
                   </p>
-                  <p style="margin: 0; font-size: 12px; color: #999999;">
-                    If you have any questions, please contact ${invitedBy} or your system administrator.
+                  <p style="margin: 0; font-size: 12px; color: hsl(215.4, 16.3%, 46.9%); opacity: 0.8;">
+                    If you have questions, contact <strong>${invitedBy}</strong> or your system administrator.
                   </p>
                 </div>
               </div>
               
               <!-- Email Footer -->
-              <div style="text-align: center; padding: 20px; color: #999999; font-size: 12px;">
+              <div style="text-align: center; padding: 24px; color: hsl(215.4, 16.3%, 46.9%); font-size: 12px;">
                 <p style="margin: 0;">This is an automated message. Please do not reply to this email.</p>
               </div>
             </body>
