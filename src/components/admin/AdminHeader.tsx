@@ -6,5 +6,12 @@ interface AdminHeaderProps {
 export const AdminHeader = ({
   onNavigate
 }: AdminHeaderProps) => {
-  return;
+  return (
+    <div className="flex items-center justify-between p-4 border-b">
+      <h1 className="text-2xl font-bold">Admin Panel</h1>
+      <Button onClick={() => onNavigate('dashboard')}>
+        Dashboard
+      </Button>
+    </div>
+  );
 };
