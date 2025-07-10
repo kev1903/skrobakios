@@ -15,7 +15,7 @@ export const EmailTestButton = () => {
       
       const { data, error } = await supabase.functions.invoke('test-email', {
         body: {
-          email: 'kevin@skrobaki.com' // Using verified email for testing
+          email: 'accounts@skrobaki.com' // Testing verified domain email
         }
       });
 
