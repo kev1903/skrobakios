@@ -10,7 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export const UserInvitationManager = () => {
+interface UserInvitationManagerProps {
+  onNavigate?: (page: string) => void;
+  onSuccess?: () => void;
+}
+
+export const UserInvitationManager = ({ onNavigate, onSuccess }: UserInvitationManagerProps = {}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'superadmin' | 'admin' | 'user' | 'project_manager' | 'project_admin' | 'consultant' | 'subcontractor' | 'estimator' | 'accounts' | 'client_viewer'>('user');
@@ -64,6 +69,13 @@ export const UserInvitationManager = () => {
       setName('');
       setEmail('');
       setRole('user');
+
+      // Navigate back to users page or call success callback
+      if (onSuccess) {
+        onSuccess();
+      } else if (onNavigate) {
+        onNavigate('admin');
+      }
     } catch (error) {
       console.error('Error sending invitation:', error);
       toast({
