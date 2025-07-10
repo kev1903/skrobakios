@@ -76,7 +76,7 @@ const App = () => (
           <Route path="/estimates" element={<EstimatesPageWrapper />} />
           <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
           <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
-          <Route path="/accept-user-invitation" element={<UserInvitationAcceptPage />} />
+          <Route path="/accept-user-invitation" element={<Signup />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
       </BrowserRouter>
