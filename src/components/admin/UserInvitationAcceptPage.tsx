@@ -93,12 +93,16 @@ export const UserInvitationAcceptPage = () => {
     setLoading(true);
 
     try {
-      // Sign up the user
+      // Sign up the user with metadata for name extraction
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: invitation!.email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: '', // Will be set by the trigger from the profile
+            last_name: '',  // Will be set by the trigger from the profile
+          }
         },
       });
 
@@ -107,27 +111,11 @@ export const UserInvitationAcceptPage = () => {
       }
 
       if (authData.user) {
-        // Create user role with proper type casting
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: authData.user.id,
-            role: invitation!.invited_role as UserRole,
-          });
-
-        if (roleError) {
-          console.error('Error creating user role:', roleError);
-        }
-
-        // Mark invitation as used
-        const { error: updateError } = await supabase
-          .from('user_invitations')
-          .update({ used_at: new Date().toISOString() })
-          .eq('id', invitation!.id);
-
-        if (updateError) {
-          console.error('Error updating invitation:', updateError);
-        }
+        // The trigger handle_user_signup() will automatically:
+        // 1. Update the profile status to 'active' if an invited profile exists
+        // 2. Create user role based on the invitation
+        // 3. Mark the invitation as used
+        // So we don't need to do these manually
 
         toast({
           title: "Account Created",
