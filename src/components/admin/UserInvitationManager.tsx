@@ -19,7 +19,7 @@ interface UserInvitationManagerProps {
 export const UserInvitationManager = ({ onNavigate, onSuccess }: UserInvitationManagerProps = {}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<UserRole>('user');
+  const [role, setRole] = useState<UserRole | ''>('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -69,7 +69,7 @@ export const UserInvitationManager = ({ onNavigate, onSuccess }: UserInvitationM
 
       setName('');
       setEmail('');
-      setRole('user');
+      setRole('');
 
       // Navigate back to users page or call success callback
       if (onSuccess) {
