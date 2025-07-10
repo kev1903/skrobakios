@@ -48,9 +48,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Test request parsing
     const requestData = await req.json();
-    console.log("Request data:", requestData);
+    console.log("Raw request data received:", requestData);
 
     const { email, name, role, invitedBy } = requestData as InvitationRequest;
+    
+    console.log("Parsed invitation data:", { 
+      email, 
+      name, 
+      role: `"${role}"`, 
+      roleType: typeof role,
+      invitedBy 
+    });
 
     // Test auth
     const authHeader = req.headers.get("Authorization");
@@ -98,25 +106,37 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Map role
+    // Map role - using the same mapping as frontend
     const mapRoleToDbRole = (role: string): string => {
+      console.log("Input role received:", role);
       switch (role) {
-        case 'Super Admin': return 'superadmin';
-        case 'Admin': return 'admin';
-        case 'User': return 'user';
-        case 'Project Manager': return 'project_manager';
-        case 'Project Admin': return 'project_admin';
-        case 'Consultant': return 'consultant';
-        case 'SubContractor': return 'subcontractor';
-        case 'Estimator': return 'estimator';
-        case 'Accounts': return 'accounts';
-        case 'Client Viewer': return 'client_viewer';
-        default: return 'client_viewer';
+        case 'Super Admin': 
+          return 'superadmin';
+        case 'Project Manager': 
+          return 'project_manager';
+        case 'Consultant': 
+          return 'consultant';
+        case 'SubContractor': 
+          return 'subcontractor';
+        case 'Accounts': 
+          return 'accounts';
+        case 'Client Viewer': 
+          return 'client_viewer';
+        // Legacy mappings for backward compatibility
+        case 'Admin': 
+          console.log("Warning: Using legacy 'Admin' role, mapping to 'project_manager'");
+          return 'project_manager';
+        case 'User': 
+          console.log("Warning: Using legacy 'User' role, mapping to 'client_viewer'");
+          return 'client_viewer';
+        default: 
+          console.log("Warning: Unknown role '" + role + "', defaulting to 'client_viewer'");
+          return 'client_viewer';
       }
     };
 
     const mappedRole = mapRoleToDbRole(role);
-    console.log("Role mapped:", role, "->", mappedRole);
+    console.log("Role mapping completed:", role, "->", mappedRole);
 
     // Delete existing invitation
     await supabaseClient
