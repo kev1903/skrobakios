@@ -51,7 +51,7 @@ const handler = async (req: Request): Promise<Response> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Test <noreply@skrobaki.com>',
+        from: 'Test <info@skrobaki.com>',
         to: [email],
         subject: 'Test Email from Supabase Edge Function',
         html: `
