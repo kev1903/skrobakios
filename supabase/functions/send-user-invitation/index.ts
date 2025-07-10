@@ -12,6 +12,7 @@ interface InvitationRequest {
   name: string;
   role: string;
   invitedBy: string;
+  isResend?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -50,14 +51,15 @@ const handler = async (req: Request): Promise<Response> => {
     const requestData = await req.json();
     console.log("Raw request data received:", requestData);
 
-    const { email, name, role, invitedBy } = requestData as InvitationRequest;
+    const { email, name, role, invitedBy, isResend = false } = requestData as InvitationRequest & { isResend?: boolean };
     
     console.log("Parsed invitation data:", { 
       email, 
       name, 
       role: `"${role}"`, 
       roleType: typeof role,
-      invitedBy 
+      invitedBy,
+      isResend: isResend ? "RESEND MODE" : "NEW INVITATION MODE"
     });
 
     // Test auth
@@ -138,36 +140,106 @@ const handler = async (req: Request): Promise<Response> => {
     const mappedRole = mapRoleToDbRole(role);
     console.log("Role mapping completed:", role, "->", mappedRole);
 
-    // Delete existing invitation
-    await supabaseClient
-      .from("user_invitations")
-      .delete()
-      .eq("email", email)
-      .eq("invited_by_user_id", user.id);
+    let invitation;
 
-    // Create new invitation
-    const { data: invitation, error: inviteError } = await supabaseClient
-      .from("user_invitations")
-      .insert({
-        email,
-        invited_role: mappedRole,
-        invited_by_user_id: user.id,
-      })
-      .select()
-      .single();
+    if (isResend) {
+      console.log("=== RESEND MODE: Updating existing invitation ===");
+      
+      // Find and update existing invitation
+      const { data: existingInvitation, error: findError } = await supabaseClient
+        .from("user_invitations")
+        .select("*")
+        .eq("email", email)
+        .eq("invited_by_user_id", user.id)
+        .eq("used_at", null) // Only unused invitations
+        .single();
 
-    if (inviteError) {
-      console.error("Database error:", inviteError);
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to create invitation", 
-          details: inviteError.message 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      if (findError || !existingInvitation) {
+        console.log("No existing invitation found, creating new one instead");
+        // Fallback to creating new invitation if none found
+        const { data: newInvitation, error: createError } = await supabaseClient
+          .from("user_invitations")
+          .insert({
+            email,
+            invited_role: mappedRole,
+            invited_by_user_id: user.id,
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Database error creating new invitation:", createError);
+          return new Response(
+            JSON.stringify({ 
+              error: "Failed to create invitation", 
+              details: createError.message 
+            }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        invitation = newInvitation;
+      } else {
+        // Update existing invitation with new token and expiry
+        const { data: updatedInvitation, error: updateError } = await supabaseClient
+          .from("user_invitations")
+          .update({
+            invited_role: mappedRole, // Update role in case it changed
+            token: crypto.randomUUID(), // Generate new token
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // New 7-day expiry
+            created_at: new Date().toISOString() // Update resend timestamp
+          })
+          .eq("id", existingInvitation.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error("Database error updating invitation:", updateError);
+          return new Response(
+            JSON.stringify({ 
+              error: "Failed to update invitation", 
+              details: updateError.message 
+            }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        invitation = updatedInvitation;
+        console.log("Existing invitation updated:", invitation);
+      }
+    } else {
+      console.log("=== NEW INVITATION MODE: Creating fresh invitation ===");
+      
+      // Delete existing invitation first for new invitations
+      await supabaseClient
+        .from("user_invitations")
+        .delete()
+        .eq("email", email)
+        .eq("invited_by_user_id", user.id);
+
+      // Create new invitation
+      const { data: newInvitation, error: inviteError } = await supabaseClient
+        .from("user_invitations")
+        .insert({
+          email,
+          invited_role: mappedRole,
+          invited_by_user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (inviteError) {
+        console.error("Database error:", inviteError);
+        return new Response(
+          JSON.stringify({ 
+            error: "Failed to create invitation", 
+            details: inviteError.message 
+          }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      invitation = newInvitation;
     }
 
-    console.log("Invitation created:", invitation);
+    console.log("Final invitation:", invitation);
 
     // Create invited user profile
     const { data: profile, error: profileError } = await supabaseClient

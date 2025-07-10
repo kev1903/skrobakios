@@ -105,7 +105,8 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
             email: userToResend.email,
             name: `${userToResend.first_name} ${userToResend.last_name}`,
             role: userToResend.role,
-            invitedBy: currentUser.user.email || 'Admin'
+            invitedBy: currentUser.user.email || 'Admin',
+            isResend: true // Flag to indicate this is a resend operation
           }
         });
 
