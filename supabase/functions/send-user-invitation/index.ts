@@ -209,14 +209,68 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: 'Invitation System <info@skrobaki.com>', // Using your verified domain
           to: [email], // Back to sending to the actual recipient
-          subject: 'Account Setup Required',
+          subject: 'Welcome - Complete Your Account Setup',
           html: `
-            <h2>Account Setup</h2>
-            <p>Hello ${name},</p>
-            <p>An account has been created for you by ${invitedBy}.</p>
-            <p>Click this link to set up your account:</p>
-            <p><a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}">Set Up Account</a></p>
-            <p>Link expires in 7 days.</p>
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Account Setup</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f8f9fa;">
+              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 300;">Welcome to Our Platform</h1>
+                </div>
+                
+                <!-- Content -->
+                <div style="padding: 40px 30px;">
+                  <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 400;">Hello ${name},</h2>
+                  
+                  <p style="margin: 0 0 20px 0; font-size: 16px; color: #555555;">
+                    You've been invited by <strong>${invitedBy}</strong> to join our platform with <strong>${role}</strong> access.
+                  </p>
+                  
+                  <p style="margin: 0 0 30px 0; font-size: 16px; color: #555555;">
+                    To complete your account setup and start using the platform, please click the button below:
+                  </p>
+                  
+                  <!-- CTA Button -->
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
+                       style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 6px; font-size: 16px; font-weight: 500; border: none; cursor: pointer; transition: all 0.3s ease;">
+                      Complete Account Setup
+                    </a>
+                  </div>
+                  
+                  <p style="margin: 30px 0 0 0; font-size: 14px; color: #777777; line-height: 1.5;">
+                    If the button doesn't work, you can copy and paste this link into your browser:
+                  </p>
+                  <p style="margin: 10px 0 0 0; font-size: 14px; color: #667eea; word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; border-left: 3px solid #667eea;">
+                    ${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}
+                  </p>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                  <p style="margin: 0 0 10px 0; font-size: 14px; color: #777777;">
+                    This invitation will expire in 7 days for security purposes.
+                  </p>
+                  <p style="margin: 0; font-size: 12px; color: #999999;">
+                    If you have any questions, please contact ${invitedBy} or your system administrator.
+                  </p>
+                </div>
+              </div>
+              
+              <!-- Email Footer -->
+              <div style="text-align: center; padding: 20px; color: #999999; font-size: 12px;">
+                <p style="margin: 0;">This is an automated message. Please do not reply to this email.</p>
+              </div>
+            </body>
+            </html>
           `,
         }),
       });
