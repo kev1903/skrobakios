@@ -171,19 +171,78 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Note: User role will be created when the user signs up and the trigger activates
 
-    // For now, skip email sending due to domain verification requirements
-    // Return success with invitation details
-    console.log("Invitation created successfully, skipping email for now");
+    // Send email using Resend
+    console.log("Attempting to send invitation email...");
     
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        invitation,
-        message: "User invitation created successfully. Email sending is temporarily disabled - please notify the user manually.",
-        invitationUrl: `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    try {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'System <noreply@yourdomain.com>',
+          to: [email],
+          subject: 'You\'ve been invited to join our platform',
+          html: `
+            <h1>Welcome ${name}!</h1>
+            <p>You've been invited by ${invitedBy} to join our platform with the role of <strong>${role}</strong>.</p>
+            <p>Please click the link below to complete your registration:</p>
+            <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
+               style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+              Accept Invitation
+            </a>
+            <p>This invitation will expire in 7 days.</p>
+            <p>If you have any questions, please contact your administrator.</p>
+          `,
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        const emailError = await emailResponse.text();
+        console.error("Failed to send email:", emailError);
+        
+        // Return success but mention email issue
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            invitation,
+            message: `User invitation created successfully, but email sending failed: ${emailError}. Please notify the user manually.`,
+            invitationUrl: `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const emailResult = await emailResponse.json();
+      console.log("Email sent successfully:", emailResult);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          invitation,
+          emailResult,
+          message: "User invitation created and email sent successfully!",
+          invitationUrl: `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+      
+    } catch (emailError) {
+      console.error("Email sending error:", emailError);
+      
+      // Return success but mention email issue
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          invitation,
+          message: `User invitation created successfully, but email sending failed: ${emailError}. Please notify the user manually.`,
+          invitationUrl: `${req.headers.get("origin")}/accept-user-invitation?token=${invitation.token}`
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
   } catch (error: any) {
     console.error("Function error:", error);

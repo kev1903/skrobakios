@@ -11,8 +11,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const UserInvitationManager = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'user' | 'admin' | 'superadmin'>('user');
+  const [role, setRole] = useState<'superadmin' | 'admin' | 'user' | 'project_manager' | 'project_admin' | 'consultant' | 'subcontractor' | 'estimator' | 'accounts' | 'client_viewer'>('user');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export const UserInvitationManager = () => {
   const handleSendInvitation = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !role) {
+    if (!name || !email || !role) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields.",
@@ -32,41 +33,42 @@ export const UserInvitationManager = () => {
     setLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Calling edge function with data:', {
+        email,
+        name,
+        role,
+        invitedBy: user?.email || 'Admin',
+      });
       
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch('/api/v1/send-user-invitation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
+      const { data, error: emailError } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
           email,
+          name,
           role,
           invitedBy: user?.email || 'Admin',
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send invitation');
+      console.log('Edge function response:', { data, emailError });
+
+      if (emailError) {
+        console.error('Edge function error details:', emailError);
+        throw emailError;
       }
 
       toast({
-        title: "Invitation Sent",
-        description: `Invitation email sent to ${email} with role ${role}.`,
+        title: "Success",
+        description: `Invitation sent to ${email}`,
       });
 
+      setName('');
       setEmail('');
       setRole('user');
     } catch (error) {
       console.error('Error sending invitation:', error);
       toast({
         title: "Error",
-        description: "Failed to send invitation. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send invitation",
         variant: "destructive",
       });
     } finally {
@@ -85,6 +87,18 @@ export const UserInvitationManager = () => {
       <CardContent>
         <form onSubmit={handleSendInvitation} className="space-y-4">
           <div>
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+
+          <div>
             <Label htmlFor="email">Email Address</Label>
             <Input
               id="email"
@@ -98,7 +112,7 @@ export const UserInvitationManager = () => {
 
           <div>
             <Label htmlFor="role">Role</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as 'user' | 'admin' | 'superadmin')}>
+            <Select value={role} onValueChange={(value) => setRole(value as typeof role)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
@@ -106,6 +120,13 @@ export const UserInvitationManager = () => {
                 <SelectItem value="user">User</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="superadmin">Super Admin</SelectItem>
+                <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="project_admin">Project Admin</SelectItem>
+                <SelectItem value="consultant">Consultant</SelectItem>
+                <SelectItem value="subcontractor">SubContractor</SelectItem>
+                <SelectItem value="estimator">Estimator</SelectItem>
+                <SelectItem value="accounts">Accounts</SelectItem>
+                <SelectItem value="client_viewer">Client Viewer</SelectItem>
               </SelectContent>
             </Select>
           </div>
