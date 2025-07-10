@@ -28,7 +28,7 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'Client Viewer' as UserRole,
+    role: '' as UserRole | '',
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -62,6 +62,15 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
       toast({
         title: "Validation Error",
         description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!formData.role) {
+      toast({
+        title: "Validation Error",
+        description: "Role is required",
         variant: "destructive",
       });
       return false;
@@ -208,7 +217,7 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
               onValueChange={(value: UserRole) => handleInputChange('role', value)}
             >
               <SelectTrigger className="input-glass">
-                <SelectValue />
+                <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
                 {ROLES.map((role) => (
