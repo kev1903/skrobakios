@@ -17,10 +17,11 @@ export const mapDatabaseRoleToDisplayRole = (dbRole: string): UserRole => {
       return 'Estimator';
     case 'accounts':
       return 'Accounts';
-    case 'admin':
-      return 'Project Manager';
-    case 'user':
     case 'client_viewer':
+      return 'Client Viewer';
+    case 'admin': // Legacy role mapping
+      return 'Project Manager';
+    case 'user': // Legacy role mapping
     default:
       return 'Client Viewer';
   }
