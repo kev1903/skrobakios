@@ -308,6 +308,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           e.stopPropagation();
           if (onSelectProject) {
             onSelectProject(project.id);
+            onNavigate('project-detail');
           }
         });
 
@@ -489,6 +490,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           if (openBtn && onSelectProject) {
             openBtn.addEventListener('click', () => {
               onSelectProject(project.id);
+              onNavigate('project-detail');
               popup.remove();
             });
           }
