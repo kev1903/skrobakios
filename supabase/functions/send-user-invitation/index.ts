@@ -340,9 +340,9 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: `Kevin <${senderEmail}>`, // Using configured sender from database
-          to: [email], // Back to sending to the actual recipient
-          subject: 'Welcome - Complete Your Account Setup',
+          from: `Kevin from Skrobaki <${senderEmail}>`, // More specific sender identity
+          to: [email],
+          subject: `${invitedBy} invited you to join their project team`, // More personal subject
           html: `
             <!DOCTYPE html>
             <html>
@@ -356,8 +356,8 @@ const handler = async (req: Request): Promise<Response> => {
                 
                 <!-- Header -->
                 <div style="background: linear-gradient(135deg, hsl(221.2, 83.2%, 53.3%) 0%, hsl(262.1, 83.3%, 57.8%) 100%); padding: 48px 32px; text-align: center;">
-                  <h1 style="margin: 0; color: hsl(210, 40%, 98%); font-size: 32px; font-weight: 600; letter-spacing: -0.025em;">Welcome to Our Platform</h1>
-                  <p style="margin: 12px 0 0 0; color: hsl(210, 40%, 98%); opacity: 0.9; font-size: 16px;">You're invited to join our team</p>
+                  <h1 style="margin: 0; color: hsl(210, 40%, 98%); font-size: 32px; font-weight: 600; letter-spacing: -0.025em;">You're Invited to Join ${invitedBy}'s Team</h1>
+                  <p style="margin: 12px 0 0 0; color: hsl(210, 40%, 98%); opacity: 0.9; font-size: 16px;">Project collaboration platform</p>
                 </div>
                 
                 <!-- Content -->
@@ -371,18 +371,18 @@ const handler = async (req: Request): Promise<Response> => {
                   <h2 style="margin: 0 0 16px 0; color: hsl(222.2, 84%, 4.9%); font-size: 24px; font-weight: 600;">Hello ${name},</h2>
                   
                   <p style="margin: 0 0 24px 0; font-size: 16px; color: hsl(215.4, 16.3%, 46.9%); line-height: 1.7;">
-                    <strong style="color: hsl(222.2, 84%, 4.9%);">${invitedBy}</strong> has invited you to join our platform with <strong style="color: hsl(221.2, 83.2%, 53.3%);">${role}</strong> access.
+                    <strong style="color: hsl(222.2, 84%, 4.9%);">${invitedBy}</strong> has invited you to collaborate on their project with <strong style="color: hsl(221.2, 83.2%, 53.3%);">${role}</strong> access.
                   </p>
                   
                   <p style="margin: 0 0 32px 0; font-size: 16px; color: hsl(215.4, 16.3%, 46.9%); line-height: 1.7;">
-                    To complete your account setup and start collaborating with the team, click the button below:
+                    To accept this invitation and set up your account, please click the link below:
                   </p>
                   
                   <!-- CTA Button -->
                   <div style="text-align: center; margin: 40px 0;">
                     <a href="${req.headers.get("origin") || 'https://your-app.com'}/accept-user-invitation?token=${invitation.token}" 
                        style="display: inline-block; background: linear-gradient(135deg, hsl(221.2, 83.2%, 53.3%) 0%, hsl(262.1, 83.3%, 57.8%) 100%); color: hsl(210, 40%, 98%); text-decoration: none; padding: 16px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; letter-spacing: -0.025em; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                       Complete Account Setup
+                       Accept Invitation
                     </a>
                   </div>
                   
