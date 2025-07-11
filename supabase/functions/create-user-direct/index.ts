@@ -18,103 +18,147 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("Function invoked, parsing request...");
+    // Check environment variables first
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
-    // Initialize Supabase client with service role key for admin operations
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    console.log("Environment check:", {
+    console.log("Environment variables check:", {
       hasUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey
+      hasServiceKey: !!supabaseServiceKey,
+      hasAnonKey: !!supabaseAnonKey,
+      url: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'missing'
     });
     
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
+      console.error("Missing required environment variables");
+      return new Response(
+        JSON.stringify({ 
+          error: "Server configuration error",
+          details: "Missing required environment variables"
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    console.log("Supabase admin client created successfully");
-
-    // Parse request data
-    const requestData = await req.json();
-    console.log("Raw request data received:", requestData);
+    // Parse request data first
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log("Request data parsed successfully:", Object.keys(requestData));
+    } catch (parseError) {
+      console.error("Failed to parse request JSON:", parseError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid request format",
+          details: "Could not parse JSON body"
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const { email, first_name, last_name, role, company, phone } = requestData as CreateUserRequest;
+    
+    if (!email || !first_name || !last_name || !role) {
+      console.error("Missing required fields:", { email: !!email, first_name: !!first_name, last_name: !!last_name, role: !!role });
+      return new Response(
+        JSON.stringify({ 
+          error: "Missing required fields",
+          details: "email, first_name, last_name, and role are required"
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     console.log("Parsed user creation data:", { 
       email, 
       first_name,
       last_name, 
       role,
-      company,
-      phone
+      company: !!company,
+      phone: !!phone
     });
 
-    // Verify authentication
+    // Check authentication header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      console.log("No authorization header found");
+      console.error("No authorization header found");
       return new Response(
         JSON.stringify({ error: "No authorization header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Create a client with user token to verify the user
-    const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!);
-    
-    const { data: { user }, error: userError } = await userClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    // Create clients
+    console.log("Creating Supabase clients...");
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey);
+
+    // Verify user authentication
+    console.log("Verifying user authentication...");
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser(token);
 
     if (userError || !user) {
-      console.log("Authentication failed:", userError);
+      console.error("Authentication failed:", userError?.message);
       return new Response(
-        JSON.stringify({ error: "Invalid authorization" }),
+        JSON.stringify({ 
+          error: "Invalid authorization",
+          details: userError?.message || "User not found"
+        }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Authentication successful for user:", user.id);
+    console.log("User authenticated successfully:", user.id);
 
-    // Check if user has permission to create users (superadmin only) using service client
-    const { data: userRole, error: roleError } = await supabaseClient
+    // Check user role
+    console.log("Checking user role...");
+    const { data: userRole, error: roleError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .single();
 
-    if (roleError || !userRole) {
-      console.log("Role check failed:", roleError);
+    if (roleError) {
+      console.error("Role check failed:", roleError.message);
       return new Response(
-        JSON.stringify({ error: "Unable to verify user permissions" }),
+        JSON.stringify({ 
+          error: "Unable to verify user permissions",
+          details: roleError.message
+        }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("User role:", userRole.role);
-
-    if (userRole.role !== 'superadmin') {
-      console.log("User is not superadmin, role:", userRole.role);
+    if (!userRole || userRole.role !== 'superadmin') {
+      console.error("User is not superadmin, role:", userRole?.role);
       return new Response(
-        JSON.stringify({ error: "Only superadmins can create users directly" }),
+        JSON.stringify({ 
+          error: "Only superadmins can create users directly",
+          details: `Current role: ${userRole?.role || 'unknown'}`
+        }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Generate a generic password (can be changed later)
+    console.log("User is superadmin, proceeding with user creation...");
+
+    // Generate a generic password
     const genericPassword = "TempPass123!";
 
-    console.log("Creating new user with generic password...");
-
     // Create the user using admin API
-    const { data: newUser, error: createError } = await supabaseClient.auth.admin.createUser({
+    console.log("Creating user with admin API...");
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
       password: genericPassword,
-      email_confirm: true, // Auto-confirm email
+      email_confirm: true,
       user_metadata: {
         first_name: first_name,
         last_name: last_name
@@ -122,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
-      console.error("Error creating user:", createError);
+      console.error("User creation failed:", createError.message);
       return new Response(
         JSON.stringify({ 
           error: "Failed to create user", 
@@ -132,26 +176,38 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("User created successfully:", newUser.user?.id);
+    if (!newUser.user) {
+      console.error("User creation returned no user data");
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to create user", 
+          details: "No user data returned from creation" 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Create profile with password reset flag
-    const { error: profileError } = await supabaseClient
+    console.log("User created successfully:", newUser.user.id);
+
+    // Create profile
+    console.log("Creating user profile...");
+    const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .insert([{
-        user_id: newUser.user!.id,
+      .insert({
+        user_id: newUser.user.id,
         first_name: first_name,
         last_name: last_name,
         email: email,
-        company: company,
-        phone: phone,
+        company: company || null,
+        phone: phone || null,
         status: 'active',
         needs_password_reset: true
-      }]);
+      });
 
     if (profileError) {
-      console.error("Error creating profile:", profileError);
-      // Clean up the created user if profile creation fails
-      await supabaseClient.auth.admin.deleteUser(newUser.user!.id);
+      console.error("Profile creation failed:", profileError.message);
+      // Clean up the created user
+      await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
       
       return new Response(
         JSON.stringify({ 
@@ -162,18 +218,21 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Assign role to the user
-    const { error: roleAssignError } = await supabaseClient
+    console.log("Profile created successfully");
+
+    // Assign role
+    console.log("Assigning user role...");
+    const { error: roleAssignError } = await supabaseAdmin
       .from("user_roles")
-      .insert([{
-        user_id: newUser.user!.id,
+      .insert({
+        user_id: newUser.user.id,
         role: role
-      }]);
+      });
 
     if (roleAssignError) {
-      console.error("Error assigning role:", roleAssignError);
-      // Clean up the created user if role assignment fails
-      await supabaseClient.auth.admin.deleteUser(newUser.user!.id);
+      console.error("Role assignment failed:", roleAssignError.message);
+      // Clean up the created user
+      await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
       
       return new Response(
         JSON.stringify({ 
@@ -184,6 +243,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    console.log("Role assigned successfully");
     console.log("User creation process completed successfully");
 
     return new Response(
@@ -191,7 +251,7 @@ const handler = async (req: Request): Promise<Response> => {
         success: true,
         message: "User created successfully",
         user: {
-          id: newUser.user!.id,
+          id: newUser.user.id,
           email: email,
           first_name: first_name,
           last_name: last_name,
@@ -209,11 +269,12 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error("Error in create-user-direct function:", error);
+    console.error("Unexpected error in create-user-direct function:", error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || "Internal server error"
+        error: "Internal server error",
+        details: error.message || "Unknown error occurred"
       }),
       {
         status: 500,

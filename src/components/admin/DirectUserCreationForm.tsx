@@ -74,7 +74,12 @@ export const DirectUserCreationForm = ({ onCancel, onSuccess }: DirectUserCreati
       console.log('Direct user creation response:', { data, error });
 
       if (error) {
-        console.error('Direct user creation error:', error);
+        console.error('Direct user creation error details:', error);
+        // Try to get more specific error information
+        if (error.message.includes('non-2xx status code')) {
+          // The function returned an error, let's try to get the response
+          console.error('Function returned error status code');
+        }
         throw error;
       }
 
