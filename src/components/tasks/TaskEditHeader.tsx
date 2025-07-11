@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, ArrowRight, Edit2 } from 'lucide-react';
+import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, Save, Edit2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -137,8 +137,13 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
           <Button variant="ghost" size="sm" onClick={handleDeleteClick}>
             <Trash2 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm">
-            <ArrowRight className="w-4 h-4" />
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={onSave}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Save className="w-4 h-4" />
           </Button>
         </div>
       </div>
