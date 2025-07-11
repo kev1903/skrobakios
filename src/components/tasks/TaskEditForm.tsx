@@ -38,6 +38,8 @@ export const TaskEditForm = ({
         setExpectedTimeValue(task.duration.toString());
         setExpectedTimeUnit('days');
       }
+    } else {
+      setExpectedTimeValue('');
     }
   }, [task.duration]);
 
@@ -57,7 +59,7 @@ export const TaskEditForm = ({
   const handleAssigneeChange = (memberName: string) => {
     if (memberName === 'unassigned') {
       onFieldChange('assignedTo', {
-        name: 'Unassigned',
+        name: '',
         avatar: ''
       });
     } else {
@@ -131,17 +133,17 @@ export const TaskEditForm = ({
           <User className="w-4 h-4 mr-2" />
           Assignee
         </label>
-        <Select value={task.assignedTo.name} onValueChange={handleAssigneeChange}>
+        <Select value={task.assignedTo.name || 'unassigned'} onValueChange={handleAssigneeChange}>
           <SelectTrigger>
             <SelectValue>
               <div className="flex items-center space-x-2">
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={task.assignedTo.avatar} />
                   <AvatarFallback className="text-xs">
-                    {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
+                    {task.assignedTo.name ? task.assignedTo.name.split(' ').map(n => n[0]).join('') : '?'}
                   </AvatarFallback>
                 </Avatar>
-                <span>{task.assignedTo.name}</span>
+                <span>{task.assignedTo.name || 'Unassigned'}</span>
               </div>
             </SelectValue>
           </SelectTrigger>
