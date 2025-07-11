@@ -884,30 +884,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       wbs_items: {
         Row: {
           actual_cost: number | null
@@ -1207,45 +1183,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["user_role"]
-      }
-      get_role_level: {
-        Args: { role_name: Database["public"]["Enums"]["user_role"] }
-        Returns: number
-      }
-      get_user_role: {
-        Args: { user_id: string }
-        Returns: Database["public"]["Enums"]["user_role"]
-      }
-      has_minimum_role_level: {
-        Args: { min_level: number }
-        Returns: boolean
-      }
-      has_role_or_higher: {
-        Args: { required_role: Database["public"]["Enums"]["user_role"] }
-        Returns: boolean
-      }
-      is_superadmin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
-      user_role:
-        | "superadmin"
-        | "admin"
-        | "user"
-        | "project_manager"
-        | "project_admin"
-        | "consultant"
-        | "subcontractor"
-        | "estimator"
-        | "accounts"
-        | "client_viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1375,18 +1317,6 @@ export const Constants = {
     Enums: {
       access_level: ["private_to_members", "public", "restricted"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
-      user_role: [
-        "superadmin",
-        "admin",
-        "user",
-        "project_manager",
-        "project_admin",
-        "consultant",
-        "subcontractor",
-        "estimator",
-        "accounts",
-        "client_viewer",
-      ],
     },
   },
 } as const
