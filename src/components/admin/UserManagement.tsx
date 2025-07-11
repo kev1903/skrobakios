@@ -24,7 +24,7 @@ export const UserManagement = () => {
     first_name: '',
     last_name: '',
     email: '',
-    role: 'user' as 'superadmin' | 'user',
+    role: 'user' as string,
     company: '',
     phone: ''
   });
@@ -151,11 +151,15 @@ export const UserManagement = () => {
           .single();
 
         if (profileData?.user_id) {
+          // Only update role for valid role values, fallback to 'user' for custom roles
+          const validRoles = ['superadmin', 'admin', 'user', 'project_manager', 'project_admin', 'consultant', 'subcontractor', 'estimator', 'accounts', 'client_viewer'];
+          const roleToSave = validRoles.includes(formData.role) ? formData.role : 'user';
+          
           const { error: roleError } = await supabase
             .from('user_roles')
             .upsert({
               user_id: profileData.user_id,
-              role: formData.role
+              role: roleToSave as any
             });
 
           if (roleError) throw roleError;
@@ -339,92 +343,95 @@ export const UserManagement = () => {
                   <TableCell>{user.status}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
-                        <DialogTrigger asChild>
+                      {user.role !== 'superadmin' && (
+                        <>
+                          <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEditDialog(user)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Edit User</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="edit_first_name">First Name</Label>
+                                    <Input
+                                      id="edit_first_name"
+                                      value={formData.first_name}
+                                      onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor="edit_last_name">Last Name</Label>
+                                    <Input
+                                      id="edit_last_name"
+                                      value={formData.last_name}
+                                      onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label htmlFor="edit_email">Email</Label>
+                                  <Input
+                                    id="edit_email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="edit_role">Role/Title</Label>
+                                  <Input
+                                    id="edit_role"
+                                    value={formData.role}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as any }))}
+                                    placeholder="Enter role or title"
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="edit_company">Company</Label>
+                                  <Input
+                                    id="edit_company"
+                                    value={formData.company}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor="edit_phone">Phone</Label>
+                                  <Input
+                                    id="edit_phone"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                                  />
+                                </div>
+                                <Button onClick={handleUpdateUser} className="w-full">
+                                  Update User
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => openEditDialog(user)}
+                            onClick={() => handleDeleteUser(user.id)}
                           >
-                            <Edit className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit User</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="edit_first_name">First Name</Label>
-                                <Input
-                                  id="edit_first_name"
-                                  value={formData.first_name}
-                                  onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="edit_last_name">Last Name</Label>
-                                <Input
-                                  id="edit_last_name"
-                                  value={formData.last_name}
-                                  onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <Label htmlFor="edit_email">Email</Label>
-                              <Input
-                                id="edit_email"
-                                type="email"
-                                value={formData.email}
-                                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit_role">Role</Label>
-                              <Select value={formData.role} onValueChange={(value: 'superadmin' | 'user') => setFormData(prev => ({ ...prev, role: value }))}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {ROLES.map(role => (
-                                    <SelectItem key={role} value={role}>
-                                      {ROLE_DISPLAY_NAMES[role]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label htmlFor="edit_company">Company</Label>
-                              <Input
-                                id="edit_company"
-                                value={formData.company}
-                                onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="edit_phone">Phone</Label>
-                              <Input
-                                id="edit_phone"
-                                value={formData.phone}
-                                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                              />
-                            </div>
-                            <Button onClick={handleUpdateUser} className="w-full">
-                              Update User
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        </>
+                      )}
+                      {user.role === 'superadmin' && (
+                        <span className="text-sm text-muted-foreground px-2 py-1">
+                          Protected
+                        </span>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
