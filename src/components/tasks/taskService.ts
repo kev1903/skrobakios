@@ -3,10 +3,6 @@ import { Task } from './types';
 
 export const taskService = {
   async loadTasksForProject(projectId: string): Promise<Task[]> {
-    console.log('=== TASKSERVICE DEBUG ===');
-    console.log('loadTasksForProject called with projectId:', projectId);
-    console.log('Caller stack trace:', new Error().stack);
-    
     const { data, error } = await supabase
       .from('tasks')
       .select('*')

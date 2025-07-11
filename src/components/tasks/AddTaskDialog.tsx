@@ -39,8 +39,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
       status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: 0,
       description: description.trim() || undefined,
-      category: 'General',
-      digitalObjectId: selectedDigitalObject
+      digital_object_id: selectedDigitalObject
     };
 
     addTask(newTask);

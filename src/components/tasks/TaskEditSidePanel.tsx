@@ -27,63 +27,41 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   const { members } = useProjectMembers(projectId);
 
   useEffect(() => {
-    console.log('TaskEditSidePanel received task:', task);
-    console.log('TaskEditSidePanel isOpen:', isOpen);
     if (task) {
       setEditedTask({ ...task });
       setHasUnsavedChanges(false);
     } else {
-      // Clear edited task when task becomes null to prevent stale data
       setEditedTask(null);
       setHasUnsavedChanges(false);
     }
   }, [task, isOpen]);
 
   if (!editedTask) {
-    console.log('TaskEditSidePanel returning null - editedTask:', editedTask);
     return null;
   }
 
   const handleSave = async () => {
-    console.log('=== SAVE BUTTON CLICKED ===');
-    console.log('handleSave called - hasUnsavedChanges:', hasUnsavedChanges);
-    console.log('handleSave called - editedTask:', editedTask);
-    
     if (editedTask && hasUnsavedChanges) {
       try {
-        console.log('Attempting to update task with:', editedTask);
         await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
-        console.log('Task updated successfully');
       } catch (error) {
         console.error('Error saving task:', error);
       }
-    } else {
-      console.log('Save skipped - hasUnsavedChanges:', hasUnsavedChanges, 'editedTask exists:', !!editedTask);
     }
   };
 
-  const handleClose = async () => {
-    // Auto-save before closing if there are unsaved changes
-    await handleSave();
+  const handleClose = () => {
     onClose();
   };
 
   const handleFieldChange = (field: keyof Task, value: any) => {
-    console.log('handleFieldChange called:', field, value);
-    console.log('Current editedTask:', editedTask);
-    console.log('Current hasUnsavedChanges before update:', hasUnsavedChanges);
-    
     if (editedTask) {
       setEditedTask({
         ...editedTask,
         [field]: value
       });
       setHasUnsavedChanges(true);
-      console.log('hasUnsavedChanges set to true');
-      console.log('Updated task field', field, 'to:', value);
-    } else {
-      console.log('No editedTask available');
     }
   };
 

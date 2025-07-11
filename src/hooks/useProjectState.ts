@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProjects, Project } from "@/hooks/useProjects";
 
 export const useProjectState = () => {
@@ -7,11 +7,13 @@ export const useProjectState = () => {
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const { getProjects, getProject } = useProjects();
+  const isInitializedRef = useRef(false);
 
   // Auto-select first project if none is selected
   useEffect(() => {
     const autoSelectFirstProject = async () => {
-      if (!selectedProject && !hasAutoSelected) {
+      if (!selectedProject && !hasAutoSelected && !isInitializedRef.current) {
+        isInitializedRef.current = true;
         try {
           const projects = await getProjects();
           if (projects.length > 0) {
@@ -21,6 +23,7 @@ export const useProjectState = () => {
           }
         } catch (error) {
           console.error('Error auto-selecting project:', error);
+          isInitializedRef.current = false; // Reset on error
         }
       }
     };
