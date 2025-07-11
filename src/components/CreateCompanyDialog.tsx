@@ -24,7 +24,6 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     slogan: '',
     email: '',
     phone: '',
@@ -50,11 +49,10 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
     setIsLoading(true);
 
     try {
-      // Generate slug from name if not provided
-      const slug = formData.slug.trim() || 
-        formData.name.toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-+|-+$/g, '') + 
+      // Generate slug from name
+      const slug = formData.name.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') + 
         '-' + Date.now();
 
       const { data: company, error } = await supabase
@@ -99,7 +97,6 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
       // Reset form and close dialog
       setFormData({
         name: '',
-        slug: '',
         slogan: '',
         email: '',
         phone: '',
@@ -146,15 +143,6 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="slug">Company Slug</Label>
-            <Input
-              id="slug"
-              value={formData.slug}
-              onChange={(e) => handleInputChange('slug', e.target.value)}
-              placeholder="company-slug (auto-generated if empty)"
-            />
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="slogan">Slogan</Label>
@@ -184,7 +172,7 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="+1 (555) 123-4567"
+                placeholder="+61 4 1234 5678"
               />
             </div>
           </div>
