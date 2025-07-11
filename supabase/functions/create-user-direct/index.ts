@@ -18,9 +18,17 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log("Function invoked, parsing request...");
+    
     // Initialize Supabase client with service role key for admin operations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    console.log("Environment check:", {
+      hasUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey
+    });
+
     
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -49,16 +57,27 @@ const handler = async (req: Request): Promise<Response> => {
     // Verify authentication
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      console.log("No authorization header found");
       return new Response(
         JSON.stringify({ error: "No authorization header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Verify the calling user is a superadmin
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    // Verify authentication using the user token, not service key
+    const authToken = authHeader.replace("Bearer ", "");
+    console.log("Extracting user from token...");
+    
+    // Create a client with user token to verify the user
+    const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: {
+        headers: {
+          Authorization: authHeader
+        }
+      }
+    });
+
+    const { data: { user }, error: userError } = await userClient.auth.getUser(authToken);
 
     if (userError || !user) {
       return new Response(
