@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { CompanyDetailsSection } from '@/components/user-edit/CompanyDetailsSection';
+import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface CompanySectionProps {
   profileData: {
@@ -15,8 +19,24 @@ interface CompanySectionProps {
 }
 
 export const CompanySection = ({ profileData, onInputChange }: CompanySectionProps) => {
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const { isSuperAdmin } = useUserRole();
+
   return (
     <div className="space-y-8">
+      {/* New Company Button for Superadmin */}
+      {isSuperAdmin() && (
+        <div className="flex justify-end">
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Company
+          </Button>
+        </div>
+      )}
+
       {/* Company Details */}
       <div className="glass-card p-6">
         <CompanyDetailsSection 
@@ -32,6 +52,11 @@ export const CompanySection = ({ profileData, onInputChange }: CompanySectionPro
           onInputChange={onInputChange}
         />
       </div>
+
+      <CreateCompanyDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
     </div>
   );
 };

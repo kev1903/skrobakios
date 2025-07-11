@@ -1,15 +1,12 @@
 
 import React, { useState } from 'react';
-import { Building, Globe, MapPin, Users, MessageSquare, Plus, ChevronDown } from 'lucide-react';
+import { Building, Globe, MapPin, Users, MessageSquare, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CompanyLogoUpload } from './CompanyLogoUpload';
-import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
-import { useUserRole } from '@/hooks/useUserRole';
 
 interface CompanyDetailsSectionProps {
   profileData: {
@@ -25,40 +22,20 @@ interface CompanyDetailsSectionProps {
 }
 
 export const CompanyDetailsSection = ({ profileData, onInputChange }: CompanyDetailsSectionProps) => {
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { isSuperAdmin } = useUserRole();
-  
   return (
-    <>
-      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-        <Accordion type="single" collapsible defaultValue="company-details" className="w-full">
-          <AccordionItem value="company-details" className="border-none">
-            <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-2">
-              <CardTitle className="flex items-center justify-between w-full text-slate-800">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
-                    <Building className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <span className="text-xl font-semibold">
-                    {profileData.companyName || 'Company Details'}
-                  </span>
-                </div>
-                {isSuperAdmin() && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowCreateDialog(true);
-                    }}
-                    className="ml-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50/50"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    New Company
-                  </Button>
-                )}
-              </CardTitle>
-            </AccordionTrigger>
+    <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+      <Accordion type="single" collapsible defaultValue="company-details" className="w-full">
+        <AccordionItem value="company-details" className="border-none">
+          <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-2">
+            <CardTitle className="flex items-center space-x-3 text-slate-800">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200/60 backdrop-blur-sm">
+                <Building className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="text-xl font-semibold">
+                {profileData.companyName || 'Company Details'}
+              </span>
+            </CardTitle>
+          </AccordionTrigger>
             <AccordionContent className="px-6 pb-6">
               <div className="space-y-6">
                 {/* Company Logo Upload Section */}
@@ -154,11 +131,5 @@ export const CompanyDetailsSection = ({ profileData, onInputChange }: CompanyDet
           </AccordionItem>
         </Accordion>
       </Card>
-      
-      <CreateCompanyDialog 
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-      />
-    </>
-  );
-};
+    );
+  };
