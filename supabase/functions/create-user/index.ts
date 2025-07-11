@@ -190,17 +190,35 @@ const handler = async (req: Request): Promise<Response> => {
     const validRoles = ['superadmin', 'admin', 'user', 'project_manager', 'project_admin', 'consultant', 'subcontractor', 'estimator', 'accounts', 'client_viewer'];
     const roleToSave = validRoles.includes(role.toLowerCase()) ? role.toLowerCase() : 'user';
     
+    console.log('Attempting to create role:', roleToSave, 'for user:', authUser.user.id);
+    
     const { error: roleError } = await supabaseAdmin
       .from('user_roles')
       .insert({
         user_id: authUser.user.id,
-        role: roleToSave as any
+        role: roleToSave
       });
 
     if (roleError) {
-      console.error('Role error:', roleError);
-      // Don't fail the whole operation if role assignment fails
-      console.log('User created but role assignment failed, defaulting to user role');
+      console.error('Role error details:', roleError);
+      console.error('Role error message:', roleError.message);
+      console.error('Role error code:', roleError.code);
+      
+      // Clean up created user and profile if role creation fails
+      try {
+        await supabaseAdmin.from('profiles').delete().eq('user_id', authUser.user.id);
+        await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+      } catch (cleanupError) {
+        console.error('Failed to cleanup after role error:', cleanupError);
+      }
+      
+      return new Response(
+        JSON.stringify({ success: false, error: 'Database error creating new user' }),
+        { 
+          status: 200, 
+          headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+        }
+      );
     }
 
     console.log('User created successfully');
