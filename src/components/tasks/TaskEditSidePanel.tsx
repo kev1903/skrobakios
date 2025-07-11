@@ -11,6 +11,7 @@ import { SubmittalWorkflow } from './SubmittalWorkflow';
 import { TaskAttachmentsDisplay } from './TaskAttachmentsDisplay';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
+import { useToast } from '@/hooks/use-toast';
 
 interface TaskEditSidePanelProps {
   task: Task | null;
@@ -25,6 +26,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isMobile = useIsMobile();
   const { members } = useProjectMembers(projectId);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (task) {
@@ -48,8 +50,17 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
         console.log('Task saved successfully');
+        toast({
+          title: "Task saved",
+          description: "Your changes have been saved successfully.",
+        });
       } catch (error) {
         console.error('Error saving task:', error);
+        toast({
+          title: "Error saving task",
+          description: "There was an error saving your changes. Please try again.",
+          variant: "destructive",
+        });
       }
     } else {
       console.log('No changes to save', { editedTask, hasUnsavedChanges });
