@@ -13,7 +13,7 @@ import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
-import { AdminPanel } from "@/components/admin/AdminPanel";
+
 
 import { SettingsPage } from "@/components/SettingsPage";
 import { SupportPage } from "@/components/SupportPage";
@@ -64,7 +64,7 @@ export const ContentRenderer = ({
     case "settings":
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
-      return <AdminPanel onNavigate={onNavigate} />;
+      return <div>Admin panel has been removed</div>;
     case "create-project":
       return <CreateProject onNavigate={onNavigate} />;
     case "projects":
