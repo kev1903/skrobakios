@@ -43,11 +43,15 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   const handleSave = async () => {
     if (editedTask && hasUnsavedChanges) {
       try {
+        console.log('Saving task updates:', editedTask);
         await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
+        console.log('Task saved successfully');
       } catch (error) {
         console.error('Error saving task:', error);
       }
+    } else {
+      console.log('No changes to save');
     }
   };
 
