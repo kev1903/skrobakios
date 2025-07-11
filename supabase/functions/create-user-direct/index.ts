@@ -28,7 +28,6 @@ const handler = async (req: Request): Promise<Response> => {
       hasUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey
     });
-
     
     const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -37,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    console.log("Supabase client created successfully");
+    console.log("Supabase admin client created successfully");
 
     // Parse request data
     const requestData = await req.json();
@@ -64,22 +63,15 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify authentication using the user token, not service key
-    const authToken = authHeader.replace("Bearer ", "");
-    console.log("Extracting user from token...");
-    
     // Create a client with user token to verify the user
-    const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: {
-        headers: {
-          Authorization: authHeader
-        }
-      }
-    });
-
-    const { data: { user }, error: userError } = await userClient.auth.getUser(authToken);
+    const userClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!);
+    
+    const { data: { user }, error: userError } = await userClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
 
     if (userError || !user) {
+      console.log("Authentication failed:", userError);
       return new Response(
         JSON.stringify({ error: "Invalid authorization" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -88,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Authentication successful for user:", user.id);
 
-    // Check if user has permission to create users (superadmin only)
+    // Check if user has permission to create users (superadmin only) using service client
     const { data: userRole, error: roleError } = await supabaseClient
       .from("user_roles")
       .select("role")
@@ -96,6 +88,7 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (roleError || !userRole) {
+      console.log("Role check failed:", roleError);
       return new Response(
         JSON.stringify({ error: "Unable to verify user permissions" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -105,6 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("User role:", userRole.role);
 
     if (userRole.role !== 'superadmin') {
+      console.log("User is not superadmin, role:", userRole.role);
       return new Response(
         JSON.stringify({ error: "Only superadmins can create users directly" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
