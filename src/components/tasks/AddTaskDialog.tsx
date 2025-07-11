@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTaskContext } from './TaskContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useDigitalObjectsContext } from '@/contexts/DigitalObjectsContext';
 
 interface AddTaskDialogProps {
   isOpen: boolean;
@@ -23,30 +23,9 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedDigitalObject, setSelectedDigitalObject] = useState('');
-  const [digitalObjects, setDigitalObjects] = useState<Array<{id: string, name: string, stage: string}>>([]);
   const [open, setOpen] = useState(false);
   const { addTask } = useTaskContext();
-
-  // Fetch digital objects on component mount
-  useEffect(() => {
-    const fetchDigitalObjects = async () => {
-      const { data, error } = await supabase
-        .from('digital_objects')
-        .select('id, name, stage')
-        .order('stage')
-        .order('name');
-      
-      if (error) {
-        console.error('Error fetching digital objects:', error);
-      } else {
-        setDigitalObjects(data || []);
-      }
-    };
-
-    if (isOpen) {
-      fetchDigitalObjects();
-    }
-  }, [isOpen]);
+  const { digitalObjects } = useDigitalObjectsContext();
 
   const handleSubmit = () => {
     if (!taskName.trim() || !selectedDigitalObject) return;
@@ -104,7 +83,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
+              <PopoverContent className="w-full p-0 z-50 bg-white border border-gray-200 shadow-lg">
                 <Command>
                   <CommandInput placeholder="Search digital objects..." />
                   <CommandList>

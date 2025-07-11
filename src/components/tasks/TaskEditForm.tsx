@@ -10,7 +10,7 @@ import { Check, ChevronsUpDown, Calendar, User, Clock, FileText, Flag } from 'lu
 import { cn } from '@/lib/utils';
 import { Task } from './TaskContext';
 import { useProjectMembers } from '@/hooks/useProjectMembers';
-import { supabase } from '@/integrations/supabase/client';
+import { useDigitalObjectsContext } from '@/contexts/DigitalObjectsContext';
 interface TaskEditFormProps {
   task: Task;
   onFieldChange: (field: keyof Task, value: any) => void;
@@ -20,31 +20,12 @@ export const TaskEditForm = ({
   task,
   onFieldChange,
   projectId
-}: TaskEditFormProps) => {
+ }: TaskEditFormProps) => {
   const { members } = useProjectMembers(projectId);
-  const [digitalObjects, setDigitalObjects] = useState<Array<{id: string, name: string, stage: string}>>([]);
+  const { digitalObjects } = useDigitalObjectsContext();
   const [digitalObjectOpen, setDigitalObjectOpen] = useState(false);
   const [expectedTimeValue, setExpectedTimeValue] = useState('');
   const [expectedTimeUnit, setExpectedTimeUnit] = useState<'minutes' | 'days'>('days');
-
-  // Fetch digital objects on component mount
-  useEffect(() => {
-    const fetchDigitalObjects = async () => {
-      const { data, error } = await supabase
-        .from('digital_objects')
-        .select('id, name, stage')
-        .order('stage')
-        .order('name');
-      
-      if (error) {
-        console.error('Error fetching digital objects:', error);
-      } else {
-        setDigitalObjects(data || []);
-      }
-    };
-
-    fetchDigitalObjects();
-  }, []);
 
   // Initialize expected time from task duration
   useEffect(() => {
@@ -110,7 +91,7 @@ export const TaskEditForm = ({
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
+          <PopoverContent className="w-full p-0 z-50 bg-white border border-gray-200 shadow-lg">
             <Command>
               <CommandInput placeholder="Search digital objects..." />
               <CommandList>

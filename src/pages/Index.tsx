@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -24,7 +25,8 @@ const Index = () => {
   return (
     <AuthProvider>
       <UserProvider>
-        <TaskProvider>
+        <DigitalObjectsProvider>
+          <TaskProvider>
           {currentPage === "sales" || currentPage === "projects" ? (
             // Sales CRM and Projects take full screen - no main layout wrapper
             <ContentRenderer 
@@ -68,7 +70,8 @@ const Index = () => {
               </div>
             </div>
           )}
-        </TaskProvider>
+          </TaskProvider>
+        </DigitalObjectsProvider>
       </UserProvider>
     </AuthProvider>
   );

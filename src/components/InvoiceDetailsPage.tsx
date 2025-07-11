@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Building, FolderTree, Save, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useDigitalObjectsContext } from "@/contexts/DigitalObjectsContext";
 
 interface XeroInvoice {
   id: string;
@@ -66,10 +67,10 @@ export const InvoiceDetailsPage = () => {
 
   const [invoice, setInvoice] = useState<XeroInvoice | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([]);
   const [accounts, setAccounts] = useState<XeroAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [existingAllocation, setExistingAllocation] = useState<InvoiceAllocation | null>(null);
+  const { getDigitalObjectsByProject } = useDigitalObjectsContext();
   
   // Allocation states
   const [selectedAccount, setSelectedAccount] = useState<string>("");
@@ -89,10 +90,7 @@ export const InvoiceDetailsPage = () => {
 
   useEffect(() => {
     if (selectedProject) {
-      fetchDigitalObjects();
-    } else {
-      setDigitalObjects([]);
-      setSelectedDigitalObject("");
+      setSelectedDigitalObject(""); // Reset selection when project changes
     }
   }, [selectedProject]);
 
@@ -130,20 +128,8 @@ export const InvoiceDetailsPage = () => {
     }
   };
 
-  const fetchDigitalObjects = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('digital_objects')
-        .select('*')
-        .eq('project_id', selectedProject)
-        .order('name');
-
-      if (error) throw error;
-      setDigitalObjects(data || []);
-    } catch (error) {
-      console.error('Error fetching digital objects:', error);
-    }
-  };
+  // Get project-specific digital objects
+  const projectDigitalObjects = selectedProject ? getDigitalObjectsByProject(selectedProject) : [];
 
   const fetchAccounts = async () => {
     try {
@@ -408,7 +394,7 @@ export const InvoiceDetailsPage = () => {
                   <Label className="text-sm font-medium text-green-700">Digital Object</Label>
                   <p className="text-sm text-green-800">
                     {existingAllocation.digital_object_id 
-                      ? digitalObjects.find(o => o.id === existingAllocation.digital_object_id)?.name || 'Unknown Object'
+                      ? projectDigitalObjects.find(o => o.id === existingAllocation.digital_object_id)?.name || 'Unknown Object'
                       : 'Not allocated'
                     }
                   </p>
@@ -568,8 +554,8 @@ export const InvoiceDetailsPage = () => {
                   <SelectTrigger id="digital-object-select">
                     <SelectValue placeholder="Select a digital object" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {digitalObjects.map((object) => (
+                  <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+                    {projectDigitalObjects.map((object) => (
                       <SelectItem key={object.id} value={object.id}>
                         <div>
                           <p className="font-medium">{object.name}</p>
@@ -581,7 +567,7 @@ export const InvoiceDetailsPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                {digitalObjects.length === 0 && (
+                {projectDigitalObjects.length === 0 && (
                   <p className="text-xs text-gray-500">No digital objects found in selected project.</p>
                 )}
               </div>
@@ -611,7 +597,7 @@ export const InvoiceDetailsPage = () => {
                     <p>• Project: {projects.find(p => p.id === selectedProject)?.name}</p>
                   )}
                   {selectedDigitalObject && (
-                    <p>• Digital Object: {digitalObjects.find(o => o.id === selectedDigitalObject)?.name}</p>
+                    <p>• Digital Object: {projectDigitalObjects.find(o => o.id === selectedDigitalObject)?.name}</p>
                   )}
                 </div>
               </div>
