@@ -32,7 +32,3 @@ export const supportNavigation: NavigationItem[] = [
   { id: "settings", label: "Settings", icon: Settings },
   { id: "support", label: "Help Center", icon: HelpCircle },
 ];
-
-export const adminNavigation: NavigationItem[] = [
-  { id: "admin", label: "Admin Panel", icon: Shield },
-];

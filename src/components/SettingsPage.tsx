@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, User, Bell, Palette, Plug } from 'lucide-react';
+import { ArrowLeft, Settings, User, Bell, Palette, Plug, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
+import { useUserRole } from '@/hooks/useUserRole';
 import { IntegrationsTab } from './integrations/IntegrationsTab';
+import { UserManagement } from './admin/UserManagement';
 
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
@@ -17,6 +19,7 @@ interface SettingsPageProps {
 export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { isSuperAdmin } = useUserRole();
   const [activeTab, setActiveTab] = useState('general');
 
   if (!user) {
@@ -56,7 +59,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
             {/* Tab List */}
             <div className="w-full overflow-x-auto">
-              <TabsList className="flex w-full min-w-fit grid-cols-2 md:grid md:grid-cols-5 backdrop-blur-sm bg-white/60 p-1">
+              <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-6' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
                 <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Settings className="w-4 h-4 flex-shrink-0" />
                   <span className="text-xs md:text-sm">General</span>
@@ -77,6 +80,12 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                   <Plug className="w-4 h-4 flex-shrink-0" />
                   <span className="text-xs md:text-sm">Integrations</span>
                 </TabsTrigger>
+                {isSuperAdmin() && (
+                  <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Shield className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Admin</span>
+                  </TabsTrigger>
+                )}
               </TabsList>
             </div>
 
@@ -156,6 +165,26 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
             <TabsContent value="integrations" className="space-y-4 md:space-y-6">
               <IntegrationsTab />
             </TabsContent>
+
+            {isSuperAdmin() && (
+              <TabsContent value="admin" className="space-y-4 md:space-y-6">
+                <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+                  <CardHeader className="pb-4 md:pb-6">
+                    <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                      <Shield className="w-5 h-5" />
+                      Admin Panel
+                      <Badge variant="destructive" className="text-xs">Super Admin</Badge>
+                    </CardTitle>
+                    <CardDescription className="text-sm md:text-base">
+                      Manage platform users, roles, and system administration
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <UserManagement />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>

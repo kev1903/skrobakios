@@ -66,7 +66,9 @@ export const ContentRenderer = ({
     case "settings":
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
-      return <AdminPage onNavigate={onNavigate} />;
+      // Redirect admin to settings page with admin tab
+      onNavigate("settings");
+      return <SettingsPage onNavigate={onNavigate} />;
     case "create-project":
       return <CreateProject onNavigate={onNavigate} />;
     case "projects":
