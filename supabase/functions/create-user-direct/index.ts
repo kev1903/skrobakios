@@ -28,14 +28,15 @@ const handler = async (req: Request): Promise<Response> => {
     // Check environment variables first
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
     console.log("Environment variables check:", {
       hasUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
-      url: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'missing'
+      hasAnonKey: !!supabaseAnonKey
     });
     
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
       console.error("Missing required environment variables");
       return new Response(
         JSON.stringify({ 
@@ -65,7 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, first_name, last_name, role, company, phone } = requestData as CreateUserRequest;
     
     if (!email || !first_name || !last_name || !role) {
-      console.error("Missing required fields:", { email: !!email, first_name: !!first_name, last_name: !!last_name, role: !!role });
+      console.error("Missing required fields");
       return new Response(
         JSON.stringify({ 
           error: "Missing required fields",
@@ -74,15 +75,18 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
-    console.log("Creating user with data:", { 
-      email, 
-      first_name,
-      last_name, 
-      role
-    });
 
-    // Create admin client
+    // Verify the user is authorized
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      console.error("No authorization header found");
+      return new Response(
+        JSON.stringify({ error: "No authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create clients
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -90,6 +94,45 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey);
+
+    // Verify user authentication and role
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser(token);
+
+    if (userError || !user) {
+      console.error("Authentication failed:", userError?.message);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid authorization",
+          details: userError?.message || "User not found"
+        }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("User authenticated:", user.id);
+
+    // Check if user is superadmin
+    const { data: userRole, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    if (roleError || !userRole || userRole.role !== 'superadmin') {
+      console.error("User is not superadmin");
+      return new Response(
+        JSON.stringify({ 
+          error: "Only superadmins can create users directly",
+          details: `Current role: ${userRole?.role || 'unknown'}`
+        }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("User is superadmin, proceeding with user creation");
+    
     // Generate a generic password
     const genericPassword = "TempPass123!";
 
@@ -108,12 +151,11 @@ const handler = async (req: Request): Promise<Response> => {
     if (createError) {
       console.error("User creation failed:", createError);
       
-      // Handle specific error cases
       if (createError.message?.includes("already been registered") || createError.message?.includes("email_exists")) {
         return new Response(
           JSON.stringify({ 
             error: "User already exists", 
-            details: `A user with email ${email} already exists in the system` 
+            details: `A user with email ${email} already exists` 
           }),
           { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
@@ -133,7 +175,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           error: "Failed to create user", 
-          details: "No user data returned from creation" 
+          details: "No user data returned" 
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -141,7 +183,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("User created successfully:", newUser.user.id);
 
-    // Update the profile (created by trigger) with additional data
+    // Update the profile created by the trigger
     console.log("Updating user profile...");
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
@@ -162,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Profile updated successfully");
     }
 
-    // Update the role (created by trigger) to the desired role
+    // Update the role created by the trigger
     console.log("Updating user role to:", role);
     const { error: roleUpdateError } = await supabaseAdmin
       .from("user_roles")
@@ -181,7 +223,6 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("Role assigned successfully");
-    console.log("User creation process completed successfully");
 
     return new Response(
       JSON.stringify({ 
@@ -206,7 +247,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error("Unexpected error in create-user-direct function:", error);
+    console.error("Unexpected error:", error);
     return new Response(
       JSON.stringify({ 
         success: false, 
