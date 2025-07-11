@@ -8,8 +8,7 @@ import { AdminHeader } from './AdminHeader';
 import { AdminAlerts } from './AdminAlerts';
 import { UserRoleManager } from './UserRoleManager';
 import { UsersList } from './UsersList';
-import { UserInvitationManager } from './UserInvitationManager';
-import { UserInvitationsList } from './UserInvitationsList';
+import { DirectUserCreationForm } from './DirectUserCreationForm';
 import { AccessManagementTable, type AccessUser, type UserRole, type UserStatus } from './AccessManagementTable';
 import { EmailTestButton } from './EmailTestButton';
 import { useAccessUsers } from '@/hooks/useAccessUsers';
@@ -31,7 +30,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
     deleteUser,
     refetchUsers
   } = useAccessUsers();
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [showCreateUserDialog, setShowCreateUserDialog] = useState(false);
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     updateAccessUserRole(userId, newRole);
@@ -139,11 +138,11 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
   };
 
   const handleAddNewUser = () => {
-    setShowInviteDialog(true);
+    setShowCreateUserDialog(true);
   };
 
-  const handleInviteSuccess = () => {
-    setShowInviteDialog(false);
+  const handleCreateUserSuccess = () => {
+    setShowCreateUserDialog(false);
     refetchUsers(); // Refresh the users list
   };
 
@@ -186,20 +185,13 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
         onAddNewUser={handleAddNewUser}
       />
       
-      {showInviteDialog && (
+      {showCreateUserDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <UserInvitationManager 
-              onNavigate={onNavigate}
-              onSuccess={handleInviteSuccess}
+          <div className="bg-background rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <DirectUserCreationForm 
+              onCancel={() => setShowCreateUserDialog(false)}
+              onSuccess={handleCreateUserSuccess}
             />
-            <Button 
-              variant="outline" 
-              onClick={() => setShowInviteDialog(false)}
-              className="mt-4 w-full"
-            >
-              Cancel
-            </Button>
           </div>
         </div>
       )}

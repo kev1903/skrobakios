@@ -1,6 +1,6 @@
 import React from 'react';
 import { NewUserPageHeader } from './components/NewUserPageHeader';
-import { UserInvitationForm } from './components/UserInvitationForm';
+import { DirectUserCreationForm } from './DirectUserCreationForm';
 
 interface NewUserPageProps {
   onNavigate: (page: string) => void;
@@ -18,7 +18,7 @@ export const NewUserPage = ({ onNavigate }: NewUserPageProps) => {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <NewUserPageHeader onBack={handleBack} />
-      <UserInvitationForm onCancel={handleBack} onSuccess={handleSuccess} />
+      <DirectUserCreationForm onCancel={handleBack} onSuccess={handleSuccess} />
     </div>
   );
 };

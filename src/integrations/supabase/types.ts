@@ -507,6 +507,7 @@ export type Database = {
           job_title: string | null
           last_name: string | null
           location: string | null
+          needs_password_reset: boolean | null
           phone: string | null
           status: string
           updated_at: string
@@ -526,6 +527,7 @@ export type Database = {
           job_title?: string | null
           last_name?: string | null
           location?: string | null
+          needs_password_reset?: boolean | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -545,6 +547,7 @@ export type Database = {
           job_title?: string | null
           last_name?: string | null
           location?: string | null
+          needs_password_reset?: boolean | null
           phone?: string | null
           status?: string
           updated_at?: string

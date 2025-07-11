@@ -19,8 +19,8 @@ export const NewUserPageHeader = ({ onBack }: NewUserPageHeaderProps) => {
         Back to Admin
       </Button>
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Invite New User</h1>
-        <p className="text-gray-600 mt-1">Send an invitation to join the platform</p>
+        <h1 className="text-3xl font-bold text-gray-900">Create New User</h1>
+        <p className="text-gray-600 mt-1">Create a new user account with temporary password</p>
       </div>
     </div>
   );

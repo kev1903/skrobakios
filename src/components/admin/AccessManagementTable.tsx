@@ -48,7 +48,7 @@ export const AccessManagementTable = ({
             <div>
               <CardTitle className="heading-modern text-gradient">Access Management</CardTitle>
               <CardDescription>
-                Manage user roles, permissions, and access levels
+                Create and manage users with assigned roles and permissions
               </CardDescription>
             </div>
             {canAddUsers && (
@@ -58,7 +58,7 @@ export const AccessManagementTable = ({
                 size="sm"
               >
                 <Plus className="h-4 w-4" />
-                Invite User
+                Create User
               </Button>
             )}
           </div>
