@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, ChevronDown, Building2, Plus } from 'lucide-react';
+import { Check, ChevronDown, Building2, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +11,11 @@ import {
 import { useCompany } from '@/contexts/CompanyContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-export const CompanySwitcher = () => {
+interface CompanySwitcherProps {
+  onNavigate?: (page: string) => void;
+}
+
+export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
   const { currentCompany, companies, switchCompany, loading } = useCompany();
 
   if (loading) {
@@ -76,6 +80,14 @@ export const CompanySwitcher = () => {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
+        {onNavigate && (
+          <DropdownMenuItem onClick={() => onNavigate('company-settings')}>
+            <div className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span>Company Settings</span>
+            </div>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem>
           <div className="flex items-center space-x-2">
             <Plus className="h-4 w-4" />

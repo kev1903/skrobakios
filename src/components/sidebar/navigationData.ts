@@ -10,6 +10,7 @@ import {
   Settings, 
   HelpCircle,
   Shield,
+  Building2,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
@@ -29,6 +30,7 @@ export const businessNavigation: NavigationItem[] = [
 ];
 
 export const supportNavigation: NavigationItem[] = [
+  { id: "company-settings", label: "Company", icon: Building2 },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "support", label: "Help Center", icon: HelpCircle },
 ];

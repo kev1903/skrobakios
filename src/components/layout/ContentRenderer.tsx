@@ -34,6 +34,7 @@ import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 import { CostContractsPage } from "@/components/CostContractsPage";
 import { AdminPage } from "@/components/admin/AdminPage";
+import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { Project } from "@/hooks/useProjects";
 interface ContentRendererProps {
   currentPage: string;
@@ -150,6 +151,8 @@ export const ContentRenderer = ({
       return <UserEditPage onNavigate={onNavigate} />;
     case "user-profile":
       return <UserProfilePage onNavigate={onNavigate} />;
+    case "company-settings":
+      return <CompanySettingsPage onNavigate={onNavigate} />;
     case "inbox":
     case "asset":
     case "schedules":
