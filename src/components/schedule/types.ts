@@ -11,6 +11,7 @@ export interface ModernGanttTask {
   children?: ModernGanttTask[];
   expanded?: boolean;
   color?: string;
+  wbsId?: string; // WBS item ID for database operations
   barStyle?: {
     left: string;
     width: string;

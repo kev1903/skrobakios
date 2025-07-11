@@ -28,6 +28,9 @@ import {
   parseDependencies,
   formatDependencies
 } from '@/components/schedule/utils';
+import { WBSService } from '@/services/wbsService';
+import { WBSItem } from '@/types/wbs';
+import { useToast } from '@/hooks/use-toast';
 
 interface ModernProjectSchedulePageProps {
   project: Project;
@@ -35,204 +38,67 @@ interface ModernProjectSchedulePageProps {
 }
 
 export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProjectSchedulePageProps) => {
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(['strategy', 'design', 'development', 'testing']));
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [hideCompleted, setHideCompleted] = useState(false);
   const [editingField, setEditingField] = useState<{taskId: string, field: string} | null>(null);
   const [editingValue, setEditingValue] = useState<string>('');
   const [scrollPosition, setScrollPosition] = useState(0);
   const [timelineHeader, setTimelineHeader] = useState<TimelineHeader>(generateTimelineHeaders());
   const [taskListWidth, setTaskListWidth] = useState(600);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Task data with enhanced structure
-  const [tasks, setTasks] = useState<ModernGanttTask[]>([
-    {
-      id: 'strategy',
-      title: 'Strategy',
-      duration: 9,
-      status: 98,
-      startDate: '2024-11-01',
-      endDate: '2024-11-10',
-      dependencies: [],
-      level: 0,
-      expanded: true,
-      children: [
-        {
-          id: 'goals',
-          title: 'Goals',
-          duration: 6,
-          status: 100,
-          startDate: '2024-11-01',
-          endDate: '2024-11-07',
-          dependencies: [], // No dependencies for first task
-          level: 1,
-          barStyle: {
-            left: '2%',
-            width: '15%',
-            backgroundColor: '#3B82F6'
-          }
-        },
-        {
-          id: 'target-audience',
-          title: 'Target Audience',
-          duration: 4,
-          status: 100,
-          startDate: '2024-11-08',
-          endDate: '2024-11-12',
-          dependencies: [2], // Depends on Goals (row 2)
-          level: 1,
-          barStyle: {
-            left: '18%',
-            width: '10%',
-            backgroundColor: '#06B6D4'
-          }
-        },
-        {
-          id: 'competitor-research',
-          title: 'Competitor Research',
-          duration: 2,
-          status: 80,
-          startDate: '2024-11-13',
-          endDate: '2024-11-15',
-          dependencies: [3], // Depends on Target Audience (row 3)
-          level: 1,
-          barStyle: {
-            left: '30%',
-            width: '5%',
-            backgroundColor: '#10B981'
-          }
-        }
-      ]
-    },
-    {
-      id: 'design',
-      title: 'Design',
-      duration: 10,
-      status: 25,
-      startDate: '2024-11-16',
-      endDate: '2024-11-26',
-      dependencies: [4], // Depends on Competitor Research (row 4)
-      level: 0,
-      expanded: true,
-      children: [
-        {
-          id: 'user-experience',
-          title: 'User Experience',
-          duration: 3,
-          status: 60,
-          startDate: '2024-11-16',
-          endDate: '2024-11-19',
-          dependencies: [4], // Depends on Competitor Research (row 4)
-          level: 1,
-          barStyle: {
-            left: '36%',
-            width: '7%',
-            backgroundColor: '#8B5CF6'
-          }
-        },
-        {
-          id: 'user-interface',
-          title: 'User Interface',
-          duration: 6,
-          status: 40,
-          startDate: '2024-11-20',
-          endDate: '2024-11-26',
-          dependencies: [6], // Depends on User Experience (row 6)
-          level: 1,
-          barStyle: {
-            left: '45%',
-            width: '15%',
-            backgroundColor: '#8B5CF6'
-          }
-        },
-        {
-          id: 'icons-pack',
-          title: 'Icons Pack',
-          duration: 3,
-          status: 0,
-          startDate: '2024-11-27',
-          endDate: '2024-11-30',
-          dependencies: [7], // Depends on User Interface (row 7)
-          level: 1
-        },
-        {
-          id: 'style-guide',
-          title: 'Style Guide',
-          duration: 8,
-          status: 0,
-          startDate: '2024-12-01',
-          endDate: '2024-12-09',
-          dependencies: [8], // Depends on Icons Pack (row 8)
-          level: 1
-        }
-      ]
-    },
-    {
-      id: 'development',
-      title: 'Development',
-      duration: 12,
-      status: 0,
-      startDate: '2024-12-10',
-      endDate: '2024-12-22',
-      dependencies: [],
-      level: 0,
-      expanded: true,
-      children: [
-        {
-          id: 'back-end',
-          title: 'Back-End',
-          duration: 7,
-          status: 0,
-          startDate: '2024-12-10',
-          endDate: '2024-12-17',
-          dependencies: [],
-          level: 1
-        },
-        {
-          id: 'api',
-          title: 'API',
-          duration: 4,
-          status: 0,
-          startDate: '2024-12-18',
-          endDate: '2024-12-22',
-          dependencies: [],
-          level: 1
-        },
-        {
-          id: 'front-end',
-          title: 'Front-End',
-          duration: 8,
-          status: 0,
-          startDate: '2024-12-15',
-          endDate: '2024-12-23',
-          dependencies: [],
-          level: 1
-        }
-      ]
-    },
-    {
-      id: 'testing',
-      title: 'Testing',
-      duration: 8,
-      status: 0,
-      startDate: '2024-12-24',
-      endDate: '2025-01-01',
-      dependencies: [],
-      level: 0,
-      expanded: true,
-      children: [
-        {
-          id: 'user-experience-testing',
-          title: 'User Experience Testing',
-          duration: 6,
-          status: 0,
-          startDate: '2024-12-24',
-          endDate: '2024-12-30',
-          dependencies: [],
-          level: 1
-        }
-      ]
+  // Task data loaded from database
+  const [tasks, setTasks] = useState<ModernGanttTask[]>([]);
+
+  // Load WBS items from database
+  const loadWBSItems = async () => {
+    try {
+      setLoading(true);
+      const wbsItems = await WBSService.loadWBSItems(project.id);
+      const ganttTasks = convertWBSToGanttTasks(wbsItems);
+      setTasks(ganttTasks);
+      
+      // Set initial expanded tasks
+      const parentTaskIds = ganttTasks
+        .filter(task => task.children && task.children.length > 0)
+        .map(task => task.id);
+      setExpandedTasks(new Set(parentTaskIds));
+    } catch (error) {
+      console.error('Error loading WBS items:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load project schedule data.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  // Convert WBS items to Gantt tasks format
+  const convertWBSToGanttTasks = (wbsItems: WBSItem[]): ModernGanttTask[] => {
+    const convertItem = (item: WBSItem): ModernGanttTask => ({
+      id: item.id,
+      title: item.title,
+      duration: item.duration || 1,
+      status: item.progress || 0,
+      startDate: item.start_date || new Date().toISOString().split('T')[0],
+      endDate: item.end_date || new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      dependencies: [], // Parse from linked_tasks if needed
+      level: item.level,
+      expanded: item.is_expanded,
+      children: item.children ? item.children.map(convertItem) : undefined,
+      wbsId: item.id // Store original WBS ID for database operations
+    });
+
+    return wbsItems.map(convertItem);
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    loadWBSItems();
+  }, [project.id]);
 
   const toggleExpanded = (taskId: string) => {
     setExpandedTasks(prev => {
@@ -261,7 +127,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
     return result;
   };
 
-  const updateTask = (taskId: string, field: string, value: string | number) => {
+  const updateTask = async (taskId: string, field: string, value: string | number) => {
     setTasks(prevTasks => {
       const updateTaskRecursively = (tasks: ModernGanttTask[]): ModernGanttTask[] => {
         return tasks.map(task => {
@@ -278,7 +144,11 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
                 updatedTask = autoScheduleTask(updatedTask, flattenTasksLocal(prevTasks));
               } else {
                 console.warn('Dependency validation failed:', conflicts);
-                // You could show a toast notification here
+                toast({
+                  title: "Invalid Dependencies",
+                  description: "Please check your dependency references.",
+                  variant: "destructive",
+                });
                 return task; // Return unchanged task
               }
             } else if (field === 'duration' || field === 'startDate' || field === 'endDate') {
@@ -309,6 +179,55 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
       };
       return updateTaskRecursively(prevTasks);
     });
+
+    // Update database if task has wbsId
+    const task = findTaskById(taskId);
+    if (task?.wbsId) {
+      try {
+        const updates: any = {};
+        
+        if (field === 'title') {
+          updates.title = String(value);
+        } else if (field === 'duration') {
+          updates.duration = Number(value);
+        } else if (field === 'startDate') {
+          updates.start_date = String(value);
+        } else if (field === 'endDate') {
+          updates.end_date = String(value);
+        } else if (field === 'status') {
+          updates.progress = Number(value);
+        }
+
+        await WBSService.updateWBSItem(task.wbsId, updates);
+        
+        toast({
+          title: "Updated",
+          description: `${field} updated successfully.`,
+        });
+      } catch (error) {
+        console.error('Error updating WBS item:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save changes to database.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  // Helper function to find a task by ID
+  const findTaskById = (taskId: string): ModernGanttTask | null => {
+    const searchTasks = (tasks: ModernGanttTask[]): ModernGanttTask | null => {
+      for (const task of tasks) {
+        if (task.id === taskId) return task;
+        if (task.children) {
+          const found = searchTasks(task.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    return searchTasks(tasks);
   };
 
   // Initialize bar styles for tasks with dates
@@ -619,56 +538,67 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
 
         {/* Enhanced Gantt Chart */}
         <div className="flex-1 flex">
-          <TaskListPanel
-            tasks={flatTasks}
-            expandedTasks={expandedTasks}
-            editingField={editingField}
-            editingValue={editingValue}
-            onToggleExpanded={toggleExpanded}
-            onStartEditing={startEditing}
-            onEditingValueChange={setEditingValue}
-            onSaveEdit={saveEdit}
-            onCancelEdit={cancelEdit}
-            onDragEnd={handleDragEnd}
-            width={taskListWidth}
-          />
-
-          {/* Resizable Divider */}
-          <div
-            className="w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors relative group"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              const startX = e.clientX;
-              const startWidth = taskListWidth;
-              
-              const handleMouseMove = (e: MouseEvent) => {
-                const diff = e.clientX - startX;
-                const newWidth = Math.max(300, Math.min(1000, startWidth + diff));
-                setTaskListWidth(newWidth);
-              };
-              
-              const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-              };
-              
-              document.addEventListener('mousemove', handleMouseMove);
-              document.addEventListener('mouseup', handleMouseUp);
-            }}
-          >
-            <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
-              <div className="w-3 h-8 bg-slate-400 group-hover:bg-blue-500 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="w-0.5 h-4 bg-white rounded"></div>
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading schedule data...</p>
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <TaskListPanel
+                tasks={flatTasks}
+                expandedTasks={expandedTasks}
+                editingField={editingField}
+                editingValue={editingValue}
+                onToggleExpanded={toggleExpanded}
+                onStartEditing={startEditing}
+                onEditingValueChange={setEditingValue}
+                onSaveEdit={saveEdit}
+                onCancelEdit={cancelEdit}
+                onDragEnd={handleDragEnd}
+                width={taskListWidth}
+              />
 
-          <TimelinePanel
-            tasks={flatTasks}
-            timelineHeader={timelineHeader}
-            scrollPosition={scrollPosition}
-            onScroll={setScrollPosition}
-          />
+              {/* Resizable Divider */}
+              <div
+                className="w-1 bg-slate-300 hover:bg-blue-400 cursor-col-resize transition-colors relative group"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startX = e.clientX;
+                  const startWidth = taskListWidth;
+                  
+                  const handleMouseMove = (e: MouseEvent) => {
+                    const diff = e.clientX - startX;
+                    const newWidth = Math.max(300, Math.min(1000, startWidth + diff));
+                    setTaskListWidth(newWidth);
+                  };
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }}
+              >
+                <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
+                  <div className="w-3 h-8 bg-slate-400 group-hover:bg-blue-500 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="w-0.5 h-4 bg-white rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              <TimelinePanel
+                tasks={flatTasks}
+                timelineHeader={timelineHeader}
+                scrollPosition={scrollPosition}
+                onScroll={setScrollPosition}
+              />
+            </>
+          )}
         </div>
 
         {/* Bottom Status Bar with Enhanced Project Stats */}
