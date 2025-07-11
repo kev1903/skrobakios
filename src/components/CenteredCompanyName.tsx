@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCompany } from '@/contexts/CompanyContext';
-import { Check, ChevronDown, Building2, Plus, Settings } from 'lucide-react';
+import { Check, ChevronDown, Building2, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -147,7 +147,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
           </button>
         </DropdownMenuTrigger>
         
-        <DropdownMenuContent className="w-[300px] mt-2" align="center">
+        <DropdownMenuContent className="w-[300px] mt-2 bg-white/10 backdrop-blur-md border-white/20" align="center">
           {loading ? (
             <DropdownMenuItem disabled>
               <div className="flex items-center space-x-2">
@@ -198,28 +198,6 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
                 </DropdownMenuItem>
               ))}
               
-              <DropdownMenuSeparator />
-              
-              {/* Company Actions */}
-              <DropdownMenuItem 
-                onClick={() => onNavigate('company-settings')}
-                className="hover:bg-accent"
-              >
-                <div className="flex items-center space-x-2">
-                  <Settings className="h-4 w-4" />
-                  <span>Company Settings</span>
-                </div>
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem 
-                onClick={() => setShowCreateDialog(true)}
-                className="hover:bg-accent"
-              >
-                <div className="flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>Create New Company</span>
-                </div>
-              </DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>
