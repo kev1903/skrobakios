@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Settings, User, Bell, Palette, Plug, Shield } from 'lucide-react';
+import { ArrowLeft, Settings, User, Bell, Palette, Plug, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useUserRole } from '@/hooks/useUserRole';
 import { IntegrationsTab } from './integrations/IntegrationsTab';
 import { UserManagement } from './admin/UserManagement';
+import { RolesTab } from './settings/RolesTab';
 
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
@@ -59,7 +60,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
             {/* Tab List */}
             <div className="w-full overflow-x-auto">
-              <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-5' : 'grid-cols-4'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
+              <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-6' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
                 <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Settings className="w-4 h-4 flex-shrink-0" />
                   <span className="text-xs md:text-sm">General</span>
@@ -71,6 +72,10 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                 <TabsTrigger value="appearance" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Palette className="w-4 h-4 flex-shrink-0" />
                   <span className="text-xs md:text-sm">Appearance</span>
+                </TabsTrigger>
+                <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                  <Users className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-xs md:text-sm">Roles</span>
                 </TabsTrigger>
                 <TabsTrigger value="integrations" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Plug className="w-4 h-4 flex-shrink-0" />
@@ -168,6 +173,10 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="roles" className="space-y-4 md:space-y-6">
+              <RolesTab />
             </TabsContent>
 
             <TabsContent value="integrations" className="space-y-4 md:space-y-6">
