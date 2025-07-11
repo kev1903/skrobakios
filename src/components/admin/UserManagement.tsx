@@ -280,19 +280,13 @@ export const UserManagement = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={formData.role} onValueChange={(value: 'superadmin' | 'user') => setFormData(prev => ({ ...prev, role: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ROLES.map(role => (
-                        <SelectItem key={role} value={role}>
-                          {ROLE_DISPLAY_NAMES[role]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="role">Role/Title</Label>
+                  <Input
+                    id="role"
+                    value={formData.role}
+                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                    placeholder="Enter role or title"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="company">Company</Label>
