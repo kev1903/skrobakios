@@ -4,8 +4,10 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Shield, User, Eye, Settings, ChevronDown, ChevronRight, Home, Calendar, Mail, File, Briefcase, DollarSign, TrendingUp, HelpCircle, Box, CheckSquare, Folder, Users, BarChart3 } from 'lucide-react';
+import { Shield, User, Eye, Settings, ChevronDown, ChevronRight, Home, Calendar, Mail, File, Briefcase, DollarSign, TrendingUp, HelpCircle, Box, CheckSquare, Folder, Users, BarChart3, Save } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface PermissionSection {
   id: string;
@@ -34,6 +36,8 @@ interface RoleConfig {
 
 export const RolesTab = () => {
   const [expandedRoles, setExpandedRoles] = useState<Record<string, boolean>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const [roles, setRoles] = useState<RoleConfig[]>([
     {
@@ -77,7 +81,6 @@ export const RolesTab = () => {
         { id: 'inbox', name: 'Inbox', description: 'Access to messaging system', enabled: true },
         { id: 'files', name: 'Files', description: 'Full file management', enabled: true },
         { id: 'projects', name: 'Projects', description: 'Manage all projects', enabled: true },
-        { id: 'cost-contracts', name: 'Cost & Contracts', description: 'Manage financial data', enabled: true },
         { id: 'finance', name: 'Finance', description: 'Access financial reports', enabled: true },
         { id: 'sales', name: 'Sales', description: 'Manage sales data', enabled: true },
         { id: 'settings', name: 'Settings', description: 'Configure system settings', enabled: true },
@@ -228,6 +231,28 @@ export const RolesTab = () => {
     };
     
     return iconMap[permissionId] || Eye;
+  };
+
+  const handleSavePermissions = async () => {
+    setIsSaving(true);
+    try {
+      // Here you would typically save to your permission database
+      // For now, we'll simulate an API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Permissions Saved",
+        description: "All role permissions have been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save permissions. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -387,6 +412,17 @@ export const RolesTab = () => {
           </div>
         ))}
         
+        <div className="flex justify-end mb-6">
+          <Button 
+            onClick={handleSavePermissions}
+            disabled={isSaving}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {isSaving ? 'Saving...' : 'Save Permissions'}
+          </Button>
+        </div>
+
         <div className="mt-6 p-4 rounded-lg bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/50 dark:border-amber-700/50">
           <div className="flex items-start space-x-3">
             <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
