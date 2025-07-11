@@ -1358,10 +1358,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_company_admin_access: {
-        Args: { target_company_id: string }
-        Returns: boolean
-      }
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
