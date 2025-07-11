@@ -17,6 +17,10 @@ interface CompanySwitcherProps {
 
 export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
   const { currentCompany, companies, switchCompany, loading } = useCompany();
+  
+  console.log('CompanySwitcher: currentCompany:', currentCompany);
+  console.log('CompanySwitcher: companies:', companies);
+  console.log('CompanySwitcher: loading:', loading);
 
   if (loading) {
     return (

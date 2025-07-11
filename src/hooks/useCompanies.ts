@@ -7,12 +7,15 @@ export const useCompanies = () => {
   const [error, setError] = useState<string | null>(null);
 
   const getUserCompanies = useCallback(async (): Promise<UserCompany[]> => {
+    console.log('useCompanies: getUserCompanies called');
     setLoading(true);
     setError(null);
     
     try {
       const { data, error: fetchError } = await supabase
         .rpc('get_user_companies');
+      
+      console.log('useCompanies: RPC result:', { data, error: fetchError });
 
       if (fetchError) throw fetchError;
       return (data || []) as UserCompany[];
