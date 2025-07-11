@@ -69,6 +69,9 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
 
   const handleFieldChange = (field: keyof Task, value: any) => {
     console.log('handleFieldChange called:', field, value);
+    console.log('Current editedTask:', editedTask);
+    console.log('Current hasUnsavedChanges before update:', hasUnsavedChanges);
+    
     if (editedTask) {
       setEditedTask({
         ...editedTask,
@@ -76,6 +79,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
       });
       setHasUnsavedChanges(true);
       console.log('hasUnsavedChanges set to true');
+      console.log('Updated task field', field, 'to:', value);
     } else {
       console.log('No editedTask available');
     }
