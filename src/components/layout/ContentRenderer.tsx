@@ -9,7 +9,7 @@ import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ModernProjectSchedulePage } from "@/components/ModernProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
-import { ProjectTeamPage } from "@/components/ProjectTeamPage";
+
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
@@ -80,7 +80,7 @@ export const ContentRenderer = ({
     case "project-schedule":
       return currentProject ? <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
     case "project-team":
-      return currentProject ? <ProjectTeamPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? <div className="p-8 text-center">Team management has been removed</div> : renderProjectNotFound();
     case "project-digital-twin":
       return currentProject ? <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} /> : renderProjectNotFound();
     case "project-wbs":

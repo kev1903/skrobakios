@@ -74,45 +74,6 @@ export type Database = {
           },
         ]
       }
-      email_sending_log: {
-        Row: {
-          created_by: string | null
-          email_type: string
-          error_message: string | null
-          id: string
-          invitation_token: string | null
-          recipient_email: string
-          resend_email_id: string | null
-          sender_email: string
-          sent_at: string | null
-          status: string
-        }
-        Insert: {
-          created_by?: string | null
-          email_type: string
-          error_message?: string | null
-          id?: string
-          invitation_token?: string | null
-          recipient_email: string
-          resend_email_id?: string | null
-          sender_email: string
-          sent_at?: string | null
-          status: string
-        }
-        Update: {
-          created_by?: string | null
-          email_type?: string
-          error_message?: string | null
-          id?: string
-          invitation_token?: string | null
-          recipient_email?: string
-          resend_email_id?: string | null
-          sender_email?: string
-          sent_at?: string | null
-          status?: string
-        }
-        Relationships: []
-      }
       estimate_line_items: {
         Row: {
           created_at: string
@@ -366,38 +327,6 @@ export type Database = {
         }
         Relationships: []
       }
-      member_permissions: {
-        Row: {
-          allowed: boolean
-          created_at: string
-          id: string
-          member_id: string
-          permission_type: string
-        }
-        Insert: {
-          allowed?: boolean
-          created_at?: string
-          id?: string
-          member_id: string
-          permission_type: string
-        }
-        Update: {
-          allowed?: boolean
-          created_at?: string
-          id?: string
-          member_id?: string
-          permission_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "member_permissions_member_id_fkey"
-            columns: ["member_id"]
-            isOneToOne: false
-            referencedRelation: "team_members"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       model_3d: {
         Row: {
           coordinates: unknown | null
@@ -507,7 +436,6 @@ export type Database = {
           job_title: string | null
           last_name: string | null
           location: string | null
-          needs_password_reset: boolean | null
           phone: string | null
           status: string
           updated_at: string
@@ -527,7 +455,6 @@ export type Database = {
           job_title?: string | null
           last_name?: string | null
           location?: string | null
-          needs_password_reset?: boolean | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -547,7 +474,6 @@ export type Database = {
           job_title?: string | null
           last_name?: string | null
           location?: string | null
-          needs_password_reset?: boolean | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -869,103 +795,6 @@ export type Database = {
           },
         ]
       }
-      team_invitations: {
-        Row: {
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          invited_by_email: string
-          project_id: string
-          token: string
-          used_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          expires_at?: string
-          id?: string
-          invited_by_email: string
-          project_id: string
-          token?: string
-          used_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          invited_by_email?: string
-          project_id?: string
-          token?: string
-          used_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_invitations_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      team_members: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          email: string
-          id: string
-          invited_at: string
-          invited_by: string | null
-          joined_at: string | null
-          name: string | null
-          notify_on_task_added: boolean | null
-          project_id: string
-          role: Database["public"]["Enums"]["member_role"]
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          invited_at?: string
-          invited_by?: string | null
-          joined_at?: string | null
-          name?: string | null
-          notify_on_task_added?: boolean | null
-          project_id: string
-          role?: Database["public"]["Enums"]["member_role"]
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          invited_at?: string
-          invited_by?: string | null
-          joined_at?: string | null
-          name?: string | null
-          notify_on_task_added?: boolean | null
-          project_id?: string
-          role?: Database["public"]["Enums"]["member_role"]
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_members_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       time_entries: {
         Row: {
           category: string
@@ -1052,39 +881,6 @@ export type Database = {
           productive_categories?: string[] | null
           updated_at?: string
           user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_invitations: {
-        Row: {
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          invited_by_user_id: string
-          invited_role: Database["public"]["Enums"]["user_role"]
-          token: string
-          used_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          expires_at?: string
-          id?: string
-          invited_by_user_id: string
-          invited_role?: Database["public"]["Enums"]["user_role"]
-          token?: string
-          used_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          invited_by_user_id?: string
-          invited_role?: Database["public"]["Enums"]["user_role"]
-          token?: string
-          used_at?: string | null
         }
         Relationships: []
       }

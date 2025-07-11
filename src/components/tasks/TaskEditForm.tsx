@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Check, ChevronsUpDown, Calendar, User, Clock, FileText, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Task } from './TaskContext';
-import { useProjectMembers } from '@/hooks/useProjectMembers';
+
 import { useDigitalObjectsContext } from '@/contexts/DigitalObjectsContext';
 interface TaskEditFormProps {
   task: Task;
@@ -21,7 +21,8 @@ export const TaskEditForm = ({
   onFieldChange,
   projectId
  }: TaskEditFormProps) => {
-  const { members } = useProjectMembers(projectId);
+  // Simplified - no team member assignments
+  const teamMembers: any[] = [];
   const { digitalObjects } = useDigitalObjectsContext();
   const [digitalObjectOpen, setDigitalObjectOpen] = useState(false);
   const [expectedTimeValue, setExpectedTimeValue] = useState('');
@@ -63,13 +64,10 @@ export const TaskEditForm = ({
         avatar: ''
       });
     } else {
-      const member = members.find(m => m.name === memberName);
-      if (member) {
-        onFieldChange('assignedTo', {
-          name: member.name,
-          avatar: member.avatar
-        });
-      }
+      onFieldChange('assignedTo', {
+        name: '',
+        avatar: ''
+      });
     }
   };
   return <div className="space-y-6 mt-6">
@@ -156,20 +154,7 @@ export const TaskEditForm = ({
                 <span>Unassigned</span>
               </div>
             </SelectItem>
-            {members.map(member => <SelectItem key={member.email} value={member.name}>
-                <div className="flex items-center space-x-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage src={member.avatar} />
-                    <AvatarFallback className="text-xs">
-                      {member.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{member.name}</div>
-                    <div className="text-xs text-gray-500">{member.role}</div>
-                  </div>
-                </div>
-              </SelectItem>)}
+            {/* No team members available */}
           </SelectContent>
         </Select>
       </div>

@@ -10,7 +10,7 @@ import { TaskCommentsActivity } from './TaskCommentsActivity';
 import { SubmittalWorkflow } from './SubmittalWorkflow';
 import { TaskAttachmentsDisplay } from './TaskAttachmentsDisplay';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useProjectMembers } from '@/hooks/useProjectMembers';
+
 import { useToast } from '@/hooks/use-toast';
 
 interface TaskEditSidePanelProps {
@@ -25,7 +25,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   const [editedTask, setEditedTask] = useState<Task | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isMobile = useIsMobile();
-  const { members } = useProjectMembers(projectId);
+  // Simplified - no team member assignments
   const { toast } = useToast();
 
   useEffect(() => {
@@ -143,7 +143,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         <div className="mt-8 pt-6 border-t">
           <SubtasksList 
             taskId={editedTask.id}
-            projectMembers={members.map(m => ({ name: m.name, avatar: m.avatar }))}
+            projectMembers={[]}
             onSubtaskClick={(subtask) => {
               // Handle opening subtask as new task - for now just log
               console.log('Opening subtask:', subtask);
@@ -155,7 +155,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         <div className="mt-8 pt-6 border-t">
           <SubmittalWorkflow 
             taskId={editedTask.id}
-            projectMembers={members.map(m => ({ name: m.name, avatar: m.avatar }))}
+            projectMembers={[]}
           />
         </div>
 

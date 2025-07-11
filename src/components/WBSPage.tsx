@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Project } from '@/hooks/useProjects';
-import { useProjectMembers } from '@/hooks/useProjectMembers';
+
 import { useWBS, WBSItem } from '@/hooks/useWBS';
 import { ProjectSidebar } from './ProjectSidebar';
 
@@ -19,7 +19,7 @@ interface WBSPageProps {
 
 export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
   const { toast } = useToast();
-  const { members } = useProjectMembers(project.id);
+  // Simplified - no team member assignments
   const { wbsItems, loading, createWBSItem, updateWBSItem, deleteWBSItem, generateWBSId, calculateDuration, findWBSItem } = useWBS(project.id);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
@@ -178,11 +178,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {members.map((member) => (
-                    <SelectItem key={member.email} value={member.name}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="">Unassigned</SelectItem>
                 </SelectContent>
               </Select>
             ) : (
@@ -388,11 +384,6 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Assignees</SelectItem>
-              {members.filter(member => member.name && member.name.trim() !== '').map((member) => (
-                <SelectItem key={member.email} value={member.name}>
-                  {member.name}
-                </SelectItem>
-              ))}
             </SelectContent>
           </Select>
           

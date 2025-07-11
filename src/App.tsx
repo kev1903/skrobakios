@@ -1,15 +1,11 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
-import { InvitationAcceptPage } from "./components/team/InvitationAcceptPage";
-import { UserInvitationAcceptPage } from "./components/admin/UserInvitationAcceptPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
-import Signup from "./pages/Signup";
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
@@ -61,7 +57,6 @@ const EstimateCreationPageWrapper = () => {
   return <EstimateCreationPage onNavigate={handleNavigate} />;
 };
 
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -71,21 +66,18 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={
+            <AuthProvider>
+              <UserProvider>
+                <Index />
+              </UserProvider>
+            </AuthProvider>
+          } />
           <Route path="/invoices" element={<InvoicesPageWrapper />} />
           <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
           <Route path="/cost-contracts" element={<CostContractsPage />} />
           <Route path="/estimates" element={<EstimatesPageWrapper />} />
           <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
-          <Route path="/accept-invitation" element={<InvitationAcceptPage />} />
-          <Route path="/accept-user-invitation" element={
-            <AuthProvider>
-              <UserProvider>
-                <UserInvitationAcceptPage />
-              </UserProvider>
-            </AuthProvider>
-          } />
-          <Route path="/signup" element={<Signup />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

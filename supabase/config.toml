@@ -1,8 +1,5 @@
 project_id = "xtawnkhvxgxylhxwqnmm"
 
-[functions.create-user-direct]
-verify_jwt = false
-
 [functions.test-email]
 verify_jwt = false
 
