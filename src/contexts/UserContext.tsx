@@ -8,20 +8,11 @@ interface UserProfile {
   email: string;
   phone: string;
   jobTitle: string;
-  company: string;
   location: string;
   bio: string;
   avatarUrl: string;
   birthDate: string;
   website: string;
-  // Company Details
-  companyName: string;
-  abn: string;
-  companyWebsite: string;
-  companyAddress: string;
-  companyMembers: string;
-  companyLogo: string;
-  companySlogan: string;
 }
 
 interface UserContextType {
@@ -36,20 +27,11 @@ const defaultUserProfile: UserProfile = {
   email: '',
   phone: '',
   jobTitle: '',
-  company: '',
   location: '',
   bio: '',
   avatarUrl: '',
   birthDate: '',
   website: '',
-  // Company Details
-  companyName: '',
-  abn: '',
-  companyWebsite: '',
-  companyAddress: '',
-  companyMembers: '',
-  companyLogo: '',
-  companySlogan: '',
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -67,20 +49,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         email: profile.email || '',
         phone: profile.phone || '',
         jobTitle: profile.job_title || '',
-        company: profile.company || '',
         location: profile.location || '',
         bio: profile.bio || '',
         avatarUrl: profile.avatar_url || '',
         birthDate: profile.birth_date || '',
         website: profile.website || '',
-        // Company Details - using defaults for now
-        companyName: profile.company || '',
-        abn: '',
-        companyWebsite: '',
-        companyAddress: '',
-        companyMembers: '',
-        companyLogo: '',
-        companySlogan: profile.company_slogan || '',
       });
     }
   }, [profile]);

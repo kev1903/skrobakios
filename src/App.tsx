@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
+import { CompanyProvider } from "./contexts/CompanyContext";
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
@@ -69,7 +70,9 @@ const App = () => (
           <Route path="/" element={
             <AuthProvider>
               <UserProvider>
-                <Index />
+                <CompanyProvider>
+                  <Index />
+                </CompanyProvider>
               </UserProvider>
             </AuthProvider>
           } />

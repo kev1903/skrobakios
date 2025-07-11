@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useCompany } from '@/contexts/CompanyContext';
+import { useCompanies } from '@/hooks/useCompanies';
 import { Button } from '@/components/ui/button';
 import { ProfileNavigationRibbon } from '@/components/user-profile/ProfileNavigationRibbon';
 import { PersonalSection } from '@/components/user-profile/PersonalSection';
@@ -17,6 +19,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUser();
   const { profile, loading, saveProfile } = useProfile();
+  const { currentCompany } = useCompany();
+  const { getCompany } = useCompanies();
+  const [fullCompany, setFullCompany] = useState(null);
   const [activeTab, setActiveTab] = useState('personal');
   
   const [profileData, setProfileData] = useState({
@@ -31,14 +36,14 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
     avatarUrl: '',
     birthDate: '',
     website: '',
-    // Company Details - keeping these in context for now
-    companyName: userProfile.companyName,
-    abn: userProfile.abn,
-    companyWebsite: userProfile.companyWebsite,
-    companyAddress: userProfile.companyAddress,
-    companyMembers: userProfile.companyMembers,
-    companyLogo: userProfile.companyLogo || '',
-    companySlogan: userProfile.companySlogan || '',
+    // Company Details - now from company context
+    companyName: fullCompany?.name || currentCompany?.name || '',
+    abn: fullCompany?.abn || '',
+    companyWebsite: fullCompany?.website || '',
+    companyAddress: fullCompany?.address || '',
+    companyMembers: '',
+    companyLogo: fullCompany?.logo_url || currentCompany?.logo_url || '',
+    companySlogan: fullCompany?.slogan || '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -53,7 +58,6 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         email: profile.email,
         phone: profile.phone,
         jobTitle: profile.job_title,
-        company: profile.company,
         location: profile.location,
         bio: profile.bio,
         avatarUrl: profile.avatar_url,
@@ -70,16 +74,30 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         email: userProfile.email,
         phone: userProfile.phone,
         jobTitle: userProfile.jobTitle,
-        company: userProfile.company,
         location: userProfile.location,
         bio: userProfile.bio,
         avatarUrl: userProfile.avatarUrl,
         birthDate: userProfile.birthDate,
         website: userProfile.website,
-        companySlogan: userProfile.companySlogan || '',
       }));
     }
   }, [profile, loading, userProfile]);
+
+  // Fetch full company details when currentCompany changes
+  useEffect(() => {
+    const fetchCompanyDetails = async () => {
+      if (currentCompany?.id) {
+        try {
+          const company = await getCompany(currentCompany.id);
+          setFullCompany(company);
+        } catch (error) {
+          console.error('Error fetching company details:', error);
+        }
+      }
+    };
+    
+    fetchCompanyDetails();
+  }, [currentCompany, getCompany]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData(prev => ({
@@ -99,13 +117,13 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         email: profileData.email,
         phone: profileData.phone,
         job_title: profileData.jobTitle,
-        company: profileData.company,
         location: profileData.location,
         bio: profileData.bio,
         avatar_url: profileData.avatarUrl,
         birth_date: profileData.birthDate,
         website: profileData.website,
         company_slogan: profileData.companySlogan,
+        company: profileData.companyName,
       });
 
       if (success) {
@@ -116,20 +134,11 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
           email: profileData.email,
           phone: profileData.phone,
           jobTitle: profileData.jobTitle,
-          company: profileData.company,
           location: profileData.location,
           bio: profileData.bio,
           avatarUrl: profileData.avatarUrl,
           birthDate: profileData.birthDate,
           website: profileData.website,
-          // Company details from context
-          companyName: profileData.companyName,
-          abn: profileData.abn,
-          companyWebsite: profileData.companyWebsite,
-          companyAddress: profileData.companyAddress,
-          companyMembers: profileData.companyMembers,
-          companyLogo: profileData.companyLogo,
-          companySlogan: profileData.companySlogan,
         });
 
         toast({

@@ -10,6 +10,7 @@ import { SidebarFooter } from './sidebar/SidebarFooter';
 import { ResponsiveSidebarProps } from './sidebar/types';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CompanySwitcher } from '@/components/CompanySwitcher';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { state } = useSidebar();
@@ -22,7 +23,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
 
   return (
     <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
-      <SidebarHeader className="p-4 border-b border-white/20">
+      <SidebarHeader className="p-4 border-b border-white/20 space-y-2">
         <Button
           onClick={handleRibbonClick}
           variant="ghost"
@@ -32,6 +33,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           <Menu className="w-4 h-4 mr-2" />
           {!isCollapsed && <span>Navigation</span>}
         </Button>
+        {!isCollapsed && <CompanySwitcher />}
       </SidebarHeader>
       
       <SidebarMainContent 

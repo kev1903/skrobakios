@@ -14,8 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          abn: string | null
+          address: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          slogan: string | null
+          slug: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          abn?: string | null
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          slogan?: string | null
+          slug: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          abn?: string | null
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          slogan?: string | null
+          slug?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      company_members: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          joined_at: string
+          role: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digital_objects: {
         Row: {
+          company_id: string | null
           created_at: string
           description: string | null
           expanded: boolean | null
@@ -30,6 +120,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
           description?: string | null
           expanded?: boolean | null
@@ -44,6 +135,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          company_id?: string | null
           created_at?: string
           description?: string | null
           expanded?: boolean | null
@@ -58,6 +150,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "digital_objects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "digital_objects_parent_id_fkey"
             columns: ["parent_id"]
@@ -122,6 +221,7 @@ export type Database = {
         Row: {
           client_email: string | null
           client_name: string | null
+          company_id: string | null
           created_at: string
           created_by: string | null
           estimate_date: string
@@ -141,6 +241,7 @@ export type Database = {
         Insert: {
           client_email?: string | null
           client_name?: string | null
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           estimate_date?: string
@@ -160,6 +261,7 @@ export type Database = {
         Update: {
           client_email?: string | null
           client_name?: string | null
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           estimate_date?: string
@@ -177,6 +279,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "estimates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "estimates_project_id_fkey"
             columns: ["project_id"]
@@ -229,6 +338,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           company: string
+          company_id: string | null
           contact_email: string | null
           contact_name: string
           contact_phone: string | null
@@ -249,6 +359,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           company: string
+          company_id?: string | null
           contact_email?: string | null
           contact_name: string
           contact_phone?: string | null
@@ -269,6 +380,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           company?: string
+          company_id?: string | null
           contact_email?: string | null
           contact_name?: string
           contact_phone?: string | null
@@ -286,7 +398,15 @@ export type Database = {
           value?: number
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       map_configurations: {
         Row: {
@@ -522,6 +642,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          company_id: string | null
           contract_price: string | null
           created_at: string
           deadline: string | null
@@ -536,6 +657,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          company_id?: string | null
           contract_price?: string | null
           created_at?: string
           deadline?: string | null
@@ -550,6 +672,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          company_id?: string | null
           contract_price?: string | null
           created_at?: string
           deadline?: string | null
@@ -563,7 +686,15 @@ export type Database = {
           status?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subtasks: {
         Row: {
@@ -798,6 +929,7 @@ export type Database = {
       time_entries: {
         Row: {
           category: string
+          company_id: string | null
           created_at: string
           duration: number | null
           end_time: string | null
@@ -813,6 +945,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          company_id?: string | null
           created_at?: string
           duration?: number | null
           end_time?: string | null
@@ -828,6 +961,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          company_id?: string | null
           created_at?: string
           duration?: number | null
           end_time?: string | null
@@ -842,6 +976,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "time_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "time_entries_project_id_fkey"
             columns: ["project_id"]
@@ -913,6 +1054,7 @@ export type Database = {
           actual_cost: number | null
           assigned_to: string | null
           budgeted_cost: number | null
+          company_id: string | null
           created_at: string
           description: string | null
           duration: number | null
@@ -933,6 +1075,7 @@ export type Database = {
           actual_cost?: number | null
           assigned_to?: string | null
           budgeted_cost?: number | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
@@ -953,6 +1096,7 @@ export type Database = {
           actual_cost?: number | null
           assigned_to?: string | null
           budgeted_cost?: number | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
@@ -970,6 +1114,13 @@ export type Database = {
           wbs_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "wbs_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "wbs_items_parent_id_fkey"
             columns: ["parent_id"]
@@ -1210,6 +1361,17 @@ export type Database = {
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
+      }
+      get_user_companies: {
+        Args: { target_user_id?: string }
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          logo_url: string
+          role: string
+          status: string
+        }[]
       }
       get_user_role: {
         Args: { _user_id: string }

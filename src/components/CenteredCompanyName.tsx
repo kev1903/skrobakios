@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '@/contexts/UserContext';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface CenteredCompanyNameProps {
   isSpeaking?: boolean;
@@ -7,7 +7,7 @@ interface CenteredCompanyNameProps {
 }
 
 export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: CenteredCompanyNameProps) => {
-  const { userProfile } = useUser();
+  const { currentCompany } = useCompany();
   const [pulseIntensity, setPulseIntensity] = useState(0);
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
               transition: isSpeaking ? 'none' : 'text-shadow 0.3s ease-out'
             }}
           >
-            {userProfile.companyName || "SKROBAKI"}
+            {currentCompany?.name || "SKROBAKI"}
           </h1>
           
           {/* AI Status Indicator */}
