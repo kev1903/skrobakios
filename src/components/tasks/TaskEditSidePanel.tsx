@@ -150,11 +150,6 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
 
         {/* Comments and Activity Section */}
         <TaskCommentsActivity taskId={editedTask.id} />
-
-        <TaskEditActions 
-          onSave={handleSave} 
-          onCancel={handleClose} 
-        />
       </SheetContent>
     </Sheet>
   );
