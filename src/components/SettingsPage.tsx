@@ -59,14 +59,10 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
             {/* Tab List */}
             <div className="w-full overflow-x-auto">
-              <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-6' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
+              <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-5' : 'grid-cols-4'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
                 <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Settings className="w-4 h-4 flex-shrink-0" />
                   <span className="text-xs md:text-sm">General</span>
-                </TabsTrigger>
-                <TabsTrigger value="account" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <User className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Account</span>
                 </TabsTrigger>
                 <TabsTrigger value="notifications" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Bell className="w-4 h-4 flex-shrink-0" />
@@ -100,6 +96,21 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                 <CardContent className="space-y-3 md:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                     <div>
+                      <h4 className="text-sm font-medium">User Profile</h4>
+                      <p className="text-xs md:text-sm text-slate-500">Manage your personal information and account</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full sm:w-auto"
+                      onClick={() => onNavigate('user-profile')}
+                    >
+                      Manage Profile
+                    </Button>
+                  </div>
+                  <Separator />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                    <div>
                       <h4 className="text-sm font-medium">Language</h4>
                       <p className="text-xs md:text-sm text-slate-500">Choose your preferred language</p>
                     </div>
@@ -117,46 +128,58 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="account" className="space-y-4 md:space-y-6">
+
+            <TabsContent value="notifications" className="space-y-4 md:space-y-6">
               <Card className="backdrop-blur-sm bg-white/60 border-white/30">
                 <CardHeader className="pb-4 md:pb-6">
-                  <CardTitle className="text-lg md:text-xl">Account Information</CardTitle>
+                  <CardTitle className="text-lg md:text-xl">Notification Settings</CardTitle>
                   <CardDescription className="text-sm md:text-base">
-                    View and manage your account details
+                    Configure your notification preferences
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 md:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                     <div>
-                      <h4 className="text-sm font-medium">User Profile</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Manage your personal information and security</p>
+                      <h4 className="text-sm font-medium">Email Notifications</h4>
+                      <p className="text-xs md:text-sm text-slate-500">Receive email updates</p>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full sm:w-auto"
-                      onClick={() => onNavigate('user-profile')}
-                    >
-                      Manage Profile
-                    </Button>
+                    <Switch />
                   </div>
                   <Separator />
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                     <div>
-                      <h4 className="text-sm font-medium">Email</h4>
-                      <p className="text-xs md:text-sm text-slate-500 break-all">{user?.email}</p>
+                      <h4 className="text-sm font-medium">Push Notifications</h4>
+                      <p className="text-xs md:text-sm text-slate-500">Receive browser notifications</p>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">Change</Button>
+                    <Switch />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="appearance" className="space-y-4 md:space-y-6">
+              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+                <CardHeader className="pb-4 md:pb-6">
+                  <CardTitle className="text-lg md:text-xl">Appearance Settings</CardTitle>
+                  <CardDescription className="text-sm md:text-base">
+                    Customize the look and feel of the application
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3 md:space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                    <div>
+                      <h4 className="text-sm font-medium">Dark Mode</h4>
+                      <p className="text-xs md:text-sm text-slate-500">Switch between light and dark themes</p>
+                    </div>
+                    <Switch />
                   </div>
                   <Separator />
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                     <div>
-                      <h4 className="text-sm font-medium">Profile</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Update your personal information</p>
+                      <h4 className="text-sm font-medium">Compact Layout</h4>
+                      <p className="text-xs md:text-sm text-slate-500">Use a more compact interface</p>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => onNavigate('user-edit')} className="w-full sm:w-auto">
-                      Edit Profile
-                    </Button>
+                    <Switch />
                   </div>
                 </CardContent>
               </Card>

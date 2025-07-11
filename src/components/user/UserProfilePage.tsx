@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -233,8 +234,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile Information</TabsTrigger>
+            <TabsTrigger value="account">Account Settings</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
           </TabsList>
 
@@ -358,6 +360,51 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
                     {isLoading ? "Saving..." : "Save Profile"}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="account" className="space-y-6">
+            <Card className="glass-card shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Account Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 p-4 border rounded-lg">
+                  <div>
+                    <h4 className="text-sm font-medium">Email Address</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground break-all">{profile.email}</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto" disabled>
+                    Change Email
+                  </Button>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 p-4 border rounded-lg">
+                  <div>
+                    <h4 className="text-sm font-medium">Account Status</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground">Your account is active</p>
+                  </div>
+                  <Badge variant="default">Active</Badge>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 p-4 border rounded-lg">
+                  <div>
+                    <h4 className="text-sm font-medium">Account Created</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground">
+                      {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                    </p>
+                  </div>
+                </div>
+
+                <Alert>
+                  <AlertDescription>
+                    Contact your administrator if you need to change your email address or delete your account.
+                  </AlertDescription>
+                </Alert>
               </CardContent>
             </Card>
           </TabsContent>
