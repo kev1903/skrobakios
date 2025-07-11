@@ -105,9 +105,11 @@ export const useDigitalObjects = () => {
         expanded: true
       };
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('digital_objects')
-        .insert(newRowData);
+        .insert(newRowData)
+        .select()
+        .single();
 
       if (error) {
         console.error('Database insert error:', error);
@@ -119,13 +121,27 @@ export const useDigitalObjects = () => {
         return;
       }
 
-      toast({
-        title: "Row Added",
-        description: "New item added successfully",
-      });
+      if (!data) {
+        console.error('No data returned from insert');
+        toast({
+          title: "Error",
+          description: "Failed to get new item data",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Refresh data from context to get the new row
       await refreshDigitalObjects();
+
+      // Automatically start editing the name field of the new row
+      setEditingField({ id: data.id, field: 'name' });
+      setEditingData({ name: '' });
+
+      toast({
+        title: "Row Added",
+        description: "New item added successfully - please enter a name",
+      });
     } catch (error) {
       console.error('Error adding new row:', error);
       toast({
