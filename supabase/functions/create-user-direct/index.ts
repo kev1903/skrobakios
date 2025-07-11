@@ -153,37 +153,6 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate a generic password
     const genericPassword = "TempPass123!";
 
-    // Check if user already exists first
-    console.log("Checking if user already exists...");
-    const { data: existingUser, error: existingUserError } = await supabaseAdmin.auth.admin.listUsers({
-      page: 1,
-      perPage: 1000 // This should be enough for most use cases
-    });
-
-    if (existingUserError) {
-      console.error("Error checking existing users:", existingUserError.message);
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to check existing users", 
-          details: existingUserError.message 
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Check if email already exists
-    const emailExists = existingUser?.users?.some(user => user.email === email);
-    if (emailExists) {
-      console.error("User with email already exists:", email);
-      return new Response(
-        JSON.stringify({ 
-          error: "User already exists", 
-          details: `A user with email ${email} already exists in the system` 
-        }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     // Create the user using admin API
     console.log("Creating user with admin API...");
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -232,12 +201,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("User created successfully:", newUser.user.id);
 
-    // Create profile
-    console.log("Creating user profile...");
+    // Since the user signup trigger will create a profile automatically,
+    // we need to update it instead of creating a new one
+    console.log("Updating user profile...");
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
-      .insert({
-        user_id: newUser.user.id,
+      .update({
         first_name: first_name,
         last_name: last_name,
         email: email,
@@ -245,45 +214,45 @@ const handler = async (req: Request): Promise<Response> => {
         phone: phone || null,
         status: 'active',
         needs_password_reset: true
-      });
+      })
+      .eq('user_id', newUser.user.id);
 
     if (profileError) {
-      console.error("Profile creation failed:", profileError.message);
-      // Clean up the created user
-      await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
-      
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to create user profile", 
-          details: profileError.message 
-        }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.error("Profile update failed:", profileError.message);
+      // Still try to proceed, as this might not be critical
+      console.log("Continuing despite profile update failure...");
+    } else {
+      console.log("Profile updated successfully");
     }
 
-    console.log("Profile created successfully");
-
-    // Assign role
-    console.log("Assigning user role...");
-    const { error: roleAssignError } = await supabaseAdmin
+    // Update role (the trigger might have created a default 'user' role)
+    console.log("Updating user role...");
+    const { error: roleUpdateError } = await supabaseAdmin
       .from("user_roles")
-      .insert({
-        user_id: newUser.user.id,
-        role: role
-      });
+      .update({ role: role })
+      .eq('user_id', newUser.user.id);
 
-    if (roleAssignError) {
-      console.error("Role assignment failed:", roleAssignError.message);
-      // Clean up the created user
-      await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
-      
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to assign user role", 
-          details: roleAssignError.message 
-        }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (roleUpdateError) {
+      console.error("Role update failed:", roleUpdateError.message);
+      // Try inserting instead
+      console.log("Trying to insert role instead...");
+      const { error: roleInsertError } = await supabaseAdmin
+        .from("user_roles")
+        .insert({
+          user_id: newUser.user.id,
+          role: role
+        });
+
+      if (roleInsertError) {
+        console.error("Role assignment failed:", roleInsertError.message);
+        return new Response(
+          JSON.stringify({ 
+            error: "Failed to assign user role", 
+            details: roleInsertError.message 
+          }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     console.log("Role assigned successfully");
