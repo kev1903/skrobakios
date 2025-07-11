@@ -396,22 +396,56 @@ export const useDigitalObjects = () => {
 
       console.log("Validation passed, about to update database with:", editingData, "for ID:", editingField.id);
 
-      const { error } = await supabase
-        .from('digital_objects')
-        .update(editingData)
-        .eq('id', editingField.id);
-
-      if (error) {
-        console.error('Database update error:', error);
+      // Check authentication first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('User not authenticated');
         toast({
-          title: "Error",
-          description: "Failed to save changes to database",
+          title: "Authentication Error",
+          description: "You must be logged in to save changes",
           variant: "destructive",
         });
         return;
       }
 
-      console.log("Database update successful");
+      const { data, error } = await supabase
+        .from('digital_objects')
+        .update(editingData)
+        .eq('id', editingField.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Database update error:', error);
+        
+        // Check for RLS policy violation
+        if (error.code === '42501' || error.message.includes('policy')) {
+          toast({
+            title: "Permission Error",
+            description: "You don't have permission to edit digital objects. Contact your administrator.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: `Failed to save changes: ${error.message}`,
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      if (!data) {
+        console.error('No data returned from update');
+        toast({
+          title: "Error", 
+          description: "Update failed - no data returned",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Database update successful:", data);
 
       toast({
         title: "Updated",
