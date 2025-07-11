@@ -86,38 +86,47 @@ export const UserManagement = () => {
 
   const handleAddUser = async () => {
     try {
-      // Create profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
+      // Validate required fields
+      if (!formData.first_name || !formData.last_name || !formData.email) {
+        toast({
+          title: "Error",
+          description: "First name, last name, and email are required",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Call the edge function to create user
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: formData.email,
           first_name: formData.first_name,
           last_name: formData.last_name,
-          email: formData.email,
           company: formData.company,
           phone: formData.phone,
-          status: 'invited'
-        })
-        .select()
-        .single();
+          role: formData.role
+        }
+      });
 
-      if (profileError) throw profileError;
+      if (error) throw error;
 
-      // Note: In a real implementation, you'd need to create the auth user first
-      // For now, we'll just create the profile as a placeholder
-      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       toast({
         title: "Success",
-        description: "User invitation created successfully",
+        description: `User created successfully! Temporary password: ${data.tempPassword}`,
       });
 
       setIsAddDialogOpen(false);
       resetForm();
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding user:', error);
       toast({
         title: "Error",
-        description: "Failed to add user",
+        description: error.message || "Failed to add user",
         variant: "destructive"
       });
     }
