@@ -131,7 +131,7 @@ export const RolesTab = () => {
     },
     {
       id: 'viewer',
-      name: 'Viewer',
+      name: 'Client',
       description: 'Read-only access to view content without modification rights',
       icon: Eye,
       enabled: false,
