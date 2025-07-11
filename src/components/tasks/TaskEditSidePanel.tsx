@@ -45,13 +45,19 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   }
 
   const handleSave = async () => {
+    console.log('handleSave called - hasUnsavedChanges:', hasUnsavedChanges);
+    console.log('handleSave called - editedTask:', editedTask);
     if (editedTask && hasUnsavedChanges) {
       try {
+        console.log('Updating task with:', editedTask);
         await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
+        console.log('Task updated successfully');
       } catch (error) {
         console.error('Error saving task:', error);
       }
+    } else {
+      console.log('Save skipped - no unsaved changes or no edited task');
     }
   };
 
