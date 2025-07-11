@@ -39,7 +39,7 @@ export const useUserManagement = () => {
       });
 
       const formattedUsers: AccessUser[] = profilesData?.map(profile => ({
-        id: profile.id,
+        id: profile.user_id || profile.id, // Use user_id (auth ID) for operations, fallback to profile id
         first_name: profile.first_name || '',
         last_name: profile.last_name || '',
         email: profile.email || '',
