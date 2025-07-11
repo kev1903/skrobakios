@@ -14,7 +14,9 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
     editingData,
     selectedIds,
     stageSortDirection,
+    searchQuery,
     setEditingData,
+    setSearchQuery,
     handleFieldClick,
     handleRowSelect,
     handleSave,
@@ -47,6 +49,8 @@ export const DigitalObjectsPage = ({ project, onNavigate }: DigitalObjectsPagePr
               <>
                 <DigitalObjectsHeader 
                   selectedIds={selectedIds}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
                   onIndent={handleIndent}
                   onOutdent={handleOutdent}
                   onAddRow={handleAddRow}

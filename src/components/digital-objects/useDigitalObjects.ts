@@ -13,6 +13,7 @@ export const useDigitalObjects = () => {
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [stageSortDirection, setStageSortDirection] = useState<SortDirection>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Sort function for stage column
   const handleStageSort = () => {
@@ -29,12 +30,26 @@ export const useDigitalObjects = () => {
     refreshDigitalObjects();
   };
 
+  // Filter digital objects based on search query
+  const filteredObjects = digitalObjects.filter(obj => {
+    if (!searchQuery.trim()) return true;
+    
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      obj.name.toLowerCase().includes(searchTerm) ||
+      obj.object_type.toLowerCase().includes(searchTerm) ||
+      (obj.description && obj.description.toLowerCase().includes(searchTerm)) ||
+      obj.status.toLowerCase().includes(searchTerm) ||
+      obj.stage.toLowerCase().includes(searchTerm)
+    );
+  });
+
   // Get visible rows based on expanded state
   const getVisibleRows = () => {
     const visible: DigitalObject[] = [];
     
     const addVisibleRows = (parentId: string | null, level: number = 0) => {
-      const rowsAtLevel = digitalObjects.filter(obj => obj.parent_id === parentId && obj.level === level);
+      const rowsAtLevel = filteredObjects.filter(obj => obj.parent_id === parentId && obj.level === level);
       
       for (const row of rowsAtLevel) {
         visible.push(row);
@@ -332,9 +347,35 @@ export const useDigitalObjects = () => {
   };
 
   const handleSave = async () => {
-    if (!editingField || !editingData) return;
+    console.log("Save clicked - editingField:", editingField, "editingData:", editingData);
+    
+    if (!editingField || !editingData) {
+      console.log("No editing field or data, returning");
+      return;
+    }
 
     try {
+      // Validate required fields for new empty rows
+      if (editingField.field === 'name' && (!editingData.name || editingData.name.trim() === '')) {
+        toast({
+          title: "Validation Error",
+          description: "Name is required",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (editingField.field === 'object_type' && (!editingData.object_type || editingData.object_type.trim() === '')) {
+        toast({
+          title: "Validation Error", 
+          description: "Object type is required",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("About to update database with:", editingData, "for ID:", editingField.id);
+
       const { error } = await supabase
         .from('digital_objects')
         .update(editingData)
@@ -464,7 +505,9 @@ export const useDigitalObjects = () => {
     editingData,
     selectedIds,
     stageSortDirection,
+    searchQuery,
     setEditingData,
+    setSearchQuery,
     handleFieldClick,
     handleRowSelect,
     handleSave,
