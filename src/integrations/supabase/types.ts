@@ -1395,7 +1395,7 @@ export type Database = {
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
-      app_role: "superadmin" | "admin" | "user"
+      app_role: "superadmin" | "admin" | "user" | "owner"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
@@ -1525,7 +1525,7 @@ export const Constants = {
   public: {
     Enums: {
       access_level: ["private_to_members", "public", "restricted"],
-      app_role: ["superadmin", "admin", "user"],
+      app_role: ["superadmin", "admin", "user", "owner"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
     },
   },
