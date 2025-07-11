@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { User, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft, Eye, EyeOff, Phone, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,10 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
   const [currentView, setCurrentView] = useState<'auth' | 'reset-password' | 'update-password'>('auth');
   const [loginData, setLoginData] = useState({ email: "", password: "", rememberMe: false });
   const [signupData, setSignupData] = useState({ 
+    firstName: "",
+    lastName: "",
+    phone: "",
+    jobTitle: "",
     email: "", 
     password: "", 
     confirmPassword: "" 
@@ -105,8 +109,8 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
     setSuccess(null);
     setIsLoading(true);
 
-    if (!signupData.email || !signupData.password || !signupData.confirmPassword) {
-      setError("Please fill in all fields");
+    if (!signupData.firstName || !signupData.lastName || !signupData.email || !signupData.password || !signupData.confirmPassword) {
+      setError("Please fill in all required fields");
       setIsLoading(false);
       return;
     }
@@ -124,7 +128,16 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
     }
 
     try {
-      const { error } = await signUp(signupData.email, signupData.password);
+      const { error } = await signUp(
+        signupData.email, 
+        signupData.password, 
+        {
+          firstName: signupData.firstName,
+          lastName: signupData.lastName,
+          phone: signupData.phone,
+          jobTitle: signupData.jobTitle
+        }
+      );
       
       if (error) {
         if (error.message.includes("User already registered")) {
@@ -134,7 +147,15 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
         }
       } else {
         setSuccess("Account created successfully! Please check your email to confirm your account.");
-        setSignupData({ email: "", password: "", confirmPassword: "" });
+        setSignupData({ 
+          firstName: "",
+          lastName: "",
+          phone: "",
+          jobTitle: "",
+          email: "", 
+          password: "", 
+          confirmPassword: "" 
+        });
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -227,7 +248,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
 
   return (
     <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-primary-foreground font-bold text-xl heading-modern">S</span>
@@ -343,8 +364,78 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
               
               <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="signup-firstname">First Name *</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="signup-firstname"
+                          type="text"
+                          placeholder="Enter your first name"
+                          className="pl-10"
+                          value={signupData.firstName}
+                          onChange={(e) => setSignupData(prev => ({ ...prev, firstName: e.target.value }))}
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="signup-lastname">Last Name *</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="signup-lastname"
+                          type="text"
+                          placeholder="Enter your last name"
+                          className="pl-10"
+                          value={signupData.lastName}
+                          onChange={(e) => setSignupData(prev => ({ ...prev, lastName: e.target.value }))}
+                          disabled={isLoading}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="signup-phone">Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="signup-phone"
+                          type="tel"
+                          placeholder="Enter your phone number"
+                          className="pl-10"
+                          value={signupData.phone}
+                          onChange={(e) => setSignupData(prev => ({ ...prev, phone: e.target.value }))}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="signup-jobtitle">Job Title</Label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="signup-jobtitle"
+                          type="text"
+                          placeholder="Enter your job title"
+                          className="pl-10"
+                          value={signupData.jobTitle}
+                          onChange={(e) => setSignupData(prev => ({ ...prev, jobTitle: e.target.value }))}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">Email *</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -355,12 +446,13 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                         value={signupData.email}
                         onChange={(e) => setSignupData(prev => ({ ...prev, email: e.target.value }))}
                         disabled={isLoading}
+                        required
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">Password *</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
@@ -390,7 +482,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="signup-confirm">Confirm Password</Label>
+                    <Label htmlFor="signup-confirm">Confirm Password *</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input

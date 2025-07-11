@@ -8,7 +8,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, metadata?: any) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
@@ -59,16 +59,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, metadata?: any) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const signUpOptions: any = {
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl
       }
-    });
+    };
+
+    // Add metadata if provided
+    if (metadata) {
+      signUpOptions.options.data = {
+        first_name: metadata.firstName,
+        last_name: metadata.lastName,
+        phone: metadata.phone,
+        job_title: metadata.jobTitle
+      };
+    }
+    
+    const { error } = await supabase.auth.signUp(signUpOptions);
     return { error };
   };
 
