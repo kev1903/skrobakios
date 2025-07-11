@@ -92,9 +92,23 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    // Check if user already exists
-    const { data: existingUser } = await supabaseAdmin.auth.admin.getUserByEmail(email);
-    if (existingUser.user) {
+    // Check if user already exists using listUsers
+    const { data: usersList, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error('Error checking existing users:', listError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to verify user uniqueness' }),
+        { 
+          status: 200, 
+          headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+        }
+      );
+    }
+    
+    // Check if email already exists
+    const existingUser = usersList.users.find(user => user.email === email);
+    if (existingUser) {
       console.log('User already exists');
       return new Response(
         JSON.stringify({ success: false, error: 'User with this email already exists' }),

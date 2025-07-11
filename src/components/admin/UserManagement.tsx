@@ -11,12 +11,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { AccessUser } from '@/types/accessUsers';
 import { ROLES, ROLE_DISPLAY_NAMES } from './types';
+import { UserCreatedDialog } from './UserCreatedDialog';
 
 export const UserManagement = () => {
   const [users, setUsers] = useState<AccessUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AccessUser | null>(null);
+  const [showUserCreated, setShowUserCreated] = useState(false);
+  const [createdUserDetails, setCreatedUserDetails] = useState<{
+    email: string;
+    tempPassword: string;
+    firstName: string;
+    lastName: string;
+  } | null>(null);
   const { toast } = useToast();
 
   // Form state
@@ -116,13 +124,17 @@ export const UserManagement = () => {
         throw new Error(data.error || 'Unknown error occurred');
       }
 
-      toast({
-        title: "Success",
-        description: `User created successfully! Temporary password: ${data.tempPassword}`,
+      // Set user details for the popup
+      setCreatedUserDetails({
+        email: formData.email,
+        tempPassword: data.tempPassword,
+        firstName: formData.first_name,
+        lastName: formData.last_name
       });
 
       setIsAddDialogOpen(false);
       resetForm();
+      setShowUserCreated(true);
       fetchUsers();
     } catch (error: any) {
       console.error('Error adding user:', error);
@@ -445,6 +457,15 @@ export const UserManagement = () => {
           </Table>
         )}
       </CardContent>
+      
+      <UserCreatedDialog
+        isOpen={showUserCreated}
+        onClose={() => {
+          setShowUserCreated(false);
+          setCreatedUserDetails(null);
+        }}
+        userDetails={createdUserDetails}
+      />
     </Card>
   );
 };
