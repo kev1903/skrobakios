@@ -19,14 +19,10 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
   const [companies, setCompanies] = useState<UserCompany[]>([]);
   const { getUserCompanies, loading, error } = useCompanies();
   const { user, isAuthenticated } = useAuth();
-  
-  console.log('CompanyProvider: user:', user, 'isAuthenticated:', isAuthenticated);
 
   const refreshCompanies = async () => {
-    console.log('CompanyContext: refreshCompanies called');
     try {
       const userCompanies = await getUserCompanies();
-      console.log('CompanyContext: received companies:', userCompanies);
       setCompanies(userCompanies);
       
       // Auto-select first company if none is selected
@@ -51,11 +47,9 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
     // Load companies and restore selected company from localStorage
     const loadCompanies = async () => {
       if (!isAuthenticated) {
-        console.log('CompanyProvider: User not authenticated, skipping company load');
         return;
       }
       
-      console.log('CompanyProvider: Loading companies for authenticated user');
       await refreshCompanies();
       
       const savedCompanyId = localStorage.getItem('currentCompanyId');
