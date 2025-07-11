@@ -39,8 +39,8 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
     }
   }, [task, isOpen]);
 
-  if (!task || !editedTask) {
-    console.log('TaskEditSidePanel returning null - task:', task, 'editedTask:', editedTask);
+  if (!editedTask) {
+    console.log('TaskEditSidePanel returning null - editedTask:', editedTask);
     return null;
   }
 
