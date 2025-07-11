@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useCompany } from '@/contexts/CompanyContext';
-import { Check, ChevronDown, Building2, Plus } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
+import { AISpeakingEffects } from './company/AISpeakingEffects';
+import { CompanyDropdownContent } from './company/CompanyDropdownContent';
+import { useAISpeakingEffects } from './company/useAISpeakingEffects';
 
 interface CenteredCompanyNameProps {
   isSpeaking?: boolean;
@@ -18,8 +14,8 @@ interface CenteredCompanyNameProps {
 
 export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: CenteredCompanyNameProps) => {
   const { currentCompany, companies, switchCompany, loading, refreshCompanies } = useCompany();
-  const [pulseIntensity, setPulseIntensity] = useState(0);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const { pulseIntensity, getGlowIntensity, getScaleIntensity } = useAISpeakingEffects(isSpeaking);
 
   // Refresh companies periodically to ensure fresh data
   useEffect(() => {
@@ -29,33 +25,6 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
 
     return () => clearInterval(interval);
   }, [refreshCompanies]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (isSpeaking) {
-      // Create animated pulsing effect when AI is speaking
-      interval = setInterval(() => {
-        setPulseIntensity(prev => (prev + 0.1) % (Math.PI * 2));
-      }, 50);
-    } else {
-      setPulseIntensity(0);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isSpeaking]);
-
-  const getGlowIntensity = () => {
-    if (!isSpeaking) return 0;
-    return 0.3 + Math.sin(pulseIntensity) * 0.2; // Oscillates between 0.1 and 0.5
-  };
-
-  const getScaleIntensity = () => {
-    if (!isSpeaking) return 1;
-    return 1 + Math.sin(pulseIntensity * 1.5) * 0.05; // Slight scale animation
-  };
 
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
@@ -69,45 +38,11 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
             }}
           >
             {/* AI Speaking Glow Effects */}
-            {isSpeaking && (
-              <>
-                {/* Outer glow ring */}
-                <div 
-                  className="absolute inset-0 rounded-full animate-pulse"
-                  style={{
-                    background: `radial-gradient(circle, rgba(59, 130, 246, ${getGlowIntensity()}) 0%, rgba(59, 130, 246, 0) 70%)`,
-                    filter: 'blur(20px)',
-                    transform: 'scale(2)',
-                  }}
-                />
-                
-                {/* Inner glow ring */}
-                <div 
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background: `radial-gradient(circle, rgba(147, 197, 253, ${getGlowIntensity() * 0.6}) 0%, rgba(147, 197, 253, 0) 60%)`,
-                    filter: 'blur(10px)',
-                    transform: 'scale(1.5)',
-                  }}
-                />
-
-                {/* Particle effects */}
-                <div className="absolute inset-0 overflow-hidden rounded-full">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-1 h-1 bg-blue-300 rounded-full animate-ping"
-                      style={{
-                        top: `${20 + Math.sin((pulseIntensity + i) * 0.5) * 30}%`,
-                        left: `${20 + Math.cos((pulseIntensity + i) * 0.5) * 30}%`,
-                        animationDelay: `${i * 0.2}s`,
-                        opacity: getGlowIntensity(),
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+            <AISpeakingEffects 
+              isSpeaking={isSpeaking}
+              pulseIntensity={pulseIntensity}
+              getGlowIntensity={getGlowIntensity}
+            />
 
             {/* Company Name with Switcher Indicator */}
             <div className="relative px-8 py-4 flex items-center gap-2">
@@ -147,60 +82,13 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
           </button>
         </DropdownMenuTrigger>
         
-        <DropdownMenuContent className="w-[300px] mt-2 bg-white/10 backdrop-blur-md border-white/20" align="center">
-          {loading ? (
-            <DropdownMenuItem disabled>
-              <div className="flex items-center space-x-2">
-                <Building2 className="h-4 w-4 animate-spin" />
-                <span>Loading companies...</span>
-              </div>
-            </DropdownMenuItem>
-          ) : companies.length === 0 ? (
-            <>
-              <DropdownMenuItem disabled>
-                <div className="flex items-center space-x-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span>No companies found</span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowCreateDialog(true)}>
-                <div className="flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
-                  <span>Create Your First Company</span>
-                </div>
-              </DropdownMenuItem>
-            </>
-          ) : (
-            <>
-              {/* Current Companies List */}
-              {companies.map((company) => (
-                <DropdownMenuItem
-                  key={company.id}
-                  onClick={() => switchCompany(company.id)}
-                  className="flex items-center justify-between p-3 hover:bg-accent"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={company.logo_url} />
-                      <AvatarFallback className="text-xs bg-primary/10">
-                        {company.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="font-medium truncate max-w-[180px]">{company.name}</span>
-                      <span className="text-xs text-muted-foreground capitalize">{company.role}</span>
-                    </div>
-                  </div>
-                  {currentCompany?.id === company.id && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                </DropdownMenuItem>
-              ))}
-              
-            </>
-          )}
-        </DropdownMenuContent>
+        <CompanyDropdownContent
+          companies={companies}
+          currentCompany={currentCompany}
+          loading={loading}
+          onSwitchCompany={switchCompany}
+          onCreateCompany={() => setShowCreateDialog(true)}
+        />
       </DropdownMenu>
 
       <CreateCompanyDialog 
