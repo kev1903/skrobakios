@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
@@ -11,17 +10,25 @@ import { WellnessSection } from '@/components/user-profile/WellnessSection';
 import { FamilySection } from '@/components/user-profile/FamilySection';
 import { CompanySection } from '@/components/user-profile/CompanySection';
 import { SecuritySection } from '@/components/user-profile/SecuritySection';
-
 interface UserEditPageProps {
   onNavigate: (page: string) => void;
 }
-
-export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
-  const { toast } = useToast();
-  const { userProfile, updateUserProfile } = useUser();
-  const { profile, loading, saveProfile } = useProfile();
+export const UserEditPage = ({
+  onNavigate
+}: UserEditPageProps) => {
+  const {
+    toast
+  } = useToast();
+  const {
+    userProfile,
+    updateUserProfile
+  } = useUser();
+  const {
+    profile,
+    loading,
+    saveProfile
+  } = useProfile();
   const [activeSection, setActiveSection] = useState('personal');
-  
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -41,11 +48,9 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     companyAddress: userProfile.companyAddress,
     companyMembers: userProfile.companyMembers,
     companyLogo: userProfile.companyLogo || '',
-    companySlogan: userProfile.companySlogan || '',
+    companySlogan: userProfile.companySlogan || ''
   });
-
   const [saving, setSaving] = useState(false);
-
 
   // Initialize form data when profile loads
   useEffect(() => {
@@ -63,7 +68,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatarUrl: profile.avatar_url,
         birthDate: profile.birth_date,
         website: profile.website,
-        companySlogan: profile.company_slogan || '',
+        companySlogan: profile.company_slogan || ''
       }));
     } else if (!loading && !profile) {
       // If no profile exists, use context data as fallback
@@ -80,21 +85,18 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatarUrl: userProfile.avatarUrl,
         birthDate: userProfile.birthDate,
         website: userProfile.website,
-        companySlogan: userProfile.companySlogan || '',
+        companySlogan: userProfile.companySlogan || ''
       }));
     }
   }, [profile, loading, userProfile]);
-
   const handleInputChange = (field: string, value: string) => {
     setProfileData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-
   const handleSave = async () => {
     setSaving(true);
-    
     try {
       // Save to database
       const success = await saveProfile({
@@ -109,9 +111,8 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatar_url: profileData.avatarUrl,
         birth_date: profileData.birthDate,
         website: profileData.website,
-        company_slogan: profileData.companySlogan,
+        company_slogan: profileData.companySlogan
       });
-
       if (success) {
         // Update context for immediate UI updates
         updateUserProfile({
@@ -133,12 +134,11 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
           companyAddress: profileData.companyAddress,
           companyMembers: profileData.companyMembers,
           companyLogo: profileData.companyLogo,
-          companySlogan: profileData.companySlogan,
+          companySlogan: profileData.companySlogan
         });
-
         toast({
           title: "Success",
-          description: "Profile updated successfully",
+          description: "Profile updated successfully"
         });
       }
     } catch (error) {
@@ -146,13 +146,12 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       toast({
         title: "Error",
         description: "Failed to save profile data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setSaving(false);
     }
   };
-
   const handleCancel = () => {
     // Reset to original profile data
     if (profile) {
@@ -169,32 +168,26 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
         avatarUrl: profile.avatar_url,
         birthDate: profile.birth_date,
         website: profile.website,
-        companySlogan: profile.company_slogan || '',
+        companySlogan: profile.company_slogan || ''
       }));
     }
     onNavigate('tasks');
   };
-
   const renderContent = () => {
     switch (activeSection) {
       case 'personal':
-        return (
-          <PersonalSection 
-            profileData={{
-              avatarUrl: profileData.avatarUrl,
-              firstName: profileData.firstName,
-              lastName: profileData.lastName,
-              email: profileData.email,
-              phone: profileData.phone,
-              birthDate: profileData.birthDate,
-              jobTitle: profileData.jobTitle,
-              location: profileData.location,
-              website: profileData.website,
-              bio: profileData.bio,
-            }}
-            onInputChange={handleInputChange}
-          />
-        );
+        return <PersonalSection profileData={{
+          avatarUrl: profileData.avatarUrl,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          email: profileData.email,
+          phone: profileData.phone,
+          birthDate: profileData.birthDate,
+          jobTitle: profileData.jobTitle,
+          location: profileData.location,
+          website: profileData.website,
+          bio: profileData.bio
+        }} onInputChange={handleInputChange} />;
       case 'time':
         return <TimeSection onNavigate={onNavigate} />;
       case 'finance':
@@ -204,55 +197,35 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       case 'family':
         return <FamilySection />;
       case 'company':
-        return (
-          <CompanySection 
-            profileData={{
-              companyName: profileData.companyName,
-              abn: profileData.abn,
-              companyWebsite: profileData.companyWebsite,
-              companyAddress: profileData.companyAddress,
-              companyMembers: profileData.companyMembers,
-              companyLogo: profileData.companyLogo,
-              companySlogan: profileData.companySlogan,
-            }}
-            onInputChange={handleInputChange}
-          />
-        );
+        return <CompanySection profileData={{
+          companyName: profileData.companyName,
+          abn: profileData.abn,
+          companyWebsite: profileData.companyWebsite,
+          companyAddress: profileData.companyAddress,
+          companyMembers: profileData.companyMembers,
+          companyLogo: profileData.companyLogo,
+          companySlogan: profileData.companySlogan
+        }} onInputChange={handleInputChange} />;
       case 'security':
         return <SecuritySection />;
       default:
         return null;
     }
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
+    return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
         <div className="text-slate-600">Loading profile...</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+  return <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
       {/* Profile Sidebar - Matching Project Layout */}
-      <UserEditNavigation 
-        firstName={profileData.firstName}
-        lastName={profileData.lastName}
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-        onNavigate={onNavigate}
-        onSave={handleSave}
-        saving={saving}
-      />
+      <UserEditNavigation firstName={profileData.firstName} lastName={profileData.lastName} activeSection={activeSection} onSectionChange={setActiveSection} onNavigate={onNavigate} onSave={handleSave} saving={saving} />
 
       {/* Main Content Area */}
       <div className="flex-1 ml-48 flex flex-col">
         {/* Content Header */}
         <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Time Management Dashboard
-          </h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Personal Profile</h1>
           <p className="text-white/70">
             Track, analyze, and optimize how you spend your time
           </p>
@@ -265,6 +238,5 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
