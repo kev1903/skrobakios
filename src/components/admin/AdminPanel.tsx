@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminHeader } from './AdminHeader';
 import { EmailTestButton } from './EmailTestButton';
+import { UserManagement } from './UserManagement';
 
 interface AdminPanelProps {
   onNavigate: (page: string) => void;
@@ -38,13 +39,7 @@ export const AdminPanel = ({ onNavigate }: AdminPanelProps) => {
         <EmailTestButton />
       </div>
       
-      <div className="text-center p-8">
-        <Shield className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Superadmin Panel</h2>
-        <p className="text-muted-foreground">
-          User management features have been removed. Only superadmin access remains.
-        </p>
-      </div>
+      <UserManagement />
     </div>
   );
 };
