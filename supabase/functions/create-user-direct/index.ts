@@ -1,5 +1,4 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
 
 interface CreateUserRequest {
   email: string;
@@ -10,10 +9,18 @@ interface CreateUserRequest {
   phone?: string;
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("=== CREATE USER DIRECT FUNCTION STARTED ===");
+  console.log("Request method:", req.method);
+  console.log("Request URL:", req.url);
   
   if (req.method === "OPTIONS") {
+    console.log("Handling CORS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -21,16 +28,14 @@ const handler = async (req: Request): Promise<Response> => {
     // Check environment variables first
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     
     console.log("Environment variables check:", {
       hasUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
-      hasAnonKey: !!supabaseAnonKey,
       url: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'missing'
     });
     
-    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Missing required environment variables");
       return new Response(
         JSON.stringify({ 
@@ -41,11 +46,11 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Parse request data first
+    // Parse request data
     let requestData;
     try {
       requestData = await req.json();
-      console.log("Request data parsed successfully:", Object.keys(requestData));
+      console.log("Request data received:", requestData);
     } catch (parseError) {
       console.error("Failed to parse request JSON:", parseError);
       return new Response(
@@ -70,85 +75,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
     
-    console.log("Parsed user creation data:", { 
+    console.log("Creating user with data:", { 
       email, 
       first_name,
       last_name, 
-      role,
-      company: !!company,
-      phone: !!phone
+      role
     });
 
-    // Check authentication header
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      console.error("No authorization header found");
-      return new Response(
-        JSON.stringify({ error: "No authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Create clients
-    console.log("Creating Supabase clients...");
+    // Create admin client
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     });
-
-    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey);
-
-    // Verify user authentication
-    console.log("Verifying user authentication...");
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabaseUser.auth.getUser(token);
-
-    if (userError || !user) {
-      console.error("Authentication failed:", userError?.message);
-      return new Response(
-        JSON.stringify({ 
-          error: "Invalid authorization",
-          details: userError?.message || "User not found"
-        }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log("User authenticated successfully:", user.id);
-
-    // Check user role
-    console.log("Checking user role...");
-    const { data: userRole, error: roleError } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single();
-
-    if (roleError) {
-      console.error("Role check failed:", roleError.message);
-      return new Response(
-        JSON.stringify({ 
-          error: "Unable to verify user permissions",
-          details: roleError.message
-        }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!userRole || userRole.role !== 'superadmin') {
-      console.error("User is not superadmin, role:", userRole?.role);
-      return new Response(
-        JSON.stringify({ 
-          error: "Only superadmins can create users directly",
-          details: `Current role: ${userRole?.role || 'unknown'}`
-        }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log("User is superadmin, proceeding with user creation...");
 
     // Generate a generic password
     const genericPassword = "TempPass123!";
@@ -166,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
-      console.error("User creation failed:", createError.message);
+      console.error("User creation failed:", createError);
       
       // Handle specific error cases
       if (createError.message?.includes("already been registered") || createError.message?.includes("email_exists")) {
@@ -201,8 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("User created successfully:", newUser.user.id);
 
-    // Since the user signup trigger will create a profile automatically,
-    // we need to update it instead of creating a new one
+    // Update the profile (created by trigger) with additional data
     console.log("Updating user profile...");
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
@@ -219,14 +158,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (profileError) {
       console.error("Profile update failed:", profileError.message);
-      // Still try to proceed, as this might not be critical
-      console.log("Continuing despite profile update failure...");
     } else {
       console.log("Profile updated successfully");
     }
 
-    // Update role (the trigger might have created a default 'user' role)
-    console.log("Updating user role...");
+    // Update the role (created by trigger) to the desired role
+    console.log("Updating user role to:", role);
     const { error: roleUpdateError } = await supabaseAdmin
       .from("user_roles")
       .update({ role: role })
@@ -234,25 +171,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (roleUpdateError) {
       console.error("Role update failed:", roleUpdateError.message);
-      // Try inserting instead
-      console.log("Trying to insert role instead...");
-      const { error: roleInsertError } = await supabaseAdmin
-        .from("user_roles")
-        .insert({
-          user_id: newUser.user.id,
-          role: role
-        });
-
-      if (roleInsertError) {
-        console.error("Role assignment failed:", roleInsertError.message);
-        return new Response(
-          JSON.stringify({ 
-            error: "Failed to assign user role", 
-            details: roleInsertError.message 
-          }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to assign user role", 
+          details: roleUpdateError.message 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     console.log("Role assigned successfully");
