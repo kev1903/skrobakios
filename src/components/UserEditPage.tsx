@@ -234,7 +234,7 @@ export const UserEditPage = ({
       <div className="flex-1 ml-48 flex flex-col">
         {/* Content Header */}
         <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
-          <h1 className="text-3xl font-bold text-white mb-2">Personal Profile</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Company Portfolio</h1>
           <p className="text-white/70">
             Track, analyze, and optimize how you spend your time
           </p>
