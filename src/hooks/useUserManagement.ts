@@ -12,20 +12,31 @@ export const useUserManagement = () => {
     try {
       setLoading(true);
       
-      // Get profiles with user roles
+      // Get profiles first
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles (
-            role
-          )
-        `);
+        .select('*');
 
       if (profilesError) {
-        console.error('Error fetching users:', profilesError);
+        console.error('Error fetching profiles:', profilesError);
         return;
       }
+
+      // Get user roles separately
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError);
+        return;
+      }
+
+      // Create a map of user_id to role for quick lookup
+      const rolesMap = new Map();
+      rolesData?.forEach(roleRecord => {
+        rolesMap.set(roleRecord.user_id, roleRecord.role);
+      });
 
       const formattedUsers: AccessUser[] = profilesData?.map(profile => ({
         id: profile.id,
@@ -35,7 +46,7 @@ export const useUserManagement = () => {
         company: profile.company || '',
         phone: profile.phone || '',
         avatar_url: profile.avatar_url || '',
-        role: (profile.user_roles as any)?.[0]?.role || 'user',
+        role: rolesMap.get(profile.user_id) || 'user',
         status: profile.status === 'active' ? 'Active' : 'Inactive',
         created_at: profile.created_at,
         updated_at: profile.updated_at
