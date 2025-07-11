@@ -371,8 +371,11 @@ export const useDigitalObjects = () => {
     }
 
     try {
+      console.log("Starting validation - field:", editingField.field, "name value:", editingData.name);
+      
       // Validate required fields for new empty rows
       if (editingField.field === 'name' && (!editingData.name || editingData.name.trim() === '')) {
+        console.log("Name validation failed");
         toast({
           title: "Validation Error",
           description: "Name is required",
@@ -382,6 +385,7 @@ export const useDigitalObjects = () => {
       }
       
       if (editingField.field === 'object_type' && (!editingData.object_type || editingData.object_type.trim() === '')) {
+        console.log("Object type validation failed");
         toast({
           title: "Validation Error", 
           description: "Object type is required",
@@ -390,7 +394,7 @@ export const useDigitalObjects = () => {
         return;
       }
 
-      console.log("About to update database with:", editingData, "for ID:", editingField.id);
+      console.log("Validation passed, about to update database with:", editingData, "for ID:", editingField.id);
 
       const { error } = await supabase
         .from('digital_objects')
@@ -406,6 +410,8 @@ export const useDigitalObjects = () => {
         });
         return;
       }
+
+      console.log("Database update successful");
 
       toast({
         title: "Updated",
