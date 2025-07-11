@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminPanel } from './admin/AdminPanel';
-import { RoleManagement } from './admin/RoleManagement';
+
 import { useTheme } from '@/hooks/useTheme';
 import { IntegrationsTab } from './integrations/IntegrationsTab';
 interface SettingsPageProps {
@@ -76,16 +76,12 @@ export const SettingsPage = ({
                   <Plug className="w-4 h-4 flex-shrink-0" />
                   <span className="text-xs md:text-sm">Integrations</span>
                 </TabsTrigger>
-                {isSuperAdmin && <>
-                    <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                      <Users className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-xs md:text-sm">Roles</span>
-                    </TabsTrigger>
+                {isSuperAdmin && 
                     <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                       <Shield className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-xs md:text-sm">Users</span>
+                      <span className="text-xs md:text-sm">Admin</span>
                     </TabsTrigger>
-                  </>}
+                }
               </TabsList>
             </div>
 
@@ -451,15 +447,11 @@ export const SettingsPage = ({
               <IntegrationsTab />
             </TabsContent>
 
-            {isSuperAdmin && <>
-                <TabsContent value="roles" className="space-y-4 md:space-y-6">
-                  <RoleManagement onNavigate={onNavigate} />
-                </TabsContent>
-                
+            {isSuperAdmin && 
                 <TabsContent value="admin" className="space-y-4 md:space-y-6">
                   <AdminPanel onNavigate={onNavigate} />
                 </TabsContent>
-              </>}
+            }
           </Tabs>
         </div>
       </div>

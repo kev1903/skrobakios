@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const isAuthenticated = !!session;
   const isSuperAdmin = userRole === 'superadmin';
-  const isAdmin = userRole === 'admin' || userRole === 'superadmin';
+  const isAdmin = userRole === 'superadmin'; // Only superadmin has admin privileges
 
   return (
     <AuthContext.Provider value={{

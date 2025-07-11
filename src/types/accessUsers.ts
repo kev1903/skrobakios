@@ -9,7 +9,23 @@ export interface DatabaseProfile {
   status: string;
 }
 
+// Simplified role system
 export interface DatabaseRole {
   user_id: string;
-  role: 'superadmin' | 'admin' | 'user' | 'project_manager' | 'project_admin' | 'consultant' | 'subcontractor' | 'estimator' | 'accounts' | 'client_viewer';
+  role: 'superadmin' | 'user';
+}
+
+// Simplified access user types
+export interface AccessUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  avatar_url?: string;
+  role: 'superadmin' | 'user';
+  status: 'Active' | 'Invited' | 'Inactive';
+  created_at: string;
+  updated_at: string;
 }
