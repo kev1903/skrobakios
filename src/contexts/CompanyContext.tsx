@@ -25,10 +25,17 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       const userCompanies = await getUserCompanies();
       setCompanies(userCompanies);
       
-      // Auto-select first company if none is selected
+      // Only auto-select first company if none is selected
       if (userCompanies.length > 0 && !currentCompany) {
         setCurrentCompany(userCompanies[0]);
         localStorage.setItem('currentCompanyId', userCompanies[0].id);
+      } else if (currentCompany) {
+        // Update the current company with fresh data but keep the same company selected
+        const updatedCurrentCompany = userCompanies.find(c => c.id === currentCompany.id);
+        if (updatedCurrentCompany) {
+          setCurrentCompany(updatedCurrentCompany);
+          localStorage.setItem('currentCompanyId', updatedCurrentCompany.id);
+        }
       }
     } catch (err) {
       console.error('Error fetching companies:', err);

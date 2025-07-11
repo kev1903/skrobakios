@@ -51,7 +51,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     logo_url: ''
   });
 
-  // Load full company details
+  // Load full company details - only on initial load
   useEffect(() => {
     const loadCompanyDetails = async () => {
       if (!currentCompany?.id) return;
@@ -61,17 +61,20 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
         const company = await getCompany(currentCompany.id);
         if (company) {
           setFullCompany(company);
-          setCompanyForm({
-            name: company.name || '',
-            slug: company.slug || '',
-            website: company.website || '',
-            email: company.email || '',
-            phone: company.phone || '',
-            address: company.address || '',
-            abn: company.abn || '',
-            slogan: company.slogan || '',
-            logo_url: company.logo_url || ''
-          });
+          // Only update form if it's empty/default (initial load)
+          if (!companyForm.name) {
+            setCompanyForm({
+              name: company.name || '',
+              slug: company.slug || '',
+              website: company.website || '',
+              email: company.email || '',
+              phone: company.phone || '',
+              address: company.address || '',
+              abn: company.abn || '',
+              slogan: company.slogan || '',
+              logo_url: company.logo_url || ''
+            });
+          }
         }
       } catch (error) {
         console.error('Error loading company details:', error);
@@ -86,17 +89,38 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     };
 
     loadCompanyDetails();
-  }, [currentCompany, getCompany, toast]);
+  }, [currentCompany?.id]); // Only depend on company ID, not the full object
 
   const handleSaveCompany = async () => {
     if (!currentCompany?.id) return;
     
     setSaving(true);
     try {
+      console.log('Saving company form:', companyForm);
+      
       const updatedCompany = await updateCompany(currentCompany.id, companyForm);
       if (updatedCompany) {
+        console.log('Company updated successfully:', updatedCompany);
+        
+        // Update the form state immediately with the returned data
+        setCompanyForm({
+          name: updatedCompany.name || '',
+          slug: updatedCompany.slug || '',
+          website: updatedCompany.website || '',
+          email: updatedCompany.email || '',
+          phone: updatedCompany.phone || '',
+          address: updatedCompany.address || '',
+          abn: updatedCompany.abn || '',
+          slogan: updatedCompany.slogan || '',
+          logo_url: updatedCompany.logo_url || ''
+        });
+        
+        // Update the full company state
         setFullCompany(updatedCompany);
+        
+        // Refresh the companies context to update everywhere
         await refreshCompanies();
+        
         toast({
           title: "Success",
           description: "Company details updated successfully"

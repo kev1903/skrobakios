@@ -89,13 +89,24 @@ export const UserEditPage = ({
     }
   }, [profile, loading, userProfile]);
 
-  // Fetch full company details when currentCompany changes
+  // Fetch full company details when currentCompany changes - only for initial load
   useEffect(() => {
     const fetchCompanyDetails = async () => {
-      if (currentCompany?.id) {
+      if (currentCompany?.id && !fullCompany) {
         try {
           const company = await getCompany(currentCompany.id);
           setFullCompany(company);
+          
+          // Update form data with company details
+          setProfileData(prev => ({
+            ...prev,
+            companyName: company?.name || '',
+            abn: company?.abn || '',
+            companyWebsite: company?.website || '',
+            companyAddress: company?.address || '',
+            companyLogo: company?.logo_url || '',
+            companySlogan: company?.slogan || ''
+          }));
         } catch (error) {
           console.error('Error fetching company details:', error);
         }
@@ -103,7 +114,7 @@ export const UserEditPage = ({
     };
     
     fetchCompanyDetails();
-  }, [currentCompany, getCompany]);
+  }, [currentCompany?.id, getCompany]); // Only depend on company ID
   const handleInputChange = (field: string, value: string) => {
     setProfileData(prev => ({
       ...prev,
@@ -132,7 +143,7 @@ export const UserEditPage = ({
       // If superadmin and currentCompany exists, also update company data
       if (isSuperAdmin() && currentCompany?.id && success) {
         try {
-          await updateCompany(currentCompany.id, {
+          console.log('Updating company as superadmin:', currentCompany.id, {
             name: profileData.companyName,
             abn: profileData.abn,
             website: profileData.companyWebsite,
@@ -140,6 +151,32 @@ export const UserEditPage = ({
             logo_url: profileData.companyLogo,
             slogan: profileData.companySlogan
           });
+          
+          const updatedCompany = await updateCompany(currentCompany.id, {
+            name: profileData.companyName,
+            abn: profileData.abn,
+            website: profileData.companyWebsite,
+            address: profileData.companyAddress,
+            logo_url: profileData.companyLogo,
+            slogan: profileData.companySlogan
+          });
+          
+          if (updatedCompany) {
+            console.log('Company updated successfully:', updatedCompany);
+            // Update the fullCompany state immediately
+            setFullCompany(updatedCompany);
+            
+            // Update the form data to match what was saved
+            setProfileData(prev => ({
+              ...prev,
+              companyName: updatedCompany.name || '',
+              abn: updatedCompany.abn || '',
+              companyWebsite: updatedCompany.website || '',
+              companyAddress: updatedCompany.address || '',
+              companyLogo: updatedCompany.logo_url || '',
+              companySlogan: updatedCompany.slogan || ''
+            }));
+          }
         } catch (companyError) {
           console.error('Error updating company:', companyError);
           toast({

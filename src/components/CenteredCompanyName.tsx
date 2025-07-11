@@ -17,9 +17,18 @@ interface CenteredCompanyNameProps {
 }
 
 export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: CenteredCompanyNameProps) => {
-  const { currentCompany, companies, switchCompany, loading } = useCompany();
+  const { currentCompany, companies, switchCompany, loading, refreshCompanies } = useCompany();
   const [pulseIntensity, setPulseIntensity] = useState(0);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+
+  // Refresh companies periodically to ensure fresh data
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshCompanies();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [refreshCompanies]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
