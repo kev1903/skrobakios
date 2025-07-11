@@ -96,21 +96,6 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                 <CardContent className="space-y-3 md:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                     <div>
-                      <h4 className="text-sm font-medium">User Profile</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Manage your personal information and account</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full sm:w-auto"
-                      onClick={() => onNavigate('user-profile')}
-                    >
-                      Manage Profile
-                    </Button>
-                  </div>
-                  <Separator />
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
                       <h4 className="text-sm font-medium">Language</h4>
                       <p className="text-xs md:text-sm text-slate-500">Choose your preferred language</p>
                     </div>
