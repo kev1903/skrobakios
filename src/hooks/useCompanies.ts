@@ -94,6 +94,8 @@ export const useCompanies = () => {
     setError(null);
     
     try {
+      console.log('Updating company:', companyId, 'with updates:', updates);
+      
       const { data, error: updateError } = await supabase
         .from('companies')
         .update(updates)
@@ -101,10 +103,16 @@ export const useCompanies = () => {
         .select()
         .single();
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Company update error:', updateError);
+        throw updateError;
+      }
+      
+      console.log('Company updated successfully:', data);
       return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update company';
+      console.error('Update company catch block:', err);
       setError(errorMessage);
       throw err;
     } finally {
