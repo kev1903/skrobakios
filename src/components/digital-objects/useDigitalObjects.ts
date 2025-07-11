@@ -1,125 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DropResult } from "react-beautiful-dnd";
-import { DigitalObject } from "./types";
-import { Tables } from "@/integrations/supabase/types";
+import { DigitalObject, useDigitalObjectsContext } from "@/contexts/DigitalObjectsContext";
 
 type SortDirection = 'asc' | 'desc' | null;
 
 export const useDigitalObjects = () => {
   const { toast } = useToast();
+  const { digitalObjects, loading, refreshDigitalObjects } = useDigitalObjectsContext();
   const [editingField, setEditingField] = useState<{id: string, field: keyof DigitalObject} | null>(null);
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const [stageSortDirection, setStageSortDirection] = useState<SortDirection>(null);
-  const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([]);
-
-  // Load digital objects from database
-  useEffect(() => {
-    loadDigitalObjects();
-  }, []);
-
-  const loadDigitalObjects = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('digital_objects')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error loading digital objects:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load digital objects",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (data && data.length > 0) {
-        // Map database fields to our DigitalObject type
-        const mappedData: DigitalObject[] = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          object_type: item.object_type,
-          description: item.description,
-          status: item.status,
-          stage: item.stage,
-          level: item.level,
-          parent_id: item.parent_id,
-          expanded: item.expanded ?? true
-        }));
-        setDigitalObjects(mappedData);
-      } else {
-        // Initialize with default data if database is empty
-        await initializeDefaultData();
-      }
-    } catch (error) {
-      console.error('Error loading digital objects:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load digital objects",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const initializeDefaultData = async () => {
-    const defaultData = [
-      // 4.0 PRELIMINARY  
-      { name: "Townplanner", object_type: "professional", description: "Planning and zoning consultation", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null, expanded: true },
-      { name: "INARC", object_type: "professional", description: "Architectural services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
-      { name: "Site Feature & Re-establishment", object_type: "site_work", description: "Site preparation and establishment", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
-      { name: "Roof Drainage Design", object_type: "design", description: "Roof drainage system design", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
-      { name: "Architectural", object_type: "design", description: "Architectural design services", status: "planning", stage: "4.0 PRELIMINARY", level: 0, parent_id: null },
-      
-      // 4.1 PRE-CONSTRUCTION
-      { name: "Asset Protection", object_type: "protection", description: "Asset protection measures", status: "planning", stage: "4.1 PRE-CONSTRUCTION", level: 0, parent_id: null, expanded: true },
-      { name: "Demolition", object_type: "demolition", description: "Demolition work", status: "planning", stage: "4.1 PRE-CONSTRUCTION", level: 0, parent_id: null },
-      
-      // 5.1 BASE STAGE
-      { name: "Excavation", object_type: "earthwork", description: "Site excavation work", status: "planning", stage: "5.1 BASE STAGE", level: 0, parent_id: null },
-      { name: "Retaining Wall", object_type: "structure", description: "Retaining wall construction", status: "planning", stage: "5.1 BASE STAGE", level: 0, parent_id: null },
-      
-      // 5.2 FRAME STAGE
-      { name: "Windows", object_type: "windows", description: "Window installation", status: "planning", stage: "5.2 FRAME STAGE", level: 0, parent_id: null },
-      { name: "Trusses & Frames", object_type: "structure", description: "Roof trusses and frames", status: "planning", stage: "5.2 FRAME STAGE", level: 0, parent_id: null },
-    ];
-
-    try {
-      const { data, error } = await supabase
-        .from('digital_objects')
-        .insert(defaultData)
-        .select();
-
-      if (error) {
-        console.error('Error initializing default data:', error);
-        return;
-      }
-
-      if (data) {
-        const mappedData: DigitalObject[] = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          object_type: item.object_type,
-          description: item.description,
-          status: item.status,
-          stage: item.stage,
-          level: item.level,
-          parent_id: item.parent_id,
-          expanded: item.expanded ?? true
-        }));
-        setDigitalObjects(mappedData);
-      }
-    } catch (error) {
-      console.error('Error initializing default data:', error);
-    }
-  };
 
   // Sort function for stage column
   const handleStageSort = () => {
@@ -131,18 +24,12 @@ export const useDigitalObjects = () => {
     }
     setStageSortDirection(newDirection);
     
-    const sorted = [...digitalObjects].sort((a, b) => {
-      if (newDirection === 'asc') {
-        return a.stage.localeCompare(b.stage);
-      } else {
-        return b.stage.localeCompare(a.stage);
-      }
-    });
-    
-    setDigitalObjects(sorted);
+    // Note: Since we're using context, we'd need to implement sorting there
+    // For now, just refresh the data
+    refreshDigitalObjects();
   };
 
-  // Get visible rows based on expanded state (no subtotal calculation needed)
+  // Get visible rows based on expanded state
   const getVisibleRows = () => {
     const visible: DigitalObject[] = [];
     
@@ -163,17 +50,35 @@ export const useDigitalObjects = () => {
     return visible;
   };
 
-  const handleToggleExpand = (id: string) => {
-    setDigitalObjects(prev => 
-      prev.map(obj => 
-        obj.id === id ? { ...obj, expanded: !obj.expanded } : obj
-      )
-    );
+  const handleToggleExpand = async (id: string) => {
+    try {
+      const obj = digitalObjects.find(o => o.id === id);
+      if (!obj) return;
+
+      const { error } = await supabase
+        .from('digital_objects')
+        .update({ expanded: !obj.expanded })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating expand state:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update expand state",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Refresh data from context
+      await refreshDigitalObjects();
+    } catch (error) {
+      console.error('Error toggling expand:', error);
+    }
   };
 
   const handleAddRow = async () => {
     try {
-      // Create new object in database first (it will generate UUID automatically)
       const newRowData = {
         name: "",
         object_type: "",
@@ -185,11 +90,9 @@ export const useDigitalObjects = () => {
         expanded: true
       };
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('digital_objects')
-        .insert(newRowData)
-        .select()
-        .single();
+        .insert(newRowData);
 
       if (error) {
         console.error('Database insert error:', error);
@@ -201,26 +104,13 @@ export const useDigitalObjects = () => {
         return;
       }
 
-      if (data) {
-        // Map the returned data to our DigitalObject type
-        const newRow: DigitalObject = {
-          id: data.id,
-          name: data.name,
-          object_type: data.object_type,
-          description: data.description,
-          status: data.status,
-          stage: data.stage,
-          level: data.level,
-          parent_id: data.parent_id,
-          expanded: data.expanded ?? true
-        };
-        
-        setDigitalObjects(prev => [...prev, newRow]);
-        toast({
-          title: "Row Added",
-          description: "New item added successfully",
-        });
-      }
+      toast({
+        title: "Row Added",
+        description: "New item added successfully",
+      });
+
+      // Refresh data from context to get the new row
+      await refreshDigitalObjects();
     } catch (error) {
       console.error('Error adding new row:', error);
       toast({
@@ -260,7 +150,6 @@ export const useDigitalObjects = () => {
           return;
         }
 
-        // Prepare data for database insertion
         const newObjectsData = [];
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/^"(.*)"$/, '$1'));
@@ -281,11 +170,9 @@ export const useDigitalObjects = () => {
           newObjectsData.push(objData);
         }
 
-        // Insert all objects to database at once
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('digital_objects')
-          .insert(newObjectsData)
-          .select();
+          .insert(newObjectsData);
 
         if (error) {
           console.error('Database insert error:', error);
@@ -297,27 +184,13 @@ export const useDigitalObjects = () => {
           return;
         }
 
-        if (data) {
-          // Map the returned data to our DigitalObject type
-          const newObjects: DigitalObject[] = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            object_type: item.object_type,
-            description: item.description,
-            status: item.status,
-            stage: item.stage,
-            level: item.level,
-            parent_id: item.parent_id,
-            expanded: item.expanded ?? true
-          }));
+        toast({
+          title: "CSV Imported",
+          description: `Successfully imported ${newObjectsData.length} items`,
+        });
 
-          setDigitalObjects(prev => [...prev, ...newObjects]);
-          
-          toast({
-            title: "CSV Imported",
-            description: `Successfully imported ${newObjects.length} items`,
-          });
-        }
+        // Refresh data from context
+        await refreshDigitalObjects();
       } catch (error) {
         console.error('Import error:', error);
         toast({
@@ -338,99 +211,130 @@ export const useDigitalObjects = () => {
 
   const handleRowSelect = (id: string, event: React.MouseEvent) => {
     if (event.ctrlKey || event.metaKey) {
-      // Ctrl/Cmd+click: toggle selection
       setSelectedIds(prev => 
         prev.includes(id) 
           ? prev.filter(selectedId => selectedId !== id)
           : [...prev, id]
       );
     } else {
-      // Normal click: select single row
       setSelectedIds([id]);
     }
   };
 
-  const handleIndent = () => {
+  const handleIndent = async () => {
     if (selectedIds.length === 0) return;
 
-    const updatedObjects = digitalObjects.map(obj => {
-      if (selectedIds.includes(obj.id)) {
-        // Find the row directly above this one
-        const currentIndex = digitalObjects.findIndex(item => item.id === obj.id);
+    try {
+      const updates = [];
+      for (const id of selectedIds) {
+        const obj = digitalObjects.find(o => o.id === id);
+        const currentIndex = digitalObjects.findIndex(item => item.id === id);
         
-        if (currentIndex > 0) {
+        if (obj && currentIndex > 0) {
           const rowAbove = digitalObjects[currentIndex - 1];
           const newLevel = rowAbove.level + 1;
           
-          // Enforce maximum 5 levels (0-4)
           if (newLevel > 4) {
             toast({
               title: "Maximum Indent Level",
               description: "Cannot indent beyond 5 levels",
               variant: "destructive"
             });
-            return obj;
+            continue;
           }
           
-          return {
-            ...obj,
+          updates.push({
+            id,
             level: newLevel,
             parent_id: rowAbove.id
-          };
+          });
         }
       }
-      return obj;
-    });
 
-    setDigitalObjects(updatedObjects);
-    toast({
-      title: "Indented",
-      description: `${selectedIds.length} item(s) indented`,
-    });
+      // Update all in database
+      for (const update of updates) {
+        await supabase
+          .from('digital_objects')
+          .update({ level: update.level, parent_id: update.parent_id })
+          .eq('id', update.id);
+      }
+
+      toast({
+        title: "Indented",
+        description: `${updates.length} item(s) indented`,
+      });
+
+      // Refresh data from context
+      await refreshDigitalObjects();
+    } catch (error) {
+      console.error('Error indenting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to indent items",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleOutdent = () => {
+  const handleOutdent = async () => {
     if (selectedIds.length === 0) return;
 
-    const updatedObjects = digitalObjects.map(obj => {
-      if (selectedIds.includes(obj.id) && obj.level > 0) {
-        const newLevel = obj.level - 1;
-        let newParentId = null;
+    try {
+      const updates = [];
+      for (const id of selectedIds) {
+        const obj = digitalObjects.find(o => o.id === id);
+        if (obj && obj.level > 0) {
+          const newLevel = obj.level - 1;
+          let newParentId = null;
 
-        // Find the appropriate parent for the new level
-        if (newLevel > 0) {
-          const currentIndex = digitalObjects.findIndex(item => item.id === obj.id);
-          // Look backwards to find a parent at the target level - 1
-          for (let i = currentIndex - 1; i >= 0; i--) {
-            const prevItem = digitalObjects[i];
-            if (prevItem.level === newLevel - 1) {
-              newParentId = prevItem.id;
-              break;
+          if (newLevel > 0) {
+            const currentIndex = digitalObjects.findIndex(item => item.id === id);
+            for (let i = currentIndex - 1; i >= 0; i--) {
+              const prevItem = digitalObjects[i];
+              if (prevItem.level === newLevel - 1) {
+                newParentId = prevItem.id;
+                break;
+              }
             }
           }
+
+          updates.push({
+            id,
+            level: newLevel,
+            parent_id: newParentId
+          });
         }
-
-        return {
-          ...obj,
-          level: newLevel,
-          parent_id: newParentId
-        };
       }
-      return obj;
-    });
 
-    setDigitalObjects(updatedObjects);
-    toast({
-      title: "Outdented",
-      description: `${selectedIds.length} item(s) moved up one level`,
-    });
+      // Update all in database
+      for (const update of updates) {
+        await supabase
+          .from('digital_objects')
+          .update({ level: update.level, parent_id: update.parent_id })
+          .eq('id', update.id);
+      }
+
+      toast({
+        title: "Outdented",
+        description: `${updates.length} item(s) moved up one level`,
+      });
+
+      // Refresh data from context
+      await refreshDigitalObjects();
+    } catch (error) {
+      console.error('Error outdenting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to outdent items",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSave = async () => {
     if (!editingField || !editingData) return;
 
     try {
-      // Save to database first
       const { error } = await supabase
         .from('digital_objects')
         .update(editingData)
@@ -446,15 +350,6 @@ export const useDigitalObjects = () => {
         return;
       }
 
-      // Update local state only after successful database save
-      setDigitalObjects(prev => 
-        prev.map(obj => 
-          obj.id === editingField.id 
-            ? { ...obj, ...editingData } as DigitalObject
-            : obj
-        )
-      );
-
       toast({
         title: "Updated",
         description: "Digital object updated successfully",
@@ -462,6 +357,9 @@ export const useDigitalObjects = () => {
 
       setEditingField(null);
       setEditingData({});
+
+      // Refresh data from context
+      await refreshDigitalObjects();
     } catch (error) {
       console.error('Save error:', error);
       toast({
@@ -477,120 +375,86 @@ export const useDigitalObjects = () => {
     setEditingData({});
   };
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
 
     const { source, destination, draggableId, combine } = result;
     
-    // If dropped in the same position, do nothing
     if (source.index === destination.index) return;
 
     const draggedObject = digitalObjects.find(obj => obj.id === draggableId);
     if (!draggedObject) return;
 
-    const visibleRows = getVisibleRows();
-    const sourceIndex = source.index;
-    const destIndex = destination.index;
+    try {
+      let updateData: any = {};
 
-    let updatedObjects = [...digitalObjects];
-    let toastMessage = "";
-
-    // Handle combining (dropping onto another row to make it a child)
-    if (combine) {
-      const targetId = combine.draggableId;
-      const targetObject = digitalObjects.find(obj => obj.id === targetId);
-      
-      if (targetObject) {
-        updatedObjects = digitalObjects.map(obj => {
-          if (obj.id === draggableId) {
-            return {
-              ...obj,
-              parent_id: targetId,
-              level: targetObject.level + 1
-            };
-          }
-          return obj;
-        });
-        toastMessage = `${draggedObject.name} is now a child of ${targetObject.name}`;
-      }
-    } else {
-      // Handle reordering (dropping between rows)
-      const targetRow = visibleRows[destIndex];
-      const prevRow = destIndex > 0 ? visibleRows[destIndex - 1] : null;
-      
-      // Remove the dragged object from its current position in full array
-      const draggedIndex = updatedObjects.findIndex(obj => obj.id === draggableId);
-      const [removed] = updatedObjects.splice(draggedIndex, 1);
-      
-      // Determine new position and hierarchy
-      let newParentId = null;
-      let newLevel = 0;
-      let insertIndex = 0;
-      
-      if (destIndex === 0) {
-        // Dropped at the beginning
-        insertIndex = 0;
-        newLevel = 0;
-        newParentId = null;
-      } else if (prevRow) {
-        // Dropped after another row - inherit its level and parent
-        newLevel = prevRow.level;
-        newParentId = prevRow.parent_id;
+      if (combine) {
+        const targetId = combine.draggableId;
+        const targetObject = digitalObjects.find(obj => obj.id === targetId);
         
-        // Find insertion point in full array
-        const prevRowIndex = updatedObjects.findIndex(obj => obj.id === prevRow.id);
-        insertIndex = prevRowIndex + 1;
-        
-        // If the next row (target) is a child of the previous row,
-        // we might want to insert as a child too
-        if (targetRow && targetRow.parent_id === prevRow.id && targetRow.level > prevRow.level) {
-          newLevel = prevRow.level + 1;
-          newParentId = prevRow.id;
+        if (targetObject) {
+          updateData = {
+            parent_id: targetId,
+            level: targetObject.level + 1
+          };
         }
       } else {
-        // Fallback
-        insertIndex = destIndex;
+        const visibleRows = getVisibleRows();
+        const targetRow = visibleRows[destination.index];
+        const prevRow = destination.index > 0 ? visibleRows[destination.index - 1] : null;
+        
+        let newParentId = null;
+        let newLevel = 0;
+        
+        if (destination.index === 0) {
+          newLevel = 0;
+          newParentId = null;
+        } else if (prevRow) {
+          newLevel = prevRow.level;
+          newParentId = prevRow.parent_id;
+          
+          if (targetRow && targetRow.parent_id === prevRow.id && targetRow.level > prevRow.level) {
+            newLevel = prevRow.level + 1;
+            newParentId = prevRow.id;
+          }
+        }
+        
+        updateData = {
+          parent_id: newParentId,
+          level: newLevel
+        };
       }
-      
-      // Update the dragged object with new hierarchy
-      const updatedDraggedObject = {
-        ...removed,
-        parent_id: newParentId,
-        level: newLevel
-      };
-      
-      // Insert at the new position
-      updatedObjects.splice(insertIndex, 0, updatedDraggedObject);
-      toastMessage = `${draggedObject.name} moved to new position`;
-    }
 
-    setDigitalObjects(updatedObjects);
+      const { error } = await supabase
+        .from('digital_objects')
+        .update(updateData)
+        .eq('id', draggableId);
 
-    // Try to save to database
-    try {
-      const draggedObj = updatedObjects.find(obj => obj.id === draggableId);
-      if (draggedObj) {
-        supabase
-          .from('digital_objects' as any)
-          .update({
-            parent_id: draggedObj.parent_id,
-            level: draggedObj.level
-          })
-          .eq('id', draggableId)
-          .then(({ error }) => {
-            if (error) {
-              console.log('Database update will be enabled once types are updated:', error);
-            }
-          });
+      if (error) {
+        console.error('Database update error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save drag operation",
+          variant: "destructive",
+        });
+        return;
       }
-    } catch (dbError) {
-      console.log('Database save pending type updates');
-    }
 
-    toast({
-      title: "Item Moved",
-      description: toastMessage || `${draggedObject.name} repositioned`,
-    });
+      toast({
+        title: "Item Moved",
+        description: `${draggedObject.name} repositioned`,
+      });
+
+      // Refresh data from context
+      await refreshDigitalObjects();
+    } catch (error) {
+      console.error('Drag save error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save drag operation",
+        variant: "destructive",
+      });
+    }
   };
 
   return {

@@ -8,6 +8,7 @@ export interface DigitalObject {
   level: number;
   parent_id: string | null;
   expanded?: boolean;
+  project_id?: string | null;
 }
 
 export interface DigitalObjectsPageProps {
