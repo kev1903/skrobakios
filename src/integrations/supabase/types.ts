@@ -1384,6 +1384,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_company_admin: {
+        Args: { target_company_id: string; target_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
