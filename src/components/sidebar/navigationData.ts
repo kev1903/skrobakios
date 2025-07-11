@@ -9,6 +9,7 @@ import {
   TrendingUp, 
   Settings, 
   HelpCircle,
+  Shield,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
@@ -30,4 +31,8 @@ export const businessNavigation: NavigationItem[] = [
 export const supportNavigation: NavigationItem[] = [
   { id: "settings", label: "Settings", icon: Settings },
   { id: "support", label: "Help Center", icon: HelpCircle },
+];
+
+export const adminNavigation: NavigationItem[] = [
+  { id: "admin", label: "Admin Panel", icon: Shield },
 ];

@@ -33,6 +33,7 @@ import { WBSPage } from "@/components/WBSPage";
 import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 import { CostContractsPage } from "@/components/CostContractsPage";
+import { AdminPage } from "@/components/admin/AdminPage";
 import { Project } from "@/hooks/useProjects";
 interface ContentRendererProps {
   currentPage: string;
@@ -65,7 +66,7 @@ export const ContentRenderer = ({
     case "settings":
       return <SettingsPage onNavigate={onNavigate} />;
     case "admin":
-      return <div>Admin panel has been removed</div>;
+      return <AdminPage onNavigate={onNavigate} />;
     case "create-project":
       return <CreateProject onNavigate={onNavigate} />;
     case "projects":

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { AuthPage } from './AuthPage';
 
 interface ProtectedRouteProps {
@@ -17,8 +18,9 @@ export const ProtectedRoute = ({
   requireAdmin = false 
 }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
+  const { loading: roleLoading, isSuperAdmin, isAdmin } = useUserRole();
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
@@ -33,6 +35,28 @@ export const ProtectedRoute = ({
     return <AuthPage onNavigate={onNavigate} />;
   }
 
-  // Since we removed roles, all authenticated users have access
+  // Check role-based access
+  if (requireSuperAdmin && !isSuperAdmin()) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+          <p className="text-muted-foreground">You don't have permission to access this page.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (requireAdmin && !isAdmin()) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+          <p className="text-muted-foreground">You need admin privileges to access this page.</p>
+        </div>
+      </div>
+    );
+  }
+
   return <>{children}</>;
 };

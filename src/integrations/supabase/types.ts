@@ -884,6 +884,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wbs_items: {
         Row: {
           actual_cost: number | null
@@ -1183,10 +1207,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
+      app_role: "superadmin" | "admin" | "user"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
@@ -1316,6 +1351,7 @@ export const Constants = {
   public: {
     Enums: {
       access_level: ["private_to_members", "public", "restricted"],
+      app_role: ["superadmin", "admin", "user"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
     },
   },
