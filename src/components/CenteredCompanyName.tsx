@@ -31,7 +31,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="pointer-events-auto relative group cursor-pointer"
+            className="pointer-events-auto relative group cursor-pointer w-full"
             style={{
               transform: `scale(${getScaleIntensity()})`,
               transition: isSpeaking ? 'none' : 'transform 0.3s ease-out'
