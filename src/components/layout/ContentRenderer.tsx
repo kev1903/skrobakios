@@ -27,6 +27,7 @@ import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
 import { UserEditPage } from "@/components/UserEditPage";
+import { UserProfilePage } from "@/components/user/UserProfilePage";
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
 import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
@@ -144,6 +145,8 @@ export const ContentRenderer = ({
       return <SupportPage />;
     case "user-edit":
       return <UserEditPage onNavigate={onNavigate} />;
+    case "user-profile":
+      return <UserProfilePage onNavigate={onNavigate} />;
     case "inbox":
     case "asset":
     case "schedules":
