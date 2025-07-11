@@ -193,7 +193,7 @@ const handler = async (req: Request): Promise<Response> => {
       .from('user_roles')
       .insert({
         user_id: authUser.user.id,
-        role: roleToSave
+        role: roleToSave as any
       });
 
     if (roleError) {
