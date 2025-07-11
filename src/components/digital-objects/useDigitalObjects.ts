@@ -171,30 +171,69 @@ export const useDigitalObjects = () => {
     );
   };
 
-  const handleAddRow = () => {
-    const newId = (Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1).toString();
-    const newRow: DigitalObject = {
-      id: newId,
-      name: "",
-      object_type: "",
-      description: "",
-      status: "planning",
-      stage: "4.0 PRELIMINARY",
-      level: 0,
-      parent_id: null,
-      expanded: true
-    };
-    
-    setDigitalObjects(prev => [...prev, newRow]);
-    toast({
-      title: "Row Added",
-      description: "New item added successfully",
-    });
+  const handleAddRow = async () => {
+    try {
+      // Create new object in database first (it will generate UUID automatically)
+      const newRowData = {
+        name: "",
+        object_type: "",
+        description: "",
+        status: "planning",
+        stage: "4.0 PRELIMINARY",
+        level: 0,
+        parent_id: null,
+        expanded: true
+      };
+
+      const { data, error } = await supabase
+        .from('digital_objects')
+        .insert(newRowData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Database insert error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to create new item in database",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data) {
+        // Map the returned data to our DigitalObject type
+        const newRow: DigitalObject = {
+          id: data.id,
+          name: data.name,
+          object_type: data.object_type,
+          description: data.description,
+          status: data.status,
+          stage: data.stage,
+          level: data.level,
+          parent_id: data.parent_id,
+          expanded: data.expanded ?? true
+        };
+        
+        setDigitalObjects(prev => [...prev, newRow]);
+        toast({
+          title: "Row Added",
+          description: "New item added successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding new row:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create new item",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleImportCSV = (file: File) => {
+  const handleImportCSV = async (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const text = e.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim());
@@ -221,16 +260,14 @@ export const useDigitalObjects = () => {
           return;
         }
 
-        const newObjects: DigitalObject[] = [];
-        let maxId = Math.max(...digitalObjects.map(obj => parseInt(obj.id))) + 1;
-
+        // Prepare data for database insertion
+        const newObjectsData = [];
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/^"(.*)"$/, '$1'));
           
           if (values.length < headers.length) continue;
 
-          const obj: DigitalObject = {
-            id: maxId.toString(),
+          const objData = {
             name: values[headers.indexOf('name')] || '',
             object_type: values[headers.indexOf('object_type')] || '',
             description: values[headers.indexOf('description')] || null,
@@ -241,32 +278,48 @@ export const useDigitalObjects = () => {
             expanded: true
           };
 
-          newObjects.push(obj);
-          maxId++;
+          newObjectsData.push(objData);
         }
 
-        setDigitalObjects(prev => [...prev, ...newObjects]);
-        
-        // Try to save to database
-        newObjects.forEach(async (obj) => {
-          try {
-            const { error } = await supabase
-              .from('digital_objects' as any)
-              .insert(obj);
-            
-            if (error) {
-              console.log('Database insert will be enabled once types are updated:', error);
-            }
-          } catch (dbError) {
-            console.log('Database save pending type updates');
-          }
-        });
+        // Insert all objects to database at once
+        const { data, error } = await supabase
+          .from('digital_objects')
+          .insert(newObjectsData)
+          .select();
 
-        toast({
-          title: "CSV Imported",
-          description: `Successfully imported ${newObjects.length} items`,
-        });
+        if (error) {
+          console.error('Database insert error:', error);
+          toast({
+            title: "Import Error",
+            description: "Failed to save imported data to database",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (data) {
+          // Map the returned data to our DigitalObject type
+          const newObjects: DigitalObject[] = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            object_type: item.object_type,
+            description: item.description,
+            status: item.status,
+            stage: item.stage,
+            level: item.level,
+            parent_id: item.parent_id,
+            expanded: item.expanded ?? true
+          }));
+
+          setDigitalObjects(prev => [...prev, ...newObjects]);
+          
+          toast({
+            title: "CSV Imported",
+            description: `Successfully imported ${newObjects.length} items`,
+          });
+        }
       } catch (error) {
+        console.error('Import error:', error);
         toast({
           title: "Import Error",
           description: "Failed to parse CSV file. Please check the format.",
