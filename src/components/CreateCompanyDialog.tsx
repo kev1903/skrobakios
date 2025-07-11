@@ -49,6 +49,12 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
     setIsLoading(true);
 
     try {
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('You must be logged in to create a company');
+      }
+
       // Generate slug from name
       const slug = formData.name.toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
@@ -65,6 +71,7 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
           phone: formData.phone.trim() || null,
           address: formData.address.trim() || null,
           website: formData.website.trim() || null,
+          created_by: user.id, // Set the created_by field
         })
         .select()
         .single();
@@ -72,19 +79,16 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
       if (error) throw error;
 
       // Add current user as owner of the new company
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { error: memberError } = await supabase
-          .from('company_members')
-          .insert({
-            company_id: company.id,
-            user_id: user.id,
-            role: 'owner',
-            status: 'active',
-          });
+      const { error: memberError } = await supabase
+        .from('company_members')
+        .insert({
+          company_id: company.id,
+          user_id: user.id,
+          role: 'owner',
+          status: 'active',
+        });
 
-        if (memberError) throw memberError;
-      }
+      if (memberError) throw memberError;
 
       await refreshCompanies();
       switchCompany(company.id);
