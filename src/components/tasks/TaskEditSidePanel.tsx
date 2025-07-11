@@ -68,12 +68,16 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   };
 
   const handleFieldChange = (field: keyof Task, value: any) => {
+    console.log('handleFieldChange called:', field, value);
     if (editedTask) {
       setEditedTask({
         ...editedTask,
         [field]: value
       });
       setHasUnsavedChanges(true);
+      console.log('hasUnsavedChanges set to true');
+    } else {
+      console.log('No editedTask available');
     }
   };
 
