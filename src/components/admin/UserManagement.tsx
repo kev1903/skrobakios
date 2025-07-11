@@ -105,6 +105,15 @@ export const UserManagement = () => {
       }
 
       // Call the edge function to create user
+      console.log('Calling create-user edge function with data:', {
+        email: formData.email,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        company: formData.company,
+        phone: formData.phone,
+        role: formData.role
+      });
+      
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: formData.email,
@@ -116,12 +125,16 @@ export const UserManagement = () => {
         }
       });
 
+      console.log('Edge function response:', { data, error });
+
       if (error) {
+        console.error('Edge function error:', error);
         throw new Error(error.message || 'Failed to call user creation function');
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Unknown error occurred');
+      if (!data?.success) {
+        console.error('Edge function returned failure:', data);
+        throw new Error(data?.error || 'Unknown error occurred');
       }
 
       // Set user details for the popup

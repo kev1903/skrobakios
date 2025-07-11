@@ -120,6 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Create user in auth
+    console.log('Creating user in Supabase Auth...');
     const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: tempPassword,
