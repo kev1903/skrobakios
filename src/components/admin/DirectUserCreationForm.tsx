@@ -60,34 +60,55 @@ export const DirectUserCreationForm = ({ onCancel, onSuccess }: DirectUserCreati
     try {
       console.log('Creating user directly:', formData);
       
-      const { data, error } = await supabase.functions.invoke('create-user-direct', {
-        body: {
+      // Get the current user's session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('You must be logged in to create users');
+      }
+
+      const response = await fetch(`https://xtawnkhvxgxylhxwqnmm.supabase.co/functions/v1/create-user-direct`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0YXdua2h2eGd4eWxoeHdxbm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NDUyMjksImV4cCI6MjA2NjUyMTIyOX0.Ip_bdI4HjsfUdsy6WXLJwvQ2mo_Cm0lBAB50nJt5OPw'
+        },
+        body: JSON.stringify({
           email: formData.email.trim(),
           first_name: formData.first_name.trim(),
           last_name: formData.last_name.trim(),
           role: formData.role,
           company: formData.company.trim() || undefined,
           phone: formData.phone.trim() || undefined
-        }
+        })
       });
 
-      console.log('Direct user creation response:', { data, error });
-
-      if (error) {
-        console.error('Direct user creation error details:', error);
-        // Try to get more specific error information
-        if (error.message.includes('non-2xx status code')) {
-          // The function returned an error, let's try to get the response
-          console.error('Function returned error status code');
-        }
-        throw error;
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      let responseData;
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        responseData = { error: 'Invalid response format', details: responseText };
       }
 
-      if (!data?.success) {
-        throw new Error(data?.error || 'Failed to create user');
+      console.log('Parsed response data:', responseData);
+
+      if (!response.ok) {
+        const errorMessage = responseData?.error || responseData?.details || `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
       }
 
-      setCreatedUser(data.user);
+      if (!responseData?.success) {
+        throw new Error(responseData?.error || responseData?.details || 'Failed to create user');
+      }
+
+      setCreatedUser(responseData.user);
       
       toast({
         title: "User Created Successfully",
