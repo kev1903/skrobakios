@@ -38,20 +38,18 @@ export const CompanySection = ({ profileData, onInputChange }: CompanySectionPro
       )}
 
       {/* Company Details */}
-      <div className="glass-card p-6">
-        <CompanyDetailsSection 
-          profileData={{
-            companyName: profileData.companyName,
-            abn: profileData.abn,
-            companyWebsite: profileData.companyWebsite,
-            companyAddress: profileData.companyAddress,
-            companyMembers: profileData.companyMembers,
-            companyLogo: profileData.companyLogo,
-            companySlogan: profileData.companySlogan,
-          }}
-          onInputChange={onInputChange}
-        />
-      </div>
+      <CompanyDetailsSection 
+        profileData={{
+          companyName: profileData.companyName,
+          abn: profileData.abn,
+          companyWebsite: profileData.companyWebsite,
+          companyAddress: profileData.companyAddress,
+          companyMembers: profileData.companyMembers,
+          companyLogo: profileData.companyLogo,
+          companySlogan: profileData.companySlogan,
+        }}
+        onInputChange={onInputChange}
+      />
 
       <CreateCompanyDialog 
         open={showCreateDialog}
