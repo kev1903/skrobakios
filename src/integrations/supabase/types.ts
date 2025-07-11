@@ -1358,6 +1358,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_company_admin_access: {
+        Args: { target_company_id: string }
+        Returns: boolean
+      }
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
@@ -1382,10 +1386,6 @@ export type Database = {
           _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
         }
-        Returns: boolean
-      }
-      is_company_admin: {
-        Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
     }
