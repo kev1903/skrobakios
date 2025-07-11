@@ -54,6 +54,11 @@ export const RolesTab = () => {
         { id: 'inbox', name: 'Inbox', description: 'Access to messaging system', enabled: true },
         { id: 'files', name: 'Files', description: 'Basic file access', enabled: true },
         { id: 'projects', name: 'Projects', description: 'View assigned projects', enabled: true },
+        { id: 'cost-contracts', name: 'Cost & Contracts', description: 'Limited cost information', enabled: false },
+        { id: 'finance', name: 'Finance', description: 'No financial access', enabled: false },
+        { id: 'sales', name: 'Sales', description: 'No sales access', enabled: false },
+        { id: 'settings', name: 'Settings', description: 'Personal settings only', enabled: false },
+        { id: 'user-management', name: 'User Management', description: 'No user management access', enabled: false },
         { id: 'support', name: 'Help Center', description: 'Access to support resources', enabled: true },
       ],
       projectPermissions: [
@@ -61,9 +66,9 @@ export const RolesTab = () => {
         { id: 'tasks', name: 'Tasks', description: 'View and update assigned tasks', enabled: true },
         { id: 'files', name: 'Files', description: 'Access project files', enabled: true },
         { id: 'schedule', name: 'Schedule', description: 'View project schedule', enabled: false },
-        { id: 'cost', name: 'Cost & Contracts', description: 'View basic cost information', enabled: false },
+        { id: 'cost', name: 'Cost & Contracts', description: 'No cost access', enabled: false },
         { id: 'team', name: 'Team', description: 'View team members', enabled: false },
-        { id: 'digital-twin', name: 'Digital Twin', description: 'Access digital twin features', enabled: false },
+        { id: 'digital-twin', name: 'Digital Twin', description: 'Limited digital twin access', enabled: false },
         { id: 'digital-objects', name: 'Digital Objects', description: 'View digital objects', enabled: false },
       ]
     },
@@ -81,9 +86,11 @@ export const RolesTab = () => {
         { id: 'inbox', name: 'Inbox', description: 'Access to messaging system', enabled: true },
         { id: 'files', name: 'Files', description: 'Full file management', enabled: true },
         { id: 'projects', name: 'Projects', description: 'Manage all projects', enabled: true },
+        { id: 'cost-contracts', name: 'Cost & Contracts', description: 'Limited financial management', enabled: false },
         { id: 'finance', name: 'Finance', description: 'Access financial reports', enabled: true },
         { id: 'sales', name: 'Sales', description: 'Manage sales data', enabled: true },
         { id: 'settings', name: 'Settings', description: 'Configure system settings', enabled: true },
+        { id: 'user-management', name: 'User Management', description: 'Limited user management', enabled: false },
         { id: 'support', name: 'Help Center', description: 'Access to support resources', enabled: true },
       ],
       projectPermissions: [
@@ -140,8 +147,14 @@ export const RolesTab = () => {
         { id: 'home', name: 'Home Dashboard', description: 'View main dashboard', enabled: true },
         { id: 'my-tasks', name: 'My Tasks', description: 'View assigned tasks only', enabled: true },
         { id: 'schedules', name: 'My Schedules', description: 'View schedules only', enabled: true },
+        { id: 'inbox', name: 'Inbox', description: 'Limited messaging access', enabled: false },
         { id: 'files', name: 'Files', description: 'View files only', enabled: true },
         { id: 'projects', name: 'Projects', description: 'View projects only', enabled: true },
+        { id: 'cost-contracts', name: 'Cost & Contracts', description: 'No cost access', enabled: false },
+        { id: 'finance', name: 'Finance', description: 'No financial access', enabled: false },
+        { id: 'sales', name: 'Sales', description: 'No sales access', enabled: false },
+        { id: 'settings', name: 'Settings', description: 'No settings access', enabled: false },
+        { id: 'user-management', name: 'User Management', description: 'No user management access', enabled: false },
         { id: 'support', name: 'Help Center', description: 'Access to support resources', enabled: true },
       ],
       projectPermissions: [
@@ -149,10 +162,10 @@ export const RolesTab = () => {
         { id: 'tasks', name: 'Tasks', description: 'View tasks only', enabled: true },
         { id: 'files', name: 'Files', description: 'View project files only', enabled: true },
         { id: 'schedule', name: 'Schedule', description: 'View schedule only', enabled: true },
+        { id: 'cost', name: 'Cost & Contracts', description: 'No access to financial data', enabled: false },
         { id: 'team', name: 'Team', description: 'View team members only', enabled: true },
         { id: 'digital-twin', name: 'Digital Twin', description: 'View digital twin only', enabled: false },
         { id: 'digital-objects', name: 'Digital Objects', description: 'View digital objects only', enabled: false },
-        { id: 'cost', name: 'Cost & Contracts', description: 'No access to financial data', enabled: false },
       ]
     }
   ]);
