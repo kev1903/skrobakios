@@ -15,6 +15,12 @@ interface CreateUserRequest {
   role: string;
 }
 
+// Email validation function
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 const handler = async (req: Request): Promise<Response> => {
   console.log('create-user function called');
   
@@ -33,9 +39,21 @@ const handler = async (req: Request): Promise<Response> => {
     if (!email || !first_name || !last_name) {
       console.log('Validation failed: missing required fields');
       return new Response(
-        JSON.stringify({ error: 'Email, first name, and last name are required' }),
+        JSON.stringify({ success: false, error: 'Email, first name, and last name are required' }),
         { 
-          status: 400, 
+          status: 200, 
+          headers: { 'Content-Type': 'application/json', ...corsHeaders } 
+        }
+      );
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      console.log('Validation failed: invalid email format');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid email format' }),
+        { 
+          status: 200, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
         }
       );
@@ -58,9 +76,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Missing environment variables');
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
+        JSON.stringify({ success: false, error: 'Server configuration error' }),
         { 
-          status: 500, 
+          status: 200, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
         }
       );
@@ -79,9 +97,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (existingUser.user) {
       console.log('User already exists');
       return new Response(
-        JSON.stringify({ error: 'User with this email already exists' }),
+        JSON.stringify({ success: false, error: 'User with this email already exists' }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
         }
       );
@@ -101,9 +119,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (authError) {
       console.error('Auth error:', authError);
       return new Response(
-        JSON.stringify({ error: authError.message }),
+        JSON.stringify({ success: false, error: authError.message }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
         }
       );
@@ -112,9 +130,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (!authUser.user) {
       console.error('No user returned from auth creation');
       return new Response(
-        JSON.stringify({ error: 'Failed to create user account' }),
+        JSON.stringify({ success: false, error: 'Failed to create user account' }),
         { 
-          status: 500, 
+          status: 200, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
         }
       );
@@ -145,9 +163,9 @@ const handler = async (req: Request): Promise<Response> => {
       }
       
       return new Response(
-        JSON.stringify({ error: 'Failed to create user profile: ' + profileError.message }),
+        JSON.stringify({ success: false, error: 'Failed to create user profile: ' + profileError.message }),
         { 
-          status: 500, 
+          status: 200, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
         }
       );
@@ -191,9 +209,9 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error('Error in create-user function:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error: ' + error.message }),
+      JSON.stringify({ success: false, error: 'Internal server error: ' + error.message }),
       { 
-        status: 500, 
+        status: 200, 
         headers: { 'Content-Type': 'application/json', ...corsHeaders } 
       }
     );

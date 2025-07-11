@@ -108,10 +108,12 @@ export const UserManagement = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(error.message || 'Failed to call user creation function');
+      }
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!data.success) {
+        throw new Error(data.error || 'Unknown error occurred');
       }
 
       toast({
