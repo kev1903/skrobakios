@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Check, ChevronDown, Building2, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useCompany } from '@/contexts/CompanyContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CreateCompanyDialog } from './CreateCompanyDialog';
 
 interface CompanySwitcherProps {
   onNavigate?: (page: string) => void;
@@ -17,6 +18,7 @@ interface CompanySwitcherProps {
 
 export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
   const { currentCompany, companies, switchCompany, loading } = useCompany();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   if (loading) {
     return (
@@ -88,13 +90,18 @@ export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
             </div>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setShowCreateDialog(true)}>
           <div className="flex items-center space-x-2">
             <Plus className="h-4 w-4" />
             <span>Create Company</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
+      
+      <CreateCompanyDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
     </DropdownMenu>
   );
 };
