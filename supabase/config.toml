@@ -1,7 +1,7 @@
 project_id = "xtawnkhvxgxylhxwqnmm"
 
 [functions.create-user-direct]
-verify_jwt = true
+verify_jwt = false
 
 [functions.test-email]
 verify_jwt = false
@@ -10,4 +10,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.xero-oauth]
+verify_jwt = false
+
+[functions.get-mapbox-token]
 verify_jwt = false
