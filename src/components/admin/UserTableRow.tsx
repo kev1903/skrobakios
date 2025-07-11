@@ -156,6 +156,9 @@ export const UserTableRow = ({
     }
   };
 
+  // Disable edit functions for superadmin users
+  const isSuperadmin = user.role === 'superadmin';
+
   return (
     <TableRow>
       <TableCell>
@@ -184,7 +187,7 @@ export const UserTableRow = ({
         <Select
           value={user.role}
           onValueChange={handleRoleChange}
-          disabled={isUpdatingRole}
+          disabled={isUpdatingRole || isSuperadmin}
         >
           <SelectTrigger className="w-32">
             <SelectValue>
@@ -216,23 +219,24 @@ export const UserTableRow = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled={isSuperadmin}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem disabled={isSuperadmin}>
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={handleStatusChange}
-              disabled={isUpdatingStatus}
+              disabled={isUpdatingStatus || isSuperadmin}
             >
               {user.status === 'Active' ? 'Deactivate' : 'Activate'} User
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleDeleteUser}
+              disabled={isSuperadmin}
               className="text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
