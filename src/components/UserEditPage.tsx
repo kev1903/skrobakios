@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanies } from '@/hooks/useCompanies';
+import { useUserRole } from '@/hooks/useUserRole';
 import { UserEditNavigation } from '@/components/user-edit/UserEditNavigation';
 import { PersonalSection } from '@/components/user-profile/PersonalSection';
 import { TimeSection } from '@/components/user-profile/TimeSection';
@@ -12,28 +15,22 @@ import { WellnessSection } from '@/components/user-profile/WellnessSection';
 import { FamilySection } from '@/components/user-profile/FamilySection';
 import { CompanySection } from '@/components/user-profile/CompanySection';
 import { SecuritySection } from '@/components/user-profile/SecuritySection';
+import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
 interface UserEditPageProps {
   onNavigate: (page: string) => void;
 }
 export const UserEditPage = ({
   onNavigate
 }: UserEditPageProps) => {
-  const {
-    toast
-  } = useToast();
-  const {
-    userProfile,
-    updateUserProfile
-  } = useUser();
-  const {
-    profile,
-    loading,
-    saveProfile
-  } = useProfile();
+  const { toast } = useToast();
+  const { userProfile, updateUserProfile } = useUser();
+  const { profile, loading, saveProfile } = useProfile();
   const { currentCompany } = useCompany();
   const { updateCompany, getCompany } = useCompanies();
+  const { isSuperAdmin } = useUserRole();
   const [fullCompany, setFullCompany] = useState(null);
   const [activeSection, setActiveSection] = useState('personal');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -234,7 +231,18 @@ export const UserEditPage = ({
       <div className="flex-1 ml-48 flex flex-col">
         {/* Content Header */}
         <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
-          <h1 className="text-3xl font-bold text-white mb-2">Company Portfolio</h1>
+          <div className="flex justify-between items-start mb-2">
+            <h1 className="text-3xl font-bold text-white">Company Portfolio</h1>
+            {isSuperAdmin() && (
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Company
+              </Button>
+            )}
+          </div>
           <p className="text-white/70">
             Track, analyze, and optimize how you spend your time
           </p>
@@ -247,5 +255,10 @@ export const UserEditPage = ({
           </div>
         </div>
       </div>
+
+      <CreateCompanyDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
     </div>;
 };
