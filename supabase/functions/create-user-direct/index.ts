@@ -17,7 +17,7 @@ const handler = async (req: Request): Promise<Response> => {
     const body = await req.json();
     console.log("Request body:", body);
     
-    const { email, first_name, last_name, role } = body;
+    const { email, first_name, last_name, role, company, phone } = body;
     
     if (!email || !first_name || !last_name || !role) {
       return new Response(
@@ -96,6 +96,8 @@ const handler = async (req: Request): Promise<Response> => {
         email,
         first_name,
         last_name,
+        company: company || null,
+        phone: phone || null,
         status: 'active',
         needs_password_reset: true
       });
