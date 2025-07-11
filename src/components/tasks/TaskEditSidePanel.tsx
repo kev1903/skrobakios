@@ -45,11 +45,13 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   }
 
   const handleSave = async () => {
+    console.log('=== SAVE BUTTON CLICKED ===');
     console.log('handleSave called - hasUnsavedChanges:', hasUnsavedChanges);
     console.log('handleSave called - editedTask:', editedTask);
+    
     if (editedTask && hasUnsavedChanges) {
       try {
-        console.log('Updating task with:', editedTask);
+        console.log('Attempting to update task with:', editedTask);
         await updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
         console.log('Task updated successfully');
@@ -57,7 +59,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         console.error('Error saving task:', error);
       }
     } else {
-      console.log('Save skipped - no unsaved changes or no edited task');
+      console.log('Save skipped - hasUnsavedChanges:', hasUnsavedChanges, 'editedTask exists:', !!editedTask);
     }
   };
 
