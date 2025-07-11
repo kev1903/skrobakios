@@ -113,7 +113,7 @@ export const UserEditPage = ({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Save to database
+      // Save profile to database
       const success = await saveProfile({
         first_name: profileData.firstName,
         last_name: profileData.lastName,
@@ -128,6 +128,29 @@ export const UserEditPage = ({
         company_slogan: profileData.companySlogan,
         company: profileData.companyName
       });
+
+      // If superadmin and currentCompany exists, also update company data
+      if (isSuperAdmin() && currentCompany?.id && success) {
+        try {
+          await updateCompany(currentCompany.id, {
+            name: profileData.companyName,
+            abn: profileData.abn,
+            website: profileData.companyWebsite,
+            address: profileData.companyAddress,
+            logo_url: profileData.companyLogo,
+            slogan: profileData.companySlogan
+          });
+        } catch (companyError) {
+          console.error('Error updating company:', companyError);
+          toast({
+            title: "Warning",
+            description: "Profile saved but company update failed",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       if (success) {
         // Update context for immediate UI updates
         updateUserProfile({
@@ -142,9 +165,14 @@ export const UserEditPage = ({
           birthDate: profileData.birthDate,
           website: profileData.website
         });
+        
+        const message = isSuperAdmin() && currentCompany?.id 
+          ? "Profile and company data updated successfully"
+          : "Profile updated successfully";
+          
         toast({
           title: "Success",
-          description: "Profile updated successfully"
+          description: message
         });
       }
     } catch (error) {
