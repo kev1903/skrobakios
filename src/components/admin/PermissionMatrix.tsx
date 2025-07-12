@@ -1,108 +1,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { KeyRound, Save, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-interface Permission {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-}
-
-interface Role {
-  id: string;
-  name: string;
-  color: string;
-  level: number;
-}
-
-interface PermissionMatrixProps {
-  permissions?: Permission[];
-  roles?: Role[];
-  onPermissionChange?: (roleId: string, permissionId: string, granted: boolean) => void;
-}
-
-const defaultPermissions: Permission[] = [
-  // Platform Administration
-  { id: 'manage_platform_users', name: 'Manage Platform Users', description: 'Create, edit, and delete platform users', category: 'Platform Administration' },
-  { id: 'manage_platform_roles', name: 'Manage Platform Roles', description: 'Assign and modify platform-level roles', category: 'Platform Administration' },
-  { id: 'view_platform_analytics', name: 'View Platform Analytics', description: 'Access platform-wide usage and performance data', category: 'Platform Administration' },
-  { id: 'manage_system_settings', name: 'Manage System Settings', description: 'Configure global platform settings', category: 'Platform Administration' },
-  
-  // Company Management
-  { id: 'view_all_companies', name: 'View All Companies', description: 'Access information for all companies on platform', category: 'Company Management' },
-  { id: 'create_companies', name: 'Create Companies', description: 'Create new company accounts', category: 'Company Management' },
-  { id: 'manage_company_settings', name: 'Manage Company Settings', description: 'Modify company configurations and modules', category: 'Company Management' },
-  { id: 'manage_company_billing', name: 'Manage Company Billing', description: 'Handle billing and subscription management', category: 'Company Management' },
-  
-  // Project & Task Management
-  { id: 'view_all_projects', name: 'View All Projects', description: 'Access projects across all companies', category: 'Project & Task Management' },
-  { id: 'manage_projects', name: 'Manage Projects', description: 'Create, edit, and delete projects', category: 'Project & Task Management' },
-  { id: 'manage_tasks', name: 'Manage Tasks', description: 'Create, assign, and manage tasks', category: 'Project & Task Management' },
-  { id: 'view_project_analytics', name: 'View Project Analytics', description: 'Access project performance and progress data', category: 'Project & Task Management' },
-  
-  // Financial Management
-  { id: 'view_financial_reports', name: 'View Financial Reports', description: 'Access financial reports and data', category: 'Financial Management' },
-  { id: 'manage_estimates', name: 'Manage Estimates', description: 'Create and manage project estimates', category: 'Financial Management' },
-  { id: 'manage_invoicing', name: 'Manage Invoicing', description: 'Handle invoice creation and management', category: 'Financial Management' },
-  { id: 'manage_integrations', name: 'Manage Integrations', description: 'Configure third-party integrations (Xero, etc)', category: 'Financial Management' },
-  
-  // Lead & Sales Management
-  { id: 'view_all_leads', name: 'View All Leads', description: 'Access leads across all companies', category: 'Lead & Sales Management' },
-  { id: 'manage_leads', name: 'Manage Leads', description: 'Create, edit, and manage leads', category: 'Lead & Sales Management' },
-  { id: 'view_sales_analytics', name: 'View Sales Analytics', description: 'Access sales performance and conversion data', category: 'Lead & Sales Management' },
-  
-  // Digital Twin & 3D Models
-  { id: 'view_all_models', name: 'View All 3D Models', description: 'Access 3D models across all projects', category: 'Digital Twin & 3D Models' },
-  { id: 'manage_digital_objects', name: 'Manage Digital Objects', description: 'Create and manage digital twin objects', category: 'Digital Twin & 3D Models' },
-  { id: 'upload_3d_models', name: 'Upload 3D Models', description: 'Upload and manage 3D model files', category: 'Digital Twin & 3D Models' },
-];
-
-const defaultRoles: Role[] = [
-  { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 3 },
-  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 2 },
-  { id: 'company_admin', name: 'Company Admin', color: 'secondary', level: 1 },
-];
-
-// Default permission assignments based on the three-tier role hierarchy
-const getDefaultPermissions = (roleLevel: number): string[] => {
-  const allPermissions = defaultPermissions.map(p => p.id);
-  
-  switch (roleLevel) {
-    case 3: // Super Admin - access to everything
-      return allPermissions;
-    case 2: // Platform Admin - selective permissions for platform departments (customizable via checkboxes)
-      return [
-        'view_platform_analytics',
-        'view_all_companies',
-        'manage_company_settings',
-        'view_all_projects',
-        'manage_projects',
-        'view_project_analytics',
-        'manage_leads',
-        'view_sales_analytics',
-        'view_all_models',
-      ];
-    case 1: // Company Admin - company management and specific permissions
-      return [
-        'view_all_companies',
-        'create_companies',
-        'manage_company_settings',
-        'manage_company_billing',
-        'manage_estimates',
-        'manage_invoicing',
-        'manage_leads',
-        'manage_digital_objects',
-        'upload_3d_models',
-      ];
-    default:
-      return [];
-  }
-};
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { KeyRound } from 'lucide-react';
+import { Permission, PermissionMatrixProps } from '@/types/permission';
+import { defaultPermissions, defaultRoles } from '@/constants/permissions';
+import { getDefaultPermissions } from '@/utils/permissionLogic';
+import { PermissionMatrixHeader } from './PermissionMatrixHeader';
+import { PermissionMatrixRow } from './PermissionMatrixRow';
+import { PermissionMatrixActions } from './PermissionMatrixActions';
 
 export const PermissionMatrix = ({ 
   permissions = defaultPermissions, 
@@ -177,40 +82,17 @@ export const PermissionMatrix = ({
               Super Admin has access to everything. Platform Admin permissions are customizable. Company Admin permissions are fixed to company-specific access only.
             </CardDescription>
           </div>
-          {hasChanges && (
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleReset}>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </Button>
-            </div>
-          )}
+          <PermissionMatrixActions 
+            hasChanges={hasChanges}
+            onSave={handleSave}
+            onReset={handleReset}
+          />
         </div>
       </CardHeader>
       <CardContent>
         <div className="border rounded-lg overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="font-semibold text-foreground w-80">
-                  Permissions
-                </TableHead>
-                {roles.map(role => (
-                  <TableHead key={role.id} className="text-center font-semibold text-foreground min-w-24">
-                    <div className="flex flex-col items-center gap-1">
-                      <span>{role.name}</span>
-                      <Badge variant={role.color as any} className="text-xs">
-                        Level {role.level}
-                      </Badge>
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
+            <PermissionMatrixHeader roles={roles} />
             <TableBody>
               {Object.entries(groupedPermissions).map(([category, categoryPermissions]) => (
                 <React.Fragment key={category}>
@@ -220,36 +102,13 @@ export const PermissionMatrix = ({
                     </TableCell>
                   </TableRow>
                   {categoryPermissions.map(permission => (
-                    <TableRow key={permission.id} className="hover:bg-muted/20">
-                      <TableCell className="font-medium">
-                        <div>
-                          <div className="text-sm font-medium">{permission.name}</div>
-                          <div className="text-xs text-muted-foreground">{permission.description}</div>
-                        </div>
-                      </TableCell>
-                      {roles.map(role => {
-                        const hasPermission = permissionState[role.id]?.includes(permission.id) || false;
-                        const isEditable = role.id === 'platform_admin';
-                        const isReadOnly = role.id === 'superadmin' || role.id === 'company_admin';
-                        
-                        return (
-                          <TableCell key={`${role.id}-${permission.id}`} className="text-center">
-                            <div className="flex justify-center">
-                              <Checkbox
-                                checked={hasPermission}
-                                onCheckedChange={() => handlePermissionToggle(role.id, permission.id)}
-                                disabled={isReadOnly}
-                                className={`
-                                  ${hasPermission ? "data-[state=checked]:bg-primary data-[state=checked]:border-primary" : ""}
-                                  ${isReadOnly ? "opacity-60 cursor-not-allowed" : ""}
-                                  ${isEditable ? "cursor-pointer" : ""}
-                                `}
-                              />
-                            </div>
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
+                    <PermissionMatrixRow 
+                      key={permission.id}
+                      permission={permission}
+                      roles={roles}
+                      permissionState={permissionState}
+                      onPermissionToggle={handlePermissionToggle}
+                    />
                   ))}
                 </React.Fragment>
               ))}
