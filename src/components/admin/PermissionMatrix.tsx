@@ -49,7 +49,7 @@ const defaultRoles: Role[] = [
   { id: 'user', name: 'User', color: 'outline', level: 1 },
 ];
 
-// Default permission assignments based on platform role hierarchy
+// Default permission assignments based on platform role hierarchy (from app_role enum)
 const getDefaultPermissions = (roleLevel: number): string[] => {
   const allPermissions = defaultPermissions.map(p => p.id);
   
