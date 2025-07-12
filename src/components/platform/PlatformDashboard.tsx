@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink, Puzzle, TrendingUp } from 'lucide-react';
+import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink, Puzzle, TrendingUp, Eye, Zap, Calendar, CheckSquare, FolderOpen, User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -581,16 +581,32 @@ export const PlatformDashboard = ({
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { name: 'Tasks', description: 'Task management and assignment within projects', enabled: true, companies: 42 },
-                    { name: 'Time Tracking', description: 'Track time spent on project activities', enabled: true, companies: 38 },
-                    { name: 'Estimates', description: 'Create and manage project estimates', enabled: true, companies: 28 },
-                    { name: 'Digital Objects', description: 'Project asset and file management', enabled: false, companies: 15 }
+                    { name: 'Dashboard', description: 'Project overview and key metrics dashboard', enabled: true, companies: 45, icon: 'dashboard' },
+                    { name: 'Digital Twin', description: 'Digital representation and modeling tools', enabled: true, companies: 28, icon: 'digital-twin' },
+                    { name: 'Cost & Contracts', description: 'Financial tracking and contract management', enabled: true, companies: 35, icon: 'cost' },
+                    { name: 'Schedule', description: 'Project timeline and scheduling tools', enabled: true, companies: 40, icon: 'schedule' },
+                    { name: 'Tasks', description: 'Task management and assignment within projects', enabled: true, companies: 42, icon: 'tasks' },
+                    { name: 'Files', description: 'Project document and file management', enabled: true, companies: 38, icon: 'files' },
+                    { name: 'Team', description: 'Team collaboration and member management', enabled: true, companies: 36, icon: 'team' },
+                    { name: 'Digital Objects', description: 'Project asset and digital object management', enabled: false, companies: 15, icon: 'objects' }
                   ].map((module) => (
                     <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{module.name}</h4>
-                        <p className="text-sm text-muted-foreground">{module.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-green-500/10">
+                          {module.icon === 'dashboard' && <Home className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'digital-twin' && <Zap className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'cost' && <DollarSign className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'schedule' && <Calendar className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'tasks' && <CheckSquare className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'files' && <FolderOpen className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'team' && <User className="w-4 h-4 text-green-500" />}
+                          {module.icon === 'objects' && <Eye className="w-4 h-4 text-green-500" />}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium">{module.name}</h4>
+                          <p className="text-sm text-muted-foreground">{module.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
+                        </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant={module.enabled ? "default" : "secondary"}>
