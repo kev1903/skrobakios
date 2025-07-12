@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -70,7 +71,8 @@ export const CompanyUserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'member' | 'admin'>('member');
+  const [inviteRole, setInviteRole] = useState<'member' | 'admin' | 'owner'>('member');
+  const [pendingRoleChange, setPendingRoleChange] = useState<{memberId: string, newRole: string, memberName: string} | null>(null);
   const { toast } = useToast();
 
   const filteredMembers = members.filter(member =>
@@ -153,7 +155,25 @@ export const CompanyUserManagement = () => {
     }
   };
 
-  const handleRoleChange = async (memberId: string, newRole: string) => {
+  const handleRoleChange = async (memberId: string, newRole: string, memberName?: string) => {
+    // If promoting to owner, show confirmation dialog
+    if (newRole === 'owner') {
+      const member = members.find(m => m.id === memberId);
+      if (member) {
+        setPendingRoleChange({
+          memberId,
+          newRole,
+          memberName: `${member.first_name} ${member.last_name}`
+        });
+        return;
+      }
+    }
+
+    // Proceed with role change
+    await executeRoleChange(memberId, newRole, memberName);
+  };
+
+  const executeRoleChange = async (memberId: string, newRole: string, memberName?: string) => {
     try {
       setMembers(prev => prev.map(member =>
         member.id === memberId ? { ...member, role: newRole as any } : member
@@ -161,7 +181,7 @@ export const CompanyUserManagement = () => {
       
       toast({
         title: "Role Updated",
-        description: "Member role has been updated successfully."
+        description: `${memberName ? `${memberName}'s` : 'Member'} role has been updated to ${newRole}.`
       });
     } catch (error) {
       toast({
@@ -169,6 +189,13 @@ export const CompanyUserManagement = () => {
         description: "Please try again later.",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleConfirmRoleChange = async () => {
+    if (pendingRoleChange) {
+      await executeRoleChange(pendingRoleChange.memberId, pendingRoleChange.newRole, pendingRoleChange.memberName);
+      setPendingRoleChange(null);
     }
   };
 
@@ -246,6 +273,9 @@ export const CompanyUserManagement = () => {
                       <SelectContent>
                         <SelectItem value="member">Member</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
+                        {canManageMembers && currentCompany?.role === 'owner' && (
+                          <SelectItem value="owner">Owner</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -291,28 +321,37 @@ export const CompanyUserManagement = () => {
                       </div>
                     </div>
                     
-                    {canManageMembers && member.role !== 'owner' && (
+                    {canManageMembers && (
                       <div className="flex items-center space-x-2">
-                        <Select
-                          value={member.role}
-                          onValueChange={(value) => handleRoleChange(member.id, value)}
-                        >
-                          <SelectTrigger className="w-24">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="member">Member</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveMember(member.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {/* Only show role dropdown if user is not an owner, or if current user is owner */}
+                         {(member.role !== 'owner' || currentCompany?.role === 'owner') && (
+                           <Select
+                             value={member.role}
+                             onValueChange={(value) => handleRoleChange(member.id, value, `${member.first_name} ${member.last_name}`)}
+                           >
+                             <SelectTrigger className="w-24">
+                               <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="member">Member</SelectItem>
+                               <SelectItem value="admin">Admin</SelectItem>
+                               {currentCompany?.role === 'owner' && (
+                                 <SelectItem value="owner">Owner</SelectItem>
+                               )}
+                             </SelectContent>
+                           </Select>
+                         )}
+                        {/* Only allow removing members if they're not owners, or if current user is owner */}
+                        {(member.role !== 'owner' || currentCompany?.role === 'owner') && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRemoveMember(member.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -329,6 +368,37 @@ export const CompanyUserManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Owner Role Confirmation Dialog */}
+      <AlertDialog open={!!pendingRoleChange} onOpenChange={(open) => !open && setPendingRoleChange(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-yellow-600" />
+              Promote to Owner?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to promote <strong>{pendingRoleChange?.memberName}</strong> to Owner? 
+              <br/><br/>
+              Owner permissions include:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Full access to company settings</li>
+                <li>Ability to manage all members and their roles</li>
+                <li>Ability to promote other members to Owner</li>
+                <li>Ability to remove other owners</li>
+              </ul>
+              <br/>
+              <strong>This action gives them the same level of control as you have.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmRoleChange} className="bg-yellow-600 hover:bg-yellow-700">
+              Yes, Promote to Owner
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
