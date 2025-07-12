@@ -15,6 +15,7 @@ import { CompanyEditDialog } from '@/components/companies/CompanyEditDialog';
 import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
 interface PlatformDashboardProps {
   onNavigate: (page: string) => void;
 }
@@ -46,6 +47,7 @@ export const PlatformDashboard = ({
     isOwner
   } = useUserRole();
   const navigate = useNavigate();
+  const { modules, loading: modulesLoading, fetchCompanyModules } = useCompanyModules();
 
   // Additional state for table functionality
   const [filteredCompanies, setFilteredCompanies] = useState<any[]>([]);
@@ -53,12 +55,58 @@ export const PlatformDashboard = ({
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const canManageCompanies = isSuperAdmin() || isOwner();
+  const [moduleStats, setModuleStats] = useState({
+    companyModules: { active: 0, total: 0 },
+    projectModules: { active: 0, total: 0 },
+    totalCompaniesUsingModules: 0,
+    averageAdoption: 0
+  });
 
   // Filter companies based on search term
   useEffect(() => {
     const filtered = companies.filter(company => company.name?.toLowerCase().includes(searchTerm.toLowerCase()) || company.slug?.toLowerCase().includes(searchTerm.toLowerCase()) || company.website?.toLowerCase().includes(searchTerm.toLowerCase()) || company.address?.toLowerCase().includes(searchTerm.toLowerCase()));
     setFilteredCompanies(filtered);
   }, [searchTerm, companies]);
+
+  // Calculate module statistics from real data
+  useEffect(() => {
+    const calculateModuleStats = () => {
+      const companyModuleTypes = ['Projects', 'Finance', 'Sales'];
+      const projectModuleTypes = ['Dashboard', 'Digital Twin', 'Cost & Contracts', 'Schedule', 'Tasks', 'Files', 'Team', 'Digital Objects'];
+      
+      const activeCompanyModules = AVAILABLE_MODULES.filter(m => 
+        companyModuleTypes.includes(m.name)
+      ).length;
+      
+      const activeProjectModules = AVAILABLE_MODULES.filter(m => 
+        projectModuleTypes.includes(m.name)
+      ).length;
+
+      // Get unique companies using any modules
+      const companiesUsingModules = new Set(modules.filter(m => m.enabled).map(m => m.company_id)).size;
+      
+      // Calculate average adoption rate
+      const totalPossibleAdoptions = companies.length * AVAILABLE_MODULES.length;
+      const actualAdoptions = modules.filter(m => m.enabled).length;
+      const averageAdoption = totalPossibleAdoptions > 0 ? Math.round((actualAdoptions / totalPossibleAdoptions) * 100) : 0;
+
+      setModuleStats({
+        companyModules: { active: activeCompanyModules, total: companyModuleTypes.length },
+        projectModules: { active: activeProjectModules, total: projectModuleTypes.length },
+        totalCompaniesUsingModules: companiesUsingModules,
+        averageAdoption
+      });
+    };
+
+    calculateModuleStats();
+  }, [modules, companies]);
+
+  // Get module adoption statistics
+  const getModuleAdoptionStats = (moduleName: string) => {
+    const moduleUsage = modules.filter(m => m.module_name === moduleName && m.enabled);
+    return moduleUsage.length;
+  };
+
   const handleEditCompany = (company: Company) => {
     navigate(`/company/${company.id}/edit`);
   };
@@ -273,6 +321,11 @@ export const PlatformDashboard = ({
     fetchCompanyStats();
     fetchCompanies();
     fetchUserStats();
+
+    // Fetch modules data for all companies
+    companies.forEach(company => {
+      fetchCompanyModules(company.id);
+    });
 
     // Set up real-time subscriptions
     const companyChannel = supabase.channel('company-changes').on('postgres_changes', {
@@ -536,33 +589,39 @@ export const PlatformDashboard = ({
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { name: 'Projects', description: 'Project management and tracking capabilities', enabled: true, companies: 45, icon: 'briefcase' },
-                    { name: 'Finance', description: 'Financial management and accounting tools', enabled: true, companies: 38, icon: 'dollar' },
-                    { name: 'Sales', description: 'Sales pipeline and lead management', enabled: true, companies: 32, icon: 'trending' }
-                  ].map((module) => (
-                    <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-blue-500/10">
-                          {module.icon === 'briefcase' && <Building2 className="w-4 h-4 text-blue-500" />}
-                          {module.icon === 'dollar' && <DollarSign className="w-4 h-4 text-blue-500" />}
-                          {module.icon === 'trending' && <TrendingUp className="w-4 h-4 text-blue-500" />}
+                    { name: 'Projects', description: 'Project management and tracking capabilities', icon: 'briefcase' },
+                    { name: 'Finance', description: 'Financial management and accounting tools', icon: 'dollar' },
+                    { name: 'Sales', description: 'Sales pipeline and lead management', icon: 'trending' }
+                  ].map((module) => {
+                    const adoptionCount = getModuleAdoptionStats(module.name.toLowerCase());
+                    const adoptionRate = companies.length > 0 ? Math.round((adoptionCount / companies.length) * 100) : 0;
+                    
+                    return (
+                      <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-blue-500/10">
+                            {module.icon === 'briefcase' && <Building2 className="w-4 h-4 text-blue-500" />}
+                            {module.icon === 'dollar' && <DollarSign className="w-4 h-4 text-blue-500" />}
+                            {module.icon === 'trending' && <TrendingUp className="w-4 h-4 text-blue-500" />}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium">{module.name}</h4>
+                            <p className="text-sm text-muted-foreground">{module.description}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {adoptionCount} companies ({adoptionRate}% adoption)
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{module.name}</h4>
-                          <p className="text-sm text-muted-foreground">{module.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
-                        </div>
-                      </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant={module.enabled ? "default" : "secondary"}>
-                          {module.enabled ? "Active" : "Inactive"}
+                        <Badge variant="default">
+                          Active
                         </Badge>
                         <Button variant="outline" size="sm">
                           Configure
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </CardContent>
             </Card>
@@ -581,43 +640,50 @@ export const PlatformDashboard = ({
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { name: 'Dashboard', description: 'Project overview and key metrics dashboard', enabled: true, companies: 45, icon: 'dashboard' },
-                    { name: 'Digital Twin', description: 'Digital representation and modeling tools', enabled: true, companies: 28, icon: 'digital-twin' },
-                    { name: 'Cost & Contracts', description: 'Financial tracking and contract management', enabled: true, companies: 35, icon: 'cost' },
-                    { name: 'Schedule', description: 'Project timeline and scheduling tools', enabled: true, companies: 40, icon: 'schedule' },
-                    { name: 'Tasks', description: 'Task management and assignment within projects', enabled: true, companies: 42, icon: 'tasks' },
-                    { name: 'Files', description: 'Project document and file management', enabled: true, companies: 38, icon: 'files' },
-                    { name: 'Team', description: 'Team collaboration and member management', enabled: true, companies: 36, icon: 'team' },
-                    { name: 'Digital Objects', description: 'Project asset and digital object management', enabled: false, companies: 15, icon: 'objects' }
-                  ].map((module) => (
-                    <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-green-500/10">
-                          {module.icon === 'dashboard' && <Home className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'digital-twin' && <Zap className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'cost' && <DollarSign className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'schedule' && <Calendar className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'tasks' && <CheckSquare className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'files' && <FolderOpen className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'team' && <User className="w-4 h-4 text-green-500" />}
-                          {module.icon === 'objects' && <Eye className="w-4 h-4 text-green-500" />}
+                    { name: 'Dashboard', description: 'Project overview and key metrics dashboard', icon: 'dashboard' },
+                    { name: 'Digital Twin', description: 'Digital representation and modeling tools', icon: 'digital-twin' },
+                    { name: 'Cost & Contracts', description: 'Financial tracking and contract management', icon: 'cost' },
+                    { name: 'Schedule', description: 'Project timeline and scheduling tools', icon: 'schedule' },
+                    { name: 'Tasks', description: 'Task management and assignment within projects', icon: 'tasks' },
+                    { name: 'Files', description: 'Project document and file management', icon: 'files' },
+                    { name: 'Team', description: 'Team collaboration and member management', icon: 'team' },
+                    { name: 'Digital Objects', description: 'Project asset and digital object management', icon: 'objects' }
+                  ].map((module) => {
+                    const adoptionCount = getModuleAdoptionStats(module.name.toLowerCase().replace(/\s+/g, '_'));
+                    const adoptionRate = companies.length > 0 ? Math.round((adoptionCount / companies.length) * 100) : 0;
+                    const isEnabled = adoptionCount > 0;
+                    
+                    return (
+                      <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-green-500/10">
+                            {module.icon === 'dashboard' && <Home className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'digital-twin' && <Zap className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'cost' && <DollarSign className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'schedule' && <Calendar className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'tasks' && <CheckSquare className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'files' && <FolderOpen className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'team' && <User className="w-4 h-4 text-green-500" />}
+                            {module.icon === 'objects' && <Eye className="w-4 h-4 text-green-500" />}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium">{module.name}</h4>
+                            <p className="text-sm text-muted-foreground">{module.description}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {adoptionCount} companies ({adoptionRate}% adoption)
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{module.name}</h4>
-                          <p className="text-sm text-muted-foreground">{module.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
-                        </div>
-                      </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant={module.enabled ? "default" : "secondary"}>
-                          {module.enabled ? "Active" : "Inactive"}
+                        <Badge variant={isEnabled ? "default" : "secondary"}>
+                          {isEnabled ? "Active" : "Inactive"}
                         </Badge>
                         <Button variant="outline" size="sm">
                           Configure
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </CardContent>
             </Card>
