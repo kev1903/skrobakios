@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle } from 'lucide-react';
+import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -848,6 +848,49 @@ export const PlatformDashboard = ({
                           <input type="checkbox" defaultChecked />
                           <span className="text-sm">{lang}</span>
                         </div>)}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Landing Page & Domain</CardTitle>
+                  <CardDescription>Manage your public-facing landing page and domain settings</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-green-50">
+                      <div className="flex items-center gap-3">
+                        <Globe className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-medium">Skrobakios.com</p>
+                          <p className="text-sm text-green-600">Active - Connected to Landing Page</p>
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="bg-green-500/10 text-green-600">Live</Badge>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => onNavigate('landing')}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        <Globe className="w-4 h-4 mr-2" />
+                        View Landing Page
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => window.open('https://skrobakios.com', '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="text-sm text-muted-foreground">
+                      <p><strong>Domain Status:</strong> SSL Certificate Active</p>
+                      <p><strong>Last Updated:</strong> 2 hours ago</p>
+                      <p><strong>Analytics:</strong> 1,247 visits this month</p>
                     </div>
                   </div>
                 </CardContent>
