@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Globe, MapPin, Phone, Hash, MessageSquare } from 'lucide-react';
+import { Building2, Globe, MapPin, Phone, Hash, MessageSquare, FolderKanban, Clock, Calculator, FileText, FolderOpen, BarChart3, Plug, Code } from 'lucide-react';
 import { Company } from '@/types/company';
 
 interface CompanyEditDialogProps {
@@ -216,9 +216,12 @@ export const CompanyEditDialog = ({
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Project Management</Label>
-                    <p className="text-xs text-slate-500">Create and manage projects</p>
+                  <div className="flex items-center space-x-3">
+                    <FolderKanban className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <Label className="text-sm font-medium">Project Management</Label>
+                      <p className="text-xs text-slate-500">Create and manage projects</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.projects}
@@ -229,9 +232,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Time Tracking</Label>
-                    <p className="text-xs text-slate-500">Track time on tasks and projects</p>
+                  <div className="flex items-center space-x-3">
+                    <Clock className="w-5 h-5 text-green-600" />
+                    <div>
+                      <Label className="text-sm font-medium">Time Tracking</Label>
+                      <p className="text-xs text-slate-500">Track time on tasks and projects</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.timeTracking}
@@ -242,9 +248,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Estimating</Label>
-                    <p className="text-xs text-slate-500">Create and manage estimates</p>
+                  <div className="flex items-center space-x-3">
+                    <Calculator className="w-5 h-5 text-purple-600" />
+                    <div>
+                      <Label className="text-sm font-medium">Estimating</Label>
+                      <p className="text-xs text-slate-500">Create and manage estimates</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.estimating}
@@ -255,9 +264,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Invoicing</Label>
-                    <p className="text-xs text-slate-500">Generate and manage invoices</p>
+                  <div className="flex items-center space-x-3">
+                    <FileText className="w-5 h-5 text-orange-600" />
+                    <div>
+                      <Label className="text-sm font-medium">Invoicing</Label>
+                      <p className="text-xs text-slate-500">Generate and manage invoices</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.invoicing}
@@ -268,9 +280,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">File Management</Label>
-                    <p className="text-xs text-slate-500">Upload and organize files</p>
+                  <div className="flex items-center space-x-3">
+                    <FolderOpen className="w-5 h-5 text-teal-600" />
+                    <div>
+                      <Label className="text-sm font-medium">File Management</Label>
+                      <p className="text-xs text-slate-500">Upload and organize files</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.fileManagement}
@@ -281,9 +296,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Reporting</Label>
-                    <p className="text-xs text-slate-500">Generate reports and analytics</p>
+                  <div className="flex items-center space-x-3">
+                    <BarChart3 className="w-5 h-5 text-red-600" />
+                    <div>
+                      <Label className="text-sm font-medium">Reporting</Label>
+                      <p className="text-xs text-slate-500">Generate reports and analytics</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.reporting}
@@ -294,9 +312,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Integrations</Label>
-                    <p className="text-xs text-slate-500">Connect with third-party services</p>
+                  <div className="flex items-center space-x-3">
+                    <Plug className="w-5 h-5 text-indigo-600" />
+                    <div>
+                      <Label className="text-sm font-medium">Integrations</Label>
+                      <p className="text-xs text-slate-500">Connect with third-party services</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.integrations}
@@ -307,9 +328,12 @@ export const CompanyEditDialog = ({
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">API Access</Label>
-                    <p className="text-xs text-slate-500">Enable API access for developers</p>
+                  <div className="flex items-center space-x-3">
+                    <Code className="w-5 h-5 text-slate-600" />
+                    <div>
+                      <Label className="text-sm font-medium">API Access</Label>
+                      <p className="text-xs text-slate-500">Enable API access for developers</p>
+                    </div>
                   </div>
                   <Switch
                     checked={modules.apiAccess}

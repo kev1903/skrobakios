@@ -29,24 +29,9 @@ import {
   Palette,
   Plug,
   Globe,
-  FolderKanban,
-  BarChart3,
-  Calendar,
-  FileText,
-  Map,
-  Target,
-  DollarSign,
-  TrendingUp,
-  Boxes,
-  Calculator,
-  FolderOpen,
-  UsersRound,
-  LayoutDashboard,
-  Clock,
   MapPin,
   Hash,
-  MessageSquare,
-  Code
+  MessageSquare
 } from 'lucide-react';
 import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
@@ -80,16 +65,6 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     logo_url: ''
   });
 
-  const [modules, setModules] = useState({
-    projectManagement: true,
-    timeTracking: true,
-    estimating: true,
-    invoicing: true,
-    fileManagement: true,
-    reporting: true,
-    integrations: false,
-    apiAccess: false
-  });
 
   // Load full company details - only on initial load
   useEffect(() => {
@@ -176,12 +151,6 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     }
   };
 
-  const handleModuleToggle = (module: string, enabled: boolean) => {
-    setModules(prev => ({
-      ...prev,
-      [module]: enabled
-    }));
-  };
 
   const handleInputChange = (field: string, value: string) => {
     setCompanyForm(prev => ({
@@ -398,135 +367,6 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                     <Save className="w-4 h-4 mr-2" />
                     {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Right Column - Company Modules */}
-            <Card className="backdrop-blur-xl bg-white/80 border-white/30 shadow-lg">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-semibold text-slate-800">Company Modules</CardTitle>
-                <p className="text-slate-600 text-sm">Enable or disable features for this company</p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Project Management */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <FolderKanban className="w-5 h-5 text-blue-600" />
-                      <h4 className="font-medium text-slate-800">Project Management</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Create and manage projects</p>
-                  </div>
-                  <Switch 
-                    checked={modules.projectManagement}
-                    onCheckedChange={(checked) => handleModuleToggle('projectManagement', checked)}
-                  />
-                </div>
-
-                {/* Time Tracking */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-5 h-5 text-green-600" />
-                      <h4 className="font-medium text-slate-800">Time Tracking</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Track time on tasks and projects</p>
-                  </div>
-                  <Switch 
-                    checked={modules.timeTracking}
-                    onCheckedChange={(checked) => handleModuleToggle('timeTracking', checked)}
-                  />
-                </div>
-
-                {/* Estimating */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Calculator className="w-5 h-5 text-purple-600" />
-                      <h4 className="font-medium text-slate-800">Estimating</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Create and manage estimates</p>
-                  </div>
-                  <Switch 
-                    checked={modules.estimating}
-                    onCheckedChange={(checked) => handleModuleToggle('estimating', checked)}
-                  />
-                </div>
-
-                {/* Invoicing */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-5 h-5 text-orange-600" />
-                      <h4 className="font-medium text-slate-800">Invoicing</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Generate and manage invoices</p>
-                  </div>
-                  <Switch 
-                    checked={modules.invoicing}
-                    onCheckedChange={(checked) => handleModuleToggle('invoicing', checked)}
-                  />
-                </div>
-
-                {/* File Management */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <FolderOpen className="w-5 h-5 text-teal-600" />
-                      <h4 className="font-medium text-slate-800">File Management</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Upload and organize files</p>
-                  </div>
-                  <Switch 
-                    checked={modules.fileManagement}
-                    onCheckedChange={(checked) => handleModuleToggle('fileManagement', checked)}
-                  />
-                </div>
-
-                {/* Reporting */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <BarChart3 className="w-5 h-5 text-red-600" />
-                      <h4 className="font-medium text-slate-800">Reporting</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Generate reports and analytics</p>
-                  </div>
-                  <Switch 
-                    checked={modules.reporting}
-                    onCheckedChange={(checked) => handleModuleToggle('reporting', checked)}
-                  />
-                </div>
-
-                {/* Integrations */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Plug className="w-5 h-5 text-indigo-600" />
-                      <h4 className="font-medium text-slate-800">Integrations</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Connect with third-party services</p>
-                  </div>
-                  <Switch 
-                    checked={modules.integrations}
-                    onCheckedChange={(checked) => handleModuleToggle('integrations', checked)}
-                  />
-                </div>
-
-                {/* API Access */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Code className="w-5 h-5 text-slate-600" />
-                      <h4 className="font-medium text-slate-800">API Access</h4>
-                    </div>
-                    <p className="text-sm text-slate-600">Enable API access for developers</p>
-                  </div>
-                  <Switch 
-                    checked={modules.apiAccess}
-                    onCheckedChange={(checked) => handleModuleToggle('apiAccess', checked)}
-                  />
                 </div>
               </CardContent>
             </Card>
