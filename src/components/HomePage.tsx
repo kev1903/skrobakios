@@ -65,7 +65,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const { currentCompany } = useCompany();
+  const { currentCompany, loading: companyLoading } = useCompany();
   const [mapConfig, setMapConfig] = useState({
     center: [144.9631, -37.8136] as [number, number],
     zoom: 6.5,
@@ -450,12 +450,18 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           return;
         }
 
-        // Check if we have a current company selected
+        // Check if we have a current company selected or if companies are still loading
         if (!currentCompany?.id) {
-          console.warn('No company selected');
-          setError('Please select a company to view projects');
-          setIsLoading(false);
-          return;
+          if (companyLoading) {
+            console.log('Companies are still loading, waiting...');
+            setIsLoading(true);
+            return;
+          } else {
+            console.warn('No company selected and loading complete');
+            setError('Please select a company to view projects');
+            setIsLoading(false);
+            return;
+          }
         }
 
         // Fetch projects from database filtered by current company
@@ -540,6 +546,31 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       }
     };
   }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing]); // Only re-run if map config actually changes
+
+  // Watch for company loading state changes to retry initialization
+  useEffect(() => {
+    // If company loading just finished and we have a current company, but the map has an error
+    if (!companyLoading && currentCompany?.id && error === 'Please select a company to view projects') {
+      console.log('Company loading finished, retrying map initialization...');
+      setError(null);
+      setIsLoading(true);
+      
+      // Small delay to ensure state is updated
+      const timer = setTimeout(() => {
+        // Force re-initialization by clearing the map and letting the main useEffect run again
+        if (map.current) {
+          try {
+            map.current.remove();
+            map.current = null;
+          } catch (err) {
+            console.error('Error cleaning up map for retry:', err);
+          }
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [companyLoading, currentCompany?.id, error]);
 
   // Set up real-time updates for projects and re-initialize when company changes
   useEffect(() => {
