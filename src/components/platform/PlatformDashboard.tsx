@@ -588,21 +588,18 @@ export const PlatformDashboard = ({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { name: 'Projects', description: 'Project management and tracking capabilities', icon: 'briefcase' },
-                    { name: 'Finance', description: 'Financial management and accounting tools', icon: 'dollar' },
-                    { name: 'Sales', description: 'Sales pipeline and lead management', icon: 'trending' }
-                  ].map((module) => {
-                    const adoptionCount = getModuleAdoptionStats(module.name.toLowerCase());
+                  {AVAILABLE_MODULES.filter(module => ['projects', 'finance', 'sales'].includes(module.key)).map((module) => {
+                    const adoptionCount = getModuleAdoptionStats(module.key);
                     const adoptionRate = companies.length > 0 ? Math.round((adoptionCount / companies.length) * 100) : 0;
+                    const isActive = adoptionCount > 0;
                     
                     return (
                       <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-lg bg-blue-500/10">
-                            {module.icon === 'briefcase' && <Building2 className="w-4 h-4 text-blue-500" />}
-                            {module.icon === 'dollar' && <DollarSign className="w-4 h-4 text-blue-500" />}
-                            {module.icon === 'trending' && <TrendingUp className="w-4 h-4 text-blue-500" />}
+                            {module.key === 'projects' && <Building2 className="w-4 h-4 text-blue-500" />}
+                            {module.key === 'finance' && <DollarSign className="w-4 h-4 text-blue-500" />}
+                            {module.key === 'sales' && <TrendingUp className="w-4 h-4 text-blue-500" />}
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium">{module.name}</h4>
@@ -613,8 +610,8 @@ export const PlatformDashboard = ({
                           </div>
                         </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant="default">
-                          Active
+                        <Badge variant={isActive ? "default" : "secondary"}>
+                          {isActive ? "Active" : "Inactive"}
                         </Badge>
                         <Button variant="outline" size="sm">
                           Configure
