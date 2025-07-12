@@ -6,15 +6,8 @@ import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 import { ChatBox } from '@/components/ChatBox';
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 import { AiChatBar } from '@/components/AiChatBar';
-
-interface Project {
-  id: string;
-  name: string;
-  location: string;
-  description: string;
-  status: string;
-  project_id: string;
-}
+import { useCompany } from '@/contexts/CompanyContext';
+import { useProjects, Project } from '@/hooks/useProjects';
 
 interface ProjectWithCoordinates extends Project {
   coordinates?: [number, number];
@@ -71,6 +64,9 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     bearing: 0
   });
   const [showSaveButton, setShowSaveButton] = useState(false);
+  
+  const { currentCompany } = useCompany();
+  const { getProjects } = useProjects();
 
   const saveCurrentMapPosition = async () => {
     if (!map.current) return;
@@ -167,14 +163,15 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           return;
         }
 
-        // Fetch projects from database
-        const { data: projectsData, error: projectsError } = await supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (projectsError) {
-          console.error('Error fetching projects:', projectsError);
+        // Fetch projects for the current company
+        let projectsData: Project[] = [];
+        if (currentCompany) {
+          try {
+            projectsData = await getProjects();
+            console.log('Fetched projects for company:', currentCompany.name, projectsData.length);
+          } catch (error) {
+            console.error('Error fetching projects:', error);
+          }
         }
 
         // Initialize map with fetched token
@@ -527,7 +524,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         }
       }
     };
-  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing]); // Only re-run if map config actually changes
+  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing, currentCompany]); // Re-run when map config or company changes
 
   return (
     <div className="relative w-full h-screen">
