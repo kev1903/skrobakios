@@ -1405,6 +1405,7 @@ export type Database = {
           phone: string
           company: string
           app_role: Database["public"]["Enums"]["app_role"]
+          app_roles: Database["public"]["Enums"]["app_role"][]
           company_role: string
           status: string
           created_at: string

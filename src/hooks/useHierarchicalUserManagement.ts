@@ -45,12 +45,16 @@ export const useHierarchicalUserManagement = () => {
 
   const updateUserAppRole = async (userId: string, newRole: UserRole) => {
     try {
+      // First, delete existing roles
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      // Then insert new role
       const { error } = await supabase
         .from('user_roles')
-        .upsert(
-          { user_id: userId, role: newRole },
-          { onConflict: 'user_id' }
-        );
+        .insert({ user_id: userId, role: newRole });
 
       if (error) {
         console.error('Error updating user role:', error);
@@ -61,6 +65,58 @@ export const useHierarchicalUserManagement = () => {
       return { success: true };
     } catch (error) {
       console.error('Error updating user role:', error);
+      return { success: false, error };
+    }
+  };
+
+  const addUserAppRole = async (userId: string, role: UserRole) => {
+    try {
+      // Check if user already has this role
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('role', role)
+        .single();
+
+      if (existingRole) {
+        return { success: false, error: 'User already has this role' };
+      }
+
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role });
+
+      if (error) {
+        console.error('Error adding user role:', error);
+        return { success: false, error };
+      }
+
+      await fetchUsers(); // Refresh the list
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding user role:', error);
+      return { success: false, error };
+    }
+  };
+
+  const removeUserAppRole = async (userId: string, role: UserRole) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', role);
+
+      if (error) {
+        console.error('Error removing user role:', error);
+        return { success: false, error };
+      }
+
+      await fetchUsers(); // Refresh the list
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing user role:', error);
       return { success: false, error };
     }
   };
@@ -176,6 +232,8 @@ export const useHierarchicalUserManagement = () => {
     searchTerm,
     setSearchTerm,
     updateUserAppRole,
+    addUserAppRole,
+    removeUserAppRole,
     assignUserToCompany,
     updateUserStatus,
     deleteUser,

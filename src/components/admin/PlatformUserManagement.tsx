@@ -32,6 +32,7 @@ import { Search, UserPlus, RefreshCw, MoreHorizontal, Building2, Shield, Trash2 
 import { useHierarchicalUserManagement } from '@/hooks/useHierarchicalUserManagement';
 import { useUserRole } from '@/hooks/useUserRole';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
+import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
 import { toast } from '@/hooks/use-toast';
 
 interface CompanyOption {
@@ -51,6 +52,8 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
     searchTerm,
     setSearchTerm,
     updateUserAppRole,
+    addUserAppRole,
+    removeUserAppRole,
     assignUserToCompany,
     updateUserStatus,
     deleteUser,
@@ -364,27 +367,13 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{user.company || '-'}</TableCell>
-                      <TableCell>
-                        <Select
-                          value={user.app_role}
-                          onValueChange={(value) => handleRoleChange(user, value)}
-                          disabled={!user.can_manage_roles}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue>
-                              <Badge variant={getRoleBadgeVariant(user.app_role)}>
-                                {user.app_role}
-                              </Badge>
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="user">User</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="owner">Owner</SelectItem>
-                            <SelectItem value="superadmin">Super Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
+                       <TableCell>
+                         <HierarchicalRoleManagement
+                           user={user}
+                           onAddRole={addUserAppRole}
+                           onRemoveRole={removeUserAppRole}
+                         />
+                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
                           {user.company_role === 'none' ? '-' : user.company_role}

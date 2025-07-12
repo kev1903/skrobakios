@@ -8,7 +8,8 @@ export interface HierarchicalUser {
   avatar_url?: string;
   phone?: string;
   company?: string;
-  app_role: UserRole;
+  app_role: UserRole; // Primary role (highest priority)
+  app_roles: UserRole[]; // All app-level roles
   company_role: string;
   status: string;
   created_at: string;
