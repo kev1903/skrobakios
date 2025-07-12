@@ -1,4 +1,5 @@
 import React from 'react';
+import { CompanyPage } from "@/pages/CompanyPage";
 import { TaskManagement } from "@/components/TaskManagement";
 import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
@@ -157,6 +158,8 @@ export const ContentRenderer = ({
       return <UserProfilePage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
+    case "companies":
+      return <CompanyPage />;
     case "platform":
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":
