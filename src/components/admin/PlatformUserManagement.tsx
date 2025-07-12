@@ -34,6 +34,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
 import { UserProfileEditDialog } from './UserProfileEditDialog';
+import { ManualUserCreateDialog } from './ManualUserCreateDialog';
 import { toast } from '@/hooks/use-toast';
 
 interface CompanyOption {
@@ -68,6 +69,7 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
   const [selectedRole, setSelectedRole] = useState<'owner' | 'admin' | 'member'>('member');
   const [showProfileEditDialog, setShowProfileEditDialog] = useState(false);
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<HierarchicalUser | null>(null);
+  const [showManualCreateDialog, setShowManualCreateDialog] = useState(false);
 
   const handleInviteUser = async () => {
     if (!inviteEmail) {
@@ -190,6 +192,10 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
     refreshUsers();
   };
 
+  const handleUserCreated = () => {
+    refreshUsers();
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'superadmin':
@@ -246,11 +252,15 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
+              <Button size="sm" onClick={() => setShowManualCreateDialog(true)}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                + Create User
+              </Button>
               <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
                 <DialogTrigger asChild>
-                  <Button size="sm">
+                  <Button variant="outline" size="sm">
                     <UserPlus className="w-4 h-4 mr-2" />
-                    + New User
+                    + Invite User
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -442,6 +452,13 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
           </div>
         </CardContent>
       </Card>
+      
+      <ManualUserCreateDialog
+        companies={companies}
+        open={showManualCreateDialog}
+        onOpenChange={setShowManualCreateDialog}
+        onUserCreated={handleUserCreated}
+      />
       
       <UserProfileEditDialog
         user={selectedUserForEdit}
