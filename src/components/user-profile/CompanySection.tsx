@@ -12,12 +12,13 @@ interface CompanySectionProps {
     companySlogan: string;
   };
   onInputChange: (field: string, value: string) => void;
+  onEditCompany?: (companyId: string) => void;
 }
 
-export const CompanySection = ({ profileData, onInputChange }: CompanySectionProps) => {
+export const CompanySection = ({ profileData, onInputChange, onEditCompany }: CompanySectionProps) => {
   return (
     <div className="space-y-8">
-      <CompanyList />
+      <CompanyList onEditCompany={onEditCompany} />
     </div>
   );
 };

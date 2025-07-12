@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserEditLayout } from '@/components/user-edit/UserEditLayout';
+import { CompanyEditPage } from '@/components/CompanyEditPage';
 import { useUserEdit } from '@/hooks/useUserEdit';
 
 interface UserEditPageProps {
@@ -16,9 +17,12 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     saving,
     loading,
     isSuperAdmin,
+    editingCompanyId,
     handleInputChange,
     handleSave,
-    handleCancel
+    handleCancel,
+    handleEditCompany,
+    handleBackFromCompanyEdit
   } = useUserEdit();
 
   if (loading) {
@@ -26,6 +30,16 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
         <div className="text-slate-600">Loading profile...</div>
       </div>
+    );
+  }
+
+  // Show company edit page if editing a company
+  if (editingCompanyId) {
+    return (
+      <CompanyEditPage
+        companyId={editingCompanyId}
+        onNavigateBack={handleBackFromCompanyEdit}
+      />
     );
   }
 
@@ -42,6 +56,7 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       onInputChange={handleInputChange}
       onCreateCompany={() => setShowCreateDialog(true)}
       onCloseCreateDialog={() => setShowCreateDialog(false)}
+      onEditCompany={handleEditCompany}
     />
   );
 };

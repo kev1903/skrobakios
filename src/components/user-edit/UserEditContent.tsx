@@ -30,13 +30,15 @@ interface UserEditContentProps {
   };
   onInputChange: (field: string, value: string) => void;
   onNavigate: (page: string) => void;
+  onEditCompany?: (companyId: string) => void;
 }
 
 export const UserEditContent = ({ 
   activeSection, 
   profileData, 
   onInputChange, 
-  onNavigate 
+  onNavigate,
+  onEditCompany 
 }: UserEditContentProps) => {
   const renderContent = () => {
     switch (activeSection) {
@@ -70,7 +72,7 @@ export const UserEditContent = ({
           companyMembers: profileData.companyMembers,
           companyLogo: profileData.companyLogo,
           companySlogan: profileData.companySlogan
-        }} onInputChange={onInputChange} />;
+        }} onInputChange={onInputChange} onEditCompany={onEditCompany} />;
       case 'security':
         return <SecuritySection />;
       default:

@@ -34,6 +34,7 @@ interface UserEditLayoutProps {
   onInputChange: (field: string, value: string) => void;
   onCreateCompany: () => void;
   onCloseCreateDialog: () => void;
+  onEditCompany?: (companyId: string) => void;
 }
 
 export const UserEditLayout = ({
@@ -47,7 +48,8 @@ export const UserEditLayout = ({
   onSave,
   onInputChange,
   onCreateCompany,
-  onCloseCreateDialog
+  onCloseCreateDialog,
+  onEditCompany
 }: UserEditLayoutProps) => {
   return (
     <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
@@ -77,6 +79,7 @@ export const UserEditLayout = ({
           profileData={profileData}
           onInputChange={onInputChange}
           onNavigate={onNavigate}
+          onEditCompany={onEditCompany}
         />
       </div>
 

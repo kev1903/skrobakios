@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Building2, Globe, MapPin, Phone, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, Globe, MapPin, Phone, Mail, Edit, Settings } from 'lucide-react';
 import { useCompanies } from '@/hooks/useCompanies';
+import { useUserRole } from '@/hooks/useUserRole';
 import { UserCompany } from '@/types/company';
 
-export const CompanyList = () => {
+interface CompanyListProps {
+  onEditCompany?: (companyId: string) => void;
+}
+
+export const CompanyList = ({ onEditCompany }: CompanyListProps) => {
   const [companies, setCompanies] = useState<UserCompany[]>([]);
   const { getUserCompanies, loading } = useCompanies();
+  const { isSuperAdmin } = useUserRole();
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -68,6 +75,17 @@ export const CompanyList = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
+              )}
+              {isSuperAdmin() && onEditCompany && (
+                <Button
+                  onClick={() => onEditCompany(company.id)}
+                  size="sm"
+                  variant="outline"
+                  className="ml-2 bg-white/60 hover:bg-white/80 border-white/30 text-slate-700"
+                >
+                  <Settings className="w-4 h-4 mr-1" />
+                  Edit
+                </Button>
               )}
             </CardTitle>
           </CardHeader>

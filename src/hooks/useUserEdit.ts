@@ -18,6 +18,7 @@ export const useUserEdit = () => {
   const [activeSection, setActiveSection] = useState('personal');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   
   const [profileData, setProfileData] = useState({
     firstName: '',
@@ -234,6 +235,14 @@ export const useUserEdit = () => {
     onNavigate('tasks');
   };
 
+  const handleEditCompany = (companyId: string) => {
+    setEditingCompanyId(companyId);
+  };
+
+  const handleBackFromCompanyEdit = () => {
+    setEditingCompanyId(null);
+  };
+
   return {
     profileData,
     activeSection,
@@ -243,8 +252,11 @@ export const useUserEdit = () => {
     saving,
     loading,
     isSuperAdmin,
+    editingCompanyId,
     handleInputChange,
     handleSave,
-    handleCancel
+    handleCancel,
+    handleEditCompany,
+    handleBackFromCompanyEdit
   };
 };
