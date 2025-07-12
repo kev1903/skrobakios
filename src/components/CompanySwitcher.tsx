@@ -22,7 +22,11 @@ export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
 
   if (loading) {
     return (
-      <Button variant="ghost" className="w-[200px] justify-between" disabled>
+      <Button 
+        variant="ghost" 
+        className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5" 
+        disabled
+      >
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4" />
           <span>Loading...</span>
@@ -34,7 +38,10 @@ export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
 
   if (!currentCompany) {
     return (
-      <Button variant="ghost" className="w-[200px] justify-between">
+      <Button 
+        variant="ghost" 
+        className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5"
+      >
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4" />
           <span>No Company</span>
