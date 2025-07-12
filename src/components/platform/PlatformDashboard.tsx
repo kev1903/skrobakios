@@ -16,6 +16,7 @@ import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
+import { PlatformUserManagement } from '@/components/admin/PlatformUserManagement';
 interface PlatformDashboardProps {
   onNavigate: (page: string) => void;
 }
@@ -678,100 +679,7 @@ export const PlatformDashboard = ({
             </Card>
           </div>;
       case 'users':
-        return <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">Users & Roles</h2>
-                <p className="text-muted-foreground">Manage global users and their permissions</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline">
-                  <UserCog className="w-4 h-4 mr-2" />
-                  Manage Roles
-                </Button>
-                <Button>
-                  <Users className="w-4 h-4 mr-2" />
-                  Add User
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">8,429</p>
-                    <p className="text-sm text-muted-foreground">Total Users</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">127</p>
-                    <p className="text-sm text-muted-foreground">Admins</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">45</p>
-                    <p className="text-sm text-muted-foreground">Support Agents</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">156</p>
-                    <p className="text-sm text-muted-foreground">Active Today</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent User Activity</CardTitle>
-                <CardDescription>Latest user registrations and role changes</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[{
-                  user: "john.doe@techcorp.com",
-                  action: "Role changed to Admin",
-                  tenant: "TechCorp",
-                  time: "2 min ago"
-                }, {
-                  user: "sarah.wilson@startup.ai",
-                  action: "New user registered",
-                  tenant: "StartupAI",
-                  time: "15 min ago"
-                }, {
-                  user: "mike.jones@design.co",
-                  action: "Permission updated",
-                  tenant: "DesignStudio",
-                  time: "1 hour ago"
-                }].map((activity, index) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Users className="w-4 h-4 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{activity.user}</p>
-                          <p className="text-sm text-muted-foreground">{activity.action}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{activity.tenant}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                      </div>
-                    </div>)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>;
+        return <PlatformUserManagement companies={companies.map(company => ({ id: company.id, name: company.name }))} />;
       case 'billing':
         return <div className="space-y-6">
             <div className="flex items-center justify-between">
