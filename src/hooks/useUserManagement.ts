@@ -32,25 +32,35 @@ export const useUserManagement = () => {
         return;
       }
 
-      // Create a map of user_id to role for quick lookup
-      const rolesMap = new Map();
+      // Create a map of user_id to roles for quick lookup
+      const rolesMap = new Map<string, UserRole[]>();
       rolesData?.forEach(roleRecord => {
-        rolesMap.set(roleRecord.user_id, roleRecord.role);
+        const existing = rolesMap.get(roleRecord.user_id) || [];
+        rolesMap.set(roleRecord.user_id, [...existing, roleRecord.role]);
       });
 
-      const formattedUsers: AccessUser[] = profilesData?.map(profile => ({
-        id: profile.user_id || profile.id, // Use user_id (auth ID) for operations, fallback to profile id
-        first_name: profile.first_name || '',
-        last_name: profile.last_name || '',
-        email: profile.email || '',
-        company: profile.company || '',
-        phone: profile.phone || '',
-        avatar_url: profile.avatar_url || '',
-        role: rolesMap.get(profile.user_id) || 'user',
-        status: profile.status === 'active' ? 'Active' : 'Inactive',
-        created_at: profile.created_at,
-        updated_at: profile.updated_at
-      })) || [];
+      const formattedUsers: AccessUser[] = profilesData?.map(profile => {
+        const userRoles = rolesMap.get(profile.user_id) || ['user'];
+        const roleHierarchy = { superadmin: 4, owner: 3, admin: 2, user: 1 };
+        const primaryRole = userRoles.reduce((highest, current) => 
+          roleHierarchy[current] > roleHierarchy[highest] ? current : highest
+        );
+        
+        return {
+          id: profile.user_id || profile.id, // Use user_id (auth ID) for operations, fallback to profile id
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          email: profile.email || '',
+          company: profile.company || '',
+          phone: profile.phone || '',
+          avatar_url: profile.avatar_url || '',
+          role: primaryRole,
+          roles: userRoles,
+          status: profile.status === 'active' ? 'Active' : 'Inactive',
+          created_at: profile.created_at,
+          updated_at: profile.updated_at
+        };
+      }) || [];
 
       setUsers(formattedUsers);
     } catch (error) {
@@ -62,7 +72,7 @@ export const useUserManagement = () => {
 
   const updateUserRole = async (userId: string, newRole: UserRole) => {
     try {
-      // First, delete existing role
+      // First, delete existing roles
       await supabase
         .from('user_roles')
         .delete()
@@ -83,6 +93,60 @@ export const useUserManagement = () => {
       return { success: true };
     } catch (error) {
       console.error('Error updating user role:', error);
+      return { success: false, error };
+    }
+  };
+
+  const addUserRole = async (userId: string, role: UserRole) => {
+    try {
+      // Check if user already has this role
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('role', role)
+        .single();
+
+      if (existingRole) {
+        return { success: false, error: 'User already has this role' };
+      }
+
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role });
+
+      if (error) {
+        console.error('Error adding user role:', error);
+        throw error;
+      }
+
+      // Refresh users list
+      await fetchUsers();
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding user role:', error);
+      return { success: false, error };
+    }
+  };
+
+  const removeUserRole = async (userId: string, role: UserRole) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', role);
+
+      if (error) {
+        console.error('Error removing user role:', error);
+        throw error;
+      }
+
+      // Refresh users list
+      await fetchUsers();
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing user role:', error);
       return { success: false, error };
     }
   };
@@ -163,6 +227,8 @@ export const useUserManagement = () => {
     searchTerm,
     setSearchTerm,
     updateUserRole,
+    addUserRole,
+    removeUserRole,
     updateUserStatus,
     deleteUser,
     refreshUsers: fetchUsers

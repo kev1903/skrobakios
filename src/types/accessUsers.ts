@@ -9,13 +9,13 @@ export interface DatabaseProfile {
   status: string;
 }
 
-// Enhanced role system to match the hierarchical structure
+// Enhanced role system to match the hierarchical structure with multiple roles support
 export interface DatabaseRole {
   user_id: string;
   role: 'superadmin' | 'owner' | 'admin' | 'user';
 }
 
-// Enhanced access user types with hierarchical roles
+// Enhanced access user types with hierarchical roles - supports multiple roles
 export interface AccessUser {
   id: string;
   first_name: string;
@@ -24,7 +24,8 @@ export interface AccessUser {
   company?: string;
   phone?: string;
   avatar_url?: string;
-  role: 'superadmin' | 'owner' | 'admin' | 'user';
+  role: 'superadmin' | 'owner' | 'admin' | 'user'; // Primary role (highest priority)
+  roles: ('superadmin' | 'owner' | 'admin' | 'user')[]; // All roles
   status: 'Active' | 'Invited' | 'Inactive';
   created_at: string;
   updated_at: string;
