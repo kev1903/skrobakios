@@ -131,10 +131,16 @@ export const useProjects = () => {
       
       abortControllerRef.current = new AbortController();
       
-      console.log("Fetching projects from database...");
+      if (!currentCompany) {
+        console.log("No current company selected, returning empty array");
+        return [];
+      }
+      
+      console.log("Fetching projects from database for company:", currentCompany.id);
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false })
         .abortSignal(abortControllerRef.current.signal);
 
@@ -165,7 +171,7 @@ export const useProjects = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentCompany]);
 
   const getProject = useCallback(async (projectId: string): Promise<Project | null> => {
     // First try to get from cache
