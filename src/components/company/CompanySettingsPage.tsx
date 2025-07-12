@@ -34,7 +34,14 @@ import {
   Calendar,
   FileText,
   Map,
-  Target
+  Target,
+  DollarSign,
+  TrendingUp,
+  Boxes,
+  Calculator,
+  FolderOpen,
+  UsersRound,
+  LayoutDashboard
 } from 'lucide-react';
 import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
@@ -550,55 +557,113 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
             </Tabs>
           </div>
 
+          {/* Company Modules Section */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 pb-4 border-b">
+              <Building2 className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">Company Modules</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Projects Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-blue-200 hover:border-blue-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <FolderKanban className="w-6 h-6 text-blue-600" />
+                    <span>Projects</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Comprehensive project management and oversight
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Project portfolio management</p>
+                    <p>• Resource allocation</p>
+                    <p>• Project lifecycle tracking</p>
+                    <p>• Cross-project insights</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Finance Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <DollarSign className="w-6 h-6 text-green-600" />
+                    <span>Finance</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Financial management and accounting
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Budget management</p>
+                    <p>• Expense tracking</p>
+                    <p>• Financial reporting</p>
+                    <p>• Invoice generation</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Sales Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-purple-200 hover:border-purple-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <TrendingUp className="w-6 h-6 text-purple-600" />
+                    <span>Sales</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Sales pipeline and customer management
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Lead management</p>
+                    <p>• Sales pipeline tracking</p>
+                    <p>• Customer relationship management</p>
+                    <p>• Sales analytics</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
           {/* Project Modules Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2 pb-4 border-b">
-              <FolderKanban className="w-5 h-5 text-green-600" />
+              <Boxes className="w-5 h-5 text-orange-600" />
               <h2 className="text-xl font-semibold text-slate-800">Project Modules</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Project Management Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <FolderKanban className="w-6 h-6 text-green-600" />
-                    <span>Project Management</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Manage project timelines, tasks, and deliverables
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Task management and assignment</p>
-                    <p>• Project timeline tracking</p>
-                    <p>• Milestone management</p>
-                    <p>• Team collaboration</p>
-                  </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Analytics & Reporting Module */}
+              {/* Dashboard Module */}
               <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-blue-200 hover:border-blue-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center space-x-3">
-                    <BarChart3 className="w-6 h-6 text-blue-600" />
-                    <span>Analytics & Reporting</span>
+                    <LayoutDashboard className="w-6 h-6 text-blue-600" />
+                    <span>Dashboard</span>
                   </CardTitle>
                   <CardDescription>
-                    Project insights and performance metrics
+                    Project overview and key metrics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Performance dashboards</p>
-                    <p>• Progress tracking</p>
-                    <p>• Resource utilization</p>
-                    <p>• Custom reports</p>
+                    <p>• Real-time project metrics</p>
+                    <p>• Progress visualization</p>
+                    <p>• Key performance indicators</p>
+                    <p>• Custom widget configuration</p>
                   </div>
                   <Button className="w-full mt-4" variant="outline">
                     Configure Module
@@ -606,23 +671,71 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                 </CardContent>
               </Card>
 
-              {/* Time Tracking Module */}
+              {/* Digital Twin Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-teal-200 hover:border-teal-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <Boxes className="w-6 h-6 text-teal-600" />
+                    <span>Digital Twin</span>
+                  </CardTitle>
+                  <CardDescription>
+                    3D modeling and digital representation
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• 3D model visualization</p>
+                    <p>• Real-time data integration</p>
+                    <p>• Virtual simulations</p>
+                    <p>• IoT sensor connectivity</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Cost & Contracts Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <Calculator className="w-6 h-6 text-green-600" />
+                    <span>Cost & Contracts</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Cost management and contract tracking
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Cost estimation and tracking</p>
+                    <p>• Contract management</p>
+                    <p>• Budget vs actual analysis</p>
+                    <p>• Vendor management</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Tasks Module */}
               <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-purple-200 hover:border-purple-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center space-x-3">
                     <Calendar className="w-6 h-6 text-purple-600" />
-                    <span>Time Tracking</span>
+                    <span>Tasks</span>
                   </CardTitle>
                   <CardDescription>
-                    Track time spent on projects and tasks
+                    Task management and scheduling
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Automatic time tracking</p>
-                    <p>• Manual time entries</p>
-                    <p>• Timesheet management</p>
-                    <p>• Billing integration</p>
+                    <p>• Task creation and assignment</p>
+                    <p>• Progress tracking</p>
+                    <p>• Dependency management</p>
+                    <p>• Time tracking integration</p>
                   </div>
                   <Button className="w-full mt-4" variant="outline">
                     Configure Module
@@ -630,23 +743,23 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                 </CardContent>
               </Card>
 
-              {/* Document Management Module */}
+              {/* Files Module */}
               <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-orange-200 hover:border-orange-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center space-x-3">
-                    <FileText className="w-6 h-6 text-orange-600" />
-                    <span>Document Management</span>
+                    <FolderOpen className="w-6 h-6 text-orange-600" />
+                    <span>Files</span>
                   </CardTitle>
                   <CardDescription>
-                    Organize and share project documents
+                    Document and file management
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm text-slate-600">
-                    <p>• File storage and sharing</p>
+                    <p>• File storage and organization</p>
                     <p>• Version control</p>
-                    <p>• Document templates</p>
                     <p>• Access permissions</p>
+                    <p>• Collaborative editing</p>
                   </div>
                   <Button className="w-full mt-4" variant="outline">
                     Configure Module
@@ -654,47 +767,23 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                 </CardContent>
               </Card>
 
-              {/* Geographic Mapping Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-teal-200 hover:border-teal-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <Map className="w-6 h-6 text-teal-600" />
-                    <span>Geographic Mapping</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Location-based project management
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Project location mapping</p>
-                    <p>• Route optimization</p>
-                    <p>• Geographic analytics</p>
-                    <p>• Asset tracking</p>
-                  </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Goal Management Module */}
+              {/* Team Module */}
               <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-red-200 hover:border-red-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center space-x-3">
-                    <Target className="w-6 h-6 text-red-600" />
-                    <span>Goal Management</span>
+                    <UsersRound className="w-6 h-6 text-red-600" />
+                    <span>Team</span>
                   </CardTitle>
                   <CardDescription>
-                    Set and track project objectives
+                    Team collaboration and communication
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Goal setting and tracking</p>
-                    <p>• KPI monitoring</p>
-                    <p>• Progress visualization</p>
-                    <p>• Achievement rewards</p>
+                    <p>• Team member management</p>
+                    <p>• Role and permission settings</p>
+                    <p>• Communication tools</p>
+                    <p>• Performance tracking</p>
                   </div>
                   <Button className="w-full mt-4" variant="outline">
                     Configure Module
