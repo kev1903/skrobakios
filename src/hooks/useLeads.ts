@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export interface Lead {
   id: string;
@@ -25,13 +26,21 @@ export const useLeads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currentCompany } = useCompany();
 
   const fetchLeads = async () => {
+    if (!currentCompany) {
+      setLeads([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('leads')
         .select('*')
+        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -60,10 +69,14 @@ export const useLeads = () => {
   };
 
   const createLead = async (lead: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
+    if (!currentCompany) {
+      throw new Error('No company selected');
+    }
+
     try {
       const { error } = await supabase
         .from('leads')
-        .insert([lead]);
+        .insert([{ ...lead, company_id: currentCompany.id }]);
 
       if (error) throw error;
       
@@ -76,7 +89,7 @@ export const useLeads = () => {
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [currentCompany]);
 
   // Group leads by stage
   const leadsByStage = leads.reduce((acc, lead) => {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export interface TimeEntry {
   id: string;
@@ -50,6 +51,7 @@ export const useTimeTracking = () => {
   const [activeTimer, setActiveTimer] = useState<TimeEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
 
   // Load initial data
   useEffect(() => {
@@ -194,7 +196,8 @@ export const useTimeTracking = () => {
         task_activity: taskActivity,
         category: category,
         project_name: projectName || null,
-        is_active: true
+        is_active: true,
+        company_id: currentCompany?.id || ''
       };
 
       const { data, error } = await supabase
@@ -277,7 +280,8 @@ export const useTimeTracking = () => {
         ...entry,
         user_id: user.data.user.id,
         duration,
-        is_active: false
+        is_active: false,
+        company_id: currentCompany?.id || ''
       };
 
       const { data, error } = await supabase

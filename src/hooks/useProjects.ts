@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export interface Project {
   id: string;
@@ -76,6 +77,7 @@ export const useProjects = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const { currentCompany } = useCompany();
 
   const createProject = async (projectData: CreateProjectData): Promise<Project | null> => {
     setLoading(true);
@@ -94,6 +96,7 @@ export const useProjects = () => {
           status: projectData.status || 'pending',
           priority: projectData.priority,
           location: projectData.location,
+          company_id: currentCompany.id
         }])
         .select()
         .single();
