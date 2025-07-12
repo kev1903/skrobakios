@@ -1,39 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarGroup, 
-  SidebarGroupContent, 
-  SidebarGroupLabel, 
-  SidebarMenu, 
-  SidebarMenuButton, 
-  SidebarMenuItem, 
-  SidebarProvider,
-  SidebarTrigger
-} from '@/components/ui/sidebar';
-import { 
-  Home, 
-  Users, 
-  Settings, 
-  Database, 
-  BarChart3, 
-  Shield, 
-  LogOut,
-  Building2,
-  FileText,
-  Monitor,
-  CreditCard,
-  HeadphonesIcon,
-  AlertTriangle,
-  Activity,
-  UserCog,
-  DollarSign,
-  Bell,
-  Server,
-  Lock,
-  HelpCircle
-} from 'lucide-react';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -46,12 +14,12 @@ import { CompanyEditDialog } from '@/components/companies/CompanyEditDialog';
 import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
-
 interface PlatformDashboardProps {
   onNavigate: (page: string) => void;
 }
-
-export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
+export const PlatformDashboard = ({
+  onNavigate
+}: PlatformDashboardProps) => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [companyStats, setCompanyStats] = useState({
     totalActive: 0,
@@ -65,44 +33,44 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     weeklyGrowth: 0,
     isLoading: true
   });
-  const { toast } = useToast();
-  const { getUserCompanies, updateCompany } = useCompanies();
-  const { isSuperAdmin, isOwner } = useUserRole();
-  
+  const {
+    toast
+  } = useToast();
+  const {
+    getUserCompanies,
+    updateCompany
+  } = useCompanies();
+  const {
+    isSuperAdmin,
+    isOwner
+  } = useUserRole();
+
   // Additional state for table functionality
   const [filteredCompanies, setFilteredCompanies] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
   const canManageCompanies = isSuperAdmin() || isOwner();
 
   // Filter companies based on search term
   useEffect(() => {
-    const filtered = companies.filter(company =>
-      company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.slug?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.website?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.address?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = companies.filter(company => company.name?.toLowerCase().includes(searchTerm.toLowerCase()) || company.slug?.toLowerCase().includes(searchTerm.toLowerCase()) || company.website?.toLowerCase().includes(searchTerm.toLowerCase()) || company.address?.toLowerCase().includes(searchTerm.toLowerCase()));
     setFilteredCompanies(filtered);
   }, [searchTerm, companies]);
-
   const handleEditCompany = (company: Company) => {
     setSelectedCompany(company);
     setIsEditDialogOpen(true);
   };
-
   const handleSaveCompany = async (updatedCompany: Partial<Company>) => {
     if (!selectedCompany) return;
-
     try {
       const result = await updateCompany(selectedCompany.id, updatedCompany);
       if (result) {
         // Update local state
-        setCompanies(prev => prev.map(company => 
-          company.id === selectedCompany.id ? { ...company, ...result } : company
-        ));
+        setCompanies(prev => prev.map(company => company.id === selectedCompany.id ? {
+          ...company,
+          ...result
+        } : company));
         toast({
           title: "Success",
           description: "Company updated successfully"
@@ -119,41 +87,60 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
       });
     }
   };
-
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       toast({
         title: "Logged out",
-        description: "Successfully logged out from Platform",
+        description: "Successfully logged out from Platform"
       });
       onNavigate('home');
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to log out",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
-  const navigationItems = [
-    { title: "Dashboard", icon: Home, id: "dashboard" },
-    { title: "Company", icon: Building2, id: "tenants" },
-    { title: "Users & Roles", icon: UserCog, id: "users" },
-    { title: "Billing", icon: CreditCard, id: "billing" },
-    { title: "Settings", icon: Settings, id: "settings" },
-    { title: "Security & Logs", icon: Shield, id: "security" },
-    { title: "Support", icon: HeadphonesIcon, id: "support" },
-  ];
+  const navigationItems = [{
+    title: "Dashboard",
+    icon: Home,
+    id: "dashboard"
+  }, {
+    title: "Company",
+    icon: Building2,
+    id: "tenants"
+  }, {
+    title: "Users & Roles",
+    icon: UserCog,
+    id: "users"
+  }, {
+    title: "Billing",
+    icon: CreditCard,
+    id: "billing"
+  }, {
+    title: "Settings",
+    icon: Settings,
+    id: "settings"
+  }, {
+    title: "Security & Logs",
+    icon: Shield,
+    id: "security"
+  }, {
+    title: "Support",
+    icon: HeadphonesIcon,
+    id: "support"
+  }];
 
   // Fetch companies data
   const fetchCompanies = async () => {
     try {
       setCompaniesLoading(true);
-      const { data: companiesData, error } = await supabase
-        .from('companies')
-        .select(`
+      const {
+        data: companiesData,
+        error
+      } = await supabase.from('companies').select(`
           id, 
           name, 
           slug, 
@@ -166,41 +153,35 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
           abn,
           slogan,
           created_by
-        `)
-        .order('created_at', { ascending: false });
-
+        `).order('created_at', {
+        ascending: false
+      });
       if (error) {
         throw error;
       }
 
       // Get company member counts
-      const companiesWithStats = await Promise.all(
-        (companiesData || []).map(async (company) => {
-          const { data: members, error: membersError } = await supabase
-            .from('company_members')
-            .select('id')
-            .eq('company_id', company.id)
-            .eq('status', 'active');
-
-          if (membersError) {
-            console.error('Error fetching members for company:', company.id, membersError);
-          }
-
-          return {
-            ...company,
-            memberCount: members?.length || 0,
-            status: 'active' // For now, all companies are active
-          };
-        })
-      );
-
+      const companiesWithStats = await Promise.all((companiesData || []).map(async company => {
+        const {
+          data: members,
+          error: membersError
+        } = await supabase.from('company_members').select('id').eq('company_id', company.id).eq('status', 'active');
+        if (membersError) {
+          console.error('Error fetching members for company:', company.id, membersError);
+        }
+        return {
+          ...company,
+          memberCount: members?.length || 0,
+          status: 'active' // For now, all companies are active
+        };
+      }));
       setCompanies(companiesWithStats);
     } catch (error) {
       console.error('Error fetching companies:', error);
       toast({
         title: "Error",
         description: "Failed to load companies",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setCompaniesLoading(false);
@@ -210,29 +191,27 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
   // Fetch user statistics
   const fetchUserStats = async () => {
     try {
-      setUserStats(prev => ({ ...prev, isLoading: true }));
-      
-      // Get total users from profiles table
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('id, created_at')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
+      setUserStats(prev => ({
+        ...prev,
+        isLoading: true
+      }));
 
+      // Get total users from profiles table
+      const {
+        data: profiles,
+        error
+      } = await supabase.from('profiles').select('id, created_at').eq('status', 'active').order('created_at', {
+        ascending: false
+      });
       if (error) {
         throw error;
       }
-
       const totalUsers = profiles?.length || 0;
-      
+
       // Calculate weekly growth
       const currentDate = new Date();
       const oneWeekAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-      
-      const weeklyGrowth = profiles?.filter(profile => 
-        new Date(profile.created_at) >= oneWeekAgo
-      ).length || 0;
-
+      const weeklyGrowth = profiles?.filter(profile => new Date(profile.created_at) >= oneWeekAgo).length || 0;
       setUserStats({
         totalUsers,
         weeklyGrowth,
@@ -240,7 +219,10 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
       });
     } catch (error) {
       console.error('Error fetching user stats:', error);
-      setUserStats(prev => ({ ...prev, isLoading: false }));
+      setUserStats(prev => ({
+        ...prev,
+        isLoading: false
+      }));
     }
   };
 
@@ -249,33 +231,27 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     const fetchCompanyStats = async () => {
       try {
         // Get total active companies
-        const { data: companies, error } = await supabase
-          .from('companies')
-          .select('id, created_at')
-          .order('created_at', { ascending: false });
-
+        const {
+          data: companies,
+          error
+        } = await supabase.from('companies').select('id, created_at').order('created_at', {
+          ascending: false
+        });
         if (error) {
           throw error;
         }
-
         const totalActive = companies?.length || 0;
-        
+
         // Calculate monthly growth
         const currentDate = new Date();
         const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
         const thisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        
-        const thisMonthCompanies = companies?.filter(company => 
-          new Date(company.created_at) >= thisMonth
-        ).length || 0;
-        
+        const thisMonthCompanies = companies?.filter(company => new Date(company.created_at) >= thisMonth).length || 0;
         const lastMonthCompanies = companies?.filter(company => {
           const createdDate = new Date(company.created_at);
           return createdDate >= lastMonth && createdDate < thisMonth;
         }).length || 0;
-        
         const monthlyGrowth = thisMonthCompanies;
-
         setCompanyStats({
           totalActive,
           monthlyGrowth,
@@ -283,57 +259,41 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
         });
       } catch (error) {
         console.error('Error fetching company stats:', error);
-        setCompanyStats(prev => ({ ...prev, isLoading: false }));
+        setCompanyStats(prev => ({
+          ...prev,
+          isLoading: false
+        }));
       }
     };
-
     fetchCompanyStats();
     fetchCompanies();
     fetchUserStats();
 
     // Set up real-time subscriptions
-    const companyChannel = supabase
-      .channel('company-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'companies'
-        },
-        () => {
-          fetchCompanyStats();
-          fetchCompanies();
-        }
-      )
-      .subscribe();
-
-    const profilesChannel = supabase
-      .channel('profiles-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles'
-        },
-        () => {
-          fetchUserStats();
-        }
-      )
-      .subscribe();
-
+    const companyChannel = supabase.channel('company-changes').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'companies'
+    }, () => {
+      fetchCompanyStats();
+      fetchCompanies();
+    }).subscribe();
+    const profilesChannel = supabase.channel('profiles-changes').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'profiles'
+    }, () => {
+      fetchUserStats();
+    }).subscribe();
     return () => {
       supabase.removeChannel(companyChannel);
       supabase.removeChannel(profilesChannel);
     };
   }, []);
-
   const renderDashboardContent = () => {
     switch (activeSection) {
       case 'dashboard':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             {/* Platform Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
@@ -345,18 +305,10 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                     <div>
                       <p className="text-sm text-muted-foreground">Active Companies</p>
                       <p className="text-2xl font-bold">
-                        {companyStats.isLoading ? (
-                          <span className="animate-pulse">...</span>
-                        ) : (
-                          companyStats.totalActive
-                        )}
+                        {companyStats.isLoading ? <span className="animate-pulse">...</span> : companyStats.totalActive}
                       </p>
                       <p className="text-xs text-green-600">
-                        {companyStats.isLoading ? (
-                          <span className="animate-pulse">...</span>
-                        ) : (
-                          `+${companyStats.monthlyGrowth} this month`
-                        )}
+                        {companyStats.isLoading ? <span className="animate-pulse">...</span> : `+${companyStats.monthlyGrowth} this month`}
                       </p>
                     </div>
                   </div>
@@ -372,18 +324,10 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                     <div>
                       <p className="text-sm text-muted-foreground">Total Users</p>
                       <p className="text-2xl font-bold">
-                        {userStats.isLoading ? (
-                          <span className="animate-pulse">...</span>
-                        ) : (
-                          userStats.totalUsers.toLocaleString()
-                        )}
+                        {userStats.isLoading ? <span className="animate-pulse">...</span> : userStats.totalUsers.toLocaleString()}
                       </p>
                       <p className="text-xs text-green-600">
-                        {userStats.isLoading ? (
-                          <span className="animate-pulse">...</span>
-                        ) : (
-                          `+${userStats.weeklyGrowth} this week`
-                        )}
+                        {userStats.isLoading ? <span className="animate-pulse">...</span> : `+${userStats.weeklyGrowth} this week`}
                       </p>
                     </div>
                   </div>
@@ -488,17 +432,11 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
-
+          </div>;
       case 'tenants':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">Company Management</h2>
-                <p className="text-muted-foreground">Manage customer companies and their configurations</p>
-              </div>
+              
               <Button>
                 <Building2 className="w-4 h-4 mr-2" />
                 Create Company
@@ -512,12 +450,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                   <div className="flex items-center space-x-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                      <Input
-                        placeholder="Search companies..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 w-80"
-                      />
+                      <Input placeholder="Search companies..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 w-80" />
                     </div>
                     <Button variant="outline" size="sm">
                       <Filter className="w-4 h-4 mr-2" />
@@ -530,12 +463,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CompaniesTable
-                  companies={filteredCompanies}
-                  onEditCompany={handleEditCompany}
-                  loading={companiesLoading}
-                  canManageCompanies={canManageCompanies}
-                />
+                <CompaniesTable companies={filteredCompanies} onEditCompany={handleEditCompany} loading={companiesLoading} canManageCompanies={canManageCompanies} />
               </CardContent>
             </Card>
 
@@ -573,18 +501,10 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
             </div>
 
             {/* Edit Dialog */}
-            <CompanyEditDialog
-              company={selectedCompany}
-              open={isEditDialogOpen}
-              onOpenChange={setIsEditDialogOpen}
-              onSave={handleSaveCompany}
-            />
-          </div>
-        );
-
+            <CompanyEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} />
+          </div>;
       case 'users':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Users & Roles</h2>
@@ -644,12 +564,22 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { user: "john.doe@techcorp.com", action: "Role changed to Admin", tenant: "TechCorp", time: "2 min ago" },
-                    { user: "sarah.wilson@startup.ai", action: "New user registered", tenant: "StartupAI", time: "15 min ago" },
-                    { user: "mike.jones@design.co", action: "Permission updated", tenant: "DesignStudio", time: "1 hour ago" },
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  {[{
+                  user: "john.doe@techcorp.com",
+                  action: "Role changed to Admin",
+                  tenant: "TechCorp",
+                  time: "2 min ago"
+                }, {
+                  user: "sarah.wilson@startup.ai",
+                  action: "New user registered",
+                  tenant: "StartupAI",
+                  time: "15 min ago"
+                }, {
+                  user: "mike.jones@design.co",
+                  action: "Permission updated",
+                  tenant: "DesignStudio",
+                  time: "1 hour ago"
+                }].map((activity, index) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                           <Users className="w-4 h-4 text-primary" />
@@ -663,17 +593,13 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                         <p className="text-sm font-medium">{activity.tenant}</p>
                         <p className="text-xs text-muted-foreground">{activity.time}</p>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        );
-
+          </div>;
       case 'billing':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Billing Management</h2>
@@ -727,12 +653,22 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {[
-                      { tenant: "TechCorp Inc.", amount: "$299", status: "paid", date: "Today" },
-                      { tenant: "StartupAI", amount: "$99", status: "paid", date: "Yesterday" },
-                      { tenant: "DesignStudio", amount: "$49", status: "pending", date: "2 days ago" },
-                    ].map((transaction, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    {[{
+                    tenant: "TechCorp Inc.",
+                    amount: "$299",
+                    status: "paid",
+                    date: "Today"
+                  }, {
+                    tenant: "StartupAI",
+                    amount: "$99",
+                    status: "paid",
+                    date: "Yesterday"
+                  }, {
+                    tenant: "DesignStudio",
+                    amount: "$49",
+                    status: "pending",
+                    date: "2 days ago"
+                  }].map((transaction, index) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <p className="font-medium">{transaction.tenant}</p>
                           <p className="text-sm text-muted-foreground">{transaction.date}</p>
@@ -743,8 +679,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                             {transaction.status}
                           </Badge>
                         </div>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </CardContent>
               </Card>
@@ -792,12 +727,9 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
-
+          </div>;
       case 'settings':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Platform Settings</h2>
               <p className="text-muted-foreground">Configure platform-wide settings and preferences</p>
@@ -811,19 +743,11 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Platform Name</label>
-                    <input 
-                      type="text" 
-                      defaultValue="Enterprise Platform" 
-                      className="w-full mt-1 px-3 py-2 border rounded-md"
-                    />
+                    <input type="text" defaultValue="Enterprise Platform" className="w-full mt-1 px-3 py-2 border rounded-md" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Support Email</label>
-                    <input 
-                      type="email" 
-                      defaultValue="support@platform.com" 
-                      className="w-full mt-1 px-3 py-2 border rounded-md"
-                    />
+                    <input type="email" defaultValue="support@platform.com" className="w-full mt-1 px-3 py-2 border rounded-md" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Default Timezone</label>
@@ -841,20 +765,27 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                   <CardTitle>Feature Flags</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {[
-                    { name: "Multi-tenant Support", enabled: true },
-                    { name: "Advanced Analytics", enabled: true },
-                    { name: "API Rate Limiting", enabled: false },
-                    { name: "SSO Integration", enabled: true },
-                    { name: "Custom Branding", enabled: false },
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                  {[{
+                  name: "Multi-tenant Support",
+                  enabled: true
+                }, {
+                  name: "Advanced Analytics",
+                  enabled: true
+                }, {
+                  name: "API Rate Limiting",
+                  enabled: false
+                }, {
+                  name: "SSO Integration",
+                  enabled: true
+                }, {
+                  name: "Custom Branding",
+                  enabled: false
+                }].map((feature, index) => <div key={index} className="flex items-center justify-between">
                       <span className="text-sm">{feature.name}</span>
                       <Badge variant={feature.enabled ? 'default' : 'secondary'}>
                         {feature.enabled ? 'Enabled' : 'Disabled'}
                       </Badge>
-                    </div>
-                  ))}
+                    </div>)}
                 </CardContent>
               </Card>
 
@@ -913,23 +844,18 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                   <div>
                     <label className="text-sm font-medium">Supported Languages</label>
                     <div className="mt-2 space-y-2">
-                      {['English', 'Spanish', 'French'].map((lang, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                      {['English', 'Spanish', 'French'].map((lang, index) => <div key={index} className="flex items-center gap-2">
                           <input type="checkbox" defaultChecked />
                           <span className="text-sm">{lang}</span>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
-
+          </div>;
       case 'security':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Security & Logs</h2>
               <p className="text-muted-foreground">Monitor security events and manage compliance</p>
@@ -966,22 +892,34 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {[
-                      { event: "Failed login attempt", user: "john.doe@example.com", ip: "192.168.1.100", time: "2 min ago", severity: "medium" },
-                      { event: "Password changed", user: "sarah.wilson@company.com", ip: "10.0.0.15", time: "15 min ago", severity: "low" },
-                      { event: "Suspicious API calls", user: "api-user-123", ip: "203.0.113.5", time: "1 hour ago", severity: "high" },
-                      { event: "2FA enabled", user: "mike.jones@startup.io", ip: "192.168.1.50", time: "2 hours ago", severity: "low" },
-                    ].map((event, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    {[{
+                    event: "Failed login attempt",
+                    user: "john.doe@example.com",
+                    ip: "192.168.1.100",
+                    time: "2 min ago",
+                    severity: "medium"
+                  }, {
+                    event: "Password changed",
+                    user: "sarah.wilson@company.com",
+                    ip: "10.0.0.15",
+                    time: "15 min ago",
+                    severity: "low"
+                  }, {
+                    event: "Suspicious API calls",
+                    user: "api-user-123",
+                    ip: "203.0.113.5",
+                    time: "1 hour ago",
+                    severity: "high"
+                  }, {
+                    event: "2FA enabled",
+                    user: "mike.jones@startup.io",
+                    ip: "192.168.1.50",
+                    time: "2 hours ago",
+                    severity: "low"
+                  }].map((event, index) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
-                          <div className={`p-1 rounded-full ${
-                            event.severity === 'high' ? 'bg-red-500/10' :
-                            event.severity === 'medium' ? 'bg-yellow-500/10' : 'bg-green-500/10'
-                          }`}>
-                            <Lock className={`w-3 h-3 ${
-                              event.severity === 'high' ? 'text-red-600' :
-                              event.severity === 'medium' ? 'text-yellow-600' : 'text-green-600'
-                            }`} />
+                          <div className={`p-1 rounded-full ${event.severity === 'high' ? 'bg-red-500/10' : event.severity === 'medium' ? 'bg-yellow-500/10' : 'bg-green-500/10'}`}>
+                            <Lock className={`w-3 h-3 ${event.severity === 'high' ? 'text-red-600' : event.severity === 'medium' ? 'text-yellow-600' : 'text-green-600'}`} />
                           </div>
                           <div>
                             <p className="text-sm font-medium">{event.event}</p>
@@ -989,8 +927,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                           </div>
                         </div>
                         <span className="text-xs text-muted-foreground">{event.time}</span>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </CardContent>
               </Card>
@@ -1059,12 +996,9 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
-
+          </div>;
       case 'support':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Support Center</h2>
@@ -1118,23 +1052,38 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {[
-                      { id: "#12345", subject: "Login issues with SSO", customer: "TechCorp Inc.", priority: "high", status: "open" },
-                      { id: "#12344", subject: "Feature request: Export functionality", customer: "StartupAI", priority: "low", status: "pending" },
-                      { id: "#12343", subject: "Billing inquiry", customer: "DesignStudio", priority: "medium", status: "resolved" },
-                      { id: "#12342", subject: "Performance issues", customer: "ConsultingPro", priority: "high", status: "open" },
-                    ].map((ticket, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    {[{
+                    id: "#12345",
+                    subject: "Login issues with SSO",
+                    customer: "TechCorp Inc.",
+                    priority: "high",
+                    status: "open"
+                  }, {
+                    id: "#12344",
+                    subject: "Feature request: Export functionality",
+                    customer: "StartupAI",
+                    priority: "low",
+                    status: "pending"
+                  }, {
+                    id: "#12343",
+                    subject: "Billing inquiry",
+                    customer: "DesignStudio",
+                    priority: "medium",
+                    status: "resolved"
+                  }, {
+                    id: "#12342",
+                    subject: "Performance issues",
+                    customer: "ConsultingPro",
+                    priority: "high",
+                    status: "open"
+                  }].map((ticket, index) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <p className="font-medium">{ticket.id}</p>
                           <p className="text-sm text-muted-foreground">{ticket.subject}</p>
                           <p className="text-xs text-muted-foreground">{ticket.customer}</p>
                         </div>
                         <div className="text-right space-y-1">
-                          <Badge variant={
-                            ticket.priority === 'high' ? 'destructive' :
-                            ticket.priority === 'medium' ? 'default' : 'secondary'
-                          }>
+                          <Badge variant={ticket.priority === 'high' ? 'destructive' : ticket.priority === 'medium' ? 'default' : 'secondary'}>
                             {ticket.priority}
                           </Badge>
                           <div>
@@ -1143,8 +1092,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                             </Badge>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </CardContent>
               </Card>
@@ -1155,18 +1103,29 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {[
-                      { name: "Sarah Johnson", role: "Senior Support", tickets: 12, status: "online" },
-                      { name: "Mike Chen", role: "Support Agent", tickets: 8, status: "busy" },
-                      { name: "Emily Davis", role: "Support Agent", tickets: 15, status: "online" },
-                      { name: "David Wilson", role: "Support Lead", tickets: 6, status: "away" },
-                    ].map((agent, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    {[{
+                    name: "Sarah Johnson",
+                    role: "Senior Support",
+                    tickets: 12,
+                    status: "online"
+                  }, {
+                    name: "Mike Chen",
+                    role: "Support Agent",
+                    tickets: 8,
+                    status: "busy"
+                  }, {
+                    name: "Emily Davis",
+                    role: "Support Agent",
+                    tickets: 15,
+                    status: "online"
+                  }, {
+                    name: "David Wilson",
+                    role: "Support Lead",
+                    tickets: 6,
+                    status: "away"
+                  }].map((agent, index) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
-                          <div className={`w-3 h-3 rounded-full ${
-                            agent.status === 'online' ? 'bg-green-500' :
-                            agent.status === 'busy' ? 'bg-red-500' : 'bg-yellow-500'
-                          }`} />
+                          <div className={`w-3 h-3 rounded-full ${agent.status === 'online' ? 'bg-green-500' : agent.status === 'busy' ? 'bg-red-500' : 'bg-yellow-500'}`} />
                           <div>
                             <p className="font-medium">{agent.name}</p>
                             <p className="text-sm text-muted-foreground">{agent.role}</p>
@@ -1176,22 +1135,17 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                           <p className="text-sm font-medium">{agent.tickets} tickets</p>
                           <p className="text-xs text-muted-foreground">{agent.status}</p>
                         </div>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        );
-
+          </div>;
       default:
         return <div>Select a section from the sidebar</div>;
     }
   };
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar className="border-r border-border">
           <SidebarContent className="bg-card">
@@ -1213,28 +1167,19 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
               <SidebarGroupLabel>Administration</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton 
-                        onClick={() => setActiveSection(item.id)}
-                        className={activeSection === item.id ? "bg-primary/10 text-primary" : ""}
-                      >
+                  {navigationItems.map(item => <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton onClick={() => setActiveSection(item.id)} className={activeSection === item.id ? "bg-primary/10 text-primary" : ""}>
                         <item.icon className="w-4 h-4" />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                    </SidebarMenuItem>)}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
 
             {/* Logout */}
             <div className="mt-auto p-4 border-t border-border">
-              <Button
-                variant="ghost"
-                onClick={handleLogout}
-                className="w-full justify-start text-muted-foreground hover:text-foreground"
-              >
+              <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-muted-foreground hover:text-foreground">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -1260,6 +1205,5 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
           </div>
         </main>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 };
