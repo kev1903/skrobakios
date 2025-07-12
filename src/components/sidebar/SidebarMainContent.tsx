@@ -46,13 +46,15 @@ export const SidebarMainContent = ({ currentPage, onNavigate, isCollapsed }: Sid
         </>
       )}
 
-      <NavigationSection
-        title="Support"
-        items={supportNavigation}
-        currentPage={currentPage}
-        onNavigate={onNavigate}
-        isCollapsed={isCollapsed}
-      />
+      {isCompanyMode && (
+        <NavigationSection
+          title="Support"
+          items={supportNavigation}
+          currentPage={currentPage}
+          onNavigate={onNavigate}
+          isCollapsed={isCollapsed}
+        />
+      )}
     </SidebarContent>
   );
 };
