@@ -43,10 +43,12 @@ const defaultPermissions: Permission[] = [
 ];
 
 const defaultRoles: Role[] = [
-  { id: 'superadmin', name: 'Admin', color: 'destructive', level: 4 },
-  { id: 'company_admin', name: 'Manager', color: 'default', level: 3 },
-  { id: 'user', name: 'Editor', color: 'secondary', level: 2 },
-  { id: 'viewer', name: 'Viewer', color: 'outline', level: 1 },
+  { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 6 },
+  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 5 },
+  { id: 'admin', name: 'Admin', color: 'default', level: 4 },
+  { id: 'company_admin', name: 'Company Admin', color: 'secondary', level: 3 },
+  { id: 'owner', name: 'Owner', color: 'default', level: 2 },
+  { id: 'user', name: 'User', color: 'outline', level: 1 },
 ];
 
 // Default permission assignments based on role hierarchy
@@ -54,13 +56,17 @@ const getDefaultPermissions = (roleLevel: number): string[] => {
   const allPermissions = defaultPermissions.map(p => p.id);
   
   switch (roleLevel) {
-    case 4: // Admin - all permissions
+    case 6: // Super Admin - all permissions
       return allPermissions;
-    case 3: // Manager - most permissions except sensitive ones
-      return allPermissions.filter(p => !['view_pii', 'update_team_members', 'view_update_billing'].includes(p));
-    case 2: // Editor - content creation and basic access
-      return ['view_dashboard', 'create_segment', 'campaign_maker', 'view_user_profile', 'feedback_management'];
-    case 1: // Viewer - read-only access
+    case 5: // Platform Admin - all permissions except super admin specific
+      return allPermissions;
+    case 4: // Admin - most permissions
+      return allPermissions.filter(p => !['view_pii', 'update_team_members'].includes(p));
+    case 3: // Company Admin - company level permissions
+      return allPermissions.filter(p => !['view_pii', 'update_team_members', 'view_update_billing', 'update_integrations'].includes(p));
+    case 2: // Owner - owner specific permissions
+      return ['view_dashboard', 'create_segment', 'campaign_maker', 'view_user_profile', 'feedback_management', 'view_update_billing'];
+    case 1: // User - basic access
       return ['view_dashboard', 'view_user_profile'];
     default:
       return [];
