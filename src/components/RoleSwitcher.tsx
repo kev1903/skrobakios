@@ -39,14 +39,14 @@ export const RoleSwitcher = () => {
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3 px-2 py-1">
+      <div className="flex items-center gap-2 min-w-0">
         {isPlatformMode ? (
-          <Crown className="h-4 w-4 text-yellow-600" />
+          <Crown className="h-4 w-4 text-yellow-400 flex-shrink-0" />
         ) : (
-          <Building2 className="h-4 w-4 text-blue-600" />
+          <Building2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
         )}
-        <span className="text-sm font-medium text-white">
+        <span className="text-sm font-medium text-sidebar-foreground truncate">
           {isPlatformMode ? 'Platform' : 'Company'}
         </span>
       </div>
@@ -54,7 +54,7 @@ export const RoleSwitcher = () => {
       <Switch
         checked={isPlatformMode}
         onCheckedChange={(checked) => setOperatingMode(checked ? 'platform' : 'company')}
-        className="data-[state=checked]:bg-yellow-600 data-[state=unchecked]:bg-blue-600"
+        className="flex-shrink-0"
       />
     </div>
   );
