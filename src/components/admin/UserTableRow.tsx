@@ -147,17 +147,14 @@ export const UserTableRow = ({
     switch (role) {
       case 'superadmin':
         return 'destructive';
-      case 'admin':
+      case 'platform_admin':
         return 'default';
-      case 'user':
+      case 'company_admin':
         return 'secondary';
       default:
         return 'secondary';
     }
   };
-
-  // Allow superadmins to delete other superadmins, but prevent other operations
-  const isSuperadmin = user.role === 'superadmin';
 
   return (
     <TableRow>
@@ -187,18 +184,20 @@ export const UserTableRow = ({
         <Select
           value={user.role}
           onValueChange={handleRoleChange}
-          disabled={isUpdatingRole || isSuperadmin}
+          disabled={isUpdatingRole}
         >
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-40">
             <SelectValue>
               <Badge variant={getRoleBadgeVariant(user.role)}>
-                {user.role}
+                {user.role === 'company_admin' ? 'Company Admin' : 
+                 user.role === 'platform_admin' ? 'Platform Admin' : 
+                 user.role === 'superadmin' ? 'Super Admin' : user.role}
               </Badge>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="user">User</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="company_admin">Company Admin</SelectItem>
+            <SelectItem value="platform_admin">Platform Admin</SelectItem>
             <SelectItem value="superadmin">Super Admin</SelectItem>
           </SelectContent>
         </Select>
@@ -219,17 +218,17 @@ export const UserTableRow = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem disabled={isSuperadmin}>
+            <DropdownMenuItem>
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={isSuperadmin}>
+            <DropdownMenuItem>
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={handleStatusChange}
-              disabled={isUpdatingStatus || isSuperadmin}
+              disabled={isUpdatingStatus}
             >
               {user.status === 'Active' ? 'Deactivate' : 'Activate'} User
             </DropdownMenuItem>
