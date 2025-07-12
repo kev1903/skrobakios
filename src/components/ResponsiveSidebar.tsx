@@ -36,7 +36,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
         </Button>
         <div className="space-y-2">
           <RoleSwitcher />
-          {!isCollapsed && <CompanySwitcher onNavigate={onNavigate} />}
+          <CompanySwitcher onNavigate={onNavigate} />
         </div>
       </SidebarHeader>
       
