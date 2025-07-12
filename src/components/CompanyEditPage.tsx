@@ -154,14 +154,10 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
       <div className="max-w-6xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="w-full overflow-x-auto">
-            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-8' : 'grid-cols-7'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
+            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-7' : 'grid-cols-6'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
               <TabsTrigger value="details" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                 <Building2 className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs md:text-sm">Profile</span>
-              </TabsTrigger>
-              <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Settings className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">General</span>
               </TabsTrigger>
               <TabsTrigger value="notifications" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                 <Bell className="w-4 h-4 flex-shrink-0" />
@@ -198,9 +194,8 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
               onSave={handleSaveCompany}
               saving={saving}
             />
-          </TabsContent>
-
-          <TabsContent value="general" className="space-y-4 md:space-y-6">
+            
+            {/* General Settings */}
             <Card className="backdrop-blur-sm bg-white/60 border-white/30">
               <CardHeader className="pb-4 md:pb-6">
                 <CardTitle className="text-lg md:text-xl">General Settings</CardTitle>
@@ -235,6 +230,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
               </CardContent>
             </Card>
           </TabsContent>
+
 
           <TabsContent value="notifications" className="space-y-4 md:space-y-6">
             <Card className="backdrop-blur-sm bg-white/60 border-white/30">
