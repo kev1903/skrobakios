@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useCompany } from '@/contexts/CompanyContext';
 
 export interface Project {
   id: string;
@@ -77,7 +76,6 @@ export const useProjects = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const { currentCompany } = useCompany();
 
   const createProject = async (projectData: CreateProjectData): Promise<Project | null> => {
     setLoading(true);
@@ -96,7 +94,6 @@ export const useProjects = () => {
           status: projectData.status || 'pending',
           priority: projectData.priority,
           location: projectData.location,
-          company_id: currentCompany.id
         }])
         .select()
         .single();
@@ -131,16 +128,10 @@ export const useProjects = () => {
       
       abortControllerRef.current = new AbortController();
       
-      if (!currentCompany) {
-        console.log("No current company selected, returning empty array");
-        return [];
-      }
-      
-      console.log("Fetching projects from database for company:", currentCompany.id);
+      console.log("Fetching projects from database...");
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false })
         .abortSignal(abortControllerRef.current.signal);
 
@@ -171,7 +162,7 @@ export const useProjects = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentCompany]);
+  }, []);
 
   const getProject = useCallback(async (projectId: string): Promise<Project | null> => {
     // First try to get from cache

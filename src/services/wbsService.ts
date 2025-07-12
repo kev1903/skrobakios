@@ -1,63 +1,82 @@
 import { supabase } from '@/integrations/supabase/client';
 import { WBSItem, WBSItemInput } from '@/types/wbs';
+import { buildHierarchy } from '@/utils/wbsUtils';
+import { createSampleWBSData } from '@/data/wbsSampleData';
 
 export class WBSService {
-  // Create sample data for a project - temporarily disabled for company isolation
-  static async createSampleData(projectId: string): Promise<WBSItem[]> {
-    console.warn('WBS sample data creation is temporarily disabled for company isolation');
-    return [];
+  // Load WBS items for a project
+  static async loadWBSItems(projectId: string): Promise<WBSItem[]> {
+    const { data, error } = await supabase
+      .from('wbs_items')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('level', { ascending: true })
+      .order('wbs_id', { ascending: true });
+
+    if (error) throw error;
+
+    // If no data exists, create sample data
+    if (!data || data.length === 0) {
+      return await createSampleWBSData(projectId);
+    }
+
+    return buildHierarchy(data);
   }
 
-  // Create a new WBS item - temporarily disabled for company isolation
+  // Create a new WBS item
   static async createWBSItem(itemData: WBSItemInput): Promise<any> {
-    console.warn('WBS item creation is temporarily disabled for company isolation');
-    throw new Error('WBS item creation temporarily disabled during company isolation implementation');
-  }
+    const { data, error } = await supabase
+      .from('wbs_items')
+      .insert([{
+        project_id: itemData.project_id,
+        parent_id: itemData.parent_id || null,
+        wbs_id: itemData.wbs_id,
+        title: itemData.title,
+        description: itemData.description,
+        assigned_to: itemData.assigned_to,
+        start_date: itemData.start_date,
+        end_date: itemData.end_date,
+        duration: itemData.duration,
+        budgeted_cost: itemData.budgeted_cost,
+        actual_cost: itemData.actual_cost,
+        progress: itemData.progress,
+        level: itemData.level,
+        is_expanded: itemData.is_expanded,
+        linked_tasks: itemData.linked_tasks
+      }])
+      .select()
+      .single();
 
-  // Fetch all WBS items for a project - temporarily disabled for company isolation
-  static async getWBSItems(projectId: string): Promise<WBSItem[]> {
-    console.warn('WBS item fetching is temporarily disabled for company isolation');
-    return [];
+    if (error) throw error;
+    return data;
   }
 
   // Update a WBS item
-  static async updateWBSItem(id: string, updates: Partial<WBSItemInput>): Promise<boolean> {
+  static async updateWBSItem(id: string, updates: Partial<WBSItem>): Promise<void> {
+    const dbUpdates: any = {};
+    
+    // Map fields to database columns
+    Object.keys(updates).forEach(key => {
+      if (key !== 'children' && key !== 'created_at' && key !== 'updated_at') {
+        dbUpdates[key] = updates[key as keyof WBSItem];
+      }
+    });
+
     const { error } = await supabase
       .from('wbs_items')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', id);
 
-    if (error) {
-      console.error('Error updating WBS item:', error);
-      return false;
-    }
-
-    return true;
+    if (error) throw error;
   }
 
   // Delete a WBS item
-  static async deleteWBSItem(id: string): Promise<boolean> {
+  static async deleteWBSItem(id: string): Promise<void> {
     const { error } = await supabase
       .from('wbs_items')
       .delete()
       .eq('id', id);
 
-    if (error) {
-      console.error('Error deleting WBS item:', error);
-      return false;
-    }
-
-    return true;
-  }
-
-  // Get children of a specific WBS item - temporarily disabled for company isolation
-  static async getChildren(parentId: string): Promise<WBSItem[]> {
-    console.warn('WBS child item fetching is temporarily disabled for company isolation');
-    return [];
-  }
-
-  // Legacy alias for compatibility
-  static async loadWBSItems(projectId: string): Promise<WBSItem[]> {
-    return this.getWBSItems(projectId);
+    if (error) throw error;
   }
 }

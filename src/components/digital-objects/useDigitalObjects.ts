@@ -3,14 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DropResult } from "react-beautiful-dnd";
 import { DigitalObject, useDigitalObjectsContext } from "@/contexts/DigitalObjectsContext";
-import { useCompany } from "@/contexts/CompanyContext";
 
 type SortDirection = 'asc' | 'desc' | null;
 
 export const useDigitalObjects = () => {
   const { toast } = useToast();
   const { digitalObjects, loading, refreshDigitalObjects } = useDigitalObjectsContext();
-  const { currentCompany } = useCompany();
   const [editingField, setEditingField] = useState<{id: string, field: keyof DigitalObject} | null>(null);
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -95,15 +93,6 @@ export const useDigitalObjects = () => {
   };
 
   const handleAddRow = async () => {
-    if (!currentCompany) {
-      toast({
-        title: "Error",
-        description: "No company selected",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       const newRowData = {
         name: "",
@@ -113,8 +102,7 @@ export const useDigitalObjects = () => {
         stage: "4.0 PRELIMINARY",
         level: 0,
         parent_id: null,
-        expanded: true,
-        company_id: currentCompany.id
+        expanded: true
       };
 
       const { data, error } = await supabase
@@ -165,15 +153,6 @@ export const useDigitalObjects = () => {
   };
 
   const handleImportCSV = async (file: File) => {
-    if (!currentCompany) {
-      toast({
-        title: "Error",
-        description: "No company selected",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
@@ -216,8 +195,7 @@ export const useDigitalObjects = () => {
             stage: values[headers.indexOf('stage')] || '4.0 PRELIMINARY',
             level: 0,
             parent_id: null,
-            expanded: true,
-            company_id: currentCompany.id
+            expanded: true
           };
 
           newObjectsData.push(objData);

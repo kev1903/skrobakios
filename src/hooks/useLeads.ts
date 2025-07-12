@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useCompany } from '@/contexts/CompanyContext';
-import { useRoleContext } from '@/contexts/RoleContext';
 
 export interface Lead {
   id: string;
@@ -27,28 +25,14 @@ export const useLeads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { currentCompany } = useCompany();
-  const { isPlatformMode, isCompanyMode } = useRoleContext();
 
   const fetchLeads = async () => {
     try {
       setIsLoading(true);
-      setError(null);
-
-      // In platform mode, fetch all leads. In company mode, filter by current company
-      let query = supabase.from('leads').select('*');
-      
-      if (isCompanyMode && currentCompany) {
-        query = query.eq('company_id', currentCompany.id);
-      } else if (isCompanyMode && !currentCompany) {
-        // No company selected in company mode
-        setLeads([]);
-        setIsLoading(false);
-        return;
-      }
-      // In platform mode, fetch all leads (no filtering)
-
-      const { data, error } = await query.order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setLeads((data || []) as Lead[]);
@@ -76,14 +60,10 @@ export const useLeads = () => {
   };
 
   const createLead = async (lead: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
-    if (!currentCompany) {
-      throw new Error('No company selected');
-    }
-
     try {
       const { error } = await supabase
         .from('leads')
-        .insert([{ ...lead, company_id: currentCompany.id }]);
+        .insert([lead]);
 
       if (error) throw error;
       
@@ -96,7 +76,7 @@ export const useLeads = () => {
 
   useEffect(() => {
     fetchLeads();
-  }, [currentCompany, isPlatformMode, isCompanyMode]);
+  }, []);
 
   // Group leads by stage
   const leadsByStage = leads.reduce((acc, lead) => {

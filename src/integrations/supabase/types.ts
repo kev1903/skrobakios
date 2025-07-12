@@ -102,7 +102,7 @@ export type Database = {
       }
       digital_objects: {
         Row: {
-          company_id: string
+          company_id: string | null
           created_at: string
           description: string | null
           expanded: boolean | null
@@ -117,7 +117,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          company_id: string
+          company_id?: string | null
           created_at?: string
           description?: string | null
           expanded?: boolean | null
@@ -132,7 +132,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           description?: string | null
           expanded?: boolean | null
@@ -218,7 +218,7 @@ export type Database = {
         Row: {
           client_email: string | null
           client_name: string | null
-          company_id: string
+          company_id: string | null
           created_at: string
           created_by: string | null
           estimate_date: string
@@ -238,7 +238,7 @@ export type Database = {
         Insert: {
           client_email?: string | null
           client_name?: string | null
-          company_id: string
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           estimate_date?: string
@@ -258,7 +258,7 @@ export type Database = {
         Update: {
           client_email?: string | null
           client_name?: string | null
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           estimate_date?: string
@@ -335,7 +335,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           company: string
-          company_id: string
+          company_id: string | null
           contact_email: string | null
           contact_name: string
           contact_phone: string | null
@@ -356,7 +356,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           company: string
-          company_id: string
+          company_id?: string | null
           contact_email?: string | null
           contact_name: string
           contact_phone?: string | null
@@ -377,7 +377,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           company?: string
-          company_id?: string
+          company_id?: string | null
           contact_email?: string | null
           contact_name?: string
           contact_phone?: string | null
@@ -639,7 +639,7 @@ export type Database = {
       }
       projects: {
         Row: {
-          company_id: string
+          company_id: string | null
           contract_price: string | null
           created_at: string
           deadline: string | null
@@ -654,7 +654,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          company_id: string
+          company_id?: string | null
           contract_price?: string | null
           created_at?: string
           deadline?: string | null
@@ -669,7 +669,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          company_id?: string
+          company_id?: string | null
           contract_price?: string | null
           created_at?: string
           deadline?: string | null
@@ -926,7 +926,7 @@ export type Database = {
       time_entries: {
         Row: {
           category: string
-          company_id: string
+          company_id: string | null
           created_at: string
           duration: number | null
           end_time: string | null
@@ -942,7 +942,7 @@ export type Database = {
         }
         Insert: {
           category?: string
-          company_id: string
+          company_id?: string | null
           created_at?: string
           duration?: number | null
           end_time?: string | null
@@ -958,7 +958,7 @@ export type Database = {
         }
         Update: {
           category?: string
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           duration?: number | null
           end_time?: string | null
@@ -1051,7 +1051,7 @@ export type Database = {
           actual_cost: number | null
           assigned_to: string | null
           budgeted_cost: number | null
-          company_id: string
+          company_id: string | null
           created_at: string
           description: string | null
           duration: number | null
@@ -1072,7 +1072,7 @@ export type Database = {
           actual_cost?: number | null
           assigned_to?: string | null
           budgeted_cost?: number | null
-          company_id: string
+          company_id?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
@@ -1093,7 +1093,7 @@ export type Database = {
           actual_cost?: number | null
           assigned_to?: string | null
           budgeted_cost?: number | null
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
@@ -1369,10 +1369,6 @@ export type Database = {
           role: string
           status: string
         }[]
-      }
-      get_user_current_company_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
       }
       get_user_role: {
         Args: { _user_id: string }

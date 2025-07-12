@@ -10,7 +10,6 @@ import {
   HelpCircle,
   Shield,
   Building2,
-  Users,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
@@ -32,10 +31,4 @@ export const businessNavigation: NavigationItem[] = [
 export const supportNavigation: NavigationItem[] = [
   { id: "company-settings", label: "Company", icon: Building2 },
   { id: "support", label: "Help Center", icon: HelpCircle },
-];
-
-export const platformNavigation: NavigationItem[] = [
-  { id: "platform-users", label: "Platform Users", icon: Users },
-  { id: "platform-companies", label: "All Companies", icon: Building2 },
-  { id: "platform-settings", label: "Platform Settings", icon: Shield },
 ];

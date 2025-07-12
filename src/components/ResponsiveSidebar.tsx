@@ -11,7 +11,6 @@ import { ResponsiveSidebarProps } from './sidebar/types';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CompanySwitcher } from '@/components/CompanySwitcher';
-import { RoleSwitcher } from '@/components/RoleSwitcher';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { state } = useSidebar();
@@ -34,10 +33,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           <Menu className="w-4 h-4 mr-2" />
           {!isCollapsed && <span>Navigation</span>}
         </Button>
-        <div className="space-y-2">
-          <RoleSwitcher />
-          <CompanySwitcher onNavigate={onNavigate} />
-        </div>
+        {!isCollapsed && <CompanySwitcher onNavigate={onNavigate} />}
       </SidebarHeader>
       
       <SidebarMainContent 

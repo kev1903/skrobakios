@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useCompany } from '@/contexts/CompanyContext';
 
 export interface DigitalObject {
   id: string;
@@ -41,21 +40,13 @@ export const DigitalObjectsProvider = ({ children }: DigitalObjectsProviderProps
   const [digitalObjects, setDigitalObjects] = useState<DigitalObject[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { currentCompany } = useCompany();
 
   const loadDigitalObjects = async () => {
-    if (!currentCompany) {
-      setDigitalObjects([]);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('digital_objects')
         .select('*')
-        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -127,7 +118,7 @@ export const DigitalObjectsProvider = ({ children }: DigitalObjectsProviderProps
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [currentCompany]);
+  }, []);
 
   const value = {
     digitalObjects,

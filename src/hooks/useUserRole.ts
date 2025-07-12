@@ -24,17 +24,13 @@ export const useUserRole = () => {
           .eq('user_id', user.id)
           .order('role')
           .limit(1)
-          .maybeSingle();
-
-        console.log('User role query result:', { data, error, userId: user.id });
+          .single();
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching user role:', error);
           setRole('user'); // Default to user role
         } else {
-          const userRole = data?.role || 'user';
-          console.log('Setting user role to:', userRole);
-          setRole(userRole);
+          setRole(data?.role || 'user');
         }
       } catch (error) {
         console.error('Error fetching user role:', error);
