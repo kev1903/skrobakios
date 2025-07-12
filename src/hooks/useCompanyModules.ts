@@ -13,14 +13,23 @@ export interface CompanyModule {
 
 // Define available modules
 export const AVAILABLE_MODULES = [
+  // Company Modules
   { key: 'projects', name: 'Projects', description: 'Project management and tracking' },
-  { key: 'tasks', name: 'Tasks', description: 'Task management and assignment' },
-  { key: 'time_tracking', name: 'Time Tracking', description: 'Track time spent on activities' },
   { key: 'leads', name: 'Leads', description: 'Lead management and CRM' },
   { key: 'estimates', name: 'Estimates', description: 'Create and manage estimates' },
-  { key: 'digital_objects', name: 'Digital Objects', description: 'Digital asset management' },
+  { key: 'time_tracking', name: 'Time Tracking', description: 'Track time spent on activities' },
   { key: 'reports', name: 'Reports', description: 'Analytics and reporting' },
-  { key: 'integrations', name: 'Integrations', description: 'Third-party integrations' }
+  { key: 'integrations', name: 'Integrations', description: 'Third-party integrations' },
+  
+  // Project Modules
+  { key: 'dashboard', name: 'Dashboard', description: 'Project overview and metrics' },
+  { key: 'digital-twin', name: 'Digital Twin', description: '3D models and digital representations' },
+  { key: 'cost-contracts', name: 'Cost & Contracts', description: 'Cost tracking and contract management' },
+  { key: 'schedule', name: 'Schedule', description: 'Project scheduling and timeline management' },
+  { key: 'tasks', name: 'Tasks', description: 'Task management and assignment' },
+  { key: 'files', name: 'Files', description: 'Document and file management' },
+  { key: 'team', name: 'Team', description: 'Team member management and collaboration' },
+  { key: 'digital-objects', name: 'Digital Objects', description: 'Digital asset management' }
 ];
 
 export const useCompanyModules = () => {
