@@ -77,6 +77,12 @@ export const useCompanyModules = () => {
 
     const requestPromise = (async () => {
       try {
+        // Check if user is authenticated first
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
+
         const { data, error } = await supabase
           .from('company_modules')
           .select('*')
