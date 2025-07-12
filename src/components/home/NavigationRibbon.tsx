@@ -1,5 +1,5 @@
 import React from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Building2 } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield } from 'lucide-react';
 import { CompanySwitcher } from '@/components/CompanySwitcher';
 
 interface NavigationRibbonProps {
@@ -44,13 +44,6 @@ export const NavigationRibbon = ({
         }} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left">
             <TrendingUp className="w-4 h-4" />
             <span className="text-sm font-medium">Sales</span>
-          </button>
-          <button onClick={() => {
-            onNavigate('companies');
-            onClose();
-          }} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left">
-            <Building2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Companies</span>
           </button>
           
         </div>

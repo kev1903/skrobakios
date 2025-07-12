@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
-import { CompanyPage } from "./pages/CompanyPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
@@ -77,7 +76,6 @@ const App = () => (
               </UserProvider>
             </AuthProvider>
           } />
-          <Route path="/companies" element={<CompanyPage />} />
           <Route path="/invoices" element={<InvoicesPageWrapper />} />
           <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
           <Route path="/cost-contracts" element={<CostContractsPage />} />
