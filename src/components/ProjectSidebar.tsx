@@ -3,6 +3,9 @@ import { ArrowLeft, BarChart3, DollarSign, Calendar, CheckSquare, Folder, Users,
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
+import { useCompany } from "@/contexts/CompanyContext";
+import { useCompanyModules } from "@/hooks/useCompanyModules";
+import { useEffect } from "react";
 
 interface ProjectSidebarProps {
   project: Project;
@@ -12,21 +15,42 @@ interface ProjectSidebarProps {
   activeSection?: string;
 }
 
+// Define all available project navigation modules
+const ALL_PROJECT_NAV_ITEMS = [
+  { id: 'dashboard', key: 'dashboard', label: 'Dashboard', icon: Eye, page: 'project-detail' },
+  { id: 'digital-twin', key: 'digital-twin', label: 'Digital Twin', icon: Box, page: 'project-digital-twin' },
+  { id: 'cost', key: 'cost-contracts', label: 'Cost & Contracts', icon: DollarSign, page: 'project-cost' },
+  { id: 'schedule', key: 'schedule', label: 'Schedule', icon: Calendar, page: 'project-schedule' },
+  { id: 'tasks', key: 'tasks', label: 'Tasks', icon: CheckSquare, page: 'project-tasks' },
+  { id: 'files', key: 'files', label: 'Files', icon: Folder, page: 'project-files' },
+  { id: 'team', key: 'team', label: 'Team', icon: Users, page: 'project-team' },
+  { id: 'digital-objects', key: 'digital-objects', label: 'Digital Objects', icon: Box, page: 'bim' },
+];
+
 export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusText, activeSection = "insights" }: ProjectSidebarProps) => {
+  const { currentCompany } = useCompany();
+  const { fetchCompanyModules, isModuleEnabled } = useCompanyModules();
+
+  // Fetch company modules when component mounts or company changes
+  useEffect(() => {
+    if (currentCompany?.id) {
+      fetchCompanyModules(currentCompany.id);
+    }
+  }, [currentCompany?.id, fetchCompanyModules]);
+
   const handleNavigate = (page: string) => {
     onNavigate(page);
   };
 
-  const projectNavItems = [
-    { id: 'insights', label: 'Dashboard', icon: Eye, page: 'project-detail' },
-    { id: 'digital-twin', label: 'Digital Twin', icon: Box, page: 'project-digital-twin' },
-    { id: 'cost', label: 'Cost & Contracts', icon: DollarSign, page: 'project-cost' },
-    { id: 'schedule', label: 'Schedule', icon: Calendar, page: 'project-schedule' },
-    { id: 'tasks', label: 'Tasks', icon: CheckSquare, page: 'project-tasks' },
-    { id: 'files', label: 'Files', icon: Folder, page: 'project-files' },
-    { id: 'team', label: 'Team', icon: Users, page: 'project-team' },
-    { id: 'digital-objects', label: 'Digital Objects', icon: Box, page: 'bim' },
-  ];
+  // Filter project navigation items based on enabled modules
+  // Only show project modules if the Projects company module is enabled
+  const isProjectsModuleEnabled = currentCompany?.id ? isModuleEnabled(currentCompany.id, 'projects') : false;
+  
+  const enabledProjectNavItems = isProjectsModuleEnabled 
+    ? ALL_PROJECT_NAV_ITEMS.filter(item => 
+        currentCompany?.id ? isModuleEnabled(currentCompany.id, item.key) : false
+      )
+    : [];
 
   return (
     <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
@@ -54,16 +78,29 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
           </Badge>
         </div>
 
-        {/* Project Navigation Items */}
+        {/* Project Navigation Items - Only show if Projects module is enabled */}
         <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
           <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2 mb-1">
             Project Navigation
           </div>
-          {projectNavItems.map((item) => (
+          
+          {!isProjectsModuleEnabled && (
+            <div className="px-3 py-4 text-white/60 text-sm text-center">
+              Projects module not enabled
+            </div>
+          )}
+          
+          {enabledProjectNavItems.length === 0 && isProjectsModuleEnabled && (
+            <div className="px-3 py-4 text-white/60 text-sm text-center">
+              No project modules enabled
+            </div>
+          )}
+          
+          {enabledProjectNavItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavigate(item.page)}
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left animate-fade-in ${
                 activeSection === item.id 
                   ? 'bg-white/20 text-white border border-white/30' 
                   : 'text-white/80 hover:bg-white/10 hover:text-white'
