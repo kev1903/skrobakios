@@ -25,7 +25,19 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       const userCompanies = await getUserCompanies();
       setCompanies(userCompanies);
       
-      // Only auto-select first company if none is selected
+      // Check if there's a saved company ID in localStorage
+      const savedCompanyId = localStorage.getItem('currentCompanyId');
+      
+      if (savedCompanyId) {
+        // Try to restore the saved company
+        const savedCompany = userCompanies.find(c => c.id === savedCompanyId);
+        if (savedCompany) {
+          setCurrentCompany(savedCompany);
+          return;
+        }
+      }
+      
+      // If no saved company or saved company not found, auto-select first company if none is selected
       if (userCompanies.length > 0 && !currentCompany) {
         setCurrentCompany(userCompanies[0]);
         localStorage.setItem('currentCompanyId', userCompanies[0].id);
@@ -58,14 +70,6 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       }
       
       await refreshCompanies();
-      
-      const savedCompanyId = localStorage.getItem('currentCompanyId');
-      if (savedCompanyId) {
-        const savedCompany = companies.find(c => c.id === savedCompanyId);
-        if (savedCompany) {
-          setCurrentCompany(savedCompany);
-        }
-      }
     };
 
     loadCompanies();
