@@ -122,15 +122,12 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
               <div className="p-2 bg-blue-100 rounded-lg">
                 <Building2 className="w-6 h-6 text-blue-600" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-800">Company Management</h1>
-                <p className="text-slate-600">Manage and configure all companies</p>
-              </div>
+              <h1 className="text-2xl font-bold text-slate-800">Company Management</h1>
             </div>
             {canManageCompanies && (
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Company
+                CREATE COMPANY
               </Button>
             )}
           </div>
@@ -139,39 +136,31 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Companies ({filteredCompanies.length})</span>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    placeholder="Search companies..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-80"
-                  />
-                </div>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter
-                </Button>
-              </div>
-            </CardTitle>
-            <CardDescription>
-              View and manage all companies in the system
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CompaniesTable
-              companies={filteredCompanies}
-              onEditCompany={handleEditCompany}
-              loading={loading}
-              canManageCompanies={canManageCompanies}
-            />
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search companies..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-80"
+              />
+            </div>
+            <Button variant="outline" size="sm">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
+          </div>
+          <span className="text-sm text-slate-600">{filteredCompanies.length} companies</span>
+        </div>
+        
+        <CompaniesTable
+          companies={filteredCompanies}
+          onEditCompany={handleEditCompany}
+          loading={loading}
+          canManageCompanies={canManageCompanies}
+        />
       </div>
 
       {/* Edit Dialog */}

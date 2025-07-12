@@ -51,7 +51,6 @@ export const CompaniesTable = ({
           <TableRow className="border-slate-200/50">
             <TableHead className="w-[300px]">Company</TableHead>
             <TableHead>Contact Info</TableHead>
-            <TableHead>Details</TableHead>
             <TableHead>Created</TableHead>
             <TableHead>Status</TableHead>
             {canManageCompanies && <TableHead className="text-right">Actions</TableHead>}
@@ -59,11 +58,11 @@ export const CompaniesTable = ({
         </TableHeader>
         <TableBody>
           {companies.map((company) => (
-            <TableRow key={company.id} className="border-slate-200/50 hover:bg-slate-50/50">
-              <TableCell>
+            <TableRow key={company.id} className="border-slate-200/50 hover:bg-slate-50/50 h-12">
+              <TableCell className="py-2">
                 <div className="flex items-center space-x-3">
                   {company.logo_url ? (
-                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-100">
                       <img
                         src={company.logo_url}
                         alt={`${company.name} logo`}
@@ -71,17 +70,16 @@ export const CompaniesTable = ({
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Building2 className="w-5 h-5 text-blue-600" />
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-4 h-4 text-blue-600" />
                     </div>
                   )}
                   <div>
                     <div className="font-medium text-slate-900">{company.name}</div>
-                    <div className="text-sm text-slate-500">@{company.slug}</div>
                   </div>
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="py-2">
                 <div className="space-y-1">
                   {company.website && (
                     <div className="flex items-center text-sm text-slate-600">
@@ -108,41 +106,30 @@ export const CompaniesTable = ({
                       {company.address}
                     </div>
                   )}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="space-y-1">
-                  {company.abn && (
-                    <div className="text-sm text-slate-600">
-                      <span className="font-medium">ABN:</span> {company.abn}
-                    </div>
-                  )}
-                  {company.slogan && (
-                    <div className="text-sm text-slate-500 italic">
-                      "{company.slogan}"
-                    </div>
+                  {!company.website && !company.phone && !company.address && (
+                    <div className="text-sm text-slate-400">No contact info</div>
                   )}
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="py-2">
                 <div className="text-sm text-slate-600">
                   {format(new Date(company.created_at), 'MMM dd, yyyy')}
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="py-2">
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
                   Active
                 </Badge>
               </TableCell>
               {canManageCompanies && (
-                <TableCell className="text-right">
+                <TableCell className="text-right py-2">
                   <Button
                     onClick={() => onEditCompany(company)}
                     variant="outline"
                     size="sm"
-                    className="hover:bg-blue-50 hover:border-blue-200"
+                    className="hover:bg-blue-50 hover:border-blue-200 h-8"
                   >
-                    <Edit className="w-4 h-4 mr-1" />
+                    <Edit className="w-3 h-3 mr-1" />
                     Edit
                   </Button>
                 </TableCell>
