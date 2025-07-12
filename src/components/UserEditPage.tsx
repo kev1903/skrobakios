@@ -294,24 +294,26 @@ export const UserEditPage = ({
 
       {/* Main Content Area */}
       <div className="flex-1 ml-48 flex flex-col">
-        {/* Content Header */}
-        <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
-          <div className="flex justify-between items-start mb-2">
-            <h1 className="text-3xl font-bold text-white">Company Portfolio</h1>
-            {isSuperAdmin() && (
-              <Button
-                onClick={() => setShowCreateDialog(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Company
-              </Button>
-            )}
+        {/* Content Header - Only show for Company section */}
+        {activeSection === 'company' && (
+          <div className="flex-shrink-0 pt-20 px-8 py-6 border-b border-white/20">
+            <div className="flex justify-between items-start mb-2">
+              <h1 className="text-3xl font-bold text-white">Company Portfolio</h1>
+              {isSuperAdmin() && (
+                <Button
+                  onClick={() => setShowCreateDialog(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Company
+                </Button>
+              )}
+            </div>
+            <p className="text-white/70">
+              Track, analyze, and optimize how you spend your time
+            </p>
           </div>
-          <p className="text-white/70">
-            Track, analyze, and optimize how you spend your time
-          </p>
-        </div>
+        )}
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-auto p-8">

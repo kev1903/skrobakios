@@ -24,7 +24,7 @@ interface CompanyDetailsSectionProps {
 export const CompanyDetailsSection = ({ profileData, onInputChange }: CompanyDetailsSectionProps) => {
   return (
     <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-      <Accordion type="single" collapsible defaultValue="company-details" className="w-full">
+      <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="company-details" className="border-none">
           <AccordionTrigger className="hover:no-underline px-6 pt-6 pb-2">
             <CardTitle className="flex items-center space-x-3 text-slate-800">
