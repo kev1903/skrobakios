@@ -87,10 +87,12 @@ const getDefaultPermissions = (roleLevel: number): string[] => {
         'view_sales_analytics',
         'view_all_models',
       ];
-    case 1: // Company Admin - only company-specific permissions
+    case 1: // Company Admin - company management and specific permissions
       return [
-        'manage_projects',
-        'manage_tasks',
+        'view_all_companies',
+        'create_companies',
+        'manage_company_settings',
+        'manage_company_billing',
         'manage_estimates',
         'manage_invoicing',
         'manage_leads',
