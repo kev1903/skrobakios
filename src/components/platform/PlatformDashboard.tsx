@@ -636,17 +636,8 @@ export const PlatformDashboard = ({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    { name: 'Dashboard', description: 'Project overview and key metrics dashboard', icon: 'dashboard' },
-                    { name: 'Digital Twin', description: 'Digital representation and modeling tools', icon: 'digital-twin' },
-                    { name: 'Cost & Contracts', description: 'Financial tracking and contract management', icon: 'cost' },
-                    { name: 'Schedule', description: 'Project timeline and scheduling tools', icon: 'schedule' },
-                    { name: 'Tasks', description: 'Task management and assignment within projects', icon: 'tasks' },
-                    { name: 'Files', description: 'Project document and file management', icon: 'files' },
-                    { name: 'Team', description: 'Team collaboration and member management', icon: 'team' },
-                    { name: 'Digital Objects', description: 'Project asset and digital object management', icon: 'objects' }
-                  ].map((module) => {
-                    const adoptionCount = getModuleAdoptionStats(module.name.toLowerCase().replace(/\s+/g, '_'));
+                  {AVAILABLE_MODULES.filter(module => !['projects', 'finance', 'sales'].includes(module.key)).map((module) => {
+                    const adoptionCount = getModuleAdoptionStats(module.key);
                     const adoptionRate = companies.length > 0 ? Math.round((adoptionCount / companies.length) * 100) : 0;
                     const isEnabled = adoptionCount > 0;
                     
@@ -654,14 +645,14 @@ export const PlatformDashboard = ({
                       <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-lg bg-green-500/10">
-                            {module.icon === 'dashboard' && <Home className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'digital-twin' && <Zap className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'cost' && <DollarSign className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'schedule' && <Calendar className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'tasks' && <CheckSquare className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'files' && <FolderOpen className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'team' && <User className="w-4 h-4 text-green-500" />}
-                            {module.icon === 'objects' && <Eye className="w-4 h-4 text-green-500" />}
+                            {module.key === 'dashboard' && <Home className="w-4 h-4 text-green-500" />}
+                            {module.key === 'digital-twin' && <Zap className="w-4 h-4 text-green-500" />}
+                            {module.key === 'cost-contracts' && <DollarSign className="w-4 h-4 text-green-500" />}
+                            {module.key === 'schedule' && <Calendar className="w-4 h-4 text-green-500" />}
+                            {module.key === 'tasks' && <CheckSquare className="w-4 h-4 text-green-500" />}
+                            {module.key === 'files' && <FolderOpen className="w-4 h-4 text-green-500" />}
+                            {module.key === 'team' && <User className="w-4 h-4 text-green-500" />}
+                            {module.key === 'digital-objects' && <Eye className="w-4 h-4 text-green-500" />}
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium">{module.name}</h4>
