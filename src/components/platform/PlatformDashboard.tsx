@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink } from 'lucide-react';
@@ -44,6 +45,7 @@ export const PlatformDashboard = ({
     isSuperAdmin,
     isOwner
   } = useUserRole();
+  const navigate = useNavigate();
 
   // Additional state for table functionality
   const [filteredCompanies, setFilteredCompanies] = useState<any[]>([]);
@@ -58,8 +60,7 @@ export const PlatformDashboard = ({
     setFilteredCompanies(filtered);
   }, [searchTerm, companies]);
   const handleEditCompany = (company: Company) => {
-    setSelectedCompany(company);
-    setIsEditDialogOpen(true);
+    navigate(`/company/${company.id}/edit`);
   };
   const handleSaveCompany = async (updatedCompany: Partial<Company>) => {
     if (!selectedCompany) return;

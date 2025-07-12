@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Building2, Search, Plus, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
   const { getUserCompanies, updateCompany } = useCompanies();
   const { isSuperAdmin, isOwner } = useUserRole();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const canManageCompanies = isSuperAdmin() || isOwner();
 
@@ -81,8 +83,7 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
   }, [searchTerm, companies]);
 
   const handleEditCompany = (company: Company) => {
-    setSelectedCompany(company);
-    setIsEditDialogOpen(true);
+    navigate(`/company/${company.id}/edit`);
   };
 
   const handleSaveCompany = async (updatedCompany: Partial<Company>) => {

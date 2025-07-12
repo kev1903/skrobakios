@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import Index from "./pages/Index";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
@@ -12,6 +12,7 @@ import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
 import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
+import { CompanyEditPage } from "./components/CompanyEditPage";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -58,6 +59,18 @@ const EstimateCreationPageWrapper = () => {
   return <EstimateCreationPage onNavigate={handleNavigate} />;
 };
 
+// Wrapper component for CompanyEditPage with proper navigation
+const CompanyEditPageWrapper = () => {
+  const navigate = useNavigate();
+  const { companyId } = useParams<{ companyId: string }>();
+  
+  const handleNavigateBack = () => {
+    navigate('/');
+  };
+
+  return <CompanyEditPage companyId={companyId || ''} onNavigateBack={handleNavigateBack} />;
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -81,6 +94,15 @@ const App = () => (
           <Route path="/cost-contracts" element={<CostContractsPage />} />
           <Route path="/estimates" element={<EstimatesPageWrapper />} />
           <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
+          <Route path="/company/:companyId/edit" element={
+            <AuthProvider>
+              <UserProvider>
+                <CompanyProvider>
+                  <CompanyEditPageWrapper />
+                </CompanyProvider>
+              </UserProvider>
+            </AuthProvider>
+          } />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
