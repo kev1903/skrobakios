@@ -1,5 +1,5 @@
 import React from 'react';
-import { CompanyDetailsSection } from '@/components/user-edit/CompanyDetailsSection';
+import { CompanyList } from '@/components/user-profile/CompanyList';
 
 interface CompanySectionProps {
   profileData: {
@@ -17,19 +17,7 @@ interface CompanySectionProps {
 export const CompanySection = ({ profileData, onInputChange }: CompanySectionProps) => {
   return (
     <div className="space-y-8">
-      {/* Company Details */}
-      <CompanyDetailsSection 
-        profileData={{
-          companyName: profileData.companyName,
-          abn: profileData.abn,
-          companyWebsite: profileData.companyWebsite,
-          companyAddress: profileData.companyAddress,
-          companyMembers: profileData.companyMembers,
-          companyLogo: profileData.companyLogo,
-          companySlogan: profileData.companySlogan,
-        }}
-        onInputChange={onInputChange}
-      />
+      <CompanyList />
     </div>
   );
 };
