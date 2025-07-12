@@ -7,5 +7,13 @@ interface ModuleSystemNotificationProps {
 export const ModuleSystemNotification = ({
   className = ""
 }: ModuleSystemNotificationProps) => {
-  return;
+  return (
+    <Alert className={className}>
+      <CheckCircle2 className="h-4 w-4" />
+      <AlertTitle>Module System Active</AlertTitle>
+      <AlertDescription>
+        Your company's module system is now configured and active. All enabled modules are ready to use.
+      </AlertDescription>
+    </Alert>
+  );
 };
