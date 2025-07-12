@@ -25,11 +25,11 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
   const [loading, setLoading] = useState(true);
 
   const { getUserCompanies, updateCompany } = useCompanies();
-  const { isSuperAdmin, isOwner } = useUserRole();
+  const { isSuperAdmin, isPlatformAdmin } = useUserRole();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const canManageCompanies = isSuperAdmin() || isOwner();
+  const canManageCompanies = isSuperAdmin() || isPlatformAdmin();
 
   useEffect(() => {
     const fetchCompanies = async () => {

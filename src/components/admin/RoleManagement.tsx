@@ -15,10 +15,9 @@ interface RoleManagementProps {
 }
 
 const roleHierarchy = {
-  superadmin: { level: 4, label: 'Super Admin', variant: 'destructive' as const },
-  owner: { level: 3, label: 'Owner', variant: 'default' as const },
-  admin: { level: 2, label: 'Admin', variant: 'secondary' as const },
-  user: { level: 1, label: 'User', variant: 'outline' as const }
+  superadmin: { level: 3, label: 'Super Admin', variant: 'destructive' as const },
+  platform_admin: { level: 2, label: 'Platform Admin', variant: 'secondary' as const },
+  company_admin: { level: 1, label: 'Company Admin', variant: 'outline' as const }
 };
 
 export const RoleManagement: React.FC<RoleManagementProps> = ({
@@ -26,7 +25,7 @@ export const RoleManagement: React.FC<RoleManagementProps> = ({
   onAddRole,
   onRemoveRole
 }) => {
-  const [selectedRole, setSelectedRole] = useState<UserRole>('user');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('company_admin');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,7 +48,7 @@ export const RoleManagement: React.FC<RoleManagementProps> = ({
           description: `Successfully added ${roleHierarchy[selectedRole].label} role to ${user.first_name} ${user.last_name}.`
         });
         setIsAddDialogOpen(false);
-        setSelectedRole('user');
+        setSelectedRole('company_admin');
       } else {
         toast({
           title: 'Failed to Add Role',

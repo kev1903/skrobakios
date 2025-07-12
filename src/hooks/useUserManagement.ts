@@ -32,16 +32,30 @@ export const useUserManagement = () => {
         return;
       }
 
+      // Map old role names to new ones for backward compatibility
+      const mapOldRoleToNew = (role: string): UserRole => {
+        switch (role) {
+          case 'admin': return 'platform_admin';
+          case 'user': return 'company_admin';
+          case 'owner': return 'platform_admin'; // Map owner to platform_admin as fallback
+          case 'superadmin': return 'superadmin';
+          case 'platform_admin': return 'platform_admin';
+          case 'company_admin': return 'company_admin';
+          default: return 'company_admin';
+        }
+      };
+
       // Create a map of user_id to roles for quick lookup
       const rolesMap = new Map<string, UserRole[]>();
       rolesData?.forEach(roleRecord => {
         const existing = rolesMap.get(roleRecord.user_id) || [];
-        rolesMap.set(roleRecord.user_id, [...existing, roleRecord.role]);
+        const mappedRole = mapOldRoleToNew(roleRecord.role);
+        rolesMap.set(roleRecord.user_id, [...existing, mappedRole]);
       });
 
       const formattedUsers: AccessUser[] = profilesData?.map(profile => {
-        const userRoles = rolesMap.get(profile.user_id) || ['user'];
-        const roleHierarchy = { superadmin: 4, owner: 3, admin: 2, user: 1 };
+        const userRoles = rolesMap.get(profile.user_id) || ['company_admin'];
+        const roleHierarchy = { superadmin: 3, platform_admin: 2, company_admin: 1 };
         const primaryRole = userRoles.reduce((highest, current) => 
           roleHierarchy[current] > roleHierarchy[highest] ? current : highest
         );

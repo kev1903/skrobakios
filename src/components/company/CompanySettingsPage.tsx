@@ -53,7 +53,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const { theme, setTheme } = useTheme();
-  const { isSuperAdmin, isOwner } = useUserRole();
+  const { isSuperAdmin, isPlatformAdmin } = useUserRole();
   const { getEnabledModules, fetchCompanyModules } = useCompanyModules();
   
   const [companyForm, setCompanyForm] = useState({
@@ -225,7 +225,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                 </div>
               </div>
             </div>
-            {(isSuperAdmin() || isOwner()) && (
+            {(isSuperAdmin() || isPlatformAdmin()) && (
               <Button 
                 variant="outline"
                 onClick={() => onNavigate('company-management')}

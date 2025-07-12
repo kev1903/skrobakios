@@ -18,7 +18,7 @@ export const ProtectedRoute = ({
   requireAdmin = false 
 }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
-  const { loading: roleLoading, isSuperAdmin, isAdmin } = useUserRole();
+  const { loading: roleLoading, isSuperAdmin, isPlatformAdmin } = useUserRole();
 
   if (loading || roleLoading) {
     return (
@@ -47,7 +47,7 @@ export const ProtectedRoute = ({
     );
   }
 
-  if (requireAdmin && !isAdmin()) {
+  if (requireAdmin && !isPlatformAdmin()) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">

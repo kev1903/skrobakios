@@ -45,7 +45,7 @@ export const PlatformDashboard = ({
   } = useCompanies();
   const {
     isSuperAdmin,
-    isOwner
+    isPlatformAdmin
   } = useUserRole();
   const navigate = useNavigate();
   const { modules, loading: modulesLoading, fetchMultipleCompanyModules } = useCompanyModules();
@@ -55,7 +55,7 @@ export const PlatformDashboard = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const canManageCompanies = isSuperAdmin() || isOwner();
+  const canManageCompanies = isSuperAdmin() || isPlatformAdmin();
   const [moduleStats, setModuleStats] = useState({
     companyModules: { active: 0, total: 0 },
     projectModules: { active: 0, total: 0 },

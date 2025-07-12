@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type UserRole = 'superadmin' | 'owner' | 'admin' | 'user';
+export type UserRole = 'superadmin' | 'platform_admin' | 'company_admin';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -29,27 +29,27 @@ export const useUserRole = () => {
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching user roles:', error);
-          setRole('user'); 
-          setRoles(['user']);
+          setRole('company_admin'); 
+          setRoles(['company_admin']);
         } else if (rolesData && rolesData.length > 0) {
           const userRoles = rolesData.map(r => r.role as UserRole);
           setRoles(userRoles);
           
           // Set primary role (highest priority)
-          const roleHierarchy = { superadmin: 4, owner: 3, admin: 2, user: 1 };
+          const roleHierarchy = { superadmin: 3, platform_admin: 2, company_admin: 1 };
           const primaryRole = userRoles.reduce((highest, current) => 
             roleHierarchy[current] > roleHierarchy[highest] ? current : highest
           );
           setRole(primaryRole);
         } else {
-          // No roles found, default to user
-          setRole('user');
-          setRoles(['user']);
+          // No roles found, default to company_admin
+          setRole('company_admin');
+          setRoles(['company_admin']);
         }
       } catch (error) {
         console.error('Error fetching user roles:', error);
-        setRole('user');
-        setRoles(['user']);
+        setRole('company_admin');
+        setRoles(['company_admin']);
       } finally {
         setLoading(false);
       }
@@ -61,7 +61,7 @@ export const useUserRole = () => {
   const hasRole = (requiredRole: UserRole): boolean => {
     if (!role) return false;
     
-    const roleHierarchy = { superadmin: 4, owner: 3, admin: 2, user: 1 };
+    const roleHierarchy = { superadmin: 3, platform_admin: 2, company_admin: 1 };
     return roleHierarchy[role] >= roleHierarchy[requiredRole];
   };
 
@@ -84,7 +84,7 @@ export const useUserRole = () => {
       if (!error) {
         setRoles(prev => [...prev, newRole]);
         // Update primary role if the new role has higher priority
-        const roleHierarchy = { superadmin: 4, owner: 3, admin: 2, user: 1 };
+        const roleHierarchy = { superadmin: 3, platform_admin: 2, company_admin: 1 };
         if (!role || roleHierarchy[newRole] > roleHierarchy[role]) {
           setRole(newRole);
         }
@@ -112,12 +112,12 @@ export const useUserRole = () => {
         
         // Update primary role if we removed the current primary
         if (role === roleToRemove) {
-          const roleHierarchy = { superadmin: 4, owner: 3, admin: 2, user: 1 };
+          const roleHierarchy = { superadmin: 3, platform_admin: 2, company_admin: 1 };
           const newPrimaryRole = newRoles.length > 0 
             ? newRoles.reduce((highest, current) => 
                 roleHierarchy[current] > roleHierarchy[highest] ? current : highest
               )
-            : 'user';
+            : 'company_admin';
           setRole(newPrimaryRole);
         }
         return true;
@@ -129,8 +129,8 @@ export const useUserRole = () => {
   };
 
   const isSuperAdmin = () => roles.includes('superadmin');
-  const isOwner = () => roles.includes('owner') || roles.includes('superadmin');
-  const isAdmin = () => roles.includes('admin') || roles.includes('owner') || roles.includes('superadmin');
+  const isPlatformAdmin = () => roles.includes('platform_admin') || roles.includes('superadmin');
+  const isCompanyAdmin = () => roles.includes('company_admin') || roles.includes('platform_admin') || roles.includes('superadmin');
 
   return {
     role,
@@ -142,7 +142,7 @@ export const useUserRole = () => {
     addRole,
     removeRole,
     isSuperAdmin,
-    isOwner,
-    isAdmin
+    isPlatformAdmin,
+    isCompanyAdmin
   };
 };

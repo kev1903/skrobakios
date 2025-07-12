@@ -14,9 +14,9 @@ const mockCompanies = [
 ];
 
 export const EnhancedUserManagement = () => {
-  const { isSuperAdmin, isAdmin } = useUserRole();
+  const { isSuperAdmin, isPlatformAdmin } = useUserRole();
 
-  if (!isSuperAdmin() && !isAdmin()) {
+  if (!isSuperAdmin() && !isPlatformAdmin()) {
     return (
       <Card>
         <CardHeader>

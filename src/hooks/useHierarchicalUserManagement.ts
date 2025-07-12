@@ -30,7 +30,27 @@ export const useHierarchicalUserManagement = () => {
         return;
       }
 
-      setUsers(data || []);
+      // Map old role names to new ones for backward compatibility
+      const mapOldRoleToNew = (role: string): UserRole => {
+        switch (role) {
+          case 'admin': return 'platform_admin';
+          case 'user': return 'company_admin';
+          case 'owner': return 'platform_admin';
+          case 'superadmin': return 'superadmin';
+          case 'platform_admin': return 'platform_admin';
+          case 'company_admin': return 'company_admin';
+          default: return 'company_admin';
+        }
+      };
+
+      // Map the data to ensure role compatibility
+      const mappedUsers = (data || []).map(user => ({
+        ...user,
+        app_role: mapOldRoleToNew(user.app_role),
+        app_roles: user.app_roles?.map(mapOldRoleToNew) || []
+      }));
+
+      setUsers(mappedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
