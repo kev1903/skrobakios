@@ -41,7 +41,12 @@ import {
   Calculator,
   FolderOpen,
   UsersRound,
-  LayoutDashboard
+  LayoutDashboard,
+  Clock,
+  MapPin,
+  Hash,
+  MessageSquare,
+  Code
 } from 'lucide-react';
 import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
@@ -73,6 +78,17 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     abn: '',
     slogan: '',
     logo_url: ''
+  });
+
+  const [modules, setModules] = useState({
+    projectManagement: true,
+    timeTracking: true,
+    estimating: true,
+    invoicing: true,
+    fileManagement: true,
+    reporting: true,
+    integrations: false,
+    apiAccess: false
   });
 
   // Load full company details - only on initial load
@@ -160,6 +176,13 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     }
   };
 
+  const handleModuleToggle = (module: string, enabled: boolean) => {
+    setModules(prev => ({
+      ...prev,
+      [module]: enabled
+    }));
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setCompanyForm(prev => ({
       ...prev,
@@ -240,557 +263,273 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Module Sections */}
-        <div className="space-y-8">
-          {/* Company Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 pb-4 border-b">
-              <Building2 className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">Company</h2>
-            </div>
-            
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <div className="w-full overflow-x-auto">
-                <TabsList className="flex w-full min-w-fit backdrop-blur-sm bg-white/60 p-1">
-                  <TabsTrigger value="profile" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Building2 className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Profile</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Settings className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">General</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="notifications" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Bell className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Notifications</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="appearance" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Palette className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Appearance</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Users className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Roles</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="integrations" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Plug className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Integrations</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="members" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <UserPlus className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Members</span>
-                  </TabsTrigger>
-                  {isSuperAdmin() && (
-                    <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                      <Shield className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-xs md:text-sm">Admin</span>
-                    </TabsTrigger>
-                  )}
-                </TabsList>
-              </div>
+        <div className="space-y-6">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Update company details and configure available modules</h2>
+          </div>
 
-          <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Company Profile</CardTitle>
-                <CardDescription>
-                  Manage your company's basic information and branding.
-                </CardDescription>
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Company Information */}
+            <Card className="backdrop-blur-xl bg-white/80 border-white/30 shadow-lg">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold text-slate-800">Company Information</CardTitle>
+                <p className="text-slate-600 text-sm">Basic company details and contact information</p>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Company Logo */}
+                {/* Company Name */}
                 <div className="space-y-2">
-                  <Label>Company Logo</Label>
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={companyForm.logo_url} />
-                      <AvatarFallback className="text-lg">
-                        {companyForm.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="Logo URL"
-                        value={companyForm.logo_url}
-                        onChange={(e) => handleInputChange('logo_url', e.target.value)}
-                      />
-                      <Button variant="outline" size="sm">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Logo
-                      </Button>
-                    </div>
-                  </div>
+                  <Label htmlFor="name" className="text-slate-700 font-medium">Company Name</Label>
+                  <Input
+                    id="name"
+                    value={companyForm.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Ardelle"
+                    required
+                    className="bg-white/60 border-slate-200"
+                  />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="company-name">Company Name *</Label>
-                    <Input
-                      id="company-name"
-                      value={companyForm.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Enter company name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="company-slug">Company Slug *</Label>
-                    <Input
-                      id="company-slug"
-                      value={companyForm.slug}
-                      onChange={(e) => handleInputChange('slug', e.target.value)}
-                      placeholder="company-slug"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      value={companyForm.website}
-                      onChange={(e) => handleInputChange('website', e.target.value)}
-                      placeholder="https://yourcompany.com"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={companyForm.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="+61 4 1234 5678"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="abn">ABN</Label>
-                    <Input
-                      id="abn"
-                      value={companyForm.abn}
-                      onChange={(e) => handleInputChange('abn', e.target.value)}
-                      placeholder="12 345 678 901"
-                    />
-                  </div>
+                {/* Company Slug */}
+                <div className="space-y-2">
+                  <Label htmlFor="slug" className="text-slate-700 font-medium">Company Slug</Label>
+                  <Input
+                    id="slug"
+                    value={companyForm.slug}
+                    onChange={(e) => handleInputChange('slug', e.target.value)}
+                    placeholder="ardelle-175229595404037"
+                    className="bg-white/60 border-slate-200"
+                  />
                 </div>
 
+                {/* Website */}
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="website" className="flex items-center space-x-2 text-slate-700 font-medium">
+                    <Globe className="w-4 h-4 text-slate-500" />
+                    <span>Website</span>
+                  </Label>
+                  <Input
+                    id="website"
+                    type="url"
+                    value={companyForm.website}
+                    onChange={(e) => handleInputChange('website', e.target.value)}
+                    placeholder="www.ardelle.com.au"
+                    className="bg-white/60 border-slate-200"
+                  />
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="flex items-center space-x-2 text-slate-700 font-medium">
+                    <span>📞</span>
+                    <span>Phone</span>
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={companyForm.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="+1 (555) 123-4567"
+                    className="bg-white/60 border-slate-200"
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="address" className="flex items-center space-x-2 text-slate-700 font-medium">
+                    <MapPin className="w-4 h-4 text-slate-500" />
+                    <span>Address</span>
+                  </Label>
                   <Textarea
                     id="address"
                     value={companyForm.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
-                    placeholder="Enter company address"
                     rows={3}
+                    placeholder="Enter company address"
+                    className="bg-white/60 border-slate-200 resize-none"
                   />
                 </div>
 
+                {/* ABN */}
                 <div className="space-y-2">
-                  <Label htmlFor="slogan">Company Slogan</Label>
+                  <Label htmlFor="abn" className="flex items-center space-x-2 text-slate-700 font-medium">
+                    <Hash className="w-4 h-4 text-slate-500" />
+                    <span>ABN</span>
+                  </Label>
+                  <Input
+                    id="abn"
+                    value={companyForm.abn}
+                    onChange={(e) => handleInputChange('abn', e.target.value)}
+                    placeholder="12 345 678 901"
+                    className="bg-white/60 border-slate-200"
+                  />
+                </div>
+
+                {/* Company Slogan */}
+                <div className="space-y-2">
+                  <Label htmlFor="slogan" className="flex items-center space-x-2 text-slate-700 font-medium">
+                    <MessageSquare className="w-4 h-4 text-slate-500" />
+                    <span>Company Slogan</span>
+                  </Label>
                   <Input
                     id="slogan"
                     value={companyForm.slogan}
                     onChange={(e) => handleInputChange('slogan', e.target.value)}
-                    placeholder="Your company's mission or slogan"
+                    placeholder="Interiors and more"
+                    className="bg-white/60 border-slate-200"
                   />
                 </div>
 
-                <div className="flex justify-end">
-                  <Button onClick={handleSaveCompany} disabled={saving}>
-                    <Save className="h-4 w-4 mr-2" />
+                {/* Logo URL */}
+                <div className="space-y-2">
+                  <Label htmlFor="logo_url" className="text-slate-700 font-medium">Logo URL</Label>
+                  <Input
+                    id="logo_url"
+                    value={companyForm.logo_url}
+                    onChange={(e) => handleInputChange('logo_url', e.target.value)}
+                    placeholder="https://example.com/logo.png"
+                    className="bg-white/60 border-slate-200"
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <Button onClick={handleSaveCompany} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white px-6">
+                    <Save className="w-4 h-4 mr-2" />
                     {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="general" className="space-y-4 md:space-y-6">
-            <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-              <CardHeader className="pb-4 md:pb-6">
-                <CardTitle className="text-lg md:text-xl">General Settings</CardTitle>
-                <CardDescription className="text-sm md:text-base">
-                  Configure general preferences for {currentCompany?.name}
-                </CardDescription>
+            {/* Right Column - Company Modules */}
+            <Card className="backdrop-blur-xl bg-white/80 border-white/30 shadow-lg">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold text-slate-800">Company Modules</CardTitle>
+                <p className="text-slate-600 text-sm">Enable or disable features for this company</p>
               </CardHeader>
-              <CardContent className="space-y-3 md:space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Company Language</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Choose the primary language for this company</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">English</Button>
-                </div>
-                <Separator />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Time Zone</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Set the company's primary time zone</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">UTC+0</Button>
-                </div>
-                <Separator />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Currency</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Default currency for this company</p>
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full sm:w-auto">USD</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-4 md:space-y-6">
-            <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-              <CardHeader className="pb-4 md:pb-6">
-                <CardTitle className="text-lg md:text-xl">Company Notification Settings</CardTitle>
-                <CardDescription className="text-sm md:text-base">
-                  Configure notification preferences for {currentCompany?.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 md:space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Project Updates</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Notify team when projects are updated</p>
-                  </div>
-                  <Switch />
-                </div>
-                <Separator />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Member Activity</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Notify when members join or leave</p>
-                  </div>
-                  <Switch />
-                </div>
-                <Separator />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Daily Digest</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Send daily summary of company activity</p>
-                  </div>
-                  <Switch />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="appearance" className="space-y-4 md:space-y-6">
-            <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-              <CardHeader className="pb-4 md:pb-6">
-                <CardTitle className="text-lg md:text-xl">Company Appearance Settings</CardTitle>
-                <CardDescription className="text-sm md:text-base">
-                  Customize the look and feel for {currentCompany?.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 md:space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Company Theme</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Theme preference for company workspace</p>
-                  </div>
-                  <Switch />
-                </div>
-                <Separator />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div>
-                    <h4 className="text-sm font-medium">Brand Colors</h4>
-                    <p className="text-xs md:text-sm text-slate-500">Use company brand colors in interface</p>
-                  </div>
-                  <Switch />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="roles" className="space-y-4 md:space-y-6">
-            <CompanyRolesTab />
-          </TabsContent>
-
-          <TabsContent value="integrations" className="space-y-4 md:space-y-6">
-            <CompanyIntegrationsTab />
-          </TabsContent>
-
-          <TabsContent value="members" className="space-y-6">
-            <CompanyUserManagement />
-          </TabsContent>
-
-          {isSuperAdmin() && (
-            <TabsContent value="admin" className="space-y-4 md:space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                <CardHeader className="pb-4 md:pb-6">
-                  <CardTitle className="text-lg md:text-xl flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Company Admin Panel
-                    <Badge variant="destructive" className="text-xs">Super Admin</Badge>
-                  </CardTitle>
-                  <CardDescription className="text-sm md:text-base">
-                    Super admin controls for {currentCompany?.name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                      <div>
-                        <h4 className="text-sm font-medium">Company Status</h4>
-                        <p className="text-xs md:text-sm text-slate-500">Enable or disable this company</p>
-                      </div>
-                      <Switch defaultChecked />
+              <CardContent className="space-y-6">
+                {/* Project Management */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <FolderKanban className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-medium text-slate-800">Project Management</h4>
                     </div>
-                    <Separator />
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                      <div>
-                        <h4 className="text-sm font-medium">Billing Override</h4>
-                        <p className="text-xs md:text-sm text-slate-500">Override billing settings for this company</p>
-                      </div>
-                      <Button variant="outline" size="sm">Configure</Button>
+                    <p className="text-sm text-slate-600">Create and manage projects</p>
+                  </div>
+                  <Switch 
+                    checked={modules.projectManagement}
+                    onCheckedChange={(checked) => handleModuleToggle('projectManagement', checked)}
+                  />
+                </div>
+
+                {/* Time Tracking */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-5 h-5 text-green-600" />
+                      <h4 className="font-medium text-slate-800">Time Tracking</h4>
                     </div>
+                    <p className="text-sm text-slate-600">Track time on tasks and projects</p>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-            </Tabs>
-          </div>
+                  <Switch 
+                    checked={modules.timeTracking}
+                    onCheckedChange={(checked) => handleModuleToggle('timeTracking', checked)}
+                  />
+                </div>
 
-          {/* Company Modules Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 pb-4 border-b">
-              <Building2 className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">Company Modules</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Projects Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-blue-200 hover:border-blue-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <FolderKanban className="w-6 h-6 text-blue-600" />
-                    <span>Projects</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Comprehensive project management and oversight
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Project portfolio management</p>
-                    <p>• Resource allocation</p>
-                    <p>• Project lifecycle tracking</p>
-                    <p>• Cross-project insights</p>
+                {/* Estimating */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Calculator className="w-5 h-5 text-purple-600" />
+                      <h4 className="font-medium text-slate-800">Estimating</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">Create and manage estimates</p>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
+                  <Switch 
+                    checked={modules.estimating}
+                    onCheckedChange={(checked) => handleModuleToggle('estimating', checked)}
+                  />
+                </div>
 
-              {/* Finance Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <DollarSign className="w-6 h-6 text-green-600" />
-                    <span>Finance</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Financial management and accounting
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Budget management</p>
-                    <p>• Expense tracking</p>
-                    <p>• Financial reporting</p>
-                    <p>• Invoice generation</p>
+                {/* Invoicing */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-5 h-5 text-orange-600" />
+                      <h4 className="font-medium text-slate-800">Invoicing</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">Generate and manage invoices</p>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
+                  <Switch 
+                    checked={modules.invoicing}
+                    onCheckedChange={(checked) => handleModuleToggle('invoicing', checked)}
+                  />
+                </div>
 
-              {/* Sales Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-purple-200 hover:border-purple-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <TrendingUp className="w-6 h-6 text-purple-600" />
-                    <span>Sales</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Sales pipeline and customer management
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Lead management</p>
-                    <p>• Sales pipeline tracking</p>
-                    <p>• Customer relationship management</p>
-                    <p>• Sales analytics</p>
+                {/* File Management */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <FolderOpen className="w-5 h-5 text-teal-600" />
+                      <h4 className="font-medium text-slate-800">File Management</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">Upload and organize files</p>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                  <Switch 
+                    checked={modules.fileManagement}
+                    onCheckedChange={(checked) => handleModuleToggle('fileManagement', checked)}
+                  />
+                </div>
 
-          {/* Project Modules Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 pb-4 border-b">
-              <Boxes className="w-5 h-5 text-orange-600" />
-              <h2 className="text-xl font-semibold text-slate-800">Project Modules</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Dashboard Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-blue-200 hover:border-blue-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <LayoutDashboard className="w-6 h-6 text-blue-600" />
-                    <span>Dashboard</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Project overview and key metrics
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Real-time project metrics</p>
-                    <p>• Progress visualization</p>
-                    <p>• Key performance indicators</p>
-                    <p>• Custom widget configuration</p>
+                {/* Reporting */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <BarChart3 className="w-5 h-5 text-red-600" />
+                      <h4 className="font-medium text-slate-800">Reporting</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">Generate reports and analytics</p>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
+                  <Switch 
+                    checked={modules.reporting}
+                    onCheckedChange={(checked) => handleModuleToggle('reporting', checked)}
+                  />
+                </div>
 
-              {/* Digital Twin Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-teal-200 hover:border-teal-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <Boxes className="w-6 h-6 text-teal-600" />
-                    <span>Digital Twin</span>
-                  </CardTitle>
-                  <CardDescription>
-                    3D modeling and digital representation
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• 3D model visualization</p>
-                    <p>• Real-time data integration</p>
-                    <p>• Virtual simulations</p>
-                    <p>• IoT sensor connectivity</p>
+                {/* Integrations */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Plug className="w-5 h-5 text-indigo-600" />
+                      <h4 className="font-medium text-slate-800">Integrations</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">Connect with third-party services</p>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
+                  <Switch 
+                    checked={modules.integrations}
+                    onCheckedChange={(checked) => handleModuleToggle('integrations', checked)}
+                  />
+                </div>
 
-              {/* Cost & Contracts Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <Calculator className="w-6 h-6 text-green-600" />
-                    <span>Cost & Contracts</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Cost management and contract tracking
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Cost estimation and tracking</p>
-                    <p>• Contract management</p>
-                    <p>• Budget vs actual analysis</p>
-                    <p>• Vendor management</p>
+                {/* API Access */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Code className="w-5 h-5 text-slate-600" />
+                      <h4 className="font-medium text-slate-800">API Access</h4>
+                    </div>
+                    <p className="text-sm text-slate-600">Enable API access for developers</p>
                   </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Tasks Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-purple-200 hover:border-purple-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <Calendar className="w-6 h-6 text-purple-600" />
-                    <span>Tasks</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Task management and scheduling
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Task creation and assignment</p>
-                    <p>• Progress tracking</p>
-                    <p>• Dependency management</p>
-                    <p>• Time tracking integration</p>
-                  </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Files Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-orange-200 hover:border-orange-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <FolderOpen className="w-6 h-6 text-orange-600" />
-                    <span>Files</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Document and file management
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• File storage and organization</p>
-                    <p>• Version control</p>
-                    <p>• Access permissions</p>
-                    <p>• Collaborative editing</p>
-                  </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Team Module */}
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-red-200 hover:border-red-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-3">
-                    <UsersRound className="w-6 h-6 text-red-600" />
-                    <span>Team</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Team collaboration and communication
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <p>• Team member management</p>
-                    <p>• Role and permission settings</p>
-                    <p>• Communication tools</p>
-                    <p>• Performance tracking</p>
-                  </div>
-                  <Button className="w-full mt-4" variant="outline">
-                    Configure Module
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                  <Switch 
+                    checked={modules.apiAccess}
+                    onCheckedChange={(checked) => handleModuleToggle('apiAccess', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
