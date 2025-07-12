@@ -1390,6 +1390,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_company: {
+        Args: { company_id: string; user_id: string }
+        Returns: boolean
+      }
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
@@ -1457,6 +1461,10 @@ export type Database = {
       }
       is_company_member: {
         Args: { target_company_id: string; target_user_id: string }
+        Returns: boolean
+      }
+      is_company_member_secure: {
+        Args: { company_id: string; user_id: string }
         Returns: boolean
       }
       is_company_owner: {
