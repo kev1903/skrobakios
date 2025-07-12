@@ -47,7 +47,7 @@ export const PlatformDashboard = ({
     isOwner
   } = useUserRole();
   const navigate = useNavigate();
-  const { modules, loading: modulesLoading, fetchCompanyModules } = useCompanyModules();
+  const { modules, loading: modulesLoading, fetchMultipleCompanyModules } = useCompanyModules();
 
   // Additional state for table functionality
   const [filteredCompanies, setFilteredCompanies] = useState<any[]>([]);
@@ -322,10 +322,11 @@ export const PlatformDashboard = ({
     fetchCompanies();
     fetchUserStats();
 
-    // Fetch modules data for all companies
-    companies.forEach(company => {
-      fetchCompanyModules(company.id);
-    });
+    // Fetch modules data for all companies efficiently
+    if (companies.length > 0) {
+      const companyIds = companies.map(company => company.id);
+      fetchMultipleCompanyModules(companyIds);
+    }
 
     // Set up real-time subscriptions
     const companyChannel = supabase.channel('company-changes').on('postgres_changes', {

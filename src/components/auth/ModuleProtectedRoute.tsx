@@ -35,7 +35,7 @@ export const ModuleProtectedRoute = ({
     };
 
     checkModuleAccess();
-  }, [currentCompany?.id, fetchCompanyModules]);
+  }, [currentCompany?.id]);
 
   if (loading) {
     return (

@@ -36,7 +36,7 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
     if (currentCompany?.id) {
       fetchCompanyModules(currentCompany.id);
     }
-  }, [currentCompany?.id, fetchCompanyModules]);
+  }, [currentCompany?.id]);
 
   const handleNavigate = (page: string) => {
     onNavigate(page);

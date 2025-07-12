@@ -47,7 +47,7 @@ export const NavigationRibbon = ({
     if (currentCompany?.id) {
       fetchCompanyModules(currentCompany.id);
     }
-  }, [currentCompany?.id, fetchCompanyModules]);
+  }, [currentCompany?.id]);
 
   if (!isOpen) return null;
 
