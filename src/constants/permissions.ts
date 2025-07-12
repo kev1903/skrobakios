@@ -24,16 +24,6 @@ export const defaultPermissions: Permission[] = [
   { id: 'manage_estimates', name: 'Manage Estimates', description: 'Create and manage project estimates', category: 'Financial Management' },
   { id: 'manage_invoicing', name: 'Manage Invoicing', description: 'Handle invoice creation and management', category: 'Financial Management' },
   { id: 'manage_integrations', name: 'Manage Integrations', description: 'Configure third-party integrations (Xero, etc)', category: 'Financial Management' },
-  
-  // Lead & Sales Management
-  { id: 'view_all_leads', name: 'View All Leads', description: 'Access leads across all companies', category: 'Lead & Sales Management' },
-  { id: 'manage_leads', name: 'Manage Leads', description: 'Create, edit, and manage leads', category: 'Lead & Sales Management' },
-  { id: 'view_sales_analytics', name: 'View Sales Analytics', description: 'Access sales performance and conversion data', category: 'Lead & Sales Management' },
-  
-  // Digital Twin & 3D Models
-  { id: 'view_all_models', name: 'View All 3D Models', description: 'Access 3D models across all projects', category: 'Digital Twin & 3D Models' },
-  { id: 'manage_digital_objects', name: 'Manage Digital Objects', description: 'Create and manage digital twin objects', category: 'Digital Twin & 3D Models' },
-  { id: 'upload_3d_models', name: 'Upload 3D Models', description: 'Upload and manage 3D model files', category: 'Digital Twin & 3D Models' },
 ];
 
 export const defaultRoles: Role[] = [

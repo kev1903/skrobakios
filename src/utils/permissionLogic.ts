@@ -15,9 +15,6 @@ export const getDefaultPermissions = (roleLevel: number): string[] => {
         'view_all_projects',
         'manage_projects',
         'view_project_analytics',
-        'manage_leads',
-        'view_sales_analytics',
-        'view_all_models',
       ];
     case 1: // Company Admin - company management and specific permissions
       return [
@@ -27,9 +24,6 @@ export const getDefaultPermissions = (roleLevel: number): string[] => {
         'manage_company_billing',
         'manage_estimates',
         'manage_invoicing',
-        'manage_leads',
-        'manage_digital_objects',
-        'upload_3d_models',
       ];
     default:
       return [];
