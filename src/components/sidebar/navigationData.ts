@@ -30,5 +30,6 @@ export const businessNavigation: NavigationItem[] = [
 
 export const supportNavigation: NavigationItem[] = [
   { id: "company-settings", label: "Company", icon: Building2 },
+  { id: "platform", label: "Platform", icon: Shield },
   { id: "support", label: "Help Center", icon: HelpCircle },
 ];
