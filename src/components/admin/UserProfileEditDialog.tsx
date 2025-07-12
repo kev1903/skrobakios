@@ -12,9 +12,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, Shield } from 'lucide-react';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { useAdminProfile } from '@/hooks/useAdminProfile';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useHierarchicalUserManagement } from '@/hooks/useHierarchicalUserManagement';
+import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
 
 interface UserProfileEditDialogProps {
   user: HierarchicalUser | null;
@@ -30,6 +33,8 @@ export const UserProfileEditDialog = ({
   onProfileUpdated
 }: UserProfileEditDialogProps) => {
   const { loading, fetchUserProfile, saveUserProfile } = useAdminProfile();
+  const { isSuperAdmin } = useUserRole();
+  const { addUserAppRole, removeUserAppRole, refreshUsers } = useHierarchicalUserManagement();
   const [saving, setSaving] = useState(false);
   const [profileData, setProfileData] = useState({
     first_name: '',
@@ -93,6 +98,7 @@ export const UserProfileEditDialog = ({
     
     if (success) {
       onProfileUpdated?.();
+      refreshUsers(); // Refresh to get updated user data including roles
       onOpenChange(false);
     }
     setSaving(false);
@@ -260,6 +266,23 @@ export const UserProfileEditDialog = ({
                 />
               </div>
             </div>
+
+            {/* Role Management Section - Only for SuperAdmins */}
+            {isSuperAdmin() && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Role Management
+                </h3>
+                <div className="p-4 border rounded-lg bg-muted/30">
+                  <HierarchicalRoleManagement
+                    user={user}
+                    onAddRole={addUserAppRole}
+                    onRemoveRole={removeUserAppRole}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
