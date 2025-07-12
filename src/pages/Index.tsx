@@ -55,31 +55,34 @@ const IndexContent = () => {
           />
         ) : currentPage === "home" ? (
           // Home page gets special treatment with map background and chat
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-            
-            {isPlatformMode ? (
-              // Platform mode with sidebar on home page
-              <SidebarProvider defaultOpen={false}>
-                <div className="relative z-10 flex min-h-screen">
+          isPlatformMode ? (
+            // Platform mode with sidebar on home page
+            <SidebarProvider defaultOpen={false}>
+              <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+                
+                <div className="relative z-10 flex min-h-screen w-full">
                   <PlatformSidebar />
                   <div className="flex-1">
-                    <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-                      <ContentRenderer 
-                        currentPage={currentPage}
-                        onNavigate={setCurrentPage}
-                        onSelectProject={handleSelectProject}
-                        selectedProject={selectedProject}
-                        currentProject={currentProject}
-                      />
-                    </PageLayout>
+                    <ContentRenderer 
+                      currentPage={currentPage}
+                      onNavigate={setCurrentPage}
+                      onSelectProject={handleSelectProject}
+                      selectedProject={selectedProject}
+                      currentProject={currentProject}
+                    />
                   </div>
                   <ModeIndicator />
                 </div>
-              </SidebarProvider>
-            ) : (
-              // Company mode without platform sidebar
+              </div>
+            </SidebarProvider>
+          ) : (
+            // Company mode without platform sidebar - original layout
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+              
               <div className="relative z-10 flex min-h-screen">
                 <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
                   <ContentRenderer 
@@ -92,8 +95,8 @@ const IndexContent = () => {
                 </PageLayout>
                 <ModeIndicator />
               </div>
-            )}
-          </div>
+            </div>
+          )
         ) : (
           // All other pages get clean layout with conditional platform sidebar
           <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
