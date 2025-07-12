@@ -11,17 +11,6 @@ import {
   Shield,
   Building2,
   Users,
-  UserCog,
-  CreditCard,
-  Settings,
-  Activity,
-  LifeBuoy,
-  Database,
-  Key,
-  Globe,
-  FileText,
-  AlertTriangle,
-  Bell,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
@@ -46,27 +35,7 @@ export const supportNavigation: NavigationItem[] = [
 ];
 
 export const platformNavigation: NavigationItem[] = [
-  // Tenants
-  { id: "platform-tenants", label: "Tenants", icon: Building2 },
-  { id: "platform-tenant-plans", label: "Tenant Plans", icon: Database },
-  
-  // Users & Roles
-  { id: "platform-users", label: "Global Users", icon: Users },
-  { id: "platform-roles", label: "Roles & Permissions", icon: UserCog },
-  
-  // Billing
-  { id: "platform-billing", label: "Billing Management", icon: CreditCard },
-  { id: "platform-subscriptions", label: "Subscriptions", icon: FileText },
-  
-  // Settings
-  { id: "platform-settings", label: "Platform Settings", icon: Settings },
-  { id: "platform-integrations", label: "Integrations", icon: Globe },
-  
-  // Security & Logs
-  { id: "platform-security", label: "Security", icon: Shield },
-  { id: "platform-logs", label: "Activity Logs", icon: Activity },
-  
-  // Support
-  { id: "platform-support", label: "Support Center", icon: LifeBuoy },
-  { id: "platform-tickets", label: "Ticket Management", icon: Bell },
+  { id: "platform-users", label: "Platform Users", icon: Users },
+  { id: "platform-companies", label: "All Companies", icon: Building2 },
+  { id: "platform-settings", label: "Platform Settings", icon: Shield },
 ];
