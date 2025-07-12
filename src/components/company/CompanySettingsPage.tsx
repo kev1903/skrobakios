@@ -28,7 +28,13 @@ import {
   Bell,
   Palette,
   Plug,
-  Globe
+  Globe,
+  FolderKanban,
+  BarChart3,
+  Calendar,
+  FileText,
+  Map,
+  Target
 } from 'lucide-react';
 import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
@@ -227,45 +233,54 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="w-full overflow-x-auto">
-            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-8' : 'grid-cols-7'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
-              <TabsTrigger value="profile" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Building2 className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Profile</span>
-              </TabsTrigger>
-              <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Settings className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">General</span>
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Bell className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Notifications</span>
-              </TabsTrigger>
-              <TabsTrigger value="appearance" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Palette className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Appearance</span>
-              </TabsTrigger>
-              <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Users className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Roles</span>
-              </TabsTrigger>
-              <TabsTrigger value="integrations" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Plug className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Integrations</span>
-              </TabsTrigger>
-              <TabsTrigger value="members" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <UserPlus className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Members</span>
-              </TabsTrigger>
-              {isSuperAdmin() && (
-                <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Shield className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Admin</span>
-                </TabsTrigger>
-              )}
-            </TabsList>
-          </div>
+        {/* Module Sections */}
+        <div className="space-y-8">
+          {/* Company Section */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 pb-4 border-b">
+              <Building2 className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">Company</h2>
+            </div>
+            
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <div className="w-full overflow-x-auto">
+                <TabsList className="flex w-full min-w-fit backdrop-blur-sm bg-white/60 p-1">
+                  <TabsTrigger value="profile" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Building2 className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Profile</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Settings className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">General</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="notifications" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Bell className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Notifications</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="appearance" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Palette className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Appearance</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Users className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Roles</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="integrations" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Plug className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Integrations</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="members" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <UserPlus className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Members</span>
+                  </TabsTrigger>
+                  {isSuperAdmin() && (
+                    <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                      <Shield className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-xs md:text-sm">Admin</span>
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              </div>
 
           <TabsContent value="profile" className="space-y-6">
             <Card>
@@ -532,7 +547,163 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
               </Card>
             </TabsContent>
           )}
-        </Tabs>
+            </Tabs>
+          </div>
+
+          {/* Project Modules Section */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 pb-4 border-b">
+              <FolderKanban className="w-5 h-5 text-green-600" />
+              <h2 className="text-xl font-semibold text-slate-800">Project Modules</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Project Management Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <FolderKanban className="w-6 h-6 text-green-600" />
+                    <span>Project Management</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Manage project timelines, tasks, and deliverables
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Task management and assignment</p>
+                    <p>• Project timeline tracking</p>
+                    <p>• Milestone management</p>
+                    <p>• Team collaboration</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Analytics & Reporting Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-blue-200 hover:border-blue-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <BarChart3 className="w-6 h-6 text-blue-600" />
+                    <span>Analytics & Reporting</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Project insights and performance metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Performance dashboards</p>
+                    <p>• Progress tracking</p>
+                    <p>• Resource utilization</p>
+                    <p>• Custom reports</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Time Tracking Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-purple-200 hover:border-purple-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <Calendar className="w-6 h-6 text-purple-600" />
+                    <span>Time Tracking</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Track time spent on projects and tasks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Automatic time tracking</p>
+                    <p>• Manual time entries</p>
+                    <p>• Timesheet management</p>
+                    <p>• Billing integration</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Document Management Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-orange-200 hover:border-orange-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <FileText className="w-6 h-6 text-orange-600" />
+                    <span>Document Management</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Organize and share project documents
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• File storage and sharing</p>
+                    <p>• Version control</p>
+                    <p>• Document templates</p>
+                    <p>• Access permissions</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Geographic Mapping Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-teal-200 hover:border-teal-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <Map className="w-6 h-6 text-teal-600" />
+                    <span>Geographic Mapping</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Location-based project management
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Project location mapping</p>
+                    <p>• Route optimization</p>
+                    <p>• Geographic analytics</p>
+                    <p>• Asset tracking</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Goal Management Module */}
+              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 border-red-200 hover:border-red-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center space-x-3">
+                    <Target className="w-6 h-6 text-red-600" />
+                    <span>Goal Management</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Set and track project objectives
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p>• Goal setting and tracking</p>
+                    <p>• KPI monitoring</p>
+                    <p>• Progress visualization</p>
+                    <p>• Achievement rewards</p>
+                  </div>
+                  <Button className="w-full mt-4" variant="outline">
+                    Configure Module
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
