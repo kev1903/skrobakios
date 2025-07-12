@@ -423,6 +423,8 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     return () => clearTimeout(timer);
   }, [currentCompany]); // Only depend on company changes
 
+  console.log('HomePage render:', { isPlatformMode, isLoading, error, hasMapContainer: !!mapContainer.current, hasMap: !!map.current });
+
   return (
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="absolute inset-0" />
@@ -485,14 +487,36 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         </div>
       )}
       
-      {/* Centered Company Name with AI Effects */}
-      <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
-      
-      {/* Bottom Chat Box */}
-      <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
-      
-      {/* AI Chat Bar */}
-      <AiChatBar />
+      {/* Company Mode UI Elements */}
+      {!isPlatformMode && (
+        <>
+          {/* Centered Company Name with AI Effects */}
+          <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
+          
+          {/* Bottom Chat Box */}
+          <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
+          
+          {/* AI Chat Bar */}
+          <AiChatBar />
+        </>
+      )}
+
+      {/* Platform Mode UI Elements */}
+      {isPlatformMode && (
+        <>
+          {/* Platform Mode Content */}
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-2xl px-6 py-3">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-white/90 text-sm font-medium">Platform Administration Mode</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
