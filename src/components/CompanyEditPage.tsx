@@ -182,7 +182,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
               {isSuperAdmin() && (
                 <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                   <Shield className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Admin</span>
+                  <span className="text-xs md:text-sm">Modules</span>
                 </TabsTrigger>
               )}
             </TabsList>
