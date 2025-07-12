@@ -18,7 +18,10 @@ export const RoleSwitcher = () => {
   const { operatingMode, setOperatingMode, canSwitchMode, isPlatformMode, isCompanyMode } = useRoleContext();
   const { currentCompany } = useCompany();
 
+  console.log('RoleSwitcher Debug:', { operatingMode, canSwitchMode, isPlatformMode, isCompanyMode });
+
   if (!canSwitchMode) {
+    console.log('RoleSwitcher: Cannot switch mode, not showing switcher');
     return null;
   }
 
