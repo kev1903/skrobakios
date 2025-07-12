@@ -53,6 +53,11 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
   });
   const [companies, setCompanies] = useState<any[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(true);
+  const [userStats, setUserStats] = useState({
+    totalUsers: 0,
+    weeklyGrowth: 0,
+    isLoading: true
+  });
   const { toast } = useToast();
 
   const handleLogout = async () => {
@@ -138,6 +143,43 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     }
   };
 
+  // Fetch user statistics
+  const fetchUserStats = async () => {
+    try {
+      setUserStats(prev => ({ ...prev, isLoading: true }));
+      
+      // Get total users from profiles table
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, created_at')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      const totalUsers = profiles?.length || 0;
+      
+      // Calculate weekly growth
+      const currentDate = new Date();
+      const oneWeekAgo = new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+      
+      const weeklyGrowth = profiles?.filter(profile => 
+        new Date(profile.created_at) >= oneWeekAgo
+      ).length || 0;
+
+      setUserStats({
+        totalUsers,
+        weeklyGrowth,
+        isLoading: false
+      });
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+      setUserStats(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
   // Fetch company statistics
   useEffect(() => {
     const fetchCompanyStats = async () => {
@@ -183,9 +225,10 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
 
     fetchCompanyStats();
     fetchCompanies();
+    fetchUserStats();
 
-    // Set up real-time subscription
-    const channel = supabase
+    // Set up real-time subscriptions
+    const companyChannel = supabase
       .channel('company-changes')
       .on(
         'postgres_changes',
@@ -201,8 +244,24 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
       )
       .subscribe();
 
+    const profilesChannel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          fetchUserStats();
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(companyChannel);
+      supabase.removeChannel(profilesChannel);
     };
   }, []);
 
@@ -248,8 +307,20 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Total Users</p>
-                      <p className="text-2xl font-bold">8,429</p>
-                      <p className="text-xs text-green-600">+156 this week</p>
+                      <p className="text-2xl font-bold">
+                        {userStats.isLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          userStats.totalUsers.toLocaleString()
+                        )}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {userStats.isLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          `+${userStats.weeklyGrowth} this week`
+                        )}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
