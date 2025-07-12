@@ -51,6 +51,8 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     monthlyGrowth: 0,
     isLoading: true
   });
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [companiesLoading, setCompaniesLoading] = useState(true);
   const { toast } = useToast();
 
   const handleLogout = async () => {
@@ -79,6 +81,62 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     { title: "Security & Logs", icon: Shield, id: "security" },
     { title: "Support", icon: HeadphonesIcon, id: "support" },
   ];
+
+  // Fetch companies data
+  const fetchCompanies = async () => {
+    try {
+      setCompaniesLoading(true);
+      const { data: companiesData, error } = await supabase
+        .from('companies')
+        .select(`
+          id, 
+          name, 
+          slug, 
+          logo_url, 
+          created_at,
+          website,
+          address,
+          phone
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      // Get company member counts
+      const companiesWithStats = await Promise.all(
+        (companiesData || []).map(async (company) => {
+          const { data: members, error: membersError } = await supabase
+            .from('company_members')
+            .select('id')
+            .eq('company_id', company.id)
+            .eq('status', 'active');
+
+          if (membersError) {
+            console.error('Error fetching members for company:', company.id, membersError);
+          }
+
+          return {
+            ...company,
+            memberCount: members?.length || 0,
+            status: 'active' // For now, all companies are active
+          };
+        })
+      );
+
+      setCompanies(companiesWithStats);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load companies",
+        variant: "destructive",
+      });
+    } finally {
+      setCompaniesLoading(false);
+    }
+  };
 
   // Fetch company statistics
   useEffect(() => {
@@ -124,6 +182,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     };
 
     fetchCompanyStats();
+    fetchCompanies();
 
     // Set up real-time subscription
     const channel = supabase
@@ -137,6 +196,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
         },
         () => {
           fetchCompanyStats();
+          fetchCompanies();
         }
       )
       .subscribe();
@@ -318,33 +378,53 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {[
-                      { name: "TechCorp Inc.", plan: "Enterprise", users: 45, status: "active" },
-                      { name: "StartupAI", plan: "Professional", users: 12, status: "active" },
-                      { name: "DesignStudio", plan: "Basic", users: 8, status: "trial" },
-                      { name: "ConsultingPro", plan: "Enterprise", users: 78, status: "active" },
-                    ].map((tenant, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-primary" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{tenant.name}</p>
-                            <p className="text-sm text-muted-foreground">{tenant.users} users</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={tenant.status === 'active' ? 'default' : 'secondary'}>
-                            {tenant.plan}
-                          </Badge>
-                          <Badge variant={tenant.status === 'active' ? 'secondary' : 'outline'}>
-                            {tenant.status}
-                          </Badge>
-                          <Button variant="ghost" size="sm">Edit</Button>
-                        </div>
+                    {companiesLoading ? (
+                      <div className="flex items-center justify-center p-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                       </div>
-                    ))}
+                    ) : companies.length === 0 ? (
+                      <div className="text-center p-8 text-muted-foreground">
+                        No companies found
+                      </div>
+                    ) : (
+                      companies.map((company, index) => (
+                        <div key={company.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                              {company.logo_url ? (
+                                <img 
+                                  src={company.logo_url} 
+                                  alt={`${company.name} logo`}
+                                  className="w-8 h-8 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <Building2 className="w-5 h-5 text-primary" />
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium">{company.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {company.memberCount} member{company.memberCount !== 1 ? 's' : ''}
+                              </p>
+                              {company.website && (
+                                <p className="text-xs text-muted-foreground">{company.website}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="secondary">
+                              {company.status}
+                            </Badge>
+                            <div className="text-right">
+                              <p className="text-xs text-muted-foreground">
+                                Created: {new Date(company.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Button variant="ghost" size="sm">Edit</Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
