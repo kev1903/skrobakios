@@ -37,6 +37,7 @@ import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
 import { CompanyUserManagement } from './settings/CompanyUserManagement';
 import { Company } from '@/types/company';
+import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
 
 interface CompanySettingsPageProps {
   onNavigate: (page: string) => void;
@@ -53,6 +54,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
   const [activeTab, setActiveTab] = useState('profile');
   const { theme, setTheme } = useTheme();
   const { isSuperAdmin, isOwner } = useUserRole();
+  const { getEnabledModules, fetchCompanyModules } = useCompanyModules();
   
   const [companyForm, setCompanyForm] = useState({
     name: '',
@@ -64,6 +66,8 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     slogan: '',
     logo_url: ''
   });
+
+  const [enabledModules, setEnabledModules] = useState<string[]>([]);
 
 
   // Load full company details - only on initial load
@@ -89,6 +93,11 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
               logo_url: company.logo_url || ''
             });
           }
+          
+          // Fetch enabled modules for this company
+          await fetchCompanyModules(currentCompany.id);
+          const enabled = getEnabledModules(currentCompany.id);
+          setEnabledModules(enabled);
         }
       } catch (error) {
         console.error('Error loading company details:', error);
@@ -368,6 +377,40 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                     {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Right Column - Available Modules (Read-only for Company Owners) */}
+            <Card className="backdrop-blur-xl bg-white/80 border-white/30 shadow-lg">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Available Modules
+                </CardTitle>
+                <p className="text-slate-600 text-sm">Modules enabled for your company by the platform administrator</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {enabledModules.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <Settings className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+                    <p className="text-sm">No modules are currently enabled for your company.</p>
+                    <p className="text-xs mt-2">Contact your platform administrator to enable modules.</p>
+                  </div>
+                ) : (
+                  AVAILABLE_MODULES
+                    .filter(module => enabledModules.includes(module.key))
+                    .map((module) => (
+                      <div key={module.key} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-slate-200/50">
+                        <div>
+                          <h4 className="text-sm font-medium text-slate-800">{module.name}</h4>
+                          <p className="text-xs text-slate-500">{module.description}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Enabled</span>
+                        </div>
+                      </div>
+                    ))
+                )}
               </CardContent>
             </Card>
           </div>

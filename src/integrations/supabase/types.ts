@@ -100,6 +100,41 @@ export type Database = {
           },
         ]
       }
+      company_modules: {
+        Row: {
+          company_id: string
+          created_at: string
+          enabled: boolean
+          id: string
+          module_name: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          module_name: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          module_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_modules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digital_objects: {
         Row: {
           company_id: string

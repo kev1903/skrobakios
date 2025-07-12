@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Company } from '@/types/company';
 import { CompanyDetailsForm } from '@/components/company-edit/CompanyDetailsForm';
+import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
 import { CompanyRolesSection } from '@/components/company-edit/CompanyRolesSection';
 import { CompanyPermissionsSection } from '@/components/company-edit/CompanyPermissionsSection';
 import { CompanyRolesTab } from '@/components/company/settings/CompanyRolesTab';
@@ -29,12 +30,17 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
   const { getCompany, updateCompany } = useCompanies();
   const { toast } = useToast();
   const { isSuperAdmin } = useUserRole();
+  const { modules, loading: modulesLoading, fetchCompanyModules, updateModuleStatus, isModuleEnabled } = useCompanyModules();
 
   useEffect(() => {
     const fetchCompany = async () => {
       try {
         const companyData = await getCompany(companyId);
         setCompany(companyData);
+        // Fetch company modules for platform admins
+        if (isSuperAdmin()) {
+          await fetchCompanyModules(companyId);
+        }
       } catch (error) {
         console.error('Error fetching company:', error);
         toast({
@@ -77,7 +83,22 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
     }
   };
 
-  if (loading) {
+  const handleModuleToggle = async (moduleName: string, enabled: boolean) => {
+    if (!company) return;
+    
+    try {
+      await updateModuleStatus(company.id, moduleName, enabled);
+      toast({
+        title: "Success",
+        description: `${moduleName} module ${enabled ? 'enabled' : 'disabled'} successfully`
+      });
+    } catch (error) {
+      console.error('Error updating module:', error);
+      // Error is already handled in the hook
+    }
+  };
+
+  if (loading || modulesLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
         <div className="text-slate-600">Loading company details...</div>
@@ -321,6 +342,33 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                       <Button variant="outline" size="sm">Configure</Button>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Company Modules Section - Only for Super Admins */}
+              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+                <CardHeader className="pb-4 md:pb-6">
+                  <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Company Modules
+                  </CardTitle>
+                  <CardDescription className="text-sm md:text-base">
+                    Control which modules are available for {company?.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {AVAILABLE_MODULES.map((module) => (
+                    <div key={module.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                      <div>
+                        <h4 className="text-sm font-medium">{module.name}</h4>
+                        <p className="text-xs md:text-sm text-slate-500">{module.description}</p>
+                      </div>
+                      <Switch 
+                        checked={isModuleEnabled(company?.id || '', module.key)}
+                        onCheckedChange={(checked) => handleModuleToggle(module.key, checked)}
+                      />
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </TabsContent>
