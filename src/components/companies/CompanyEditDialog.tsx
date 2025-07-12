@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Globe, MapPin, Phone, Hash, MessageSquare, FolderKanban, Clock, Calculator, FileText, FolderOpen, BarChart3, Plug, Code } from 'lucide-react';
+import { Building2, Globe, MapPin, Phone, Hash, MessageSquare, FolderKanban, DollarSign, TrendingUp } from 'lucide-react';
 import { Company } from '@/types/company';
 
 interface CompanyEditDialogProps {
@@ -26,13 +26,8 @@ interface CompanyEditDialogProps {
 
 interface CompanyModules {
   projects: boolean;
-  timeTracking: boolean;
-  estimating: boolean;
-  invoicing: boolean;
-  fileManagement: boolean;
-  reporting: boolean;
-  integrations: boolean;
-  apiAccess: boolean;
+  finance: boolean;
+  sales: boolean;
 }
 
 export const CompanyEditDialog = ({
@@ -44,13 +39,8 @@ export const CompanyEditDialog = ({
   const [formData, setFormData] = useState<Partial<Company>>({});
   const [modules, setModules] = useState<CompanyModules>({
     projects: true,
-    timeTracking: true,
-    estimating: true,
-    invoicing: true,
-    fileManagement: true,
-    reporting: true,
-    integrations: false,
-    apiAccess: false,
+    finance: false,
+    sales: false,
   });
   const [saving, setSaving] = useState(false);
 
@@ -219,8 +209,8 @@ export const CompanyEditDialog = ({
                   <div className="flex items-center space-x-3">
                     <FolderKanban className="w-5 h-5 text-blue-600" />
                     <div>
-                      <Label className="text-sm font-medium">Project Management</Label>
-                      <p className="text-xs text-slate-500">Create and manage projects</p>
+                      <Label className="text-sm font-medium">Projects</Label>
+                      <p className="text-xs text-slate-500">Project management and tracking</p>
                     </div>
                   </div>
                   <Switch
@@ -233,15 +223,15 @@ export const CompanyEditDialog = ({
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <Clock className="w-5 h-5 text-green-600" />
+                    <DollarSign className="w-5 h-5 text-green-600" />
                     <div>
-                      <Label className="text-sm font-medium">Time Tracking</Label>
-                      <p className="text-xs text-slate-500">Track time on tasks and projects</p>
+                      <Label className="text-sm font-medium">Finance</Label>
+                      <p className="text-xs text-slate-500">Financial management and accounting</p>
                     </div>
                   </div>
                   <Switch
-                    checked={modules.timeTracking}
-                    onCheckedChange={(checked) => handleModuleToggle('timeTracking', checked)}
+                    checked={modules.finance}
+                    onCheckedChange={(checked) => handleModuleToggle('finance', checked)}
                   />
                 </div>
 
@@ -249,95 +239,15 @@ export const CompanyEditDialog = ({
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <Calculator className="w-5 h-5 text-purple-600" />
+                    <TrendingUp className="w-5 h-5 text-purple-600" />
                     <div>
-                      <Label className="text-sm font-medium">Estimating</Label>
-                      <p className="text-xs text-slate-500">Create and manage estimates</p>
+                      <Label className="text-sm font-medium">Sales</Label>
+                      <p className="text-xs text-slate-500">Sales management and CRM</p>
                     </div>
                   </div>
                   <Switch
-                    checked={modules.estimating}
-                    onCheckedChange={(checked) => handleModuleToggle('estimating', checked)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <FileText className="w-5 h-5 text-orange-600" />
-                    <div>
-                      <Label className="text-sm font-medium">Invoicing</Label>
-                      <p className="text-xs text-slate-500">Generate and manage invoices</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={modules.invoicing}
-                    onCheckedChange={(checked) => handleModuleToggle('invoicing', checked)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <FolderOpen className="w-5 h-5 text-teal-600" />
-                    <div>
-                      <Label className="text-sm font-medium">File Management</Label>
-                      <p className="text-xs text-slate-500">Upload and organize files</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={modules.fileManagement}
-                    onCheckedChange={(checked) => handleModuleToggle('fileManagement', checked)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <BarChart3 className="w-5 h-5 text-red-600" />
-                    <div>
-                      <Label className="text-sm font-medium">Reporting</Label>
-                      <p className="text-xs text-slate-500">Generate reports and analytics</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={modules.reporting}
-                    onCheckedChange={(checked) => handleModuleToggle('reporting', checked)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Plug className="w-5 h-5 text-indigo-600" />
-                    <div>
-                      <Label className="text-sm font-medium">Integrations</Label>
-                      <p className="text-xs text-slate-500">Connect with third-party services</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={modules.integrations}
-                    onCheckedChange={(checked) => handleModuleToggle('integrations', checked)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Code className="w-5 h-5 text-slate-600" />
-                    <div>
-                      <Label className="text-sm font-medium">API Access</Label>
-                      <p className="text-xs text-slate-500">Enable API access for developers</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={modules.apiAccess}
-                    onCheckedChange={(checked) => handleModuleToggle('apiAccess', checked)}
+                    checked={modules.sales}
+                    onCheckedChange={(checked) => handleModuleToggle('sales', checked)}
                   />
                 </div>
               </div>

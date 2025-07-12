@@ -1420,6 +1420,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      initialize_company_modules: {
+        Args: { target_company_id: string }
+        Returns: undefined
+      }
       is_company_admin_or_owner: {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean

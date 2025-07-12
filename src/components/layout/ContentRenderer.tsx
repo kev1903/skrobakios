@@ -14,7 +14,7 @@ import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { LandingPage } from "@/components/LandingPage";
-
+import { ModuleProtectedRoute } from "@/components/auth/ModuleProtectedRoute";
 
 import { SettingsPage } from "@/components/SettingsPage";
 import { SupportPage } from "@/components/SupportPage";
@@ -80,78 +80,170 @@ export const ContentRenderer = ({
       onNavigate("company-settings");
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "create-project":
-      return <CreateProject onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+          <CreateProject onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "projects":
-      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+      return (
+        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+          <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />
+        </ModuleProtectedRoute>
+      );
     case "project-detail":
-      return <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+          <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "project-tasks":
-      return currentProject ? <ProjectTasksPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="tasks" onNavigate={onNavigate}>
+          <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-files":
-      return currentProject ? <ProjectFilePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="files" onNavigate={onNavigate}>
+          <ProjectFilePage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-settings":
-      return currentProject ? <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+          <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-schedule":
-      return currentProject ? <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="schedule" onNavigate={onNavigate}>
+          <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-team":
-      return currentProject ? <div className="p-8 text-center">Team management has been removed</div> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="team" onNavigate={onNavigate}>
+          <div className="p-8 text-center">Team management has been removed</div>
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-digital-twin":
-      return currentProject ? <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="digital-twin" onNavigate={onNavigate}>
+          <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-wbs":
-      return currentProject ? <WBSPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+          <WBSPage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "gantt-chart":
-      return currentProject ? <GanttChartPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="schedule" onNavigate={onNavigate}>
+          <GanttChartPage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "upload":
-      return <UploadProject onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+          <UploadProject onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "files":
-      return <FilePage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="files" onNavigate={onNavigate}>
+          <FilePage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "finance":
-      return <FinancePage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+          <FinancePage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "finance-settings":
-      return <FinanceSettingsPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+          <FinanceSettingsPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "cashflow":
-      return <CashFlowPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+          <CashFlowPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "invoices":
-      return <InvoicesPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+          <InvoicesPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "bills":
-      return <BillsPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+          <BillsPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "recurring":
-      return <RecurringPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+          <RecurringPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "sales":
-      return <SalesPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="sales" onNavigate={onNavigate}>
+          <SalesPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "cost-contracts":
-      return <CostContractsPage onNavigate={onNavigate} />;
+      return (
+        <ModuleProtectedRoute requiredModule="cost-contracts" onNavigate={onNavigate}>
+          <CostContractsPage onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      );
     case "project-cost":
-      return currentProject ? <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
-          <ProjectSidebar project={currentProject} onNavigate={onNavigate} getStatusColor={(status: string) => {
-          switch (status) {
-            case "completed":
-              return "bg-green-500/20 text-green-300 border-green-500/30";
-            case "running":
-              return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-            case "pending":
-              return "bg-red-500/20 text-red-300 border-red-500/30";
-            default:
-              return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-          }
-        }} getStatusText={(status: string) => {
-          switch (status) {
-            case "completed":
-              return "Completed";
-            case "running":
-              return "In Progress";
-            case "pending":
-              return "Pending";
-            default:
-              return "Active";
-          }
-        }} activeSection="cost" />
-          <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
-            <CostContractsPage onNavigate={onNavigate} />
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="cost-contracts" onNavigate={onNavigate}>
+          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+            <ProjectSidebar project={currentProject} onNavigate={onNavigate} getStatusColor={(status: string) => {
+            switch (status) {
+              case "completed":
+                return "bg-green-500/20 text-green-300 border-green-500/30";
+              case "running":
+                return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+              case "pending":
+                return "bg-red-500/20 text-red-300 border-red-500/30";
+              default:
+                return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+            }
+          }} getStatusText={(status: string) => {
+            switch (status) {
+              case "completed":
+                return "Completed";
+              case "running":
+                return "In Progress";
+              case "pending":
+                return "Pending";
+              default:
+                return "Active";
+            }
+          }} activeSection="cost" />
+            <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+              <CostContractsPage onNavigate={onNavigate} />
+            </div>
           </div>
-        </div> : renderProjectNotFound();
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "bim":
-      return currentProject ? <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} /> : renderProjectNotFound();
+      return currentProject ? (
+        <ModuleProtectedRoute requiredModule="digital-objects" onNavigate={onNavigate}>
+          <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
+        </ModuleProtectedRoute>
+      ) : renderProjectNotFound();
     case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={null} />;
     case "support":
