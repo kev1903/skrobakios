@@ -60,7 +60,7 @@ export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[200px]" align="start">
+      <DropdownMenuContent className="w-[200px] bg-white/95 backdrop-blur-sm border border-white/20 shadow-xl z-50" align="start">
         {companies.map((company) => (
           <DropdownMenuItem
             key={company.id}
