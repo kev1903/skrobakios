@@ -11,7 +11,7 @@ import { useProjectState } from "@/hooks/useProjectState";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState("auth");
+  const [currentPage, setCurrentPage] = useState("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
 
   // Handle URL parameters for direct navigation
@@ -27,8 +27,8 @@ const Index = () => {
       <UserProvider>
         <DigitalObjectsProvider>
           <TaskProvider>
-          {currentPage === "sales" || currentPage === "projects" ? (
-            // Sales CRM and Projects take full screen - no main layout wrapper
+          {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
+            // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
             <ContentRenderer 
               currentPage={currentPage}
               onNavigate={setCurrentPage}

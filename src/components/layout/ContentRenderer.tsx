@@ -13,6 +13,7 @@ import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
+import { LandingPage } from "@/components/LandingPage";
 
 
 import { SettingsPage } from "@/components/SettingsPage";
@@ -58,6 +59,8 @@ export const ContentRenderer = ({
       <p className="text-slate-500">Project not found</p>
     </div>;
   switch (currentPage) {
+    case "landing":
+      return <LandingPage onNavigate={onNavigate} />;
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
     case "home":
@@ -172,6 +175,6 @@ export const ContentRenderer = ({
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     default:
-      return <AuthPage onNavigate={onNavigate} />;
+      return <LandingPage onNavigate={onNavigate} />;
   }
 };
