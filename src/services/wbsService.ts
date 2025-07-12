@@ -1,24 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { WBSItem } from '@/types/wbs';
-import { createSampleWBSData } from '@/data/wbsSampleData';
-
-interface WBSItemInput {
-  project_id: string;
-  parent_id?: string | null;
-  wbs_id: string;
-  title: string;
-  description?: string;
-  assigned_to?: string;
-  start_date: string;
-  end_date: string;
-  duration: number;
-  budgeted_cost: number;
-  actual_cost: number;
-  progress: number;
-  level: number;
-  is_expanded: boolean;
-  linked_tasks: string[];
-}
+import { WBSItem, WBSItemInput } from '@/types/wbs';
 
 export class WBSService {
   // Create sample data for a project - temporarily disabled for company isolation
