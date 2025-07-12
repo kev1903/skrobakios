@@ -73,12 +73,12 @@ const IndexContent = () => {
                     {/* Main Content */}
                     <div className="flex-1 flex flex-col">
                       {/* Header with sidebar trigger */}
-                      <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur-sm px-4">
-                        <SidebarTrigger className="mr-2" />
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-muted-foreground">Platform Administration</span>
-                        </div>
-                      </header>
+                       <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur-sm px-4">
+                         <SidebarTrigger className="mr-2 p-2 hover:bg-muted rounded-md transition-colors" />
+                         <div className="flex items-center gap-2">
+                           <span className="text-sm font-medium text-muted-foreground">Platform Administration</span>
+                         </div>
+                       </header>
                       
                       {/* Page Content */}
                       <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>

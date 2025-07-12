@@ -428,6 +428,31 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       <div ref={mapContainer} className="absolute inset-0" />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
       
+      {/* Platform Mode Hamburger Button */}
+      {isPlatformMode && (
+        <div className="absolute top-4 left-4 z-50">
+          <button 
+            className="p-3 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg hover:bg-muted transition-colors"
+            onClick={() => {
+              // This will trigger the sidebar toggle
+              const sidebarTrigger = document.querySelector('[data-sidebar="trigger"]') as HTMLButtonElement;
+              if (sidebarTrigger) {
+                sidebarTrigger.click();
+              }
+            }}
+          >
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Floating Top Bar - Only show in Company Mode */}
       {!isPlatformMode && (
         <HomeFloatingBar 
