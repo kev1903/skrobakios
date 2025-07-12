@@ -323,9 +323,11 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="company-modules" className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-2">
+                    <TabsList className={`grid w-full ${isModuleEnabled(company?.id || '', 'projects') ? 'grid-cols-2' : 'grid-cols-1'}`}>
                       <TabsTrigger value="company-modules">Company Modules</TabsTrigger>
-                      <TabsTrigger value="project-modules">Project Modules</TabsTrigger>
+                      {isModuleEnabled(company?.id || '', 'projects') && (
+                        <TabsTrigger value="project-modules">Project Modules</TabsTrigger>
+                      )}
                     </TabsList>
                     
                     <TabsContent value="company-modules" className="space-y-4">
@@ -345,22 +347,24 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                       ))}
                     </TabsContent>
                     
-                    <TabsContent value="project-modules" className="space-y-4">
-                      {AVAILABLE_MODULES.filter(module => 
-                        ['dashboard', 'digital-twin', 'cost-contracts', 'schedule', 'tasks', 'files', 'team', 'digital-objects'].includes(module.key)
-                      ).map((module) => (
-                        <div key={module.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                          <div>
-                            <h4 className="text-sm font-medium">{module.name}</h4>
-                            <p className="text-xs md:text-sm text-slate-500">{module.description}</p>
+                    {isModuleEnabled(company?.id || '', 'projects') && (
+                      <TabsContent value="project-modules" className="space-y-4">
+                        {AVAILABLE_MODULES.filter(module => 
+                          ['dashboard', 'digital-twin', 'cost-contracts', 'schedule', 'tasks', 'files', 'team', 'digital-objects'].includes(module.key)
+                        ).map((module) => (
+                          <div key={module.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                            <div>
+                              <h4 className="text-sm font-medium">{module.name}</h4>
+                              <p className="text-xs md:text-sm text-slate-500">{module.description}</p>
+                            </div>
+                            <Switch 
+                              checked={isModuleEnabled(company?.id || '', module.key)}
+                              onCheckedChange={(checked) => handleModuleToggle(module.key, checked)}
+                            />
                           </div>
-                          <Switch 
-                            checked={isModuleEnabled(company?.id || '', module.key)}
-                            onCheckedChange={(checked) => handleModuleToggle(module.key, checked)}
-                          />
-                        </div>
-                      ))}
-                    </TabsContent>
+                        ))}
+                      </TabsContent>
+                    )}
                   </Tabs>
                 </CardContent>
               </Card>
