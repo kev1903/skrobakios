@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink } from 'lucide-react';
+import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink, Puzzle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -112,6 +112,10 @@ export const PlatformDashboard = ({
     title: "Company",
     icon: Building2,
     id: "tenants"
+  }, {
+    title: "Modules",
+    icon: Puzzle,
+    id: "modules"
   }, {
     title: "Users & Roles",
     icon: UserCog,
@@ -503,6 +507,110 @@ export const PlatformDashboard = ({
 
             {/* Edit Dialog */}
             <CompanyEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} />
+          </div>;
+      case 'modules':
+        return <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Platform Modules</h2>
+                <p className="text-muted-foreground">Manage available modules and features across the platform</p>
+              </div>
+              <Button>
+                <Puzzle className="w-4 h-4 mr-2" />
+                Create Module
+              </Button>
+            </div>
+
+            {/* Module Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-500/10">
+                      <Building2 className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Projects Module</p>
+                      <p className="text-2xl font-bold">85%</p>
+                      <p className="text-xs text-green-600">Adoption rate</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <Activity className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Time Tracking</p>
+                      <p className="text-2xl font-bold">72%</p>
+                      <p className="text-xs text-green-600">Adoption rate</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10">
+                      <Users className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Leads Module</p>
+                      <p className="text-2xl font-bold">61%</p>
+                      <p className="text-xs text-orange-600">Adoption rate</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Available Modules */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Puzzle className="w-5 h-5" />
+                  Available Modules
+                </CardTitle>
+                <CardDescription>
+                  Configure which modules are available to companies
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { name: 'Projects', description: 'Project management and tracking', enabled: true, companies: 45 },
+                    { name: 'Tasks', description: 'Task management and assignment', enabled: true, companies: 42 },
+                    { name: 'Time Tracking', description: 'Track time spent on activities', enabled: true, companies: 38 },
+                    { name: 'Leads', description: 'Lead management and CRM', enabled: true, companies: 32 },
+                    { name: 'Estimates', description: 'Create and manage estimates', enabled: true, companies: 28 },
+                    { name: 'Digital Objects', description: 'Digital asset management', enabled: false, companies: 15 },
+                    { name: 'Reports', description: 'Analytics and reporting', enabled: true, companies: 40 },
+                    { name: 'Integrations', description: 'Third-party integrations', enabled: true, companies: 25 }
+                  ].map((module) => (
+                    <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">{module.name}</h4>
+                        <p className="text-sm text-muted-foreground">{module.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={module.enabled ? "default" : "secondary"}>
+                          {module.enabled ? "Active" : "Inactive"}
+                        </Badge>
+                        <Button variant="outline" size="sm">
+                          Configure
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>;
       case 'users':
         return <div className="space-y-6">
