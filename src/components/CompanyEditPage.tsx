@@ -330,7 +330,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                     
                     <TabsContent value="company-modules" className="space-y-4">
                       {AVAILABLE_MODULES.filter(module => 
-                        ['projects', 'leads', 'estimates', 'time_tracking', 'reports', 'integrations'].includes(module.key)
+                        ['projects', 'finance', 'sales'].includes(module.key)
                       ).map((module) => (
                         <div key={module.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                           <div>
