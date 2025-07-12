@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Globe, MapPin, Save } from 'lucide-react';
+import { Building2, Globe, MapPin, Save, Upload, FolderKanban, Clock, Calculator, FileText, Folder, BarChart3, Plug, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
+import { Switch } from '@/components/ui/switch';
 import { Company } from '@/types/company';
 
 interface CompanyDetailsFormProps {
@@ -26,6 +26,17 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
     abn: company.abn || ''
   });
 
+  const [modules, setModules] = useState({
+    projectManagement: true,
+    timeTracking: true,
+    estimating: true,
+    invoicing: true,
+    fileManagement: true,
+    reporting: true,
+    integrations: false,
+    apiAccess: false
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSave(formData);
@@ -38,16 +49,23 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
     }));
   };
 
+  const handleModuleToggle = (module: string, enabled: boolean) => {
+    setModules(prev => ({
+      ...prev,
+      [module]: enabled
+    }));
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Update company details</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Update company details and configure available modules</h2>
       </div>
 
-      {/* Single Column Layout */}
-      <div className="max-w-2xl">
-        {/* Company Information */}
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Company Information */}
         <Card className="backdrop-blur-xl bg-white/80 border-white/30 shadow-lg">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold text-slate-800">Company Information</CardTitle>
@@ -184,6 +202,134 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
           </CardContent>
         </Card>
 
+        {/* Right Column - Company Modules */}
+        <Card className="backdrop-blur-xl bg-white/80 border-white/30 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold text-slate-800">Company Modules</CardTitle>
+            <p className="text-slate-600 text-sm">Enable or disable features for this company</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Project Management */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <FolderKanban className="w-5 h-5 text-blue-600" />
+                  <h4 className="font-medium text-slate-800">Project Management</h4>
+                </div>
+                <p className="text-sm text-slate-600">Create and manage projects</p>
+              </div>
+              <Switch 
+                checked={modules.projectManagement}
+                onCheckedChange={(checked) => handleModuleToggle('projectManagement', checked)}
+              />
+            </div>
+
+            {/* Time Tracking */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-5 h-5 text-green-600" />
+                  <h4 className="font-medium text-slate-800">Time Tracking</h4>
+                </div>
+                <p className="text-sm text-slate-600">Track time on tasks and projects</p>
+              </div>
+              <Switch 
+                checked={modules.timeTracking}
+                onCheckedChange={(checked) => handleModuleToggle('timeTracking', checked)}
+              />
+            </div>
+
+            {/* Estimating */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Calculator className="w-5 h-5 text-purple-600" />
+                  <h4 className="font-medium text-slate-800">Estimating</h4>
+                </div>
+                <p className="text-sm text-slate-600">Create and manage estimates</p>
+              </div>
+              <Switch 
+                checked={modules.estimating}
+                onCheckedChange={(checked) => handleModuleToggle('estimating', checked)}
+              />
+            </div>
+
+            {/* Invoicing */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-orange-600" />
+                  <h4 className="font-medium text-slate-800">Invoicing</h4>
+                </div>
+                <p className="text-sm text-slate-600">Generate and manage invoices</p>
+              </div>
+              <Switch 
+                checked={modules.invoicing}
+                onCheckedChange={(checked) => handleModuleToggle('invoicing', checked)}
+              />
+            </div>
+
+            {/* File Management */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Folder className="w-5 h-5 text-teal-600" />
+                  <h4 className="font-medium text-slate-800">File Management</h4>
+                </div>
+                <p className="text-sm text-slate-600">Upload and organize files</p>
+              </div>
+              <Switch 
+                checked={modules.fileManagement}
+                onCheckedChange={(checked) => handleModuleToggle('fileManagement', checked)}
+              />
+            </div>
+
+            {/* Reporting */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className="w-5 h-5 text-red-600" />
+                  <h4 className="font-medium text-slate-800">Reporting</h4>
+                </div>
+                <p className="text-sm text-slate-600">Generate reports and analytics</p>
+              </div>
+              <Switch 
+                checked={modules.reporting}
+                onCheckedChange={(checked) => handleModuleToggle('reporting', checked)}
+              />
+            </div>
+
+            {/* Integrations */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Plug className="w-5 h-5 text-indigo-600" />
+                  <h4 className="font-medium text-slate-800">Integrations</h4>
+                </div>
+                <p className="text-sm text-slate-600">Connect with third-party services</p>
+              </div>
+              <Switch 
+                checked={modules.integrations}
+                onCheckedChange={(checked) => handleModuleToggle('integrations', checked)}
+              />
+            </div>
+
+            {/* API Access */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Code className="w-5 h-5 text-slate-600" />
+                  <h4 className="font-medium text-slate-800">API Access</h4>
+                </div>
+                <p className="text-sm text-slate-600">Enable API access for developers</p>
+              </div>
+              <Switch 
+                checked={modules.apiAccess}
+                onCheckedChange={(checked) => handleModuleToggle('apiAccess', checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
