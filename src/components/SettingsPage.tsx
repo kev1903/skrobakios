@@ -27,6 +27,12 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
     return <div>Please log in to access settings</div>;
   }
 
+  // Deprecated: This component is now replaced by CompanySettingsPage
+  // Redirect to company settings
+  React.useEffect(() => {
+    onNavigate('company-settings');
+  }, [onNavigate]);
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}

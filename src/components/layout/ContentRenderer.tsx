@@ -65,11 +65,13 @@ export const ContentRenderer = ({
     case "time-management":
       return <TimeManagementPage onNavigate={onNavigate} />;
     case "settings":
-      return <SettingsPage onNavigate={onNavigate} />;
+      // Redirect to company settings instead of global settings
+      onNavigate("company-settings");
+      return <CompanySettingsPage onNavigate={onNavigate} />;
     case "admin":
-      // Redirect admin to settings page with admin tab
-      onNavigate("settings");
-      return <SettingsPage onNavigate={onNavigate} />;
+      // Redirect admin to company settings page with admin tab
+      onNavigate("company-settings");
+      return <CompanySettingsPage onNavigate={onNavigate} />;
     case "create-project":
       return <CreateProject onNavigate={onNavigate} />;
     case "projects":
