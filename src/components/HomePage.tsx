@@ -302,7 +302,14 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
   // Initialize map when component mounts and mapConfig is ready
   useEffect(() => {
     const initializeMapWithProjects = async () => {
-      if (!mapContainer.current || map.current) return; // Prevent multiple initializations
+      if (!mapContainer.current || map.current) {
+        console.log('Map initialization skipped:', { hasContainer: !!mapContainer.current, hasMap: !!map.current });
+        return; // Prevent multiple initializations
+      }
+
+      console.log('Starting map initialization...');
+      setIsLoading(true);
+      setError(null);
 
       try {
         // Fetch Mapbox token from edge function
@@ -316,10 +323,13 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         }
 
         if (!tokenData?.token) {
+          console.error('No Mapbox token received');
           setError('Mapbox token not available');
           setIsLoading(false);
           return;
         }
+
+        console.log('Mapbox token received, initializing map...');
 
         // Initialize map with fetched token
         mapboxgl.accessToken = tokenData.token;
@@ -338,8 +348,17 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           ]
         });
 
+        console.log('Map object created, waiting for style to load...');
+
         // Wait for map to load
         map.current.on('style.load', () => {
+          console.log('Map style loaded successfully!');
+          setIsLoading(false);
+        });
+
+        map.current.on('error', (e) => {
+          console.error('Map error:', e);
+          setError('Map failed to load');
           setIsLoading(false);
         });
 
@@ -380,6 +399,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
     return () => {
       clearTimeout(timer);
       if (map.current) {
+        console.log('Cleaning up map...');
         try {
           map.current.remove();
           map.current = null;
