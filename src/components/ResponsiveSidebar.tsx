@@ -23,7 +23,13 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
 
   return (
     <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
-      <SidebarHeader className="p-4 border-b border-white/20 space-y-2">
+      <SidebarHeader className="p-4 border-b border-white/20 space-y-3">
+        {/* Company Switcher - Most prominent position */}
+        <div className="w-full">
+          <CompanySwitcher onNavigate={onNavigate} />
+        </div>
+        
+        {/* Navigation Button */}
         <Button
           onClick={handleRibbonClick}
           variant="ghost"
@@ -33,7 +39,6 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           <Menu className="w-4 h-4 mr-2" />
           {!isCollapsed && <span>Navigation</span>}
         </Button>
-        <CompanySwitcher onNavigate={onNavigate} />
       </SidebarHeader>
       
       <SidebarMainContent 
