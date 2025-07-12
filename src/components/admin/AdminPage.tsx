@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserManagement } from './UserManagement';
+import { EnhancedUserManagement } from './EnhancedUserManagement';
 import { Users, Settings, Shield } from 'lucide-react';
 
 interface AdminPageProps {
@@ -37,7 +37,7 @@ export const AdminPage = ({ onNavigate }: AdminPageProps) => {
           </TabsList>
 
           <TabsContent value="users" className="space-y-6">
-            <UserManagement />
+            <EnhancedUserManagement />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

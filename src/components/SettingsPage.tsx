@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useUserRole } from '@/hooks/useUserRole';
 import { IntegrationsTab } from './integrations/IntegrationsTab';
-import { UserManagement } from './admin/UserManagement';
+import { EnhancedUserManagement } from './admin/EnhancedUserManagement';
 import { RolesTab } from './settings/RolesTab';
 
 interface SettingsPageProps {
@@ -203,7 +203,7 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <UserManagement />
+                    <EnhancedUserManagement />
                   </CardContent>
                 </Card>
               </TabsContent>

@@ -9,13 +9,13 @@ export interface DatabaseProfile {
   status: string;
 }
 
-// Simplified role system
+// Enhanced role system to match the hierarchical structure
 export interface DatabaseRole {
   user_id: string;
-  role: 'superadmin' | 'user';
+  role: 'superadmin' | 'owner' | 'admin' | 'user';
 }
 
-// Simplified access user types
+// Enhanced access user types with hierarchical roles
 export interface AccessUser {
   id: string;
   first_name: string;
@@ -24,7 +24,7 @@ export interface AccessUser {
   company?: string;
   phone?: string;
   avatar_url?: string;
-  role: 'superadmin' | 'user';
+  role: 'superadmin' | 'owner' | 'admin' | 'user';
   status: 'Active' | 'Invited' | 'Inactive';
   created_at: string;
   updated_at: string;

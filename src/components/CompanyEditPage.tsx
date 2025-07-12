@@ -15,7 +15,7 @@ import { CompanyRolesSection } from '@/components/company-edit/CompanyRolesSecti
 import { CompanyPermissionsSection } from '@/components/company-edit/CompanyPermissionsSection';
 import { CompanyRolesTab } from '@/components/company/settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from '@/components/company/settings/CompanyIntegrationsTab';
-import { CompanyUserManagement } from '@/components/company/settings/CompanyUserManagement';
+import { EnhancedCompanyUserManagement } from '@/components/company/EnhancedCompanyUserManagement';
 
 interface CompanyEditPageProps {
   companyId: string;
@@ -305,7 +305,10 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
           </TabsContent>
 
           <TabsContent value="members" className="space-y-6">
-            <CompanyUserManagement />
+            <EnhancedCompanyUserManagement 
+              companyId={company.id}
+              companyName={company.name}
+            />
           </TabsContent>
 
           {isSuperAdmin() && (
