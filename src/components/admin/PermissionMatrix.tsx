@@ -27,19 +27,39 @@ interface PermissionMatrixProps {
 }
 
 const defaultPermissions: Permission[] = [
-  { id: 'view_dashboard', name: 'View Dashboard', description: 'Access to main dashboard', category: 'General' },
-  { id: 'export_users', name: 'Export List of Users', description: 'Export user data to CSV/Excel', category: 'User Management' },
-  { id: 'create_segment', name: 'Create Segment', description: 'Create user segments and groups', category: 'User Management' },
-  { id: 'campaign_maker', name: 'Campaign Maker', description: 'Create and manage campaigns', category: 'Marketing' },
-  { id: 'campaign_checker', name: 'Campaign Checker', description: 'Review and approve campaigns', category: 'Marketing' },
-  { id: 'update_integrations', name: 'Update Integrations', description: 'Manage third-party integrations', category: 'Configuration' },
-  { id: 'update_data_management', name: 'Update Data Management', description: 'Manage data settings and policies', category: 'Configuration' },
-  { id: 'update_settings', name: 'Update Settings', description: 'Modify system settings', category: 'Configuration' },
-  { id: 'update_team_members', name: 'Update Team Members', description: 'Manage team member access', category: 'User Management' },
-  { id: 'view_update_billing', name: 'View/Update Billing', description: 'Access billing and payment information', category: 'Financial' },
-  { id: 'view_user_profile', name: 'View User Profile', description: 'Access user profile information', category: 'User Management' },
-  { id: 'view_pii', name: 'View PII', description: 'Access personally identifiable information', category: 'Data Access' },
-  { id: 'feedback_management', name: 'Feedback Management', description: 'Manage user feedback and reviews', category: 'General' },
+  // Platform Administration
+  { id: 'manage_platform_users', name: 'Manage Platform Users', description: 'Create, edit, and delete platform users', category: 'Platform Administration' },
+  { id: 'manage_platform_roles', name: 'Manage Platform Roles', description: 'Assign and modify platform-level roles', category: 'Platform Administration' },
+  { id: 'view_platform_analytics', name: 'View Platform Analytics', description: 'Access platform-wide usage and performance data', category: 'Platform Administration' },
+  { id: 'manage_system_settings', name: 'Manage System Settings', description: 'Configure global platform settings', category: 'Platform Administration' },
+  
+  // Company Management
+  { id: 'view_all_companies', name: 'View All Companies', description: 'Access information for all companies on platform', category: 'Company Management' },
+  { id: 'create_companies', name: 'Create Companies', description: 'Create new company accounts', category: 'Company Management' },
+  { id: 'manage_company_settings', name: 'Manage Company Settings', description: 'Modify company configurations and modules', category: 'Company Management' },
+  { id: 'manage_company_billing', name: 'Manage Company Billing', description: 'Handle billing and subscription management', category: 'Company Management' },
+  
+  // Project & Task Management
+  { id: 'view_all_projects', name: 'View All Projects', description: 'Access projects across all companies', category: 'Project & Task Management' },
+  { id: 'manage_projects', name: 'Manage Projects', description: 'Create, edit, and delete projects', category: 'Project & Task Management' },
+  { id: 'manage_tasks', name: 'Manage Tasks', description: 'Create, assign, and manage tasks', category: 'Project & Task Management' },
+  { id: 'view_project_analytics', name: 'View Project Analytics', description: 'Access project performance and progress data', category: 'Project & Task Management' },
+  
+  // Financial Management
+  { id: 'view_financial_reports', name: 'View Financial Reports', description: 'Access financial reports and data', category: 'Financial Management' },
+  { id: 'manage_estimates', name: 'Manage Estimates', description: 'Create and manage project estimates', category: 'Financial Management' },
+  { id: 'manage_invoicing', name: 'Manage Invoicing', description: 'Handle invoice creation and management', category: 'Financial Management' },
+  { id: 'manage_integrations', name: 'Manage Integrations', description: 'Configure third-party integrations (Xero, etc)', category: 'Financial Management' },
+  
+  // Lead & Sales Management
+  { id: 'view_all_leads', name: 'View All Leads', description: 'Access leads across all companies', category: 'Lead & Sales Management' },
+  { id: 'manage_leads', name: 'Manage Leads', description: 'Create, edit, and manage leads', category: 'Lead & Sales Management' },
+  { id: 'view_sales_analytics', name: 'View Sales Analytics', description: 'Access sales performance and conversion data', category: 'Lead & Sales Management' },
+  
+  // Digital Twin & 3D Models
+  { id: 'view_all_models', name: 'View All 3D Models', description: 'Access 3D models across all projects', category: 'Digital Twin & 3D Models' },
+  { id: 'manage_digital_objects', name: 'Manage Digital Objects', description: 'Create and manage digital twin objects', category: 'Digital Twin & 3D Models' },
+  { id: 'upload_3d_models', name: 'Upload 3D Models', description: 'Upload and manage 3D model files', category: 'Digital Twin & 3D Models' },
 ];
 
 const defaultRoles: Role[] = [
@@ -48,17 +68,35 @@ const defaultRoles: Role[] = [
   { id: 'company_admin', name: 'Company Admin', color: 'secondary', level: 1 },
 ];
 
-// Default permission assignments based on platform role hierarchy (from app_role enum)
+// Default permission assignments based on the three-tier role hierarchy
 const getDefaultPermissions = (roleLevel: number): string[] => {
   const allPermissions = defaultPermissions.map(p => p.id);
   
   switch (roleLevel) {
-    case 3: // Super Admin - all permissions
+    case 3: // Super Admin - access to everything
       return allPermissions;
-    case 2: // Platform Admin - all permissions except super admin specific
-      return allPermissions.filter(p => !['view_pii'].includes(p));
-    case 1: // Company Admin - most permissions except sensitive ones
-      return allPermissions.filter(p => !['view_pii', 'update_team_members', 'view_update_billing'].includes(p));
+    case 2: // Platform Admin - selective permissions for platform departments (customizable via checkboxes)
+      return [
+        'view_platform_analytics',
+        'view_all_companies',
+        'manage_company_settings',
+        'view_all_projects',
+        'manage_projects',
+        'view_project_analytics',
+        'manage_leads',
+        'view_sales_analytics',
+        'view_all_models',
+      ];
+    case 1: // Company Admin - only company-specific permissions
+      return [
+        'manage_projects',
+        'manage_tasks',
+        'manage_estimates',
+        'manage_invoicing',
+        'manage_leads',
+        'manage_digital_objects',
+        'upload_3d_models',
+      ];
     default:
       return [];
   }
@@ -80,6 +118,11 @@ export const PermissionMatrix = ({
   const [hasChanges, setHasChanges] = useState(false);
 
   const handlePermissionToggle = (roleId: string, permissionId: string) => {
+    // Super Admin and Company Admin permissions are not editable
+    if (roleId === 'superadmin' || roleId === 'company_admin') {
+      return;
+    }
+
     setPermissionState(prev => {
       const newState = { ...prev };
       const rolePermissions = newState[roleId] || [];
@@ -129,7 +172,7 @@ export const PermissionMatrix = ({
               Permission Matrix
             </CardTitle>
             <CardDescription>
-              Configure permissions for each role. Changes are highlighted and can be saved or reset.
+              Super Admin has access to everything. Platform Admin permissions are customizable. Company Admin permissions are fixed to company-specific access only.
             </CardDescription>
           </div>
           {hasChanges && (
@@ -184,13 +227,21 @@ export const PermissionMatrix = ({
                       </TableCell>
                       {roles.map(role => {
                         const hasPermission = permissionState[role.id]?.includes(permission.id) || false;
+                        const isEditable = role.id === 'platform_admin';
+                        const isReadOnly = role.id === 'superadmin' || role.id === 'company_admin';
+                        
                         return (
                           <TableCell key={`${role.id}-${permission.id}`} className="text-center">
                             <div className="flex justify-center">
                               <Checkbox
                                 checked={hasPermission}
                                 onCheckedChange={() => handlePermissionToggle(role.id, permission.id)}
-                                className={hasPermission ? "data-[state=checked]:bg-primary data-[state=checked]:border-primary" : ""}
+                                disabled={isReadOnly}
+                                className={`
+                                  ${hasPermission ? "data-[state=checked]:bg-primary data-[state=checked]:border-primary" : ""}
+                                  ${isReadOnly ? "opacity-60 cursor-not-allowed" : ""}
+                                  ${isEditable ? "cursor-pointer" : ""}
+                                `}
                               />
                             </div>
                           </TableCell>
