@@ -435,10 +435,16 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 <h2 className="text-2xl font-bold">Company Management</h2>
                 <p className="text-muted-foreground">Manage customer companies and their configurations</p>
               </div>
-              <Button>
-                <Building2 className="w-4 h-4 mr-2" />
-                Create Company
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => onNavigate('company-management')}>
+                  <Building2 className="w-4 h-4 mr-2" />
+                  View All Companies
+                </Button>
+                <Button>
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Create Company
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

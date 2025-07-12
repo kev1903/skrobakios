@@ -38,6 +38,8 @@ import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { Project } from "@/hooks/useProjects";
+import { CompanyManagementPage } from "@/components/CompanyManagementPage";
+
 interface ContentRendererProps {
   currentPage: string;
   onNavigate: (page: string) => void;
@@ -157,6 +159,8 @@ export const ContentRenderer = ({
       return <UserProfilePage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
+    case "company-management":
+      return <CompanyManagementPage onNavigate={onNavigate} />;
     case "platform":
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":

@@ -49,7 +49,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const { theme, setTheme } = useTheme();
-  const { isSuperAdmin } = useUserRole();
+  const { isSuperAdmin, isOwner } = useUserRole();
   
   const [companyForm, setCompanyForm] = useState({
     name: '',
@@ -211,6 +211,16 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                 </div>
               </div>
             </div>
+            {(isSuperAdmin() || isOwner()) && (
+              <Button 
+                variant="outline"
+                onClick={() => onNavigate('company-management')}
+                className="hover:bg-blue-50 hover:border-blue-200"
+              >
+                <Building2 className="w-4 h-4 mr-2" />
+                Manage All Companies
+              </Button>
+            )}
           </div>
         </div>
       </div>
