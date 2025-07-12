@@ -128,7 +128,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
-                onClick={onNavigateBack}
+                onClick={() => window.location.href = '/platform-dashboard'}
                 variant="ghost"
                 size="sm"
                 className="text-slate-600 hover:text-slate-800"
