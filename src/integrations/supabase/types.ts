@@ -1432,6 +1432,13 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: number
       }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
       initialize_company_modules: {
         Args: { target_company_id: string }
         Returns: undefined
