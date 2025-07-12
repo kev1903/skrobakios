@@ -430,25 +430,27 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       
       {/* Platform Mode Hamburger Button */}
       {isPlatformMode && (
-        <div className="absolute top-4 left-4 z-50">
+        <div className="absolute top-6 left-6 z-50">
           <button 
-            className="p-3 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg hover:bg-muted transition-colors"
+            className="group relative p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-2xl hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105"
             onClick={() => {
-              // This will trigger the sidebar toggle
-              const sidebarTrigger = document.querySelector('[data-sidebar="trigger"]') as HTMLButtonElement;
-              if (sidebarTrigger) {
-                sidebarTrigger.click();
-              }
+              // Find and click the sidebar trigger to toggle the platform sidebar
+              const event = new CustomEvent('toggle-sidebar');
+              window.dispatchEvent(event);
             }}
+            aria-label="Toggle Platform Navigation"
           >
-            <svg 
-              className="w-5 h-5" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <div className="relative">
+              {/* Hamburger Icon with Glassmorphism Effect */}
+              <div className="flex flex-col gap-1.5 w-6 h-6 items-center justify-center">
+                <div className="w-6 h-0.5 bg-white/90 rounded-full transition-all duration-300 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-white/25"></div>
+                <div className="w-6 h-0.5 bg-white/90 rounded-full transition-all duration-300 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-white/25"></div>
+                <div className="w-6 h-0.5 bg-white/90 rounded-full transition-all duration-300 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-white/25"></div>
+              </div>
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm -z-10"></div>
+            </div>
           </button>
         </div>
       )}

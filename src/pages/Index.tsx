@@ -20,6 +20,19 @@ const IndexContent = () => {
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
   const { isPlatformMode } = useRoleContext();
 
+  // Add event listener for custom sidebar toggle event
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      const sidebarTrigger = document.querySelector('[data-sidebar="trigger"]') as HTMLButtonElement;
+      if (sidebarTrigger) {
+        sidebarTrigger.click();
+      }
+    };
+
+    window.addEventListener('toggle-sidebar', handleToggleSidebar);
+    return () => window.removeEventListener('toggle-sidebar', handleToggleSidebar);
+  }, []);
+
   // Handle URL parameters for direct navigation
   useEffect(() => {
     const pageParam = searchParams.get('page');
@@ -46,18 +59,40 @@ const IndexContent = () => {
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
-            <div className="relative z-10 flex min-h-screen">
-              <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
-                <ContentRenderer 
-                  currentPage={currentPage}
-                  onNavigate={setCurrentPage}
-                  onSelectProject={handleSelectProject}
-                  selectedProject={selectedProject}
-                  currentProject={currentProject}
-                />
-              </PageLayout>
-              <ModeIndicator />
-            </div>
+            {isPlatformMode ? (
+              // Platform mode with sidebar on home page
+              <SidebarProvider defaultOpen={false}>
+                <div className="relative z-10 flex min-h-screen">
+                  <PlatformSidebar />
+                  <div className="flex-1">
+                    <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+                      <ContentRenderer 
+                        currentPage={currentPage}
+                        onNavigate={setCurrentPage}
+                        onSelectProject={handleSelectProject}
+                        selectedProject={selectedProject}
+                        currentProject={currentProject}
+                      />
+                    </PageLayout>
+                  </div>
+                  <ModeIndicator />
+                </div>
+              </SidebarProvider>
+            ) : (
+              // Company mode without platform sidebar
+              <div className="relative z-10 flex min-h-screen">
+                <PageLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+                  <ContentRenderer 
+                    currentPage={currentPage}
+                    onNavigate={setCurrentPage}
+                    onSelectProject={handleSelectProject}
+                    selectedProject={selectedProject}
+                    currentProject={currentProject}
+                  />
+                </PageLayout>
+                <ModeIndicator />
+              </div>
+            )}
           </div>
         ) : (
           // All other pages get clean layout with conditional platform sidebar
