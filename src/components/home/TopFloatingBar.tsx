@@ -2,6 +2,7 @@ import React from 'react';
 import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
+import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { useUser } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/contexts/AuthContext';
@@ -84,14 +85,13 @@ export const TopFloatingBar = ({
               )}
                
                {/* Notification Icon */}
-               <NotificationBadge count={unreadCount}>
-                 <button 
-                   onClick={() => onNavigate('notifications')} 
-                   className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-                 >
-                   <Bell className="w-5 h-5 text-white" />
-                 </button>
-               </NotificationBadge>
+               <NotificationDropdown>
+                 <NotificationBadge count={unreadCount}>
+                   <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
+                     <Bell className="w-5 h-5 text-white" />
+                   </button>
+                 </NotificationBadge>
+               </NotificationDropdown>
                
                {/* Inbox Icon */}
                <button 
