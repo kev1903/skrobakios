@@ -28,11 +28,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, UserPlus, RefreshCw, MoreHorizontal, Building2, Shield, Trash2 } from 'lucide-react';
+import { Search, UserPlus, RefreshCw, MoreHorizontal, Building2, Shield, Trash2, Edit } from 'lucide-react';
 import { useHierarchicalUserManagement } from '@/hooks/useHierarchicalUserManagement';
 import { useUserRole } from '@/hooks/useUserRole';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
+import { UserProfileEditDialog } from './UserProfileEditDialog';
 import { toast } from '@/hooks/use-toast';
 
 interface CompanyOption {
@@ -65,6 +66,8 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
   const [inviteEmail, setInviteEmail] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<'owner' | 'admin' | 'member'>('member');
+  const [showProfileEditDialog, setShowProfileEditDialog] = useState(false);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState<HierarchicalUser | null>(null);
 
   const handleInviteUser = async () => {
     if (!inviteEmail) {
@@ -176,6 +179,15 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditProfile = (user: HierarchicalUser) => {
+    setSelectedUserForEdit(user);
+    setShowProfileEditDialog(true);
+  };
+
+  const handleProfileUpdated = () => {
+    refreshUsers();
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -392,25 +404,32 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditProfile(user)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Profile
+                            </DropdownMenuItem>
                             {user.can_assign_to_companies && (
                               <>
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
                                   <div className="cursor-pointer">
                                     <Building2 className="h-4 w-4 mr-2" />
                                     Assign to Company
                                   </div>
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
                               </>
                             )}
                             {user.can_manage_roles && (
-                              <DropdownMenuItem 
-                                onClick={() => handleDeleteUser(user)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete User
-                              </DropdownMenuItem>
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteUser(user)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete User
+                                </DropdownMenuItem>
+                              </>
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -423,6 +442,13 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
           </div>
         </CardContent>
       </Card>
+      
+      <UserProfileEditDialog
+        user={selectedUserForEdit}
+        open={showProfileEditDialog}
+        onOpenChange={setShowProfileEditDialog}
+        onProfileUpdated={handleProfileUpdated}
+      />
     </div>
   );
 };
