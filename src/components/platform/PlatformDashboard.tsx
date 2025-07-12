@@ -39,6 +39,13 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Search, Filter, Edit } from 'lucide-react';
+import { CompaniesTable } from '@/components/companies/CompaniesTable';
+import { CompanyEditDialog } from '@/components/companies/CompanyEditDialog';
+import { Company } from '@/types/company';
+import { useCompanies } from '@/hooks/useCompanies';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface PlatformDashboardProps {
   onNavigate: (page: string) => void;
@@ -59,6 +66,59 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     isLoading: true
   });
   const { toast } = useToast();
+  const { getUserCompanies, updateCompany } = useCompanies();
+  const { isSuperAdmin, isOwner } = useUserRole();
+  
+  // Additional state for table functionality
+  const [filteredCompanies, setFilteredCompanies] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const canManageCompanies = isSuperAdmin() || isOwner();
+
+  // Filter companies based on search term
+  useEffect(() => {
+    const filtered = companies.filter(company =>
+      company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.slug?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.website?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.address?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCompanies(filtered);
+  }, [searchTerm, companies]);
+
+  const handleEditCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveCompany = async (updatedCompany: Partial<Company>) => {
+    if (!selectedCompany) return;
+
+    try {
+      const result = await updateCompany(selectedCompany.id, updatedCompany);
+      if (result) {
+        // Update local state
+        setCompanies(prev => prev.map(company => 
+          company.id === selectedCompany.id ? { ...company, ...result } : company
+        ));
+        toast({
+          title: "Success",
+          description: "Company updated successfully"
+        });
+        setIsEditDialogOpen(false);
+        setSelectedCompany(null);
+      }
+    } catch (error) {
+      console.error('Error updating company:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update company",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -99,9 +159,13 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
           slug, 
           logo_url, 
           created_at,
+          updated_at,
           website,
           address,
-          phone
+          phone,
+          abn,
+          slogan,
+          created_by
         `)
         .order('created_at', { ascending: false });
 
@@ -435,78 +499,49 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 <h2 className="text-2xl font-bold">Company Management</h2>
                 <p className="text-muted-foreground">Manage customer companies and their configurations</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => onNavigate('company-management')}>
-                  <Building2 className="w-4 h-4 mr-2" />
-                  View All Companies
-                </Button>
-                <Button>
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Create Company
-                </Button>
-              </div>
+              <Button>
+                <Building2 className="w-4 h-4 mr-2" />
+                Create Company
+              </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Active Companies</CardTitle>
-                  <CardDescription>Overview of all company accounts</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {companiesLoading ? (
-                      <div className="flex items-center justify-center p-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                      </div>
-                    ) : companies.length === 0 ? (
-                      <div className="text-center p-8 text-muted-foreground">
-                        No companies found
-                      </div>
-                    ) : (
-                      companies.map((company, index) => (
-                        <div key={company.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                              {company.logo_url ? (
-                                <img 
-                                  src={company.logo_url} 
-                                  alt={`${company.name} logo`}
-                                  className="w-8 h-8 object-cover rounded-lg"
-                                />
-                              ) : (
-                                <Building2 className="w-5 h-5 text-primary" />
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-medium">{company.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {company.memberCount} member{company.memberCount !== 1 ? 's' : ''}
-                              </p>
-                              {company.website && (
-                                <p className="text-xs text-muted-foreground">{company.website}</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge variant="secondary">
-                              {company.status}
-                            </Badge>
-                            <div className="text-right">
-                              <p className="text-xs text-muted-foreground">
-                                Created: {new Date(company.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <Button variant="ghost" size="sm">Edit</Button>
-                          </div>
-                        </div>
-                      ))
-                    )}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Companies ({filteredCompanies.length})</span>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Search companies..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 w-80"
+                      />
+                    </div>
+                    <Button variant="outline" size="sm">
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filter
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </CardTitle>
+                <CardDescription>
+                  View and manage all companies in the system
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CompaniesTable
+                  companies={filteredCompanies}
+                  onEditCompany={handleEditCompany}
+                  loading={companiesLoading}
+                  canManageCompanies={canManageCompanies}
+                />
+              </CardContent>
+            </Card>
 
-              <Card>
+            {/* Company Stats Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-1">
                 <CardHeader>
                   <CardTitle>Company Stats</CardTitle>
                 </CardHeader>
@@ -536,6 +571,14 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Edit Dialog */}
+            <CompanyEditDialog
+              company={selectedCompany}
+              open={isEditDialogOpen}
+              onOpenChange={setIsEditDialogOpen}
+              onSave={handleSaveCompany}
+            />
           </div>
         );
 
