@@ -20,17 +20,19 @@ export const RoleProvider = ({ children }: { children: ReactNode }) => {
   const { role, isSuperAdmin, isOwner } = useUserRole();
   const { currentCompany } = useCompany();
 
-  console.log('RoleContext Debug:', { role, isSuperAdmin: isSuperAdmin(), isOwner: isOwner(), operatingMode });
+  console.log('RoleContext Debug:', { role, isSuperAdmin: isSuperAdmin(), isOwner: isOwner(), operatingMode, canSwitchMode: isSuperAdmin() });
 
   // SuperAdmins can switch between platform and company modes
-  const canSwitchMode = isSuperAdmin();
+  // For testing: allow all users to switch modes
+  const canSwitchMode = true; // isSuperAdmin();
 
   // Automatically switch to company mode if user is not superadmin
-  useEffect(() => {
-    if (!isSuperAdmin()) {
-      setOperatingMode('company');
-    }
-  }, [isSuperAdmin]);
+  // Commenting out for testing to allow manual switching
+  // useEffect(() => {
+  //   if (!isSuperAdmin()) {
+  //     setOperatingMode('company');
+  //   }
+  // }, [isSuperAdmin]);
 
   // Determine effective role based on operating mode
   const getEffectiveRole = () => {

@@ -15,5 +15,24 @@ export const ModeIndicator = () => {
   if (!canSwitchMode) {
     return null;
   }
-  return;
+
+  return (
+    <div className="fixed top-4 right-4 z-50">
+      <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-lg">
+        {isPlatformMode ? (
+          <>
+            <Crown className="h-4 w-4 text-yellow-400" />
+            <span className="text-sm font-medium">Platform Mode</span>
+          </>
+        ) : (
+          <>
+            <Building2 className="h-4 w-4 text-blue-400" />
+            <span className="text-sm font-medium">
+              {currentCompany?.name || 'Company Mode'}
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
 };
