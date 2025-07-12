@@ -15,11 +15,8 @@ export interface CompanyModule {
 export const AVAILABLE_MODULES = [
   // Company Modules
   { key: 'projects', name: 'Projects', description: 'Project management and tracking' },
-  { key: 'leads', name: 'Leads', description: 'Lead management and CRM' },
-  { key: 'estimates', name: 'Estimates', description: 'Create and manage estimates' },
-  { key: 'time_tracking', name: 'Time Tracking', description: 'Track time spent on activities' },
-  { key: 'reports', name: 'Reports', description: 'Analytics and reporting' },
-  { key: 'integrations', name: 'Integrations', description: 'Third-party integrations' },
+  { key: 'finance', name: 'Finance', description: 'Financial management and accounting' },
+  { key: 'sales', name: 'Sales', description: 'Sales management and CRM' },
   
   // Project Modules
   { key: 'dashboard', name: 'Dashboard', description: 'Project overview and metrics' },
