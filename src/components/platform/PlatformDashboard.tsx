@@ -522,7 +522,7 @@ export const PlatformDashboard = ({
             </div>
 
             {/* Module Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
@@ -530,9 +530,9 @@ export const PlatformDashboard = ({
                       <Building2 className="w-5 h-5 text-blue-500" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Projects Module</p>
-                      <p className="text-2xl font-bold">85%</p>
-                      <p className="text-xs text-green-600">Adoption rate</p>
+                      <p className="text-sm text-muted-foreground">Company Modules</p>
+                      <p className="text-2xl font-bold">4</p>
+                      <p className="text-xs text-blue-600">Available</p>
                     </div>
                   </div>
                 </CardContent>
@@ -545,9 +545,9 @@ export const PlatformDashboard = ({
                       <Activity className="w-5 h-5 text-green-500" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Time Tracking</p>
-                      <p className="text-2xl font-bold">72%</p>
-                      <p className="text-xs text-green-600">Adoption rate</p>
+                      <p className="text-sm text-muted-foreground">Project Modules</p>
+                      <p className="text-2xl font-bold">4</p>
+                      <p className="text-xs text-green-600">Available</p>
                     </div>
                   </div>
                 </CardContent>
@@ -560,37 +560,87 @@ export const PlatformDashboard = ({
                       <Users className="w-5 h-5 text-purple-500" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Leads Module</p>
-                      <p className="text-2xl font-bold">61%</p>
-                      <p className="text-xs text-orange-600">Adoption rate</p>
+                      <p className="text-sm text-muted-foreground">Total Adoption</p>
+                      <p className="text-2xl font-bold">73%</p>
+                      <p className="text-xs text-purple-600">Average rate</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-orange-500/10">
+                      <Puzzle className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Companies</p>
+                      <p className="text-2xl font-bold">52</p>
+                      <p className="text-xs text-orange-600">Using modules</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Available Modules */}
+            {/* Company Modules */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Puzzle className="w-5 h-5" />
-                  Available Modules
+                  <Building2 className="w-5 h-5" />
+                  Company Modules
                 </CardTitle>
                 <CardDescription>
-                  Configure which modules are available to companies
+                  Modules that operate at the company level
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { name: 'Projects', description: 'Project management and tracking', enabled: true, companies: 45 },
-                    { name: 'Tasks', description: 'Task management and assignment', enabled: true, companies: 42 },
-                    { name: 'Time Tracking', description: 'Track time spent on activities', enabled: true, companies: 38 },
-                    { name: 'Leads', description: 'Lead management and CRM', enabled: true, companies: 32 },
-                    { name: 'Estimates', description: 'Create and manage estimates', enabled: true, companies: 28 },
-                    { name: 'Digital Objects', description: 'Digital asset management', enabled: false, companies: 15 },
-                    { name: 'Reports', description: 'Analytics and reporting', enabled: true, companies: 40 },
-                    { name: 'Integrations', description: 'Third-party integrations', enabled: true, companies: 25 }
+                    { name: 'Projects', description: 'Project management and tracking capabilities', enabled: true, companies: 45 },
+                    { name: 'Leads', description: 'Lead management and CRM functionality', enabled: true, companies: 32 },
+                    { name: 'Reports', description: 'Company-wide analytics and reporting', enabled: true, companies: 40 },
+                    { name: 'Integrations', description: 'Third-party service integrations', enabled: true, companies: 25 }
+                  ].map((module) => (
+                    <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">{module.name}</h4>
+                        <p className="text-sm text-muted-foreground">{module.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={module.enabled ? "default" : "secondary"}>
+                          {module.enabled ? "Active" : "Inactive"}
+                        </Badge>
+                        <Button variant="outline" size="sm">
+                          Configure
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Project Modules */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="w-5 h-5" />
+                  Project Modules
+                </CardTitle>
+                <CardDescription>
+                  Modules that operate within specific projects
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { name: 'Tasks', description: 'Task management and assignment within projects', enabled: true, companies: 42 },
+                    { name: 'Time Tracking', description: 'Track time spent on project activities', enabled: true, companies: 38 },
+                    { name: 'Estimates', description: 'Create and manage project estimates', enabled: true, companies: 28 },
+                    { name: 'Digital Objects', description: 'Project asset and file management', enabled: false, companies: 15 }
                   ].map((module) => (
                     <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
