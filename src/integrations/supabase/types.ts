@@ -1432,6 +1432,14 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: number
       }
+      get_user_role: {
+        Args: { target_user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_user_roles: {
+        Args: { target_user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"][]
+      }
       has_role: {
         Args: {
           _user_id: string
