@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink, Puzzle } from 'lucide-react';
+import { Home, Users, Settings, Database, BarChart3, Shield, LogOut, Building2, FileText, Monitor, CreditCard, HeadphonesIcon, AlertTriangle, Activity, UserCog, DollarSign, Bell, Server, Lock, HelpCircle, Globe, ExternalLink, Puzzle, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -536,16 +536,22 @@ export const PlatformDashboard = ({
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { name: 'Projects', description: 'Project management and tracking capabilities', enabled: true, companies: 45 },
-                    { name: 'Leads', description: 'Lead management and CRM functionality', enabled: true, companies: 32 },
-                    { name: 'Reports', description: 'Company-wide analytics and reporting', enabled: true, companies: 40 },
-                    { name: 'Integrations', description: 'Third-party service integrations', enabled: true, companies: 25 }
+                    { name: 'Projects', description: 'Project management and tracking capabilities', enabled: true, companies: 45, icon: 'briefcase' },
+                    { name: 'Finance', description: 'Financial management and accounting tools', enabled: true, companies: 38, icon: 'dollar' },
+                    { name: 'Sales', description: 'Sales pipeline and lead management', enabled: true, companies: 32, icon: 'trending' }
                   ].map((module) => (
                     <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{module.name}</h4>
-                        <p className="text-sm text-muted-foreground">{module.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500/10">
+                          {module.icon === 'briefcase' && <Building2 className="w-4 h-4 text-blue-500" />}
+                          {module.icon === 'dollar' && <DollarSign className="w-4 h-4 text-blue-500" />}
+                          {module.icon === 'trending' && <TrendingUp className="w-4 h-4 text-blue-500" />}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium">{module.name}</h4>
+                          <p className="text-sm text-muted-foreground">{module.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">Used by {module.companies} companies</p>
+                        </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant={module.enabled ? "default" : "secondary"}>
