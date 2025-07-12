@@ -133,7 +133,7 @@ export const ManualUserCreateDialog = ({
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          companyId: formData.companyId || undefined,
+          companyId: formData.companyId === 'none' ? undefined : formData.companyId || undefined,
           companyRole: formData.companyRole,
           platformRole: formData.platformRole
         },
@@ -302,7 +302,7 @@ export const ManualUserCreateDialog = ({
                 <SelectValue placeholder="Select a company" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No company assignment</SelectItem>
+                <SelectItem value="none">No company assignment</SelectItem>
                 {companies.map((company) => (
                   <SelectItem key={company.id} value={company.id}>
                     {company.name}
@@ -312,7 +312,7 @@ export const ManualUserCreateDialog = ({
             </Select>
           </div>
 
-          {formData.companyId && (
+          {formData.companyId && formData.companyId !== 'none' && (
             <div>
               <Label htmlFor="companyRole">Company Role</Label>
               <Select 
