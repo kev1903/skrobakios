@@ -43,11 +43,14 @@ export const useHierarchicalUserManagement = () => {
         }
       };
 
-      // Map the data to ensure role compatibility
-      const mappedUsers = (data || []).map(user => ({
+      // Ensure data is an array and map the data to ensure role compatibility
+      const dataArray = Array.isArray(data) ? data : [];
+      const mappedUsers = dataArray.map((user: any) => ({
         ...user,
-        app_role: mapOldRoleToNew(user.app_role),
-        app_roles: user.app_roles?.map(mapOldRoleToNew) || []
+        app_role: mapOldRoleToNew(user.app_role || 'company_admin'),
+        app_roles: Array.isArray(user.app_roles) 
+          ? user.app_roles.map((role: string) => mapOldRoleToNew(role)) 
+          : [mapOldRoleToNew(user.app_role || 'company_admin')]
       }));
 
       setUsers(mappedUsers);

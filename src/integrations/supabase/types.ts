@@ -1394,6 +1394,25 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: Json
       }
+      get_manageable_users_for_user: {
+        Args: { requesting_user_id: string }
+        Returns: {
+          user_id: string
+          email: string
+          first_name: string
+          last_name: string
+          avatar_url: string
+          phone: string
+          company: string
+          app_role: Database["public"]["Enums"]["app_role"]
+          app_roles: Database["public"]["Enums"]["app_role"][]
+          company_role: string
+          status: string
+          created_at: string
+          can_manage_roles: boolean
+          can_assign_to_companies: boolean
+        }[]
+      }
       get_user_companies: {
         Args: { target_user_id?: string }
         Returns: {
