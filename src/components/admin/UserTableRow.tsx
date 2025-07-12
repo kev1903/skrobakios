@@ -156,7 +156,7 @@ export const UserTableRow = ({
     }
   };
 
-  // Disable edit functions for superadmin users
+  // Allow superadmins to delete other superadmins, but prevent other operations
   const isSuperadmin = user.role === 'superadmin';
 
   return (
@@ -236,7 +236,6 @@ export const UserTableRow = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleDeleteUser}
-              disabled={isSuperadmin}
               className="text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
