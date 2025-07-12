@@ -3,10 +3,12 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { RoleProvider } from "@/contexts/RoleContext";
 import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { ModeIndicator } from "@/components/ModeIndicator";
 import { useProjectState } from "@/hooks/useProjectState";
 
 const Index = () => {
@@ -25,8 +27,9 @@ const Index = () => {
   return (
     <AuthProvider>
       <UserProvider>
-        <DigitalObjectsProvider>
-          <TaskProvider>
+        <RoleProvider>
+          <DigitalObjectsProvider>
+            <TaskProvider>
           {currentPage === "sales" || currentPage === "projects" ? (
             // Sales CRM and Projects take full screen - no main layout wrapper
             <ContentRenderer 
@@ -52,6 +55,7 @@ const Index = () => {
                     currentProject={currentProject}
                   />
                 </PageLayout>
+                <ModeIndicator />
               </div>
             </div>
           ) : (
@@ -67,11 +71,13 @@ const Index = () => {
                     currentProject={currentProject}
                   />
                 </PageLayout>
+                <ModeIndicator />
               </div>
             </div>
           )}
-          </TaskProvider>
-        </DigitalObjectsProvider>
+            </TaskProvider>
+          </DigitalObjectsProvider>
+        </RoleProvider>
       </UserProvider>
     </AuthProvider>
   );
