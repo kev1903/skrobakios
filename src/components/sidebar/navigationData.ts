@@ -7,7 +7,6 @@ import {
   Briefcase, 
   DollarSign, 
   TrendingUp, 
-  Settings, 
   HelpCircle,
   Shield,
   Building2,
