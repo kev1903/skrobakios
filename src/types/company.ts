@@ -6,7 +6,6 @@ export interface Company {
   website?: string;
   address?: string;
   phone?: string;
-  email?: string;
   abn?: string;
   slogan?: string;
   created_at: string;
@@ -41,7 +40,6 @@ export interface CreateCompanyData {
   website?: string;
   address?: string;
   phone?: string;
-  email?: string;
   abn?: string;
   slogan?: string;
 }

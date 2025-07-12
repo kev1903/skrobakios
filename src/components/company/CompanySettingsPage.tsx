@@ -43,7 +43,6 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
     name: '',
     slug: '',
     website: '',
-    email: '',
     phone: '',
     address: '',
     abn: '',
@@ -67,7 +66,6 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
               name: company.name || '',
               slug: company.slug || '',
               website: company.website || '',
-              email: company.email || '',
               phone: company.phone || '',
               address: company.address || '',
               abn: company.abn || '',
@@ -107,7 +105,6 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
           name: updatedCompany.name || '',
           slug: updatedCompany.slug || '',
           website: updatedCompany.website || '',
-          email: updatedCompany.email || '',
           phone: updatedCompany.phone || '',
           address: updatedCompany.address || '',
           abn: updatedCompany.abn || '',
@@ -290,24 +287,13 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={companyForm.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="contact@yourcompany.com"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="phone">Phone</Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={companyForm.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+61 4 1234 5678"
                     />
                   </div>
 

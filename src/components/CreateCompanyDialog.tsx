@@ -25,7 +25,6 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
   const [formData, setFormData] = useState({
     name: '',
     slogan: '',
-    email: '',
     phone: '',
     address: '',
     website: '',
@@ -67,7 +66,6 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
           name: formData.name.trim(),
           slug,
           slogan: formData.slogan.trim() || null,
-          email: formData.email.trim() || null,
           phone: formData.phone.trim() || null,
           address: formData.address.trim() || null,
           website: formData.website.trim() || null,
@@ -102,7 +100,6 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
       setFormData({
         name: '',
         slogan: '',
-        email: '',
         phone: '',
         address: '',
         website: '',
@@ -158,27 +155,14 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="company@example.com"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="+61 4 1234 5678"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              placeholder="+61 4 1234 5678"
+            />
           </div>
 
           <div className="space-y-2">
