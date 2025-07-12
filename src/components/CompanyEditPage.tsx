@@ -154,7 +154,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
       <div className="max-w-6xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="w-full overflow-x-auto">
-            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-7' : 'grid-cols-6'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
+            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-6' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
               <TabsTrigger value="details" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                 <Building2 className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs md:text-sm">Profile</span>
@@ -166,10 +166,6 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
               <TabsTrigger value="appearance" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                 <Palette className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs md:text-sm">Appearance</span>
-              </TabsTrigger>
-              <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                <Users className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm">Roles</span>
               </TabsTrigger>
               <TabsTrigger value="integrations" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                 <Plug className="w-4 h-4 flex-shrink-0" />
@@ -296,9 +292,6 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
             </Card>
           </TabsContent>
 
-          <TabsContent value="roles" className="space-y-4 md:space-y-6">
-            <CompanyRolesTab />
-          </TabsContent>
 
           <TabsContent value="integrations" className="space-y-4 md:space-y-6">
             <CompanyIntegrationsTab />
