@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Sidebar, 
@@ -46,6 +46,11 @@ interface PlatformDashboardProps {
 
 export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [companyStats, setCompanyStats] = useState({
+    totalActive: 0,
+    monthlyGrowth: 0,
+    isLoading: true
+  });
   const { toast } = useToast();
 
   const handleLogout = async () => {
@@ -75,6 +80,72 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
     { title: "Support", icon: HeadphonesIcon, id: "support" },
   ];
 
+  // Fetch company statistics
+  useEffect(() => {
+    const fetchCompanyStats = async () => {
+      try {
+        // Get total active companies
+        const { data: companies, error } = await supabase
+          .from('companies')
+          .select('id, created_at')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        const totalActive = companies?.length || 0;
+        
+        // Calculate monthly growth
+        const currentDate = new Date();
+        const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const thisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        
+        const thisMonthCompanies = companies?.filter(company => 
+          new Date(company.created_at) >= thisMonth
+        ).length || 0;
+        
+        const lastMonthCompanies = companies?.filter(company => {
+          const createdDate = new Date(company.created_at);
+          return createdDate >= lastMonth && createdDate < thisMonth;
+        }).length || 0;
+        
+        const monthlyGrowth = thisMonthCompanies;
+
+        setCompanyStats({
+          totalActive,
+          monthlyGrowth,
+          isLoading: false
+        });
+      } catch (error) {
+        console.error('Error fetching company stats:', error);
+        setCompanyStats(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    fetchCompanyStats();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('company-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'companies'
+        },
+        () => {
+          fetchCompanyStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const renderDashboardContent = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -90,8 +161,20 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Active Companies</p>
-                      <p className="text-2xl font-bold">247</p>
-                      <p className="text-xs text-green-600">+12 this month</p>
+                      <p className="text-2xl font-bold">
+                        {companyStats.isLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          companyStats.totalActive
+                        )}
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {companyStats.isLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          `+${companyStats.monthlyGrowth} this month`
+                        )}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
