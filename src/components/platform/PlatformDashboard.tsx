@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Sidebar, 
@@ -22,8 +22,21 @@ import {
   LogOut,
   Building2,
   FileText,
-  Monitor
+  Monitor,
+  CreditCard,
+  HeadphonesIcon,
+  AlertTriangle,
+  Activity,
+  UserCog,
+  DollarSign,
+  Bell,
+  Server,
+  Lock,
+  HelpCircle
 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,6 +45,7 @@ interface PlatformDashboardProps {
 }
 
 export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
+  const [activeSection, setActiveSection] = useState('dashboard');
   const { toast } = useToast();
 
   const handleLogout = async () => {
@@ -53,18 +67,845 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
 
   const navigationItems = [
     { title: "Dashboard", icon: Home, id: "dashboard" },
-    { title: "Companies", icon: Building2, id: "companies" },
-    { title: "Users", icon: Users, id: "users" },
-    { title: "Analytics", icon: BarChart3, id: "analytics" },
-    { title: "Reports", icon: FileText, id: "reports" },
+    { title: "Tenants", icon: Building2, id: "tenants" },
+    { title: "Users & Roles", icon: UserCog, id: "users" },
+    { title: "Billing", icon: CreditCard, id: "billing" },
+    { title: "Settings", icon: Settings, id: "settings" },
+    { title: "Security & Logs", icon: Shield, id: "security" },
+    { title: "Support", icon: HeadphonesIcon, id: "support" },
   ];
 
-  const systemItems = [
-    { title: "Database", icon: Database, id: "database" },
-    { title: "System Monitor", icon: Monitor, id: "monitor" },
-    { title: "Security", icon: Shield, id: "security" },
-    { title: "Settings", icon: Settings, id: "settings" },
-  ];
+  const renderDashboardContent = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return (
+          <div className="space-y-6">
+            {/* Platform Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-500/10">
+                      <Building2 className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Active Tenants</p>
+                      <p className="text-2xl font-bold">247</p>
+                      <p className="text-xs text-green-600">+12 this month</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <Users className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
+                      <p className="text-2xl font-bold">8,429</p>
+                      <p className="text-xs text-green-600">+156 this week</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-orange-500/10">
+                      <Activity className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">System Health</p>
+                      <p className="text-2xl font-bold">99.2%</p>
+                      <p className="text-xs text-orange-600">Last 30 days</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10">
+                      <DollarSign className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Monthly Revenue</p>
+                      <p className="text-2xl font-bold">$47.2k</p>
+                      <p className="text-xs text-green-600">+8.3% vs last month</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* System Status & Alerts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Server className="w-5 h-5" />
+                    System Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>Database Performance</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">Healthy</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>API Response Time</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">142ms avg</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Storage Usage</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={67} className="w-20" />
+                      <span className="text-sm">67%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>CDN Status</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">Operational</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="w-5 h-5" />
+                    Recent Alerts
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">High API Usage</p>
+                      <p className="text-xs text-muted-foreground">Tenant "TechCorp" exceeded 80% quota</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">2h ago</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <Monitor className="w-4 h-4 text-blue-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">System Update</p>
+                      <p className="text-xs text-muted-foreground">Security patch deployed successfully</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">6h ago</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <Users className="w-4 h-4 text-green-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">New Tenant</p>
+                      <p className="text-xs text-muted-foreground">"StartupAI" onboarded successfully</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">1d ago</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case 'tenants':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Tenant Management</h2>
+                <p className="text-muted-foreground">Manage customer tenants and their configurations</p>
+              </div>
+              <Button>
+                <Building2 className="w-4 h-4 mr-2" />
+                Create Tenant
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Active Tenants</CardTitle>
+                  <CardDescription>Overview of all tenant accounts</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {[
+                      { name: "TechCorp Inc.", plan: "Enterprise", users: 45, status: "active" },
+                      { name: "StartupAI", plan: "Professional", users: 12, status: "active" },
+                      { name: "DesignStudio", plan: "Basic", users: 8, status: "trial" },
+                      { name: "ConsultingPro", plan: "Enterprise", users: 78, status: "active" },
+                    ].map((tenant, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{tenant.name}</p>
+                            <p className="text-sm text-muted-foreground">{tenant.users} users</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge variant={tenant.status === 'active' ? 'default' : 'secondary'}>
+                            {tenant.plan}
+                          </Badge>
+                          <Badge variant={tenant.status === 'active' ? 'secondary' : 'outline'}>
+                            {tenant.status}
+                          </Badge>
+                          <Button variant="ghost" size="sm">Edit</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tenant Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Plan Distribution</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Enterprise</span>
+                        <span className="text-sm">45%</span>
+                      </div>
+                      <Progress value={45} />
+                      <div className="flex justify-between">
+                        <span className="text-sm">Professional</span>
+                        <span className="text-sm">35%</span>
+                      </div>
+                      <Progress value={35} />
+                      <div className="flex justify-between">
+                        <span className="text-sm">Basic</span>
+                        <span className="text-sm">20%</span>
+                      </div>
+                      <Progress value={20} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case 'users':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Users & Roles</h2>
+                <p className="text-muted-foreground">Manage global users and their permissions</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline">
+                  <UserCog className="w-4 h-4 mr-2" />
+                  Manage Roles
+                </Button>
+                <Button>
+                  <Users className="w-4 h-4 mr-2" />
+                  Add User
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">8,429</p>
+                    <p className="text-sm text-muted-foreground">Total Users</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">127</p>
+                    <p className="text-sm text-muted-foreground">Admins</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">45</p>
+                    <p className="text-sm text-muted-foreground">Support Agents</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">156</p>
+                    <p className="text-sm text-muted-foreground">Active Today</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent User Activity</CardTitle>
+                <CardDescription>Latest user registrations and role changes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { user: "john.doe@techcorp.com", action: "Role changed to Admin", tenant: "TechCorp", time: "2 min ago" },
+                    { user: "sarah.wilson@startup.ai", action: "New user registered", tenant: "StartupAI", time: "15 min ago" },
+                    { user: "mike.jones@design.co", action: "Permission updated", tenant: "DesignStudio", time: "1 hour ago" },
+                  ].map((activity, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{activity.user}</p>
+                          <p className="text-sm text-muted-foreground">{activity.action}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{activity.tenant}</p>
+                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case 'billing':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Billing Management</h2>
+                <p className="text-muted-foreground">Manage subscriptions, payments, and billing</p>
+              </div>
+              <Button>
+                <CreditCard className="w-4 h-4 mr-2" />
+                Generate Invoice
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">$47.2k</p>
+                    <p className="text-sm text-muted-foreground">Monthly Revenue</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">247</p>
+                    <p className="text-sm text-muted-foreground">Active Subscriptions</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">$2.1k</p>
+                    <p className="text-sm text-muted-foreground">Overdue Amount</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">23</p>
+                    <p className="text-sm text-muted-foreground">Trial Accounts</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Transactions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { tenant: "TechCorp Inc.", amount: "$299", status: "paid", date: "Today" },
+                      { tenant: "StartupAI", amount: "$99", status: "paid", date: "Yesterday" },
+                      { tenant: "DesignStudio", amount: "$49", status: "pending", date: "2 days ago" },
+                    ].map((transaction, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{transaction.tenant}</p>
+                          <p className="text-sm text-muted-foreground">{transaction.date}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">{transaction.amount}</p>
+                          <Badge variant={transaction.status === 'paid' ? 'secondary' : 'outline'}>
+                            {transaction.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscription Plans</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Enterprise Plan</h4>
+                        <span className="text-lg font-bold">$299/mo</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">Unlimited users, advanced features</p>
+                      <div className="flex justify-between text-sm">
+                        <span>Active subscriptions:</span>
+                        <span>112</span>
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Professional Plan</h4>
+                        <span className="text-lg font-bold">$99/mo</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">Up to 50 users, core features</p>
+                      <div className="flex justify-between text-sm">
+                        <span>Active subscriptions:</span>
+                        <span>87</span>
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Basic Plan</h4>
+                        <span className="text-lg font-bold">$49/mo</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">Up to 10 users, basic features</p>
+                      <div className="flex justify-between text-sm">
+                        <span>Active subscriptions:</span>
+                        <span>48</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case 'settings':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold">Platform Settings</h2>
+              <p className="text-muted-foreground">Configure platform-wide settings and preferences</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>General Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Platform Name</label>
+                    <input 
+                      type="text" 
+                      defaultValue="Enterprise Platform" 
+                      className="w-full mt-1 px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Support Email</label>
+                    <input 
+                      type="email" 
+                      defaultValue="support@platform.com" 
+                      className="w-full mt-1 px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Default Timezone</label>
+                    <select className="w-full mt-1 px-3 py-2 border rounded-md">
+                      <option>UTC</option>
+                      <option>EST</option>
+                      <option>PST</option>
+                    </select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Feature Flags</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { name: "Multi-tenant Support", enabled: true },
+                    { name: "Advanced Analytics", enabled: true },
+                    { name: "API Rate Limiting", enabled: false },
+                    { name: "SSO Integration", enabled: true },
+                    { name: "Custom Branding", enabled: false },
+                  ].map((feature, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm">{feature.name}</span>
+                      <Badge variant={feature.enabled ? 'default' : 'secondary'}>
+                        {feature.enabled ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Integrations</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <CreditCard className="w-5 h-5" />
+                      <div>
+                        <p className="font-medium">Stripe</p>
+                        <p className="text-sm text-muted-foreground">Payment processing</p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">Connected</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5" />
+                      <div>
+                        <p className="font-medium">SendGrid</p>
+                        <p className="text-sm text-muted-foreground">Email delivery</p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">Connected</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <BarChart3 className="w-5 h-5" />
+                      <div>
+                        <p className="font-medium">Analytics</p>
+                        <p className="text-sm text-muted-foreground">Usage tracking</p>
+                      </div>
+                    </div>
+                    <Badge variant="outline">Not Connected</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Localization</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Default Language</label>
+                    <select className="w-full mt-1 px-3 py-2 border rounded-md">
+                      <option>English (US)</option>
+                      <option>Spanish</option>
+                      <option>French</option>
+                      <option>German</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Supported Languages</label>
+                    <div className="mt-2 space-y-2">
+                      {['English', 'Spanish', 'French'].map((lang, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <input type="checkbox" defaultChecked />
+                          <span className="text-sm">{lang}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case 'security':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold">Security & Logs</h2>
+              <p className="text-muted-foreground">Monitor security events and manage compliance</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Security Overview</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Failed Login Attempts</span>
+                    <Badge variant="secondary" className="bg-red-500/10 text-red-600">23 today</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Active Sessions</span>
+                    <Badge variant="secondary">1,247</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">2FA Enabled Users</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">87%</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Last Security Scan</span>
+                    <Badge variant="secondary">2 hours ago</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Recent Security Events</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { event: "Failed login attempt", user: "john.doe@example.com", ip: "192.168.1.100", time: "2 min ago", severity: "medium" },
+                      { event: "Password changed", user: "sarah.wilson@company.com", ip: "10.0.0.15", time: "15 min ago", severity: "low" },
+                      { event: "Suspicious API calls", user: "api-user-123", ip: "203.0.113.5", time: "1 hour ago", severity: "high" },
+                      { event: "2FA enabled", user: "mike.jones@startup.io", ip: "192.168.1.50", time: "2 hours ago", severity: "low" },
+                    ].map((event, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-1 rounded-full ${
+                            event.severity === 'high' ? 'bg-red-500/10' :
+                            event.severity === 'medium' ? 'bg-yellow-500/10' : 'bg-green-500/10'
+                          }`}>
+                            <Lock className={`w-3 h-3 ${
+                              event.severity === 'high' ? 'text-red-600' :
+                              event.severity === 'medium' ? 'text-yellow-600' : 'text-green-600'
+                            }`} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{event.event}</p>
+                            <p className="text-xs text-muted-foreground">{event.user} from {event.ip}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{event.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Compliance Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">GDPR Compliance</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">Compliant</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">SOC 2 Type II</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">Certified</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">ISO 27001</span>
+                    <Badge variant="outline">In Progress</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Data Retention</span>
+                    <Badge variant="secondary">90 days</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Last Backup</span>
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">6 hours ago</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Access Controls</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">IP Restrictions</label>
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center justify-between p-2 border rounded">
+                        <span className="text-sm">192.168.1.0/24</span>
+                        <Badge variant="secondary">Allowed</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-2 border rounded">
+                        <span className="text-sm">10.0.0.0/16</span>
+                        <Badge variant="secondary">Allowed</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Session Settings</label>
+                    <div className="mt-2 space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Session Timeout</span>
+                        <span className="text-sm">4 hours</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Concurrent Sessions</span>
+                        <span className="text-sm">3 max</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      case 'support':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Support Center</h2>
+                <p className="text-muted-foreground">Manage customer support and tickets</p>
+              </div>
+              <Button>
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Create Ticket
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-red-600">23</p>
+                    <p className="text-sm text-muted-foreground">Open Tickets</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-600">8</p>
+                    <p className="text-sm text-muted-foreground">Pending Review</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">156</p>
+                    <p className="text-sm text-muted-foreground">Resolved Today</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold">2.3h</p>
+                    <p className="text-sm text-muted-foreground">Avg Response Time</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Tickets</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { id: "#12345", subject: "Login issues with SSO", customer: "TechCorp Inc.", priority: "high", status: "open" },
+                      { id: "#12344", subject: "Feature request: Export functionality", customer: "StartupAI", priority: "low", status: "pending" },
+                      { id: "#12343", subject: "Billing inquiry", customer: "DesignStudio", priority: "medium", status: "resolved" },
+                      { id: "#12342", subject: "Performance issues", customer: "ConsultingPro", priority: "high", status: "open" },
+                    ].map((ticket, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{ticket.id}</p>
+                          <p className="text-sm text-muted-foreground">{ticket.subject}</p>
+                          <p className="text-xs text-muted-foreground">{ticket.customer}</p>
+                        </div>
+                        <div className="text-right space-y-1">
+                          <Badge variant={
+                            ticket.priority === 'high' ? 'destructive' :
+                            ticket.priority === 'medium' ? 'default' : 'secondary'
+                          }>
+                            {ticket.priority}
+                          </Badge>
+                          <div>
+                            <Badge variant={ticket.status === 'resolved' ? 'secondary' : 'outline'}>
+                              {ticket.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Support Team</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Sarah Johnson", role: "Senior Support", tickets: 12, status: "online" },
+                      { name: "Mike Chen", role: "Support Agent", tickets: 8, status: "busy" },
+                      { name: "Emily Davis", role: "Support Agent", tickets: 15, status: "online" },
+                      { name: "David Wilson", role: "Support Lead", tickets: 6, status: "away" },
+                    ].map((agent, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            agent.status === 'online' ? 'bg-green-500' :
+                            agent.status === 'busy' ? 'bg-red-500' : 'bg-yellow-500'
+                          }`} />
+                          <div>
+                            <p className="font-medium">{agent.name}</p>
+                            <p className="text-sm text-muted-foreground">{agent.role}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">{agent.tickets} tickets</p>
+                          <p className="text-xs text-muted-foreground">{agent.status}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+
+      default:
+        return <div>Select a section from the sidebar</div>;
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -86,29 +927,15 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
 
             {/* Navigation */}
             <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+              <SidebarGroupLabel>Administration</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
                     <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* System */}
-            <SidebarGroup>
-              <SidebarGroupLabel>System</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {systemItems.map((item) => (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton>
+                      <SidebarMenuButton 
+                        onClick={() => setActiveSection(item.id)}
+                        className={activeSection === item.id ? "bg-primary/10 text-primary" : ""}
+                      >
                         <item.icon className="w-4 h-4" />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
@@ -137,104 +964,15 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
           {/* Header */}
           <header className="h-16 border-b border-border bg-card flex items-center px-6">
             <SidebarTrigger className="mr-4" />
-            <h1 className="text-xl font-semibold text-foreground">Platform Dashboard</h1>
+            <h1 className="text-xl font-semibold text-foreground">
+              {navigationItems.find(item => item.id === activeSection)?.title || 'Platform Dashboard'}
+            </h1>
           </header>
 
           {/* Content */}
-          <div className="flex-1 p-6 bg-background">
-            <div className="max-w-7xl mx-auto space-y-6">
-              {/* Welcome Section */}
-              <div className="bg-card rounded-lg border border-border p-6">
-                <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to Platform Administration</h2>
-                <p className="text-muted-foreground">
-                  Manage your platform settings, monitor system health, and oversee user management from this central dashboard.
-                </p>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-card rounded-lg border border-border p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10">
-                      <Building2 className="w-5 h-5 text-blue-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Companies</p>
-                      <p className="text-2xl font-bold text-foreground">24</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-card rounded-lg border border-border p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-green-500/10">
-                      <Users className="w-5 h-5 text-green-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Active Users</p>
-                      <p className="text-2xl font-bold text-foreground">1,429</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-card rounded-lg border border-border p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10">
-                      <Monitor className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">System Health</p>
-                      <p className="text-2xl font-bold text-foreground">98.5%</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-card rounded-lg border border-border p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-500/10">
-                      <BarChart3 className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Monthly Revenue</p>
-                      <p className="text-2xl font-bold text-foreground">$12.4k</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-card rounded-lg border border-border p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 py-3 border-b border-border last:border-b-0">
-                    <div className="p-1 rounded-full bg-green-500/10">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">New company "TechCorp" registered</p>
-                      <p className="text-xs text-muted-foreground">2 minutes ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 py-3 border-b border-border last:border-b-0">
-                    <div className="p-1 rounded-full bg-blue-500/10">
-                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">System backup completed successfully</p>
-                      <p className="text-xs text-muted-foreground">1 hour ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 py-3 border-b border-border last:border-b-0">
-                    <div className="p-1 rounded-full bg-orange-500/10">
-                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">Security scan detected 0 vulnerabilities</p>
-                      <p className="text-xs text-muted-foreground">3 hours ago</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="flex-1 p-6 bg-background overflow-auto">
+            <div className="max-w-7xl mx-auto">
+              {renderDashboardContent()}
             </div>
           </div>
         </main>
