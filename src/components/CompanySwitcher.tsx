@@ -65,16 +65,6 @@ export const CompanySwitcher = ({
             {currentCompany?.id === company.id && <Check className="h-4 w-4" />}
           </DropdownMenuItem>)}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setShowCreateDialog(true)} className="flex items-center space-x-2">
-          <Plus className="h-4 w-4" />
-          <span>Create Company</span>
-        </DropdownMenuItem>
-        {onNavigate && (
-          <DropdownMenuItem onClick={() => onNavigate('settings')} className="flex items-center space-x-2">
-            <Settings className="h-4 w-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
-        )}
         
       </DropdownMenuContent>
       
