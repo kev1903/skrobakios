@@ -34,12 +34,10 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           <Menu className="w-4 h-4 mr-2" />
           {!isCollapsed && <span>Navigation</span>}
         </Button>
-        {!isCollapsed && (
-          <div className="space-y-2">
-            <RoleSwitcher />
-            <CompanySwitcher onNavigate={onNavigate} />
-          </div>
-        )}
+        <div className="space-y-2">
+          <RoleSwitcher />
+          {!isCollapsed && <CompanySwitcher onNavigate={onNavigate} />}
+        </div>
       </SidebarHeader>
       
       <SidebarMainContent 
