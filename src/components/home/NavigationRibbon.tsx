@@ -1,6 +1,7 @@
 import React from 'react';
 import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle } from 'lucide-react';
 import { CompanySwitcher } from '@/components/CompanySwitcher';
+import { RoleSwitcher } from '@/components/RoleSwitcher';
 interface NavigationRibbonProps {
   isOpen: boolean;
   onSidePageSelect: (page: string) => void;
@@ -51,6 +52,9 @@ export const NavigationRibbon = ({
         <div className="border-t border-white/20 px-3 py-4 space-y-1">
           <div className="text-xs font-medium text-white uppercase tracking-wider px-3 py-2">
             Support
+          </div>
+          <div className="px-3 py-2">
+            <RoleSwitcher />
           </div>
           <button onClick={() => {
           onNavigate('support');

@@ -10,8 +10,16 @@ import { useSidebar } from '@/components/ui/sidebar';
 export const RoleSwitcher = () => {
   const { operatingMode, setOperatingMode, canSwitchMode, isPlatformMode, isCompanyMode } = useRoleContext();
   const { currentCompany } = useCompany();
-  const { state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  
+  // Try to get sidebar state, but handle case where it's not in a sidebar context
+  let isCollapsed = false;
+  try {
+    const { state } = useSidebar();
+    isCollapsed = state === 'collapsed';
+  } catch (error) {
+    // Not in a sidebar context, use expanded layout
+    isCollapsed = false;
+  }
 
   console.log('RoleSwitcher Debug:', { operatingMode, canSwitchMode, isPlatformMode, isCompanyMode });
 
@@ -86,7 +94,7 @@ export const RoleSwitcher = () => {
         ) : (
           <Building2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
         )}
-        <span className="text-sm font-medium text-sidebar-foreground truncate">
+        <span className="text-sm font-medium text-white truncate">
           {isPlatformMode ? 'Platform' : 'Company'}
         </span>
       </div>
