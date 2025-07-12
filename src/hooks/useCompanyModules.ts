@@ -37,6 +37,7 @@ export const useCompanyModules = () => {
   const fetchCompanyModules = async (companyId: string) => {
     if (!companyId) return;
     
+    console.log('fetchCompanyModules called for company:', companyId);
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -44,8 +45,12 @@ export const useCompanyModules = () => {
         .select('*')
         .eq('company_id', companyId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching modules:', error);
+        throw error;
+      }
 
+      console.log('Fetched modules data:', data);
       setModules(data || []);
     } catch (error) {
       console.error('Error fetching company modules:', error);
@@ -60,6 +65,7 @@ export const useCompanyModules = () => {
   };
 
   const updateModuleStatus = async (companyId: string, moduleName: string, enabled: boolean) => {
+    console.log('updateModuleStatus called:', { companyId, moduleName, enabled });
     try {
       const { data, error } = await supabase
         .from('company_modules')
@@ -73,7 +79,12 @@ export const useCompanyModules = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+      
+      console.log('Update successful, returned data:', data);
 
       // Update local state
       setModules(prev => {

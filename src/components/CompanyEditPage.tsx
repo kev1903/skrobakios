@@ -37,10 +37,10 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
       try {
         const companyData = await getCompany(companyId);
         setCompany(companyData);
-        // Fetch company modules for platform admins
-        if (isSuperAdmin()) {
-          await fetchCompanyModules(companyId);
-        }
+        console.log('CompanyEditPage: User is superadmin?', isSuperAdmin());
+        console.log('CompanyEditPage: Fetching modules for company:', companyId);
+        // Always fetch company modules for platform admins or company owners
+        await fetchCompanyModules(companyId);
       } catch (error) {
         console.error('Error fetching company:', error);
         toast({
