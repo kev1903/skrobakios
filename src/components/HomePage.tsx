@@ -7,6 +7,7 @@ import { ChatBox } from '@/components/ChatBox';
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 import { AiChatBar } from '@/components/AiChatBar';
 import { useCompany } from '@/contexts/CompanyContext';
+import { useRoleContext } from '@/contexts/RoleContext';
 import { useProjects, Project } from '@/hooks/useProjects';
 
 interface ProjectWithCoordinates extends Project {
@@ -66,6 +67,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
   const [showSaveButton, setShowSaveButton] = useState(false);
   
   const { currentCompany } = useCompany();
+  const { isPlatformMode } = useRoleContext();
   const { getProjects } = useProjects();
 
   // Define addProjectMarkers function outside useEffect so it can be reused
@@ -426,13 +428,15 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       <div ref={mapContainer} className="absolute inset-0" />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
       
-      {/* Floating Top Bar */}
-      <HomeFloatingBar 
-        onNavigate={onNavigate} 
-        onSelectProject={onSelectProject}
-        showSaveButton={showSaveButton}
-        onSaveMapPosition={saveCurrentMapPosition}
-      />
+      {/* Floating Top Bar - Only show in Company Mode */}
+      {!isPlatformMode && (
+        <HomeFloatingBar 
+          onNavigate={onNavigate} 
+          onSelectProject={onSelectProject}
+          showSaveButton={showSaveButton}
+          onSaveMapPosition={saveCurrentMapPosition}
+        />
+      )}
       
       {/* Loading overlay */}
       {isLoading && (
