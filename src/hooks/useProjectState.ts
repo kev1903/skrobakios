@@ -29,7 +29,7 @@ export const useProjectState = () => {
     };
 
     autoSelectFirstProject();
-  }, [selectedProject, hasAutoSelected, getProjects]);
+  }, [selectedProject, hasAutoSelected]);
 
   useEffect(() => {
     const fetchCurrentProject = async () => {
@@ -53,7 +53,7 @@ export const useProjectState = () => {
     };
 
     fetchCurrentProject();
-  }, [selectedProject, getProjects, getProject]);
+  }, [selectedProject]);
 
   const handleSelectProject = (projectId: string) => {
     console.log("Setting selected project:", projectId);
