@@ -521,68 +521,6 @@ export const PlatformDashboard = ({
               </Button>
             </div>
 
-            {/* Module Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10">
-                      <Building2 className="w-5 h-5 text-blue-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Company Modules</p>
-                      <p className="text-2xl font-bold">4</p>
-                      <p className="text-xs text-blue-600">Available</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-green-500/10">
-                      <Activity className="w-5 h-5 text-green-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Project Modules</p>
-                      <p className="text-2xl font-bold">4</p>
-                      <p className="text-xs text-green-600">Available</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-500/10">
-                      <Users className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Adoption</p>
-                      <p className="text-2xl font-bold">73%</p>
-                      <p className="text-xs text-purple-600">Average rate</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10">
-                      <Puzzle className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Active Companies</p>
-                      <p className="text-2xl font-bold">52</p>
-                      <p className="text-xs text-orange-600">Using modules</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Company Modules */}
             <Card>
