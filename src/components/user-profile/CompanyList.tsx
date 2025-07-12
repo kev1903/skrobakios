@@ -15,6 +15,13 @@ export const CompanyList = ({ onEditCompany }: CompanyListProps) => {
   const { getUserCompanies, loading } = useCompanies();
   const { isSuperAdmin } = useUserRole();
 
+  // Debug logging
+  console.log('CompanyList debug:', {
+    isSuperAdmin: isSuperAdmin(),
+    onEditCompany: !!onEditCompany,
+    companies: companies.length
+  });
+
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
