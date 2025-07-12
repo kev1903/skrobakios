@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AppSidebar } from "@/components/AppSidebar";
 
 interface PageLayoutProps {
   currentPage: string;
@@ -23,11 +24,20 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     );
   }
 
-  if (currentPage === "auth" || currentPage === "home") {
+  if (currentPage === "auth") {
     return (
       <main className="flex-1 overflow-hidden w-full">
         {children}
       </main>
+    );
+  }
+
+  // For home and all other pages, use the sidebar layout
+  if (currentPage === "home") {
+    return (
+      <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
+        {children}
+      </AppSidebar>
     );
   }
 
@@ -36,9 +46,11 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin"}
     >
-      <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
-        {children}
-      </main>
+      <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
+        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
+          {children}
+        </main>
+      </AppSidebar>
     </ProtectedRoute>
   );
 };
