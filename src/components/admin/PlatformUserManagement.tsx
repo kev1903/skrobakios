@@ -36,6 +36,7 @@ import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
 import { UserProfileEditDialog } from './UserProfileEditDialog';
 import { ManualUserCreateDialog } from './ManualUserCreateDialog';
+import { PermissionMatrix } from './PermissionMatrix';
 import { toast } from '@/hooks/use-toast';
 
 interface CompanyOption {
@@ -478,98 +479,7 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
             </TabsContent>
 
             <TabsContent value="roles" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <KeyRound className="w-5 h-5" />
-                    Role Management
-                  </CardTitle>
-                  <CardDescription>
-                    Manage platform roles and permissions for users.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="relative flex-1 max-w-sm">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search users for role management..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="border rounded-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Company</TableHead>
-                          <TableHead>Platform Roles</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {loading ? (
-                          <TableRow>
-                            <TableCell colSpan={5} className="text-center py-8">
-                              Loading users...
-                            </TableCell>
-                          </TableRow>
-                        ) : users.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={5} className="text-center py-8">
-                              No users found.
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          users.map((user) => (
-                            <TableRow key={user.user_id}>
-                              <TableCell>
-                                <div className="flex items-center gap-3">
-                                  <Avatar className="h-8 w-8">
-                                    <AvatarImage src={user.avatar_url} />
-                                    <AvatarFallback>
-                                      {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div>
-                                    <div className="font-medium">
-                                      {user.first_name} {user.last_name}
-                                    </div>
-                                    {user.phone && (
-                                      <div className="text-sm text-muted-foreground">
-                                        {user.phone}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell>{user.email}</TableCell>
-                              <TableCell>{user.company || '-'}</TableCell>
-                              <TableCell>
-                                <HierarchicalRoleManagement
-                                  user={user}
-                                  onAddRole={addUserAppRole}
-                                  onRemoveRole={removeUserAppRole}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant={getStatusBadgeVariant(user.status)}>
-                                  {user.status}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
+              <PermissionMatrix />
             </TabsContent>
           </Tabs>
         </CardContent>
