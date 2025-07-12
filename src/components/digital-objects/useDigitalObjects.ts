@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DropResult } from "react-beautiful-dnd";
 import { DigitalObject, useDigitalObjectsContext } from "@/contexts/DigitalObjectsContext";
+import { useCompany } from "@/contexts/CompanyContext";
 
 type SortDirection = 'asc' | 'desc' | null;
 
 export const useDigitalObjects = () => {
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
   const { digitalObjects, loading, refreshDigitalObjects } = useDigitalObjectsContext();
   const [editingField, setEditingField] = useState<{id: string, field: keyof DigitalObject} | null>(null);
   const [editingData, setEditingData] = useState<Partial<DigitalObject>>({});
@@ -93,8 +95,18 @@ export const useDigitalObjects = () => {
   };
 
   const handleAddRow = async () => {
+    if (!currentCompany?.id) {
+      toast({
+        title: "Error",
+        description: "No company selected. Please select a company first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const newRowData = {
+        company_id: currentCompany.id,
         name: "",
         object_type: "",
         description: "",
@@ -153,6 +165,15 @@ export const useDigitalObjects = () => {
   };
 
   const handleImportCSV = async (file: File) => {
+    if (!currentCompany?.id) {
+      toast({
+        title: "Error",
+        description: "No company selected. Please select a company first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
@@ -188,6 +209,7 @@ export const useDigitalObjects = () => {
           if (values.length < headers.length) continue;
 
           const objData = {
+            company_id: currentCompany.id,
             name: values[headers.indexOf('name')] || '',
             object_type: values[headers.indexOf('object_type')] || '',
             description: values[headers.indexOf('description')] || null,

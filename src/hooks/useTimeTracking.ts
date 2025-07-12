@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export interface TimeEntry {
   id: string;
+  company_id: string;
   user_id: string;
   start_time: string;
   end_time: string | null;
@@ -50,6 +52,7 @@ export const useTimeTracking = () => {
   const [activeTimer, setActiveTimer] = useState<TimeEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { currentCompany } = useCompany();
 
   // Load initial data
   useEffect(() => {
@@ -179,6 +182,15 @@ export const useTimeTracking = () => {
   };
 
   const startTimer = async (taskActivity: string, category: string = 'Other', projectName?: string) => {
+    if (!currentCompany?.id) {
+      toast({
+        title: "Error",
+        description: "No company selected. Please select a company first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const user = await supabase.auth.getUser();
       if (!user.data.user) return;
@@ -189,6 +201,7 @@ export const useTimeTracking = () => {
       }
 
       const newEntry = {
+        company_id: currentCompany?.id || '',
         user_id: user.data.user.id,
         start_time: new Date().toISOString(),
         task_activity: taskActivity,
@@ -259,6 +272,15 @@ export const useTimeTracking = () => {
   };
 
   const createTimeEntry = async (entry: Partial<TimeEntry>) => {
+    if (!currentCompany?.id) {
+      toast({
+        title: "Error",
+        description: "No company selected. Please select a company first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const user = await supabase.auth.getUser();
       if (!user.data.user) return;
@@ -275,6 +297,7 @@ export const useTimeTracking = () => {
         start_time: entry.start_time || new Date().toISOString(),
         task_activity: entry.task_activity || 'Untitled Task',
         ...entry,
+        company_id: currentCompany.id,
         user_id: user.data.user.id,
         duration,
         is_active: false

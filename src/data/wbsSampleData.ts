@@ -1,9 +1,36 @@
 import { supabase } from '@/integrations/supabase/client';
-import { WBSItem } from '@/types/wbs';
 
-export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]> => {
+export interface WBSItem {
+  id?: string;
+  company_id: string;
+  project_id: string;
+  parent_id?: string | null;
+  wbs_id: string;
+  title: string;
+  description?: string | null;
+  assigned_to?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  duration?: number | null;
+  budgeted_cost?: number | null;
+  actual_cost?: number | null;
+  progress?: number | null;
+  level?: number | null;
+  is_expanded?: boolean | null;
+  linked_tasks?: any;
+  children?: WBSItem[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const createSampleWBSData = async (projectId: string, companyId: string): Promise<WBSItem[]> => {
+  if (!companyId) {
+    throw new Error('Company ID is required to create WBS items');
+  }
+
   const sampleItems = [
     {
+      company_id: companyId,
       project_id: projectId,
       parent_id: null,
       wbs_id: '1.0',
@@ -21,6 +48,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
       linked_tasks: []
     },
     {
+      company_id: companyId,
       project_id: projectId,
       parent_id: null,
       wbs_id: '2.0',
@@ -38,6 +66,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
       linked_tasks: []
     },
     {
+      company_id: companyId,
       project_id: projectId,
       parent_id: null,
       wbs_id: '3.0',
@@ -63,7 +92,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
     try {
       const { data, error } = await supabase
         .from('wbs_items')
-        .insert([item])
+        .insert(item)
         .select()
         .single();
 
@@ -71,6 +100,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
 
       createdItems.push({
         id: data.id,
+        company_id: data.company_id,
         project_id: data.project_id,
         parent_id: data.parent_id,
         wbs_id: data.wbs_id,
@@ -100,6 +130,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
     const parentId = createdItems[0].id;
     const childItems = [
       {
+        company_id: companyId,
         project_id: projectId,
         parent_id: parentId,
         wbs_id: '1.1',
@@ -117,6 +148,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
         linked_tasks: []
       },
       {
+        company_id: companyId,
         project_id: projectId,
         parent_id: parentId,
         wbs_id: '1.2',
@@ -139,7 +171,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
       try {
         const { data, error } = await supabase
           .from('wbs_items')
-          .insert([childItem])
+          .insert(childItem)
           .select()
           .single();
 
@@ -147,6 +179,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
 
         const child: WBSItem = {
           id: data.id,
+          company_id: data.company_id,
           project_id: data.project_id,
           parent_id: data.parent_id,
           wbs_id: data.wbs_id,
@@ -167,7 +200,7 @@ export const createSampleWBSData = async (projectId: string): Promise<WBSItem[]>
           updated_at: data.updated_at
         };
 
-        createdItems[0].children.push(child);
+        createdItems[0].children!.push(child);
       } catch (err) {
         console.error('Error creating sample child WBS item:', err);
       }

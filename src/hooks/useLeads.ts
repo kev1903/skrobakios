@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export interface Lead {
   id: string;
+  company_id: string;
   company: string;
   contact_name: string;
   contact_email: string | null;
@@ -17,6 +19,7 @@ export interface Lead {
   website: string | null;
   notes: string | null;
   last_activity: string | null;
+  project_address: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +28,7 @@ export const useLeads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currentCompany } = useCompany();
 
   const fetchLeads = async () => {
     try {
@@ -59,8 +63,18 @@ export const useLeads = () => {
     }
   };
 
-  const createLead = async (lead: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => {
+  const createLead = async (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'company_id'>) => {
+    if (!currentCompany?.id) {
+      setError('No company selected. Please select a company first.');
+      return;
+    }
+
     try {
+      const lead = {
+        ...leadData,
+        company_id: currentCompany.id
+      };
+      
       const { error } = await supabase
         .from('leads')
         .insert([lead]);

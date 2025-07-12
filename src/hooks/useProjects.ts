@@ -1,8 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export interface Project {
   id: string;
+  company_id: string;
   project_id: string;
   name: string;
   description?: string;
@@ -75,9 +77,15 @@ const saveToLocalStorage = (data: Project[]) => {
 export const useProjects = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { currentCompany } = useCompany();
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const createProject = async (projectData: CreateProjectData): Promise<Project | null> => {
+    if (!currentCompany?.id) {
+      setError('No company selected. Please select a company first.');
+      return null;
+    }
+
     setLoading(true);
     setError(null);
     
@@ -85,6 +93,7 @@ export const useProjects = () => {
       const { data, error } = await supabase
         .from('projects')
         .insert([{
+          company_id: currentCompany.id,
           project_id: projectData.project_id,
           name: projectData.name,
           description: projectData.description,
