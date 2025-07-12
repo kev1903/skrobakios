@@ -310,37 +310,6 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
 
           {isSuperAdmin() && (
             <TabsContent value="admin" className="space-y-4 md:space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                <CardHeader className="pb-4 md:pb-6">
-                  <CardTitle className="text-lg md:text-xl flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Company Admin Panel
-                  </CardTitle>
-                  <CardDescription className="text-sm md:text-base">
-                    Super admin controls for {company?.name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                      <div>
-                        <h4 className="text-sm font-medium">Company Status</h4>
-                        <p className="text-xs md:text-sm text-slate-500">Enable or disable this company</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <Separator />
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                      <div>
-                        <h4 className="text-sm font-medium">Billing Override</h4>
-                        <p className="text-xs md:text-sm text-slate-500">Override billing settings for this company</p>
-                      </div>
-                      <Button variant="outline" size="sm">Configure</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Company Modules Section - Only for Super Admins */}
               <Card className="backdrop-blur-sm bg-white/60 border-white/30">
                 <CardHeader className="pb-4 md:pb-6">
