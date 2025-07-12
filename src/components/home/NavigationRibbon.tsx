@@ -1,5 +1,5 @@
 import React from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, Settings, HelpCircle } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle } from 'lucide-react';
 interface NavigationRibbonProps {
   isOpen: boolean;
   onSidePageSelect: (page: string) => void;
@@ -46,13 +46,6 @@ export const NavigationRibbon = ({
           <div className="text-xs font-medium text-white uppercase tracking-wider px-3 py-2">
             Support
           </div>
-          <button onClick={() => {
-          onNavigate('settings');
-          onClose();
-        }} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left">
-            <Settings className="w-4 h-4" />
-            <span className="text-sm font-medium">Settings</span>
-          </button>
           <button onClick={() => {
           onNavigate('support');
           onClose();
