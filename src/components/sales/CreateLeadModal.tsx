@@ -22,7 +22,7 @@ interface CreateLeadModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialStage: string;
-  onSave: (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  onSave: (leadData: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'company_id'>) => Promise<void>;
 }
 
 export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: CreateLeadModalProps) => {
@@ -51,7 +51,7 @@ export const CreateLeadModal = ({ isOpen, onClose, initialStage, onSave }: Creat
     try {
       await onSave({
         ...formData,
-        company: formData.contact_name, // Use contact name as company name
+        company: formData.company || formData.contact_name, // Use company name or fallback to contact name
         stage: initialStage as any,
         avatar_url: null,
         last_activity: 'Just created',

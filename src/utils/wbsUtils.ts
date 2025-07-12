@@ -55,6 +55,7 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
   flatData.forEach(item => {
     const wbsItem: WBSItem = {
       id: item.id,
+      company_id: item.company_id,
       project_id: item.project_id,
       parent_id: item.parent_id,
       wbs_id: item.wbs_id,

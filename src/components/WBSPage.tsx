@@ -76,6 +76,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     const parentItem = parentId ? findWBSItem(parentId) : null;
     
     const newItem = {
+      company_id: project.company_id,
       project_id: project.id,
       parent_id: parentId,
       wbs_id: newWBSId,

@@ -55,7 +55,7 @@ export const ModernProjectSchedulePage = ({ project, onNavigate }: ModernProject
   const loadWBSItems = async () => {
     try {
       setLoading(true);
-      const wbsItems = await WBSService.loadWBSItems(project.id);
+      const wbsItems = await WBSService.loadWBSItems(project.id, project.company_id);
       const ganttTasks = convertWBSToGanttTasks(wbsItems);
       setTasks(ganttTasks);
       

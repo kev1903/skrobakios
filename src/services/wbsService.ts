@@ -5,7 +5,7 @@ import { createSampleWBSData } from '@/data/wbsSampleData';
 
 export class WBSService {
   // Load WBS items for a project
-  static async loadWBSItems(projectId: string): Promise<WBSItem[]> {
+  static async loadWBSItems(projectId: string, companyId: string): Promise<WBSItem[]> {
     const { data, error } = await supabase
       .from('wbs_items')
       .select('*')
@@ -17,7 +17,8 @@ export class WBSService {
 
     // If no data exists, create sample data
     if (!data || data.length === 0) {
-      return await createSampleWBSData(projectId);
+      const sampleData = await createSampleWBSData(projectId, companyId);
+      return buildHierarchy(sampleData);
     }
 
     return buildHierarchy(data);
@@ -27,7 +28,8 @@ export class WBSService {
   static async createWBSItem(itemData: WBSItemInput): Promise<any> {
     const { data, error } = await supabase
       .from('wbs_items')
-      .insert([{
+      .insert({
+        company_id: itemData.company_id,
         project_id: itemData.project_id,
         parent_id: itemData.parent_id || null,
         wbs_id: itemData.wbs_id,
@@ -43,7 +45,7 @@ export class WBSService {
         level: itemData.level,
         is_expanded: itemData.is_expanded,
         linked_tasks: itemData.linked_tasks
-      }])
+      })
       .select()
       .single();
 

@@ -1,5 +1,6 @@
 export interface WBSItem {
   id: string;
+  company_id: string;
   project_id: string;
   parent_id?: string;
   wbs_id: string;

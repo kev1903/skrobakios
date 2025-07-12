@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { WBSItem, WBSItemInput } from '@/types/wbs';
 import { WBSService } from '@/services/wbsService';
+import { useCompany } from '@/contexts/CompanyContext';
 import { 
   calculateDuration, 
   findWBSItem, 
@@ -10,19 +11,20 @@ import {
 } from '@/utils/wbsUtils';
 
 export const useWBS = (projectId: string) => {
+  const { currentCompany } = useCompany();
   const [wbsItems, setWBSItems] = useState<WBSItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load WBS items for a project
   const loadWBSItems = async () => {
-    if (!projectId) return;
+    if (!projectId || !currentCompany?.id) return;
     
     setLoading(true);
     setError(null);
     
     try {
-      const items = await WBSService.loadWBSItems(projectId);
+      const items = await WBSService.loadWBSItems(projectId, currentCompany.id);
       setWBSItems(items);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load WBS items';
@@ -80,7 +82,7 @@ export const useWBS = (projectId: string) => {
 
   useEffect(() => {
     loadWBSItems();
-  }, [projectId]);
+  }, [projectId, currentCompany?.id]);
 
   return {
     wbsItems,
