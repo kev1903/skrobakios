@@ -545,7 +545,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         }
       }
     };
-  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing]); // Only re-run if map config actually changes
+  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing, currentCompany?.id, companyLoading]); // Re-run when map config or company changes
 
   // Watch for company loading state changes to retry initialization
   useEffect(() => {
