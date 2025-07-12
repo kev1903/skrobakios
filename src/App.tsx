@@ -65,7 +65,7 @@ const CompanyEditPageWrapper = () => {
   const { companyId } = useParams<{ companyId: string }>();
   
   const handleNavigateBack = () => {
-    navigate('/');
+    navigate('/?page=platform-dashboard');
   };
 
   return <CompanyEditPage companyId={companyId || ''} onNavigateBack={handleNavigateBack} />;
