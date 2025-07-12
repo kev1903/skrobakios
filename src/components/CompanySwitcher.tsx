@@ -20,8 +20,16 @@ interface CompanySwitcherProps {
 export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
   const { currentCompany, companies, switchCompany, loading } = useCompany();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  
+  // Try to get sidebar state, but handle case where it's not in a sidebar context
+  let isCollapsed = false;
+  try {
+    const { state } = useSidebar();
+    isCollapsed = state === 'collapsed';
+  } catch (error) {
+    // Not in a sidebar context, use expanded layout
+    isCollapsed = false;
+  }
 
   if (loading) {
     if (isCollapsed) {
@@ -132,7 +140,7 @@ export const CompanySwitcher = ({ onNavigate }: CompanySwitcherProps = {}) => {
                 {currentCompany.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span className="truncate text-sm font-medium text-sidebar-foreground">{currentCompany.name}</span>
+            <span className="truncate text-sm font-medium text-white">{currentCompany.name}</span>
           </div>
           <ChevronDown className="h-4 w-4 flex-shrink-0" />
         </Button>
