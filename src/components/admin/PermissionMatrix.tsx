@@ -43,10 +43,9 @@ const defaultPermissions: Permission[] = [
 ];
 
 const defaultRoles: Role[] = [
-  { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 4 },
-  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 3 },
-  { id: 'admin', name: 'Admin', color: 'secondary', level: 2 },
-  { id: 'user', name: 'User', color: 'outline', level: 1 },
+  { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 3 },
+  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 2 },
+  { id: 'company_admin', name: 'Company Admin', color: 'secondary', level: 1 },
 ];
 
 // Default permission assignments based on platform role hierarchy (from app_role enum)
@@ -54,14 +53,12 @@ const getDefaultPermissions = (roleLevel: number): string[] => {
   const allPermissions = defaultPermissions.map(p => p.id);
   
   switch (roleLevel) {
-    case 4: // Super Admin - all permissions
+    case 3: // Super Admin - all permissions
       return allPermissions;
-    case 3: // Platform Admin - all permissions except super admin specific
+    case 2: // Platform Admin - all permissions except super admin specific
       return allPermissions.filter(p => !['view_pii'].includes(p));
-    case 2: // Admin - most platform permissions
+    case 1: // Company Admin - most permissions except sensitive ones
       return allPermissions.filter(p => !['view_pii', 'update_team_members', 'view_update_billing'].includes(p));
-    case 1: // User - basic access
-      return ['view_dashboard', 'view_user_profile'];
     default:
       return [];
   }

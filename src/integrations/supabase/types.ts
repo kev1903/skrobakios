@@ -1394,25 +1394,6 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: Json
       }
-      get_manageable_users_for_user: {
-        Args: { requesting_user_id: string }
-        Returns: {
-          user_id: string
-          email: string
-          first_name: string
-          last_name: string
-          avatar_url: string
-          phone: string
-          company: string
-          app_role: Database["public"]["Enums"]["app_role"]
-          app_roles: Database["public"]["Enums"]["app_role"][]
-          company_role: string
-          status: string
-          created_at: string
-          can_manage_roles: boolean
-          can_assign_to_companies: boolean
-        }[]
-      }
       get_user_companies: {
         Args: { target_user_id?: string }
         Returns: {
@@ -1431,28 +1412,6 @@ export type Database = {
       get_user_highest_role_level: {
         Args: { target_user_id: string }
         Returns: number
-      }
-      get_user_role: {
-        Args: { _user_id: string }
-        Returns: Database["public"]["Enums"]["app_role"]
-      }
-      get_user_roles: {
-        Args: { _user_id: string }
-        Returns: Database["public"]["Enums"]["app_role"][]
-      }
-      has_any_role: {
-        Args: {
-          _user_id: string
-          _roles: Database["public"]["Enums"]["app_role"][]
-        }
-        Returns: boolean
-      }
-      has_role: {
-        Args: {
-          _user_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-        }
-        Returns: boolean
       }
       initialize_company_modules: {
         Args: { target_company_id: string }
@@ -1473,13 +1432,7 @@ export type Database = {
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
-      app_role:
-        | "superadmin"
-        | "admin"
-        | "user"
-        | "owner"
-        | "platform_admin"
-        | "company_admin"
+      app_role: "superadmin" | "platform_admin" | "company_admin"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
@@ -1609,14 +1562,7 @@ export const Constants = {
   public: {
     Enums: {
       access_level: ["private_to_members", "public", "restricted"],
-      app_role: [
-        "superadmin",
-        "admin",
-        "user",
-        "owner",
-        "platform_admin",
-        "company_admin",
-      ],
+      app_role: ["superadmin", "platform_admin", "company_admin"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
     },
   },
