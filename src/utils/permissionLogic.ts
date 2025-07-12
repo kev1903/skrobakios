@@ -14,23 +14,23 @@ export const getDefaultPermissions = (roleLevel: number): string[] => {
         'view_all_projects',
         'view_project_analytics',
         'manage_company_settings',
-        'manage_projects',
+        'projects',
       ];
     case 1: // Company Admin - full access to all company permissions
       return [
         'manage_company_settings',
         'manage_company_billing',
-        'manage_projects',
-        'manage_finance',
-        'manage_sales',
-        'manage_dashboard',
-        'manage_digital_twin',
-        'manage_cost_contracts',
-        'manage_schedule',
-        'manage_tasks',
-        'manage_files',
-        'manage_team',
-        'manage_digital_objects',
+        'projects',
+        'finance',
+        'sales',
+        'dashboard',
+        'digital-twin',
+        'cost-contracts',
+        'schedule',
+        'tasks',
+        'files',
+        'team',
+        'digital-objects',
       ];
     default:
       return [];

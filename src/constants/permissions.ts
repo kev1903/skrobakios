@@ -14,17 +14,17 @@ export const defaultPermissions: Permission[] = [
   // Company Permissions
   { id: 'manage_company_settings', name: 'Manage Company Settings', description: 'Modify company configurations and modules', category: 'Company Permissions' },
   { id: 'manage_company_billing', name: 'Manage Company Billing', description: 'Handle billing and subscription management', category: 'Company Permissions' },
-  { id: 'manage_projects', name: 'Manage Projects Module', description: 'Access and manage the projects module', category: 'Company Permissions' },
-  { id: 'manage_finance', name: 'Manage Finance Module', description: 'Access and manage the finance module', category: 'Company Permissions' },
-  { id: 'manage_sales', name: 'Manage Sales Module', description: 'Access and manage the sales module', category: 'Company Permissions' },
-  { id: 'manage_dashboard', name: 'Manage Dashboard Module', description: 'Access and manage the dashboard module', category: 'Company Permissions' },
-  { id: 'manage_digital_twin', name: 'Manage Digital Twin Module', description: 'Access and manage the digital twin module', category: 'Company Permissions' },
-  { id: 'manage_cost_contracts', name: 'Manage Cost Contracts Module', description: 'Access and manage the cost contracts module', category: 'Company Permissions' },
-  { id: 'manage_schedule', name: 'Manage Schedule Module', description: 'Access and manage the schedule module', category: 'Company Permissions' },
-  { id: 'manage_tasks', name: 'Manage Tasks Module', description: 'Access and manage the tasks module', category: 'Company Permissions' },
-  { id: 'manage_files', name: 'Manage Files Module', description: 'Access and manage the files module', category: 'Company Permissions' },
-  { id: 'manage_team', name: 'Manage Team Module', description: 'Access and manage the team module', category: 'Company Permissions' },
-  { id: 'manage_digital_objects', name: 'Manage Digital Objects Module', description: 'Access and manage the digital objects module', category: 'Company Permissions' },
+  { id: 'projects', name: 'Projects Module', description: 'Access and manage the projects module', category: 'Company Permissions' },
+  { id: 'finance', name: 'Finance Module', description: 'Access and manage the finance module', category: 'Company Permissions' },
+  { id: 'sales', name: 'Sales Module', description: 'Access and manage the sales module', category: 'Company Permissions' },
+  { id: 'dashboard', name: 'Dashboard Module', description: 'Access and manage the dashboard module', category: 'Company Permissions' },
+  { id: 'digital-twin', name: 'Digital Twin Module', description: 'Access and manage the digital-twin module', category: 'Company Permissions' },
+  { id: 'cost-contracts', name: 'Cost Contracts Module', description: 'Access and manage the cost-contracts module', category: 'Company Permissions' },
+  { id: 'schedule', name: 'Schedule Module', description: 'Access and manage the schedule module', category: 'Company Permissions' },
+  { id: 'tasks', name: 'Tasks Module', description: 'Access and manage the tasks module', category: 'Company Permissions' },
+  { id: 'files', name: 'Files Module', description: 'Access and manage the files module', category: 'Company Permissions' },
+  { id: 'team', name: 'Team Module', description: 'Access and manage the team module', category: 'Company Permissions' },
+  { id: 'digital-objects', name: 'Digital Objects Module', description: 'Access and manage the digital-objects module', category: 'Company Permissions' },
 ];
 
 export const defaultRoles: Role[] = [
