@@ -20,6 +20,8 @@ export const RoleProvider = ({ children }: { children: ReactNode }) => {
   const { role, isSuperAdmin, isOwner } = useUserRole();
   const { currentCompany } = useCompany();
 
+  console.log('RoleContext Debug:', { role, isSuperAdmin: isSuperAdmin(), isOwner: isOwner(), operatingMode });
+
   // SuperAdmins can switch between platform and company modes
   const canSwitchMode = isSuperAdmin();
 
