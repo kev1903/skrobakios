@@ -43,29 +43,23 @@ const defaultPermissions: Permission[] = [
 ];
 
 const defaultRoles: Role[] = [
-  { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 6 },
-  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 5 },
-  { id: 'admin', name: 'Admin', color: 'default', level: 4 },
-  { id: 'company_admin', name: 'Company Admin', color: 'secondary', level: 3 },
-  { id: 'owner', name: 'Owner', color: 'default', level: 2 },
+  { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 4 },
+  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 3 },
+  { id: 'admin', name: 'Admin', color: 'secondary', level: 2 },
   { id: 'user', name: 'User', color: 'outline', level: 1 },
 ];
 
-// Default permission assignments based on role hierarchy
+// Default permission assignments based on platform role hierarchy
 const getDefaultPermissions = (roleLevel: number): string[] => {
   const allPermissions = defaultPermissions.map(p => p.id);
   
   switch (roleLevel) {
-    case 6: // Super Admin - all permissions
+    case 4: // Super Admin - all permissions
       return allPermissions;
-    case 5: // Platform Admin - all permissions except super admin specific
-      return allPermissions;
-    case 4: // Admin - most permissions
-      return allPermissions.filter(p => !['view_pii', 'update_team_members'].includes(p));
-    case 3: // Company Admin - company level permissions
-      return allPermissions.filter(p => !['view_pii', 'update_team_members', 'view_update_billing', 'update_integrations'].includes(p));
-    case 2: // Owner - owner specific permissions
-      return ['view_dashboard', 'create_segment', 'campaign_maker', 'view_user_profile', 'feedback_management', 'view_update_billing'];
+    case 3: // Platform Admin - all permissions except super admin specific
+      return allPermissions.filter(p => !['view_pii'].includes(p));
+    case 2: // Admin - most platform permissions
+      return allPermissions.filter(p => !['view_pii', 'update_team_members', 'view_update_billing'].includes(p));
     case 1: // User - basic access
       return ['view_dashboard', 'view_user_profile'];
     default:
