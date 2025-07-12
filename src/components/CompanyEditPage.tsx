@@ -16,6 +16,7 @@ import { CompanyPermissionsSection } from '@/components/company-edit/CompanyPerm
 import { CompanyRolesTab } from '@/components/company/settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from '@/components/company/settings/CompanyIntegrationsTab';
 import { EnhancedCompanyUserManagement } from '@/components/company/EnhancedCompanyUserManagement';
+import { CompanyDangerZone } from '@/components/company-edit/CompanyDangerZone';
 
 interface CompanyEditPageProps {
   companyId: string;
@@ -96,6 +97,11 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
       console.error('Error updating module:', error);
       // Error is already handled in the hook
     }
+  };
+
+  const handleCompanyDeleted = () => {
+    // Navigate back to the platform dashboard after company deletion
+    onNavigateBack();
   };
 
   if (loading || modulesLoading) {
@@ -362,12 +368,18 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                       </TabsContent>
                     )}
                   </Tabs>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-        </Tabs>
-      </div>
-    </div>
-  );
-};
+                 </CardContent>
+               </Card>
+
+               {/* Danger Zone - Only for Super Admins */}
+               <CompanyDangerZone 
+                 company={company}
+                 onCompanyDeleted={handleCompanyDeleted}
+               />
+             </TabsContent>
+           )}
+         </Tabs>
+       </div>
+     </div>
+   );
+ };

@@ -151,12 +151,39 @@ export const useCompanies = () => {
     }
   }, []);
 
+  const deleteCompany = useCallback(async (companyId: string): Promise<{ success: boolean; message: string }> => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error: deleteError } = await supabase
+        .rpc('delete_company_completely', { target_company_id: companyId });
+
+      if (deleteError) throw deleteError;
+      
+      const result = data as { success: boolean; message: string; error?: string };
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete company');
+      }
+      
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete company';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     getUserCompanies,
     getCompany,
     createCompany,
     updateCompany,
     inviteUserToCompany,
+    deleteCompany,
     loading,
     error
   };

@@ -1394,6 +1394,10 @@ export type Database = {
         Args: { company_id: string; user_id: string }
         Returns: boolean
       }
+      delete_company_completely: {
+        Args: { target_company_id: string }
+        Returns: Json
+      }
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
