@@ -73,7 +73,7 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
       return;
     }
 
-    const result = await inviteUser(inviteEmail, selectedCompany || undefined, selectedRole);
+    const result = await inviteUser(inviteEmail, selectedCompany && selectedCompany !== 'none' ? selectedCompany : undefined, selectedRole);
     
     if (result.success) {
       toast({
@@ -262,7 +262,7 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
                           <SelectValue placeholder="Select a company" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">No company assignment</SelectItem>
+                          <SelectItem value="none">No company assignment</SelectItem>
                           {companies.map((company) => (
                             <SelectItem key={company.id} value={company.id}>
                               {company.name}
@@ -271,7 +271,7 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
                         </SelectContent>
                       </Select>
                     </div>
-                    {selectedCompany && (
+                    {selectedCompany && selectedCompany !== 'none' && (
                       <div>
                         <label className="text-sm font-medium mb-2 block">Company Role</label>
                         <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
