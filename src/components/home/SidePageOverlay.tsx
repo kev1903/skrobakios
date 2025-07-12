@@ -6,6 +6,7 @@ import { SalesPage } from '@/components/SalesPage';
 import { Mapbox3DEnvironment } from '@/components/Mapbox3DEnvironment';
 import { SettingsPage } from '@/components/SettingsPage';
 import { SupportPage } from '@/components/SupportPage';
+import { NotificationsPage } from '@/components/NotificationsPage';
 
 interface SidePageOverlayProps {
   isRibbonOpen: boolean;
@@ -38,6 +39,8 @@ export const SidePageOverlay = ({
         return <SettingsPage onNavigate={onNavigate} />;
       case 'support':
         return <SupportPage />;
+      case 'notifications':
+        return <NotificationsPage onNavigate={onNavigate} />;
       default:
         return null;
     }
