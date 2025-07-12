@@ -235,7 +235,7 @@ export const PlatformUserManagement = ({ companies }: PlatformUserManagementProp
                 <DialogTrigger asChild>
                   <Button size="sm">
                     <UserPlus className="w-4 h-4 mr-2" />
-                    Invite User
+                    + New User
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
