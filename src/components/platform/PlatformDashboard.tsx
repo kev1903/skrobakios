@@ -67,7 +67,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
 
   const navigationItems = [
     { title: "Dashboard", icon: Home, id: "dashboard" },
-    { title: "Tenants", icon: Building2, id: "tenants" },
+    { title: "Company", icon: Building2, id: "tenants" },
     { title: "Users & Roles", icon: UserCog, id: "users" },
     { title: "Billing", icon: CreditCard, id: "billing" },
     { title: "Settings", icon: Settings, id: "settings" },
@@ -89,7 +89,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                       <Building2 className="w-5 h-5 text-blue-500" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Active Tenants</p>
+                      <p className="text-sm text-muted-foreground">Active Companies</p>
                       <p className="text-2xl font-bold">247</p>
                       <p className="text-xs text-green-600">+12 this month</p>
                     </div>
@@ -187,7 +187,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                     <AlertTriangle className="w-4 h-4 text-yellow-600" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">High API Usage</p>
-                      <p className="text-xs text-muted-foreground">Tenant "TechCorp" exceeded 80% quota</p>
+                      <p className="text-xs text-muted-foreground">Company "TechCorp" exceeded 80% quota</p>
                     </div>
                     <span className="text-xs text-muted-foreground">2h ago</span>
                   </div>
@@ -202,7 +202,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                     <Users className="w-4 h-4 text-green-600" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium">New Tenant</p>
+                      <p className="text-sm font-medium">New Company</p>
                       <p className="text-xs text-muted-foreground">"StartupAI" onboarded successfully</p>
                     </div>
                     <span className="text-xs text-muted-foreground">1d ago</span>
@@ -218,20 +218,20 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold">Tenant Management</h2>
-                <p className="text-muted-foreground">Manage customer tenants and their configurations</p>
+                <h2 className="text-2xl font-bold">Company Management</h2>
+                <p className="text-muted-foreground">Manage customer companies and their configurations</p>
               </div>
               <Button>
                 <Building2 className="w-4 h-4 mr-2" />
-                Create Tenant
+                Create Company
               </Button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <Card className="lg:col-span-2">
                 <CardHeader>
-                  <CardTitle>Active Tenants</CardTitle>
-                  <CardDescription>Overview of all tenant accounts</CardDescription>
+                  <CardTitle>Active Companies</CardTitle>
+                  <CardDescription>Overview of all company accounts</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -268,7 +268,7 @@ export const PlatformDashboard = ({ onNavigate }: PlatformDashboardProps) => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Tenant Stats</CardTitle>
+                  <CardTitle>Company Stats</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
