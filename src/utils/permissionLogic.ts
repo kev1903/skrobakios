@@ -16,16 +16,21 @@ export const getDefaultPermissions = (roleLevel: number): string[] => {
         'manage_company_settings',
         'manage_projects',
       ];
-    case 1: // Company Admin - company permissions only
+    case 1: // Company Admin - full access to all company permissions
       return [
         'manage_company_settings',
         'manage_company_billing',
         'manage_projects',
+        'manage_finance',
+        'manage_sales',
+        'manage_dashboard',
+        'manage_digital_twin',
+        'manage_cost_contracts',
+        'manage_schedule',
         'manage_tasks',
-        'view_financial_reports',
-        'manage_estimates',
-        'manage_invoicing',
-        'manage_integrations',
+        'manage_files',
+        'manage_team',
+        'manage_digital_objects',
       ];
     default:
       return [];
