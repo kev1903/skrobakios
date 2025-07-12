@@ -64,6 +64,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
   const [mapConfig, setMapConfig] = useState({
     center: [144.9631, -37.8136] as [number, number],
     zoom: 6.5,
@@ -167,10 +168,30 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
           return;
         }
 
-        // Fetch projects from database
+        // Get the current user's company ID
+        const { data: companyId, error: companyError } = await supabase.rpc('get_user_current_company_id');
+        
+        if (companyError) {
+          console.error('Error fetching current company:', companyError);
+          setError('Failed to fetch company information');
+          setIsLoading(false);
+          return;
+        }
+
+        if (!companyId) {
+          console.warn('No company assigned to user');
+          setIsLoading(false);
+          return;
+        }
+
+        // Store company ID for real-time updates
+        setCurrentCompanyId(companyId);
+
+        // Fetch projects from database filtered by company
         const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
           .select('*')
+          .eq('company_id', companyId)
           .order('created_at', { ascending: false });
 
         if (projectsError) {
@@ -528,6 +549,41 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       }
     };
   }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing]); // Only re-run if map config actually changes
+
+  // Set up real-time updates for projects
+  useEffect(() => {
+    if (!currentCompanyId) return;
+
+    const channel = supabase
+      .channel('project-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects',
+          filter: `company_id=eq.${currentCompanyId}`
+        },
+        () => {
+          // When projects change, re-initialize the map with new data
+          if (map.current) {
+            // Clear existing markers and re-fetch projects
+            const markers = document.querySelectorAll('.project-marker');
+            markers.forEach(marker => marker.remove());
+            
+            // Re-initialize map with new project data
+            setTimeout(() => {
+              window.location.reload(); // Simple approach to refresh the map
+            }, 500);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentCompanyId]);
 
   return (
     <div className="relative w-full h-screen">
