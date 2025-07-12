@@ -80,7 +80,6 @@ export const UserEditLayout = ({
           onInputChange={onInputChange}
           onNavigate={onNavigate}
           onEditCompany={onEditCompany}
-          onCreateCompany={onCreateCompany}
         />
       </div>
 

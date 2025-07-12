@@ -2,8 +2,6 @@ import React from 'react';
 import { ProfilePictureSection } from '@/components/user-edit/ProfilePictureSection';
 import { PersonalInfoSection } from '@/components/user-edit/PersonalInfoSection';
 import { ProfessionalInfoSection } from '@/components/user-edit/ProfessionalInfoSection';
-import { Button } from '@/components/ui/button';
-import { Building2, Plus } from 'lucide-react';
 
 interface PersonalSectionProps {
   profileData: {
@@ -19,10 +17,9 @@ interface PersonalSectionProps {
     bio: string;
   };
   onInputChange: (field: string, value: string) => void;
-  onCreateCompany?: () => void;
 }
 
-export const PersonalSection = ({ profileData, onInputChange, onCreateCompany }: PersonalSectionProps) => {
+export const PersonalSection = ({ profileData, onInputChange }: PersonalSectionProps) => {
   return (
     <div className="space-y-8">
       {/* Profile Picture Section */}
@@ -60,27 +57,6 @@ export const PersonalSection = ({ profileData, onInputChange, onCreateCompany }:
           }}
           onInputChange={onInputChange}
         />
-      </div>
-
-      {/* Company Management */}
-      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">Company Management</h3>
-            <p className="text-white/70 text-sm">
-              Create and manage your company profile
-            </p>
-          </div>
-          {onCreateCompany && (
-            <Button
-              onClick={onCreateCompany}
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Company
-            </Button>
-          )}
-        </div>
       </div>
     </div>
   );

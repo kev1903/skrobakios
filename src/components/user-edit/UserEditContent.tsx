@@ -31,7 +31,6 @@ interface UserEditContentProps {
   onInputChange: (field: string, value: string) => void;
   onNavigate: (page: string) => void;
   onEditCompany?: (companyId: string) => void;
-  onCreateCompany?: () => void;
 }
 
 export const UserEditContent = ({ 
@@ -39,8 +38,7 @@ export const UserEditContent = ({
   profileData, 
   onInputChange, 
   onNavigate,
-  onEditCompany,
-  onCreateCompany
+  onEditCompany 
 }: UserEditContentProps) => {
   const renderContent = () => {
     switch (activeSection) {
@@ -56,7 +54,7 @@ export const UserEditContent = ({
           location: profileData.location,
           website: profileData.website,
           bio: profileData.bio
-        }} onInputChange={onInputChange} onCreateCompany={onCreateCompany} />;
+        }} onInputChange={onInputChange} />;
       case 'time':
         return <TimeSection onNavigate={onNavigate} />;
       case 'finance':
