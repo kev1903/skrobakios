@@ -230,37 +230,6 @@ export const EstimationPage = ({
               {uploadedFile.name}
             </div>}
         </div>
-
-        {/* Scale Settings */}
-        <div className="p-4 border-b border-border">
-          <h4 className="font-medium mb-3">Drawing Scale</h4>
-          <div className="space-y-2">
-            <Label htmlFor="scale">Scale Factor</Label>
-            <Input id="scale" type="number" value={scale} onChange={e => setScale(parseFloat(e.target.value) || 1)} placeholder="1.0" step="0.1" />
-            <p className="text-xs text-muted-foreground">
-              Set scale to convert drawing measurements to real dimensions
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="p-4 flex-1">
-          <h4 className="font-medium mb-3">Quick Actions</h4>
-          <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-start" onClick={addTrade} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              New Trade
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="sm">
-              <Eye className="w-4 h-4 mr-2" />
-              View Full PDF
-            </Button>
-            <Button variant="outline" className="w-full justify-start" size="sm">
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Clear All Measurements
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Main Content Area */}
