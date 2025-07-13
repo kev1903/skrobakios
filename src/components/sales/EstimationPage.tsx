@@ -314,10 +314,7 @@ export const EstimationPage = ({
 
                 <Separator orientation="vertical" className="h-6 mx-2" />
                 <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
-                <div className="flex items-center gap-2">
-                  <Input type="number" value={scale} onChange={e => setScale(parseFloat(e.target.value) || 1)} placeholder="1.0" step="0.1" className="w-20" />
-                  <span className="text-sm text-muted-foreground">:1</span>
-                </div>
+                
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
