@@ -1239,11 +1239,11 @@ export const PlatformDashboard = ({
     }
   };
   return <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <Sidebar className="border-r border-border">
-          <SidebarContent className="bg-card">
+      <div className="h-screen flex w-full bg-background overflow-hidden">
+        <Sidebar className="border-r border-border h-full fixed left-0 top-0 z-50">
+          <SidebarContent className="bg-card h-full flex flex-col">
             {/* Header */}
-            <div className="p-6 border-b border-border">
+            <div className="p-6 border-b border-border flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Shield className="w-6 h-6 text-primary" />
@@ -1256,22 +1256,24 @@ export const PlatformDashboard = ({
             </div>
 
             {/* Navigation */}
-            <SidebarGroup>
-              <SidebarGroupLabel>Administration</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navigationItems.map(item => <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton onClick={() => setActiveSection(item.id)} className={activeSection === item.id ? "bg-primary/10 text-primary" : ""}>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>)}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+            <div className="flex-1 overflow-y-auto">
+              <SidebarGroup>
+                <SidebarGroupLabel>Administration</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {navigationItems.map(item => <SidebarMenuItem key={item.id}>
+                        <SidebarMenuButton onClick={() => setActiveSection(item.id)} className={activeSection === item.id ? "bg-primary/10 text-primary" : ""}>
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>)}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </div>
 
             {/* Logout */}
-            <div className="mt-auto p-4 border-t border-border">
+            <div className="p-4 border-t border-border flex-shrink-0">
               <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-muted-foreground hover:text-foreground">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -1281,9 +1283,9 @@ export const PlatformDashboard = ({
         </Sidebar>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col h-screen ml-80">
           {/* Header */}
-          <header className="h-16 border-b border-border bg-card flex items-center px-6">
+          <header className="h-16 border-b border-border bg-card flex items-center px-6 flex-shrink-0">
             <SidebarTrigger className="mr-4" />
             <h1 className="text-xl font-semibold text-foreground">
               {navigationItems.find(item => item.id === activeSection)?.title || 'Platform Dashboard'}
@@ -1291,7 +1293,7 @@ export const PlatformDashboard = ({
           </header>
 
           {/* Content */}
-          <div className="flex-1 p-6 bg-background overflow-auto">
+          <div className="flex-1 p-6 bg-background overflow-y-auto">
             <div className="max-w-7xl mx-auto">
               {renderDashboardContent()}
             </div>
