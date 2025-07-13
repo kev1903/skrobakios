@@ -187,32 +187,152 @@ export const EstimationPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
-          <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
+    <div className="flex h-screen bg-background">
+      {/* Left Sidebar - Drawings Section */}
+      <div className="w-80 flex flex-col border-r border-border bg-background">
+        {/* Header */}
+        <div className="p-4 border-b border-border">
+          <h3 className="font-semibold text-lg">Drawings & Tools</h3>
+          <p className="text-sm text-muted-foreground">Upload and measure project drawings</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            Export PDF
+
+        {/* Upload Section */}
+        <div className="p-4 border-b border-border">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".pdf"
+            className="hidden"
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload PDF Drawing
           </Button>
-          <Button className="bg-primary hover:bg-primary/90">
-            <Save className="w-4 h-4 mr-2" />
-            Save Estimate
-          </Button>
+          {uploadedFile && (
+            <div className="mt-2 p-2 bg-muted rounded text-sm">
+              <FileText className="w-4 h-4 inline mr-2" />
+              {uploadedFile.name}
+            </div>
+          )}
+        </div>
+
+        {/* Measurement Tools */}
+        <div className="p-4 border-b border-border">
+          <h4 className="font-medium mb-3">Measurement Tools</h4>
+          <div className="space-y-2">
+            <Button
+              variant={currentTool === 'pointer' ? 'default' : 'outline'}
+              className="w-full justify-start"
+              onClick={() => selectTool('pointer')}
+              size="sm"
+            >
+              <MousePointer className="w-4 h-4 mr-2" />
+              Select
+            </Button>
+            <Button
+              variant={currentTool === 'area' ? 'default' : 'outline'}
+              className="w-full justify-start"
+              onClick={() => selectTool('area')}
+              size="sm"
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Area (M²/M³)
+            </Button>
+            <Button
+              variant={currentTool === 'linear' ? 'default' : 'outline'}
+              className="w-full justify-start"
+              onClick={() => selectTool('linear')}
+              size="sm"
+            >
+              <Ruler className="w-4 h-4 mr-2" />
+              Linear (m)
+            </Button>
+            <Button
+              variant={currentTool === 'count' ? 'default' : 'outline'}
+              className="w-full justify-start"
+              onClick={() => selectTool('count')}
+              size="sm"
+            >
+              <Hash className="w-4 h-4 mr-2" />
+              Count (#)
+            </Button>
+            <Separator className="my-2" />
+            <Button variant="outline" className="w-full justify-start" size="sm">
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Clear All
+            </Button>
+          </div>
+        </div>
+
+        {/* Scale Settings */}
+        <div className="p-4 border-b border-border">
+          <h4 className="font-medium mb-3">Drawing Scale</h4>
+          <div className="space-y-2">
+            <Label htmlFor="scale">Scale Factor</Label>
+            <Input
+              id="scale"
+              type="number"
+              value={scale}
+              onChange={(e) => setScale(parseFloat(e.target.value) || 1)}
+              placeholder="1.0"
+              step="0.1"
+            />
+            <p className="text-xs text-muted-foreground">
+              Set scale to convert drawing measurements to real dimensions
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="p-4 flex-1">
+          <h4 className="font-medium mb-3">Quick Actions</h4>
+          <div className="space-y-2">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={addTrade}
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Trade
+            </Button>
+            <Button variant="outline" className="w-full justify-start" size="sm">
+              <Eye className="w-4 h-4 mr-2" />
+              View Full PDF
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Project Details Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Details</CardTitle>
-          <CardDescription>Set up your estimate basics</CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-border bg-background">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
+              <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90">
+                <Save className="w-4 h-4 mr-2" />
+                Save Estimate
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Project Details */}
+        <div className="p-6 border-b border-border bg-background">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="project">Select Project</Label>
@@ -247,50 +367,24 @@ export const EstimationPage = () => {
               />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Main Content - Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="drawings">Drawings & Take-offs</TabsTrigger>
-          <TabsTrigger value="quantities">Quantities & Rates</TabsTrigger>
-          <TabsTrigger value="summary">Summary & Totals</TabsTrigger>
-        </TabsList>
+        {/* Main Tabs Content */}
+        <div className="flex-1 overflow-hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <div className="px-6 pt-4">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="drawings">PDF Viewer</TabsTrigger>
+                <TabsTrigger value="quantities">Quantities & Rates</TabsTrigger>
+                <TabsTrigger value="summary">Summary & Totals</TabsTrigger>
+              </TabsList>
+            </div>
 
-        {/* Drawings and Take-offs Tab */}
-        <TabsContent value="drawings" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* PDF Upload and Viewer */}
-            <div className="lg:col-span-3">
-              <Card className="h-[600px]">
+            {/* PDF Viewer Tab */}
+            <TabsContent value="drawings" className="flex-1 p-6">
+              <Card className="h-full">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Project Drawings</CardTitle>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileUpload}
-                        accept=".pdf"
-                        className="hidden"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        size="sm"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload PDF
-                      </Button>
-                      {pdfUrl && (
-                        <Button variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Full
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  <CardTitle>Project Drawing Viewer</CardTitle>
                 </CardHeader>
                 <CardContent className="h-full">
                   {pdfUrl ? (
@@ -323,311 +417,222 @@ export const EstimationPage = () => {
                   )}
                 </CardContent>
               </Card>
-            </div>
+            </TabsContent>
 
-            {/* Tools Panel */}
-            <div className="space-y-6">
-              {/* Measurement Tools */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Measurement Tools</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button
-                    variant={currentTool === 'pointer' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => selectTool('pointer')}
-                  >
-                    <MousePointer className="w-4 h-4 mr-2" />
-                    Select
-                  </Button>
-                  <Button
-                    variant={currentTool === 'area' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => selectTool('area')}
-                  >
-                    <Square className="w-4 h-4 mr-2" />
-                    Area (M²/M³)
-                  </Button>
-                  <Button
-                    variant={currentTool === 'linear' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => selectTool('linear')}
-                  >
-                    <Ruler className="w-4 h-4 mr-2" />
-                    Linear (m)
-                  </Button>
-                  <Button
-                    variant={currentTool === 'count' ? 'default' : 'outline'}
-                    className="w-full justify-start"
-                    onClick={() => selectTool('count')}
-                  >
-                    <Hash className="w-4 h-4 mr-2" />
-                    Count (#)
-                  </Button>
-                  <Separator />
-                  <Button variant="outline" className="w-full justify-start">
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Clear All
-                  </Button>
-                </CardContent>
-              </Card>
+            {/* Quantities and Rates Tab */}
+            <TabsContent value="quantities" className="flex-1 p-6 overflow-auto">
+              <div className="space-y-6">
+                {trades.map((trade) => (
+                  <Card key={trade.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Input
+                          value={trade.name}
+                          onChange={(e) => updateTradeName(trade.id, e.target.value)}
+                          className="text-lg font-semibold border-none p-0 h-auto bg-transparent"
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => addMeasurement(trade.id)}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Item
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-20">Type</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead className="w-24">Qty</TableHead>
+                            <TableHead className="w-24">Rate</TableHead>
+                            <TableHead className="w-28">Amount</TableHead>
+                            <TableHead className="w-12"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {trade.measurements.map((measurement) => (
+                            <TableRow key={measurement.id}>
+                              <TableCell>
+                                <Select
+                                  value={measurement.type}
+                                  onValueChange={(value) => updateMeasurement(trade.id, measurement.id, 'type', value)}
+                                >
+                                  <SelectTrigger className="w-16">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="M2">M²</SelectItem>
+                                    <SelectItem value="M3">M³</SelectItem>
+                                    <SelectItem value="linear">LM</SelectItem>
+                                    <SelectItem value="number">#</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  value={measurement.description}
+                                  onChange={(e) => updateMeasurement(trade.id, measurement.id, 'description', e.target.value)}
+                                  placeholder="Item description"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={measurement.quantity}
+                                  onChange={(e) => updateMeasurement(trade.id, measurement.id, 'quantity', parseFloat(e.target.value) || 0)}
+                                  className="w-20"
+                                  step="0.1"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  value={measurement.rate}
+                                  onChange={(e) => updateMeasurement(trade.id, measurement.id, 'rate', parseFloat(e.target.value) || 0)}
+                                  className="w-20"
+                                  step="0.01"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <span className="font-medium">
+                                  ${measurement.amount.toLocaleString()}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeMeasurement(trade.id, measurement.id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                      {trade.measurements.length > 0 && (
+                        <div className="mt-4 pt-4 border-t">
+                          <div className="flex justify-end">
+                            <div className="text-right">
+                              <span className="text-sm text-muted-foreground">Trade Subtotal: </span>
+                              <span className="font-semibold text-lg">
+                                ${trade.measurements.reduce((sum, m) => sum + m.amount, 0).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
 
-              {/* Scale Settings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Drawing Scale</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <Label htmlFor="scale">Scale Factor</Label>
-                    <Input
-                      id="scale"
-                      type="number"
-                      value={scale}
-                      onChange={(e) => setScale(parseFloat(e.target.value) || 1)}
-                      placeholder="1.0"
-                      step="0.1"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Set the scale to convert drawing measurements to real dimensions
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Quick Add Measurement */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Quick Add</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={addTrade}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Trade
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* Quantities and Rates Tab */}
-        <TabsContent value="quantities" className="space-y-6">
-          <div className="space-y-6">
-            {trades.map((trade) => (
-              <Card key={trade.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Input
-                      value={trade.name}
-                      onChange={(e) => updateTradeName(trade.id, e.target.value)}
-                      className="text-lg font-semibold border-none p-0 h-auto bg-transparent"
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => addMeasurement(trade.id)}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Item
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-20">Type</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="w-24">Qty</TableHead>
-                        <TableHead className="w-24">Rate</TableHead>
-                        <TableHead className="w-28">Amount</TableHead>
-                        <TableHead className="w-12"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {trade.measurements.map((measurement) => (
-                        <TableRow key={measurement.id}>
-                          <TableCell>
-                            <Select
-                              value={measurement.type}
-                              onValueChange={(value) => updateMeasurement(trade.id, measurement.id, 'type', value)}
-                            >
-                              <SelectTrigger className="w-16">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="M2">M²</SelectItem>
-                                <SelectItem value="M3">M³</SelectItem>
-                                <SelectItem value="linear">LM</SelectItem>
-                                <SelectItem value="number">#</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              value={measurement.description}
-                              onChange={(e) => updateMeasurement(trade.id, measurement.id, 'description', e.target.value)}
-                              placeholder="Item description"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={measurement.quantity}
-                              onChange={(e) => updateMeasurement(trade.id, measurement.id, 'quantity', parseFloat(e.target.value) || 0)}
-                              className="w-20"
-                              step="0.1"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={measurement.rate}
-                              onChange={(e) => updateMeasurement(trade.id, measurement.id, 'rate', parseFloat(e.target.value) || 0)}
-                              className="w-20"
-                              step="0.01"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <span className="font-medium">
-                              ${measurement.amount.toLocaleString()}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeMeasurement(trade.id, measurement.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {trade.measurements.length > 0 && (
-                    <div className="mt-4 pt-4 border-t">
-                      <div className="flex justify-end">
-                        <div className="text-right">
-                          <span className="text-sm text-muted-foreground">Trade Subtotal: </span>
-                          <span className="font-semibold text-lg">
+            {/* Summary and Totals Tab */}
+            <TabsContent value="summary" className="flex-1 p-6 overflow-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Cost Summary */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Cost Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      {trades.map((trade) => (
+                        <div key={trade.id} className="flex justify-between">
+                          <span>{trade.name}:</span>
+                          <span className="font-medium">
                             ${trade.measurements.reduce((sum, m) => sum + m.amount, 0).toLocaleString()}
                           </span>
                         </div>
+                      ))}
+                      <Separator />
+                      <div className="flex justify-between text-lg font-semibold">
+                        <span>Trades Total:</span>
+                        <span>${tradesTotal.toLocaleString()}</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="markup">Markup (%)</Label>
+                        <Input 
+                          id="markup"
+                          type="number" 
+                          value={markupPercentage}
+                          onChange={(e) => setMarkupPercentage(parseFloat(e.target.value) || 0)}
+                        />
+                        <div className="flex justify-between text-sm">
+                          <span>Markup Amount:</span>
+                          <span>${markup.toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="tax">Tax (%)</Label>
+                        <Input 
+                          id="tax"
+                          type="number" 
+                          value={taxPercentage}
+                          onChange={(e) => setTaxPercentage(parseFloat(e.target.value) || 0)}
+                        />
+                        <div className="flex justify-between text-sm">
+                          <span>Tax Amount:</span>
+                          <span>${tax.toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      <Separator />
+                      <div className="flex justify-between text-xl font-bold text-primary">
+                        <span>Total:</span>
+                        <span>${total.toLocaleString()}</span>
                       </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
 
-        {/* Summary and Totals Tab */}
-        <TabsContent value="summary" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Cost Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  {trades.map((trade) => (
-                    <div key={trade.id} className="flex justify-between">
-                      <span>{trade.name}:</span>
-                      <span className="font-medium">
-                        ${trade.measurements.reduce((sum, m) => sum + m.amount, 0).toLocaleString()}
-                      </span>
+                    <div className="space-y-2 pt-4">
+                      <Button className="w-full">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Generate PDF Quote
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        <Send className="w-4 h-4 mr-2" />
+                        Send to Client
+                      </Button>
                     </div>
-                  ))}
-                  <Separator />
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Trades Total:</span>
-                    <span>${tradesTotal.toLocaleString()}</span>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="markup">Markup (%)</Label>
-                    <Input 
-                      id="markup"
-                      type="number" 
-                      value={markupPercentage}
-                      onChange={(e) => setMarkupPercentage(parseFloat(e.target.value) || 0)}
-                    />
-                    <div className="flex justify-between text-sm">
-                      <span>Markup Amount:</span>
-                      <span>${markup.toLocaleString()}</span>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Estimates */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Estimates</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {existingEstimates.map((estimate) => (
+                        <div key={estimate.id} className="p-3 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-medium text-sm">{estimate.name}</h4>
+                            <Badge className={getStatusColor(estimate.status)}>{estimate.status}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-1">{estimate.project}</p>
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold text-primary">{estimate.amount}</span>
+                            <span className="text-xs text-muted-foreground">{estimate.date}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="tax">Tax (%)</Label>
-                    <Input 
-                      id="tax"
-                      type="number" 
-                      value={taxPercentage}
-                      onChange={(e) => setTaxPercentage(parseFloat(e.target.value) || 0)}
-                    />
-                    <div className="flex justify-between text-sm">
-                      <span>Tax Amount:</span>
-                      <span>${tax.toLocaleString()}</span>
-                    </div>
-                  </div>
-
-                  <Separator />
-                  <div className="flex justify-between text-xl font-bold text-primary">
-                    <span>Total:</span>
-                    <span>${total.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-4">
-                  <Button className="w-full">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Generate PDF Quote
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    <Send className="w-4 h-4 mr-2" />
-                    Send to Client
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Estimates */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Estimates</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {existingEstimates.map((estimate) => (
-                    <div key={estimate.id} className="p-3 border rounded-lg hover:bg-muted/50 cursor-pointer">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-medium text-sm">{estimate.name}</h4>
-                        <Badge className={getStatusColor(estimate.status)}>{estimate.status}</Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-1">{estimate.project}</p>
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-primary">{estimate.amount}</span>
-                        <span className="text-xs text-muted-foreground">{estimate.date}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
