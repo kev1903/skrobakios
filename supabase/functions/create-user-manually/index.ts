@@ -150,7 +150,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        user_id: newUser.user.id,
+        user_id: newUser.user.id, // Changed from userId to user_id to match what frontend expects
         message: 'User created successfully'
       }),
       {
@@ -163,10 +163,19 @@ const handler = async (req: Request): Promise<Response> => {
     );
   } catch (error: any) {
     console.error("Error in create-user-manually function:", error);
+    
+    // More detailed error logging
+    console.error("Full error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Internal server error',
-        success: false
+        success: false,
+        details: error.stack // Include stack trace for debugging
       }),
       {
         status: 400,
