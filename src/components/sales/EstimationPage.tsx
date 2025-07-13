@@ -313,7 +313,7 @@ export const EstimationPage = ({
                 </Tooltip>
 
                 <Separator orientation="vertical" className="h-6 mx-2" />
-                <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
+                <span className="text-sm font-medium text-muted-foreground mr-2">Scale Drawing</span>
                 
               </div>
               <div className="flex gap-2">
