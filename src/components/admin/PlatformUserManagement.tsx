@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, UserPlus, RefreshCw, MoreHorizontal, Building2, Shield, Trash2, Edit, Users, KeyRound } from 'lucide-react';
+import { Search, UserPlus, RefreshCw, MoreHorizontal, Building2, Shield, Trash2, Edit, Users, KeyRound, Eye } from 'lucide-react';
 import { useHierarchicalUserManagement } from '@/hooks/useHierarchicalUserManagement';
 import { useUserRole } from '@/hooks/useUserRole';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
@@ -17,6 +17,7 @@ import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
 import { ManualUserCreateDialog } from './ManualUserCreateDialog';
 import { PermissionMatrix } from './PermissionMatrix';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 interface CompanyOption {
   id: string;
   name: string;
@@ -47,6 +48,7 @@ export const PlatformUserManagement = ({
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<'owner' | 'admin' | 'member'>('member');
   const [showManualCreateDialog, setShowManualCreateDialog] = useState(false);
+  const [isImpersonating, setIsImpersonating] = useState<string | null>(null);
   const handleRoleChange = async (user: HierarchicalUser, newRole: string) => {
     if (!user.can_manage_roles) {
       toast({
@@ -124,6 +126,50 @@ export const PlatformUserManagement = ({
   };
   const handleUserCreated = () => {
     refreshUsers();
+  };
+
+  const handleImpersonateUser = async (user: HierarchicalUser) => {
+    setIsImpersonating(user.user_id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('impersonate-user', {
+        body: { targetUserId: user.user_id }
+      });
+
+      if (error) {
+        console.error('Impersonation error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to impersonate user.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.success) {
+        // Open impersonation URL in new tab
+        window.open(data.impersonationUrl, '_blank');
+        toast({
+          title: "Impersonation Success",
+          description: `Impersonation link created for ${data.targetUser.email}`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create impersonation link.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error during impersonation:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while setting up impersonation.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImpersonating(null);
+    }
   };
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
@@ -247,11 +293,22 @@ export const PlatformUserManagement = ({
                                       <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => handleEditProfile(user)}>
-                                      <Edit className="h-4 w-4 mr-2" />
-                                      Edit Profile
-                                    </DropdownMenuItem>
+                                   <DropdownMenuContent align="end">
+                                     <DropdownMenuItem 
+                                       onClick={() => handleImpersonateUser(user)}
+                                       disabled={isImpersonating === user.user_id}
+                                     >
+                                       {isImpersonating === user.user_id ? (
+                                         <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                       ) : (
+                                         <Eye className="h-4 w-4 mr-2" />
+                                       )}
+                                       View as User
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem onClick={() => handleEditProfile(user)}>
+                                       <Edit className="h-4 w-4 mr-2" />
+                                       Edit Profile
+                                     </DropdownMenuItem>
                                     {user.can_manage_roles && <>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => handleDeleteUser(user)} className="text-destructive">
