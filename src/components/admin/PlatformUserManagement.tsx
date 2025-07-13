@@ -45,40 +45,11 @@ export const PlatformUserManagement = ({
     inviteUser,
     refreshUsers
   } = useHierarchicalUserManagement();
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<'owner' | 'admin' | 'member'>('member');
   const [showProfileEditDialog, setShowProfileEditDialog] = useState(false);
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<HierarchicalUser | null>(null);
   const [showManualCreateDialog, setShowManualCreateDialog] = useState(false);
-  const handleInviteUser = async () => {
-    if (!inviteEmail) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive"
-      });
-      return;
-    }
-    const result = await inviteUser(inviteEmail, selectedCompany && selectedCompany !== 'none' ? selectedCompany : undefined, selectedRole);
-    if (result.success) {
-      toast({
-        title: "User Invited",
-        description: `Invitation sent to ${inviteEmail}`
-      });
-      setShowInviteDialog(false);
-      setInviteEmail('');
-      setSelectedCompany('');
-      setSelectedRole('member');
-    } else {
-      toast({
-        title: "Error",
-        description: "Failed to send invitation",
-        variant: "destructive"
-      });
-    }
-  };
   const handleRoleChange = async (user: HierarchicalUser, newRole: string) => {
     if (!user.can_manage_roles) {
       toast({
@@ -207,6 +178,10 @@ export const PlatformUserManagement = ({
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <Button size="sm" onClick={() => setShowManualCreateDialog(true)}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Create User
+              </Button>
               <Button variant="outline" size="sm" onClick={refreshUsers}>
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
@@ -239,69 +214,6 @@ export const PlatformUserManagement = ({
                       <CardDescription>
                         Manage user profiles, status, and company assignments.
                       </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" onClick={() => setShowManualCreateDialog(true)}>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Create User
-                      </Button>
-                      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Invite User
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Invite New User</DialogTitle>
-                            <DialogDescription>
-                              Send an invitation to a new user and optionally assign them to a company.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Email Address</label>
-                              <Input type="email" placeholder="user@example.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-                            </div>
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Assign to Company (Optional)</label>
-                              <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a company" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">No company assignment</SelectItem>
-                                  {companies.map(company => <SelectItem key={company.id} value={company.id}>
-                                      {company.name}
-                                    </SelectItem>)}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            {selectedCompany && selectedCompany !== 'none' && <div>
-                                <label className="text-sm font-medium mb-2 block">Company Role</label>
-                                <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="owner">Owner</SelectItem>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="member">Member</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>}
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-                              Cancel
-                            </Button>
-                            <Button onClick={handleInviteUser}>
-                              Send Invitation
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </div>
                 </CardHeader>
