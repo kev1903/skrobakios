@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, User, Shield, ArrowLeft, Save, Key, Eye, EyeOff } from 'lucide-react';
+import { Loader2, User, Shield, ArrowLeft, Save, Key, Eye, EyeOff, RefreshCw, Mail } from 'lucide-react';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { useAdminProfile } from '@/hooks/useAdminProfile';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -26,8 +26,11 @@ export const UserProfileEditPage = () => {
   
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [credentialsData, setCredentialsData] = useState({
     email: '',
+    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
@@ -201,6 +204,83 @@ export const UserProfileEditPage = () => {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Email Required",
+        description: "User email is required to reset password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        toast({
+          title: "Reset Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Password Reset Sent",
+        description: "A password reset link has been sent to the user's email.",
+      });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      toast({
+        title: "Reset Failed",
+        description: "An error occurred while sending the password reset email.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEmailCredentials = async () => {
+    if (!user) return;
+
+    setSendingEmail(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-login-credentials', {
+        body: {
+          userEmail: user.email,
+          userName: `${user.first_name} ${user.last_name}`,
+          loginEmail: credentialsData.email || user.email,
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Email Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Credentials Sent",
+        description: "Login credentials have been sent to the user's email.",
+      });
+    } catch (error) {
+      console.error('Error sending credentials:', error);
+      toast({
+        title: "Email Failed",
+        description: "An error occurred while sending the credentials email.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -451,6 +531,47 @@ export const UserProfileEditPage = () => {
                     </p>
                   </div>
 
+                  <div>
+                    <Label htmlFor="current_password">Current Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="current_password"
+                        type={showCurrentPassword ? "text" : "password"}
+                        value={credentialsData.currentPassword}
+                        onChange={(e) => handleCredentialsChange('currentPassword', e.target.value)}
+                        placeholder="Enter current password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleResetPassword}
+                        className="h-8"
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Reset Password
+                      </Button>
+                      <p className="text-sm text-muted-foreground">
+                        Send password reset email to user
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="new_password">New Password</Label>
@@ -492,11 +613,32 @@ export const UserProfileEditPage = () => {
                     </div>
                   </div>
 
+                  <div className="flex items-center gap-4 pt-4 border-t">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleEmailCredentials}
+                      disabled={sendingEmail}
+                      className="flex items-center gap-2"
+                    >
+                      {sendingEmail ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Mail className="h-4 w-4" />
+                      )}
+                      Email Login Credentials
+                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      Send current login credentials to user via email
+                    </p>
+                  </div>
+
                   <div className="p-4 bg-muted rounded-lg">
                     <h4 className="font-medium mb-2">Security Notes:</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Password must be at least 6 characters long</li>
                       <li>• Email changes may require verification</li>
+                      <li>• Password reset sends email to user's current email</li>
                       <li>• User will be notified of credential changes</li>
                     </ul>
                   </div>
