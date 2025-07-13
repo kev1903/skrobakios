@@ -5,11 +5,40 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure PDF.js worker using a more reliable method
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
+// Configure PDF.js worker with comprehensive error handling
+let workerInitialized = false;
+
+const setupWorker = () => {
+  if (workerInitialized) return;
+  
+  try {
+    console.log('Setting up PDF.js worker...');
+    console.log('PDF.js version:', pdfjs.version);
+    
+    // Use unpkg CDN as it's more reliable for PDF.js workers
+    const workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+    pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+    workerInitialized = true;
+    
+    console.log('Worker source set to:', workerSrc);
+    
+    // Test if worker is accessible
+    fetch(workerSrc, { method: 'HEAD' })
+      .then(response => {
+        console.log('Worker accessibility test:', response.ok ? 'SUCCESS' : 'FAILED');
+      })
+      .catch(error => {
+        console.warn('Worker accessibility test failed:', error);
+      });
+    
+  } catch (error) {
+    console.error('Failed to setup worker:', error);
+    workerInitialized = false;
+  }
+};
+
+// Initialize worker immediately
+setupWorker();
 
 interface PDFRendererProps {
   pdfUrl: string;
@@ -25,6 +54,7 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
   const [error, setError] = useState<string | null>(null);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
+    console.log('PDF loaded successfully with', numPages, 'pages');
     setNumPages(numPages);
     setLoading(false);
     setError(null);
@@ -32,6 +62,11 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
 
   const onDocumentLoadError = useCallback((error: Error) => {
     console.error('Error loading PDF:', error);
+    // Try to reinitialize the worker if it fails
+    if (error.message.includes('worker')) {
+      console.log('Worker error detected, trying to reinitialize...');
+      setupWorker();
+    }
     setError(`Failed to load PDF: ${error.message}`);
     setLoading(false);
   }, []);

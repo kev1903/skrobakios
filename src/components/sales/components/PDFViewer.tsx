@@ -34,10 +34,25 @@ export const PDFViewer = ({ pdfUrl, canvasRef, currentTool, fileInputRef }: PDFV
               <p className="text-muted-foreground mb-4">
                 Upload PDF drawings to start taking measurements
               </p>
-              <Button onClick={() => fileInputRef.current?.click()}>
-                <Upload className="w-4 h-4 mr-2" />
-                Choose PDF File
-              </Button>
+              <div className="space-y-2">
+                <Button onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Choose PDF File
+                </Button>
+                <div className="text-xs text-muted-foreground">
+                  Or try with{' '}
+                  <button 
+                    className="text-primary underline hover:no-underline"
+                    onClick={() => {
+                      // Load the sample PDF directly
+                      window.location.href = `${window.location.origin}/sample.pdf`;
+                    }}
+                  >
+                    sample PDF
+                  </button>
+                  {' '}to test the viewer
+                </div>
+              </div>
             </div>
           </div>
         )}
