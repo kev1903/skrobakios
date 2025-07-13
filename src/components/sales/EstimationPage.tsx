@@ -215,7 +215,7 @@ export const EstimationPage = ({
               Back to Estimates
             </Button>}
           <h3 className="font-semibold text-lg">Drawings</h3>
-          <p className="text-sm text-muted-foreground">Upload and configure project drawings</p>
+          
         </div>
 
         {/* Upload Section */}
