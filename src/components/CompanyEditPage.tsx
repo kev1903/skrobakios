@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, Users, Shield, Settings, Bell, Palette, Plug, UserPlus } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Shield, Settings, Bell, Palette, Plug, UserPlus, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -160,7 +160,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
       <div className="max-w-6xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="w-full overflow-x-auto">
-            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-6' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
+            <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-7' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
               <TabsTrigger value="details" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                 <Building2 className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs md:text-sm">Profile</span>
@@ -182,10 +182,16 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                 <span className="text-xs md:text-sm">Members</span>
               </TabsTrigger>
               {isSuperAdmin() && (
-                <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Shield className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Modules</span>
-                </TabsTrigger>
+                <>
+                  <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <Shield className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Modules</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="danger-zone" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs md:text-sm">Danger Zone</span>
+                  </TabsTrigger>
+                </>
               )}
             </TabsList>
           </div>
@@ -369,15 +375,18 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                     )}
                   </Tabs>
                  </CardContent>
-               </Card>
+                </Card>
+              </TabsContent>
+            )}
 
-               {/* Danger Zone - Only for Super Admins */}
-               <CompanyDangerZone 
-                 company={company}
-                 onCompanyDeleted={handleCompanyDeleted}
-               />
-             </TabsContent>
-           )}
+            {isSuperAdmin() && (
+              <TabsContent value="danger-zone" className="space-y-4 md:space-y-6">
+                <CompanyDangerZone 
+                  company={company}
+                  onCompanyDeleted={handleCompanyDeleted}
+                />
+              </TabsContent>
+            )}
          </Tabs>
        </div>
      </div>
