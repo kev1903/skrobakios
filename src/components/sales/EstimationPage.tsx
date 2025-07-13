@@ -195,8 +195,19 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
     <div className="flex h-screen bg-background">
       {/* Left Sidebar - Drawings Section */}
       <div className="w-80 flex flex-col border-r border-border bg-background">
-        {/* Header */}
+        {/* Header with Back Button */}
         <div className="p-4 border-b border-border">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="flex items-center gap-2 mb-3 w-full justify-start hover:bg-muted"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Estimates
+            </Button>
+          )}
           <h3 className="font-semibold text-lg">Drawings & Tools</h3>
           <p className="text-sm text-muted-foreground">Upload and configure project drawings</p>
         </div>
@@ -275,22 +286,9 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
         {/* Header */}
         <div className="p-6 border-b border-border bg-background">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {onBack && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onBack}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Estimates
-                </Button>
-              )}
-              <div>
-                <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
-                <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
-              </div>
+            <div>
+              <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
+              <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline">
