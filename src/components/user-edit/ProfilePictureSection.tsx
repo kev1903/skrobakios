@@ -71,7 +71,6 @@ export const ProfilePictureSection = ({
       console.log('Starting save position process...');
       console.log('Current position:', imagePosition);
       console.log('Current scale:', imageScale);
-      console.log('Temp image length:', tempImage.length);
       
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -84,41 +83,41 @@ export const ProfilePictureSection = ({
       
       img.onload = () => {
         try {
-          const frameSize = 256; // Match the frame size
+          const frameSize = 256; // Output frame size
+          const editorSize = 256; // Editor frame size (w-64 h-64 = 256px)
           canvas.width = frameSize;
           canvas.height = frameSize;
-          
-          console.log('Canvas created:', frameSize + 'x' + frameSize);
-          console.log('Image dimensions:', img.width + 'x' + img.height);
           
           // Create circular clipping path
           ctx.beginPath();
           ctx.arc(frameSize / 2, frameSize / 2, frameSize / 2, 0, 2 * Math.PI);
           ctx.clip();
           
-          // Calculate the scaled dimensions
+          // Calculate how the image appears in the editor
           const scaledWidth = img.width * imageScale;
           const scaledHeight = img.height * imageScale;
           
-          console.log('Scaled dimensions:', scaledWidth + 'x' + scaledHeight);
-          console.log('Drawing at position:', imagePosition.x, imagePosition.y);
+          // The position in the editor corresponds directly to the canvas position
+          // since both are 256x256
+          const canvasX = imagePosition.x;
+          const canvasY = imagePosition.y;
           
-          // Draw the positioned and scaled image within the circular frame
+          console.log('Drawing image at:', canvasX, canvasY, 'with size:', scaledWidth, 'x', scaledHeight);
+          
+          // Draw the positioned and scaled image
           ctx.drawImage(
             img,
-            imagePosition.x,
-            imagePosition.y,
+            canvasX,
+            canvasY,
             scaledWidth,
             scaledHeight
           );
           
           // Convert to high-quality data URL
           const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
-          console.log('Generated data URL length:', croppedDataUrl.length);
           
           // Save the positioned and cropped image
           onAvatarChange(croppedDataUrl);
-          console.log('Avatar change callback called successfully');
           
           setIsEditing(false);
           
