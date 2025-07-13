@@ -53,6 +53,15 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
     }
   };
 
+  // Full-screen mode for estimates
+  if (activeTab === 'estimates') {
+    return (
+      <div className="min-h-screen bg-background">
+        {renderContent()}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
       {/* Background Pattern */}
