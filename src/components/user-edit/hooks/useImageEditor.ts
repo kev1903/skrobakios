@@ -46,9 +46,25 @@ export const useImageEditor = () => {
 
   const startEditing = (imageDataUrl: string) => {
     setTempImage(imageDataUrl);
-    setImagePosition({ x: 0, y: 0 });
-    setImageScale(1);
-    setIsEditing(true);
+    
+    // Create an image to get its dimensions
+    const img = new Image();
+    img.onload = () => {
+      // Calculate initial scale to fit the image in the 256px editor frame
+      const editorSize = 256;
+      const scaleToFit = Math.min(editorSize / img.width, editorSize / img.height);
+      
+      // Center the image initially
+      const scaledWidth = img.width * scaleToFit;
+      const scaledHeight = img.height * scaleToFit;
+      const centerX = (editorSize - scaledWidth) / 2;
+      const centerY = (editorSize - scaledHeight) / 2;
+      
+      setImagePosition({ x: centerX, y: centerY });
+      setImageScale(scaleToFit);
+      setIsEditing(true);
+    };
+    img.src = imageDataUrl;
   };
 
   const finishEditing = () => {

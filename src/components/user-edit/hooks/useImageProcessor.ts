@@ -25,33 +25,32 @@ export const useImageProcessor = () => {
       return new Promise((resolve, reject) => {
         img.onload = () => {
           try {
-            const frameSize = 256; // Output frame size
-            canvas.width = frameSize;
-            canvas.height = frameSize;
+            const outputSize = 256; // Final output size
+            
+            canvas.width = outputSize;
+            canvas.height = outputSize;
             
             // Create circular clipping path
             ctx.beginPath();
-            ctx.arc(frameSize / 2, frameSize / 2, frameSize / 2, 0, 2 * Math.PI);
+            ctx.arc(outputSize / 2, outputSize / 2, outputSize / 2, 0, 2 * Math.PI);
             ctx.clip();
             
-            // Calculate how the image appears in the editor
-            const scaledWidth = img.width * imageScale;
-            const scaledHeight = img.height * imageScale;
+            // The image in the editor is already scaled and positioned correctly
+            // We just need to draw it exactly as shown
+            const finalDisplayWidth = img.width * imageScale;
+            const finalDisplayHeight = img.height * imageScale;
             
-            // The position in the editor corresponds directly to the canvas position
-            // since both are 256x256
-            const canvasX = imagePosition.x;
-            const canvasY = imagePosition.y;
+            console.log('Image original size:', img.width, 'x', img.height);
+            console.log('Final display size:', finalDisplayWidth, 'x', finalDisplayHeight);
+            console.log('Final position:', imagePosition.x, imagePosition.y);
             
-            console.log('Drawing image at:', canvasX, canvasY, 'with size:', scaledWidth, 'x', scaledHeight);
-            
-            // Draw the positioned and scaled image
+            // Draw the image exactly as it appears in the editor
             ctx.drawImage(
               img,
-              canvasX,
-              canvasY,
-              scaledWidth,
-              scaledHeight
+              imagePosition.x,
+              imagePosition.y,
+              finalDisplayWidth,
+              finalDisplayHeight
             );
             
             // Convert to high-quality data URL
@@ -60,7 +59,7 @@ export const useImageProcessor = () => {
             // Save the positioned and cropped image
             onAvatarChange(croppedDataUrl);
             
-            console.log('Position saved successfully. Remember to save your profile to persist changes.');
+            console.log('Position saved successfully. Image processed to match editor preview.');
             resolve();
           } catch (error) {
             console.error('Error in image processing:', error);
