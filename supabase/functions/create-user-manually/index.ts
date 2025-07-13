@@ -63,8 +63,11 @@ const handler = async (req: Request): Promise<Response> => {
       platformRole 
     }: CreateUserRequest = await req.json();
 
+    console.log('Creating user with data:', { firstName, lastName, email, companyId, companyRole, platformRole });
+
     // Validation
     if (!firstName || !lastName || !email || !password) {
+      console.error('Missing required fields');
       throw new Error('Missing required fields');
     }
 
@@ -113,6 +116,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Profile created successfully');
 
+    // Delete any existing role entries for this user (in case of conflicts)
+    const { error: deleteRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .delete()
+      .eq('user_id', newUser.user.id);
+
+    if (deleteRoleError) {
+      console.log('No existing roles to delete (expected):', deleteRoleError.message);
+    }
+
     // Assign platform role
     const { error: roleError } = await supabaseAdmin
       .from('user_roles')
@@ -123,7 +136,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (roleError) {
       console.error('Error assigning role:', roleError);
-      // Continue with creation but log the error
+      // Try to clean up the user if role assignment fails
+      await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
+      throw new Error(`Failed to assign platform role: ${roleError.message}`);
     } else {
       console.log('Platform role assigned:', platformRole);
     }
