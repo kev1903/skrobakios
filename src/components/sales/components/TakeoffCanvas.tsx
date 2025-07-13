@@ -62,20 +62,30 @@ export const TakeoffCanvas = ({
 
     fabricCanvasRef.current = canvas;
 
-    // Handle canvas resize
+    // Handle canvas resize with debouncing to prevent ResizeObserver loops
+    let resizeTimeout: NodeJS.Timeout;
     const resizeCanvas = () => {
-      if (container) {
-        canvas.setDimensions({
-          width: container.clientWidth,
-          height: container.clientHeight
-        });
-      }
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (container && canvas) {
+          canvas.setDimensions({
+            width: container.clientWidth,
+            height: container.clientHeight
+          });
+          canvas.renderAll();
+        }
+      }, 100);
     };
 
-    const resizeObserver = new ResizeObserver(resizeCanvas);
+    // Use requestAnimationFrame to prevent ResizeObserver loops
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(resizeCanvas);
+    });
+    
     resizeObserver.observe(container);
 
     return () => {
+      clearTimeout(resizeTimeout);
       resizeObserver.disconnect();
       canvas.dispose();
     };
