@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { DrawingSidebar } from './components/DrawingSidebar';
 import { MeasurementToolbar } from './components/MeasurementToolbar';
 import { PDFViewer } from './components/PDFViewer';
@@ -11,19 +10,19 @@ import { QuantitiesTable } from './components/QuantitiesTable';
 import { SummaryTab } from './components/SummaryTab';
 import { useTrades } from './hooks/useTrades';
 import { usePDFUpload } from './hooks/usePDFUpload';
-
 interface EstimationPageProps {
   onBack?: () => void;
 }
-
-export const EstimationPage = ({ onBack }: EstimationPageProps) => {
+export const EstimationPage = ({
+  onBack
+}: EstimationPageProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Project and estimate state
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [activeTab, setActiveTab] = useState('drawings');
-  
+
   // Drawing and measurement state
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
   const [scale, setScale] = useState(1);
@@ -41,7 +40,6 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
     removeMeasurement,
     updateTradeName
   } = useTrades();
-
   const {
     fileInputRef,
     uploadedFile,
@@ -56,16 +54,9 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
       canvasRef.current.style.cursor = tool === 'pointer' ? 'default' : 'crosshair';
     }
   };
-
-  return (
-    <div className="flex h-screen bg-background">
+  return <div className="flex h-screen bg-background">
       {/* Left Sidebar - Drawings Section */}
-      <DrawingSidebar 
-        onBack={onBack}
-        fileInputRef={fileInputRef}
-        handleFileUpload={handleFileUpload}
-        uploadedFile={uploadedFile}
-      />
+      <DrawingSidebar onBack={onBack} fileInputRef={fileInputRef} handleFileUpload={handleFileUpload} uploadedFile={uploadedFile} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
@@ -73,13 +64,7 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
         <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Input 
-                id="estimateTitle" 
-                value={estimateTitle} 
-                onChange={e => setEstimateTitle(e.target.value)} 
-                placeholder="Enter estimate title..." 
-                className="text-lg font-semibold" 
-              />
+              <Input id="estimateTitle" value={estimateTitle} onChange={e => setEstimateTitle(e.target.value)} placeholder="Enter estimate title..." className="text-lg font-semibold" />
             </div>
             <div className="w-64">
               <Select value={projectType} onValueChange={setProjectType}>
@@ -101,17 +86,14 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
         </div>
 
         {/* Measurement Tools Toolbar */}
-        <MeasurementToolbar 
-          currentTool={currentTool}
-          onToolSelect={selectTool}
-        />
+        <MeasurementToolbar currentTool={currentTool} onToolSelect={selectTool} />
 
         {/* Main Tabs Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <div className="px-6 pt-4">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="drawings">PDF Viewer</TabsTrigger>
+                <TabsTrigger value="drawings">Drawings</TabsTrigger>
                 <TabsTrigger value="quantities">Quantities & Rates</TabsTrigger>
                 <TabsTrigger value="summary">Summary & Totals</TabsTrigger>
               </TabsList>
@@ -119,39 +101,20 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
 
             {/* PDF Viewer Tab */}
             <TabsContent value="drawings" className="flex-1 p-6">
-              <PDFViewer 
-                pdfUrl={pdfUrl}
-                canvasRef={canvasRef}
-                currentTool={currentTool}
-                fileInputRef={fileInputRef}
-              />
+              <PDFViewer pdfUrl={pdfUrl} canvasRef={canvasRef} currentTool={currentTool} fileInputRef={fileInputRef} />
             </TabsContent>
 
             {/* Quantities and Rates Tab */}
             <TabsContent value="quantities" className="flex-1 p-6 overflow-auto">
-              <QuantitiesTable 
-                trades={trades}
-                onAddTrade={addTrade}
-                onAddMeasurement={addMeasurement}
-                onUpdateMeasurement={updateMeasurement}
-                onRemoveMeasurement={removeMeasurement}
-                onUpdateTradeName={updateTradeName}
-              />
+              <QuantitiesTable trades={trades} onAddTrade={addTrade} onAddMeasurement={addMeasurement} onUpdateMeasurement={updateMeasurement} onRemoveMeasurement={removeMeasurement} onUpdateTradeName={updateTradeName} />
             </TabsContent>
 
             {/* Summary and Totals Tab */}
             <TabsContent value="summary" className="flex-1 p-6 overflow-auto">
-              <SummaryTab 
-                trades={trades}
-                markupPercentage={markupPercentage}
-                taxPercentage={taxPercentage}
-                onMarkupChange={setMarkupPercentage}
-                onTaxChange={setTaxPercentage}
-              />
+              <SummaryTab trades={trades} markupPercentage={markupPercentage} taxPercentage={taxPercentage} onMarkupChange={setMarkupPercentage} onTaxChange={setTaxPercentage} />
             </TabsContent>
           </Tabs>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
