@@ -6,11 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, User, Shield, ArrowLeft, Save } from 'lucide-react';
+import { Loader2, User, Shield, ArrowLeft, Save, Key, Eye, EyeOff } from 'lucide-react';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { useAdminProfile } from '@/hooks/useAdminProfile';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useHierarchicalUserManagement } from '@/hooks/useHierarchicalUserManagement';
+import { supabase } from '@/integrations/supabase/client';
 import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
 import { toast } from '@/hooks/use-toast';
 
@@ -24,6 +25,12 @@ export const UserProfileEditPage = () => {
   const { users, addUserAppRole, removeUserAppRole, refreshUsers } = useHierarchicalUserManagement();
   
   const [saving, setSaving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [credentialsData, setCredentialsData] = useState({
+    email: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
   const [user, setUser] = useState<HierarchicalUser | null>(null);
   const [profileData, setProfileData] = useState({
     first_name: '',
@@ -70,6 +77,10 @@ export const UserProfileEditPage = () => {
     const profile = await fetchUserProfile(user.user_id);
     if (profile) {
       setProfileData(profile);
+      setCredentialsData(prev => ({
+        ...prev,
+        email: profile.email || ''
+      }));
     } else {
       // Initialize with existing user data if no profile exists
       setProfileData({
@@ -86,6 +97,10 @@ export const UserProfileEditPage = () => {
         website: '',
         company_slogan: '',
       });
+      setCredentialsData(prev => ({
+        ...prev,
+        email: user.email || ''
+      }));
     }
   };
 
@@ -96,21 +111,97 @@ export const UserProfileEditPage = () => {
     }));
   };
 
+  const handleCredentialsChange = (field: string, value: string) => {
+    setCredentialsData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
     setSaving(true);
-    const success = await saveUserProfile(user.user_id, profileData);
     
-    if (success) {
+    try {
+      // Save profile data
+      const profileSuccess = await saveUserProfile(user.user_id, profileData);
+      
+      if (!profileSuccess) {
+        setSaving(false);
+        return;
+      }
+
+      // Update email if changed
+      if (credentialsData.email !== user.email) {
+        const { error: emailError } = await supabase.auth.updateUser({
+          email: credentialsData.email
+        });
+        
+        if (emailError) {
+          toast({
+            title: "Email Update Failed",
+            description: emailError.message,
+            variant: "destructive",
+          });
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Update password if provided
+      if (credentialsData.newPassword) {
+        if (credentialsData.newPassword !== credentialsData.confirmPassword) {
+          toast({
+            title: "Password Mismatch",
+            description: "New password and confirm password do not match.",
+            variant: "destructive",
+          });
+          setSaving(false);
+          return;
+        }
+
+        if (credentialsData.newPassword.length < 6) {
+          toast({
+            title: "Password Too Short",
+            description: "Password must be at least 6 characters long.",
+            variant: "destructive",
+          });
+          setSaving(false);
+          return;
+        }
+
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: credentialsData.newPassword
+        });
+        
+        if (passwordError) {
+          toast({
+            title: "Password Update Failed",
+            description: passwordError.message,
+            variant: "destructive",
+          });
+          setSaving(false);
+          return;
+        }
+      }
+
       toast({
         title: "Profile Updated",
-        description: "User profile has been successfully updated.",
+        description: "User profile and credentials have been successfully updated.",
       });
-      refreshUsers(); // Refresh to get updated user data including roles
+      refreshUsers();
       navigate('/?page=platform-dashboard');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Update Failed",
+        description: "An error occurred while updating the profile.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const handleBack = () => {
@@ -330,6 +421,84 @@ export const UserProfileEditPage = () => {
                       value={profileData.company_slogan}
                       onChange={(e) => handleInputChange('company_slogan', e.target.value)}
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Login Credentials */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Key className="w-5 h-5" />
+                    Login Credentials
+                  </CardTitle>
+                  <CardDescription>
+                    Manage authentication credentials and security settings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <Label htmlFor="credentials_email">Email Address</Label>
+                    <Input
+                      id="credentials_email"
+                      type="email"
+                      value={credentialsData.email}
+                      onChange={(e) => handleCredentialsChange('email', e.target.value)}
+                      placeholder="user@example.com"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      This email will be used for login and notifications
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="new_password">New Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="new_password"
+                          type={showPassword ? "text" : "password"}
+                          value={credentialsData.newPassword}
+                          onChange={(e) => handleCredentialsChange('newPassword', e.target.value)}
+                          placeholder="Enter new password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Leave blank to keep current password
+                      </p>
+                    </div>
+                    <div>
+                      <Label htmlFor="confirm_password">Confirm Password</Label>
+                      <Input
+                        id="confirm_password"
+                        type={showPassword ? "text" : "password"}
+                        value={credentialsData.confirmPassword}
+                        onChange={(e) => handleCredentialsChange('confirmPassword', e.target.value)}
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">Security Notes:</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Password must be at least 6 characters long</li>
+                      <li>• Email changes may require verification</li>
+                      <li>• User will be notified of credential changes</li>
+                    </ul>
                   </div>
                 </CardContent>
               </Card>
