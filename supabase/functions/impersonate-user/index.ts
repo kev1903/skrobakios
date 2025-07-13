@@ -170,8 +170,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Create the impersonation URL
-    const baseUrl = req.headers.get('origin') || supabaseUrl.replace('/rest/v1', '');
-    const impersonationUrl = `${baseUrl}/impersonate?token=${tokenData}`;
+    const origin = req.headers.get('origin');
+    console.log('Request origin:', origin);
+    const baseUrl = origin || 'http://localhost:3000';
+    const impersonationUrl = `${baseUrl}/?token=${tokenData}`;
+    console.log('Generated impersonation URL:', impersonationUrl);
 
     console.log(`Superadmin ${user.email} is impersonating user ${targetProfile.email}`);
     console.log('Impersonation URL:', impersonationUrl);
