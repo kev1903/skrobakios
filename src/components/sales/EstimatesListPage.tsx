@@ -20,7 +20,8 @@ import {
   Calculator,
   FileText,
   DollarSign,
-  MapPin
+  MapPin,
+  ArrowLeft
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -114,6 +115,12 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
     }
   };
 
+  const handleBackToSales = () => {
+    if (onNavigate) {
+      onNavigate('sales');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -126,9 +133,22 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
     <div className="space-y-8 p-6">
       {/* Header Section */}
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">Construction Estimates</h2>
-          <p className="text-lg text-muted-foreground">Manage your project estimates and client quotes</p>
+        <div className="flex items-start gap-4">
+          {onNavigate && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToSales}
+              className="flex items-center gap-2 mt-1 hover:bg-muted"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Sales
+            </Button>
+          )}
+          <div className="space-y-1">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Construction Estimates</h2>
+            <p className="text-lg text-muted-foreground">Manage your project estimates and client quotes</p>
+          </div>
         </div>
         <Button 
           onClick={handleNewEstimate}
