@@ -106,7 +106,10 @@ export const TopFloatingBar = ({
                 <Avatar className="w-6 h-6">
                   <AvatarImage src={userProfile.avatarUrl} alt="Profile" />
                   <AvatarFallback className="bg-white/40 text-white text-xs">
-                    <User className="w-3 h-3" />
+                    {userProfile?.firstName && userProfile?.lastName 
+                      ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
+                      : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'
+                    }
                   </AvatarFallback>
                 </Avatar>
               </button>
