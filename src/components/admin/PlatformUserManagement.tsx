@@ -252,15 +252,6 @@ export const PlatformUserManagement = ({
                                       <Edit className="h-4 w-4 mr-2" />
                                       Edit Profile
                                     </DropdownMenuItem>
-                                    {user.can_assign_to_companies && <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem asChild>
-                                          <div className="cursor-pointer">
-                                            <Building2 className="h-4 w-4 mr-2" />
-                                            Assign to Company
-                                          </div>
-                                        </DropdownMenuItem>
-                                      </>}
                                     {user.can_manage_roles && <>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => handleDeleteUser(user)} className="text-destructive">
