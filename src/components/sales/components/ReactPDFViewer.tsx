@@ -19,7 +19,10 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('ReactPDFViewer received URL:', pdfUrl);
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    console.log('PDF loaded successfully with', numPages, 'pages');
     setNumPages(numPages);
     setLoading(false);
     setError(null);
@@ -27,7 +30,7 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
 
   const onDocumentLoadError = (error: Error) => {
     console.error('PDF loading error:', error);
-    setError('Failed to load PDF document');
+    setError(`Failed to load PDF: ${error.message}`);
     setLoading(false);
   };
 

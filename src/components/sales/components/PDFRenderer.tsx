@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download } from 'lucide-react';
 import { TakeoffCanvas, Measurement } from './TakeoffCanvas';
-import { ReactPDFViewer } from './ReactPDFViewer';
+import { SimplePDFViewer } from './SimplePDFViewer';
 
 interface PDFRendererProps {
   pdfUrl: string;
@@ -87,41 +87,12 @@ export const PDFRenderer = ({
 
   return (
     <div className="relative h-full w-full flex flex-col">
-      {/* PDF Controls */}
-      <div className="flex items-center justify-between p-2 border-b bg-background shrink-0">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={zoomOut}>
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          <span className="text-sm text-muted-foreground min-w-16 text-center">
-            {Math.round(scale * 100)}%
-          </span>
-          <Button variant="outline" size="sm" onClick={zoomIn}>
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Download className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
       {/* PDF Viewer */}
-      <div ref={pdfContainerRef} className="flex-1 relative overflow-hidden">
-        <div 
-          className="w-full h-full overflow-auto p-4 bg-gray-100"
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-          }}
-        >
-          <ReactPDFViewer
-            pdfUrl={pdfUrl}
-            className="w-full h-full"
-          />
-        </div>
+      <div ref={pdfContainerRef} className="flex-1 relative">
+        <SimplePDFViewer
+          pdfUrl={pdfUrl}
+          className="w-full h-full"
+        />
 
         {/* Takeoff Canvas overlay for measurements */}
         <TakeoffCanvas
