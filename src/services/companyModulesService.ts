@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CompanyModule } from '@/types/companyModules';
 import { getCachedData, setCacheData, isCacheValid } from '@/utils/moduleCache';
+import { validateModulePermissions } from '@/utils/modulePermissions';
 
 // Track active requests to prevent duplicate calls
 const activeRequests = new Map<string, Promise<CompanyModule[]>>();
@@ -111,6 +112,11 @@ export const fetchMultipleCompanyModulesInternal = async (companyIds: string[]):
 };
 
 export const updateModuleStatusInternal = async (companyId: string, moduleName: string, enabled: boolean): Promise<CompanyModule> => {
+  // Validate permissions before attempting the update
+  await validateModulePermissions(companyId, 'modify');
+  
+  console.log(`Updating module ${moduleName} to ${enabled} for company ${companyId}`);
+  
   const { data, error } = await supabase
     .from('company_modules')
     .upsert({
@@ -125,8 +131,16 @@ export const updateModuleStatusInternal = async (companyId: string, moduleName: 
 
   if (error) {
     console.error('Database error:', error);
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint
+    });
     throw error;
   }
+  
+  console.log('Successfully updated module:', data);
 
   // Update cache
   const cached = getCachedData(companyId);

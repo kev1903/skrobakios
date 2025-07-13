@@ -94,9 +94,18 @@ export const useCompanyModules = () => {
       return data;
     } catch (error) {
       console.error('Error updating module status:', error);
+      
+      // Provide more specific error messages based on the error type
+      let errorMessage = 'Failed to update module status';
+      if ((error as any)?.code === '42501') {
+        errorMessage = 'You do not have permission to modify company modules. Please check with your administrator.';
+      } else if ((error as any)?.message?.includes('new row violates row-level security policy')) {
+        errorMessage = 'Access denied. Please ensure you have the proper permissions to manage company modules.';
+      }
+      
       toast({
         title: 'Error',
-        description: 'Failed to update module status',
+        description: errorMessage,
         variant: 'destructive'
       });
       throw error;
