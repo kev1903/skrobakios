@@ -144,16 +144,6 @@ export const PlatformUserManagement = ({
         return 'outline';
     }
   };
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
-  };
   if (!isSuperAdmin()) {
     return <Card>
         <CardHeader>
@@ -219,17 +209,16 @@ export const PlatformUserManagement = ({
                           <TableHead>Email</TableHead>
                           <TableHead>Company</TableHead>
                           <TableHead>Company Role</TableHead>
-                          <TableHead>Status</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {loading ? <TableRow>
-                            <TableCell colSpan={6} className="text-center py-8">
+                            <TableCell colSpan={5} className="text-center py-8">
                               Loading users...
                             </TableCell>
                           </TableRow> : users.length === 0 ? <TableRow>
-                            <TableCell colSpan={6} className="text-center py-8">
+                            <TableCell colSpan={5} className="text-center py-8">
                               No users found.
                             </TableCell>
                           </TableRow> : users.map(user => <TableRow key={user.user_id}>
@@ -256,11 +245,6 @@ export const PlatformUserManagement = ({
                               <TableCell>
                                 <Badge variant="outline">
                                   {user.company_role === 'none' ? '-' : user.company_role}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant={getStatusBadgeVariant(user.status)}>
-                                  {user.status}
                                 </Badge>
                               </TableCell>
                               <TableCell>
