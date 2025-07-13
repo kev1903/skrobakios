@@ -307,20 +307,16 @@ export const EstimationPage = ({
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-muted-foreground mr-4">Measurement Tools:</span>
               <Button variant={currentTool === 'pointer' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('pointer')}>
-                <MousePointer className="w-4 h-4 mr-2" />
-                Select
+                <MousePointer className="w-4 h-4" />
               </Button>
               <Button variant={currentTool === 'area' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('area')}>
-                <Square className="w-4 h-4 mr-2" />
-                Area (M²/M³)
+                <Square className="w-4 h-4" />
               </Button>
               <Button variant={currentTool === 'linear' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('linear')}>
-                <Ruler className="w-4 h-4 mr-2" />
-                Linear (m)
+                <Ruler className="w-4 h-4" />
               </Button>
               <Button variant={currentTool === 'count' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('count')}>
-                <Hash className="w-4 h-4 mr-2" />
-                Count (#)
+                <Hash className="w-4 h-4" />
               </Button>
               <Separator orientation="vertical" className="h-6 mx-2" />
               <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
