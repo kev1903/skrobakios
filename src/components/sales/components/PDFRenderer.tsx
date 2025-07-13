@@ -103,7 +103,7 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
         >
           <div className="flex justify-center">
             <iframe
-              src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+              src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`}
               className="w-full h-full min-h-[800px] border border-gray-300 shadow-lg"
               style={{
                 backgroundColor: 'white',
