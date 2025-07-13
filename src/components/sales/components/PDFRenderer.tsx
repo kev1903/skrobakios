@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download } from 'lucide-react';
 import { TakeoffCanvas, Measurement } from './TakeoffCanvas';
+import { BlobPDFViewer } from './BlobPDFViewer';
 
 interface PDFRendererProps {
   pdfUrl: string;
@@ -29,6 +30,7 @@ export const PDFRenderer = ({
 
   // Check if PDF URL is valid
   useEffect(() => {
+    console.log('PDFRenderer received URL:', pdfUrl);
     if (pdfUrl) {
       setLoading(false);
       setError(null);
@@ -116,15 +118,12 @@ export const PDFRenderer = ({
           }}
         >
           <div className="flex justify-center">
-            <iframe
-              src={pdfUrl}
+            <BlobPDFViewer
+              pdfUrl={pdfUrl}
               className="w-full h-full min-h-[800px] border border-gray-300 shadow-lg"
               style={{
                 backgroundColor: 'white',
               }}
-              onLoad={() => setLoading(false)}
-              onError={() => setError('Failed to load PDF')}
-              title="PDF Viewer"
             />
           </div>
         </div>

@@ -87,6 +87,9 @@ export const EstimationPage = ({
     }
   };
 
+  // Debug logging
+  console.log('Active drawing:', activeDrawing);
+
   // Save/Load functions
   const handleSaveEstimate = async () => {
     if (!estimateTitle) {
