@@ -1,14 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Users, Clock, BarChart3, Shield, Zap, Globe, Bot, Calendar, Target, TrendingUp, Building2, FileText, MessageCircle, Settings, Play, ChevronRight, Workflow, PieChart, Smartphone, Briefcase, Layers, Activity } from 'lucide-react';
-
 interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
-
-export const LandingPage = ({ onNavigate }: LandingPageProps) => {
-  return (
-    <div className="min-h-screen bg-white">
+export const LandingPage = ({
+  onNavigate
+}: LandingPageProps) => {
+  return <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
         <div className="flex items-center space-x-2">
@@ -32,19 +31,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </nav>
         
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => onNavigate('auth')}
-            className="text-gray-700 hover:text-gray-900"
-          >
+          <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-gray-700 hover:text-gray-900">
             Log in
           </Button>
-          <Button 
-            onClick={() => onNavigate('auth')}
-            className="bg-blue-600 text-white hover:bg-blue-700 px-6"
-          >
-            Get started
-          </Button>
+          
         </div>
       </header>
 
@@ -60,19 +50,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button 
-              size="lg" 
-              onClick={() => onNavigate('auth')}
-              className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-4 text-lg rounded-full"
-            >
+            <Button size="lg" onClick={() => onNavigate('auth')} className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-4 text-lg rounded-full">
               Get started
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={() => onNavigate('platform')}
-              className="border-purple-700 text-purple-700 hover:bg-purple-50 px-8 py-4 text-lg rounded-full"
-            >
+            <Button size="lg" variant="outline" onClick={() => onNavigate('platform')} className="border-purple-700 text-purple-700 hover:bg-purple-50 px-8 py-4 text-lg rounded-full">
               <Play className="mr-2 w-5 h-5" />
               See how it works
             </Button>
@@ -366,20 +347,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-            <Button 
-              size="lg" 
-              onClick={() => onNavigate('auth')}
-              className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-4 text-lg rounded-full"
-            >
+            <Button size="lg" onClick={() => onNavigate('auth')} className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-4 text-lg rounded-full">
               Start your free trial
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={() => onNavigate('platform')}
-              className="border-purple-700 text-purple-700 hover:bg-purple-50 px-8 py-4 text-lg rounded-full"
-            >
+            <Button size="lg" variant="outline" onClick={() => onNavigate('platform')} className="border-purple-700 text-purple-700 hover:bg-purple-50 px-8 py-4 text-lg rounded-full">
               Contact sales
             </Button>
           </div>
@@ -438,6 +410,5 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
