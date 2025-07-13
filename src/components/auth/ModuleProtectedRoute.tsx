@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanyModules } from '@/hooks/useCompanyModules';
+import { useAuth } from '@/contexts/AuthContext';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AuthPage } from './AuthPage';
 
 interface ModuleProtectedRouteProps {
   children: React.ReactNode;
@@ -18,9 +20,26 @@ export const ModuleProtectedRoute = ({
   onNavigate,
   fallbackPage = 'home'
 }: ModuleProtectedRouteProps) => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { currentCompany } = useCompany();
   const { fetchCompanyModules, isModuleEnabled } = useCompanyModules();
   const [loading, setLoading] = useState(true);
+
+  // Check authentication first
+  if (authLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage onNavigate={onNavigate} />;
+  }
 
   useEffect(() => {
     const checkModuleAccess = async () => {
