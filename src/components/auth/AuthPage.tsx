@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from "react";
-import { User, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft, Eye, EyeOff, Phone, Briefcase } from "lucide-react";
+import { Mail, Lock, AlertCircle, CheckCircle, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,21 +13,11 @@ interface AuthPageProps {
 }
 
 export const AuthPage = ({ onNavigate }: AuthPageProps) => {
-  const { signIn, signUp, resetPassword, isAuthenticated, loading } = useAuth();
+  const { signIn, resetPassword, isAuthenticated, loading } = useAuth();
   const [currentView, setCurrentView] = useState<'auth' | 'reset-password' | 'update-password'>('auth');
   const [loginData, setLoginData] = useState({ email: "", password: "", rememberMe: false });
-  const [signupData, setSignupData] = useState({ 
-    firstName: "",
-    lastName: "",
-    phone: "",
-    jobTitle: "",
-    email: "", 
-    password: "", 
-    confirmPassword: "" 
-  });
   const [resetEmail, setResetEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -95,67 +83,6 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
       } else {
         setSuccess("Password reset email sent! Please check your inbox.");
         setTimeout(() => setCurrentView('auth'), 3000);
-      }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    }
-    
-    setIsLoading(false);
-  };
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setIsLoading(true);
-
-    if (!signupData.firstName || !signupData.lastName || !signupData.email || !signupData.password || !signupData.confirmPassword) {
-      setError("Please fill in all required fields");
-      setIsLoading(false);
-      return;
-    }
-
-    if (signupData.password !== signupData.confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
-    if (signupData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { error } = await signUp(
-        signupData.email, 
-        signupData.password, 
-        {
-          firstName: signupData.firstName,
-          lastName: signupData.lastName,
-          phone: signupData.phone,
-          jobTitle: signupData.jobTitle
-        }
-      );
-      
-      if (error) {
-        if (error.message.includes("User already registered")) {
-          setError("An account with this email already exists. Please sign in instead.");
-        } else {
-          setError(error.message);
-        }
-      } else {
-        setSuccess("Account created successfully! Please check your email to confirm your account.");
-        setSignupData({ 
-          firstName: "",
-          lastName: "",
-          phone: "",
-          jobTitle: "",
-          email: "", 
-          password: "", 
-          confirmPassword: "" 
-        });
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -275,252 +202,90 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
               </Alert>
             )}
 
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+            <div className="w-full">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold">Sign In</h2>
+              </div>
               
-              <TabsContent value="login" className="space-y-4">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10"
-                        value={loginData.email}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                        disabled={isLoading}
-                      />
-                    </div>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <Label htmlFor="login-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      className="pl-10"
+                      value={loginData.email}
+                      onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                      disabled={isLoading}
+                    />
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="login-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        className="pl-10 pr-10"
-                        value={loginData.password}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                        disabled={isLoading}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isLoading}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="remember-me"
-                        checked={loginData.rememberMe}
-                        onCheckedChange={(checked) => 
-                          setLoginData(prev => ({ ...prev, rememberMe: !!checked }))
-                        }
-                      />
-                      <Label htmlFor="remember-me" className="text-sm">
-                        Remember me
-                      </Label>
-                    </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="login-password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      className="pl-10 pr-10"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                      disabled={isLoading}
+                    />
                     <Button
                       type="button"
-                      variant="link"
-                      className="p-0 text-sm"
-                      onClick={() => setCurrentView('reset-password')}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
                     >
-                      Forgot password?
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
                     </Button>
                   </div>
-                  
-                  <Button 
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="signup" className="space-y-4">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="signup-firstname">First Name *</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="signup-firstname"
-                          type="text"
-                          placeholder="Enter your first name"
-                          className="pl-10"
-                          value={signupData.firstName}
-                          onChange={(e) => setSignupData(prev => ({ ...prev, firstName: e.target.value }))}
-                          disabled={isLoading}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="signup-lastname">Last Name *</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="signup-lastname"
-                          type="text"
-                          placeholder="Enter your last name"
-                          className="pl-10"
-                          value={signupData.lastName}
-                          onChange={(e) => setSignupData(prev => ({ ...prev, lastName: e.target.value }))}
-                          disabled={isLoading}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="signup-phone">Phone Number</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="signup-phone"
-                          type="tel"
-                          placeholder="Enter your phone number"
-                          className="pl-10"
-                          value={signupData.phone}
-                          onChange={(e) => setSignupData(prev => ({ ...prev, phone: e.target.value }))}
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="signup-jobtitle">Job Title</Label>
-                      <div className="relative">
-                        <Briefcase className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="signup-jobtitle"
-                          type="text"
-                          placeholder="Enter your job title"
-                          className="pl-10"
-                          value={signupData.jobTitle}
-                          onChange={(e) => setSignupData(prev => ({ ...prev, jobTitle: e.target.value }))}
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember-me"
+                      checked={loginData.rememberMe}
+                      onCheckedChange={(checked) => 
+                        setLoginData(prev => ({ ...prev, rememberMe: !!checked }))
+                      }
+                    />
+                    <Label htmlFor="remember-me" className="text-sm">
+                      Remember me
+                    </Label>
                   </div>
-
-                  <div>
-                    <Label htmlFor="signup-email">Email *</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10"
-                        value={signupData.email}
-                        onChange={(e) => setSignupData(prev => ({ ...prev, email: e.target.value }))}
-                        disabled={isLoading}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="signup-password">Password *</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a password (min. 6 characters)"
-                        className="pl-10 pr-10"
-                        value={signupData.password}
-                        onChange={(e) => setSignupData(prev => ({ ...prev, password: e.target.value }))}
-                        disabled={isLoading}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isLoading}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="signup-confirm">Confirm Password *</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-confirm"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
-                        className="pl-10 pr-10"
-                        value={signupData.confirmPassword}
-                        onChange={(e) => setSignupData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        disabled={isLoading}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        disabled={isLoading}
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="p-0 text-sm"
+                    onClick={() => setCurrentView('reset-password')}
                   >
-                    {isLoading ? "Creating account..." : "Create Account"}
+                    Forgot password?
                   </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                </div>
+                
+                <Button 
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
+            </div>
           </CardContent>
         </Card>
       </div>
