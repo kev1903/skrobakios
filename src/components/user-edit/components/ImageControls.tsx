@@ -37,9 +37,9 @@ export const ImageControls = ({
         <span className="text-sm text-slate-600">Size:</span>
         <input
           type="range"
-          min="0.5"
-          max="3"
-          step="0.1"
+          min="0.1"
+          max="2"
+          step="0.05"
           value={imageScale}
           onChange={(e) => {
             const newScale = parseFloat(e.target.value);
