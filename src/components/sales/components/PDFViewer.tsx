@@ -45,13 +45,13 @@ export const PDFViewer = ({ pdfUrl, canvasRef, currentTool, fileInputRef, onLoad
                   <button 
                     className="text-primary underline hover:no-underline"
                     onClick={() => {
-                      // Load the sample PDF using callback or fallback to direct load
+                      // Test with a simple PDF URL that should work
+                      const testPdfUrl = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
                       if (onLoadSamplePDF) {
                         onLoadSamplePDF();
                       } else {
-                        // Fallback: try to load sample PDF directly
-                        console.log('Loading sample PDF from:', `${window.location.origin}/sample.pdf`);
-                        // This would need parent component integration
+                        console.log('Test PDF URL:', testPdfUrl);
+                        // Note: Parent component would need to handle this
                       }
                     }}
                   >
