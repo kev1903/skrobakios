@@ -34,6 +34,13 @@ export const useCompanyModules = () => {
       
     } catch (error) {
       console.error('Error in fetchCompanyModules:', error);
+      
+      // Check if error is due to authentication
+      if ((error as any)?.message === 'User not authenticated') {
+        // Don't show error toast for authentication issues - let the auth flow handle this
+        return;
+      }
+      
       toast({
         title: 'Error',
         description: 'Failed to load company modules',
@@ -63,6 +70,13 @@ export const useCompanyModules = () => {
       
     } catch (error) {
       console.error('Error fetching multiple company modules:', error);
+      
+      // Check if error is due to authentication
+      if ((error as any)?.message === 'User not authenticated') {
+        // Don't show error toast for authentication issues - let the auth flow handle this
+        return;
+      }
+      
       toast({
         title: 'Error',
         description: 'Failed to load some company modules',
