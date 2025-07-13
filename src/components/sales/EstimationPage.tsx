@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
-import { Plus, Trash2, FileText, Send, Upload, Calculator, Square, Circle, Ruler, Hash, Save, Eye, Download, MousePointer, Move3D, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, FileText, Send, Upload, Calculator, Square, Circle, Ruler, Hash, Save, Eye, Download, MousePointer, Move3D, RotateCcw, ArrowLeft, DollarSign } from 'lucide-react';
 interface EstimationPageProps {
   onBack?: () => void;
 }
@@ -313,18 +313,41 @@ export const EstimationPage = ({
                 </Tooltip>
 
                 <Separator orientation="vertical" className="h-6 mx-2" />
-                <span className="text-sm font-medium text-muted-foreground mr-2">Scale Drawing</span>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <DollarSign className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Rates</p>
+                  </TooltipContent>
+                </Tooltip>
                 
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export PDF
-                </Button>
-                <Button className="bg-primary hover:bg-primary/90" size="sm">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Estimate
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Export PDF</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button className="bg-primary hover:bg-primary/90" size="sm">
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Save Estimate</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
