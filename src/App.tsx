@@ -13,6 +13,7 @@ import { EstimatesPage } from "./components/EstimatesPage";
 import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
 import { CompanyEditPage } from "./components/CompanyEditPage";
+import { UserProfileEditPage } from "./components/admin/UserProfileEditPage";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -99,6 +100,15 @@ const App = () => (
               <UserProvider>
                 <CompanyProvider>
                   <CompanyEditPageWrapper />
+                </CompanyProvider>
+              </UserProvider>
+            </AuthProvider>
+          } />
+          <Route path="/user-profile/edit" element={
+            <AuthProvider>
+              <UserProvider>
+                <CompanyProvider>
+                  <UserProfileEditPage />
                 </CompanyProvider>
               </UserProvider>
             </AuthProvider>

@@ -14,7 +14,6 @@ import { useHierarchicalUserManagement } from '@/hooks/useHierarchicalUserManage
 import { useUserRole } from '@/hooks/useUserRole';
 import { HierarchicalUser } from '@/types/hierarchicalUser';
 import { HierarchicalRoleManagement } from './HierarchicalRoleManagement';
-import { UserProfileEditDialog } from './UserProfileEditDialog';
 import { ManualUserCreateDialog } from './ManualUserCreateDialog';
 import { PermissionMatrix } from './PermissionMatrix';
 import { toast } from '@/hooks/use-toast';
@@ -47,8 +46,6 @@ export const PlatformUserManagement = ({
   } = useHierarchicalUserManagement();
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<'owner' | 'admin' | 'member'>('member');
-  const [showProfileEditDialog, setShowProfileEditDialog] = useState(false);
-  const [selectedUserForEdit, setSelectedUserForEdit] = useState<HierarchicalUser | null>(null);
   const [showManualCreateDialog, setShowManualCreateDialog] = useState(false);
   const handleRoleChange = async (user: HierarchicalUser, newRole: string) => {
     if (!user.can_manage_roles) {
@@ -123,11 +120,7 @@ export const PlatformUserManagement = ({
     }
   };
   const handleEditProfile = (user: HierarchicalUser) => {
-    setSelectedUserForEdit(user);
-    setShowProfileEditDialog(true);
-  };
-  const handleProfileUpdated = () => {
-    refreshUsers();
+    window.location.href = `/user-profile/edit?userId=${user.user_id}`;
   };
   const handleUserCreated = () => {
     refreshUsers();
@@ -293,7 +286,5 @@ export const PlatformUserManagement = ({
        </Card>
       
       <ManualUserCreateDialog companies={companies} open={showManualCreateDialog} onOpenChange={setShowManualCreateDialog} onUserCreated={handleUserCreated} />
-      
-      <UserProfileEditDialog user={selectedUserForEdit} open={showProfileEditDialog} onOpenChange={setShowProfileEditDialog} onProfileUpdated={handleProfileUpdated} />
     </div>;
 };
