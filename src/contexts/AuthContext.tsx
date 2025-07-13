@@ -3,6 +3,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+interface ImpersonationMode {
+  isImpersonating: boolean;
+  targetUserId?: string;
+  targetUserInfo?: {
+    email: string;
+    name: string;
+  };
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -13,6 +22,9 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
   isAuthenticated: boolean;
+  impersonationMode: ImpersonationMode;
+  setImpersonationMode: (mode: ImpersonationMode) => void;
+  exitImpersonation: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +33,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [impersonationMode, setImpersonationMode] = useState<ImpersonationMode>({
+    isImpersonating: false
+  });
 
   useEffect(() => {
     // Set up auth state listener
@@ -103,6 +118,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
+  const exitImpersonation = () => {
+    setImpersonationMode({ isImpersonating: false });
+    // Redirect to main page
+    window.location.href = '/';
+  };
+
   const isAuthenticated = !!session;
 
   return (
@@ -115,7 +136,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signOut,
       resetPassword,
       updatePassword,
-      isAuthenticated
+      isAuthenticated,
+      impersonationMode,
+      setImpersonationMode,
+      exitImpersonation
     }}>
       {children}
     </AuthContext.Provider>

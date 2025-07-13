@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import Index from "./pages/Index";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { CostContractsPage } from "./components/CostContractsPage";
@@ -14,6 +14,8 @@ import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
 import { CompanyEditPage } from "./components/CompanyEditPage";
 import { UserProfileEditPage } from "./components/admin/UserProfileEditPage";
+import { ImpersonationGuard } from "./components/admin/ImpersonationGuard";
+import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -74,46 +76,64 @@ const CompanyEditPageWrapper = () => {
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { impersonationMode } = useAuth();
+
+  return (
+    <>
+      {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
+        <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
+      )}
+      <Routes>
+        <Route path="/" element={
+          <UserProvider>
+            <CompanyProvider>
+              <Index />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+        <Route path="/invoices" element={<InvoicesPageWrapper />} />
+        <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
+        <Route path="/cost-contracts" element={<CostContractsPage />} />
+        <Route path="/estimates" element={<EstimatesPageWrapper />} />
+        <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
+        <Route path="/company/:companyId/edit" element={
+          <UserProvider>
+            <CompanyProvider>
+              <CompanyEditPageWrapper />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+        <Route path="/user-profile/edit" element={
+          <UserProvider>
+            <CompanyProvider>
+              <UserProfileEditPage />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+        <Route path="/impersonate" element={
+          <UserProvider>
+            <CompanyProvider>
+              <Index />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+      </Routes>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={
-            <AuthProvider>
-              <UserProvider>
-                <CompanyProvider>
-                  <Index />
-                </CompanyProvider>
-              </UserProvider>
-            </AuthProvider>
-          } />
-          <Route path="/invoices" element={<InvoicesPageWrapper />} />
-          <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
-          <Route path="/cost-contracts" element={<CostContractsPage />} />
-          <Route path="/estimates" element={<EstimatesPageWrapper />} />
-          <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
-          <Route path="/company/:companyId/edit" element={
-            <AuthProvider>
-              <UserProvider>
-                <CompanyProvider>
-                  <CompanyEditPageWrapper />
-                </CompanyProvider>
-              </UserProvider>
-            </AuthProvider>
-          } />
-          <Route path="/user-profile/edit" element={
-            <AuthProvider>
-              <UserProvider>
-                <CompanyProvider>
-                  <UserProfileEditPage />
-                </CompanyProvider>
-              </UserProvider>
-            </AuthProvider>
-          } />
-        </Routes>
+        <AuthProvider>
+          <ImpersonationGuard>
+            <AppContent />
+          </ImpersonationGuard>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

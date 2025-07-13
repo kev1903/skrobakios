@@ -17,10 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MoreHorizontal, Edit, Trash2, Mail } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Mail, Eye } from 'lucide-react';
 import { AccessUser } from '@/types/accessUsers';
 import { UserRole } from '@/hooks/useUserRole';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserTableRowProps {
   user: AccessUser;
@@ -37,6 +38,7 @@ export const UserTableRow = ({
 }: UserTableRowProps) => {
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isImpersonating, setIsImpersonating] = useState(false);
 
   const handleRoleChange = async (newRole: UserRole) => {
     setIsUpdatingRole(true);
@@ -119,6 +121,50 @@ export const UserTableRow = ({
         description: "Failed to delete user.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleImpersonateUser = async () => {
+    setIsImpersonating(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('impersonate-user', {
+        body: { targetUserId: user.id }
+      });
+
+      if (error) {
+        console.error('Impersonation error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to impersonate user.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.success) {
+        // Open impersonation URL in new tab
+        window.open(data.impersonationUrl, '_blank');
+        toast({
+          title: "Impersonation Success",
+          description: `Impersonation link created for ${data.targetUser.email}`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create impersonation link.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error during impersonation:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while setting up impersonation.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImpersonating(false);
     }
   };
 
@@ -218,6 +264,17 @@ export const UserTableRow = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem 
+              onClick={handleImpersonateUser}
+              disabled={isImpersonating}
+            >
+              {isImpersonating ? (
+                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <Eye className="h-4 w-4 mr-2" />
+              )}
+              View as User
+            </DropdownMenuItem>
             <DropdownMenuItem>
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
