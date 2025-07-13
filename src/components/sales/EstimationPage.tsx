@@ -307,31 +307,7 @@ export const EstimationPage = ({
         </div>
 
         {/* Project Details */}
-        <div className="p-6 border-b border-border bg-background">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map(project => <SelectItem key={project.id} value={project.id}>
-                      {project.name} - {project.client}
-                    </SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              
-              <Input id="estimate-name" value={estimateName} onChange={e => setEstimateName(e.target.value)} placeholder="e.g., Initial Estimate v1.0" />
-            </div>
-            <div>
-              
-              <Input id="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} />
-            </div>
-          </div>
-        </div>
+        
 
         {/* Main Tabs Content */}
         <div className="flex-1 overflow-hidden">
