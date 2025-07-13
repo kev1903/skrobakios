@@ -3,26 +3,33 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Upload, FileText, Eye, Trash2, Ruler, Plus } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Eye, Trash2, Plus } from 'lucide-react';
+import { DrawingFile } from '../hooks/useMultiplePDFUpload';
 
 interface DrawingSidebarProps {
   onBack?: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  uploadedFile: File | null;
+  drawings: DrawingFile[];
+  activeDrawingId: string | null;
+  onSetActiveDrawing: (id: string) => void;
+  onRemoveDrawing: (id: string) => void;
 }
 
-export const DrawingSidebar = ({ onBack, fileInputRef, handleFileUpload, uploadedFile }: DrawingSidebarProps) => {
+export const DrawingSidebar = ({ 
+  onBack, 
+  fileInputRef, 
+  handleFileUpload, 
+  drawings, 
+  activeDrawingId, 
+  onSetActiveDrawing, 
+  onRemoveDrawing 
+}: DrawingSidebarProps) => {
   const [newTakeOffOpen, setNewTakeOffOpen] = useState(false);
   const [newTakeOff, setNewTakeOff] = useState({
     description: '',
     type: 'Area' as 'Area' | 'Linear' | 'Number' | 'Volume'
   });
-
-  // Mock data for drawings and take-offs
-  const drawings = uploadedFile ? [
-    { id: '1', name: uploadedFile.name, pages: 3, active: true }
-  ] : [];
 
   const takeOffs = [
     { id: '1', name: 'Foundation Areas', type: 'Area', quantity: '45.5 M²', status: 'complete' },
@@ -47,16 +54,19 @@ export const DrawingSidebar = ({ onBack, fileInputRef, handleFileUpload, uploade
           </Button>}
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg">Drawings</h3>
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf" className="hidden" />
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            accept=".pdf" 
+            multiple 
+            className="hidden" 
+          />
           <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
             <Upload className="w-4 h-4 mr-2" />
             Upload
           </Button>
         </div>
-        {uploadedFile && <div className="mt-2 p-2 bg-muted rounded text-sm">
-            <FileText className="w-4 h-4 inline mr-2" />
-            {uploadedFile.name}
-          </div>}
       </div>
 
       <ScrollArea className="flex-1">
@@ -65,20 +75,31 @@ export const DrawingSidebar = ({ onBack, fileInputRef, handleFileUpload, uploade
           <h4 className="font-medium text-sm mb-3 text-muted-foreground uppercase tracking-wide">Drawings</h4>
           <div className="space-y-2">
             {drawings.length > 0 ? drawings.map(drawing => (
-              <div key={drawing.id} className="flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50">
+              <div 
+                key={drawing.id} 
+                className={`flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50 cursor-pointer ${
+                  activeDrawingId === drawing.id ? 'bg-muted border-primary' : ''
+                }`}
+                onClick={() => onSetActiveDrawing(drawing.id)}
+              >
                 <div className="flex items-center gap-2 flex-1">
                   <FileText className="w-4 h-4 text-muted-foreground" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{drawing.name}</p>
                     <p className="text-xs text-muted-foreground">{drawing.pages} pages</p>
                   </div>
-                  {drawing.active && <Badge variant="secondary" className="text-xs">Active</Badge>}
+                  {activeDrawingId === drawing.id && <Badge variant="secondary" className="text-xs">Active</Badge>}
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <Eye className="w-3 h-3" />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveDrawing(drawing.id);
+                    }}
+                  >
                     <Trash2 className="w-3 h-3" />
                   </Button>
                 </div>

@@ -10,7 +10,7 @@ import { PDFViewer } from './components/PDFViewer';
 import { QuantitiesTable } from './components/QuantitiesTable';
 import { SummaryTab } from './components/SummaryTab';
 import { useTrades } from './hooks/useTrades';
-import { usePDFUpload } from './hooks/usePDFUpload';
+import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { toast } from 'sonner';
 interface EstimationPageProps {
@@ -45,10 +45,13 @@ export const EstimationPage = ({
   } = useTrades();
   const {
     fileInputRef,
-    uploadedFile,
-    pdfUrl,
-    handleFileUpload
-  } = usePDFUpload();
+    drawings,
+    activeDrawingId,
+    activeDrawing,
+    handleFileUpload,
+    removeDrawing,
+    setActiveDrawing
+  } = useMultiplePDFUpload();
   const {
     saveEstimate,
     updateEstimate,
@@ -121,12 +124,21 @@ export const EstimationPage = ({
         ref={fileInputRef}
         type="file"
         accept=".pdf"
+        multiple
         style={{ display: 'none' }}
         onChange={handleFileUpload}
       />
       
       {/* Left Sidebar - Drawings Section */}
-      <DrawingSidebar onBack={onBack} fileInputRef={fileInputRef} handleFileUpload={handleFileUpload} uploadedFile={uploadedFile} />
+      <DrawingSidebar 
+        onBack={onBack} 
+        fileInputRef={fileInputRef} 
+        handleFileUpload={handleFileUpload} 
+        drawings={drawings}
+        activeDrawingId={activeDrawingId}
+        onSetActiveDrawing={setActiveDrawing}
+        onRemoveDrawing={removeDrawing}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
@@ -191,7 +203,12 @@ export const EstimationPage = ({
 
             {/* PDF Viewer Tab */}
             <TabsContent value="drawings" className="flex-1 p-6">
-              <PDFViewer pdfUrl={pdfUrl} canvasRef={canvasRef} currentTool={currentTool} fileInputRef={fileInputRef} />
+              <PDFViewer 
+                pdfUrl={activeDrawing?.url || null} 
+                canvasRef={canvasRef} 
+                currentTool={currentTool} 
+                fileInputRef={fileInputRef} 
+              />
             </TabsContent>
 
             {/* Quantities and Rates Tab */}
