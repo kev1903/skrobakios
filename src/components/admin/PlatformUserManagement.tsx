@@ -204,19 +204,6 @@ export const PlatformUserManagement = ({
 
             <TabsContent value="users" className="space-y-6">
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        User Management
-                      </CardTitle>
-                      <CardDescription>
-                        Manage user profiles, status, and company assignments.
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
                 <CardContent>
                   <div className="flex items-center space-x-4 mb-6">
                     <div className="relative flex-1 max-w-sm">
