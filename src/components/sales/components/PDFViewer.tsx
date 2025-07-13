@@ -9,9 +9,10 @@ interface PDFViewerProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   currentTool: 'pointer' | 'area' | 'linear' | 'count';
   fileInputRef: React.RefObject<HTMLInputElement>;
+  onLoadSamplePDF?: () => void;
 }
 
-export const PDFViewer = ({ pdfUrl, canvasRef, currentTool, fileInputRef }: PDFViewerProps) => {
+export const PDFViewer = ({ pdfUrl, canvasRef, currentTool, fileInputRef, onLoadSamplePDF }: PDFViewerProps) => {
   return (
     <Card className="h-full">
       <CardHeader>
@@ -44,8 +45,14 @@ export const PDFViewer = ({ pdfUrl, canvasRef, currentTool, fileInputRef }: PDFV
                   <button 
                     className="text-primary underline hover:no-underline"
                     onClick={() => {
-                      // Load the sample PDF directly
-                      window.location.href = `${window.location.origin}/sample.pdf`;
+                      // Load the sample PDF using callback or fallback to direct load
+                      if (onLoadSamplePDF) {
+                        onLoadSamplePDF();
+                      } else {
+                        // Fallback: try to load sample PDF directly
+                        console.log('Loading sample PDF from:', `${window.location.origin}/sample.pdf`);
+                        // This would need parent component integration
+                      }
                     }}
                   >
                     sample PDF
