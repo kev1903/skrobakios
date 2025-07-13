@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ArrowLeft, Upload, FileText, Eye, Trash2, Plus } from 'lucide-react';
 import { DrawingFile } from '../hooks/useMultiplePDFUpload';
+import { TakeoffItem } from '../hooks/useTakeoffMeasurements';
 
 interface DrawingSidebarProps {
   onBack?: () => void;
@@ -14,6 +15,9 @@ interface DrawingSidebarProps {
   activeDrawingId: string | null;
   onSetActiveDrawing: (id: string) => void;
   onRemoveDrawing: (id: string) => void;
+  takeoffs: TakeoffItem[];
+  onCreateTakeoff: (data: { description: string; type: 'Area' | 'Linear' | 'Number' | 'Volume' }) => void;
+  onDeleteTakeoff: (id: string) => void;
 }
 
 export const DrawingSidebar = ({ 
@@ -23,7 +27,10 @@ export const DrawingSidebar = ({
   drawings, 
   activeDrawingId, 
   onSetActiveDrawing, 
-  onRemoveDrawing 
+  onRemoveDrawing,
+  takeoffs,
+  onCreateTakeoff,
+  onDeleteTakeoff
 }: DrawingSidebarProps) => {
   const [newTakeOffOpen, setNewTakeOffOpen] = useState(false);
   const [newTakeOff, setNewTakeOff] = useState({
@@ -31,15 +38,14 @@ export const DrawingSidebar = ({
     type: 'Area' as 'Area' | 'Linear' | 'Number' | 'Volume'
   });
 
-  const takeOffs = [
-    { id: '1', name: 'Foundation Areas', type: 'Area', quantity: '45.5 M²', status: 'complete' },
-    { id: '2', name: 'Wall Lengths', type: 'Linear', quantity: '180 m', status: 'complete' },
-    { id: '3', name: 'Door Count', type: 'Count', quantity: '8 units', status: 'pending' },
-  ];
-
   const handleCreateTakeOff = () => {
-    // Here you would typically save the new take-off
-    console.log('Creating new take-off:', newTakeOff);
+    if (!newTakeOff.description.trim()) return;
+    
+    onCreateTakeoff({
+      description: newTakeOff.description.trim(),
+      type: newTakeOff.type
+    });
+    
     setNewTakeOffOpen(false);
     setNewTakeOff({ description: '', type: 'Area' });
   };
@@ -161,20 +167,30 @@ export const DrawingSidebar = ({
             </Dialog>
           </div>
           <div className="space-y-2">
-            {takeOffs.map(takeOff => (
-              <div key={takeOff.id} className="p-2 rounded-lg border hover:bg-muted/50">
+            {takeoffs.map(takeoff => (
+              <div key={takeoff.id} className="p-2 rounded-lg border hover:bg-muted/50 group">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-medium">{takeOff.name}</p>
-                  <Badge 
-                    variant={takeOff.status === 'complete' ? 'default' : 'secondary'} 
-                    className="text-xs"
-                  >
-                    {takeOff.status}
-                  </Badge>
+                  <p className="text-sm font-medium">{takeoff.name}</p>
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant={takeoff.status === 'complete' ? 'default' : 'secondary'} 
+                      className="text-xs"
+                    >
+                      {takeoff.status}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => onDeleteTakeoff(takeoff.id)}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{takeOff.type}</span>
-                  <span className="font-medium">{takeOff.quantity}</span>
+                  <span>{takeoff.type}</span>
+                  <span className="font-medium">{takeoff.quantity}</span>
                 </div>
               </div>
             ))}

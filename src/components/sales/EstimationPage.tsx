@@ -12,6 +12,7 @@ import { SummaryTab } from './components/SummaryTab';
 import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
+import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
 import { toast } from 'sonner';
 interface EstimationPageProps {
   onBack?: () => void;
@@ -38,7 +39,7 @@ export const EstimationPage = ({
   const {
     trades,
     addTrade,
-    addMeasurement,
+    addMeasurement: addTradeMeasurement,
     updateMeasurement,
     removeMeasurement,
     updateTradeName
@@ -60,6 +61,19 @@ export const EstimationPage = ({
     isLoading,
     generateEstimateNumber
   } = useEstimate();
+
+  // Takeoff measurements system
+  const {
+    takeoffs,
+    measurements,
+    addMeasurement,
+    updateMeasurement: updateTakeoffMeasurement,
+    deleteMeasurement,
+    createTakeoff,
+    updateTakeoff,
+    deleteTakeoff,
+    addMeasurementToTakeoff
+  } = useTakeoffMeasurements();
 
   // Estimate state
   const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(null);
@@ -138,6 +152,9 @@ export const EstimationPage = ({
         activeDrawingId={activeDrawingId}
         onSetActiveDrawing={setActiveDrawing}
         onRemoveDrawing={removeDrawing}
+        takeoffs={takeoffs}
+        onCreateTakeoff={createTakeoff}
+        onDeleteTakeoff={deleteTakeoff}
       />
 
       {/* Main Content Area */}
@@ -207,13 +224,17 @@ export const EstimationPage = ({
                 pdfUrl={activeDrawing?.url || null} 
                 canvasRef={canvasRef} 
                 currentTool={currentTool} 
-                fileInputRef={fileInputRef} 
+                fileInputRef={fileInputRef}
+                onMeasurementAdd={addMeasurement}
+                onMeasurementUpdate={updateTakeoffMeasurement}
+                onMeasurementDelete={deleteMeasurement}
+                measurements={measurements}
               />
             </TabsContent>
 
             {/* Quantities and Rates Tab */}
             <TabsContent value="quantities" className="flex-1 p-6 overflow-auto">
-              <QuantitiesTable trades={trades} onAddTrade={addTrade} onAddMeasurement={addMeasurement} onUpdateMeasurement={updateMeasurement} onRemoveMeasurement={removeMeasurement} onUpdateTradeName={updateTradeName} />
+              <QuantitiesTable trades={trades} onAddTrade={addTrade} onAddMeasurement={addTradeMeasurement} onUpdateMeasurement={updateMeasurement} onRemoveMeasurement={removeMeasurement} onUpdateTradeName={updateTradeName} />
             </TabsContent>
 
             {/* Summary and Totals Tab */}

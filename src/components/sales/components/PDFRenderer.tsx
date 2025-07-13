@@ -1,17 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download } from 'lucide-react';
+import { TakeoffCanvas, Measurement } from './TakeoffCanvas';
 
 interface PDFRendererProps {
   pdfUrl: string;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   currentTool: 'pointer' | 'area' | 'linear' | 'count';
+  onMeasurementAdd?: (measurement: Measurement) => void;
+  onMeasurementUpdate?: (id: string, measurement: Partial<Measurement>) => void;
+  onMeasurementDelete?: (id: string) => void;
+  measurements?: Measurement[];
 }
 
-export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps) => {
+export const PDFRenderer = ({ 
+  pdfUrl, 
+  canvasRef, 
+  currentTool,
+  onMeasurementAdd = () => {},
+  onMeasurementUpdate = () => {},
+  onMeasurementDelete = () => {},
+  measurements = []
+}: PDFRendererProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
+  const pdfContainerRef = useRef<HTMLDivElement>(null);
 
   // Check if PDF URL is valid
   useEffect(() => {
@@ -93,7 +107,7 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
       </div>
 
       {/* PDF Viewer */}
-      <div className="flex-1 relative overflow-hidden">
+      <div ref={pdfContainerRef} className="flex-1 relative overflow-hidden">
         <div 
           className="w-full h-full overflow-auto p-4 bg-gray-100"
           style={{
@@ -115,13 +129,15 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
           </div>
         </div>
 
-        {/* Canvas overlay for measurements */}
-        <canvas 
-          ref={canvasRef} 
-          className="absolute inset-0 pointer-events-auto z-10" 
-          style={{
-            cursor: currentTool === 'pointer' ? 'default' : 'crosshair'
-          }} 
+        {/* Takeoff Canvas overlay for measurements */}
+        <TakeoffCanvas
+          containerRef={pdfContainerRef}
+          currentTool={currentTool}
+          onMeasurementAdd={onMeasurementAdd}
+          onMeasurementUpdate={onMeasurementUpdate}
+          onMeasurementDelete={onMeasurementDelete}
+          measurements={measurements}
+          scale={scale}
         />
       </div>
     </div>
