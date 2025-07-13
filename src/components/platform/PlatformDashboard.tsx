@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Filter, Edit } from 'lucide-react';
 import { CompaniesTable } from '@/components/companies/CompaniesTable';
 import { CompanyEditDialog } from '@/components/companies/CompanyEditDialog';
+import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
 import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -55,6 +56,7 @@ export const PlatformDashboard = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const canManageCompanies = isSuperAdmin() || isPlatformAdmin();
   const [moduleStats, setModuleStats] = useState({
     companyModules: { active: 0, total: 0 },
@@ -497,7 +499,7 @@ export const PlatformDashboard = ({
         return <div className="space-y-6">
             <div className="flex items-center justify-between">
               
-              <Button>
+              <Button onClick={() => setShowCreateDialog(true)}>
                 <Building2 className="w-4 h-4 mr-2" />
                 Create Company
               </Button>
@@ -1298,5 +1300,17 @@ export const PlatformDashboard = ({
           </div>
         </main>
       </div>
+
+      {/* Create Company Dialog */}
+      <CreateCompanyDialog 
+        open={showCreateDialog} 
+        onOpenChange={(open) => {
+          setShowCreateDialog(open);
+          if (!open) {
+            // Refresh companies list when dialog closes after successful creation
+            fetchCompanies();
+          }
+        }} 
+      />
     </SidebarProvider>;
 };
