@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePlatformAuth } from '@/hooks/usePlatformAuth';
 import { PlatformAuthForm } from './PlatformAuthForm';
+import { FirstLoginPasswordChange } from '@/components/auth/FirstLoginPasswordChange';
 
 interface PlatformAuthPageProps {
   onNavigate: (page: string) => void;
@@ -21,9 +22,22 @@ export const PlatformAuthPage = ({ onNavigate }: PlatformAuthPageProps) => {
     showPassword,
     setShowPassword,
     error,
+    tokenAccessUser,
+    showPasswordChange,
     handleSubmit,
-    toggleMode
+    toggleMode,
+    handlePasswordChangeComplete
   } = usePlatformAuth(onNavigate);
+
+  // Show password change form if user requires it
+  if (showPasswordChange && tokenAccessUser?.requiresPasswordChange) {
+    return (
+      <FirstLoginPasswordChange
+        userEmail={tokenAccessUser.email}
+        onPasswordChanged={handlePasswordChangeComplete}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex items-center justify-center p-4">

@@ -576,6 +576,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_activated: boolean | null
           avatar_url: string | null
           bio: string | null
           birth_date: string | null
@@ -583,11 +584,13 @@ export type Database = {
           company_slogan: string | null
           created_at: string
           email: string | null
+          first_login_at: string | null
           first_name: string | null
           id: string
           job_title: string | null
           last_name: string | null
           location: string | null
+          password_change_required: boolean | null
           phone: string | null
           status: string
           updated_at: string
@@ -595,6 +598,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          account_activated?: boolean | null
           avatar_url?: string | null
           bio?: string | null
           birth_date?: string | null
@@ -602,11 +606,13 @@ export type Database = {
           company_slogan?: string | null
           created_at?: string
           email?: string | null
+          first_login_at?: string | null
           first_name?: string | null
           id?: string
           job_title?: string | null
           last_name?: string | null
           location?: string | null
+          password_change_required?: boolean | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -614,6 +620,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          account_activated?: boolean | null
           avatar_url?: string | null
           bio?: string | null
           birth_date?: string | null
@@ -621,11 +628,13 @@ export type Database = {
           company_slogan?: string | null
           created_at?: string
           email?: string | null
+          first_login_at?: string | null
           first_name?: string | null
           id?: string
           job_title?: string | null
           last_name?: string | null
           location?: string | null
+          password_change_required?: boolean | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -1057,6 +1066,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_access_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          token: string
+          token_type: string
+          updated_at: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          token: string
+          token_type: string
+          updated_at?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          token_type?: string
+          updated_at?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_access_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1402,6 +1452,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: Json
       }
+      generate_access_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_manageable_users_for_user: {
         Args: { requesting_user_id: string }
         Returns: {
@@ -1478,6 +1532,14 @@ export type Database = {
       is_platform_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      track_first_login: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
+      use_access_token: {
+        Args: { token_value: string }
+        Returns: Json
       }
     }
     Enums: {

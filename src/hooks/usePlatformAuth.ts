@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,7 +10,64 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [tokenAccessUser, setTokenAccessUser] = useState<any>(null);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
   const { toast } = useToast();
+
+  // Check for token access on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const tokenType = urlParams.get('type');
+    
+    if (token && tokenType) {
+      handleTokenAccess(token, tokenType);
+    }
+  }, []);
+
+  const handleTokenAccess = async (token: string, tokenType: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-access-token', {
+        body: { token }
+      });
+
+      if (error || !data.success) {
+        throw new Error(data?.error || 'Invalid access token');
+      }
+
+      setTokenAccessUser({
+        ...data.user,
+        tokenType,
+        requiresPasswordChange: data.user.password_change_required
+      });
+
+      if (data.user.password_change_required) {
+        setShowPasswordChange(true);
+      } else {
+        // Auto-login for activated users
+        toast({
+          title: "Access Granted",
+          description: "Welcome back to SkrobakiOS!",
+        });
+        onNavigate('platform-dashboard');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Failed to validate access token');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordChangeComplete = () => {
+    setShowPasswordChange(false);
+    setTokenAccessUser(null);
+    toast({
+      title: "Welcome to SkrobakiOS",
+      description: "Your account is now fully activated!",
+    });
+    onNavigate('platform-dashboard');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +77,7 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
     try {
       if (isLogin) {
         // Login
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -28,11 +85,33 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
         if (error) {
           setError(error.message);
         } else {
-          toast({
-            title: "Success",
-            description: "Successfully logged in to Platform",
-          });
-          onNavigate('platform-dashboard');
+          // Check if user needs to change password
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('password_change_required, first_login_at')
+            .eq('user_id', data.user.id)
+            .single();
+
+          if (profile?.password_change_required) {
+            setTokenAccessUser({
+              email: data.user.email,
+              requiresPasswordChange: true
+            });
+            setShowPasswordChange(true);
+          } else {
+            // Track first login if applicable
+            if (!profile?.first_login_at) {
+              await supabase.rpc('track_first_login', {
+                target_user_id: data.user.id
+              });
+            }
+
+            toast({
+              title: "Success",
+              description: "Successfully logged in to Platform",
+            });
+            onNavigate('platform-dashboard');
+          }
         }
       } else {
         // Sign up
@@ -88,7 +167,10 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
     showPassword,
     setShowPassword,
     error,
+    tokenAccessUser,
+    showPasswordChange,
     handleSubmit,
-    toggleMode
+    toggleMode,
+    handlePasswordChangeComplete
   };
 };

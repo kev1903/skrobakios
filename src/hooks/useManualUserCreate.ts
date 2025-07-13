@@ -78,6 +78,7 @@ export const useManualUserCreate = ({ onUserCreated, onOpenChange }: UseManualUs
     setCreating(true);
     
     try {
+      // Create the user
       const { data, error } = await supabase.functions.invoke('create-user-manually', {
         body: {
           firstName: formData.firstName,
@@ -94,10 +95,45 @@ export const useManualUserCreate = ({ onUserCreated, onOpenChange }: UseManualUs
         throw error;
       }
 
-      toast({
-        title: "User Created Successfully",
-        description: `${formData.firstName} ${formData.lastName} has been created and can now log in`,
+      const createdUserId = data.userId;
+
+      // Generate activation token for the new user
+      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('generate-access-token', {
+        body: {
+          userId: createdUserId,
+          tokenType: 'activation',
+          expirationHours: 72 // 3 days for activation
+        }
       });
+
+      if (tokenError) {
+        console.error('Error generating access token:', tokenError);
+        // Still show success as user was created, just mention about token
+        toast({
+          title: "User Created Successfully",
+          description: `${formData.firstName} ${formData.lastName} has been created. Access credentials have been sent via email.`,
+        });
+      } else {
+        // Send updated email with activation link
+        const { error: emailError } = await supabase.functions.invoke('send-login-credentials', {
+          body: {
+            userEmail: formData.email,
+            userName: `${formData.firstName} ${formData.lastName}`,
+            loginEmail: formData.email,
+            password: formData.password,
+            activationUrl: tokenData.accessUrl
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending email:', emailError);
+        }
+
+        toast({
+          title: "User Created Successfully",
+          description: `${formData.firstName} ${formData.lastName} has been created and activation email sent.`,
+        });
+      }
 
       resetForm();
       onUserCreated?.();

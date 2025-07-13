@@ -14,6 +14,7 @@ interface LoginCredentialsRequest {
   userName: string;
   loginEmail: string;
   password: string;
+  activationUrl?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,7 +24,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { userEmail, userName, loginEmail, password }: LoginCredentialsRequest = await req.json();
+    const { userEmail, userName, loginEmail, password, activationUrl }: LoginCredentialsRequest = await req.json();
 
     if (!userEmail || !userName || !password) {
       return new Response(
@@ -35,48 +36,73 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Determine if this is an activation email or regular credentials
+    const isActivationEmail = !!activationUrl;
+    const subject = isActivationEmail ? "Welcome to SkrobakiOS - Activate Your Account" : "Your SkrobakiOS Credentials";
+
     const emailResponse = await resend.emails.send({
       from: "Platform Admin <kevin@skrobaki.com>",
       to: [userEmail],
-      subject: "Your SkrobakiOS Credentials",
+      subject: subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
-            Your SkrobakiOS Credentials
+            ${isActivationEmail ? 'Welcome to SkrobakiOS!' : 'Your SkrobakiOS Credentials'}
           </h1>
           
           <p>Dear ${userName},</p>
           
-          <p>Here are your login credentials for SkrobakiOS:</p>
+          ${isActivationEmail ? 
+            '<p>Your SkrobakiOS account has been created! To get started, please activate your account using the secure link below.</p>' :
+            '<p>Here are your login credentials for SkrobakiOS:</p>'
+          }
           
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #495057;">Login Information</h3>
-            <p><strong>Email:</strong> ${loginEmail}</p>
-            <p><strong>Password:</strong> ${password}</p>
-          </div>
+          ${activationUrl ? `
+            <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+              <h3 style="margin-top: 0; color: #155724;">Account Activation Required</h3>
+              <p style="color: #155724;">Click the button below to activate your account and set up your password:</p>
+              <div style="margin: 20px 0;">
+                <a href="${activationUrl}" 
+                   style="background-color: #28a745; color: white; padding: 14px 28px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                  Activate Your Account
+                </a>
+              </div>
+              <p style="color: #155724; font-size: 14px;">
+                This activation link will expire in 72 hours. If you need a new link, please contact your administrator.
+              </p>
+            </div>
+          ` : `
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #495057;">Login Information</h3>
+              <p><strong>Email:</strong> ${loginEmail}</p>
+              <p><strong>Password:</strong> ${password}</p>
+            </div>
+            
+            <div style="margin: 30px 0;">
+              <a href="${Deno.env.get('SUPABASE_URL') || 'https://your-app.com'}/auth" 
+                 style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Login to Platform
+              </a>
+            </div>
+          `}
           
           <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h4 style="margin-top: 0; color: #856404;">Important Security Notice</h4>
             <p style="margin-bottom: 0; color: #856404;">
-              For your security, please change your password immediately after logging in. 
-              Go to your profile settings and update your password to something only you know.
+              ${isActivationEmail ? 
+                'After activation, you will be required to create a new password for security purposes. Never share your password with anyone.' :
+                'For your security, please change your password immediately after logging in. Go to your profile settings and update your password to something only you know.'
+              }
             </p>
           </div>
           
-          <div style="margin: 30px 0;">
-            <a href="${Deno.env.get('SUPABASE_URL') || 'https://your-app.com'}/auth" 
-               style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Login to Platform
-            </a>
-          </div>
-          
           <p style="color: #6c757d; font-size: 14px; margin-top: 30px; border-top: 1px solid #dee2e6; padding-top: 20px;">
-            If you did not request this information or have any security concerns, please contact your system administrator immediately.
+            If you did not request this account or have any security concerns, please contact your system administrator immediately.
           </p>
           
           <p style="color: #6c757d; font-size: 12px;">
             Best regards,<br>
-            Platform Administration Team
+            SkrobakiOS Administration Team
           </p>
         </div>
       `,
