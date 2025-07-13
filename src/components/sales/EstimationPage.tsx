@@ -214,17 +214,14 @@ export const EstimationPage = ({
               <ArrowLeft className="w-4 h-4" />
               Back to Estimates
             </Button>}
-          <h3 className="font-semibold text-lg">Drawings</h3>
-          
-        </div>
-
-        {/* Upload Section */}
-        <div className="p-4 border-b border-border">
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf" className="hidden" />
-          <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full">
-            <Upload className="w-4 h-4 mr-2" />
-            Upload PDF Drawing
-          </Button>
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">Drawings</h3>
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf" className="hidden" />
+            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="w-4 h-4 mr-2" />
+              Upload
+            </Button>
+          </div>
           {uploadedFile && <div className="mt-2 p-2 bg-muted rounded text-sm">
               <FileText className="w-4 h-4 inline mr-2" />
               {uploadedFile.name}
