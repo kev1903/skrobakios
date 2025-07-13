@@ -238,21 +238,11 @@ export const EstimationPage = ({
         <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Label htmlFor="estimateTitle" className="text-sm font-medium text-muted-foreground mb-1 block">
-                Estimate Title
-              </Label>
-              <Input
-                id="estimateTitle"
-                value={estimateTitle}
-                onChange={(e) => setEstimateTitle(e.target.value)}
-                placeholder="Enter estimate title..."
-                className="text-lg font-semibold"
-              />
+              
+              <Input id="estimateTitle" value={estimateTitle} onChange={e => setEstimateTitle(e.target.value)} placeholder="Enter estimate title..." className="text-lg font-semibold" />
             </div>
             <div className="w-64">
-              <Label htmlFor="projectType" className="text-sm font-medium text-muted-foreground mb-1 block">
-                Project Type
-              </Label>
+              
               <Select value={projectType} onValueChange={setProjectType}>
                 <SelectTrigger id="projectType">
                   <SelectValue placeholder="Select project type" />
