@@ -45,9 +45,11 @@ export const useImageProcessor = () => {
             ctx.clip();
             
             // Now let's see exactly how the image is positioned in the editor
-            // The editor shows the image at natural size with transforms applied
-            const finalWidth = img.naturalWidth * imageScale;
-            const finalHeight = img.naturalHeight * imageScale;
+            // The editor shows the image at natural size with CSS transform scale applied
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+            const finalWidth = naturalWidth * imageScale;
+            const finalHeight = naturalHeight * imageScale;
             
             console.log('=== STEP 5: Canvas drawing parameters ===');
             console.log('Final image size:', finalWidth, 'x', finalHeight);

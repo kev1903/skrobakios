@@ -55,11 +55,12 @@ export const ImagePositioningFrame = ({
               alt="Preview"
               className="absolute pointer-events-none select-none"
               style={{
-                width: `${displayWidth}px`,
-                height: `${displayHeight}px`,
-                left: `${imagePosition.x}px`,
-                top: `${imagePosition.y}px`,
-                transform: 'none' // Remove transforms, use direct positioning
+                transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${imageScale})`,
+                transformOrigin: 'top left',
+                width: `${imageDimensions.width}px`,
+                height: `${imageDimensions.height}px`,
+                maxWidth: 'none',
+                maxHeight: 'none'
               }}
               draggable={false}
             />
