@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
+import { PDFRenderer } from './PDFRenderer';
 
 interface PDFViewerProps {
   pdfUrl: string | null;
@@ -19,13 +20,10 @@ export const PDFViewer = ({ pdfUrl, canvasRef, currentTool, fileInputRef }: PDFV
       <CardContent className="h-full">
         {pdfUrl ? (
           <div className="relative h-full border-2 border-dashed border-muted rounded-lg overflow-hidden">
-            <iframe src={pdfUrl} className="w-full h-full" title="PDF Viewer" />
-            <canvas 
-              ref={canvasRef} 
-              className="absolute inset-0 pointer-events-auto" 
-              style={{
-                cursor: currentTool === 'pointer' ? 'default' : 'crosshair'
-              }} 
+            <PDFRenderer 
+              pdfUrl={pdfUrl} 
+              canvasRef={canvasRef} 
+              currentTool={currentTool} 
             />
           </div>
         ) : (
