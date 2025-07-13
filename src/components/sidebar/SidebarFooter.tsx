@@ -3,6 +3,7 @@ import React from 'react';
 import { LogOut, User } from 'lucide-react';
 import { SidebarFooter as SidebarFooterBase } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -52,17 +53,21 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
         onClick={() => onNavigate('user-edit')}
         className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/15 hover:backdrop-blur-md transition-all duration-300 group shadow-sm hover:shadow-lg justify-start"
       >
-        <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-blue-700 rounded-full flex items-center justify-center overflow-hidden shadow-lg backdrop-blur-sm">
-          {userProfile.avatarUrl ? (
-            <img 
-              src={userProfile.avatarUrl} 
-              alt="User Avatar" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <User className="w-4 h-4 text-white" />
-          )}
-        </div>
+        <Avatar className="w-8 h-8 shadow-lg">
+          <AvatarImage 
+            src={userProfile.avatarUrl || undefined} 
+            alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+          <AvatarFallback className="bg-gradient-to-br from-slate-600 to-blue-700 text-white">
+            {userProfile?.firstName && userProfile?.lastName 
+              ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
+              : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User className="w-4 h-4" />
+            }
+          </AvatarFallback>
+        </Avatar>
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-800 truncate font-poppins">

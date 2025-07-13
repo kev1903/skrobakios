@@ -4,6 +4,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface MobileHeaderProps {
   onNavigate: (page: string) => void;
@@ -57,17 +58,21 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
         onClick={() => onNavigate('user-edit')}
         className="flex items-center space-x-2"
       >
-        <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-blue-700 rounded-full flex items-center justify-center overflow-hidden">
-          {userProfile.avatarUrl ? (
-            <img 
-              src={userProfile.avatarUrl} 
-              alt="User Avatar" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <User className="w-3 h-3 text-white" />
-          )}
-        </div>
+        <Avatar className="w-6 h-6">
+          <AvatarImage 
+            src={userProfile.avatarUrl || undefined} 
+            alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+          <AvatarFallback className="bg-gradient-to-br from-slate-600 to-blue-700 text-white text-xs">
+            {userProfile?.firstName && userProfile?.lastName 
+              ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
+              : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User className="w-3 h-3" />
+            }
+          </AvatarFallback>
+        </Avatar>
         <div className="flex flex-col items-start">
           <span className="text-xs font-medium text-slate-800 font-poppins">
             {getUserDisplayName()}

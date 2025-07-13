@@ -104,7 +104,14 @@ export const TopFloatingBar = ({
               {/* User Profile */}
               <button onClick={() => onNavigate('user-edit')} className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
                 <Avatar className="w-6 h-6">
-                  <AvatarImage src={userProfile.avatarUrl} alt="Profile" />
+                  <AvatarImage 
+                    src={userProfile.avatarUrl || undefined} 
+                    alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
+                    onError={(e) => {
+                      // Hide broken images and show fallback
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
                   <AvatarFallback className="bg-white/40 text-white text-xs">
                     {userProfile?.firstName && userProfile?.lastName 
                       ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
