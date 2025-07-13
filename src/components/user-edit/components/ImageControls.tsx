@@ -41,7 +41,12 @@ export const ImageControls = ({
           max="3"
           step="0.1"
           value={imageScale}
-          onChange={(e) => onScaleChange(parseFloat(e.target.value))}
+          onChange={(e) => {
+            const newScale = parseFloat(e.target.value);
+            console.log('=== STEP 2b: Scale changed ===');
+            console.log('New scale:', newScale);
+            onScaleChange(newScale);
+          }}
           className="w-32"
         />
         <span className="text-sm text-slate-600 w-12">{Math.round(imageScale * 100)}%</span>

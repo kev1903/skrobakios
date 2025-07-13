@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ImagePosition } from '../hooks/useImageEditor';
 
 interface ImagePositioningFrameProps {
@@ -18,6 +18,27 @@ export const ImagePositioningFrame = ({
   onMouseMove,
   onMouseUp
 }: ImagePositioningFrameProps) => {
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      console.log('=== STEP 2: Image loaded in editor ===');
+      console.log('Natural dimensions:', img.naturalWidth, 'x', img.naturalHeight);
+      setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.src = tempImage;
+  }, [tempImage]);
+
+  // Calculate the actual display size
+  const displayWidth = imageDimensions.width * imageScale;
+  const displayHeight = imageDimensions.height * imageScale;
+
+  console.log('=== EDITOR PREVIEW ===');
+  console.log('Current scale:', imageScale);
+  console.log('Current position:', imagePosition);
+  console.log('Display size:', displayWidth, 'x', displayHeight);
+
   return (
     <div className="flex justify-center">
       <div className="relative w-64 h-64 border-2 border-dashed border-blue-300 rounded-full overflow-hidden bg-white/20 backdrop-blur-sm">
@@ -28,16 +49,21 @@ export const ImagePositioningFrame = ({
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseUp}
         >
-          <img
-            src={tempImage}
-            alt="Preview"
-            className="absolute pointer-events-none select-none"
-            style={{
-              transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${imageScale})`,
-              transformOrigin: 'top left'
-            }}
-            draggable={false}
-          />
+          {imageDimensions.width > 0 && (
+            <img
+              src={tempImage}
+              alt="Preview"
+              className="absolute pointer-events-none select-none"
+              style={{
+                width: `${displayWidth}px`,
+                height: `${displayHeight}px`,
+                left: `${imagePosition.x}px`,
+                top: `${imagePosition.y}px`,
+                transform: 'none' // Remove transforms, use direct positioning
+              }}
+              draggable={false}
+            />
+          )}
         </div>
         {/* Frame overlay */}
         <div className="absolute inset-0 pointer-events-none">

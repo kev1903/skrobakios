@@ -24,10 +24,15 @@ export const useImageEditor = () => {
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging) return;
     
-    setImagePosition({
+    const newPosition = {
       x: e.clientX - dragStart.x,
       y: e.clientY - dragStart.y
-    });
+    };
+    
+    console.log('=== STEP 2: User dragging image ===');
+    console.log('New position:', newPosition);
+    
+    setImagePosition(newPosition);
   }, [isDragging, dragStart]);
 
   const handleMouseUp = useCallback(() => {
@@ -50,19 +55,15 @@ export const useImageEditor = () => {
     // Create an image to get its dimensions
     const img = new Image();
     img.onload = () => {
-      // Calculate initial scale to fit the image in the 256px editor frame
-      const editorSize = 256;
-      const scaleToFit = Math.min(editorSize / img.width, editorSize / img.height);
+      console.log('=== STEP 1: Image loaded for editing ===');
+      console.log('Original image dimensions:', img.width, 'x', img.height);
       
-      // Center the image initially
-      const scaledWidth = img.width * scaleToFit;
-      const scaledHeight = img.height * scaleToFit;
-      const centerX = (editorSize - scaledWidth) / 2;
-      const centerY = (editorSize - scaledHeight) / 2;
-      
-      setImagePosition({ x: centerX, y: centerY });
-      setImageScale(scaleToFit);
+      // Reset to default starting position and scale
+      setImagePosition({ x: 0, y: 0 });
+      setImageScale(1);
       setIsEditing(true);
+      
+      console.log('Editor initialized with position (0,0) and scale 1');
     };
     img.src = imageDataUrl;
   };
