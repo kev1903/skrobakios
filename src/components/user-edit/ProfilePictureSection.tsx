@@ -72,21 +72,41 @@ export const ProfilePictureSection = ({
     const img = new Image();
     
     img.onload = () => {
-      canvas.width = 200;
-      canvas.height = 200;
+      const frameSize = 256; // Match the frame size
+      canvas.width = frameSize;
+      canvas.height = frameSize;
       
-      // Draw the positioned image onto canvas
-      ctx?.drawImage(
-        img,
-        imagePosition.x,
-        imagePosition.y,
-        img.width * imageScale,
-        img.height * imageScale
-      );
+      if (ctx) {
+        // Create circular clipping path
+        ctx.beginPath();
+        ctx.arc(frameSize / 2, frameSize / 2, frameSize / 2, 0, 2 * Math.PI);
+        ctx.clip();
+        
+        // Calculate the scaled dimensions
+        const scaledWidth = img.width * imageScale;
+        const scaledHeight = img.height * imageScale;
+        
+        // Draw the positioned and scaled image within the circular frame
+        ctx.drawImage(
+          img,
+          imagePosition.x,
+          imagePosition.y,
+          scaledWidth,
+          scaledHeight
+        );
+      }
       
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      // Convert to high-quality data URL
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      
+      // Save the positioned and cropped image
       onAvatarChange(croppedDataUrl);
       setIsEditing(false);
+      
+      // Reset the temporary state
+      setTempImage('');
+      setImagePosition({ x: 0, y: 0 });
+      setImageScale(1);
     };
     
     img.src = tempImage;
