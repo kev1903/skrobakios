@@ -23,6 +23,8 @@ export const EstimationPage = ({
   // Project and estimate state
   const [selectedProject, setSelectedProject] = useState('');
   const [estimateName, setEstimateName] = useState('');
+  const [estimateTitle, setEstimateTitle] = useState('');
+  const [projectType, setProjectType] = useState('');
   const [activeTab, setActiveTab] = useState('drawings');
 
   // PDF and drawing state
@@ -263,7 +265,41 @@ export const EstimationPage = ({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        
+        <div className="p-4 border-b border-border bg-background">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Label htmlFor="estimateTitle" className="text-sm font-medium text-muted-foreground mb-1 block">
+                Estimate Title
+              </Label>
+              <Input
+                id="estimateTitle"
+                value={estimateTitle}
+                onChange={(e) => setEstimateTitle(e.target.value)}
+                placeholder="Enter estimate title..."
+                className="text-lg font-semibold"
+              />
+            </div>
+            <div className="w-64">
+              <Label htmlFor="projectType" className="text-sm font-medium text-muted-foreground mb-1 block">
+                Project Type
+              </Label>
+              <Select value={projectType} onValueChange={setProjectType}>
+                <SelectTrigger id="projectType">
+                  <SelectValue placeholder="Select project type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="residential">Residential</SelectItem>
+                  <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="industrial">Industrial</SelectItem>
+                  <SelectItem value="renovation">Renovation</SelectItem>
+                  <SelectItem value="new-construction">New Construction</SelectItem>
+                  <SelectItem value="extension">Extension</SelectItem>
+                  <SelectItem value="fitout">Fitout</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
         {/* Measurement Tools Toolbar */}
         <div className="p-4 border-b border-border bg-muted/20">
