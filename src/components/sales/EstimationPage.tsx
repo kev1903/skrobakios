@@ -285,72 +285,72 @@ export const EstimationPage = ({ onBack }: EstimationPageProps) => {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border bg-background">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
-              <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline">
-                <Download className="w-4 h-4 mr-2" />
-                Export PDF
-              </Button>
-              <Button className="bg-primary hover:bg-primary/90">
-                <Save className="w-4 h-4 mr-2" />
-                Save Estimate
-              </Button>
-            </div>
+          <div>
+            <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
+            <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
           </div>
         </div>
 
         {/* Measurement Tools Toolbar */}
         <div className="p-4 border-b border-border bg-muted/20">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground mr-4">Measurement Tools:</span>
-            <Button
-              variant={currentTool === 'pointer' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => selectTool('pointer')}
-            >
-              <MousePointer className="w-4 h-4 mr-2" />
-              Select
-            </Button>
-            <Button
-              variant={currentTool === 'area' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => selectTool('area')}
-            >
-              <Square className="w-4 h-4 mr-2" />
-              Area (M²/M³)
-            </Button>
-            <Button
-              variant={currentTool === 'linear' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => selectTool('linear')}
-            >
-              <Ruler className="w-4 h-4 mr-2" />
-              Linear (m)
-            </Button>
-            <Button
-              variant={currentTool === 'count' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => selectTool('count')}
-            >
-              <Hash className="w-4 h-4 mr-2" />
-              Count (#)
-            </Button>
-            <Separator orientation="vertical" className="h-6 mx-2" />
-            <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                value={scale}
-                onChange={(e) => setScale(parseFloat(e.target.value) || 1)}
-                placeholder="1.0"
-                step="0.1"
-                className="w-20"
-              />
-              <span className="text-sm text-muted-foreground">:1</span>
+              <span className="text-sm font-medium text-muted-foreground mr-4">Measurement Tools:</span>
+              <Button
+                variant={currentTool === 'pointer' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => selectTool('pointer')}
+              >
+                <MousePointer className="w-4 h-4 mr-2" />
+                Select
+              </Button>
+              <Button
+                variant={currentTool === 'area' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => selectTool('area')}
+              >
+                <Square className="w-4 h-4 mr-2" />
+                Area (M²/M³)
+              </Button>
+              <Button
+                variant={currentTool === 'linear' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => selectTool('linear')}
+              >
+                <Ruler className="w-4 h-4 mr-2" />
+                Linear (m)
+              </Button>
+              <Button
+                variant={currentTool === 'count' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => selectTool('count')}
+              >
+                <Hash className="w-4 h-4 mr-2" />
+                Count (#)
+              </Button>
+              <Separator orientation="vertical" className="h-6 mx-2" />
+              <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={scale}
+                  onChange={(e) => setScale(parseFloat(e.target.value) || 1)}
+                  placeholder="1.0"
+                  step="0.1"
+                  className="w-20"
+                />
+                <span className="text-sm text-muted-foreground">:1</span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90" size="sm">
+                <Save className="w-4 h-4 mr-2" />
+                Save Estimate
+              </Button>
             </div>
           </div>
         </div>
