@@ -66,50 +66,84 @@ export const ProfilePictureSection = ({
     setIsDragging(false);
   }, []);
 
-  const handleSavePosition = () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = () => {
-      const frameSize = 256; // Match the frame size
-      canvas.width = frameSize;
-      canvas.height = frameSize;
+  const handleSavePosition = async () => {
+    try {
+      console.log('Starting save position process...');
+      console.log('Current position:', imagePosition);
+      console.log('Current scale:', imageScale);
+      console.log('Temp image length:', tempImage.length);
       
-      if (ctx) {
-        // Create circular clipping path
-        ctx.beginPath();
-        ctx.arc(frameSize / 2, frameSize / 2, frameSize / 2, 0, 2 * Math.PI);
-        ctx.clip();
-        
-        // Calculate the scaled dimensions
-        const scaledWidth = img.width * imageScale;
-        const scaledHeight = img.height * imageScale;
-        
-        // Draw the positioned and scaled image within the circular frame
-        ctx.drawImage(
-          img,
-          imagePosition.x,
-          imagePosition.y,
-          scaledWidth,
-          scaledHeight
-        );
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
       }
       
-      // Convert to high-quality data URL
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const img = new Image();
       
-      // Save the positioned and cropped image
-      onAvatarChange(croppedDataUrl);
-      setIsEditing(false);
+      img.onload = () => {
+        try {
+          const frameSize = 256; // Match the frame size
+          canvas.width = frameSize;
+          canvas.height = frameSize;
+          
+          console.log('Canvas created:', frameSize + 'x' + frameSize);
+          console.log('Image dimensions:', img.width + 'x' + img.height);
+          
+          // Create circular clipping path
+          ctx.beginPath();
+          ctx.arc(frameSize / 2, frameSize / 2, frameSize / 2, 0, 2 * Math.PI);
+          ctx.clip();
+          
+          // Calculate the scaled dimensions
+          const scaledWidth = img.width * imageScale;
+          const scaledHeight = img.height * imageScale;
+          
+          console.log('Scaled dimensions:', scaledWidth + 'x' + scaledHeight);
+          console.log('Drawing at position:', imagePosition.x, imagePosition.y);
+          
+          // Draw the positioned and scaled image within the circular frame
+          ctx.drawImage(
+            img,
+            imagePosition.x,
+            imagePosition.y,
+            scaledWidth,
+            scaledHeight
+          );
+          
+          // Convert to high-quality data URL
+          const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+          console.log('Generated data URL length:', croppedDataUrl.length);
+          
+          // Save the positioned and cropped image
+          onAvatarChange(croppedDataUrl);
+          console.log('Avatar change callback called successfully');
+          
+          setIsEditing(false);
+          
+          // Reset the temporary state
+          setTempImage('');
+          setImagePosition({ x: 0, y: 0 });
+          setImageScale(1);
+          
+          console.log('Position saved successfully. Remember to save your profile to persist changes.');
+        } catch (error) {
+          console.error('Error in image processing:', error);
+          alert('Error processing image. Please try again.');
+        }
+      };
       
-      // Reset the temporary state
-      setTempImage('');
-      setImagePosition({ x: 0, y: 0 });
-      setImageScale(1);
-    };
-    
-    img.src = tempImage;
+      img.onerror = (error) => {
+        console.error('Error loading image:', error);
+        alert('Error loading image. Please try again.');
+      };
+      
+      img.src = tempImage;
+    } catch (error) {
+      console.error('Error in handleSavePosition:', error);
+      alert('Error saving position. Please try again.');
+    }
   };
 
   const handleResetPosition = () => {
@@ -168,6 +202,13 @@ export const ProfilePictureSection = ({
               <p className="text-sm text-slate-600 text-center">
                 Drag to position your photo within the circle frame
               </p>
+              
+              {/* Important Note */}
+              <div className="bg-blue-50/80 border border-blue-200/50 rounded-lg p-3 max-w-sm">
+                <p className="text-xs text-blue-700 text-center font-medium">
+                  💡 After saving position, click "Save" in the sidebar to persist changes
+                </p>
+              </div>
               
               {/* Scale Control */}
               <div className="flex items-center space-x-4">
