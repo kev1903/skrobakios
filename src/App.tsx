@@ -75,7 +75,33 @@ const CompanyEditPageWrapper = () => {
   return <CompanyEditPage companyId={companyId || ''} onNavigateBack={handleNavigateBack} />;
 };
 
-const queryClient = new QueryClient();
+const App = () => {
+  // Create QueryClient inside the component to ensure React is initialized
+  const [queryClient] = React.useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        retry: false,
+      },
+    },
+  }));
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <ImpersonationGuard>
+              <AppContent />
+            </ImpersonationGuard>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 const AppContent = () => {
   const { impersonationMode } = useAuth();
@@ -123,21 +149,5 @@ const AppContent = () => {
     </>
   );
 };
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <ImpersonationGuard>
-            <AppContent />
-          </ImpersonationGuard>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
 
 export default App;
