@@ -25,12 +25,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   };
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'estimates') {
-      // Navigate to the dedicated estimates page
-      window.location.href = '/estimates';
-    } else {
-      setActiveTab(tab);
-    }
+    setActiveTab(tab);
   };
 
   const renderContent = () => {
