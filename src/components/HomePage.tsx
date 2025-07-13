@@ -7,7 +7,7 @@ import { ChatBox } from '@/components/ChatBox';
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 import { AiChatBar } from '@/components/AiChatBar';
 import { useCompany } from '@/contexts/CompanyContext';
-import { ModuleSystemNotification } from '@/components/ui/ModuleSystemNotification';
+
 import { useUserRole } from '@/hooks/useUserRole';
 
 interface Project {
@@ -685,12 +685,6 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
       {/* Centered Company Name with AI Effects */}
       <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
       
-      {/* Module System Notification */}
-      {currentCompany && (
-        <div className="absolute top-20 left-6 max-w-md z-40">
-          <ModuleSystemNotification />
-        </div>
-      )}
       
       {/* Bottom Chat Box */}
       <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
