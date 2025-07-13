@@ -27,10 +27,15 @@ import {
   Download,
   MousePointer,
   Move3D,
-  RotateCcw
+  RotateCcw,
+  ArrowLeft
 } from 'lucide-react';
 
-export const EstimationPage = () => {
+interface EstimationPageProps {
+  onBack?: () => void;
+}
+
+export const EstimationPage = ({ onBack }: EstimationPageProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -270,9 +275,22 @@ export const EstimationPage = () => {
         {/* Header */}
         <div className="p-6 border-b border-border bg-background">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
-              <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
+            <div className="flex items-center gap-4">
+              {onBack && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onBack}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Estimates
+                </Button>
+              )}
+              <div>
+                <h2 className="text-3xl font-bold text-foreground">Construction Estimating</h2>
+                <p className="text-muted-foreground">Create detailed estimates with graphical take-offs and cost analysis</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button variant="outline">

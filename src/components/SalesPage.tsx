@@ -5,6 +5,7 @@ import { LeadsPage } from './sales/LeadsPage';
 import { ClientProfilePage } from './sales/ClientProfilePage';
 import { ProjectsDashboard } from './sales/ProjectsDashboard';
 import { ProjectDetailPage } from './sales/ProjectDetailPage';
+import { EstimatesListPage } from './sales/EstimatesListPage';
 import { EstimationPage } from './sales/EstimationPage';
 import { SubmittalsPage } from './sales/SubmittalsPage';
 import { ClientPortal } from './sales/ClientPortal';
@@ -17,6 +18,7 @@ interface SalesPageProps {
 
 export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showEstimationWorkspace, setShowEstimationWorkspace] = useState(false);
 
   const handleBack = () => {
     if (onNavigate) {
@@ -26,6 +28,18 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    // Reset estimation workspace when switching tabs
+    if (tab !== 'estimates') {
+      setShowEstimationWorkspace(false);
+    }
+  };
+
+  const handleCreateEstimate = () => {
+    setShowEstimationWorkspace(true);
+  };
+
+  const handleBackToEstimatesList = () => {
+    setShowEstimationWorkspace(false);
   };
 
   const renderContent = () => {
@@ -41,7 +55,9 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
       case 'project-detail':
         return <ProjectDetailPage />;
       case 'estimates':
-        return <EstimationPage />;
+        return showEstimationWorkspace 
+          ? <EstimationPage onBack={handleBackToEstimatesList} />
+          : <EstimatesListPage onCreateEstimate={handleCreateEstimate} />;
       case 'submittals':
         return <SubmittalsPage />;
       case 'portal':
