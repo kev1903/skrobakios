@@ -214,7 +214,7 @@ export const EstimationPage = ({
               <ArrowLeft className="w-4 h-4" />
               Back to Estimates
             </Button>}
-          <h3 className="font-semibold text-lg">Drawings & Tools</h3>
+          <h3 className="font-semibold text-lg">Drawings</h3>
           <p className="text-sm text-muted-foreground">Upload and configure project drawings</p>
         </div>
 
