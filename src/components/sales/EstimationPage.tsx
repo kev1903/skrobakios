@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { Plus, Trash2, FileText, Send, Upload, Calculator, Square, Circle, Ruler, Hash, Save, Eye, Download, MousePointer, Move3D, RotateCcw, ArrowLeft } from 'lucide-react';
 interface EstimationPageProps {
@@ -302,41 +303,76 @@ export const EstimationPage = ({
         </div>
 
         {/* Measurement Tools Toolbar */}
-        <div className="p-4 border-b border-border bg-muted/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground mr-4">Measurement Tools:</span>
-              <Button variant={currentTool === 'pointer' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('pointer')}>
-                <MousePointer className="w-4 h-4" />
-              </Button>
-              <Button variant={currentTool === 'area' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('area')}>
-                <Square className="w-4 h-4" />
-              </Button>
-              <Button variant={currentTool === 'linear' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('linear')}>
-                <Ruler className="w-4 h-4" />
-              </Button>
-              <Button variant={currentTool === 'count' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('count')}>
-                <Hash className="w-4 h-4" />
-              </Button>
-              <Separator orientation="vertical" className="h-6 mx-2" />
-              <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
+        <TooltipProvider>
+          <div className="p-4 border-b border-border bg-muted/20">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Input type="number" value={scale} onChange={e => setScale(parseFloat(e.target.value) || 1)} placeholder="1.0" step="0.1" className="w-20" />
-                <span className="text-sm text-muted-foreground">:1</span>
+                <span className="text-sm font-medium text-muted-foreground mr-4">Measurement Tools:</span>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant={currentTool === 'pointer' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('pointer')}>
+                      <MousePointer className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Select Tool</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant={currentTool === 'area' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('area')}>
+                      <Square className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Area Tool (M²/M³)</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant={currentTool === 'linear' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('linear')}>
+                      <Ruler className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Linear Tool (m)</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant={currentTool === 'count' ? 'default' : 'outline'} size="sm" onClick={() => selectTool('count')}>
+                      <Hash className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Count Tool (#)</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Separator orientation="vertical" className="h-6 mx-2" />
+                <span className="text-sm font-medium text-muted-foreground mr-2">Scale:</span>
+                <div className="flex items-center gap-2">
+                  <Input type="number" value={scale} onChange={e => setScale(parseFloat(e.target.value) || 1)} placeholder="1.0" step="0.1" className="w-20" />
+                  <span className="text-sm text-muted-foreground">:1</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export PDF
+                </Button>
+                <Button className="bg-primary hover:bg-primary/90" size="sm">
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Estimate
+                </Button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export PDF
-              </Button>
-              <Button className="bg-primary hover:bg-primary/90" size="sm">
-                <Save className="w-4 h-4 mr-2" />
-                Save Estimate
-              </Button>
-            </div>
           </div>
-        </div>
+        </TooltipProvider>
 
         {/* Project Details */}
         
