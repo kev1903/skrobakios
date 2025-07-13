@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MousePointer, Square, Ruler, Hash, DollarSign, Download, Save } from 'lucide-react';
+import { MousePointer, Square, Ruler, Hash, DollarSign, Download, Save, Upload } from 'lucide-react';
 
 interface MeasurementToolbarProps {
   currentTool: 'pointer' | 'area' | 'linear' | 'count';
@@ -76,6 +76,17 @@ export const MeasurementToolbar = ({ currentTool, onToolSelect }: MeasurementToo
             
           </div>
           <div className="flex gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Upload className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Import PDF</p>
+              </TooltipContent>
+            </Tooltip>
+            
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="sm">
