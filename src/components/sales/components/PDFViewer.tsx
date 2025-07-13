@@ -16,8 +16,8 @@ export const PDFViewer = ({
   fileInputRef
 }: PDFViewerProps) => {
   return <Card className="h-full">
-      <CardHeader>
-        
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold">Drawing PDF Viewer</CardTitle>
       </CardHeader>
       <CardContent className="h-full">
         {pdfUrl ? <div className="relative h-full border-2 border-dashed border-muted rounded-lg overflow-hidden">
