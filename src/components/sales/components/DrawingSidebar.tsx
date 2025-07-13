@@ -85,7 +85,7 @@ export const DrawingSidebar = ({
                 <div className="flex items-center gap-2 flex-1">
                   <FileText className="w-4 h-4 text-muted-foreground" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{drawing.name}</p>
+                    <p className="text-sm font-medium truncate">{drawing.name.slice(0, 20)}{drawing.name.length > 20 ? '...' : ''}</p>
                     <p className="text-xs text-muted-foreground">{drawing.pages} pages</p>
                   </div>
                   {activeDrawingId === drawing.id && <Badge variant="secondary" className="text-xs">Active</Badge>}
