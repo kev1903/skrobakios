@@ -222,7 +222,7 @@ export const EstimationPage = ({
             </div>
 
             {/* PDF Viewer Tab */}
-            <TabsContent value="drawings" className="flex-1 p-6">
+            <TabsContent value="drawings" className="flex-1 p-6 overflow-hidden">
               <PDFViewer 
                 pdfUrl={activeDrawing?.url || null} 
                 canvasRef={canvasRef} 
