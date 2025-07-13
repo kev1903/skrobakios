@@ -20,12 +20,29 @@ export const ModuleProtectedRoute = ({
   onNavigate,
   fallbackPage = 'home'
 }: ModuleProtectedRouteProps) => {
+  // ALL HOOKS MUST BE CALLED FIRST - before any early returns
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { currentCompany } = useCompany();
   const { fetchCompanyModules, isModuleEnabled } = useCompanyModules();
   const [loading, setLoading] = useState(true);
 
-  // Check authentication first
+  // useEffect hook must be called on every render
+  useEffect(() => {
+    const checkModuleAccess = async () => {
+      if (currentCompany?.id) {
+        try {
+          await fetchCompanyModules(currentCompany.id);
+        } catch (error) {
+          console.error('Error fetching company modules:', error);
+        }
+      }
+      setLoading(false);
+    };
+
+    checkModuleAccess();
+  }, [currentCompany?.id, fetchCompanyModules]);
+
+  // NOW handle all the conditional rendering after hooks
   if (authLoading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -40,21 +57,6 @@ export const ModuleProtectedRoute = ({
   if (!isAuthenticated) {
     return <AuthPage onNavigate={onNavigate} />;
   }
-
-  useEffect(() => {
-    const checkModuleAccess = async () => {
-      if (currentCompany?.id) {
-        try {
-          await fetchCompanyModules(currentCompany.id);
-        } catch (error) {
-          console.error('Error fetching company modules:', error);
-        }
-      }
-      setLoading(false);
-    };
-
-    checkModuleAccess();
-  }, [currentCompany?.id]);
 
   if (loading) {
     return (
