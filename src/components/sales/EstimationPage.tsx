@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, FileDown } from 'lucide-react';
 import { DrawingSidebar } from './components/DrawingSidebar';
 import { MeasurementToolbar } from './components/MeasurementToolbar';
 import { PDFViewer } from './components/PDFViewer';
@@ -10,6 +11,8 @@ import { QuantitiesTable } from './components/QuantitiesTable';
 import { SummaryTab } from './components/SummaryTab';
 import { useTrades } from './hooks/useTrades';
 import { usePDFUpload } from './hooks/usePDFUpload';
+import { useEstimate } from './hooks/useEstimate';
+import { toast } from 'sonner';
 interface EstimationPageProps {
   onBack?: () => void;
 }
@@ -46,12 +49,70 @@ export const EstimationPage = ({
     pdfUrl,
     handleFileUpload
   } = usePDFUpload();
+  const {
+    saveEstimate,
+    updateEstimate,
+    loadEstimate,
+    isSaving,
+    isLoading,
+    generateEstimateNumber
+  } = useEstimate();
+
+  // Estimate state
+  const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(null);
+  const [estimateNumber, setEstimateNumber] = useState('');
 
   // Tool selection
   const selectTool = (tool: typeof currentTool) => {
     setCurrentTool(tool);
     if (canvasRef.current) {
       canvasRef.current.style.cursor = tool === 'pointer' ? 'default' : 'crosshair';
+    }
+  };
+
+  // Save/Load functions
+  const handleSaveEstimate = async () => {
+    if (!estimateTitle) {
+      toast.error('Please enter an estimate title');
+      return;
+    }
+
+    try {
+      const estimateData = {
+        estimate_name: estimateTitle,
+        estimate_number: estimateNumber || generateEstimateNumber(),
+        project_type: projectType,
+        status: 'draft' as const,
+        estimate_date: new Date().toISOString().split('T')[0]
+      };
+
+      if (currentEstimateId) {
+        await updateEstimate(currentEstimateId, estimateData, trades);
+        toast.success('Estimate updated successfully');
+      } else {
+        const savedEstimate = await saveEstimate(estimateData, trades);
+        setCurrentEstimateId(savedEstimate.id);
+        setEstimateNumber(savedEstimate.estimate_number);
+        toast.success('Estimate saved successfully');
+      }
+    } catch (error) {
+      toast.error('Failed to save estimate');
+      console.error('Save error:', error);
+    }
+  };
+
+  const handleLoadEstimate = async (estimateId: string) => {
+    try {
+      const { estimate, trades: loadedTrades } = await loadEstimate(estimateId);
+      setCurrentEstimateId(estimate.id);
+      setEstimateTitle(estimate.estimate_name);
+      setEstimateNumber(estimate.estimate_number);
+      setProjectType(estimate.notes || ''); // Project type stored in notes
+      // Note: This would need to integrate with the trades hook to set the loaded trades
+      toast.success('Estimate loaded successfully');
+    } catch (error) {
+      toast.error('Failed to load estimate');
+      console.error('Load error:', error);
     }
   };
   return <div className="flex h-screen bg-background">
@@ -90,6 +151,22 @@ export const EstimationPage = ({
                   <SelectItem value="fitout">Fitout</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleSaveEstimate} 
+                disabled={isSaving}
+                variant="default"
+                size="sm"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+              {estimateNumber && (
+                <span className="text-sm text-muted-foreground self-center">
+                  #{estimateNumber}
+                </span>
+              )}
             </div>
           </div>
         </div>
