@@ -5,8 +5,8 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Configure PDF.js worker with more reliable CDN
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PDFRendererProps {
   pdfUrl: string;
@@ -19,14 +19,17 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
     setLoading(false);
+    setError(null);
   }, []);
 
   const onDocumentLoadError = useCallback((error: Error) => {
     console.error('Error loading PDF:', error);
+    setError(`Failed to load PDF: ${error.message}`);
     setLoading(false);
   }, []);
 
@@ -89,25 +92,36 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
       <div className="flex-1 overflow-auto relative">
         <div className="flex justify-center p-4">
           <div className="relative">
-            {loading && (
+            {loading && !error && (
               <div className="flex items-center justify-center h-96">
                 <div className="text-muted-foreground">Loading PDF...</div>
               </div>
             )}
+
+            {error && (
+              <div className="flex items-center justify-center h-96">
+                <div className="text-center">
+                  <div className="text-destructive mb-2">Failed to load PDF file</div>
+                  <div className="text-sm text-muted-foreground">{error}</div>
+                </div>
+              </div>
+            )}
             
-            <Document
-              file={pdfUrl}
-              onLoadSuccess={onDocumentLoadSuccess}
-              onLoadError={onDocumentLoadError}
-              loading=""
-            >
-              <Page 
-                pageNumber={pageNumber} 
-                scale={scale}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
-              />
-            </Document>
+            {!error && (
+              <Document
+                file={pdfUrl}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
+                loading=""
+              >
+                <Page 
+                  pageNumber={pageNumber} 
+                  scale={scale}
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                />
+              </Document>
+            )}
 
             {/* Canvas overlay for measurements */}
             <canvas 
