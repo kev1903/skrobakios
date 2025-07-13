@@ -248,6 +248,16 @@ export const UserProfileEditPage = () => {
   const handleEmailCredentials = async () => {
     if (!user) return;
 
+    // Validate that a password is provided
+    if (!credentialsData.newPassword) {
+      toast({
+        title: "Password Required",
+        description: "Please enter a new password before sending credentials.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSendingEmail(true);
     
     try {
@@ -256,6 +266,7 @@ export const UserProfileEditPage = () => {
           userEmail: user.email,
           userName: `${user.first_name} ${user.last_name}`,
           loginEmail: credentialsData.email || user.email,
+          password: credentialsData.newPassword,
         }
       });
 

@@ -13,6 +13,7 @@ interface LoginCredentialsRequest {
   userEmail: string;
   userName: string;
   loginEmail: string;
+  password: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,11 +23,11 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { userEmail, userName, loginEmail }: LoginCredentialsRequest = await req.json();
+    const { userEmail, userName, loginEmail, password }: LoginCredentialsRequest = await req.json();
 
-    if (!userEmail || !userName) {
+    if (!userEmail || !userName || !password) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: userEmail and userName" }),
+        JSON.stringify({ error: "Missing required fields: userEmail, userName, and password" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -37,29 +38,28 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Platform Admin <kevin@skrobaki.com>",
       to: [userEmail],
-      subject: "Your Login Credentials",
+      subject: "Your SkrobakiOS Credentials",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
-            Your Login Credentials
+            Your SkrobakiOS Credentials
           </h1>
           
           <p>Dear ${userName},</p>
           
-          <p>Here are your current login credentials for the platform:</p>
+          <p>Here are your login credentials for SkrobakiOS:</p>
           
           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #495057;">Login Information</h3>
             <p><strong>Email:</strong> ${loginEmail}</p>
-            <p><strong>Password:</strong> [Your current password]</p>
+            <p><strong>Password:</strong> ${password}</p>
           </div>
           
           <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <h4 style="margin-top: 0; color: #856404;">Security Note</h4>
+            <h4 style="margin-top: 0; color: #856404;">Important Security Notice</h4>
             <p style="margin-bottom: 0; color: #856404;">
-              For security reasons, your password is not included in this email. 
-              If you need to reset your password, please use the "Forgot Password" option on the login page 
-              or contact your administrator.
+              For your security, please change your password immediately after logging in. 
+              Go to your profile settings and update your password to something only you know.
             </p>
           </div>
           
