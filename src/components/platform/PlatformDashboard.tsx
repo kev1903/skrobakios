@@ -527,38 +527,6 @@ export const PlatformDashboard = ({
               </CardContent>
             </Card>
 
-            {/* Company Stats Card */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle>Company Stats</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Plan Distribution</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm">Enterprise</span>
-                        <span className="text-sm">45%</span>
-                      </div>
-                      <Progress value={45} />
-                      <div className="flex justify-between">
-                        <span className="text-sm">Professional</span>
-                        <span className="text-sm">35%</span>
-                      </div>
-                      <Progress value={35} />
-                      <div className="flex justify-between">
-                        <span className="text-sm">Basic</span>
-                        <span className="text-sm">20%</span>
-                      </div>
-                      <Progress value={20} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Edit Dialog */}
             <CompanyEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} />
