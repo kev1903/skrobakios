@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download } from 'lucide-react';
 import { TakeoffCanvas, Measurement } from './TakeoffCanvas';
-import { BlobPDFViewer } from './BlobPDFViewer';
+import { ReactPDFViewer } from './ReactPDFViewer';
 
 interface PDFRendererProps {
   pdfUrl: string;
@@ -117,15 +117,10 @@ export const PDFRenderer = ({
             transformOrigin: 'top left',
           }}
         >
-          <div className="flex justify-center">
-            <BlobPDFViewer
-              pdfUrl={pdfUrl}
-              className="w-full h-full min-h-[800px] border border-gray-300 shadow-lg"
-              style={{
-                backgroundColor: 'white',
-              }}
-            />
-          </div>
+          <ReactPDFViewer
+            pdfUrl={pdfUrl}
+            className="w-full h-full"
+          />
         </div>
 
         {/* Takeoff Canvas overlay for measurements */}
