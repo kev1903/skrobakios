@@ -203,8 +203,7 @@ export const PlatformUserManagement = ({
             </TabsList>
 
             <TabsContent value="users" className="space-y-6">
-              <Card>
-                <CardContent>
+              <div>
                   <div className="flex items-center space-x-4 mb-6">
                     <div className="relative flex-1 max-w-sm">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -298,17 +297,16 @@ export const PlatformUserManagement = ({
                             </TableRow>)}
                       </TableBody>
                     </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                   </div>
+               </div>
+             </TabsContent>
 
-            <TabsContent value="roles" className="space-y-6">
-              <PermissionMatrix />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+             <TabsContent value="roles" className="space-y-6">
+               <PermissionMatrix />
+             </TabsContent>
+           </Tabs>
+         </CardContent>
+       </Card>
       
       <ManualUserCreateDialog companies={companies} open={showManualCreateDialog} onOpenChange={setShowManualCreateDialog} onUserCreated={handleUserCreated} />
       
