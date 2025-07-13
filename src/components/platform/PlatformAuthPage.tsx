@@ -56,19 +56,15 @@ export const PlatformAuthPage = ({ onNavigate }: PlatformAuthPageProps) => {
         </Button>
 
         <PlatformAuthForm
-          isLogin={isLogin}
           email={email}
           setEmail={setEmail}
           password={password}
           setPassword={setPassword}
-          confirmPassword={confirmPassword}
-          setConfirmPassword={setConfirmPassword}
           isLoading={isLoading}
           showPassword={showPassword}
           setShowPassword={setShowPassword}
           error={error}
           onSubmit={handleSubmit}
-          onToggleMode={toggleMode}
         />
       </div>
     </div>
