@@ -55,6 +55,15 @@ export const EstimationPage = ({
     }
   };
   return <div className="flex h-screen bg-background">
+      {/* Hidden file input for PDF upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        style={{ display: 'none' }}
+        onChange={handleFileUpload}
+      />
+      
       {/* Left Sidebar - Drawings Section */}
       <DrawingSidebar onBack={onBack} fileInputRef={fileInputRef} handleFileUpload={handleFileUpload} uploadedFile={uploadedFile} />
 
@@ -86,7 +95,11 @@ export const EstimationPage = ({
         </div>
 
         {/* Measurement Tools Toolbar */}
-        <MeasurementToolbar currentTool={currentTool} onToolSelect={selectTool} />
+        <MeasurementToolbar 
+          currentTool={currentTool} 
+          onToolSelect={selectTool}
+          onUploadClick={() => fileInputRef.current?.click()}
+        />
 
         {/* Main Tabs Content */}
         <div className="flex-1 overflow-hidden">

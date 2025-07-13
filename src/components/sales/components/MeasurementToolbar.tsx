@@ -7,9 +7,10 @@ import { MousePointer, Square, Ruler, Hash, DollarSign, Download, Save, Upload }
 interface MeasurementToolbarProps {
   currentTool: 'pointer' | 'area' | 'linear' | 'count';
   onToolSelect: (tool: 'pointer' | 'area' | 'linear' | 'count') => void;
+  onUploadClick?: () => void;
 }
 
-export const MeasurementToolbar = ({ currentTool, onToolSelect }: MeasurementToolbarProps) => {
+export const MeasurementToolbar = ({ currentTool, onToolSelect, onUploadClick }: MeasurementToolbarProps) => {
   return (
     <TooltipProvider>
       <div className="p-4 border-b border-border bg-muted/20">
@@ -78,7 +79,7 @@ export const MeasurementToolbar = ({ currentTool, onToolSelect }: MeasurementToo
           <div className="flex gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={onUploadClick}>
                   <Upload className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
