@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Download } from 'lucide-react';
 
 interface PDFRendererProps {
   pdfUrl: string;
@@ -11,15 +11,35 @@ interface PDFRendererProps {
 export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
 
-  // Auto-dismiss loading after a reasonable time
+  // Check if PDF URL is valid
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (pdfUrl) {
       setLoading(false);
-    }, 2000);
-    
-    return () => clearTimeout(timer);
+      setError(null);
+    } else {
+      setError('No PDF URL provided');
+      setLoading(false);
+    }
   }, [pdfUrl]);
+
+  const handleDownload = () => {
+    if (pdfUrl) {
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = 'document.pdf';
+      link.click();
+    }
+  };
+
+  const zoomIn = () => {
+    setScale(prev => Math.min(3, prev + 0.25));
+  };
+
+  const zoomOut = () => {
+    setScale(prev => Math.max(0.5, prev - 0.25));
+  };
 
   if (error) {
     return (
@@ -50,44 +70,60 @@ export const PDFRenderer = ({ pdfUrl, canvasRef, currentTool }: PDFRendererProps
   }
 
   return (
-    <div className="relative h-full w-full">
-      {/* Temporary placeholder for PDF viewer */}
-      <div className="h-full w-full flex items-center justify-center bg-muted/20 border-2 border-dashed border-muted rounded-lg">
-        <div className="text-center space-y-4">
-          <div className="text-lg font-medium">PDF Viewer</div>
-          <div className="text-sm text-muted-foreground">URL: {pdfUrl}</div>
-          <div className="text-xs text-muted-foreground">
-            PDF viewer temporarily disabled to resolve React conflicts
-          </div>
-          
-          {/* Simple controls */}
-          <div className="flex items-center gap-2 justify-center">
-            <Button variant="outline" size="sm">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm">1 of 1</span>
-            <Button variant="outline" size="sm">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm">
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-            <span className="text-sm">100%</span>
-            <Button variant="outline" size="sm">
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-          </div>
+    <div className="relative h-full w-full flex flex-col">
+      {/* PDF Controls */}
+      <div className="flex items-center justify-between p-2 border-b bg-background shrink-0">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={zoomOut}>
+            <ZoomOut className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground min-w-16 text-center">
+            {Math.round(scale * 100)}%
+          </span>
+          <Button variant="outline" size="sm" onClick={zoomIn}>
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Download className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
-      {/* Canvas overlay for measurements */}
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 pointer-events-auto z-20" 
-        style={{
-          cursor: currentTool === 'pointer' ? 'default' : 'crosshair'
-        }} 
-      />
+      {/* PDF Viewer */}
+      <div className="flex-1 relative overflow-hidden">
+        <div 
+          className="w-full h-full overflow-auto p-4 bg-gray-100"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+          }}
+        >
+          <div className="flex justify-center">
+            <iframe
+              src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+              className="w-full h-full min-h-[800px] border border-gray-300 shadow-lg"
+              style={{
+                backgroundColor: 'white',
+              }}
+              onLoad={() => setLoading(false)}
+              onError={() => setError('Failed to load PDF')}
+              title="PDF Viewer"
+            />
+          </div>
+        </div>
+
+        {/* Canvas overlay for measurements */}
+        <canvas 
+          ref={canvasRef} 
+          className="absolute inset-0 pointer-events-auto z-10" 
+          style={{
+            cursor: currentTool === 'pointer' ? 'default' : 'crosshair'
+          }} 
+        />
+      </div>
     </div>
   );
 };
