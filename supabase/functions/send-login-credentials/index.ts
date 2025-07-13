@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Platform Admin <admin@skrobaki.com>",
+      from: "Platform Admin <kevin@skrobaki.com>",
       to: [userEmail],
       subject: "Your Login Credentials",
       html: `
