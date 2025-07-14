@@ -59,14 +59,39 @@ export const BusinessDashboard = ({ onNavigate }: BusinessDashboardProps) => {
   
   const [stats, setStats] = useState<BusinessStats>({
     totalServices: 0,
-    activeProjects: 0,
-    totalEarnings: 0,
-    averageRating: 0,
+    activeProjects: 3, // Sample data from the image
+    totalEarnings: 15420, // Sample data from the image  
+    averageRating: 4.7, // Sample data from the image
     profileViews: 0,
-    proposalsSent: 0
+    proposalsSent: 12 // Sample data from the image (completed projects)
   });
 
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([
+    {
+      id: '1',
+      type: 'project',
+      title: 'Project completed',
+      description: 'Website redesign for TechCorp',
+      timestamp: '2h ago',
+      status: 'completed'
+    },
+    {
+      id: '2', 
+      type: 'proposal',
+      title: 'New proposal submitted',
+      description: 'Mobile app development',
+      timestamp: '1d ago',
+      status: 'pending'
+    },
+    {
+      id: '3',
+      type: 'payment',
+      title: 'Payment received',
+      description: '$2,500.00 from client',
+      timestamp: '2d ago',
+      status: 'completed'
+    }
+  ]);
 
   useEffect(() => {
     if (currentCompany && 'onboarding_completed' in currentCompany && currentCompany.onboarding_completed === false) {
@@ -189,33 +214,26 @@ export const BusinessDashboard = ({ onNavigate }: BusinessDashboardProps) => {
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
       <div className="container mx-auto p-6 space-y-8">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-16 h-16">
-              <AvatarImage src={currentCompany?.logo_url} />
-              <AvatarFallback className="text-lg">
-                {getInitials(currentCompany?.name || 'Business')}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-3xl font-bold text-gradient">
-                {currentCompany?.name || 'Business Dashboard'}
-              </h1>
-              <p className="text-muted-foreground">
-                Manage your business and grow your client base
-              </p>
-            </div>
+        {/* Header matching the image */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Platform Dashboard</h1>
+            <p className="text-muted-foreground mt-1">
+              Welcome back! Here's what's happening on your platform.
+            </p>
           </div>
-          <Button variant="outline" onClick={() => onNavigate(`company/${currentCompany?.id}/edit`)}>
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
+          <Button 
+            onClick={() => onNavigate('project-dashboard')} 
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Post Project
           </Button>
         </div>
 
-        {/* Quick Stats */}
+        {/* Key Metrics - matching the image layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="glass-card">
             <CardContent className="p-6">
@@ -224,8 +242,8 @@ export const BusinessDashboard = ({ onNavigate }: BusinessDashboardProps) => {
                   <Briefcase className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Services</p>
-                  <p className="text-2xl font-bold">{stats.totalServices}</p>
+                  <p className="text-sm text-muted-foreground">Active Projects</p>
+                  <p className="text-2xl font-bold">{stats.activeProjects}</p>
                 </div>
               </div>
             </CardContent>
@@ -238,8 +256,8 @@ export const BusinessDashboard = ({ onNavigate }: BusinessDashboardProps) => {
                   <Users className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Active Projects</p>
-                  <p className="text-2xl font-bold">{stats.activeProjects}</p>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-bold">{stats.proposalsSent}</p>
                 </div>
               </div>
             </CardContent>
@@ -274,18 +292,54 @@ export const BusinessDashboard = ({ onNavigate }: BusinessDashboardProps) => {
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-            <TabsTrigger value="proposals">Proposals</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
+        {/* Navigation Tabs - matching the image */}
+        <div className="flex space-x-8 border-b border-gray-200">
+          <button 
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'overview' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button 
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'find-work' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('find-work')}
+          >
+            Find Work
+          </button>
+          <button 
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'browse-services' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('browse-services')}
+          >
+            Browse Services
+          </button>
+          <button 
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'my-work' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('my-work')}
+          >
+            My Work
+          </button>
+        </div>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+        {/* Main Content */}
+        <div className="space-y-6">
+          {/* Overview Tab Content */}
+          {activeTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Recent Activity */}
               <Card className="glass-card">
@@ -318,111 +372,81 @@ export const BusinessDashboard = ({ onNavigate }: BusinessDashboardProps) => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="w-5 h-5" />
-                    Business Tools
+                    Quick Actions
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab('services')}>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Browse Available Projects
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
                     <Plus className="w-4 h-4 mr-2" />
                     Create New Service
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => onNavigate('portfolio-manage')}>
-                    <FileText className="w-4 h-4 mr-2" />
-                    Manage Portfolio
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     View Messages
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Public Profile
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    View Analytics
                   </Button>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Services Tab */}
-          <TabsContent value="services">
-            <ServiceManagement onNavigate={onNavigate} />
-          </TabsContent>
-
-          {/* Projects Tab */}
-          <TabsContent value="projects" className="space-y-6">
+          {/* Other tab contents would go here */}
+          {activeTab === 'find-work' && (
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle>Active Projects</CardTitle>
-                <CardDescription>Track your ongoing work</CardDescription>
+                <CardTitle>Find Work</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">No active projects</h3>
-                  <p className="text-muted-foreground mb-4">Start applying to projects to see them here</p>
-                  <Button onClick={() => onNavigate('platform-dashboard')}>
-                    Browse Projects
-                  </Button>
-                </div>
+                <p className="text-muted-foreground">Browse available projects and opportunities.</p>
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          {/* Proposals Tab */}
-          <TabsContent value="proposals" className="space-y-6">
+          {activeTab === 'browse-services' && (
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle>Proposal History</CardTitle>
-                <CardDescription>Track your submitted proposals</CardDescription>
+                <CardTitle>Browse Services</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">No proposals submitted</h3>
-                  <p className="text-muted-foreground mb-4">Start bidding on projects to track proposals here</p>
-                  <Button onClick={() => onNavigate('platform-dashboard')}>
-                    Find Projects
-                  </Button>
-                </div>
+                <p className="text-muted-foreground">Explore services offered by other professionals.</p>
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="text-lg">Profile Views</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-blue-600">{stats.profileViews}</div>
-                  <p className="text-sm text-muted-foreground">This month</p>
-                </CardContent>
-              </Card>
+          {activeTab === 'my-work' && (
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle>My Work</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Manage your active projects and assignments.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="text-lg">Proposals Sent</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-green-600">{stats.proposalsSent}</div>
-                  <p className="text-sm text-muted-foreground">Total submitted</p>
-                </CardContent>
-              </Card>
+        {/* Success notification like in the image */}
+        <div className="fixed bottom-6 right-6 max-w-sm">
+          <Card className="glass-card shadow-lg border-green-200 bg-green-50/90 backdrop-blur">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <div>
+                  <p className="text-sm font-medium text-green-800">Success</p>
+                  <p className="text-xs text-green-600">Successfully logged in to Platform</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="text-lg">Success Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-purple-600">23%</div>
-                  <p className="text-sm text-muted-foreground">Proposal to project</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );
