@@ -31,6 +31,7 @@ export interface UserCompany {
   logo_url?: string;
   role: 'owner' | 'admin' | 'member';
   status: 'active' | 'invited' | 'inactive';
+  business_type?: 'individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer';
 }
 
 export interface CreateCompanyData {

@@ -6,6 +6,7 @@ import { WellnessSection } from '@/components/user-profile/WellnessSection';
 import { FamilySection } from '@/components/user-profile/FamilySection';
 import { CompanySection } from '@/components/user-profile/CompanySection';
 import { SecuritySection } from '@/components/user-profile/SecuritySection';
+import { CombinedProfileSection } from './CombinedProfileSection';
 
 interface UserEditContentProps {
   activeSection: string;
@@ -27,6 +28,12 @@ interface UserEditContentProps {
     companyMembers: string;
     companyLogo: string;
     companySlogan: string;
+    companyPhone: string;
+    businessType: string;
+    industry: string;
+    companySize: string;
+    yearEstablished: number;
+    serviceAreas: string[];
   };
   onInputChange: (field: string, value: string) => void;
   onNavigate: (page: string) => void;
@@ -43,17 +50,28 @@ export const UserEditContent = ({
   const renderContent = () => {
     switch (activeSection) {
       case 'personal':
-        return <PersonalSection profileData={{
-          avatarUrl: profileData.avatarUrl,
+        return <CombinedProfileSection profileData={{
           firstName: profileData.firstName,
           lastName: profileData.lastName,
           email: profileData.email,
           phone: profileData.phone,
-          birthDate: profileData.birthDate,
+          avatarUrl: profileData.avatarUrl,
           jobTitle: profileData.jobTitle,
           location: profileData.location,
+          bio: profileData.bio,
+          birthDate: profileData.birthDate,
           website: profileData.website,
-          bio: profileData.bio
+          companyName: profileData.companyName,
+          abn: profileData.abn,
+          companyWebsite: profileData.companyWebsite,
+          companyAddress: profileData.companyAddress,
+          companyPhone: profileData.companyPhone,
+          companySlogan: profileData.companySlogan,
+          businessType: profileData.businessType,
+          industry: profileData.industry,
+          companySize: profileData.companySize,
+          yearEstablished: profileData.yearEstablished,
+          serviceAreas: profileData.serviceAreas || [],
         }} onInputChange={onInputChange} />;
       case 'time':
         return <TimeSection onNavigate={onNavigate} />;
