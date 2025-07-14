@@ -14,14 +14,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Globe, MapPin, Phone, Hash, MessageSquare, FolderKanban, DollarSign, TrendingUp } from 'lucide-react';
+import { Building2, Globe, MapPin, Phone, Hash, MessageSquare, FolderKanban, DollarSign, TrendingUp, Trash2 } from 'lucide-react';
 import { Company } from '@/types/company';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useCompanies } from '@/hooks/useCompanies';
+import { useToast } from '@/hooks/use-toast';
 
 interface BusinessEditDialogProps {
   company: Company | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (updatedCompany: Partial<Company>) => void;
+  onDelete?: (companyId: string) => void;
 }
 
 interface CompanyModules {
@@ -34,7 +38,8 @@ export const BusinessEditDialog = ({
   company,
   open,
   onOpenChange,
-  onSave
+  onSave,
+  onDelete
 }: BusinessEditDialogProps) => {
   const [formData, setFormData] = useState<Partial<Company>>({});
   const [modules, setModules] = useState<CompanyModules>({
@@ -43,6 +48,10 @@ export const BusinessEditDialog = ({
     sales: false,
   });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const { isSuperAdmin } = useUserRole();
+  const { deleteCompany } = useCompanies();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (company) {
@@ -73,6 +82,29 @@ export const BusinessEditDialog = ({
       await onSave(formData);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!company?.id) return;
+    
+    setDeleting(true);
+    try {
+      await deleteCompany(company.id);
+      toast({
+        title: "Business deleted",
+        description: "The business has been successfully deleted from the database.",
+      });
+      onDelete?.(company.id);
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete business",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -255,13 +287,28 @@ export const BusinessEditDialog = ({
           </Card>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
+        <DialogFooter className="flex justify-between">
+          <div>
+            {isSuperAdmin() && (
+              <Button 
+                variant="destructive" 
+                onClick={handleDelete} 
+                disabled={saving || deleting}
+                className="flex items-center space-x-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>{deleting ? 'Deleting...' : 'Delete Business'}</span>
+              </Button>
+            )}
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving || deleting}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving || deleting}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

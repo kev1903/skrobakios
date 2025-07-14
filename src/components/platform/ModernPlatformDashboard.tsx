@@ -183,6 +183,12 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
     }
   };
 
+  const handleDeleteCompany = async (companyId: string) => {
+    // Reload platform data after deletion
+    loadPlatformData();
+    setSelectedCompany(null);
+  };
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -476,6 +482,7 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
           onSave={handleSaveCompany}
+          onDelete={handleDeleteCompany}
         />
       </div>
     </div>

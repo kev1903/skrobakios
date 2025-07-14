@@ -139,6 +139,12 @@ export const PlatformDashboard = ({
       });
     }
   };
+
+  const handleDeleteCompany = async (companyId: string) => {
+    // Remove the deleted company from local state
+    setCompanies(prev => prev.filter(company => company.id !== companyId));
+    setSelectedCompany(null);
+  };
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -531,7 +537,7 @@ export const PlatformDashboard = ({
 
 
             {/* Edit Dialog */}
-            <BusinessEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} />
+            <BusinessEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} onDelete={handleDeleteCompany} />
           </div>;
       case 'modules':
         return <div className="space-y-6">

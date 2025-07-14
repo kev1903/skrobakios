@@ -113,6 +113,12 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
     }
   };
 
+  const handleDeleteCompany = async (companyId: string) => {
+    // Remove the deleted company from local state
+    setCompanies(prev => prev.filter(company => company.id !== companyId));
+    setSelectedCompany(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
       {/* Header */}
@@ -170,6 +176,7 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleSaveCompany}
+        onDelete={handleDeleteCompany}
       />
     </div>
   );
