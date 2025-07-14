@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import { Task, useTaskContext } from './TaskContext';
 import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
+import { EnhancedTaskEditForm } from './enhanced/EnhancedTaskEditForm';
 import { TaskEditActions } from './TaskEditActions';
 import { SubtasksList } from './subtasks';
 import { TaskCommentsActivity } from './TaskCommentsActivity';
@@ -129,11 +130,16 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         />
 
         <SheetHeader>
-          <TaskEditForm 
-            task={editedTask} 
-            onFieldChange={handleFieldChange}
-            projectId={projectId}
-          />
+        <EnhancedTaskEditForm
+          task={editedTask}
+          projectId={projectId || ''}
+          onTaskUpdate={(updates) => {
+            setEditedTask(prev => prev ? { ...prev, ...updates } : prev);
+            setHasUnsavedChanges(true);
+          }}
+          onSave={handleSave}
+          onCancel={handleClose}
+        />
         </SheetHeader>
 
         {/* Attachments Section */}

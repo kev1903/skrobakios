@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Project } from '@/hooks/useProjects';
 import { TaskProvider, useTaskContext } from './tasks/TaskContext';
 import { TaskListView } from './tasks/TaskListView';
+import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
 import { TaskTimelineView } from './tasks/TaskTimelineView';
 import { TaskCalendarView } from './tasks/TaskCalendarView';
@@ -37,7 +38,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const renderActiveView = () => {
     switch (activeTab) {
       case "list":
-        return <TaskListView projectId={project.id} viewMode={viewMode} />;
+        return <EnhancedTaskView projectId={project.id} viewMode={viewMode} />;
       case "board":
         return <TaskBoardView projectId={project.id} />;
       case "timeline":

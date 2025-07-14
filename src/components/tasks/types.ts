@@ -4,7 +4,7 @@ export interface Task {
   projectName?: string;
   taskName: string;
   priority: 'High' | 'Medium' | 'Low';
-  assignedTo: { name: string; avatar: string };
+  assignedTo: { name: string; avatar: string; userId?: string };
   dueDate: string;
   status: 'Completed' | 'In Progress' | 'Pending' | 'Not Started';
   progress: number;
