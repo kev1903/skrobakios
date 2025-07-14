@@ -55,6 +55,11 @@ import { MilestonePage } from "@/components/MilestonePage";
 import { BusinessInvitationManager } from "@/components/invitations/BusinessInvitationManager";
 import { PermissionManager } from "@/components/permissions/PermissionManager";
 import { InvitationAcceptancePage } from "@/components/invitations/InvitationAcceptancePage";
+import { PersonalPage } from "@/components/PersonalPage";
+import { TimePage } from "@/components/TimePage";
+import { WellnessPage } from "@/components/WellnessPage";
+import { FamilyPage } from "@/components/FamilyPage";
+import { SecurityPage } from "@/components/SecurityPage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -310,6 +315,16 @@ export const ContentRenderer = ({
       return <PortfolioViewPage onNavigate={onNavigate} />;
     case "reviews":
       return <ReviewsPage onNavigate={onNavigate} />;
+    case "personal":
+      return <PersonalPage onNavigate={onNavigate} />;
+    case "time":
+      return <TimePage onNavigate={onNavigate} />;
+    case "wellness":
+      return <WellnessPage onNavigate={onNavigate} />;
+    case "family":
+      return <FamilyPage onNavigate={onNavigate} />;
+    case "security":
+      return <SecurityPage onNavigate={onNavigate} />;
     case "inbox":
     case "asset":
     case "schedules":

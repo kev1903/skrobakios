@@ -1,17 +1,32 @@
 
 import { 
+  User,
+  Clock, 
+  DollarSign, 
+  Heart, 
+  Users,
+  Building2,
+  Shield,
   Home, 
   Calendar, 
   Mail, 
   File, 
   Briefcase, 
-  DollarSign, 
   TrendingUp, 
   HelpCircle,
-  Shield,
-  Building2,
 } from "lucide-react";
 import { NavigationItem } from './types';
+
+// Personal Profile Navigation - Based on user's reference image
+export const personalProfileNavigation: NavigationItem[] = [
+  { id: "personal", label: "Personal", icon: User },
+  { id: "time", label: "Time", icon: Clock },
+  { id: "finance", label: "Finance", icon: DollarSign },
+  { id: "wellness", label: "Wellness", icon: Heart },
+  { id: "family", label: "Family", icon: Users },
+  { id: "company-settings", label: "Company", icon: Building2 },
+  { id: "security", label: "Security", icon: Shield },
+];
 
 export const generalNavigation: NavigationItem[] = [
   { id: "home", label: "Home", icon: Home },
@@ -24,12 +39,10 @@ export const businessNavigation: NavigationItem[] = [
   { id: "files", label: "Files", icon: File },
   { id: "projects", label: "Projects", icon: Briefcase },
   { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign },
-  { id: "finance", label: "Finance", icon: TrendingUp },
   { id: "sales", label: "Sales", icon: TrendingUp },
 ];
 
 export const supportNavigation: NavigationItem[] = [
-  { id: "company-settings", label: "Company", icon: Building2 },
   { id: "platform", label: "Platform", icon: Shield },
   { id: "support", label: "Help Center", icon: HelpCircle },
 ];
