@@ -8,6 +8,11 @@ export interface Company {
   phone?: string;
   abn?: string;
   slogan?: string;
+  business_type?: 'individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer';
+  industry?: string;
+  company_size?: string;
+  year_established?: number;
+  service_areas?: string[];
   created_at: string;
   updated_at: string;
   created_by?: string;

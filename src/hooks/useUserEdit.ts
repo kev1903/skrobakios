@@ -39,7 +39,13 @@ export const useUserEdit = () => {
     companyAddress: fullCompany?.address || '',
     companyMembers: '',
     companyLogo: fullCompany?.logo_url || currentCompany?.logo_url || '',
-    companySlogan: fullCompany?.slogan || ''
+    companySlogan: fullCompany?.slogan || '',
+    companyPhone: fullCompany?.phone || '',
+    businessType: fullCompany?.business_type || '',
+    industry: fullCompany?.industry || '',
+    companySize: fullCompany?.company_size || '',
+    yearEstablished: fullCompany?.year_established || 0,
+    serviceAreas: fullCompany?.service_areas || [],
   });
 
   // Initialize form data when profile loads
@@ -93,7 +99,13 @@ export const useUserEdit = () => {
             companyWebsite: company?.website || '',
             companyAddress: company?.address || '',
             companyLogo: company?.logo_url || '',
-            companySlogan: company?.slogan || ''
+            companySlogan: company?.slogan || '',
+            companyPhone: company?.phone || '',
+            businessType: company?.business_type || '',
+            industry: company?.industry || '',
+            companySize: company?.company_size || '',
+            yearEstablished: company?.year_established || 0,
+            serviceAreas: company?.service_areas || [],
           }));
         } catch (error) {
           console.error('Error fetching company details:', error);
