@@ -13,6 +13,7 @@ import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
+import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
 import { LandingPage } from "@/components/LandingPage";
 import { ModuleProtectedRoute } from "@/components/auth/ModuleProtectedRoute";
 
@@ -38,6 +39,7 @@ import { AdminPage } from "@/components/admin/AdminPage";
 import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
+import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
 import { Project } from "@/hooks/useProjects";
 import { CompanyManagementPage } from "@/components/CompanyManagementPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
@@ -68,6 +70,8 @@ export const ContentRenderer = ({
       return <LandingPage onNavigate={onNavigate} />;
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
+    case "platform-signup":
+      return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "tasks":
@@ -264,7 +268,7 @@ export const ContentRenderer = ({
     case "platform":
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":
-      return <PlatformDashboard onNavigate={onNavigate} />;
+      return <ModernPlatformDashboard onNavigate={onNavigate} />;
     case "personal-dashboard":
       return <PersonalDashboard onNavigate={onNavigate} />;
     case "portfolio-manage":

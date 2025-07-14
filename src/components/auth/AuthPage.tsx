@@ -285,6 +285,19 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{' '}
+                  <Button
+                    variant="link"
+                    className="p-0 text-sm font-medium"
+                    onClick={() => onNavigate('platform-signup')}
+                  >
+                    Sign up for free
+                  </Button>
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

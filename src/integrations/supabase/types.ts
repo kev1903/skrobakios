@@ -18,7 +18,11 @@ export type Database = {
         Row: {
           abn: string | null
           address: string | null
+          business_hours: Json | null
+          business_type: Database["public"]["Enums"]["business_type"] | null
+          certification_status: string | null
           company_size: string | null
+          contact_preferences: Json | null
           created_at: string
           created_by: string | null
           id: string
@@ -27,13 +31,17 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           name: string
+          onboarding_completed: boolean | null
           phone: string | null
+          portfolio_highlights: string[] | null
           public_page: boolean | null
           rating: number | null
           review_count: number | null
+          service_areas: string[] | null
           slogan: string | null
           slug: string
           social_links: Json | null
+          subscription_tier: string | null
           updated_at: string
           verified: boolean | null
           website: string | null
@@ -42,7 +50,11 @@ export type Database = {
         Insert: {
           abn?: string | null
           address?: string | null
+          business_hours?: Json | null
+          business_type?: Database["public"]["Enums"]["business_type"] | null
+          certification_status?: string | null
           company_size?: string | null
+          contact_preferences?: Json | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -51,13 +63,17 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           name: string
+          onboarding_completed?: boolean | null
           phone?: string | null
+          portfolio_highlights?: string[] | null
           public_page?: boolean | null
           rating?: number | null
           review_count?: number | null
+          service_areas?: string[] | null
           slogan?: string | null
           slug: string
           social_links?: Json | null
+          subscription_tier?: string | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
@@ -66,7 +82,11 @@ export type Database = {
         Update: {
           abn?: string | null
           address?: string | null
+          business_hours?: Json | null
+          business_type?: Database["public"]["Enums"]["business_type"] | null
+          certification_status?: string | null
           company_size?: string | null
+          contact_preferences?: Json | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -75,13 +95,17 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           name?: string
+          onboarding_completed?: boolean | null
           phone?: string | null
+          portfolio_highlights?: string[] | null
           public_page?: boolean | null
           rating?: number | null
           review_count?: number | null
+          service_areas?: string[] | null
           slogan?: string | null
           slug?: string
           social_links?: Json | null
+          subscription_tier?: string | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
@@ -161,6 +185,78 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          agreed_price: number
+          client_id: string
+          contract_number: string
+          created_at: string
+          currency: string | null
+          end_date: string | null
+          id: string
+          milestones: Json | null
+          payment_schedule: Json | null
+          project_request_id: string | null
+          proposal_id: string | null
+          provider_id: string
+          start_date: string
+          status: string | null
+          terms: string
+          updated_at: string
+        }
+        Insert: {
+          agreed_price: number
+          client_id: string
+          contract_number: string
+          created_at?: string
+          currency?: string | null
+          end_date?: string | null
+          id?: string
+          milestones?: Json | null
+          payment_schedule?: Json | null
+          project_request_id?: string | null
+          proposal_id?: string | null
+          provider_id: string
+          start_date: string
+          status?: string | null
+          terms: string
+          updated_at?: string
+        }
+        Update: {
+          agreed_price?: number
+          client_id?: string
+          contract_number?: string
+          created_at?: string
+          currency?: string | null
+          end_date?: string | null
+          id?: string
+          milestones?: Json | null
+          payment_schedule?: Json | null
+          project_request_id?: string | null
+          proposal_id?: string | null
+          provider_id?: string
+          start_date?: string
+          status?: string | null
+          terms?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_project_request_id_fkey"
+            columns: ["project_request_id"]
+            isOneToOne: false
+            referencedRelation: "project_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -604,6 +700,65 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_invitations: {
+        Row: {
+          accepted_at: string | null
+          company_id: string | null
+          created_at: string
+          declined_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invitation_type: string
+          invited_by: string
+          message: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: string | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          company_id?: string | null
+          created_at?: string
+          declined_at?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          invitation_type: string
+          invited_by: string
+          message?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          company_id?: string | null
+          created_at?: string
+          declined_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invitation_type?: string
+          invited_by?: string
+          message?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_invitations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_items: {
         Row: {
           case_study_url: string | null
@@ -904,6 +1059,71 @@ export type Database = {
           },
         ]
       }
+      project_requests: {
+        Row: {
+          attachments: string[] | null
+          budget_max: number | null
+          budget_min: number | null
+          client_id: string
+          created_at: string
+          currency: string | null
+          deadline: string | null
+          description: string
+          id: string
+          location_preference: string | null
+          priority: string | null
+          required_skills: string[] | null
+          service_category_id: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: string[] | null
+          budget_max?: number | null
+          budget_min?: number | null
+          client_id: string
+          created_at?: string
+          currency?: string | null
+          deadline?: string | null
+          description: string
+          id?: string
+          location_preference?: string | null
+          priority?: string | null
+          required_skills?: string[] | null
+          service_category_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: string[] | null
+          budget_max?: number | null
+          budget_min?: number | null
+          client_id?: string
+          created_at?: string
+          currency?: string | null
+          deadline?: string | null
+          description?: string
+          id?: string
+          location_preference?: string | null
+          priority?: string | null
+          required_skills?: string[] | null
+          service_category_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_requests_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           bim_model_url: string | null
@@ -975,6 +1195,69 @@ export type Database = {
           },
         ]
       }
+      proposals: {
+        Row: {
+          created_at: string
+          currency: string | null
+          delivery_date: string | null
+          estimated_duration: number | null
+          id: string
+          project_request_id: string | null
+          proposal_text: string
+          proposed_price: number
+          provider_id: string
+          service_id: string | null
+          status: string | null
+          terms_and_conditions: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          delivery_date?: string | null
+          estimated_duration?: number | null
+          id?: string
+          project_request_id?: string | null
+          proposal_text: string
+          proposed_price: number
+          provider_id: string
+          service_id?: string | null
+          status?: string | null
+          terms_and_conditions?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          delivery_date?: string | null
+          estimated_duration?: number | null
+          id?: string
+          project_request_id?: string | null
+          proposal_text?: string
+          proposed_price?: number
+          provider_id?: string
+          service_id?: string | null
+          status?: string | null
+          terms_and_conditions?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_project_request_id_fkey"
+            columns: ["project_request_id"]
+            isOneToOne: false
+            referencedRelation: "project_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           created_at: string | null
@@ -1016,6 +1299,118 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      service_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          parent_id: string | null
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parent_id?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parent_id?: string | null
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          base_price: number | null
+          category_id: string | null
+          created_at: string
+          currency: string | null
+          deliverables: string | null
+          description: string
+          duration_estimate: number | null
+          featured: boolean | null
+          id: string
+          is_active: boolean | null
+          price_type: string | null
+          provider_id: string
+          requirements: string | null
+          short_description: string | null
+          skills_required: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number | null
+          category_id?: string | null
+          created_at?: string
+          currency?: string | null
+          deliverables?: string | null
+          description: string
+          duration_estimate?: number | null
+          featured?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          price_type?: string | null
+          provider_id: string
+          requirements?: string | null
+          short_description?: string | null
+          skills_required?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number | null
+          category_id?: string | null
+          created_at?: string
+          currency?: string | null
+          deliverables?: string | null
+          description?: string
+          duration_estimate?: number | null
+          featured?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          price_type?: string | null
+          provider_id?: string
+          requirements?: string | null
+          short_description?: string | null
+          skills_required?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subtasks: {
         Row: {
@@ -1767,6 +2162,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_contract_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_invitation_token: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1875,7 +2274,17 @@ export type Database = {
     }
     Enums: {
       access_level: "private_to_members" | "public" | "restricted"
-      app_role: "superadmin" | "platform_admin" | "company_admin"
+      app_role:
+        | "superadmin"
+        | "platform_admin"
+        | "company_admin"
+        | "service_provider"
+      business_type:
+        | "individual"
+        | "small_business"
+        | "enterprise"
+        | "agency"
+        | "freelancer"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
@@ -2005,7 +2414,19 @@ export const Constants = {
   public: {
     Enums: {
       access_level: ["private_to_members", "public", "restricted"],
-      app_role: ["superadmin", "platform_admin", "company_admin"],
+      app_role: [
+        "superadmin",
+        "platform_admin",
+        "company_admin",
+        "service_provider",
+      ],
+      business_type: [
+        "individual",
+        "small_business",
+        "enterprise",
+        "agency",
+        "freelancer",
+      ],
       member_role: ["project_admin", "editor", "viewer", "guest"],
     },
   },
