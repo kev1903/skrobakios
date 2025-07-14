@@ -58,7 +58,17 @@ export const useCompanies = () => {
       // Create company
       const { data: company, error: companyError } = await supabase
         .from('companies')
-        .insert([{ ...companyData, created_by: userData.user.id }])
+        .insert([{ 
+          name: companyData.name,
+          slug: companyData.slug,
+          logo_url: companyData.logo_url,
+          website: companyData.website,
+          address: companyData.address,
+          phone: companyData.phone,
+          abn: companyData.abn,
+          slogan: companyData.slogan,
+          created_by: userData.user.id 
+        }])
         .select()
         .single();
 

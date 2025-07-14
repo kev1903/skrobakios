@@ -42,4 +42,11 @@ export interface CreateCompanyData {
   phone?: string;
   abn?: string;
   slogan?: string;
+  business_type?: string;
+  industry?: string;
+  company_size?: string;
+  service_areas?: string[];
+  certification_status?: string;
+  year_established?: number;
+  onboarding_completed?: boolean;
 }

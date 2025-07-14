@@ -40,6 +40,7 @@ import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
+import { BusinessDashboard } from "@/components/business/BusinessDashboard";
 import { Project } from "@/hooks/useProjects";
 import { CompanyManagementPage } from "@/components/CompanyManagementPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
@@ -269,6 +270,8 @@ export const ContentRenderer = ({
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":
       return <ModernPlatformDashboard onNavigate={onNavigate} />;
+    case "business-dashboard":
+      return <BusinessDashboard onNavigate={onNavigate} />;
     case "personal-dashboard":
       return <PersonalDashboard onNavigate={onNavigate} />;
     case "portfolio-manage":
