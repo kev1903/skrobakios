@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield } from 'lucide-react';
-import { CompanySwitcher } from '@/components/CompanySwitcher';
+import { ContextSwitcher } from '@/components/ContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanyModules } from '@/hooks/useCompanyModules';
 
@@ -61,7 +61,7 @@ export const NavigationRibbon = ({
       <div className="flex flex-col h-full pt-20">
         {/* Company Swapper */}
         <div className="px-3 pb-4 border-b border-white/20">
-          <CompanySwitcher onNavigate={onNavigate} />
+          <ContextSwitcher onNavigate={onNavigate} />
         </div>
         
         {/* Navigation Items - Only show enabled modules */}

@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
+import { AppContextProvider } from "./contexts/AppContextProvider";
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
@@ -115,7 +116,9 @@ const AppContent = () => {
         <Route path="/" element={
           <UserProvider>
             <CompanyProvider>
-              <Index />
+              <AppContextProvider>
+                <Index />
+              </AppContextProvider>
             </CompanyProvider>
           </UserProvider>
         } />

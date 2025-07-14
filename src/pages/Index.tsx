@@ -32,7 +32,7 @@ const Index = () => {
             selectedProject={selectedProject}
             currentProject={currentProject}
           />
-        ) : currentPage === "home" ? (
+        ) : currentPage === "home" || currentPage === "personal-dashboard" ? (
           // Home page gets special treatment with map background and chat
           <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
             {/* Background Pattern */}

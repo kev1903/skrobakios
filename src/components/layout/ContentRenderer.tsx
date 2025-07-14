@@ -40,6 +40,7 @@ import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { Project } from "@/hooks/useProjects";
 import { CompanyManagementPage } from "@/components/CompanyManagementPage";
+import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -260,6 +261,8 @@ export const ContentRenderer = ({
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":
       return <PlatformDashboard onNavigate={onNavigate} />;
+    case "personal-dashboard":
+      return <PersonalDashboard onNavigate={onNavigate} />;
     case "inbox":
     case "asset":
     case "schedules":
