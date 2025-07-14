@@ -20,6 +20,14 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { roles, loading: roleLoading } = useUserRole();
 
+  console.log('RoleProtectedRoute Debug:', {
+    requiredRoles,
+    userRoles: roles,
+    authLoading,
+    roleLoading,
+    isAuthenticated
+  });
+
   // Show loading while checking authentication and roles
   if (authLoading || roleLoading) {
     return (

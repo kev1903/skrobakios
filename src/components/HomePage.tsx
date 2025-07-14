@@ -68,6 +68,7 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
   const [error, setError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { currentCompany, loading: companyLoading } = useCompany();
+  const { roles, isSuperAdmin } = useUserRole();
   const [mapConfig, setMapConfig] = useState({
     center: [144.9631, -37.8136] as [number, number],
     zoom: 6.5,
@@ -453,7 +454,8 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         }
 
         // Check if we have a current company selected or if companies are still loading
-        if (!currentCompany?.id) {
+        // Superadmins can view projects from all companies, so they don't need a specific company selected
+        if (!currentCompany?.id && !isSuperAdmin()) {
           if (companyLoading) {
             console.log('Companies are still loading, waiting...');
             setIsLoading(true);
@@ -466,11 +468,14 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
           }
         }
 
-        // Fetch projects from database filtered by current company
-        const { data: projectsData, error: projectsError } = await supabase
-          .from('projects')
-          .select('*')
-          .eq('company_id', currentCompany.id)
+        // Fetch projects from database - superadmins see all projects, others see company-specific
+        let projectsQuery = supabase.from('projects').select('*');
+        
+        if (!isSuperAdmin() && currentCompany?.id) {
+          projectsQuery = projectsQuery.eq('company_id', currentCompany.id);
+        }
+        
+        const { data: projectsData, error: projectsError } = await projectsQuery
           .order('created_at', { ascending: false });
 
         if (projectsError) {
@@ -547,7 +552,7 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         }
       }
     };
-  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing, currentCompany?.id, companyLoading]); // Re-run when map config or company changes
+  }, [mapConfig.center, mapConfig.zoom, mapConfig.pitch, mapConfig.bearing, currentCompany?.id, companyLoading, isSuperAdmin]); // Re-run when map config, company changes, or role changes
 
   // Watch for company loading state changes to retry initialization
   useEffect(() => {
@@ -576,7 +581,8 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
 
   // Set up real-time updates for projects and re-initialize when company changes
   useEffect(() => {
-    if (!currentCompany?.id || !map.current) return;
+    // For superadmins, subscribe to all project changes. For regular users, only their company's projects
+    if (!map.current || (!currentCompany?.id && !isSuperAdmin())) return;
 
     const channel = supabase
       .channel('project-changes')
@@ -586,7 +592,7 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
           event: '*',
           schema: 'public',
           table: 'projects',
-          filter: `company_id=eq.${currentCompany.id}`
+          ...(isSuperAdmin() ? {} : { filter: `company_id=eq.${currentCompany!.id}` })
         },
         () => {
           // When projects change, re-initialize the map with new data
@@ -595,14 +601,16 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
             const markers = document.querySelectorAll('.project-marker');
             markers.forEach(marker => marker.remove());
             
-            // Re-fetch and display projects for current company
+            // Re-fetch and display projects
             setTimeout(async () => {
               try {
-                const { data: projectsData } = await supabase
-                  .from('projects')
-                  .select('*')
-                  .eq('company_id', currentCompany.id)
-                  .order('created_at', { ascending: false });
+                let projectsQuery = supabase.from('projects').select('*');
+                
+                if (!isSuperAdmin() && currentCompany?.id) {
+                  projectsQuery = projectsQuery.eq('company_id', currentCompany.id);
+                }
+                
+                const { data: projectsData } = await projectsQuery.order('created_at', { ascending: false });
 
                 if (projectsData && projectsData.length > 0) {
                   await addProjectMarkers(projectsData);
@@ -619,7 +627,7 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [currentCompany?.id]);
+  }, [currentCompany?.id, isSuperAdmin]);
 
   // Re-initialize map when company changes
   useEffect(() => {

@@ -20,6 +20,8 @@ export const useUserRole = () => {
       }
 
       try {
+        console.log('Fetching user roles for user:', user.id);
+        
         // Fetch all roles for the user
         const { data: rolesData, error } = await supabase
           .from('user_roles')
@@ -27,12 +29,15 @@ export const useUserRole = () => {
           .eq('user_id', user.id)
           .order('role');
 
+        console.log('User roles query result:', { rolesData, error });
+
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching user roles:', error);
           setRole('company_admin'); 
           setRoles(['company_admin']);
         } else if (rolesData && rolesData.length > 0) {
           const userRoles = rolesData.map(r => r.role as UserRole);
+          console.log('User roles found:', userRoles);
           setRoles(userRoles);
           
           // Set primary role (highest priority)
@@ -40,9 +45,11 @@ export const useUserRole = () => {
           const primaryRole = userRoles.reduce((highest, current) => 
             roleHierarchy[current] > roleHierarchy[highest] ? current : highest
           );
+          console.log('Primary role set to:', primaryRole);
           setRole(primaryRole);
         } else {
           // No roles found, default to company_admin
+          console.log('No roles found, defaulting to company_admin');
           setRole('company_admin');
           setRoles(['company_admin']);
         }
