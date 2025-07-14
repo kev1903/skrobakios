@@ -24,12 +24,16 @@ export type Database = {
           id: string
           industry: string | null
           logo_url: string | null
+          meta_description: string | null
+          meta_title: string | null
           name: string
           phone: string | null
+          public_page: boolean | null
           rating: number | null
           review_count: number | null
           slogan: string | null
           slug: string
+          social_links: Json | null
           updated_at: string
           verified: boolean | null
           website: string | null
@@ -44,12 +48,16 @@ export type Database = {
           id?: string
           industry?: string | null
           logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
           phone?: string | null
+          public_page?: boolean | null
           rating?: number | null
           review_count?: number | null
           slogan?: string | null
           slug: string
+          social_links?: Json | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
@@ -64,12 +72,16 @@ export type Database = {
           id?: string
           industry?: string | null
           logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
           phone?: string | null
+          public_page?: boolean | null
           rating?: number | null
           review_count?: number | null
           slogan?: string | null
           slug?: string
+          social_links?: Json | null
           updated_at?: string
           verified?: boolean | null
           website?: string | null
@@ -656,6 +668,8 @@ export type Database = {
           job_title: string | null
           last_name: string | null
           location: string | null
+          meta_description: string | null
+          meta_title: string | null
           password_change_required: boolean | null
           phone: string | null
           professional_title: string | null
@@ -664,6 +678,8 @@ export type Database = {
           review_count: number | null
           services: string[] | null
           skills: string[] | null
+          slug: string | null
+          social_links: Json | null
           status: string
           updated_at: string
           user_id: string | null
@@ -686,6 +702,8 @@ export type Database = {
           job_title?: string | null
           last_name?: string | null
           location?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           password_change_required?: boolean | null
           phone?: string | null
           professional_title?: string | null
@@ -694,6 +712,8 @@ export type Database = {
           review_count?: number | null
           services?: string[] | null
           skills?: string[] | null
+          slug?: string | null
+          social_links?: Json | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -716,6 +736,8 @@ export type Database = {
           job_title?: string | null
           last_name?: string | null
           location?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           password_change_required?: boolean | null
           phone?: string | null
           professional_title?: string | null
@@ -724,6 +746,8 @@ export type Database = {
           review_count?: number | null
           services?: string[] | null
           skills?: string[] | null
+          slug?: string | null
+          social_links?: Json | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -1628,6 +1652,10 @@ export type Database = {
       }
       generate_access_token: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_slug: {
+        Args: { input_text: string }
         Returns: string
       }
       get_current_context: {

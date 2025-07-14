@@ -18,6 +18,9 @@ import { CompanyEditPage } from "./components/CompanyEditPage";
 import { UserProfileEditPage } from "./components/admin/UserProfileEditPage";
 import { ImpersonationGuard } from "./components/admin/ImpersonationGuard";
 import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
+import { PublicUserProfile } from "./components/public/PublicUserProfile";
+import { PublicCompanyProfile } from "./components/public/PublicCompanyProfile";
+import { PublicDirectory } from "./components/public/PublicDirectory";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -148,6 +151,11 @@ const AppContent = () => {
             </CompanyProvider>
           </UserProvider>
         } />
+        
+        {/* Public Routes - No authentication required */}
+        <Route path="/directory" element={<PublicDirectory />} />
+        <Route path="/profile/:slug" element={<PublicUserProfile />} />
+        <Route path="/company/:slug" element={<PublicCompanyProfile />} />
       </Routes>
     </>
   );
