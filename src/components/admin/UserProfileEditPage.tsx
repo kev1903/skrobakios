@@ -28,6 +28,7 @@ export const UserProfileEditPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
   const [credentialsData, setCredentialsData] = useState({
     email: '',
     currentPassword: '',
@@ -242,6 +243,66 @@ export const UserProfileEditPage = () => {
         description: "An error occurred while sending the password reset email.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleSecurePasswordReset = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Email Required",
+        description: "User email is required to send password reset.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isSuperAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only superadmins can initiate password resets.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSendingReset(true);
+    
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (!currentUser) {
+        throw new Error('Authentication required');
+      }
+
+      const { error } = await supabase.functions.invoke('send-password-reset', {
+        body: {
+          userEmail: user.email,
+          adminEmail: currentUser.email,
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Reset Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Password Reset Sent",
+        description: "A secure password reset email has been sent to the user with enhanced security features.",
+      });
+    } catch (error) {
+      console.error('Error sending password reset:', error);
+      toast({
+        title: "Reset Failed",
+        description: "An error occurred while sending the password reset email.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingReset(false);
     }
   };
 
@@ -516,141 +577,189 @@ export const UserProfileEditPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Login Credentials */}
-              <Card>
+              {/* Secure Login Credentials */}
+              <Card className="border-amber-200 bg-amber-50/50">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-amber-800">
                     <Key className="w-5 h-5" />
-                    Login Credentials
+                    🔒 Secure Login Credentials
                   </CardTitle>
-                  <CardDescription>
-                    Manage authentication credentials and security settings
+                  <CardDescription className="text-amber-700">
+                    Manage authentication credentials and security settings with enhanced protection
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div>
-                    <Label htmlFor="credentials_email">Email Address</Label>
+                  {/* Email Section */}
+                  <div className="p-4 bg-white rounded-lg border border-amber-200">
+                    <Label htmlFor="credentials_email" className="text-sm font-semibold text-gray-800">
+                      Login Email Address
+                    </Label>
                     <Input
                       id="credentials_email"
                       type="email"
                       value={credentialsData.email}
                       onChange={(e) => handleCredentialsChange('email', e.target.value)}
                       placeholder="user@example.com"
+                      className="mt-2 border-amber-200 focus:border-amber-400"
+                      disabled={!isSuperAdmin()}
                     />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      This email will be used for login and notifications
+                    <p className="text-xs text-amber-700 mt-1 flex items-center gap-1">
+                      <Shield className="w-3 h-3" />
+                      Primary authentication email - changes require verification
                     </p>
                   </div>
 
-                  <div>
-                    <Label htmlFor="current_password">Current Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="current_password"
-                        type={showCurrentPassword ? "text" : "password"}
-                        value={credentialsData.currentPassword}
-                        onChange={(e) => handleCredentialsChange('currentPassword', e.target.value)}
-                        placeholder="Enter current password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      >
-                        {showCurrentPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleResetPassword}
-                        className="h-8"
-                      >
-                        <RefreshCw className="h-3 w-3 mr-1" />
-                        Reset Password
-                      </Button>
-                      <p className="text-sm text-muted-foreground">
-                        Send password reset email to user
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="new_password">New Password</Label>
-                      <div className="relative">
-                        <Input
-                          id="new_password"
-                          type={showPassword ? "text" : "password"}
-                          value={credentialsData.newPassword}
-                          onChange={(e) => handleCredentialsChange('newPassword', e.target.value)}
-                          placeholder="Enter new password"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
+                  {/* Password Security Section */}
+                  <div className="p-4 bg-white rounded-lg border border-red-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="font-semibold text-red-800 flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          Password Security
+                        </h4>
+                        <p className="text-xs text-red-600 mt-1">Administrative password management</p>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Leave blank to keep current password
-                      </p>
-                    </div>
-                    <div>
-                      <Label htmlFor="confirm_password">Confirm Password</Label>
-                      <Input
-                        id="confirm_password"
-                        type={showPassword ? "text" : "password"}
-                        value={credentialsData.confirmPassword}
-                        onChange={(e) => handleCredentialsChange('confirmPassword', e.target.value)}
-                        placeholder="Confirm new password"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 pt-4 border-t">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleEmailCredentials}
-                      disabled={sendingEmail}
-                      className="flex items-center gap-2"
-                    >
-                      {sendingEmail ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Mail className="h-4 w-4" />
+                      {profileData && (
+                        <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full border border-blue-200">
+                          Active User Account
+                        </div>
                       )}
-                      Email Login Credentials
-                    </Button>
-                    <p className="text-sm text-muted-foreground">
-                      Send current login credentials to user via email
-                    </p>
+                    </div>
+
+                    {/* Secure Password Reset */}
+                    <div className="space-y-4">
+                      <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-red-800 text-sm">Send Secure Password Reset</h5>
+                            <p className="text-xs text-red-600 mt-1">
+                              Generate and send a secure password reset link to the user
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleSecurePasswordReset}
+                            disabled={sendingReset || !isSuperAdmin()}
+                            className="ml-4 bg-red-600 hover:bg-red-700"
+                          >
+                            {sendingReset ? (
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            ) : (
+                              <RefreshCw className="h-3 w-3 mr-1" />
+                            )}
+                            {sendingReset ? 'Sending...' : 'Send Reset'}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Legacy Password Fields - Deprecated */}
+                      <div className="p-3 bg-gray-100 rounded-lg border border-gray-300 opacity-75">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs bg-gray-600 text-white px-2 py-1 rounded">DEPRECATED</span>
+                          <h5 className="font-medium text-gray-600 text-sm">Legacy Password Management</h5>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-3">
+                          Direct password setting is deprecated for security. Use password reset instead.
+                        </p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 opacity-50">
+                          <div>
+                            <Label htmlFor="new_password" className="text-xs text-gray-500">New Password</Label>
+                            <div className="relative">
+                              <Input
+                                id="new_password"
+                                type={showPassword ? "text" : "password"}
+                                value={credentialsData.newPassword}
+                                onChange={(e) => handleCredentialsChange('newPassword', e.target.value)}
+                                placeholder="Use reset instead"
+                                className="border-gray-300 bg-gray-50"
+                                disabled
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                                disabled
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4 text-gray-400" />
+                                ) : (
+                                  <Eye className="h-4 w-4 text-gray-400" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="confirm_password" className="text-xs text-gray-500">Confirm Password</Label>
+                            <Input
+                              id="confirm_password"
+                              type={showPassword ? "text" : "password"}
+                              value={credentialsData.confirmPassword}
+                              onChange={(e) => handleCredentialsChange('confirmPassword', e.target.value)}
+                              placeholder="Use reset instead"
+                              className="border-gray-300 bg-gray-50"
+                              disabled
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="p-4 bg-muted rounded-lg">
-                    <h4 className="font-medium mb-2">Security Notes:</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• Password must be at least 6 characters long</li>
-                      <li>• Email changes may require verification</li>
-                      <li>• Password reset sends email to user's current email</li>
-                      <li>• User will be notified of credential changes</li>
+                  {/* Enhanced Security Information */}
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Enhanced Security Features
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          Secure email-based password resets
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          Administrative action logging
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          24-hour reset link expiration
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          Encrypted password storage
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          User notification system
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-700">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          Role-based access control
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security Warnings */}
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h4 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+                      ⚠️ Security Requirements
+                    </h4>
+                    <ul className="text-xs text-red-700 space-y-1">
+                      <li>• Only superadmins can initiate password resets for users</li>
+                      <li>• All password reset actions are logged and audited</li>
+                      <li>• Users receive email notifications for all security changes</li>
+                      <li>• Reset links expire automatically after 24 hours</li>
+                      <li>• Email changes require user verification</li>
+                      <li>• Passwords must meet minimum security requirements</li>
                     </ul>
                   </div>
                 </CardContent>
