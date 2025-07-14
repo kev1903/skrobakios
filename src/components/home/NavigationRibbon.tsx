@@ -19,19 +19,19 @@ const BUSINESS_NAVIGATION_ITEMS = [
     id: 'projects',
     label: 'Projects',
     icon: Briefcase,
-    page: 'projects'
+    page: 'projects' // Navigate to Project List Page
   },
   {
     id: 'finance',
     label: 'Finance', 
     icon: DollarSign,
-    page: 'finance'
+    page: 'finance' // Navigate to Finance Dashboard
   },
   {
     id: 'sales',
     label: 'Sales',
     icon: TrendingUp,
-    page: 'sales'
+    page: 'sales' // Navigate to Sales Dashboard
   }
 ];
 
