@@ -5,6 +5,7 @@ import { SidePageOverlay } from './home/SidePageOverlay';
 import { FullScreenSchedule } from './home/FullScreenSchedule';
 import { ProjectsFullScreen } from './home/ProjectsFullScreen';
 import { OverlayManager } from './home/OverlayManager';
+import { useAppContext } from '@/contexts/AppContextProvider';
 
 interface HomeFloatingBarProps {
   onNavigate: (page: string) => void;
@@ -21,6 +22,7 @@ export const HomeFloatingBar = ({
   onSaveMapPosition,
   currentPage = ""
 }: HomeFloatingBarProps) => {
+  const { activeContext, getContextRoute } = useAppContext();
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
   const [sidePageContent, setSidePageContent] = useState<string | null>(null);
@@ -28,7 +30,9 @@ export const HomeFloatingBar = ({
 
   const toggleRibbon = () => {
     if (!isRibbonOpen) {
-      onNavigate('home');
+      // Navigate to the appropriate dashboard based on active context
+      const contextRoute = getContextRoute(activeContext);
+      onNavigate(contextRoute);
       setIsRibbonOpen(true);
       setSidePageContent(null);
     } else {
@@ -40,6 +44,19 @@ export const HomeFloatingBar = ({
   const handleSidePageSelect = (page: string) => {
     setSidePageContent(page);
     setIsProjectSectionOpen(false);
+  };
+
+  const handleNavigateFromRibbon = (page: string) => {
+    // Handle navigation from ribbon - don't close ribbon for context switches
+    if (page === 'personal-dashboard' || page === 'home') {
+      // These are context switches - keep ribbon open
+      onNavigate(page);
+    } else {
+      // Other navigation - close ribbon
+      onNavigate(page);
+      setIsRibbonOpen(false);
+      setSidePageContent(null);
+    }
   };
 
   const handleOpenSchedule = () => {
@@ -70,7 +87,7 @@ export const HomeFloatingBar = ({
       <NavigationRibbon
         isOpen={isRibbonOpen}
         onSidePageSelect={handleSidePageSelect}
-        onNavigate={onNavigate}
+        onNavigate={handleNavigateFromRibbon}
         onClose={handleCloseRibbon}
         currentPage={currentPage}
       />
