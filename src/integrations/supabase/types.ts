@@ -2357,6 +2357,10 @@ export type Database = {
         | "enterprise"
         | "agency"
         | "freelancer"
+        | "sole_trader"
+        | "partnership"
+        | "company"
+        | "trust"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
@@ -2498,6 +2502,10 @@ export const Constants = {
         "enterprise",
         "agency",
         "freelancer",
+        "sole_trader",
+        "partnership",
+        "company",
+        "trust",
       ],
       member_role: ["project_admin", "editor", "viewer", "guest"],
     },
