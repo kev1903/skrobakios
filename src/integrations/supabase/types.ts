@@ -2351,16 +2351,7 @@ export type Database = {
         | "platform_admin"
         | "company_admin"
         | "service_provider"
-      business_type:
-        | "individual"
-        | "small_business"
-        | "enterprise"
-        | "agency"
-        | "freelancer"
-        | "sole_trader"
-        | "partnership"
-        | "company"
-        | "trust"
+      business_type: "sole_trader" | "partnership" | "company" | "trust"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
     CompositeTypes: {
@@ -2496,17 +2487,7 @@ export const Constants = {
         "company_admin",
         "service_provider",
       ],
-      business_type: [
-        "individual",
-        "small_business",
-        "enterprise",
-        "agency",
-        "freelancer",
-        "sole_trader",
-        "partnership",
-        "company",
-        "trust",
-      ],
+      business_type: ["sole_trader", "partnership", "company", "trust"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
     },
   },
