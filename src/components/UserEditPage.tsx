@@ -19,6 +19,9 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
     isSuperAdmin,
     editingCompanyId,
     handleInputChange,
+    handleArrayChange,
+    handleAddArrayItem,
+    handleRemoveArrayItem,
     handleSave,
     handleCancel,
     handleEditCompany,
@@ -54,6 +57,9 @@ export const UserEditPage = ({ onNavigate }: UserEditPageProps) => {
       onNavigate={onNavigate}
       onSave={handleSave}
       onInputChange={handleInputChange}
+      onArrayChange={handleArrayChange}
+      onAddArrayItem={handleAddArrayItem}
+      onRemoveArrayItem={handleRemoveArrayItem}
       onCreateCompany={() => setShowCreateDialog(true)}
       onCloseCreateDialog={() => setShowCreateDialog(false)}
       onEditCompany={handleEditCompany}

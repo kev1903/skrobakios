@@ -127,6 +127,29 @@ export const useUserEdit = () => {
     }));
   };
 
+  const handleArrayChange = (field: string, index: number, value: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: (prev[field as keyof typeof prev] as string[]).map((item: string, i: number) => 
+        i === index ? value : item
+      )
+    }));
+  };
+
+  const handleAddArrayItem = (field: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: [...(prev[field as keyof typeof prev] as string[]), '']
+    }));
+  };
+
+  const handleRemoveArrayItem = (field: string, index: number) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: (prev[field as keyof typeof prev] as string[]).filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -276,6 +299,9 @@ export const useUserEdit = () => {
     isSuperAdmin,
     editingCompanyId,
     handleInputChange,
+    handleArrayChange,
+    handleAddArrayItem,
+    handleRemoveArrayItem,
     handleSave,
     handleCancel,
     handleEditCompany,
