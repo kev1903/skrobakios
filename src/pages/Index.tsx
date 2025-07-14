@@ -9,7 +9,7 @@ import { useProjectState } from "@/hooks/useProjectState";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState("personal");
+  const [currentPage, setCurrentPage] = useState("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
 
   // Handle URL parameters for direct navigation
