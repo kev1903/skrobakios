@@ -14,6 +14,7 @@ import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
 import { LandingPage } from "@/components/LandingPage";
+import { UserProfile } from "@/components/UserProfile";
 import { ModuleProtectedRoute } from "@/components/auth/ModuleProtectedRoute";
 
 import { SettingsPage } from "@/components/SettingsPage";
@@ -273,7 +274,7 @@ export const ContentRenderer = ({
       return <SupportPage />;
     case "user-edit":
       return <UserEditPage onNavigate={onNavigate} />;
-    case "user-profile":
+    case "existing-user-profile":
       return <UserProfilePage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
@@ -293,6 +294,8 @@ export const ContentRenderer = ({
       return <PersonalDashboard onNavigate={onNavigate} />;
     case "portfolio-manage":
       return <PortfolioManagePage onNavigate={onNavigate} />;
+    case "user-profile":
+      return <UserProfile onNavigate={onNavigate} />;
     case "portfolio":
       return <PortfolioViewPage onNavigate={onNavigate} />;
     case "reviews":

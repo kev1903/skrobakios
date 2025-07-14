@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, CheckCircle, Users, Clock, BarChart3, Shield, Zap, Globe, Bot, Calendar, Target, TrendingUp, Building2, FileText, MessageCircle, Settings, Play, ChevronRight, Workflow, PieChart, Smartphone, Briefcase, Layers, Activity, Star, Award, Rocket, UserCheck, Building, Factory, Hammer, Code, Lightbulb, HeartHandshake } from 'lucide-react';
+import { SignupForm } from './SignupForm';
+
 interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
+
 export const LandingPage = ({
   onNavigate
 }: LandingPageProps) => {
+  const [showSignupForm, setShowSignupForm] = useState(false);
+
+  if (showSignupForm) {
+    return (
+      <SignupForm 
+        onNavigate={onNavigate}
+        onBack={() => setShowSignupForm(false)}
+      />
+    );
+  }
   return <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
@@ -33,10 +46,10 @@ export const LandingPage = ({
         </nav>
         
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-gray-700 hover:text-gray-900">
+          <Button onClick={() => onNavigate('auth')} className="bg-purple-700 text-white hover:bg-purple-800">
             Log in
           </Button>
-          <Button onClick={() => onNavigate('auth')} className="bg-purple-700 text-white hover:bg-purple-800">
+          <Button onClick={() => setShowSignupForm(true)} className="bg-purple-700 text-white hover:bg-purple-800">
             Sign Up
           </Button>
         </div>
@@ -59,7 +72,7 @@ export const LandingPage = ({
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" onClick={() => onNavigate('auth')} className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-4 text-lg rounded-full">
+            <Button size="lg" onClick={() => setShowSignupForm(true)} className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-4 text-lg rounded-full">
               <UserCheck className="mr-2 w-5 h-5" />
               Start Your Journey
             </Button>
@@ -266,7 +279,7 @@ export const LandingPage = ({
           </div>
 
           <div className="text-center mt-12">
-            <Button onClick={() => onNavigate('auth')} size="lg" className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-3 rounded-full">
+            <Button onClick={() => setShowSignupForm(true)} size="lg" className="bg-purple-700 text-white hover:bg-purple-800 px-8 py-3 rounded-full">
               Find Your Perfect Setup
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
