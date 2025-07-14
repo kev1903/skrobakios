@@ -188,6 +188,14 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
 
         <Card className="glass-card shadow-xl">
           <CardContent className="p-6">
+            <Button
+              variant="ghost"
+              onClick={() => onNavigate('landing')}
+              className="mb-4 p-0 text-sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to home
+            </Button>
             {error && (
               <Alert className="mb-4 border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4 text-red-600" />
