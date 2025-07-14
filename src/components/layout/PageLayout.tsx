@@ -39,11 +39,9 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       requireSuperAdmin={currentPage === "admin"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
-        <main className="flex-1 overflow-hidden backdrop-blur-xl bg-white/20 border border-white/20 shadow-xl transition-all duration-300 w-full">
-          {children}
-        </main>
-      </AppSidebar>
+      <main className="flex-1 overflow-hidden w-full">
+        {children}
+      </main>
     </ProtectedRoute>
   );
 };
