@@ -1580,8 +1580,54 @@ export type Database = {
         }
         Relationships: []
       }
+      task_dependencies: {
+        Row: {
+          created_at: string
+          dependency_type: string
+          id: string
+          lag_days: number | null
+          predecessor_task_id: string
+          successor_task_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dependency_type?: string
+          id?: string
+          lag_days?: number | null
+          predecessor_task_id: string
+          successor_task_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dependency_type?: string
+          id?: string
+          lag_days?: number | null
+          predecessor_task_id?: string
+          successor_task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_dependencies_predecessor_task_id_fkey"
+            columns: ["predecessor_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependencies_successor_task_id_fkey"
+            columns: ["successor_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
+          actual_duration: number | null
           assigned_to_avatar: string | null
           assigned_to_name: string | null
           category: string | null
@@ -1590,15 +1636,21 @@ export type Database = {
           digital_object_id: string | null
           due_date: string | null
           duration: number | null
+          end_date: string | null
+          estimated_duration: number | null
           id: string
+          is_critical_path: boolean | null
+          is_milestone: boolean | null
           priority: string
           progress: number
           project_id: string
+          start_date: string | null
           status: string
           task_name: string
           updated_at: string
         }
         Insert: {
+          actual_duration?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
           category?: string | null
@@ -1607,15 +1659,21 @@ export type Database = {
           digital_object_id?: string | null
           due_date?: string | null
           duration?: number | null
+          end_date?: string | null
+          estimated_duration?: number | null
           id?: string
+          is_critical_path?: boolean | null
+          is_milestone?: boolean | null
           priority?: string
           progress?: number
           project_id: string
+          start_date?: string | null
           status?: string
           task_name: string
           updated_at?: string
         }
         Update: {
+          actual_duration?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
           category?: string | null
@@ -1624,10 +1682,15 @@ export type Database = {
           digital_object_id?: string | null
           due_date?: string | null
           duration?: number | null
+          end_date?: string | null
+          estimated_duration?: number | null
           id?: string
+          is_critical_path?: boolean | null
+          is_milestone?: boolean | null
           priority?: string
           progress?: number
           project_id?: string
+          start_date?: string | null
           status?: string
           task_name?: string
           updated_at?: string

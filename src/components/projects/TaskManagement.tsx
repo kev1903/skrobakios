@@ -23,12 +23,17 @@ import {
   Trash2,
   Users,
   Paperclip,
-  MessageSquare
+  MessageSquare,
+  BarChart3,
+  List
 } from 'lucide-react';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { GanttChart } from '@/components/scheduling/GanttChart';
+import { useGanttData } from '@/hooks/useGanttData';
+import { addDays, format } from 'date-fns';
 
 interface TaskManagementProps {
   onNavigate: (page: string) => void;
@@ -70,6 +75,7 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'list' | 'gantt'>('list');
   
   const [newTask, setNewTask] = useState({
     task_name: '',
@@ -244,6 +250,19 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
     todo: tasks.filter(t => t.status === 'todo').length
   };
 
+  // Gantt chart integration
+  const { 
+    tasks: ganttTasks, 
+    dependencies, 
+    handleTaskUpdate, 
+    handleDependencyCreate, 
+    handleDependencyDelete 
+  } = useGanttData(selectedProject);
+
+  // Calculate project timeline
+  const projectStartDate = new Date(Math.min(...tasks.map(t => new Date(t.created_at).getTime())));
+  const projectEndDate = addDays(projectStartDate, 90); // 3 months default
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -344,8 +363,8 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
         </Dialog>
       </div>
 
-      {/* Project Selector */}
-      <div className="flex items-center space-x-4">
+      {/* Project Selector and View Toggle */}
+      <div className="flex items-center justify-between">
         <Select value={selectedProject} onValueChange={setSelectedProject}>
           <SelectTrigger className="w-64">
             <SelectValue placeholder="Select a project" />
@@ -358,6 +377,28 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
             ))}
           </SelectContent>
         </Select>
+
+        {/* View Mode Toggle */}
+        <div className="flex items-center space-x-2 bg-muted rounded-lg p-1">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="flex items-center space-x-2"
+          >
+            <List className="h-4 w-4" />
+            <span>List</span>
+          </Button>
+          <Button
+            variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('gantt')}
+            className="flex items-center space-x-2"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span>Gantt</span>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -411,32 +452,59 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search tasks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      {/* Filters - Only show in list view */}
+      {viewMode === 'list' && (
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="todo">To Do</SelectItem>
+              <SelectItem value="in-progress">In Progress</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="on-hold">On Hold</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="todo">To Do</SelectItem>
-            <SelectItem value="in-progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="on-hold">On Hold</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      )}
 
-      {/* Tasks List */}
+      {/* Content based on view mode */}
+      {viewMode === 'gantt' ? (
+        // Gantt Chart View
+        selectedProject ? (
+          <GanttChart
+            tasks={ganttTasks}
+            dependencies={dependencies}
+            projectStartDate={projectStartDate}
+            projectEndDate={projectEndDate}
+            onTaskUpdate={handleTaskUpdate}
+            onDependencyCreate={handleDependencyCreate}
+            onDependencyDelete={handleDependencyDelete}
+          />
+        ) : (
+          <Card className="glass-card">
+            <CardContent className="text-center py-12">
+              <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Select a Project</h3>
+              <p className="text-muted-foreground">
+                Choose a project to view the Gantt chart timeline
+              </p>
+            </CardContent>
+          </Card>
+        )
+      ) : (
+        // Tasks List View
       <div className="space-y-4">
         {filteredTasks.map((task) => (
           <Card key={task.id} className="glass-card">
@@ -534,7 +602,8 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
             </CardContent>
           </Card>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
