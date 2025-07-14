@@ -47,17 +47,10 @@ export const ReviewsPage = ({ onNavigate }: ReviewsPageProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Fetch reviews received
+      // Fetch reviews received with reviewer profiles
       const { data: receivedData, error: receivedError } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          reviewer_profile:profiles!reviews_reviewer_id_fkey(
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('reviewee_id', user.id)
         .eq('reviewee_type', 'user')
         .eq('status', 'active')
@@ -65,48 +58,77 @@ export const ReviewsPage = ({ onNavigate }: ReviewsPageProps) => {
 
       if (receivedError) throw receivedError;
 
+      // Fetch reviewer profiles for received reviews
+      const processedReceived: Review[] = [];
+      if (receivedData && receivedData.length > 0) {
+        const reviewerIds = receivedData.map(r => r.reviewer_id);
+        const { data: reviewerProfiles } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name, avatar_url')
+          .in('user_id', reviewerIds);
+
+        for (const review of receivedData) {
+          const reviewerProfile = reviewerProfiles?.find(p => p.user_id === review.reviewer_id);
+          processedReceived.push({
+            ...review,
+            reviewee_type: review.reviewee_type as 'user' | 'company',
+            reviewer_name: reviewerProfile 
+              ? `${reviewerProfile.first_name || ''} ${reviewerProfile.last_name || ''}`.trim()
+              : 'Anonymous',
+            reviewer_avatar: reviewerProfile?.avatar_url || null
+          });
+        }
+      }
+
       // Fetch reviews given
       const { data: givenData, error: givenError } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          reviewee_profile:profiles!reviews_reviewee_id_fkey(
-            first_name,
-            last_name,
-            avatar_url
-          ),
-          reviewee_company:companies!reviews_reviewee_id_fkey(
-            name,
-            logo_url
-          )
-        `)
+        .select('*')
         .eq('reviewer_id', user.id)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (givenError) throw givenError;
 
-      // Process received reviews
-      const processedReceived = (receivedData || []).map(review => ({
-        ...review,
-        reviewer_name: review.reviewer_profile 
-          ? `${review.reviewer_profile.first_name || ''} ${review.reviewer_profile.last_name || ''}`.trim()
-          : 'Anonymous',
-        reviewer_avatar: review.reviewer_profile?.avatar_url || null
-      }));
-
       // Process given reviews
-      const processedGiven = (givenData || []).map(review => ({
-        ...review,
-        reviewee_name: review.reviewee_type === 'user' 
-          ? (review.reviewee_profile 
-              ? `${review.reviewee_profile.first_name || ''} ${review.reviewee_profile.last_name || ''}`.trim()
-              : 'Unknown User')
-          : (review.reviewee_company?.name || 'Unknown Company'),
-        reviewee_avatar: review.reviewee_type === 'user' 
-          ? review.reviewee_profile?.avatar_url 
-          : review.reviewee_company?.logo_url
-      }));
+      const processedGiven: Review[] = [];
+      if (givenData && givenData.length > 0) {
+        for (const review of givenData) {
+          let revieweeName = 'Unknown';
+          let revieweeAvatar = null;
+
+          if (review.reviewee_type === 'user') {
+            const { data: userProfile } = await supabase
+              .from('profiles')
+              .select('first_name, last_name, avatar_url')
+              .eq('user_id', review.reviewee_id)
+              .single();
+
+            if (userProfile) {
+              revieweeName = `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim();
+              revieweeAvatar = userProfile.avatar_url;
+            }
+          } else {
+            const { data: company } = await supabase
+              .from('companies')
+              .select('name, logo_url')
+              .eq('id', review.reviewee_id)
+              .single();
+
+            if (company) {
+              revieweeName = company.name;
+              revieweeAvatar = company.logo_url;
+            }
+          }
+
+          processedGiven.push({
+            ...review,
+            reviewee_type: review.reviewee_type as 'user' | 'company',
+            reviewee_name: revieweeName,
+            reviewee_avatar: revieweeAvatar
+          });
+        }
+      }
 
       setReviewsReceived(processedReceived);
       setReviewsGiven(processedGiven);

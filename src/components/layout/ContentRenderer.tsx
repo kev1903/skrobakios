@@ -43,6 +43,7 @@ import { CompanyManagementPage } from "@/components/CompanyManagementPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
+import { ReviewsPage } from "@/components/review/ReviewsPage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -269,6 +270,8 @@ export const ContentRenderer = ({
       return <PortfolioManagePage onNavigate={onNavigate} />;
     case "portfolio":
       return <PortfolioViewPage onNavigate={onNavigate} />;
+    case "reviews":
+      return <ReviewsPage onNavigate={onNavigate} />;
     case "inbox":
     case "asset":
     case "schedules":

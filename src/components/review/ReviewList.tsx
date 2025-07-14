@@ -9,6 +9,7 @@ interface Review {
   rating: number;
   review_text: string | null;
   project_context: string | null;
+  reviewee_type: 'user' | 'company';
   created_at: string;
   is_verified_collaboration: boolean | null;
   reviewer_id: string;
@@ -36,14 +37,7 @@ export const ReviewList = ({ revieweeId, revieweeType, className }: ReviewListPr
     try {
       const { data, error } = await supabase
         .from('reviews')
-        .select(`
-          *,
-          reviewer_profile:profiles!reviews_reviewer_id_fkey(
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('reviewee_id', revieweeId)
         .eq('reviewee_type', revieweeType)
         .eq('status', 'active')
@@ -51,14 +45,27 @@ export const ReviewList = ({ revieweeId, revieweeType, className }: ReviewListPr
 
       if (error) throw error;
 
-      // Process reviews with reviewer names
-      const processedReviews = (data || []).map(review => ({
-        ...review,
-        reviewer_name: review.reviewer_profile 
-          ? `${review.reviewer_profile.first_name || ''} ${review.reviewer_profile.last_name || ''}`.trim()
-          : 'Anonymous',
-        reviewer_avatar: review.reviewer_profile?.avatar_url || null
-      }));
+      // Fetch reviewer profiles
+      const processedReviews: Review[] = [];
+      if (data && data.length > 0) {
+        const reviewerIds = data.map(r => r.reviewer_id);
+        const { data: reviewerProfiles } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name, avatar_url')
+          .in('user_id', reviewerIds);
+
+        for (const review of data) {
+          const reviewerProfile = reviewerProfiles?.find(p => p.user_id === review.reviewer_id);
+          processedReviews.push({
+            ...review,
+            reviewee_type: review.reviewee_type as 'user' | 'company',
+            reviewer_name: reviewerProfile 
+              ? `${reviewerProfile.first_name || ''} ${reviewerProfile.last_name || ''}`.trim()
+              : 'Anonymous',
+            reviewer_avatar: reviewerProfile?.avatar_url || null
+          });
+        }
+      }
 
       setReviews(processedReviews);
 

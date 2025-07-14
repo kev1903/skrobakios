@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Building2, MapPin, Globe, Phone, Mail, Users, Star, ExternalLink, Calendar } from 'lucide-react';
+import { ReviewList } from '@/components/review/ReviewList';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -365,6 +366,22 @@ export const PublicCompanyProfile = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Reviews Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Reviews</CardTitle>
+                <CardDescription>
+                  What clients say about working with {company.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReviewList 
+                  revieweeId={company.id} 
+                  revieweeType="company"
+                />
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar */}
@@ -459,6 +476,12 @@ export const PublicCompanyProfile = () => {
                     </a>
                   </Button>
                 )}
+                
+                <Button variant="outline" className="w-full" asChild>
+                  <a href="/directory">
+                    Write a Review
+                  </a>
+                </Button>
               </CardContent>
             </Card>
           </div>

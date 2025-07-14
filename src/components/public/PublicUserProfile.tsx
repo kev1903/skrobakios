@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { User, MapPin, Globe, Phone, Mail, Calendar, Building2, Star, ExternalLink, Image as ImageIcon } from 'lucide-react';
+import { ReviewList } from '@/components/review/ReviewList';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -334,6 +335,22 @@ export const PublicUserProfile = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Reviews Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Reviews</CardTitle>
+                <CardDescription>
+                  What others say about working with {profile.first_name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReviewList 
+                  revieweeId={profile.user_id} 
+                  revieweeType="user"
+                />
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar */}
@@ -410,10 +427,15 @@ export const PublicUserProfile = () => {
                   Interested in working together?
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <Button className="w-full" asChild>
                   <a href={`mailto:${profile.email}?subject=Professional Inquiry`}>
                     Send Message
+                  </a>
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <a href="/directory">
+                    Write a Review
                   </a>
                 </Button>
               </CardContent>
