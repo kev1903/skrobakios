@@ -44,6 +44,7 @@ import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
+import { ProjectTeamRedirect } from "@/components/projects/ProjectTeamRedirect";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -128,7 +129,7 @@ export const ContentRenderer = ({
     case "project-team":
       return currentProject ? (
         <ModuleProtectedRoute requiredModule="team" onNavigate={onNavigate}>
-          <div className="p-8 text-center">Team management has been removed</div>
+          <ProjectTeamRedirect projectId={currentProject.id} />
         </ModuleProtectedRoute>
       ) : renderProjectNotFound();
     case "project-digital-twin":

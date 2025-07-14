@@ -21,6 +21,9 @@ import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
 import { PublicUserProfile } from "./components/public/PublicUserProfile";
 import { PublicCompanyProfile } from "./components/public/PublicCompanyProfile";
 import { PublicDirectory } from "./components/public/PublicDirectory";
+import { ReviewsPage } from "./components/review/ReviewsPage";
+import { InvitePage } from "./pages/InvitePage";
+import { ProjectTeamPage } from "./components/projects/team/ProjectTeamPage";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -77,6 +80,17 @@ const CompanyEditPageWrapper = () => {
   };
 
   return <CompanyEditPage companyId={companyId || ''} onNavigateBack={handleNavigateBack} />;
+};
+
+// Wrapper component for ReviewsPage with proper navigation
+const ReviewsPageWrapper = () => {
+  const navigate = useNavigate();
+  
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+
+  return <ReviewsPage onNavigate={handleNavigate} />;
 };
 
 const App = () => {
@@ -156,6 +170,17 @@ const AppContent = () => {
         <Route path="/directory" element={<PublicDirectory />} />
         <Route path="/profile/:slug" element={<PublicUserProfile />} />
         <Route path="/company/:slug" element={<PublicCompanyProfile />} />
+        <Route path="/reviews" element={<ReviewsPageWrapper />} />
+        <Route path="/invite/:token" element={<InvitePage />} />
+        
+        {/* Protected Project Routes */}
+        <Route path="/projects/:projectId/team" element={
+          <UserProvider>
+            <CompanyProvider>
+              <ProjectTeamPage />
+            </CompanyProvider>
+          </UserProvider>
+        } />
       </Routes>
     </>
   );
