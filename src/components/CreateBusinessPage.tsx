@@ -19,6 +19,7 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
   
   const [formData, setFormData] = useState({
     name: '',
+    trading_name: '',
     slug: '',
     website: '',
     address: '',
@@ -29,10 +30,7 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
     industry: 'Construction',
     company_size: '',
     year_established: '',
-    service_areas: [] as string[],
-    logo_url: '',
-    meta_title: '',
-    meta_description: ''
+    service_areas: [] as string[]
   });
 
   const handleInputChange = (field: string, value: string | ('individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer')) => {
@@ -53,7 +51,25 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
     if (!formData.name.trim()) {
       toast({
         title: "Validation Error",
-        description: "Business name is required",
+        description: "Registered business name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.trading_name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Trading name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.abn.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "ABN is required",
         variant: "destructive"
       });
       return;
@@ -67,20 +83,18 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
       }
 
       const businessData = {
-        name: formData.name,
+        name: formData.trading_name, // Use trading name as the main business name
         slug: formData.slug,
         website: formData.website || null,
         address: formData.address || null,
         phone: formData.phone || null,
-        abn: formData.abn || null,
+        abn: formData.abn,
         slogan: formData.slogan || null,
         business_type: formData.business_type,
         industry: formData.industry || null,
         company_size: formData.company_size || null,
         year_established: formData.year_established ? parseInt(formData.year_established) : null,
         service_areas: formData.service_areas.length > 0 ? formData.service_areas : null,
-        meta_title: formData.meta_title || null,
-        meta_description: formData.meta_description || null,
         created_by: user.user.id,
         onboarding_completed: true
       };
@@ -167,22 +181,22 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Business Name *</Label>
+                  <Label htmlFor="name">Registered Business Name *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="Enter business name"
+                    placeholder="Enter registered business name"
                     className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="slug">Business Slug</Label>
+                  <Label htmlFor="trading_name">Trading Name *</Label>
                   <Input
-                    id="slug"
-                    value={formData.slug}
-                    onChange={(e) => handleInputChange('slug', e.target.value)}
-                    placeholder="business-url-slug"
+                    id="trading_name"
+                    value={formData.trading_name}
+                    onChange={(e) => handleInputChange('trading_name', e.target.value)}
+                    placeholder="Enter trading name (main business name)"
                     className="mt-1"
                   />
                 </div>
@@ -253,7 +267,7 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+61 4 1234 5678"
                     className="mt-1"
                   />
                 </div>
@@ -281,7 +295,7 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="abn">ABN/Tax ID</Label>
+                  <Label htmlFor="abn">ABN/Tax ID *</Label>
                   <Input
                     id="abn"
                     value={formData.abn}
@@ -326,35 +340,6 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
             </CardContent>
           </Card>
 
-          {/* SEO Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO & Marketing</CardTitle>
-              <CardDescription>Optimize your business for search engines</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="meta_title">Meta Title</Label>
-                <Input
-                  id="meta_title"
-                  value={formData.meta_title}
-                  onChange={(e) => handleInputChange('meta_title', e.target.value)}
-                  placeholder="SEO title for your business"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="meta_description">Meta Description</Label>
-                <Textarea
-                  id="meta_description"
-                  value={formData.meta_description}
-                  onChange={(e) => handleInputChange('meta_description', e.target.value)}
-                  placeholder="Brief description of your business for search engines"
-                  className="mt-1"
-                />
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-4 pt-6">
