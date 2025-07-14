@@ -58,9 +58,10 @@ const geocodeAddress = async (address: string): Promise<[number, number] | null>
 interface HomePageProps {
   onNavigate: (page: string) => void;
   onSelectProject?: (projectId: string) => void;
+  currentPage?: string;
 }
 
-export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
+export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: HomePageProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -659,6 +660,7 @@ export const HomePage = ({ onNavigate, onSelectProject }: HomePageProps) => {
         onSelectProject={onSelectProject}
         showSaveButton={showSaveButton}
         onSaveMapPosition={saveCurrentMapPosition}
+        currentPage={currentPage}
       />
       
       {/* Loading overlay */}

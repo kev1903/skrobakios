@@ -3,12 +3,14 @@ import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield } 
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanyModules } from '@/hooks/useCompanyModules';
+import { personalProfileNavigation } from '@/components/sidebar/navigationData';
 
 interface NavigationRibbonProps {
   isOpen: boolean;
   onSidePageSelect: (page: string) => void;
   onNavigate: (page: string) => void;
   onClose: () => void;
+  currentPage?: string;
 }
 
 // Define the company modules with their navigation details
@@ -37,7 +39,8 @@ export const NavigationRibbon = ({
   isOpen,
   onSidePageSelect,
   onNavigate,
-  onClose
+  onClose,
+  currentPage = ""
 }: NavigationRibbonProps) => {
   const { currentCompany } = useCompany();
   const { fetchCompanyModules, isModuleEnabled } = useCompanyModules();
@@ -64,29 +67,60 @@ export const NavigationRibbon = ({
           <SidebarContextSwitcher onNavigate={onNavigate} />
         </div>
         
-        {/* Navigation Items - Only show enabled modules */}
+        {/* Profile Navigation Section */}
         <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
-          {enabledNavigationModules.map((module) => {
-            const IconComponent = module.icon;
-            return (
-              <button 
-                key={module.key}
-                onClick={() => {
-                  onNavigate(module.page);
-                  onClose();
-                }} 
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
-              >
-                <IconComponent className="w-4 h-4" />
-                <span className="text-sm font-medium">{module.name}</span>
-              </button>
-            );
-          })}
-          
-          {/* Show message if no modules are enabled */}
-          {enabledNavigationModules.length === 0 && currentCompany && (
-            <div className="px-3 py-4 text-white/60 text-sm text-center">
-              No modules enabled for this company
+          {/* Profile Navigation */}
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              Profile Navigation
+            </div>
+            {personalProfileNavigation.map((item) => {
+              const Icon = item.icon;
+              const isActive = item.active || currentPage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    onClose();
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                    isActive
+                      ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg"
+                      : "text-white hover:bg-white/30"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 transition-all duration-200 ${
+                    isActive ? "text-blue-200" : "text-white/80"
+                  }`} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Company Modules Section - if any are enabled */}
+          {enabledNavigationModules.length > 0 && (
+            <div className="space-y-1 pt-4 border-t border-white/20 mt-4">
+              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+                Business Modules
+              </div>
+              {enabledNavigationModules.map((module) => {
+                const IconComponent = module.icon;
+                return (
+                  <button 
+                    key={module.key}
+                    onClick={() => {
+                      onNavigate(module.page);
+                      onClose();
+                    }} 
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left"
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    <span className="text-sm font-medium">{module.name}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

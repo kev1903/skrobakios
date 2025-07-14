@@ -13,15 +13,6 @@ interface SidebarMainContentProps {
 export const SidebarMainContent = ({ currentPage, onNavigate, isCollapsed }: SidebarMainContentProps) => {
   return (
     <SidebarContent className="p-4 space-y-6">
-      {/* Personal Profile Navigation */}
-      <NavigationSection
-        title="Profile Navigation"
-        items={personalProfileNavigation}
-        currentPage={currentPage}
-        onNavigate={onNavigate}
-        isCollapsed={isCollapsed}
-      />
-
       {/* General Navigation */}
       <NavigationSection
         title="General"

@@ -11,13 +11,15 @@ interface HomeFloatingBarProps {
   onSelectProject?: (projectId: string) => void;
   showSaveButton: boolean;
   onSaveMapPosition: () => Promise<void>;
+  currentPage?: string;
 }
 
 export const HomeFloatingBar = ({
   onNavigate,
   onSelectProject,
   showSaveButton,
-  onSaveMapPosition
+  onSaveMapPosition,
+  currentPage = ""
 }: HomeFloatingBarProps) => {
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
@@ -70,6 +72,7 @@ export const HomeFloatingBar = ({
         onSidePageSelect={handleSidePageSelect}
         onNavigate={onNavigate}
         onClose={handleCloseRibbon}
+        currentPage={currentPage}
       />
 
       <SidePageOverlay

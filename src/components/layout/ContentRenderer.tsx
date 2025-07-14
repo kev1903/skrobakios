@@ -86,7 +86,7 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
