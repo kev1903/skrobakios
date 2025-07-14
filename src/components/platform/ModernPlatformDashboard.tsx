@@ -316,7 +316,11 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col gap-2"
+                    onClick={() => onNavigate('user-management')}
+                  >
                     <UserCog className="w-6 h-6" />
                     <span className="text-sm">Manage Users</span>
                   </Button>

@@ -60,6 +60,7 @@ import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
+import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -325,6 +326,17 @@ export const ContentRenderer = ({
       return <FamilyPage onNavigate={onNavigate} />;
     case "security":
       return <SecurityPage onNavigate={onNavigate} />;
+    case "user-management":
+      return (
+        <RoleProtectedRoute 
+          requiredRoles={['superadmin']} 
+          onNavigate={onNavigate}
+          redirectPage="home"
+          fallbackMessage="User management access is restricted to superadmins only."
+        >
+          <PlatformUserManagement onNavigate={onNavigate} />
+        </RoleProtectedRoute>
+      );
     case "inbox":
     case "asset":
     case "schedules":

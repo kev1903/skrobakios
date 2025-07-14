@@ -36,7 +36,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
   return (
     <ProtectedRoute 
       onNavigate={onNavigate}
-      requireSuperAdmin={currentPage === "admin"}
+      requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
       <main className="flex-1 overflow-hidden w-full">
