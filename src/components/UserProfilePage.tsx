@@ -36,6 +36,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
     avatarUrl: '',
     birthDate: '',
     website: '',
+    qualifications: [] as string[],
+    licenses: [] as string[],
+    awards: [] as string[],
     // Company Details - now from company context
     companyName: fullCompany?.name || currentCompany?.name || '',
     abn: fullCompany?.abn || '',
@@ -64,6 +67,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         birthDate: profile.birth_date,
         website: profile.website,
         companySlogan: profile.company_slogan || '',
+        qualifications: profile.qualifications || [],
+        licenses: profile.licenses || [],
+        awards: profile.awards || [],
       }));
     } else if (!loading && !profile) {
       // If no profile exists, use context data as fallback
@@ -79,6 +85,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         avatarUrl: userProfile.avatarUrl,
         birthDate: userProfile.birthDate,
         website: userProfile.website,
+        qualifications: userProfile.qualifications || [],
+        licenses: userProfile.licenses || [],
+        awards: userProfile.awards || [],
       }));
     }
   }, [profile, loading, userProfile]);
@@ -106,6 +115,29 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
     }));
   };
 
+  const handleArrayChange = (field: string, index: number, value: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: prev[field as keyof typeof prev].map((item: string, i: number) => 
+        i === index ? value : item
+      )
+    }));
+  };
+
+  const handleAddArrayItem = (field: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: [...(prev[field as keyof typeof prev] as string[]), '']
+    }));
+  };
+
+  const handleRemoveArrayItem = (field: string, index: number) => {
+    setProfileData(prev => ({
+      ...prev,
+      [field]: (prev[field as keyof typeof prev] as string[]).filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSave = async () => {
     setSaving(true);
     
@@ -124,6 +156,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
         website: profileData.website,
         company_slogan: profileData.companySlogan,
         company: profileData.companyName,
+        qualifications: profileData.qualifications || [],
+        licenses: profileData.licenses || [],
+        awards: profileData.awards || [],
       });
 
       if (success) {
@@ -139,6 +174,9 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
           avatarUrl: profileData.avatarUrl,
           birthDate: profileData.birthDate,
           website: profileData.website,
+          qualifications: profileData.qualifications,
+          licenses: profileData.licenses,
+          awards: profileData.awards,
         });
 
         toast({
@@ -167,19 +205,25 @@ export const UserProfilePage = ({ onNavigate }: UserProfilePageProps) => {
       case 'personal':
         return (
           <PersonalSection
-            profileData={{
-              firstName: profileData.firstName,
-              lastName: profileData.lastName,
-              email: profileData.email,
-              phone: profileData.phone,
-              birthDate: profileData.birthDate,
-              avatarUrl: profileData.avatarUrl,
-              jobTitle: profileData.jobTitle,
-              location: profileData.location,
-              website: profileData.website,
-              bio: profileData.bio,
+          profileData={{
+            firstName: profileData.firstName,
+            lastName: profileData.lastName,
+            email: profileData.email,
+            phone: profileData.phone,
+            birthDate: profileData.birthDate,
+            avatarUrl: profileData.avatarUrl,
+            jobTitle: profileData.jobTitle,
+            location: profileData.location,
+            website: profileData.website,
+            bio: profileData.bio,
+            qualifications: profileData.qualifications,
+            licenses: profileData.licenses,
+            awards: profileData.awards,
             }}
             onInputChange={handleInputChange}
+            onArrayChange={handleArrayChange}
+            onAddArrayItem={handleAddArrayItem}
+            onRemoveArrayItem={handleRemoveArrayItem}
           />
         );
       case 'professional':

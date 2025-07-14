@@ -16,6 +16,9 @@ interface ProfileData {
   birth_date: string;
   website: string;
   company_slogan: string;
+  qualifications: string[];
+  licenses: string[];
+  awards: string[];
 }
 
 export const useProfile = () => {
@@ -62,6 +65,9 @@ export const useProfile = () => {
           birth_date: data.birth_date || '',
           website: data.website || '',
           company_slogan: data.company_slogan || '',
+          qualifications: data.qualifications || [],
+          licenses: data.licenses || [],
+          awards: data.awards || [],
         });
       }
     } catch (error) {

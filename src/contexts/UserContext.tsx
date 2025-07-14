@@ -13,6 +13,9 @@ interface UserProfile {
   avatarUrl: string;
   birthDate: string;
   website: string;
+  qualifications: string[];
+  licenses: string[];
+  awards: string[];
 }
 
 interface UserContextType {
@@ -32,6 +35,9 @@ const defaultUserProfile: UserProfile = {
   avatarUrl: '',
   birthDate: '',
   website: '',
+  qualifications: [],
+  licenses: [],
+  awards: [],
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -54,6 +60,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         avatarUrl: profile.avatar_url || '',
         birthDate: profile.birth_date || '',
         website: profile.website || '',
+        qualifications: profile.qualifications || [],
+        licenses: profile.licenses || [],
+        awards: profile.awards || [],
       });
     }
   }, [profile]);

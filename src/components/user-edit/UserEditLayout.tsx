@@ -16,6 +16,9 @@ interface UserEditLayoutProps {
     location: string;
     website: string;
     bio: string;
+    qualifications: string[];
+    licenses: string[];
+    awards: string[];
     companyName: string;
     abn: string;
     companyWebsite: string;
@@ -38,6 +41,9 @@ interface UserEditLayoutProps {
   onNavigate: (page: string) => void;
   onSave: () => void;
   onInputChange: (field: string, value: string) => void;
+  onArrayChange: (field: string, index: number, value: string) => void;
+  onAddArrayItem: (field: string) => void;
+  onRemoveArrayItem: (field: string, index: number) => void;
   onCreateCompany: () => void;
   onCloseCreateDialog: () => void;
   onEditCompany?: (companyId: string) => void;
@@ -53,6 +59,9 @@ export const UserEditLayout = ({
   onNavigate,
   onSave,
   onInputChange,
+  onArrayChange,
+  onAddArrayItem,
+  onRemoveArrayItem,
   onCreateCompany,
   onCloseCreateDialog,
   onEditCompany
@@ -84,6 +93,9 @@ export const UserEditLayout = ({
           activeSection={activeSection}
           profileData={profileData}
           onInputChange={onInputChange}
+          onArrayChange={onArrayChange}
+          onAddArrayItem={onAddArrayItem}
+          onRemoveArrayItem={onRemoveArrayItem}
           onNavigate={onNavigate}
           onEditCompany={onEditCompany}
         />

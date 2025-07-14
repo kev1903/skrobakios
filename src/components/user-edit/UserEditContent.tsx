@@ -21,6 +21,9 @@ interface UserEditContentProps {
     location: string;
     website: string;
     bio: string;
+    qualifications: string[];
+    licenses: string[];
+    awards: string[];
     companyName: string;
     abn: string;
     companyWebsite: string;
@@ -36,6 +39,9 @@ interface UserEditContentProps {
     serviceAreas: string[];
   };
   onInputChange: (field: string, value: string) => void;
+  onArrayChange: (field: string, index: number, value: string) => void;
+  onAddArrayItem: (field: string) => void;
+  onRemoveArrayItem: (field: string, index: number) => void;
   onNavigate: (page: string) => void;
   onEditCompany?: (companyId: string) => void;
 }
@@ -43,14 +49,17 @@ interface UserEditContentProps {
 export const UserEditContent = ({ 
   activeSection, 
   profileData, 
-  onInputChange, 
+  onInputChange,
+  onArrayChange,
+  onAddArrayItem,
+  onRemoveArrayItem,
   onNavigate,
   onEditCompany 
 }: UserEditContentProps) => {
   const renderContent = () => {
     switch (activeSection) {
       case 'personal':
-        return <CombinedProfileSection profileData={{
+        return <PersonalSection profileData={{
           firstName: profileData.firstName,
           lastName: profileData.lastName,
           email: profileData.email,
@@ -61,18 +70,15 @@ export const UserEditContent = ({
           bio: profileData.bio,
           birthDate: profileData.birthDate,
           website: profileData.website,
-          companyName: profileData.companyName,
-          abn: profileData.abn,
-          companyWebsite: profileData.companyWebsite,
-          companyAddress: profileData.companyAddress,
-          companyPhone: profileData.companyPhone,
-          companySlogan: profileData.companySlogan,
-          businessType: profileData.businessType,
-          industry: profileData.industry,
-          companySize: profileData.companySize,
-          yearEstablished: profileData.yearEstablished,
-          serviceAreas: profileData.serviceAreas || [],
-        }} onInputChange={onInputChange} />;
+          qualifications: profileData.qualifications,
+          licenses: profileData.licenses,
+          awards: profileData.awards,
+        }} 
+        onInputChange={onInputChange}
+        onArrayChange={onArrayChange}
+        onAddArrayItem={onAddArrayItem}
+        onRemoveArrayItem={onRemoveArrayItem}
+        />;
       case 'time':
         return <TimeSection onNavigate={onNavigate} />;
       case 'finance':

@@ -811,6 +811,7 @@ export type Database = {
         Row: {
           account_activated: boolean | null
           avatar_url: string | null
+          awards: string[] | null
           bio: string | null
           birth_date: string | null
           company: string | null
@@ -822,6 +823,7 @@ export type Database = {
           id: string
           job_title: string | null
           last_name: string | null
+          licenses: string[] | null
           location: string | null
           meta_description: string | null
           meta_title: string | null
@@ -829,6 +831,7 @@ export type Database = {
           phone: string | null
           professional_title: string | null
           public_profile: boolean | null
+          qualifications: string[] | null
           rating: number | null
           review_count: number | null
           services: string[] | null
@@ -845,6 +848,7 @@ export type Database = {
         Insert: {
           account_activated?: boolean | null
           avatar_url?: string | null
+          awards?: string[] | null
           bio?: string | null
           birth_date?: string | null
           company?: string | null
@@ -856,6 +860,7 @@ export type Database = {
           id?: string
           job_title?: string | null
           last_name?: string | null
+          licenses?: string[] | null
           location?: string | null
           meta_description?: string | null
           meta_title?: string | null
@@ -863,6 +868,7 @@ export type Database = {
           phone?: string | null
           professional_title?: string | null
           public_profile?: boolean | null
+          qualifications?: string[] | null
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
@@ -879,6 +885,7 @@ export type Database = {
         Update: {
           account_activated?: boolean | null
           avatar_url?: string | null
+          awards?: string[] | null
           bio?: string | null
           birth_date?: string | null
           company?: string | null
@@ -890,6 +897,7 @@ export type Database = {
           id?: string
           job_title?: string | null
           last_name?: string | null
+          licenses?: string[] | null
           location?: string | null
           meta_description?: string | null
           meta_title?: string | null
@@ -897,6 +905,7 @@ export type Database = {
           phone?: string | null
           professional_title?: string | null
           public_profile?: boolean | null
+          qualifications?: string[] | null
           rating?: number | null
           review_count?: number | null
           services?: string[] | null

@@ -31,6 +31,9 @@ export const useUserEdit = () => {
     location: '',
     website: '',
     bio: '',
+    qualifications: [] as string[],
+    licenses: [] as string[],
+    awards: [] as string[],
     companyName: '',
     abn: '',
     companyWebsite: '',
@@ -61,7 +64,10 @@ export const useUserEdit = () => {
         avatarUrl: profile.avatar_url,
         birthDate: profile.birth_date,
         website: profile.website,
-        companySlogan: profile.company_slogan || ''
+        companySlogan: profile.company_slogan || '',
+        qualifications: profile.qualifications || [],
+        licenses: profile.licenses || [],
+        awards: profile.awards || []
       }));
     } else if (!loading && !profile) {
       // If no profile exists, use context data as fallback
@@ -137,7 +143,10 @@ export const useUserEdit = () => {
         birth_date: profileData.birthDate,
         website: profileData.website,
         company_slogan: profileData.companySlogan,
-        company: profileData.companyName
+        company: profileData.companyName,
+        qualifications: profileData.qualifications || [],
+        licenses: profileData.licenses || [],
+        awards: profileData.awards || []
       });
 
       // If superadmin and currentCompany exists, also update company data
@@ -200,7 +209,10 @@ export const useUserEdit = () => {
           bio: profileData.bio,
           avatarUrl: profileData.avatarUrl,
           birthDate: profileData.birthDate,
-          website: profileData.website
+          website: profileData.website,
+          qualifications: profileData.qualifications,
+          licenses: profileData.licenses,
+          awards: profileData.awards
         });
         
         const message = isSuperAdmin() && currentCompany?.id 

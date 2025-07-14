@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { User, Mail, Phone, Calendar } from 'lucide-react';
+import { User, Mail, Phone, Calendar, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ interface PersonalInfoSectionProps {
     email: string;
     phone: string;
     birthDate: string;
+    location: string;
   };
   onInputChange: (field: string, value: string) => void;
 }
@@ -91,6 +92,20 @@ export const PersonalInfoSection = ({ profileData, onInputChange }: PersonalInfo
             type="date"
             value={profileData.birthDate}
             onChange={(e) => onInputChange('birthDate', e.target.value)}
+            className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="location" className="flex items-center space-x-2 text-slate-700 font-medium">
+            <MapPin className="w-4 h-4 text-blue-500" />
+            <span>Home Address</span>
+          </Label>
+          <Input
+            id="location"
+            value={profileData.location}
+            onChange={(e) => onInputChange('location', e.target.value)}
+            placeholder="Enter your home address"
             className="backdrop-blur-sm bg-white/60 border-white/30 focus:bg-white/80 focus:border-blue-300 transition-all duration-200"
           />
         </div>
