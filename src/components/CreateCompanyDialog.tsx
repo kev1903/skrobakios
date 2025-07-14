@@ -39,7 +39,7 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
     if (!formData.name.trim()) {
       toast({
         title: "Error",
-        description: "Company name is required",
+        description: "Business name is required",
         variant: "destructive",
       });
       return;
@@ -134,12 +134,12 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Company Name *</Label>
+            <Label htmlFor="name">Business Name *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter company name"
+              placeholder="Enter business name"
               required
             />
           </div>

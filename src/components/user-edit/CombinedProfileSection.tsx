@@ -312,7 +312,7 @@ export const CombinedProfileSection = ({
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="companyName" className="text-white">Company Name</Label>
+                      <Label htmlFor="companyName" className="text-white">Business Name</Label>
                       <Input
                         id="companyName"
                         value={profileData.companyName}
