@@ -7,7 +7,6 @@ import { ChatBox } from '@/components/ChatBox';
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 import { AiChatBar } from '@/components/AiChatBar';
 import { useCompany } from '@/contexts/CompanyContext';
-
 import { useUserRole } from '@/hooks/useUserRole';
 
 interface Project {

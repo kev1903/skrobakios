@@ -40,6 +40,7 @@ import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
+import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
 import { BusinessDashboard } from "@/components/business/BusinessDashboard";
 import { ProjectDashboard } from "@/components/projects/ProjectDashboard";
 import { TaskManagement } from "@/components/projects/TaskManagement";
@@ -283,7 +284,16 @@ export const ContentRenderer = ({
     case "platform":
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":
-      return <ModernPlatformDashboard onNavigate={onNavigate} />;
+      return (
+        <RoleProtectedRoute 
+          requiredRoles={['superadmin', 'platform_admin']} 
+          onNavigate={onNavigate}
+          redirectPage="home"
+          fallbackMessage="Platform dashboard access is restricted to superadmins and platform admins only."
+        >
+          <ModernPlatformDashboard onNavigate={onNavigate} />
+        </RoleProtectedRoute>
+      );
     case "business-dashboard":
       return <BusinessDashboard onNavigate={onNavigate} />;
     case "project-dashboard":
