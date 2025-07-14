@@ -28,9 +28,9 @@ interface PersonalSectionProps {
 
 export const PersonalSection = ({ profileData, onInputChange, onArrayChange, onAddArrayItem, onRemoveArrayItem }: PersonalSectionProps) => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Profile Picture Section */}
-      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+      <div className="bg-card border border-border rounded-lg p-4">
         <ProfilePictureSection 
           avatarUrl={profileData.avatarUrl}
           firstName={profileData.firstName}
@@ -40,7 +40,7 @@ export const PersonalSection = ({ profileData, onInputChange, onArrayChange, onA
       </div>
 
       {/* Personal Information */}
-      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+      <div className="bg-card border border-border rounded-lg p-4">
         <PersonalInfoSection 
           profileData={{
             firstName: profileData.firstName,
@@ -55,7 +55,7 @@ export const PersonalSection = ({ profileData, onInputChange, onArrayChange, onA
       </div>
 
       {/* Professional Information */}
-      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+      <div className="bg-card border border-border rounded-lg p-4">
         <ProfessionalInfoSection 
           profileData={{
             jobTitle: profileData.jobTitle,
@@ -68,7 +68,7 @@ export const PersonalSection = ({ profileData, onInputChange, onArrayChange, onA
       </div>
 
       {/* Qualifications, Licenses & Awards */}
-      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+      <div className="bg-card border border-border rounded-lg p-4">
         <QualificationsSection
           qualifications={profileData.qualifications}
           licenses={profileData.licenses}

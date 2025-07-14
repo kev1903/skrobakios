@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { User, Home } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ArrowLeft, User, Save } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
@@ -141,64 +142,64 @@ export const PersonalPage = ({ onNavigate }: PersonalPageProps) => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <User className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">Personal Profile</h1>
-          </div>
-          <Button
-            onClick={() => onNavigate?.('home')}
-            variant="outline"
-            size="sm"
-            className="flex items-center space-x-2"
-          >
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </Button>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
+        <div className="max-w-4xl mx-auto">
+          <Card className="shadow-lg border-border/50">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-center">
+                <div className="text-muted-foreground">Loading profile...</div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        <div className="text-center text-muted-foreground">Loading profile...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <User className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold text-slate-800">Personal Profile</h1>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-            <Button
-              onClick={() => onNavigate?.('home')}
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-2"
-            >
-              <Home className="w-4 h-4" />
-              <span>Home</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Personal Profile Content */}
-        <PersonalSection
-          profileData={profileData}
-          onInputChange={handleInputChange}
-          onArrayChange={handleArrayChange}
-          onAddArrayItem={handleAddArrayItem}
-          onRemoveArrayItem={handleRemoveArrayItem}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
+      <div className="max-w-4xl mx-auto">
+        <Card className="shadow-lg border-border/50">
+          <CardHeader className="border-b border-border/50 bg-muted/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button
+                  onClick={() => onNavigate?.('home')}
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 hover:bg-background/80"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
+                  <h1 className="text-2xl font-semibold text-foreground">Personal Profile</h1>
+                </div>
+              </div>
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center space-x-2"
+              >
+                <Save className="w-4 h-4" />
+                <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              <PersonalSection
+                profileData={profileData}
+                onInputChange={handleInputChange}
+                onArrayChange={handleArrayChange}
+                onAddArrayItem={handleAddArrayItem}
+                onRemoveArrayItem={handleRemoveArrayItem}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
