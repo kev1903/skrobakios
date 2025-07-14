@@ -8,7 +8,7 @@ export interface Company {
   phone?: string;
   abn?: string;
   slogan?: string;
-  business_type?: 'individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer';
+  business_type?: 'sole_trader' | 'partnership' | 'company' | 'trust';
   industry?: string;
   company_size?: string;
   year_established?: number;
@@ -36,7 +36,7 @@ export interface UserCompany {
   logo_url?: string;
   role: 'owner' | 'admin' | 'member';
   status: 'active' | 'invited' | 'inactive';
-  business_type?: 'individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer';
+  business_type?: 'sole_trader' | 'partnership' | 'company' | 'trust';
 }
 
 export interface CreateCompanyData {
