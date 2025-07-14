@@ -18,44 +18,62 @@ export type Database = {
         Row: {
           abn: string | null
           address: string | null
+          company_size: string | null
           created_at: string
           created_by: string | null
           id: string
+          industry: string | null
           logo_url: string | null
           name: string
           phone: string | null
+          rating: number | null
+          review_count: number | null
           slogan: string | null
           slug: string
           updated_at: string
+          verified: boolean | null
           website: string | null
+          year_established: number | null
         }
         Insert: {
           abn?: string | null
           address?: string | null
+          company_size?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          industry?: string | null
           logo_url?: string | null
           name: string
           phone?: string | null
+          rating?: number | null
+          review_count?: number | null
           slogan?: string | null
           slug: string
           updated_at?: string
+          verified?: boolean | null
           website?: string | null
+          year_established?: number | null
         }
         Update: {
           abn?: string | null
           address?: string | null
+          company_size?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          industry?: string | null
           logo_url?: string | null
           name?: string
           phone?: string | null
+          rating?: number | null
+          review_count?: number | null
           slogan?: string | null
           slug?: string
           updated_at?: string
+          verified?: boolean | null
           website?: string | null
+          year_established?: number | null
         }
         Relationships: []
       }
@@ -574,6 +592,54 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_items: {
+        Row: {
+          case_study_url: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          is_public: boolean | null
+          media_urls: string[] | null
+          owner_id: string
+          owner_type: string
+          project_date: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          case_study_url?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          media_urls?: string[] | null
+          owner_id: string
+          owner_type: string
+          project_date?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          case_study_url?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          media_urls?: string[] | null
+          owner_id?: string
+          owner_type?: string
+          project_date?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_activated: boolean | null
@@ -592,10 +658,18 @@ export type Database = {
           location: string | null
           password_change_required: boolean | null
           phone: string | null
+          professional_title: string | null
+          public_profile: boolean | null
+          rating: number | null
+          review_count: number | null
+          services: string[] | null
+          skills: string[] | null
           status: string
           updated_at: string
           user_id: string | null
+          verified: boolean | null
           website: string | null
+          years_experience: number | null
         }
         Insert: {
           account_activated?: boolean | null
@@ -614,10 +688,18 @@ export type Database = {
           location?: string | null
           password_change_required?: boolean | null
           phone?: string | null
+          professional_title?: string | null
+          public_profile?: boolean | null
+          rating?: number | null
+          review_count?: number | null
+          services?: string[] | null
+          skills?: string[] | null
           status?: string
           updated_at?: string
           user_id?: string | null
+          verified?: boolean | null
           website?: string | null
+          years_experience?: number | null
         }
         Update: {
           account_activated?: boolean | null
@@ -636,10 +718,18 @@ export type Database = {
           location?: string | null
           password_change_required?: boolean | null
           phone?: string | null
+          professional_title?: string | null
+          public_profile?: boolean | null
+          rating?: number | null
+          review_count?: number | null
+          services?: string[] | null
+          skills?: string[] | null
           status?: string
           updated_at?: string
           user_id?: string | null
+          verified?: boolean | null
           website?: string | null
+          years_experience?: number | null
         }
         Relationships: []
       }
@@ -683,46 +773,61 @@ export type Database = {
       }
       projects: {
         Row: {
+          bim_model_url: string | null
           company_id: string
           contract_price: string | null
           created_at: string
           deadline: string | null
           description: string | null
+          digital_twin_events: Json | null
           id: string
+          iot_status: Json | null
+          is_public: boolean | null
           location: string | null
           name: string
           priority: string | null
           project_id: string
+          project_type: string | null
           start_date: string | null
           status: string | null
           updated_at: string
         }
         Insert: {
+          bim_model_url?: string | null
           company_id: string
           contract_price?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
+          digital_twin_events?: Json | null
           id?: string
+          iot_status?: Json | null
+          is_public?: boolean | null
           location?: string | null
           name: string
           priority?: string | null
           project_id: string
+          project_type?: string | null
           start_date?: string | null
           status?: string | null
           updated_at?: string
         }
         Update: {
+          bim_model_url?: string | null
           company_id?: string
           contract_price?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
+          digital_twin_events?: Json | null
           id?: string
+          iot_status?: Json | null
+          is_public?: boolean | null
           location?: string | null
           name?: string
           priority?: string | null
           project_id?: string
+          project_type?: string | null
           start_date?: string | null
           status?: string | null
           updated_at?: string
@@ -736,6 +841,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_verified_collaboration: boolean | null
+          project_context: string | null
+          rating: number
+          review_text: string | null
+          reviewee_id: string
+          reviewee_type: string
+          reviewer_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_verified_collaboration?: boolean | null
+          project_context?: string | null
+          rating: number
+          review_text?: string | null
+          reviewee_id: string
+          reviewee_type: string
+          reviewer_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_verified_collaboration?: boolean | null
+          project_context?: string | null
+          rating?: number
+          review_text?: string | null
+          reviewee_id?: string
+          reviewee_type?: string
+          reviewer_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       subtasks: {
         Row: {
@@ -1107,6 +1254,33 @@ export type Database = {
           },
         ]
       }
+      user_contexts: {
+        Row: {
+          context_id: string | null
+          context_type: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          user_id: string
+        }
+        Insert: {
+          context_id?: string | null
+          context_type: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          user_id: string
+        }
+        Update: {
+          context_id?: string | null
+          context_type?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1456,6 +1630,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_current_context: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          context_type: string
+          context_id: string
+          context_name: string
+        }[]
+      }
       get_manageable_users_for_user: {
         Args: { requesting_user_id: string }
         Returns: {
@@ -1531,6 +1713,10 @@ export type Database = {
       }
       is_platform_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      set_active_context: {
+        Args: { p_context_type: string; p_context_id?: string }
         Returns: boolean
       }
       track_first_login: {
