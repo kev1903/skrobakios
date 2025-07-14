@@ -36,7 +36,9 @@ export const LandingPage = ({
           <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-gray-700 hover:text-gray-900">
             Log in
           </Button>
-          
+          <Button onClick={() => onNavigate('auth')} className="bg-purple-700 text-white hover:bg-purple-800">
+            Sign Up
+          </Button>
         </div>
       </header>
 
