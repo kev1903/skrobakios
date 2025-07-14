@@ -274,17 +274,31 @@ export const UserProfileEditPage = () => {
         throw new Error('Authentication required');
       }
 
-      const { error } = await supabase.functions.invoke('send-password-reset', {
+      const { data, error } = await supabase.functions.invoke('send-password-reset', {
         body: {
           userEmail: user.email,
           adminEmail: currentUser.email,
-        }
+        },
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
       });
 
       if (error) {
+        console.error('Password reset error:', error);
         toast({
           title: "Reset Failed",
-          description: error.message,
+          description: error.message || "Edge Function returned a non-2xx status code",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.error) {
+        console.error('Password reset data error:', data.error);
+        toast({
+          title: "Reset Failed",
+          description: data.error,
           variant: "destructive",
         });
         return;

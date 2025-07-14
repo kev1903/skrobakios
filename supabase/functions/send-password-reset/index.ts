@@ -41,15 +41,24 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const resend = new Resend(resendApiKey);
 
+    // Get the authorization header
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    
+    console.log('Auth header received:', authHeader ? 'present' : 'missing');
+    
     // Verify the requesting admin has superadmin privileges
-    const { data: { user }, error: authError } = await supabase.auth.getUser(req.headers.get('authorization')?.replace('Bearer ', '') || '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token || '');
     
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Authentication required' }), {
+      console.error('Authentication error:', authError);
+      return new Response(JSON.stringify({ error: 'Authentication required', details: authError?.message }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
+
+    console.log('User authenticated:', user.email);
 
     // Check if admin is superadmin
     const { data: adminRoles, error: roleError } = await supabase
@@ -57,8 +66,11 @@ const handler = async (req: Request): Promise<Response> => {
       .select('role')
       .eq('user_id', user.id);
 
+    console.log('Admin roles:', adminRoles);
+
     if (roleError || !adminRoles?.some(r => r.role === 'superadmin')) {
-      return new Response(JSON.stringify({ error: 'Insufficient permissions' }), {
+      console.error('Role check error:', roleError);
+      return new Response(JSON.stringify({ error: 'Insufficient permissions', userRoles: adminRoles }), {
         status: 403,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
@@ -79,6 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Generate password reset link
+    console.log('Generating reset link for:', userEmail);
     const { data: resetData, error: resetError } = await supabase.auth.admin.generateLink({
       type: 'recovery',
       email: userEmail,
@@ -89,13 +102,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (resetError || !resetData) {
       console.error('Password reset generation error:', resetError);
-      return new Response(JSON.stringify({ error: 'Failed to generate reset link' }), {
+      return new Response(JSON.stringify({ 
+        error: 'Failed to generate reset link', 
+        details: resetError?.message 
+      }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
 
+    console.log('Reset link generated successfully');
+
     // Send password reset email
+    console.log('Sending password reset email to:', userEmail);
     const emailResponse = await resend.emails.send({
       from: "System Admin <noreply@system.com>",
       to: [userEmail],
@@ -163,11 +182,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailResponse.error) {
       console.error('Email sending error:', emailResponse.error);
-      return new Response(JSON.stringify({ error: 'Failed to send reset email' }), {
+      return new Response(JSON.stringify({ 
+        error: 'Failed to send reset email', 
+        details: emailResponse.error.message 
+      }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
+
+    console.log('Email sent successfully, ID:', emailResponse.data?.id);
 
     // Log the admin action
     console.log(`Password reset initiated by admin ${adminEmail} for user ${userEmail}`);
