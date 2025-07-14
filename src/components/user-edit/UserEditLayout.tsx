@@ -23,6 +23,12 @@ interface UserEditLayoutProps {
     companyMembers: string;
     companyLogo: string;
     companySlogan: string;
+    companyPhone: string;
+    businessType: string;
+    industry: string;
+    companySize: string;
+    yearEstablished: number;
+    serviceAreas: string[];
   };
   activeSection: string;
   saving: boolean;
