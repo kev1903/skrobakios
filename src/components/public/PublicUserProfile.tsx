@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { User, MapPin, Globe, Phone, Mail, Calendar, Building2, Star, ExternalLink } from 'lucide-react';
+import { User, MapPin, Globe, Phone, Mail, Calendar, Building2, Star, ExternalLink, Image as ImageIcon } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,9 +34,21 @@ interface PublicProfile {
   review_count?: number;
 }
 
+interface PortfolioItem {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  media_urls: string[] | null;
+  is_featured: boolean | null;
+  case_study_url: string | null;
+  project_date: string | null;
+}
+
 export const PublicUserProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const { toast } = useToast();
@@ -46,6 +58,30 @@ export const PublicUserProfile = () => {
       fetchPublicProfile();
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (profile?.user_id) {
+      fetchPortfolioItems();
+    }
+  }, [profile?.user_id]);
+
+  const fetchPortfolioItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('portfolio_items')
+        .select('*')
+        .eq('owner_id', profile?.user_id)
+        .eq('owner_type', 'user')
+        .eq('is_public', true)
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPortfolioItems(data || []);
+    } catch (error) {
+      console.error('Error fetching portfolio items:', error);
+    }
+  };
 
   const fetchPublicProfile = async () => {
     try {
@@ -252,6 +288,47 @@ export const PublicUserProfile = () => {
                       <Badge key={index} variant="outline">
                         {service}
                       </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Portfolio */}
+            {portfolioItems.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Portfolio</CardTitle>
+                  <CardDescription>Featured work and projects</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {portfolioItems.slice(0, 4).map((item) => (
+                      <div key={item.id} className="group cursor-pointer">
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 mb-3">
+                          {item.media_urls?.[0] ? (
+                            <img
+                              src={item.media_urls[0]}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <ImageIcon className="w-8 h-8 text-slate-400" />
+                            </div>
+                          )}
+                          {item.is_featured && (
+                            <div className="absolute top-2 left-2">
+                              <Badge className="bg-yellow-600 text-white">
+                                <Star className="w-3 h-3 mr-1" />
+                                Featured
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                        <h4 className="font-semibold text-sm line-clamp-1">{item.title}</h4>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+                      </div>
                     ))}
                   </div>
                 </CardContent>

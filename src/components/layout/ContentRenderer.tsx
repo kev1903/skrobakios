@@ -41,6 +41,8 @@ import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { Project } from "@/hooks/useProjects";
 import { CompanyManagementPage } from "@/components/CompanyManagementPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
+import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
+import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -263,6 +265,10 @@ export const ContentRenderer = ({
       return <PlatformDashboard onNavigate={onNavigate} />;
     case "personal-dashboard":
       return <PersonalDashboard onNavigate={onNavigate} />;
+    case "portfolio-manage":
+      return <PortfolioManagePage onNavigate={onNavigate} />;
+    case "portfolio":
+      return <PortfolioViewPage onNavigate={onNavigate} />;
     case "inbox":
     case "asset":
     case "schedules":

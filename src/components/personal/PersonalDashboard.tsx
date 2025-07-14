@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Briefcase, Star, Calendar, TrendingUp, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '@/contexts/UserContext';
 import { useCompany } from '@/contexts/CompanyContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PersonalDashboardProps {
   onNavigate: (page: string) => void;
@@ -14,6 +15,50 @@ interface PersonalDashboardProps {
 export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
   const { userProfile } = useUser();
   const { companies } = useCompany();
+  const [portfolioCount, setPortfolioCount] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+
+  useEffect(() => {
+    fetchPortfolioCount();
+    fetchReviewCount();
+  }, []);
+
+  const fetchPortfolioCount = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { count, error } = await supabase
+          .from('portfolio_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('owner_id', user.id)
+          .eq('owner_type', 'user');
+
+        if (error) throw error;
+        setPortfolioCount(count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching portfolio count:', error);
+    }
+  };
+
+  const fetchReviewCount = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { count, error } = await supabase
+          .from('reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('reviewee_id', user.id)
+          .eq('reviewee_type', 'user')
+          .eq('status', 'active');
+
+        if (error) throw error;
+        setReviewCount(count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching review count:', error);
+    }
+  };
 
   const stats = [
     {
@@ -25,14 +70,14 @@ export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
     },
     {
       title: 'Portfolio Items',
-      value: '0', // Placeholder for now
+      value: portfolioCount,
       description: 'Projects in your portfolio',
       icon: Star,
       action: () => onNavigate('portfolio')
     },
     {
       title: 'Reviews',
-      value: '0', // Placeholder for now
+      value: reviewCount,
       description: 'Reviews received',
       icon: TrendingUp,
       action: () => onNavigate('reviews')
