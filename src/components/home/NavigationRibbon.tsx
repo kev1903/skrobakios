@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home } from 'lucide-react';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanyModules } from '@/hooks/useCompanyModules';
@@ -67,8 +67,25 @@ export const NavigationRibbon = ({
           <SidebarContextSwitcher onNavigate={onNavigate} />
         </div>
         
-        {/* Profile Navigation Section */}
+        {/* Home Button */}
         <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
+          <button
+            onClick={() => {
+              onNavigate('home');
+              onClose();
+            }}
+            className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left mb-4 ${
+              currentPage === 'home'
+                ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg"
+                : "text-white hover:bg-white/30 bg-white/10"
+            }`}
+          >
+            <Home className={`w-4 h-4 transition-all duration-200 ${
+              currentPage === 'home' ? "text-blue-200" : "text-white/80"
+            }`} />
+            <span className="text-sm font-medium">Home</span>
+          </button>
+
           {/* Profile Navigation */}
           <div className="space-y-1">
             <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
