@@ -3,6 +3,7 @@ import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, H
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanyModules } from '@/hooks/useCompanyModules';
+import { useAppContext } from '@/contexts/AppContextProvider';
 import { personalProfileNavigation } from '@/components/sidebar/navigationData';
 interface NavigationRibbonProps {
   isOpen: boolean;
@@ -11,6 +12,28 @@ interface NavigationRibbonProps {
   onClose: () => void;
   currentPage?: string;
 }
+
+// Define the business navigation items to show when a business is selected
+const BUSINESS_NAVIGATION_ITEMS = [
+  {
+    id: 'projects',
+    label: 'Projects',
+    icon: Briefcase,
+    page: 'projects'
+  },
+  {
+    id: 'finance',
+    label: 'Finance', 
+    icon: DollarSign,
+    page: 'finance'
+  },
+  {
+    id: 'sales',
+    label: 'Sales',
+    icon: TrendingUp,
+    page: 'sales'
+  }
+];
 
 // Define the company modules with their navigation details
 const COMPANY_NAVIGATION_MODULES = [{
@@ -36,9 +59,8 @@ export const NavigationRibbon = ({
   onClose,
   currentPage = ""
 }: NavigationRibbonProps) => {
-  const {
-    currentCompany
-  } = useCompany();
+  const { currentCompany } = useCompany();
+  const { activeContext } = useAppContext();
   const {
     fetchCompanyModules,
     isModuleEnabled
@@ -65,40 +87,64 @@ export const NavigationRibbon = ({
         <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
           
 
-          {/* Profile Navigation */}
-          <div className="space-y-1">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-              Profile Navigation
-            </div>
-            {personalProfileNavigation.map(item => {
-            const Icon = item.icon;
-            const isActive = item.active || currentPage === item.id;
-            return <button key={item.id} onClick={() => {
-              onNavigate(item.id);
-              onClose();
-            }} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${isActive ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" : "text-white hover:bg-white/30"}`}>
-                  <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
-                  <span className="text-sm font-medium">{item.label}</span>
-                </button>;
-          })}
-          </div>
-
-          {/* Company Modules Section - if any are enabled */}
-          {enabledNavigationModules.length > 0 && <div className="space-y-1 pt-4 border-t border-white/20 mt-4">
+          {/* Conditional Navigation based on context */}
+          {activeContext === 'personal' ? (
+            /* Profile Navigation */
+            <div className="space-y-1">
               <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-                Business Modules
+                Profile Navigation
               </div>
-              {enabledNavigationModules.map(module => {
-            const IconComponent = module.icon;
-            return <button key={module.key} onClick={() => {
-              onNavigate(module.page);
-              onClose();
-            }} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white hover:bg-white/30 transition-all duration-200 text-left">
-                    <IconComponent className="w-4 h-4" />
-                    <span className="text-sm font-medium">{module.name}</span>
-                  </button>;
-          })}
-            </div>}
+              {personalProfileNavigation.map(item => {
+                const Icon = item.icon;
+                const isActive = item.active || currentPage === item.id;
+                return (
+                  <button 
+                    key={item.id} 
+                    onClick={() => {
+                      onNavigate(item.id);
+                      onClose();
+                    }} 
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                      isActive 
+                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                        : "text-white hover:bg-white/30"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* Business Navigation */
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+                Business Navigation
+              </div>
+              {BUSINESS_NAVIGATION_ITEMS.map(item => {
+                const Icon = item.icon;
+                const isActive = currentPage === item.id || currentPage === item.page;
+                return (
+                  <button 
+                    key={item.id} 
+                    onClick={() => {
+                      onNavigate(item.page);
+                      onClose();
+                    }} 
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                      isActive 
+                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                        : "text-white hover:bg-white/30"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Support Section */}
