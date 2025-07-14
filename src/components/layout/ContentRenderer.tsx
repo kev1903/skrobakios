@@ -1,5 +1,4 @@
 import React from 'react';
-import { TaskManagement } from "@/components/TaskManagement";
 import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
@@ -41,6 +40,8 @@ import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
 import { BusinessDashboard } from "@/components/business/BusinessDashboard";
+import { ProjectDashboard } from "@/components/projects/ProjectDashboard";
+import { TaskManagement } from "@/components/projects/TaskManagement";
 import { Project } from "@/hooks/useProjects";
 import { CompanyManagementPage } from "@/components/CompanyManagementPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
@@ -272,6 +273,10 @@ export const ContentRenderer = ({
       return <ModernPlatformDashboard onNavigate={onNavigate} />;
     case "business-dashboard":
       return <BusinessDashboard onNavigate={onNavigate} />;
+    case "project-dashboard":
+      return <ProjectDashboard onNavigate={onNavigate} />;
+    case "task-management":
+      return <TaskManagement onNavigate={onNavigate} />;
     case "personal-dashboard":
       return <PersonalDashboard onNavigate={onNavigate} />;
     case "portfolio-manage":
