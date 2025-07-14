@@ -14,7 +14,7 @@ BEGIN
         -- Create a company for each user
         INSERT INTO public.companies (name, slug, created_by)
         VALUES (
-            COALESCE(user_record.raw_user_meta_data ->> 'company', user_record.email || '''s Company'),
+            COALESCE(user_record.raw_user_meta_data ->> 'company', user_record.email || '''s Business'),
             LOWER(REPLACE(COALESCE(user_record.raw_user_meta_data ->> 'company', user_record.email), ' ', '-')) || '-' || EXTRACT(EPOCH FROM now())::TEXT,
             user_record.id
         ) RETURNING id INTO default_company_id;

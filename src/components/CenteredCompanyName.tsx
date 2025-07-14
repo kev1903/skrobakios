@@ -11,13 +11,13 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
   const { currentCompany } = useCompany();
   const { userProfile } = useUser();
 
-  // Get display text - show user name if no company is linked
+  // Get display text - show user name if no business is linked
   const getDisplayText = () => {
     if (currentCompany?.name) {
       return currentCompany.name;
     }
     
-    // If no company, show user's name
+    // If no business, show user's name
     if (userProfile.firstName || userProfile.lastName) {
       return `${userProfile.firstName} ${userProfile.lastName}`.trim();
     }
