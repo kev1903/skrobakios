@@ -795,6 +795,115 @@ export type Database = {
           },
         ]
       }
+      project_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          declined_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          message: string | null
+          project_id: string
+          role: string
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          declined_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          invited_by: string
+          message?: string | null
+          project_id: string
+          role?: string
+          status?: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          declined_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          message?: string | null
+          project_id?: string
+          role?: string
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_invitations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_members: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          joined_at: string | null
+          permissions: Json | null
+          project_id: string
+          role: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          permissions?: Json | null
+          project_id: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          joined_at?: string | null
+          permissions?: Json | null
+          project_id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           bim_model_url: string | null
@@ -1638,6 +1747,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_project_invitation: {
+        Args: { invitation_token: string }
+        Returns: Json
+      }
       can_manage_company: {
         Args: { company_id: string; user_id: string }
         Returns: boolean
@@ -1651,6 +1764,10 @@ export type Database = {
         Returns: Json
       }
       generate_access_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_invitation_token: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
