@@ -11,13 +11,21 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
   const { currentCompany } = useCompany();
   const { userProfile } = useUser();
 
-  // Get display text - show user name if no business is linked
+  // Get display text - show user name if no real business is set up
   const getDisplayText = () => {
-    if (currentCompany?.name) {
+    // Check if company name looks like an auto-generated default (contains email or ends with 's Business')
+    const isDefaultCompanyName = currentCompany?.name && (
+      currentCompany.name.includes('@') || 
+      currentCompany.name.endsWith('\'s Business') ||
+      currentCompany.name.endsWith('\'s Company')
+    );
+    
+    // If we have a real company name (not auto-generated), show it
+    if (currentCompany?.name && !isDefaultCompanyName) {
       return currentCompany.name;
     }
     
-    // If no business, show user's name
+    // Otherwise show user's name
     if (userProfile.firstName || userProfile.lastName) {
       return `${userProfile.firstName} ${userProfile.lastName}`.trim();
     }
