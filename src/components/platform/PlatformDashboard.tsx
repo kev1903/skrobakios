@@ -10,8 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Edit } from 'lucide-react';
-import { CompaniesTable } from '@/components/companies/CompaniesTable';
-import { CompanyEditDialog } from '@/components/companies/CompanyEditDialog';
+import { BusinessesTable } from '@/components/companies/BusinessesTable';
+import { BusinessEditDialog } from '@/components/companies/BusinessEditDialog';
 import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
 import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
@@ -525,13 +525,13 @@ export const PlatformDashboard = ({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CompaniesTable companies={filteredCompanies} onEditCompany={handleEditCompany} loading={companiesLoading} canManageCompanies={canManageCompanies} />
+                <BusinessesTable companies={filteredCompanies} onEditCompany={handleEditCompany} loading={companiesLoading} canManageCompanies={canManageCompanies} />
               </CardContent>
             </Card>
 
 
             {/* Edit Dialog */}
-            <CompanyEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} />
+            <BusinessEditDialog company={selectedCompany} open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} onSave={handleSaveCompany} />
           </div>;
       case 'modules':
         return <div className="space-y-6">

@@ -30,6 +30,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PlatformUserManagement } from "@/components/admin/PlatformUserManagement";
+import { BusinessesTable } from "@/components/companies/BusinessesTable";
+import { BusinessEditDialog } from "@/components/companies/BusinessEditDialog";
+import { Company } from "@/types/company";
 
 interface ModernPlatformDashboardProps {
   onNavigate: (page: string) => void;
@@ -75,7 +78,9 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
   });
 
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
-  const [companies, setCompanies] = useState<CompanyOption[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [systemAlerts, setSystemAlerts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -90,7 +95,7 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
       // Load platform statistics
       const [usersResponse, companiesResponse, projectsResponse] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('companies').select('id, name', { count: 'exact' }),
+        supabase.from('companies').select('*', { count: 'exact' }),
         supabase.from('projects').select('id', { count: 'exact' })
       ]);
 
@@ -146,6 +151,38 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
     }
   };
 
+  const handleEditCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveCompany = async (updatedCompany: Partial<Company>) => {
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .update(updatedCompany)
+        .eq('id', selectedCompany?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Business updated successfully"
+      });
+
+      loadPlatformData(); // Reload data
+      setIsEditDialogOpen(false);
+      setSelectedCompany(null);
+    } catch (error) {
+      console.error('Error updating business:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update business",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -186,7 +223,7 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="companies">Companies</TabsTrigger>
+            <TabsTrigger value="companies">Businesses</TabsTrigger>
             <TabsTrigger value="system">System Health</TabsTrigger>
           </TabsList>
 
@@ -208,7 +245,7 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Companies</CardTitle>
+                  <CardTitle className="text-sm font-medium">Businesses</CardTitle>
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -326,7 +363,7 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2">
                     <Building2 className="w-6 h-6" />
-                    <span className="text-sm">Company Settings</span>
+                    <span className="text-sm">Business Settings</span>
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2">
                     <Database className="w-6 h-6" />
@@ -348,20 +385,25 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
           <TabsContent value="companies" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Company Management</CardTitle>
+                <CardTitle>Business Management</CardTitle>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search companies..." className="pl-10" />
+                    <Input placeholder="Search businesses..." className="pl-10" />
                   </div>
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Company
+                    Add Business
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Company management functionality will be displayed here.</p>
+                <BusinessesTable 
+                  companies={companies} 
+                  onEditCompany={handleEditCompany}
+                  loading={loading}
+                  canManageCompanies={true}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -428,6 +470,13 @@ export const ModernPlatformDashboard = ({ onNavigate }: ModernPlatformDashboardP
             </div>
           </TabsContent>
         </Tabs>
+
+        <BusinessEditDialog
+          company={selectedCompany}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSave={handleSaveCompany}
+        />
       </div>
     </div>
   );

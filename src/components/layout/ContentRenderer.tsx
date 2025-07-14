@@ -45,7 +45,7 @@ import { BusinessDashboard } from "@/components/business/BusinessDashboard";
 import { ProjectDashboard } from "@/components/projects/ProjectDashboard";
 import { TaskManagement } from "@/components/projects/TaskManagement";
 import { Project } from "@/hooks/useProjects";
-import { CompanyManagementPage } from "@/components/CompanyManagementPage";
+import { BusinessManagementPage } from "@/components/BusinessManagementPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
@@ -285,8 +285,8 @@ export const ContentRenderer = ({
       return <UserProfilePage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
-    case "company-management":
-      return <CompanyManagementPage onNavigate={onNavigate} />;
+    case "business-management":
+      return <BusinessManagementPage onNavigate={onNavigate} />;
     case "platform":
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":

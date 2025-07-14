@@ -17,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Building2, Globe, MapPin, Phone, Hash, MessageSquare, FolderKanban, DollarSign, TrendingUp } from 'lucide-react';
 import { Company } from '@/types/company';
 
-interface CompanyEditDialogProps {
+interface BusinessEditDialogProps {
   company: Company | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,12 +30,12 @@ interface CompanyModules {
   sales: boolean;
 }
 
-export const CompanyEditDialog = ({
+export const BusinessEditDialog = ({
   company,
   open,
   onOpenChange,
   onSave
-}: CompanyEditDialogProps) => {
+}: BusinessEditDialogProps) => {
   const [formData, setFormData] = useState<Partial<Company>>({});
   const [modules, setModules] = useState<CompanyModules>({
     projects: true,

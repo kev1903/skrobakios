@@ -13,19 +13,19 @@ import { Building2, Edit, Globe, MapPin, Phone } from 'lucide-react';
 import { Company } from '@/types/company';
 import { format } from 'date-fns';
 
-interface CompaniesTableProps {
+interface BusinessesTableProps {
   companies: Company[];
   onEditCompany: (company: Company) => void;
   loading: boolean;
   canManageCompanies: boolean;
 }
 
-export const CompaniesTable = ({
+export const BusinessesTable = ({
   companies,
   onEditCompany,
   loading,
   canManageCompanies
-}: CompaniesTableProps) => {
+}: BusinessesTableProps) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">

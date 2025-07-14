@@ -229,7 +229,7 @@ export const PublicDirectory = () => {
             </TabsTrigger>
             <TabsTrigger value="companies" className="flex items-center space-x-2">
               <Building2 className="h-4 w-4" />
-              <span>Companies ({filteredCompanies.length})</span>
+              <span>Businesses ({filteredCompanies.length})</span>
             </TabsTrigger>
           </TabsList>
 
@@ -327,7 +327,7 @@ export const PublicDirectory = () => {
             )}
           </TabsContent>
 
-          {/* Companies Tab */}
+          {/* Businesses Tab */}
           <TabsContent value="companies">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCompanies.map((company) => (

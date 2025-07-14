@@ -7,16 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Company } from '@/types/company';
-import { CompaniesTable } from '@/components/companies/CompaniesTable';
-import { CompanyEditDialog } from '@/components/companies/CompanyEditDialog';
+import { BusinessesTable } from '@/components/companies/BusinessesTable';
+import { BusinessEditDialog } from '@/components/companies/BusinessEditDialog';
 import { useToast } from '@/hooks/use-toast';
 
-interface CompanyManagementPageProps {
+interface BusinessManagementPageProps {
   onNavigate?: (page: string) => void;
   onNavigateBack?: () => void;
 }
 
-export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyManagementPageProps) => {
+export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessManagementPageProps) => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,12 +123,12 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
               <div className="p-2 bg-blue-100 rounded-lg">
                 <Building2 className="w-6 h-6 text-blue-600" />
               </div>
-              <h1 className="text-2xl font-bold text-slate-800">Company Management</h1>
+              <h1 className="text-2xl font-bold text-slate-800">Business Management</h1>
             </div>
             {canManageCompanies && (
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
-                CREATE COMPANY
+                CREATE BUSINESS
               </Button>
             )}
           </div>
@@ -142,7 +142,7 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search companies..."
+                placeholder="Search businesses..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-80"
@@ -153,10 +153,10 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
               Filter
             </Button>
           </div>
-          <span className="text-sm text-slate-600">{filteredCompanies.length} companies</span>
+          <span className="text-sm text-slate-600">{filteredCompanies.length} businesses</span>
         </div>
         
-        <CompaniesTable
+        <BusinessesTable
           companies={filteredCompanies}
           onEditCompany={handleEditCompany}
           loading={loading}
@@ -165,7 +165,7 @@ export const CompanyManagementPage = ({ onNavigate, onNavigateBack }: CompanyMan
       </div>
 
       {/* Edit Dialog */}
-      <CompanyEditDialog
+      <BusinessEditDialog
         company={selectedCompany}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}

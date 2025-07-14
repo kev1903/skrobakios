@@ -148,7 +148,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-slate-800">{company.name}</h1>
-                  <p className="text-slate-600">Company Management</p>
+                  <p className="text-slate-600">Business Management</p>
                 </div>
               </div>
             </div>
