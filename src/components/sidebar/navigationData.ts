@@ -24,7 +24,7 @@ export const personalProfileNavigation: NavigationItem[] = [
   { id: "finance", label: "Finance", icon: DollarSign },
   { id: "wellness", label: "Wellness", icon: Heart },
   { id: "family", label: "Family", icon: Users },
-  { id: "company-settings", label: "Company", icon: Building2 },
+  { id: "business", label: "Business", icon: Building2 },
   { id: "security", label: "Security", icon: Shield },
 ];
 

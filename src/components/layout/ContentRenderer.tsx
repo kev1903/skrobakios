@@ -285,6 +285,7 @@ export const ContentRenderer = ({
       return <UserProfilePage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
+    case "business":
     case "business-management":
       return <BusinessManagementPage onNavigate={onNavigate} />;
     case "platform":
