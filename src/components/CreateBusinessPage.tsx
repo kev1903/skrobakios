@@ -26,14 +26,14 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
     phone: '',
     abn: '',
     slogan: '',
-    business_type: 'small_business' as 'individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer',
+    business_type: 'company' as 'sole_trader' | 'partnership' | 'company' | 'trust',
     industry: 'Construction',
     company_size: '',
     year_established: '',
     service_areas: [] as string[]
   });
 
-  const handleInputChange = (field: string, value: string | ('individual' | 'small_business' | 'enterprise' | 'agency' | 'freelancer')) => {
+  const handleInputChange = (field: string, value: string | ('sole_trader' | 'partnership' | 'company' | 'trust')) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -221,11 +221,10 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
                       <SelectValue placeholder="Select business type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="individual">Individual</SelectItem>
-                      <SelectItem value="small_business">Small Business</SelectItem>
-                      <SelectItem value="enterprise">Enterprise</SelectItem>
-                      <SelectItem value="agency">Agency</SelectItem>
-                      <SelectItem value="freelancer">Freelancer</SelectItem>
+                      <SelectItem value="sole_trader">Sole Trader</SelectItem>
+                      <SelectItem value="partnership">Partnership</SelectItem>
+                      <SelectItem value="company">Company</SelectItem>
+                      <SelectItem value="trust">Trust</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
