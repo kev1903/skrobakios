@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyModule } from '@/types/companyModules';
 import { clearCache } from '@/utils/moduleCache';
+import { performanceMonitor } from '@/utils/performanceMonitor';
+import { backgroundProcessor } from '@/utils/backgroundProcessor';
 import { 
   fetchCompanyModulesInternal, 
   fetchMultipleCompanyModulesInternal, 
@@ -18,73 +20,97 @@ export const useCompanyModules = () => {
   const fetchCompanyModules = useCallback(async (companyId: string) => {
     if (!companyId) return;
     
-    // Set loading state for this specific company
-    setLoadingCompanies(prev => new Set(prev).add(companyId));
-    setLoading(true);
+    return performanceMonitor.measureAsync('hook.fetchCompanyModules', async () => {
+      // Set loading state for this specific company
+      setLoadingCompanies(prev => new Set(prev).add(companyId));
+      setLoading(true);
 
-    try {
-      const moduleData = await fetchCompanyModulesInternal(companyId);
-      
-      // Update state with the fetched data
-      setModules(prev => {
-        // Remove old modules for this company and add new ones
-        const filteredModules = prev.filter(m => m.company_id !== companyId);
-        return [...filteredModules, ...moduleData];
-      });
-      
-    } catch (error) {
-      console.error('Error in fetchCompanyModules:', error);
-      
-      // Check if error is due to authentication
-      if ((error as any)?.message === 'User not authenticated') {
-        // Don't show error toast for authentication issues - let the auth flow handle this
-        return;
+      try {
+        const moduleData = await fetchCompanyModulesInternal(companyId);
+        
+        // Update state with the fetched data
+        setModules(prev => {
+          // Remove old modules for this company and add new ones
+          const filteredModules = prev.filter(m => m.company_id !== companyId);
+          return [...filteredModules, ...moduleData];
+        });
+        
+        // Schedule background prefetch for related companies
+        backgroundProcessor.prefetchData([companyId], 'company_modules');
+        
+      } catch (error) {
+        console.error('Error in fetchCompanyModules:', error);
+        
+        // Track error for performance monitoring
+        performanceMonitor.recordMetric('error.fetchCompanyModules', 1, { 
+          companyId, 
+          error: (error as Error).message 
+        });
+        
+        // Check if error is due to authentication
+        if ((error as any)?.message === 'User not authenticated') {
+          // Don't show error toast for authentication issues - let the auth flow handle this
+          return;
+        }
+        
+        toast({
+          title: 'Error',
+          description: 'Failed to load company modules',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoadingCompanies(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(companyId);
+          return newSet;
+        });
+        
+        // Only set loading to false if no companies are being loaded
+        setLoading(prev => prev && loadingCompanies.size > 1);
       }
-      
-      toast({
-        title: 'Error',
-        description: 'Failed to load company modules',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoadingCompanies(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(companyId);
-        return newSet;
-      });
-      
-      // Only set loading to false if no companies are being loaded
-      setLoading(prev => prev && loadingCompanies.size > 1);
-    }
+    });
   }, [toast, loadingCompanies.size]);
 
   // Fetch modules for multiple companies efficiently
   const fetchMultipleCompanyModules = useCallback(async (companyIds: string[]) => {
     if (companyIds.length === 0) return;
     
-    setLoading(true);
+    return performanceMonitor.measureAsync('hook.fetchMultipleCompanyModules', async () => {
+      setLoading(true);
 
-    try {
-      const allModules = await fetchMultipleCompanyModulesInternal(companyIds);
-      setModules(allModules);
-      
-    } catch (error) {
-      console.error('Error fetching multiple company modules:', error);
-      
-      // Check if error is due to authentication
-      if ((error as any)?.message === 'User not authenticated') {
-        // Don't show error toast for authentication issues - let the auth flow handle this
-        return;
+      try {
+        const allModules = await fetchMultipleCompanyModulesInternal(companyIds);
+        setModules(allModules);
+        
+        // Track successful batch fetch
+        performanceMonitor.recordMetric('batch.fetchSuccess', companyIds.length, { 
+          companyCount: companyIds.length 
+        });
+        
+      } catch (error) {
+        console.error('Error fetching multiple company modules:', error);
+        
+        // Track batch fetch error
+        performanceMonitor.recordMetric('error.fetchMultipleCompanyModules', 1, { 
+          companyCount: companyIds.length,
+          error: (error as Error).message 
+        });
+        
+        // Check if error is due to authentication
+        if ((error as any)?.message === 'User not authenticated') {
+          // Don't show error toast for authentication issues - let the auth flow handle this
+          return;
+        }
+        
+        toast({
+          title: 'Error',
+          description: 'Failed to load some company modules',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
       }
-      
-      toast({
-        title: 'Error',
-        description: 'Failed to load some company modules',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
+    });
   }, [toast]);
 
   const updateModuleStatus = useCallback(async (companyId: string, moduleName: string, enabled: boolean) => {

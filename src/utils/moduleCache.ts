@@ -1,31 +1,26 @@
 import { CompanyModule } from '@/types/companyModules';
+import { moduleCache, createCacheKey } from './enhancedCache';
 
-// Global cache for company modules
-const moduleCache = new Map<string, { data: CompanyModule[]; timestamp: number }>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// Check if cached data is still valid
+// Backward compatibility functions for existing code
 export const isCacheValid = (companyId: string): boolean => {
-  const cached = moduleCache.get(companyId);
-  if (!cached) return false;
-  return Date.now() - cached.timestamp < CACHE_DURATION;
+  const cacheKey = createCacheKey('company_modules', companyId);
+  return moduleCache.has(cacheKey);
 };
 
-// Get cached data
 export const getCachedData = (companyId: string): CompanyModule[] | null => {
-  if (!isCacheValid(companyId)) return null;
-  return moduleCache.get(companyId)?.data || null;
+  const cacheKey = createCacheKey('company_modules', companyId);
+  return moduleCache.get(cacheKey);
 };
 
-// Set cache data
 export const setCacheData = (companyId: string, data: CompanyModule[]) => {
-  moduleCache.set(companyId, { data, timestamp: Date.now() });
+  const cacheKey = createCacheKey('company_modules', companyId);
+  moduleCache.set(cacheKey, data);
 };
 
-// Clear cache for a specific company or all companies
 export const clearCache = (companyId?: string) => {
   if (companyId) {
-    moduleCache.delete(companyId);
+    const cacheKey = createCacheKey('company_modules', companyId);
+    moduleCache.delete(cacheKey);
   } else {
     moduleCache.clear();
   }
