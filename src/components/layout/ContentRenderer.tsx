@@ -50,6 +50,9 @@ import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
 import { ProjectTeamRedirect } from "@/components/projects/ProjectTeamRedirect";
 import { MilestonePage } from "@/components/MilestonePage";
+import { BusinessInvitationManager } from "@/components/invitations/BusinessInvitationManager";
+import { PermissionManager } from "@/components/permissions/PermissionManager";
+import { InvitationAcceptancePage } from "@/components/invitations/InvitationAcceptancePage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -219,6 +222,12 @@ export const ContentRenderer = ({
           <CostContractsPage onNavigate={onNavigate} />
         </ModuleProtectedRoute>
       );
+    case "business-invitations":
+      return <BusinessInvitationManager onNavigate={onNavigate} />;
+    case "team-management":
+      return <PermissionManager onNavigate={onNavigate} />;
+    case "invitation-acceptance":
+      return <InvitationAcceptancePage onNavigate={onNavigate} />;
     case "project-cost":
       return currentProject ? (
         <ModuleProtectedRoute requiredModule="cost-contracts" onNavigate={onNavigate}>
