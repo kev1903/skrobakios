@@ -10,7 +10,7 @@ import { SidebarFooter } from './sidebar/SidebarFooter';
 import { ResponsiveSidebarProps } from './sidebar/types';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ContextSwitcher } from '@/components/ContextSwitcher';
+import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { state } = useSidebar();
@@ -24,9 +24,9 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   return (
     <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
       <SidebarHeader className="p-4 border-b border-white/20 space-y-3">
-        {/* Company Switcher - Most prominent position */}
+        {/* Context Switcher - Shows User Name and Business */}
         <div className="w-full">
-          <ContextSwitcher onNavigate={onNavigate} />
+          <SidebarContextSwitcher onNavigate={onNavigate} isCollapsed={isCollapsed} />
         </div>
         
         {/* Navigation Button */}

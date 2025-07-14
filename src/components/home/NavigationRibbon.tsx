@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield } from 'lucide-react';
-import { ContextSwitcher } from '@/components/ContextSwitcher';
+import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanyModules } from '@/hooks/useCompanyModules';
 
@@ -59,9 +59,9 @@ export const NavigationRibbon = ({
   return (
     <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
       <div className="flex flex-col h-full pt-20">
-        {/* Company Swapper */}
+        {/* Context Switcher */}
         <div className="px-3 pb-4 border-b border-white/20">
-          <ContextSwitcher onNavigate={onNavigate} />
+          <SidebarContextSwitcher onNavigate={onNavigate} />
         </div>
         
         {/* Navigation Items - Only show enabled modules */}
