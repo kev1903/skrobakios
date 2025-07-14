@@ -32,13 +32,6 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     );
   }
 
-  if (currentPage === "home") {
-    return (
-      <main className="flex-1 overflow-hidden w-full">
-        {children}
-      </main>
-    );
-  }
 
   return (
     <ProtectedRoute 
