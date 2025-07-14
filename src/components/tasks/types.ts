@@ -11,6 +11,24 @@ export interface Task {
   description?: string;
   duration?: number;
   digital_object_id?: string;
+  is_milestone?: boolean;
+  is_critical_path?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Milestone {
+  id: string;
+  name: string;
+  description?: string;
+  dueDate: string;
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Overdue';
+  progress: number;
+  priority: 'High' | 'Medium' | 'Low';
+  project_id: string;
+  projectName: string;
+  dependencies: string[];
+  completedDate?: string;
   created_at: string;
   updated_at: string;
 }

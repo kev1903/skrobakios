@@ -49,6 +49,7 @@ import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage"
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
 import { ProjectTeamRedirect } from "@/components/projects/ProjectTeamRedirect";
+import { MilestonePage } from "@/components/MilestonePage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -80,6 +81,8 @@ export const ContentRenderer = ({
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
       return <MyTasksPage onNavigate={onNavigate} />;
+    case "milestones":
+      return <MilestonePage onNavigate={onNavigate} />;
     case "time-management":
       return <TimeManagementPage onNavigate={onNavigate} />;
     case "settings":

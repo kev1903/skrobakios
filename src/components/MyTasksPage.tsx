@@ -72,6 +72,8 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
           description: task.description,
           duration: task.duration,
           digital_object_id: task.digital_object_id,
+          is_milestone: task.is_milestone,
+          is_critical_path: task.is_critical_path,
           created_at: task.created_at,
           updated_at: task.updated_at
         }));

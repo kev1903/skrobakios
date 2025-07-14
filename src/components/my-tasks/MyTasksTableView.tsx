@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye } from "lucide-react";
+import { MoreHorizontal, Eye, Target } from "lucide-react";
 import { MyTasksTableViewProps } from './types';
 import { getTaskPriorityColor, getTaskStatusColor } from './utils';
 import { SortableTaskHeader } from './SortableTaskHeader';
@@ -72,12 +72,19 @@ export const MyTasksTableView = ({
                 />
               </TableCell>
               <TableCell className="font-medium text-foreground py-1">
-                <button
-                  onClick={() => onTaskClick(task)}
-                  className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
-                >
-                  {task.taskName}
-                </button>
+                <div className="flex items-center space-x-2">
+                  {task.is_milestone && (
+                    <div title="Milestone">
+                      <Target className="w-4 h-4 text-yellow-600" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => onTaskClick(task)}
+                    className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
+                  >
+                    {task.taskName}
+                  </button>
+                </div>
               </TableCell>
               <TableCell className="text-muted-foreground py-1">
                 {task.projectName}
