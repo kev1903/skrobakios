@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '@/contexts/UserContext';
 import { useCompany } from '@/contexts/CompanyContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 interface PersonalDashboardProps {
@@ -15,21 +16,39 @@ interface PersonalDashboardProps {
 export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
   const { userProfile, loading: userLoading } = useUser();
   const { companies, loading: companyLoading } = useCompany();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log('PersonalDashboard fetchData - authLoading:', authLoading, 'isAuthenticated:', isAuthenticated, 'userLoading:', userLoading, 'companyLoading:', companyLoading);
+      
+      // Wait for auth to finish loading first
+      if (authLoading) {
+        return;
+      }
+      
+      // If not authenticated, set loading to false immediately
+      if (!isAuthenticated) {
+        console.log('PersonalDashboard - Not authenticated, skipping data fetch');
+        setDataLoading(false);
+        return;
+      }
+      
+      // If authenticated, wait for contexts to load
       if (!userLoading && !companyLoading) {
+        console.log('PersonalDashboard - Starting data fetch');
         setDataLoading(true);
         await Promise.all([fetchPortfolioCount(), fetchReviewCount()]);
+        console.log('PersonalDashboard - Data fetch completed');
         setDataLoading(false);
       }
     };
     
     fetchData();
-  }, [userLoading, companyLoading]);
+  }, [authLoading, isAuthenticated, userLoading, companyLoading]);
 
   const fetchPortfolioCount = async () => {
     try {
@@ -69,7 +88,9 @@ export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
   };
 
   // Show loading state while contexts are loading or data is fetching
-  if (userLoading || companyLoading || dataLoading) {
+  console.log('PersonalDashboard render - authLoading:', authLoading, 'isAuthenticated:', isAuthenticated, 'userLoading:', userLoading, 'companyLoading:', companyLoading, 'dataLoading:', dataLoading);
+  if (authLoading || (isAuthenticated && (userLoading || companyLoading)) || dataLoading) {
+    console.log('PersonalDashboard - Showing loading state');
     return (
       <div className="space-y-8 animate-pulse">
         {/* Header skeleton */}
@@ -175,7 +196,7 @@ export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={userProfile.avatarUrl} alt={userProfile.firstName} />
+            <AvatarImage src={userProfile.avatarUrl} alt={userProfile.firstName || 'User'} />
             <AvatarFallback className="bg-primary/10 text-primary text-lg">
               <User className="h-8 w-8" />
             </AvatarFallback>
@@ -185,11 +206,13 @@ export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
               Welcome back, {userProfile.firstName || 'User'}!
             </h1>
             <p className="text-white/70">
-              {userProfile.jobTitle && (
+              {userProfile.jobTitle ? (
                 <>
                   {userProfile.jobTitle}
                   {userProfile.location && ` • ${userProfile.location}`}
                 </>
+              ) : (
+                'Complete your profile to get started'
               )}
             </p>
             <div className="flex items-center space-x-2 mt-2">
