@@ -135,14 +135,14 @@ export const SK25008FileUpload: React.FC<SK25008FileUploadProps> = ({ onUploadCo
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Upload className="h-5 w-5 mr-2" />
+    <Card className="max-w-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center text-sm">
+          <Upload className="h-4 w-4 mr-2" />
           Design Files
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2 text-xs">
         {/* Drop Zone */}
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${

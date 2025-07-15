@@ -232,16 +232,16 @@ export const SK25008TaskDetails: React.FC<SK25008TaskDetailsProps> = ({
           </div>
 
           {/* Design Files */}
-          <div>
-            <h3 className="font-medium mb-2 flex items-center">
-              <FileText className="h-4 w-4 mr-2" />
+          <div className="max-w-xs">
+            <h3 className="font-medium mb-1 flex items-center text-sm">
+              <FileText className="h-3 w-3 mr-1" />
               Design Files
             </h3>
             {task.design_files && task.design_files.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {task.design_files.map((file: any, index: number) => (
-                  <div key={index} className="border rounded p-2 text-sm">
-                    <FileText className="h-6 w-6 mb-1" />
+              <div className="grid grid-cols-3 gap-1">
+                {task.design_files.slice(0, 3).map((file: any, index: number) => (
+                  <div key={index} className="border rounded p-1 text-xs">
+                    <FileText className="h-4 w-4 mb-1" />
                     <div className="truncate">{file.name || `File ${index + 1}`}</div>
                   </div>
                 ))}

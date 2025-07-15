@@ -6,7 +6,7 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ProjectFilePage } from "@/components/ProjectFilePage";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
-import { ModernProjectSchedulePage } from "@/components/ModernProjectSchedulePage";
+import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 
 import { GanttChartPage } from "@/components/GanttChartPage";
@@ -150,7 +150,7 @@ export const ContentRenderer = ({
     case "project-schedule":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+          <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":

@@ -183,39 +183,6 @@ export const SK25008Dashboard: React.FC = () => {
         </div>
       </div>
 
-
-      {/* Task Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2" />
-              Task Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {tasks.map(task => <div key={task.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors" onClick={() => setSelectedTask(task)}>
-                <div className="flex items-center space-x-4">
-                  {getStatusIcon(task.status)}
-                  <div>
-                    <h3 className="font-medium">{task.task_name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {task.duration_days} days • {new Date(task.start_date).toLocaleDateString()} - {new Date(task.end_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Progress value={task.progress_percentage} className="w-20" />
-                  <span className="text-sm font-medium">{task.progress_percentage}%</span>
-                  {getStatusBadge(task.status)}
-                </div>
-              </div>)}
-          </CardContent>
-        </Card>
-
-        <SK25008FileUpload onUploadComplete={fetchTasks} />
-      </div>
-
       {/* Gantt Chart */}
       <Card>
         <CardHeader>

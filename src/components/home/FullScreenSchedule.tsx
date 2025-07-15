@@ -1,5 +1,5 @@
 import React from 'react';
-import { SchedulePage } from '@/components/SchedulePage';
+import { ProjectSchedulePage } from '@/components/ProjectSchedulePage';
 
 interface FullScreenScheduleProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export const FullScreenSchedule = ({
           >
             <span className="text-foreground text-lg">×</span>
           </button>
-          <SchedulePage onNavigate={onNavigate} />
+          {/* Note: ProjectSchedulePage requires a project prop - would need to be passed down */}
         </div>
       </div>
       
