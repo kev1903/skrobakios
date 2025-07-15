@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { ProjectSidebar } from "./ProjectSidebar";
 import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon, Settings, MoreVertical, Trash, Eye, EyeOff, Lock, Unlock, BarChart3, FileText, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -686,26 +687,63 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const flatTasks = flattenTasks(ganttTasks);
   const timelineWeeks = getTimelineWeeks();
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 text-green-300 border-green-500/30";
+      case "running":
+        return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+      case "pending":
+        return "bg-red-500/20 text-red-300 border-red-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+      case "running":
+        return "In Progress";
+      case "pending":
+        return "Pending";
+      default:
+        return "Active";
+    }
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Header */}
-      <div className="glass-card border-b border-border px-4 md:px-6 py-3 md:py-4 backdrop-blur-sm flex-shrink-0">
-        <div className="flex items-center justify-between max-w-full">
-          <div className="flex items-center space-x-2 md:space-x-4 min-w-0 flex-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onNavigate('project-detail')}
-              className="flex items-center space-x-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Project</span>
-            </Button>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl md:text-2xl font-poppins font-bold text-foreground heading-modern truncate">Project Schedule</h1>
-              <p className="text-sm text-muted-foreground body-modern truncate">{project.name} - Timeline View</p>
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        project={project}
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="schedule"
+      />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
+        {/* Header */}
+        <div className="glass-card border-b border-border px-4 md:px-6 py-3 md:py-4 backdrop-blur-sm flex-shrink-0">
+          <div className="flex items-center justify-between max-w-full">
+            <div className="flex items-center space-x-2 md:space-x-4 min-w-0 flex-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onNavigate('individual-project-dashboard')}
+                className="flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Project</span>
+              </Button>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl md:text-2xl font-poppins font-bold text-foreground heading-modern truncate">Project Schedule</h1>
+                <p className="text-sm text-muted-foreground body-modern truncate">{project.name} - Timeline View</p>
+              </div>
             </div>
-          </div>
           <div className="flex items-center space-x-2 flex-shrink-0">
             <Button
               variant="outline"
@@ -724,11 +762,11 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               <span>Add Task</span>
             </Button>
           </div>
+          </div>
         </div>
-      </div>
 
-      {/* Navigation Tabs */}
-      <div className="glass-light border-b border-border px-4 md:px-6 backdrop-blur-sm flex-shrink-0">
+        {/* Navigation Tabs */}
+        <div className="glass-light border-b border-border px-4 md:px-6 backdrop-blur-sm flex-shrink-0">
         <div className="flex items-center justify-between overflow-x-auto">
           {/* Tab Navigation */}
           <div className="flex space-x-4 md:space-x-8 min-w-max">
@@ -769,10 +807,10 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             </Button>
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Main Content - Split Layout */}
-      <div className="flex-1 overflow-hidden bg-background min-h-0 schedule-container">
+        {/* Main Content - Split Layout */}
+        <div className="flex-1 overflow-hidden bg-background min-h-0 schedule-container">
         <div className="flex h-full">
           {/* Left Side - Data Table */}
           <div 
@@ -1026,222 +1064,224 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Context Menu */}
-      {contextMenu.show && (
-        <div
-          className="fixed bg-card border border-border rounded-md shadow-lg py-1 z-50 min-w-[200px]"
-          style={{
-            left: contextMenu.x,
-            top: contextMenu.y,
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="px-3 py-1 text-xs font-medium text-muted-foreground border-b border-border mb-1">
-            Column: {contextMenu.column}
-          </div>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('insert-left')}
-          >
-            <Plus className="w-3 h-3" />
-            <span>Insert Column Left</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('insert-right')}
-          >
-            <Plus className="w-3 h-3" />
-            <span>Insert Column Right</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2 text-destructive"
-            onClick={() => handleContextMenuAction('delete-column')}
-          >
-            <Trash className="w-3 h-3" />
-            <span>Delete Column</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('rename-column')}
-          >
-            <Edit2 className="w-3 h-3" />
-            <span>Rename Column...</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('add-description')}
-          >
-            <FileText className="w-3 h-3" />
-            <span>Add Column Description...</span>
-          </button>
-          
-          <div className="border-t border-border my-1"></div>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('filter')}
-          >
-            <Filter className="w-3 h-3" />
-            <span>Filter...</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('sort-rows')}
-          >
-            <BarChart3 className="w-3 h-3" />
-            <span>Sort Rows...</span>
-          </button>
-          
-          <div className="border-t border-border my-1"></div>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('lock-column')}
-          >
-            <Lock className="w-3 h-3" />
-            <span>Lock Column</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('freeze-column')}
-          >
-            <Eye className="w-3 h-3" />
-            <span>Freeze Column</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('hide-column')}
-          >
-            <EyeOff className="w-3 h-3" />
-            <span>Hide Column</span>
-          </button>
-          
-          <div className="border-t border-border my-1"></div>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('show-gantt')}
-          >
-            <BarChart3 className="w-3 h-3" />
-            <span>Show Gantt</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('edit-project-settings')}
-          >
-            <Settings className="w-3 h-3" />
-            <span>Edit Project Settings...</span>
-          </button>
-          
-          <div className="border-t border-border my-1"></div>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('expand-all')}
-          >
-            <ChevronDown className="w-3 h-3" />
-            <span>Expand All</span>
-          </button>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('collapse-all')}
-          >
-            <ChevronUp className="w-3 h-3" />
-            <span>Collapse All</span>
-          </button>
-          
-          <div className="border-t border-border my-1"></div>
-          
-          <button
-            className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
-            onClick={() => handleContextMenuAction('edit-column-properties')}
-          >
-            <Edit2 className="w-3 h-3" />
-            <span>Edit Column Properties...</span>
-          </button>
         </div>
-      )}
 
-      {/* Column Rename Dialog */}
-      {renamingColumn && (
-        <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div 
-            className="bg-card border border-border rounded-lg p-6 w-96 max-w-[90vw]"
+        {/* Context Menu */}
+        {contextMenu.show && (
+          <div
+            className="fixed bg-card border border-border rounded-md shadow-lg py-1 z-50 min-w-[200px]"
+            style={{
+              left: contextMenu.x,
+              top: contextMenu.y,
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-foreground mb-4">Rename Column</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-foreground block mb-2">
-                  Column Name
-                </label>
-                <Input
-                  value={newColumnName}
-                  onChange={(e) => setNewColumnName(e.target.value)}
-                  placeholder="Enter new column name"
-                  className="w-full"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      // Save the rename
+            {/* ... keep existing context menu content ... */}
+            <div className="px-3 py-1 text-xs font-medium text-muted-foreground border-b border-border mb-1">
+              Column: {contextMenu.column}
+            </div>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('insert-left')}
+            >
+              <Plus className="w-3 h-3" />
+              <span>Insert Column Left</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('insert-right')}
+            >
+              <Plus className="w-3 h-3" />
+              <span>Insert Column Right</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2 text-destructive"
+              onClick={() => handleContextMenuAction('delete-column')}
+            >
+              <Trash className="w-3 h-3" />
+              <span>Delete Column</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('rename-column')}
+            >
+              <Edit2 className="w-3 h-3" />
+              <span>Rename Column...</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('add-description')}
+            >
+              <FileText className="w-3 h-3" />
+              <span>Add Column Description...</span>
+            </button>
+            
+            <div className="border-t border-border my-1"></div>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('filter')}
+            >
+              <Filter className="w-3 h-3" />
+              <span>Filter...</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('sort-rows')}
+            >
+              <BarChart3 className="w-3 h-3" />
+              <span>Sort Rows...</span>
+            </button>
+            
+            <div className="border-t border-border my-1"></div>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('lock-column')}
+            >
+              <Lock className="w-3 h-3" />
+              <span>Lock Column</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('freeze-column')}
+            >
+              <Eye className="w-3 h-3" />
+              <span>Freeze Column</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('hide-column')}
+            >
+              <EyeOff className="w-3 h-3" />
+              <span>Hide Column</span>
+            </button>
+            
+            <div className="border-t border-border my-1"></div>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('show-gantt')}
+            >
+              <BarChart3 className="w-3 h-3" />
+              <span>Show Gantt</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('edit-project-settings')}
+            >
+              <Settings className="w-3 h-3" />
+              <span>Edit Project Settings...</span>
+            </button>
+            
+            <div className="border-t border-border my-1"></div>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('expand-all')}
+            >
+              <ChevronDown className="w-3 h-3" />
+              <span>Expand All</span>
+            </button>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('collapse-all')}
+            >
+              <ChevronUp className="w-3 h-3" />
+              <span>Collapse All</span>
+            </button>
+            
+            <div className="border-t border-border my-1"></div>
+            
+            <button
+              className="w-full px-3 py-2 text-xs text-left hover:bg-muted/50 flex items-center space-x-2"
+              onClick={() => handleContextMenuAction('edit-column-properties')}
+            >
+              <Edit2 className="w-3 h-3" />
+              <span>Edit Column Properties...</span>
+            </button>
+          </div>
+        )}
+
+        {/* Column Rename Dialog */}
+        {renamingColumn && (
+          <div 
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div 
+              className="bg-card border border-border rounded-lg p-6 w-96 max-w-[90vw]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-foreground mb-4">Rename Column</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-2">
+                    Column Name
+                  </label>
+                  <Input
+                    value={newColumnName}
+                    onChange={(e) => setNewColumnName(e.target.value)}
+                    placeholder="Enter new column name"
+                    className="w-full"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        // Save the rename
+                        setColumnNames(prev => ({
+                          ...prev,
+                          [renamingColumn]: newColumnName
+                        }));
+                        setRenamingColumn(null);
+                        setNewColumnName('');
+                      }
+                      if (e.key === 'Escape') {
+                        // Cancel rename
+                        setRenamingColumn(null);
+                        setNewColumnName('');
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setRenamingColumn(null);
+                      setNewColumnName('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
                       setColumnNames(prev => ({
                         ...prev,
                         [renamingColumn]: newColumnName
                       }));
                       setRenamingColumn(null);
                       setNewColumnName('');
-                    }
-                    if (e.key === 'Escape') {
-                      // Cancel rename
-                      setRenamingColumn(null);
-                      setNewColumnName('');
-                    }
-                  }}
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setRenamingColumn(null);
-                    setNewColumnName('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    setColumnNames(prev => ({
-                      ...prev,
-                      [renamingColumn]: newColumnName
-                    }));
-                    setRenamingColumn(null);
-                    setNewColumnName('');
-                  }}
-                  disabled={!newColumnName.trim()}
-                >
-                  Save
-                </Button>
+                    }}
+                    disabled={!newColumnName.trim()}
+                  >
+                    Save
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
