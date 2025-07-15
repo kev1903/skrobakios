@@ -99,25 +99,78 @@ export const NavigationRibbon = ({
   // If not open and onClose function exists, don't render (floating mode)
   if (!isOpen && onClose) return null;
 
-  return (
-    <div className="w-full h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl transition-all duration-300">
-      <div className="flex flex-col h-full">
-        {/* Context Switcher - only show if not in sidebar mode */}
-        {onClose && (
-          <div className="px-3 pb-4 pt-20 border-b border-white/20">
-            <SidebarContextSwitcher onNavigate={onNavigate} isCollapsed={isCollapsed} />
+  // Determine if this is floating mode (has onClose) or embedded mode (no onClose)
+  const isFloatingMode = !!onClose;
+
+  const sidebarContent = (
+    <>
+      {/* Context Switcher - only show if in floating mode */}
+      {isFloatingMode && (
+        <div className="px-3 pb-4 pt-20 border-b border-white/20">
+          <SidebarContextSwitcher onNavigate={onNavigate} isCollapsed={isCollapsed} />
+        </div>
+      )}
+      
+      <div className={`flex-1 flex flex-col space-y-6 overflow-y-auto ${isFloatingMode ? 'py-4 px-3' : 'p-4'}`}>
+        {/* General Navigation */}
+        <div className="space-y-1">
+          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            {!isCollapsed && "General"}
           </div>
-        )}
-        
-        <div className="flex-1 flex flex-col py-4 space-y-6 overflow-y-auto px-3">
-          {/* General Navigation */}
+          {generalNavigation.map(item => {
+            const Icon = item.icon;
+            const isActive = currentPage === item.id;
+            return (
+              <button 
+                key={item.id} 
+                onClick={() => handleNavigateAndClose(item.id)} 
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                  isActive 
+                    ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                    : "text-white hover:bg-white/30"
+                }`}
+              >
+                <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Business Navigation - always show, not conditional on personal context */}
+        <div className="space-y-1">
+          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            {!isCollapsed && "Business"}
+          </div>
+          {businessNavigation.map(item => {
+            const Icon = item.icon;
+            const isActive = currentPage === item.id;
+            return (
+              <button 
+                key={item.id} 
+                onClick={() => handleNavigateAndClose(item.id)} 
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                  isActive 
+                    ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                    : "text-white hover:bg-white/30"
+                }`}
+              >
+                <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Profile Navigation - only show when in personal context AND floating mode */}
+        {activeContext === 'personal' && isFloatingMode && (
           <div className="space-y-1">
             <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-              {!isCollapsed && "General"}
+              {!isCollapsed && "Profile Navigation"}
             </div>
-            {generalNavigation.map(item => {
+            {personalProfileNavigation.map(item => {
               const Icon = item.icon;
-              const isActive = currentPage === item.id;
+              const isActive = item.active || currentPage === item.id;
               return (
                 <button 
                   key={item.id} 
@@ -134,88 +187,56 @@ export const NavigationRibbon = ({
               );
             })}
           </div>
-
-          {/* Conditional Navigation based on context */}
-          {activeContext === 'personal' ? (
-            /* Profile Navigation */
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-                {!isCollapsed && "Profile Navigation"}
-              </div>
-              {personalProfileNavigation.map(item => {
-                const Icon = item.icon;
-                const isActive = item.active || currentPage === item.id;
-                return (
-                  <button 
-                    key={item.id} 
-                    onClick={() => handleNavigateAndClose(item.id)} 
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                      isActive 
-                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-white hover:bg-white/30"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
-                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            /* Business Navigation */
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-                {!isCollapsed && "Business"}
-              </div>
-              {businessNavigation.map(item => {
-                const Icon = item.icon;
-                const isActive = currentPage === item.id;
-                return (
-                  <button 
-                    key={item.id} 
-                    onClick={() => handleNavigateAndClose(item.id)} 
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                      isActive 
-                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-white hover:bg-white/30"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
-                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Support Section */}
-        {filteredSupportNavigation.length > 0 && (
-          <div className="border-t border-white/20 px-3 py-4 space-y-1">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-              {!isCollapsed && "Support"}
-            </div>
-            {filteredSupportNavigation.map(item => {
-              const Icon = item.icon;
-              const isActive = currentPage === item.id;
-              return (
-                <button 
-                  key={item.id}
-                  onClick={() => handleNavigateAndClose(item.id)} 
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                    isActive 
-                      ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                      : "text-white hover:bg-white/30"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                </button>
-              );
-            })}
-          </div>
         )}
       </div>
-    </div>
+
+      {/* Support Section */}
+      {filteredSupportNavigation.length > 0 && (
+        <div className={`border-t border-white/20 space-y-1 ${isFloatingMode ? 'px-3 py-4' : 'p-4'}`}>
+          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            {!isCollapsed && "Support"}
+          </div>
+          {filteredSupportNavigation.map(item => {
+            const Icon = item.icon;
+            const isActive = currentPage === item.id;
+            return (
+              <button 
+                key={item.id}
+                onClick={() => handleNavigateAndClose(item.id)} 
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                  isActive 
+                    ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                    : "text-white hover:bg-white/30"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
+
+  // Return different containers based on mode
+  if (isFloatingMode) {
+    // Floating mode - fixed positioning
+    return (
+      <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+        <div className="flex flex-col h-full">
+          {sidebarContent}
+        </div>
+      </div>
+    );
+  } else {
+    // Embedded mode - use SidebarContent wrapper
+    return (
+      <div className="h-full bg-white/10 backdrop-blur-md transition-all duration-300">
+        <div className="flex flex-col h-full">
+          {sidebarContent}
+        </div>
+      </div>
+    );
+  }
 };
