@@ -6,8 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { SK25008GanttChart } from './SK25008GanttChart';
-import { InteractiveGanttChart } from './InteractiveGanttChart';
+import { TraditionalGanttChart } from './TraditionalGanttChart';
 import { SK25008FileUpload } from './SK25008FileUpload';
 import { SK25008TaskDetails } from './SK25008TaskDetails';
 
@@ -238,12 +237,31 @@ export const SK25008Dashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <InteractiveGanttChart 
+          <TraditionalGanttChart 
             tasks={tasks} 
-            onTaskUpdate={(taskId, updates) => {
-              console.log('Task update:', taskId, updates);
-              // Optionally trigger a refetch or local update
-              fetchTasks();
+            onTaskUpdate={async (taskId, updates) => {
+              try {
+                const { error } = await supabase
+                  .from('sk_25008_design')
+                  .update(updates)
+                  .eq('id', taskId);
+                
+                if (error) throw error;
+                
+                toast({
+                  title: "Task Updated",
+                  description: "Task schedule updated successfully",
+                });
+                
+                fetchTasks();
+              } catch (error) {
+                console.error('Error updating task:', error);
+                toast({
+                  title: "Update Failed",
+                  description: "Failed to update task schedule",
+                  variant: "destructive",
+                });
+              }
             }}
           />
         </CardContent>
