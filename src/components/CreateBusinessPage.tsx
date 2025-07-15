@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Building2, Upload, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -305,13 +305,18 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
                 </div>
                 <div>
                   <Label htmlFor="company_size">Company Size</Label>
-                  <Input
-                    id="company_size"
-                    value={formData.company_size}
-                    onChange={(e) => handleInputChange('company_size', e.target.value)}
-                    placeholder="e.g., 10-50 employees"
-                    className="mt-1"
-                  />
+                  <Select value={formData.company_size} onValueChange={(value) => handleInputChange('company_size', value)}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select company size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1-10">1-10 employees</SelectItem>
+                      <SelectItem value="11-50">11-50 employees</SelectItem>
+                      <SelectItem value="51-200">51-200 employees</SelectItem>
+                      <SelectItem value="201-1000">201-1000 employees</SelectItem>
+                      <SelectItem value="1000+">1000+ employees</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="year_established">Year Established</Label>
