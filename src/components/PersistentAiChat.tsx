@@ -93,6 +93,13 @@ export function PersistentAiChat() {
     setIsLoading(true);
 
     try {
+      // Check if user is authenticated first
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Authentication required');
+      }
+
       const context = getScreenContext();
       const conversation = messages.map(msg => ({
         role: msg.role,
