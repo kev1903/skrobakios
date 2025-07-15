@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft } from 'lucide-react';
-import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
 import { SubscriptionPlans } from '@/components/subscription/SubscriptionPlans';
 import { BillingHistory } from '@/components/subscription/BillingHistory';
 
@@ -11,19 +10,10 @@ interface SubscriptionPageProps {
 }
 
 export const SubscriptionPage = ({ onNavigate }: SubscriptionPageProps) => {
-  const [activeTab, setActiveTab] = useState('overview');
-
-  const handleUpgrade = () => {
-    setActiveTab('plans');
-  };
-
-  const handleManageBilling = () => {
-    // In a real app, this would open Stripe Customer Portal
-    setActiveTab('billing');
-  };
+  const [activeTab, setActiveTab] = useState('plans');
 
   const handlePlanSelect = () => {
-    setActiveTab('overview');
+    setActiveTab('plans');
   };
 
   return (
@@ -55,19 +45,11 @@ export const SubscriptionPage = ({ onNavigate }: SubscriptionPageProps) => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-center mb-8">
-              <TabsList className="grid w-full max-w-md grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsList className="grid w-full max-w-md grid-cols-2">
                 <TabsTrigger value="plans">Plans</TabsTrigger>
                 <TabsTrigger value="billing">Billing</TabsTrigger>
               </TabsList>
             </div>
-
-            <TabsContent value="overview" className="space-y-6">
-              <SubscriptionStatus 
-                onUpgrade={handleUpgrade}
-                onManageBilling={handleManageBilling}
-              />
-            </TabsContent>
 
             <TabsContent value="plans">
               <SubscriptionPlans onPlanSelect={handlePlanSelect} />
