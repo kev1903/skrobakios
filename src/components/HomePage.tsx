@@ -229,7 +229,12 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         e.stopPropagation();
         if (onSelectProject) {
           onSelectProject(project.id);
-          onNavigate('project-detail');
+          // Navigate to SK25008 schedule for SK_25008 project, otherwise to project detail
+          if (project.project_id === "SK_25008") {
+            onNavigate('sk25008-schedule');
+          } else {
+            onNavigate('project-detail');
+          }
         }
       });
 
@@ -411,7 +416,12 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         if (openBtn && onSelectProject) {
           openBtn.addEventListener('click', () => {
             onSelectProject(project.id);
-            onNavigate('project-detail');
+            // Navigate to SK25008 schedule for SK_25008 project, otherwise to project detail
+            if (project.project_id === "SK_25008") {
+              onNavigate('sk25008-schedule');
+            } else {
+              onNavigate('project-detail');
+            }
             popup.remove();
           });
         }
