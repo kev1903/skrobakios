@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ModernProjectSchedulePage } from '@/components/ModernProjectSchedulePage';
+
 import {
   Clock,
   DollarSign,
@@ -60,11 +60,140 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
     if (!project) return null;
 
     return (
-      <div className="h-full animate-fade-in">
-        <ModernProjectSchedulePage 
-          project={project} 
-          onNavigate={onNavigate} 
-        />
+      <div className="h-full animate-fade-in bg-background">
+        <div className="max-w-4xl mx-auto p-8">
+          <div className="space-y-6">
+            {/* Project Header */}
+            <div className="border-b border-border pb-6">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                {project.name}
+              </h1>
+              {project.description && (
+                <p className="text-muted-foreground text-lg">
+                  {project.description}
+                </p>
+              )}
+            </div>
+
+            {/* Project Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Status Card */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Badge className={getStatusColor(project.status || 'active')}>
+                    {project.status || 'Active'}
+                  </Badge>
+                </CardContent>
+              </Card>
+
+              {/* Location Card */}
+              {project.location && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Location
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{project.location}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+
+              {/* Timeline Card */}
+              {(project.start_date || project.deadline) && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Timeline
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {project.start_date && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Start Date</p>
+                        <p className="font-medium">{new Date(project.start_date).toLocaleDateString()}</p>
+                      </div>
+                    )}
+                    {project.deadline && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Deadline</p>
+                        <p className="font-medium">{new Date(project.deadline).toLocaleDateString()}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Contract Price Card */}
+              {project.contract_price && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5" />
+                      Contract Value
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg font-semibold">{project.contract_price}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Priority Card */}
+              {project.priority && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      Priority
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Badge variant="outline">{project.priority}</Badge>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                  <Activity className="h-6 w-6" />
+                  View Tasks
+                </Button>
+                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                  <DollarSign className="h-6 w-6" />
+                  Financials
+                </Button>
+                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                  <Building2 className="h-6 w-6" />
+                  Team
+                </Button>
+                <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                  <Settings className="h-6 w-6" />
+                  Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   };
