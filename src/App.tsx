@@ -147,13 +147,15 @@ const AppContent = () => {
       )}
       <Routes>
         <Route path="/" element={
-          <UserProvider>
-            <CompanyProvider>
-              <AppContextProvider>
-                <Index />
-              </AppContextProvider>
-            </CompanyProvider>
-          </UserProvider>
+          <PlatformAuthProvider>
+            <UserProvider>
+              <CompanyProvider>
+                <AppContextProvider>
+                  <Index />
+                </AppContextProvider>
+              </CompanyProvider>
+            </UserProvider>
+          </PlatformAuthProvider>
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
@@ -161,19 +163,23 @@ const AppContent = () => {
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
         <Route path="/company/:companyId/edit" element={
-          <UserProvider>
-            <CompanyProvider>
-              <CompanyEditPageWrapper />
-            </CompanyProvider>
-          </UserProvider>
+          <PlatformAuthProvider>
+            <UserProvider>
+              <CompanyProvider>
+                <CompanyEditPageWrapper />
+              </CompanyProvider>
+            </UserProvider>
+          </PlatformAuthProvider>
         } />
         {/* Profile edit route removed */}
         <Route path="/impersonate" element={
-          <UserProvider>
-            <CompanyProvider>
-              <Index />
-            </CompanyProvider>
-          </UserProvider>
+          <PlatformAuthProvider>
+            <UserProvider>
+              <CompanyProvider>
+                <Index />
+              </CompanyProvider>
+            </UserProvider>
+          </PlatformAuthProvider>
         } />
         
         {/* Public Routes - No authentication required */}
@@ -185,29 +191,35 @@ const AppContent = () => {
         
         {/* Subscription Management */}
         <Route path="/subscription" element={
-          <UserProvider>
-            <CompanyProvider>
-              <SubscriptionPageWrapper />
-            </CompanyProvider>
-          </UserProvider>
+          <PlatformAuthProvider>
+            <UserProvider>
+              <CompanyProvider>
+                <SubscriptionPageWrapper />
+              </CompanyProvider>
+            </UserProvider>
+          </PlatformAuthProvider>
         } />
         
         {/* Protected Project Routes */}
         <Route path="/projects/:projectId/team" element={
-          <UserProvider>
-            <CompanyProvider>
-              <ProjectTeamPage />
-            </CompanyProvider>
-          </UserProvider>
+          <PlatformAuthProvider>
+            <UserProvider>
+              <CompanyProvider>
+                <ProjectTeamPage />
+              </CompanyProvider>
+            </UserProvider>
+          </PlatformAuthProvider>
         } />
         
         {/* SK25008 Project Dashboard */}
         <Route path="/sk25008" element={
-          <UserProvider>
-            <CompanyProvider>
-              <SK25008Dashboard />
-            </CompanyProvider>
-          </UserProvider>
+          <PlatformAuthProvider>
+            <UserProvider>
+              <CompanyProvider>
+                <SK25008Dashboard />
+              </CompanyProvider>
+            </UserProvider>
+          </PlatformAuthProvider>
         } />
       </Routes>
     </>

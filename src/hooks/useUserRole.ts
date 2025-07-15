@@ -29,7 +29,7 @@ export const useUserRole = () => {
           .eq('user_id', user.id)
           .order('role');
 
-        console.log('User roles query result:', { rolesData, error });
+        console.log('User roles query result (fixed - should only see this once per user):', { rolesData, error });
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching user roles:', error);
