@@ -60,76 +60,7 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
     if (!project) return null;
 
     return (
-      <div className="space-y-6 animate-fade-in">
-        {/* Project Header */}
-        <div className="bg-card border border-border rounded-xl p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">{project.name}</h1>
-              <p className="text-muted-foreground mb-4">{project.description}</p>
-              <div className="flex items-center space-x-4">
-                <Badge variant="outline" className={getStatusColor(project.status)}>
-                  {project.status}
-                </Badge>
-                <div className="flex items-center space-x-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  <span>{project.location}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-muted-foreground">
-                  <Building2 className="h-4 w-4" />
-                  <span>#{project.project_id}</span>
-                </div>
-              </div>
-            </div>
-            <Button variant="outline">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-          </div>
-        </div>
-
-        {/* Project Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Progress</p>
-                  <p className="text-2xl font-bold">75%</p>
-                </div>
-                <Activity className="h-8 w-8 text-primary" />
-              </div>
-              <Progress value={75} className="mt-4" />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Budget</p>
-                  <p className="text-2xl font-bold">{project.contract_price || 'N/A'}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Timeline</p>
-                  <p className="text-2xl font-bold">
-                    {project.deadline ? new Date(project.deadline).toLocaleDateString() : 'N/A'}
-                  </p>
-                </div>
-                <Clock className="h-8 w-8 text-orange-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="animate-fade-in">
         {/* Project Schedule */}
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <ModernProjectSchedulePage 
@@ -137,35 +68,6 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
             onNavigate={onNavigate} 
           />
         </div>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                <div>
-                  <p className="font-medium">Project created</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(project.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div>
-                  <p className="font-medium">Status updated to {project.status}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(project.updated_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     );
   };
