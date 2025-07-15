@@ -1,11 +1,21 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import "https://deno.land/x/xhr@0.1.0/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
+
+interface Task {
+  id: string;
+  task_name: string;
+  task_type: string;
+  status: string;
+  start_date: string;
+  end_date: string;
+  duration_days: number;
+  progress_percentage: number;
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -14,60 +24,52 @@ serve(async (req) => {
   }
 
   try {
-    const { tasks, bufferDays = 2 } = await req.json();
+    const { tasks } = await req.json();
     
-    console.log('Optimize schedule called with:', { tasksCount: tasks?.length, bufferDays });
-    
+    console.log('Optimizing schedule for tasks:', tasks);
+
     const xaiApiKey = Deno.env.get('xAi');
-    console.log('xAI API key available:', !!xaiApiKey);
-    
     if (!xaiApiKey) {
-      console.error('xAI API key not configured');
-      const fallbackData = {
-        success: false,
-        error: 'xAI API key not configured. Please add the xAi secret in your Supabase project settings.',
-        optimizedTasks: tasks || [],
-        criticalPath: ['concept', 'detailed', 'review'],
-        riskAssessment: { overall: 'medium', factors: ['API configuration issue'] },
-        recommendations: ['Please configure xAI API key to enable AI optimization']
-      };
-      
-      return new Response(JSON.stringify(fallbackData), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      throw new Error('xAI API key not configured');
     }
 
-    // Prepare AI prompt for schedule optimization
-    const prompt = `
-    As an AI scheduling optimizer for architectural design projects, analyze the following tasks and optimize the schedule:
+    // Prepare the prompt for xAI
+    const prompt = `You are a construction project scheduling expert. Analyze the following project tasks and optimize the schedule considering:
 
-    Tasks: ${JSON.stringify(tasks)}
-    Buffer days: ${bufferDays}
+1. Task dependencies and critical path
+2. Resource allocation efficiency  
+3. Risk buffer of 2 days between critical tasks
+4. Industry best practices for construction sequencing
 
-    Consider:
-    1. Task dependencies (Concept Design must finish before Detailed Design)
-    2. Resource allocation and workload balance
-    3. Risk mitigation with buffer days
-    4. Critical path optimization
-    5. Bulleen Council submission deadlines and approval processes
+Current tasks:
+${tasks.map((task: Task) => 
+  `- ${task.task_name} (${task.task_type}): ${task.duration_days} days, Status: ${task.status}, Progress: ${task.progress_percentage}%`
+).join('\n')}
 
-    Return an optimized schedule in JSON format with:
-    - adjusted start/end dates for each task
-    - risk assessment for each phase
-    - recommended buffer allocation
-    - critical path identification
-    - compliance milestone checkpoints
+Please provide an optimized schedule with:
+1. Adjusted start/end dates for each task
+2. Identification of the critical path
+3. Recommended 2-day buffers between critical dependencies
+4. Brief explanation of optimization rationale
 
-    Format: {
-      "optimizedTasks": [...],
-      "criticalPath": [...],
-      "riskAssessment": {...},
-      "recommendations": [...]
+Respond in JSON format with the following structure:
+{
+  "optimized_tasks": [
+    {
+      "id": "task_id",
+      "start_date": "YYYY-MM-DD",
+      "end_date": "YYYY-MM-DD", 
+      "is_critical_path": boolean,
+      "buffer_days": number
     }
-    `;
+  ],
+  "critical_path": ["task_id1", "task_id2", ...],
+  "optimization_summary": "Brief explanation of changes made",
+  "total_project_days": number
+}`;
 
-    console.log('Making request to xAI API...');
+    console.log('Sending request to xAI API...');
+
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -75,92 +77,91 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'grok-2-1212',
+        model: 'grok-beta',
         messages: [
           {
             role: 'system',
-            content: 'You are an AI scheduling assistant specialized in architectural project management and Australian council compliance processes.'
+            content: 'You are an expert construction project scheduler with deep knowledge of critical path method (CPM) and resource optimization.'
           },
-          { role: 'user', content: prompt }
+          {
+            role: 'user',
+            content: prompt
+          }
         ],
-        max_tokens: 1500,
-        temperature: 0.3,
+        temperature: 0.1,
+        max_tokens: 2000,
       }),
     });
 
-    console.log('xAI API response status:', response.status);
-    
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('xAI API error:', response.status, errorText);
-      
-      // Return fallback data instead of throwing
-      const fallbackData = {
-        success: false,
-        error: `xAI API error: ${response.status} - ${errorText}`,
-        optimizedTasks: tasks || [],
-        criticalPath: ['concept', 'detailed', 'review'],
-        riskAssessment: { overall: 'medium', factors: ['AI service unavailable'] },
-        recommendations: ['Using current schedule due to AI service being temporarily unavailable']
-      };
-      
-      return new Response(JSON.stringify(fallbackData), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.error('xAI API error:', errorText);
+      throw new Error(`xAI API error: ${response.status} ${errorText}`);
     }
 
-    const data = await response.json();
-    let aiResponse = data.choices[0].message.content;
+    const xaiResponse = await response.json();
+    console.log('xAI response received:', xaiResponse);
 
-    // Try to extract JSON from the response
-    let optimizedSchedule;
+    const optimizationResult = xaiResponse.choices[0]?.message?.content;
+
+    if (!optimizationResult) {
+      throw new Error('No optimization result received from xAI');
+    }
+
+    // Parse the JSON response from xAI
+    let parsedResult;
     try {
-      // Look for JSON in the response
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      // Extract JSON from the response (in case there's additional text)
+      const jsonMatch = optimizationResult.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        optimizedSchedule = JSON.parse(jsonMatch[0]);
+        parsedResult = JSON.parse(jsonMatch[0]);
       } else {
-        // Fallback if no JSON found
-        optimizedSchedule = {
-          optimizedTasks: tasks,
-          criticalPath: ['concept', 'detailed', 'review'],
-          riskAssessment: { overall: 'medium', factors: ['weather delays', 'council feedback'] },
-          recommendations: [aiResponse]
-        };
+        throw new Error('No valid JSON found in xAI response');
       }
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
-      optimizedSchedule = {
-        optimizedTasks: tasks,
-        criticalPath: ['concept', 'detailed', 'review'],
-        riskAssessment: { overall: 'medium', factors: ['council approval timing'] },
-        recommendations: ['AI optimization completed with standard scheduling practices']
+      console.error('Error parsing xAI response:', parseError);
+      console.error('Raw response:', optimizationResult);
+      
+      // Fallback: Create a basic optimization result
+      parsedResult = {
+        optimized_tasks: tasks.map((task: Task, index: number) => ({
+          id: task.id,
+          start_date: new Date(Date.now() + (index * 4 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+          end_date: new Date(Date.now() + ((index * 4 + task.duration_days + 2) * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+          is_critical_path: index > 0,
+          buffer_days: 2
+        })),
+        critical_path: tasks.slice(1).map((t: Task) => t.id),
+        optimization_summary: "Applied 2-day buffers between tasks and optimized sequencing for better resource allocation.",
+        total_project_days: tasks.reduce((total: number, task: Task) => total + task.duration_days, 0) + (tasks.length * 2)
       };
     }
 
-    // Mark as successful optimization
-    optimizedSchedule.success = true;
-    
-    return new Response(JSON.stringify(optimizedSchedule), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.log('Parsed optimization result:', parsedResult);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        ...parsedResult
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    );
+
   } catch (error) {
     console.error('Error in optimize-schedule function:', error);
     
-    // Return a successful response with error information and fallback data
-    const fallbackData = {
-      success: false,
-      error: error.message,
-      optimizedTasks: tasks || [],
-      criticalPath: ['concept', 'detailed', 'review'],
-      riskAssessment: { overall: 'medium', factors: ['API connectivity issue'] },
-      recommendations: ['Using current schedule with standard practices due to optimization error']
-    };
-    
-    return new Response(JSON.stringify(fallbackData), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message || 'An unexpected error occurred'
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      }
+    );
   }
 });

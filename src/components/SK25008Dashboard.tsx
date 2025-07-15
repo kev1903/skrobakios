@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { SK25008GanttChart } from './SK25008GanttChart';
+import { InteractiveGanttChart } from './InteractiveGanttChart';
 import { SK25008FileUpload } from './SK25008FileUpload';
 import { SK25008TaskDetails } from './SK25008TaskDetails';
 
@@ -46,7 +47,7 @@ export const SK25008Dashboard: React.FC = () => {
       const { data, error } = await supabase
         .from('sk_25008_design')
         .select('*')
-        .order('start_date');
+        .order('start_date', { ascending: true });
 
       if (error) throw error;
       setTasks(data || []);
@@ -236,8 +237,15 @@ export const SK25008Dashboard: React.FC = () => {
             Visual timeline with critical path and dependencies
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <SK25008GanttChart tasks={tasks} />
+        <CardContent className="p-0">
+          <InteractiveGanttChart 
+            tasks={tasks} 
+            onTaskUpdate={(taskId, updates) => {
+              console.log('Task update:', taskId, updates);
+              // Optionally trigger a refetch or local update
+              fetchTasks();
+            }}
+          />
         </CardContent>
       </Card>
 
