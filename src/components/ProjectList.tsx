@@ -90,8 +90,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       console.log("Navigating to SK25008 dashboard: sk25008-schedule");
       onNavigate("sk25008-schedule");
     } else {
-      console.log("Navigating to project detail");
-      onNavigate("project-detail");
+      console.log("Navigating to individual project dashboard");
+      onNavigate("individual-project-dashboard");
     }
   };
 
