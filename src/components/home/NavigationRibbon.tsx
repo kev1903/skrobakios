@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings } from 'lucide-react';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -32,6 +32,12 @@ const BUSINESS_NAVIGATION_ITEMS = [
     label: 'Sales',
     icon: TrendingUp,
     page: 'sales' // Navigate to Sales Dashboard
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: Settings,
+    page: 'settings' // Navigate to Settings Page
   }
 ];
 
@@ -51,6 +57,11 @@ const COMPANY_NAVIGATION_MODULES = [{
   name: 'Sales',
   icon: TrendingUp,
   page: 'sales'
+}, {
+  key: 'settings',
+  name: 'Settings',
+  icon: Settings,
+  page: 'settings'
 }];
 export const NavigationRibbon = ({
   isOpen,
@@ -67,6 +78,11 @@ export const NavigationRibbon = ({
 
   // Filter navigation modules based on subscription features
   const enabledNavigationModules = COMPANY_NAVIGATION_MODULES.filter(module => {
+    // Settings should always be visible
+    if (module.key === 'settings') {
+      return true;
+    }
+    
     // Map module keys to subscription features
     const featureMap: Record<string, string> = {
       'projects': 'Project Management',
@@ -123,12 +139,12 @@ export const NavigationRibbon = ({
               <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
                 Business Navigation
               </div>
-              {BUSINESS_NAVIGATION_ITEMS.map(item => {
+              {enabledNavigationModules.map(item => {
                 const Icon = item.icon;
-                const isActive = currentPage === item.id || currentPage === item.page;
+                const isActive = currentPage === item.key || currentPage === item.page;
                 return (
                   <button 
-                    key={item.id} 
+                    key={item.key} 
                     onClick={() => {
                       onNavigate(item.page);
                       onClose();
@@ -140,7 +156,7 @@ export const NavigationRibbon = ({
                     }`}
                   >
                     <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium">{item.name}</span>
                   </button>
                 );
               })}
