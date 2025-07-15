@@ -13,15 +13,23 @@ interface PersonalDashboardProps {
 }
 
 export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
-  const { userProfile } = useUser();
-  const { companies } = useCompany();
+  const { userProfile, loading: userLoading } = useUser();
+  const { companies, loading: companyLoading } = useCompany();
   const [portfolioCount, setPortfolioCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    fetchPortfolioCount();
-    fetchReviewCount();
-  }, []);
+    const fetchData = async () => {
+      if (!userLoading && !companyLoading) {
+        setDataLoading(true);
+        await Promise.all([fetchPortfolioCount(), fetchReviewCount()]);
+        setDataLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [userLoading, companyLoading]);
 
   const fetchPortfolioCount = async () => {
     try {
@@ -59,6 +67,55 @@ export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
       console.error('Error fetching review count:', error);
     }
   };
+
+  // Show loading state while contexts are loading or data is fetching
+  if (userLoading || companyLoading || dataLoading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        {/* Header skeleton */}
+        <div className="flex items-center space-x-4">
+          <div className="h-16 w-16 bg-white/20 rounded-full"></div>
+          <div>
+            <div className="h-8 w-48 bg-white/20 rounded mb-2"></div>
+            <div className="h-4 w-32 bg-white/20 rounded mb-2"></div>
+            <div className="flex space-x-2">
+              <div className="h-6 w-24 bg-white/20 rounded"></div>
+              <div className="h-6 w-20 bg-white/20 rounded"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Stats skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white/10 backdrop-blur-md border-white/20 rounded-lg p-6">
+              <div className="h-4 w-16 bg-white/20 rounded mb-2"></div>
+              <div className="h-8 w-12 bg-white/20 rounded mb-1"></div>
+              <div className="h-3 w-24 bg-white/20 rounded"></div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Quick actions skeleton */}
+        <div>
+          <div className="h-6 w-32 bg-white/20 rounded mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white/10 backdrop-blur-md border-white/20 rounded-lg p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 bg-white/20 rounded-lg"></div>
+                  <div>
+                    <div className="h-4 w-20 bg-white/20 rounded mb-1"></div>
+                    <div className="h-3 w-32 bg-white/20 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const stats = [
     {
