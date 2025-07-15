@@ -45,7 +45,7 @@ const Index = () => {
       previousPageRef.current = currentPage;
       setCurrentPage(pageParam);
     }
-  }, [searchParams, currentPage]);
+  }, [searchParams]); // Remove currentPage dependency to prevent infinite loops
 
   return (
     <DigitalObjectsProvider>
