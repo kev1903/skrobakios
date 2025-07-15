@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 
 const xaiApiKey = Deno.env.get('xAi'); // Use the correct secret name
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,8 +27,8 @@ serve(async (req) => {
       });
     }
 
-    // Create Supabase client with user's JWT
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+    // Create Supabase client with user's JWT using anon key
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: { authorization: authHeader }
       }
@@ -37,6 +37,7 @@ serve(async (req) => {
     // Verify user authentication
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Access denied due to permissions' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -89,6 +90,15 @@ RESPONSE GUIDELINES:
       { role: 'user', content: message }
     ];
 
+    // Check if xAI API key is available
+    if (!xaiApiKey) {
+      console.error('xAI API key is not configured');
+      return new Response(JSON.stringify({ error: 'AI service is not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -104,7 +114,9 @@ RESPONSE GUIDELINES:
     });
 
     if (!response.ok) {
-      throw new Error(`xAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('xAI API error:', response.status, errorText);
+      throw new Error(`xAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
