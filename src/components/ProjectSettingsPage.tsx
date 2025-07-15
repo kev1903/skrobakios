@@ -198,109 +198,119 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   }, [project.id]);
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigate('dashboard')}
-                className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Back</span>
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-                  Project Settings
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">Manage your project configuration and details</p>
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      <ProjectSidebar
+        project={project}
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="settings"
+      />
+      
+      <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+        {/* Header */}
+        <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
+          <div className="px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigate('individual-project-dashboard')}
+                  className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/40 backdrop-blur-sm transition-all duration-200"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="font-medium">Back</span>
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
+                    Project Settings
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-1">Manage your project configuration and details</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-white/60">
-              <TabsTrigger value="general" className="flex items-center space-x-2">
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">General</span>
-              </TabsTrigger>
-              <TabsTrigger value="integration" className="flex items-center space-x-2">
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">Integration</span>
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="flex items-center space-x-2">
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">Timeline</span>
-              </TabsTrigger>
-              <TabsTrigger value="danger" className="flex items-center space-x-2">
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">Danger Zone</span>
-              </TabsTrigger>
-            </TabsList>
+        {/* Content */}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-4xl mx-auto p-8">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-white/60">
+                <TabsTrigger value="general" className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">General</span>
+                </TabsTrigger>
+                <TabsTrigger value="integration" className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Integration</span>
+                </TabsTrigger>
+                <TabsTrigger value="timeline" className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Timeline</span>
+                </TabsTrigger>
+                <TabsTrigger value="danger" className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Danger Zone</span>
+                </TabsTrigger>
+              </TabsList>
 
-            <div className="space-y-6">
-              <TabsContent value="general" className="space-y-6 mt-0">
-                <ProjectBannerCard 
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                />
-                <ProjectInformationCard 
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                />
-                <ProjectOverviewCard 
-                  project={project}
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  getStatusColor={getStatusColor}
-                  getStatusText={getStatusText}
-                />
-              </TabsContent>
+              <div className="space-y-6">
+                <TabsContent value="general" className="space-y-6 mt-0">
+                  <ProjectBannerCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                  <ProjectInformationCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                  <ProjectOverviewCard 
+                    project={project}
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    getStatusColor={getStatusColor}
+                    getStatusText={getStatusText}
+                  />
+                </TabsContent>
 
-              <TabsContent value="integration" className="space-y-6 mt-0">
-                <SharePointIntegrationCard 
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                />
-              </TabsContent>
+                <TabsContent value="integration" className="space-y-6 mt-0">
+                  <SharePointIntegrationCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
 
-              <TabsContent value="timeline" className="space-y-6 mt-0">
-                <TimelineStatusCard 
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                />
-              </TabsContent>
+                <TabsContent value="timeline" className="space-y-6 mt-0">
+                  <TimelineStatusCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
 
-              <TabsContent value="danger" className="space-y-6 mt-0">
-                <DangerZoneCard 
-                  project={project}
-                  onDeleteProject={handleDeleteProject}
-                  loading={loading}
-                />
-              </TabsContent>
-            </div>
+                <TabsContent value="danger" className="space-y-6 mt-0">
+                  <DangerZoneCard 
+                    project={project}
+                    onDeleteProject={handleDeleteProject}
+                    loading={loading}
+                  />
+                </TabsContent>
+              </div>
 
-            {/* Save Button */}
-            <div className="mt-8 flex justify-end">
-              <Button 
-                onClick={handleSave} 
-                disabled={loading}
-                className="flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                {loading ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </Tabs>
+              {/* Save Button */}
+              <div className="mt-8 flex justify-end">
+                <Button 
+                  onClick={handleSave} 
+                  disabled={loading}
+                  className="flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </Tabs>
+          </div>
         </div>
       </div>
     </div>
