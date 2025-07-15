@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { usePlatformAuth as usePlatformAuthContext } from '@/contexts/PlatformAuthContext';
 
 export const usePlatformAuth = (onNavigate: (page: string) => void) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,6 +14,7 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
   const [tokenAccessUser, setTokenAccessUser] = useState<any>(null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const { toast } = useToast();
+  const { authenticatePlatform } = usePlatformAuthContext();
 
   // Check for token access on component mount
   useEffect(() => {
@@ -46,11 +48,12 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
         setShowPasswordChange(true);
       } else {
         // Auto-login for activated users
-        toast({
-          title: "Access Granted",
-          description: "Welcome back to SkrobakiOS!",
-        });
-        onNavigate('platform-dashboard');
+            toast({
+              title: "Access Granted",
+              description: "Welcome back to SkrobakiOS!",
+            });
+            authenticatePlatform();
+            onNavigate('platform-dashboard');
       }
     } catch (error: any) {
       setError(error.message || 'Failed to validate access token');
@@ -66,6 +69,7 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
       title: "Welcome to SkrobakiOS",
       description: "Your account is now fully activated!",
     });
+    authenticatePlatform();
     onNavigate('platform-dashboard');
   };
 
@@ -110,6 +114,7 @@ export const usePlatformAuth = (onNavigate: (page: string) => void) => {
               title: "Success",
               description: "Successfully logged in to Platform",
             });
+            authenticatePlatform();
             onNavigate('platform-dashboard');
           }
         }

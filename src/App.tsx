@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
+import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
 import { AppContextProvider } from "./contexts/AppContextProvider";
 import { CostContractsPage } from "./components/CostContractsPage";
 import { InvoicesPage } from "./components/InvoicesPage";
@@ -123,9 +124,11 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <ImpersonationGuard>
-              <AppContent />
-            </ImpersonationGuard>
+            <PlatformAuthProvider>
+              <ImpersonationGuard>
+                <AppContent />
+              </ImpersonationGuard>
+            </PlatformAuthProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

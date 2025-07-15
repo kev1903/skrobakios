@@ -40,6 +40,7 @@ import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
+import { usePlatformAuth } from "@/contexts/PlatformAuthContext";
 import { ProjectDashboard } from "@/components/projects/ProjectDashboard";
 import { TaskManagement } from "@/components/projects/TaskManagement";
 import { Project } from "@/hooks/useProjects";
@@ -74,6 +75,7 @@ export const ContentRenderer = ({
   selectedProject,
   currentProject
 }: ContentRendererProps) => {
+  const { isPlatformAuthenticated } = usePlatformAuth();
   const renderProjectNotFound = () => <div className="flex items-center justify-center h-full">
       <p className="text-slate-500">Project not found</p>
     </div>;
@@ -295,12 +297,18 @@ export const ContentRenderer = ({
     case "platform":
       return <PlatformAuthPage onNavigate={onNavigate} />;
     case "platform-dashboard":
+      // Check for platform authentication first
+      if (!isPlatformAuthenticated) {
+        onNavigate("platform");
+        return null;
+      }
+      
       return (
         <RoleProtectedRoute 
-          requiredRoles={['superadmin', 'platform_admin']} 
+          requiredRoles={['superadmin']} 
           onNavigate={onNavigate}
-          redirectPage="home"
-          fallbackMessage="Platform dashboard access is restricted to superadmins and platform admins only."
+          redirectPage="platform"
+          fallbackMessage="Platform dashboard access is restricted to superadmins only. Please authenticate through the Platform page."
         >
           <ModernPlatformDashboard onNavigate={onNavigate} />
         </RoleProtectedRoute>

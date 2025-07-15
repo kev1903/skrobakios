@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from "@/lib/utils";
 import { NavigationItem } from './types';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface NavigationSectionProps {
   title: string;
@@ -20,6 +21,27 @@ interface NavigationSectionProps {
 }
 
 export const NavigationSection = ({ title, items, currentPage, onNavigate, isCollapsed }: NavigationSectionProps) => {
+  const { isSuperAdmin, isPlatformAdmin, isCompanyAdmin } = useUserRole();
+
+  // Filter items based on user role
+  const filteredItems = items.filter((item) => {
+    if (!item.requiredRole) return true;
+    
+    switch (item.requiredRole) {
+      case 'superadmin':
+        return isSuperAdmin();
+      case 'platform_admin':
+        return isPlatformAdmin();
+      case 'company_admin':
+        return isCompanyAdmin();
+      default:
+        return true;
+    }
+  });
+
+  // Don't render the section if no items are visible
+  if (filteredItems.length === 0) return null;
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 font-poppins">
@@ -27,7 +49,7 @@ export const NavigationSection = ({ title, items, currentPage, onNavigate, isCol
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu className="space-y-1">
-          {items.map((item) => {
+          {filteredItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.active || currentPage === item.id;
             return (
