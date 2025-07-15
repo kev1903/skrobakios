@@ -85,7 +85,7 @@ export const ProjectSidebar = ({
   const hasProjectManagement = hasFeature('projects');
   const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS // Show all project items for subscribed users
   : [];
-  return <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+  return <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
       <div className="flex flex-col h-full pt-20">
         {/* Back Button */}
         
