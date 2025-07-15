@@ -97,11 +97,11 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
     // Load companies and restore selected company from localStorage
     const loadCompanies = async () => {
       if (!isAuthenticated || !user) {
-        console.log('Not authenticated or no user, skipping company load');
+        console.log('🚫 Not authenticated or no user, skipping company load');
         return;
       }
       
-      console.log('User authenticated, loading companies for user:', user.id);
+      console.log('👤 User authenticated, loading companies for user:', user.id);
       
       // Try loading companies with retry mechanism
       let retryCount = 0;
@@ -113,13 +113,20 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
           break; // Success, exit retry loop
         } catch (error) {
           retryCount++;
-          console.log(`Company load attempt ${retryCount} failed:`, error);
+          console.log(`💔 Company load attempt ${retryCount} failed:`, error);
           
           if (retryCount < maxRetries) {
             // Wait longer for each retry
             await new Promise(resolve => setTimeout(resolve, 500 * retryCount));
           } else {
-            console.error('Failed to load companies after all retries');
+            console.error('💥 Failed to load companies after all retries');
+            
+            // As a last resort, try to refresh the page after a short delay
+            // This can help resolve auth context issues
+            setTimeout(() => {
+              console.log('🔄 Refreshing page due to persistent company loading issues...');
+              window.location.reload();
+            }, 2000);
           }
         }
       }
