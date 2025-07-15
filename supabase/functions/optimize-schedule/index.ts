@@ -103,21 +103,27 @@ serve(async (req) => {
       };
     }
 
+    // Mark as successful optimization
+    optimizedSchedule.success = true;
+    
     return new Response(JSON.stringify(optimizedSchedule), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in optimize-schedule function:', error);
-    return new Response(JSON.stringify({ 
+    
+    // Return a successful response with error information and fallback data
+    const fallbackData = {
+      success: false,
       error: error.message,
-      fallback: {
-        optimizedTasks: [],
-        criticalPath: ['consultation', 'concept', 'detailed', 'review'],
-        riskAssessment: { overall: 'medium' },
-        recommendations: ['Use standard scheduling practices']
-      }
-    }), {
-      status: 500,
+      optimizedTasks: tasks || [],
+      criticalPath: ['concept', 'detailed', 'review'],
+      riskAssessment: { overall: 'medium', factors: ['API connectivity issue'] },
+      recommendations: ['Using current schedule with standard practices due to optimization error']
+    };
+    
+    return new Response(JSON.stringify(fallbackData), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

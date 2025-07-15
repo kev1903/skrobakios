@@ -71,6 +71,11 @@ export const SK25008Dashboard: React.FC = () => {
 
       if (error) throw error;
 
+      // Check if the optimization was successful
+      if (data?.success === false) {
+        throw new Error(data.error || 'Optimization failed');
+      }
+
       toast({
         title: "Schedule Optimized",
         description: "AI-powered schedule optimization completed successfully",
