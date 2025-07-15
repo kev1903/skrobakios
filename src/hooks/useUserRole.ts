@@ -63,7 +63,7 @@ export const useUserRole = () => {
     };
 
     fetchUserRoles();
-  }, [user]);
+  }, [user?.id]); // Changed from [user] to [user?.id] to prevent infinite loops
 
   const hasRole = (requiredRole: UserRole): boolean => {
     if (!role) return false;
