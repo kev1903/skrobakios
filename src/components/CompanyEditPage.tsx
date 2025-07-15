@@ -8,9 +8,9 @@ import { Switch } from '@/components/ui/switch';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useToast } from '@/hooks/use-toast';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useSubscription } from '@/hooks/useSubscription';
 import { Company } from '@/types/company';
 import { CompanyDetailsForm } from '@/components/company-edit/CompanyDetailsForm';
-// Module system removed - using subscription-based access control
 import { CompanyRolesSection } from '@/components/company-edit/CompanyRolesSection';
 import { CompanyPermissionsSection } from '@/components/company-edit/CompanyPermissionsSection';
 import { CompanyRolesTab } from '@/components/company/settings/CompanyRolesTab';
@@ -31,7 +31,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
   const { getCompany, updateCompany } = useCompanies();
   const { toast } = useToast();
   const { isSuperAdmin } = useUserRole();
-  // Module system removed - functionality moved to subscription-based access
+  const { currentSubscription, hasFeature } = useSubscription();
 
   useEffect(() => {
     const fetchCompany = async () => {
@@ -39,9 +39,6 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
         const companyData = await getCompany(companyId);
         setCompany(companyData);
         console.log('CompanyEditPage: User is superadmin?', isSuperAdmin());
-        console.log('CompanyEditPage: Fetching modules for company:', companyId);
-        // Always fetch company modules for platform admins or company owners
-        await fetchCompanyModules(companyId);
       } catch (error) {
         console.error('Error fetching company:', error);
         toast({
@@ -84,27 +81,14 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
     }
   };
 
-  const handleModuleToggle = async (moduleName: string, enabled: boolean) => {
-    if (!company) return;
-    
-    try {
-      await updateModuleStatus(company.id, moduleName, enabled);
-      toast({
-        title: "Success",
-        description: `${moduleName} module ${enabled ? 'enabled' : 'disabled'} successfully`
-      });
-    } catch (error) {
-      console.error('Error updating module:', error);
-      // Error is already handled in the hook
-    }
-  };
+  // Module functionality removed - now controlled by subscription tiers
 
   const handleCompanyDeleted = () => {
     // Navigate back to the platform dashboard after company deletion
     onNavigateBack();
   };
 
-  if (loading || modulesLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center">
         <div className="text-slate-600">Loading company details...</div>
@@ -185,7 +169,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
                 <>
                   <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                     <Shield className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Modules</span>
+                    <span className="text-xs md:text-sm">Subscription</span>
                   </TabsTrigger>
                   <TabsTrigger value="danger-zone" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
@@ -318,75 +302,67 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
 
           {isSuperAdmin() && (
             <TabsContent value="admin" className="space-y-4 md:space-y-6">
-              {/* Company Modules Section - Only for Super Admins */}
+              {/* Subscription Information Section - Only for Super Admins */}
               <Card className="backdrop-blur-sm bg-white/60 border-white/30">
                 <CardHeader className="pb-4 md:pb-6">
                   <CardTitle className="text-lg md:text-xl flex items-center gap-2">
                     <Settings className="w-5 h-5" />
-                    Module Management
+                    Subscription Management
                   </CardTitle>
                   <CardDescription className="text-sm md:text-base">
-                    Control which modules are available for {company?.name}
+                    View subscription details and feature access for {company?.name}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="company-modules" className="space-y-6">
-                    <TabsList className={`grid w-full ${isModuleEnabled(company?.id || '', 'projects') ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                      <TabsTrigger value="company-modules">Company Modules</TabsTrigger>
-                      {isModuleEnabled(company?.id || '', 'projects') && (
-                        <TabsTrigger value="project-modules">Project Modules</TabsTrigger>
-                      )}
-                    </TabsList>
-                    
-                    <TabsContent value="company-modules" className="space-y-4">
-                      {AVAILABLE_MODULES.filter(module => 
-                        ['projects', 'finance', 'sales'].includes(module.key)
-                      ).map((module) => (
-                        <div key={module.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                          <div>
-                            <h4 className="text-sm font-medium">{module.name}</h4>
-                            <p className="text-xs md:text-sm text-slate-500">{module.description}</p>
-                          </div>
-                          <Switch 
-                            checked={isModuleEnabled(company?.id || '', module.key)}
-                            onCheckedChange={(checked) => handleModuleToggle(module.key, checked)}
-                          />
+                <CardContent className="space-y-4">
+                  {currentSubscription ? (
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                        <div>
+                          <h4 className="text-sm font-medium">Current Plan</h4>
+                          <p className="text-xs md:text-sm text-slate-500">{currentSubscription.plan_name}</p>
                         </div>
-                      ))}
-                    </TabsContent>
-                    
-                    {isModuleEnabled(company?.id || '', 'projects') && (
-                      <TabsContent value="project-modules" className="space-y-4">
-                        {AVAILABLE_MODULES.filter(module => 
-                          ['dashboard', 'digital-twin', 'cost-contracts', 'schedule', 'tasks', 'files', 'team', 'digital-objects'].includes(module.key)
-                        ).map((module) => (
-                          <div key={module.key} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                            <div>
-                              <h4 className="text-sm font-medium">{module.name}</h4>
-                              <p className="text-xs md:text-sm text-slate-500">{module.description}</p>
-                            </div>
-                            <Switch 
-                              checked={isModuleEnabled(company?.id || '', module.key)}
-                              onCheckedChange={(checked) => handleModuleToggle(module.key, checked)}
-                            />
+                        <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                          {currentSubscription.status}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h5 className="text-sm font-medium">Features Available</h5>
+                          <div className="mt-2 space-y-1">
+                            {currentSubscription.features.map((feature) => (
+                              <div key={feature} className="text-xs text-slate-600 flex items-center">
+                                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </TabsContent>
-                    )}
-                  </Tabs>
-                 </CardContent>
-                </Card>
-              </TabsContent>
-            )}
+                        </div>
+                        <div>
+                          <h5 className="text-sm font-medium">Limits</h5>
+                          <div className="mt-2 space-y-1 text-xs text-slate-600">
+                            <div>Projects: {currentSubscription.max_projects || 'Unlimited'}</div>
+                            <div>Team Members: {currentSubscription.max_team_members || 'Unlimited'}</div>
+                            <div>Storage: {currentSubscription.max_storage_gb ? `${currentSubscription.max_storage_gb}GB` : 'Unlimited'}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-slate-500">No active subscription found.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
-            {isSuperAdmin() && (
-              <TabsContent value="danger-zone" className="space-y-4 md:space-y-6">
-                <CompanyDangerZone 
-                  company={company}
-                  onCompanyDeleted={handleCompanyDeleted}
-                />
-              </TabsContent>
-            )}
+          {isSuperAdmin() && (
+            <TabsContent value="danger-zone" className="space-y-4 md:space-y-6">
+              <CompanyDangerZone
+                company={company}
+                onCompanyDeleted={handleCompanyDeleted}
+              />
+            </TabsContent>
+          )}
          </Tabs>
        </div>
      </div>

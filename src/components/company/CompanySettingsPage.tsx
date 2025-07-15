@@ -37,7 +37,7 @@ import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
 import { CompanyUserManagement } from './settings/CompanyUserManagement';
 import { Company } from '@/types/company';
-// Module system removed - using subscription-based access control
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface CompanySettingsPageProps {
   onNavigate: (page: string) => void;
@@ -54,7 +54,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
   const [activeTab, setActiveTab] = useState('profile');
   const { theme, setTheme } = useTheme();
   const { isSuperAdmin, isPlatformAdmin } = useUserRole();
-  // Module system removed - functionality moved to subscription-based access
+  const { currentSubscription, hasFeature } = useSubscription();
   
   const [companyForm, setCompanyForm] = useState({
     name: '',
@@ -94,10 +94,8 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
             });
           }
           
-          // Fetch enabled modules for this company
-          await fetchCompanyModules(currentCompany.id);
-          const enabled = getEnabledModules(currentCompany.id);
-          setEnabledModules(enabled);
+          // Module system removed - using subscription-based features
+          setEnabledModules(currentSubscription?.features || []);
         }
       } catch (error) {
         console.error('Error loading company details:', error);
@@ -385,25 +383,25 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-semibold text-slate-800 flex items-center gap-2">
                   <Settings className="w-5 h-5" />
-                  Available Modules
+                  Available Features
                 </CardTitle>
-                <p className="text-slate-600 text-sm">Modules enabled for your company by the platform administrator</p>
+                <p className="text-slate-600 text-sm">Features available through your subscription plan</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 {enabledModules.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
                     <Settings className="w-12 h-12 mx-auto mb-4 text-slate-300" />
-                    <p className="text-sm">No modules are currently enabled for your company.</p>
-                    <p className="text-xs mt-2">Contact your platform administrator to enable modules.</p>
+                    <p className="text-sm">No features are currently available.</p>
+                    <p className="text-xs mt-2">Upgrade your subscription to access more features.</p>
                   </div>
                 ) : (
-                  AVAILABLE_MODULES
-                    .filter(module => enabledModules.includes(module.key))
-                    .map((module) => (
-                      <div key={module.key} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-slate-200/50">
+                  enabledModules.map((feature) => (
+                      <div key={feature} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-slate-200/50">
                         <div>
-                          <h4 className="text-sm font-medium text-slate-800">{module.name}</h4>
-                          <p className="text-xs text-slate-500">{module.description}</p>
+                          <h4 className="text-sm font-medium text-slate-800">
+                            {feature.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </h4>
+                          <p className="text-xs text-slate-500">Available through your subscription plan</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Enabled</span>

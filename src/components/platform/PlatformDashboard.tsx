@@ -16,7 +16,7 @@ import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
 import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
-// Module system removed - functionality moved to subscription-based access
+import { useSubscription } from '@/hooks/useSubscription';
 import { PlatformUserManagement } from '@/components/admin/PlatformUserManagement';
 interface PlatformDashboardProps {
   onNavigate: (page: string) => void;
@@ -49,7 +49,7 @@ export const PlatformDashboard = ({
     isPlatformAdmin
   } = useUserRole();
   const navigate = useNavigate();
-  const { modules, loading: modulesLoading, fetchMultipleCompanyModules } = useCompanyModules();
+  const { availablePlans } = useSubscription();
 
   // Additional state for table functionality
   const [filteredCompanies, setFilteredCompanies] = useState<any[]>([]);
@@ -58,10 +58,10 @@ export const PlatformDashboard = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const canManageCompanies = isSuperAdmin() || isPlatformAdmin();
-  const [moduleStats, setModuleStats] = useState({
-    companyModules: { active: 0, total: 0 },
-    projectModules: { active: 0, total: 0 },
-    totalCompaniesUsingModules: 0,
+  const [subscriptionStats, setSubscriptionStats] = useState({
+    totalSubscriptions: 0,
+    activePlans: 0,
+    trialUsers: 0,
     averageAdoption: 0
   });
 
@@ -71,43 +71,35 @@ export const PlatformDashboard = ({
     setFilteredCompanies(filtered);
   }, [searchTerm, companies]);
 
-  // Calculate module statistics from real data
+  // Calculate subscription statistics
   useEffect(() => {
-    const calculateModuleStats = () => {
-      const companyModuleTypes = ['Projects', 'Finance', 'Sales'];
-      const projectModuleTypes = ['Dashboard', 'Digital Twin', 'Cost & Contracts', 'Schedule', 'Tasks', 'Files', 'Team', 'Digital Objects'];
-      
-      const activeCompanyModules = AVAILABLE_MODULES.filter(m => 
-        companyModuleTypes.includes(m.name)
-      ).length;
-      
-      const activeProjectModules = AVAILABLE_MODULES.filter(m => 
-        projectModuleTypes.includes(m.name)
-      ).length;
-
-      // Get unique companies using any modules
-      const companiesUsingModules = new Set(modules.filter(m => m.enabled).map(m => m.company_id)).size;
-      
-      // Calculate average adoption rate
-      const totalPossibleAdoptions = companies.length * AVAILABLE_MODULES.length;
-      const actualAdoptions = modules.filter(m => m.enabled).length;
-      const averageAdoption = totalPossibleAdoptions > 0 ? Math.round((actualAdoptions / totalPossibleAdoptions) * 100) : 0;
-
-      setModuleStats({
-        companyModules: { active: activeCompanyModules, total: companyModuleTypes.length },
-        projectModules: { active: activeProjectModules, total: projectModuleTypes.length },
-        totalCompaniesUsingModules: companiesUsingModules,
-        averageAdoption
-      });
+    const calculateSubscriptionStats = async () => {
+      try {
+        const { data: subscriptions } = await supabase
+          .from('user_subscriptions')
+          .select('*');
+        
+        const totalSubscriptions = subscriptions?.length || 0;
+        const trialUsers = subscriptions?.filter(s => s.status === 'trial').length || 0;
+        const activePlans = availablePlans.length;
+        
+        setSubscriptionStats({
+          totalSubscriptions,
+          activePlans,
+          trialUsers,
+          averageAdoption: totalSubscriptions > 0 ? Math.round((trialUsers / totalSubscriptions) * 100) : 0
+        });
+      } catch (error) {
+        console.error('Error calculating subscription stats:', error);
+      }
     };
 
-    calculateModuleStats();
-  }, [modules, companies]);
+    calculateSubscriptionStats();
+  }, [availablePlans, companies]);
 
-  // Get module adoption statistics
-  const getModuleAdoptionStats = (moduleName: string) => {
-    const moduleUsage = modules.filter(m => m.module_name === moduleName && m.enabled);
-    return moduleUsage.length;
+  // Get subscription plan statistics  
+  const getPlanAdoptionStats = (planName: string) => {
+    return subscriptionStats.activePlans;
   };
 
   const handleEditCompany = (company: Company) => {
@@ -170,7 +162,7 @@ export const PlatformDashboard = ({
     icon: Building2,
     id: "tenants"
   }, {
-    title: "Modules",
+    title: "Subscriptions",
     icon: Puzzle,
     id: "modules"
   }, {
@@ -330,12 +322,6 @@ export const PlatformDashboard = ({
     fetchCompanyStats();
     fetchCompanies();
     fetchUserStats();
-
-    // Fetch modules data for all companies efficiently
-    if (companies.length > 0) {
-      const companyIds = companies.map(company => company.id);
-      fetchMultipleCompanyModules(companyIds);
-    }
 
     // Set up real-time subscriptions
     const companyChannel = supabase.channel('company-changes').on('postgres_changes', {
@@ -542,114 +528,101 @@ export const PlatformDashboard = ({
       case 'modules':
         return <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">Platform Modules</h2>
-                <p className="text-muted-foreground">Manage available modules and features across the platform</p>
-              </div>
+              <h2 className="text-2xl font-bold">Subscription Management</h2>
               <Button>
                 <Puzzle className="w-4 h-4 mr-2" />
-                Create Module
+                Configure Plans
               </Button>
             </div>
 
+            {/* Subscription Statistics Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-500/10">
+                      <Users className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Subscriptions</p>
+                      <p className="text-2xl font-bold">{subscriptionStats.totalSubscriptions}</p>
+                      <p className="text-xs text-green-600">Active subscriptions</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Company Modules */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10">
+                      <Puzzle className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Available Plans</p>
+                      <p className="text-2xl font-bold">{subscriptionStats.activePlans}</p>
+                      <p className="text-xs text-green-600">Subscription tiers</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <TrendingUp className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Trial Users</p>
+                      <p className="text-2xl font-bold">{subscriptionStats.trialUsers}</p>
+                      <p className="text-xs text-green-600">Users on trial</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-orange-500/10">
+                      <Activity className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Trial Rate</p>
+                      <p className="text-2xl font-bold">{subscriptionStats.averageAdoption}%</p>
+                      <p className="text-xs text-orange-600">Users starting trials</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Subscription Plans Overview */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5" />
-                  Company Modules
-                </CardTitle>
-                <CardDescription>
-                  Modules that operate at the company level
-                </CardDescription>
+                <CardTitle>Subscription Plans</CardTitle>
+                <CardDescription>Available subscription tiers and their features</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {AVAILABLE_MODULES.filter(module => ['projects', 'finance', 'sales'].includes(module.key)).map((module) => {
-                    const adoptionCount = getModuleAdoptionStats(module.key);
-                    const adoptionRate = companies.length > 0 ? Math.round((adoptionCount / companies.length) * 100) : 0;
-                    const isActive = adoptionCount > 0;
-                    
-                    return (
-                      <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-blue-500/10">
-                            {module.key === 'projects' && <Building2 className="w-4 h-4 text-blue-500" />}
-                            {module.key === 'finance' && <DollarSign className="w-4 h-4 text-blue-500" />}
-                            {module.key === 'sales' && <TrendingUp className="w-4 h-4 text-blue-500" />}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{module.name}</h4>
-                            <p className="text-sm text-muted-foreground">{module.description}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {adoptionCount} companies ({adoptionRate}% adoption)
-                            </p>
-                          </div>
+                <div className="space-y-4">
+                  {availablePlans.map((plan) => (
+                    <div key={plan.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500/10">
+                          <Puzzle className="w-4 h-4 text-blue-500" />
                         </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={isActive ? "default" : "secondary"}>
-                          {isActive ? "Active" : "Inactive"}
-                        </Badge>
-                        <Button variant="outline" size="sm">
-                          Configure
-                        </Button>
+                        <div>
+                          <h4 className="font-medium">{plan.name}</h4>
+                          <p className="text-sm text-muted-foreground">{plan.description}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">${plan.price_monthly}/month</div>
+                        <p className="text-xs text-muted-foreground">{plan.features.length} features</p>
                       </div>
                     </div>
-                  )})}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Project Modules */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  Project Modules
-                </CardTitle>
-                <CardDescription>
-                  Modules that operate within specific projects
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {AVAILABLE_MODULES.filter(module => !['projects', 'finance', 'sales'].includes(module.key)).map((module) => {
-                    const adoptionCount = getModuleAdoptionStats(module.key);
-                    const adoptionRate = companies.length > 0 ? Math.round((adoptionCount / companies.length) * 100) : 0;
-                    const isEnabled = adoptionCount > 0;
-                    
-                    return (
-                      <div key={module.name} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-green-500/10">
-                            {module.key === 'dashboard' && <Home className="w-4 h-4 text-green-500" />}
-                            {module.key === 'digital-twin' && <Zap className="w-4 h-4 text-green-500" />}
-                            {module.key === 'cost-contracts' && <DollarSign className="w-4 h-4 text-green-500" />}
-                            {module.key === 'schedule' && <Calendar className="w-4 h-4 text-green-500" />}
-                            {module.key === 'tasks' && <CheckSquare className="w-4 h-4 text-green-500" />}
-                            {module.key === 'files' && <FolderOpen className="w-4 h-4 text-green-500" />}
-                            {module.key === 'team' && <User className="w-4 h-4 text-green-500" />}
-                            {module.key === 'digital-objects' && <Eye className="w-4 h-4 text-green-500" />}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium">{module.name}</h4>
-                            <p className="text-sm text-muted-foreground">{module.description}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {adoptionCount} companies ({adoptionRate}% adoption)
-                            </p>
-                          </div>
-                        </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={isEnabled ? "default" : "secondary"}>
-                          {isEnabled ? "Active" : "Inactive"}
-                        </Badge>
-                        <Button variant="outline" size="sm">
-                          Configure
-                        </Button>
-                      </div>
-                    </div>
-                  )})}
+                  ))}
                 </div>
               </CardContent>
             </Card>
