@@ -119,9 +119,6 @@ export const TopFloatingBar = ({
                     }
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-white text-sm font-medium max-w-24 truncate">
-                  {userProfile?.firstName || 'User'}
-                </span>
               </div>
             </>
           )}
