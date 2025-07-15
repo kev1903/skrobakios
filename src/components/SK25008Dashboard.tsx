@@ -32,14 +32,17 @@ interface Task {
 interface SK25008DashboardProps {
   projectId?: string;
 }
-
-export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 'sk-25008' }) => {
+export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
+  projectId = 'sk-25008'
+}) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [project, setProject] = useState<Project | null>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
 
   // Navigation function for ProjectSidebar
@@ -55,12 +58,10 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .or(`project_id.eq.${projectId.toUpperCase()},project_id.eq.SK_25008,id.eq.${projectId}`)
-          .single();
-        
+        const {
+          data,
+          error
+        } = await supabase.from('projects').select('*').or(`project_id.eq.${projectId.toUpperCase()},project_id.eq.SK_25008,id.eq.${projectId}`).single();
         if (data && !error) {
           setProject(data);
           console.log('Found project:', data);
@@ -78,11 +79,10 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
           location: '38 Riverview Terrace, Bulleen',
           company_id: '',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
       }
     };
-    
     fetchProject();
     fetchTasks();
   }, [projectId]);
@@ -102,7 +102,6 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
         return "text-gray-600";
     }
   };
-
   const getStatusText = (status: string) => {
     switch (status) {
       case "running":
@@ -213,17 +212,9 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>;
   }
-
-  return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+  return <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
       {/* Project Sidebar */}
-      <ProjectSidebar
-        project={project}
-        onNavigate={handleNavigate}
-        getStatusColor={getStatusColor}
-        getStatusText={getStatusText}
-        activeSection="schedule"
-      />
+      <ProjectSidebar project={project} onNavigate={handleNavigate} getStatusColor={getStatusColor} getStatusText={getStatusText} activeSection="schedule" />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
@@ -232,52 +223,34 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
 
           {/* Gantt Chart */}
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-            <CardHeader>
-              <CardTitle className="text-white">Project Timeline</CardTitle>
-              <CardDescription className="text-white/70">
-                Visual timeline with critical path and dependencies
-              </CardDescription>
-            </CardHeader>
+            
             <CardContent className="p-0">
-              <TraditionalGanttChart 
-                tasks={tasks} 
-                onTaskUpdate={async (taskId, updates) => {
-                  try {
-                    const { error } = await supabase
-                      .from('sk_25008_design')
-                      .update(updates)
-                      .eq('id', taskId);
-                    
-                    if (error) throw error;
-                    
-                    toast({
-                      title: "Task Updated",
-                      description: "Task schedule updated successfully"
-                    });
-                    fetchTasks();
-                  } catch (error) {
-                    console.error('Error updating task:', error);
-                    toast({
-                      title: "Update Failed",
-                      description: "Failed to update task schedule",
-                      variant: "destructive"
-                    });
-                  }
-                }} 
-              />
+              <TraditionalGanttChart tasks={tasks} onTaskUpdate={async (taskId, updates) => {
+              try {
+                const {
+                  error
+                } = await supabase.from('sk_25008_design').update(updates).eq('id', taskId);
+                if (error) throw error;
+                toast({
+                  title: "Task Updated",
+                  description: "Task schedule updated successfully"
+                });
+                fetchTasks();
+              } catch (error) {
+                console.error('Error updating task:', error);
+                toast({
+                  title: "Update Failed",
+                  description: "Failed to update task schedule",
+                  variant: "destructive"
+                });
+              }
+            }} />
             </CardContent>
           </Card>
         </div>
       </div>
 
       {/* Task Details Modal/Panel */}
-      {selectedTask && (
-        <SK25008TaskDetails 
-          task={selectedTask} 
-          onClose={() => setSelectedTask(null)} 
-          onUpdate={fetchTasks} 
-        />
-      )}
-    </div>
-  );
+      {selectedTask && <SK25008TaskDetails task={selectedTask} onClose={() => setSelectedTask(null)} onUpdate={fetchTasks} />}
+    </div>;
 };
