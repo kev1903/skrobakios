@@ -25,7 +25,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.ai-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.analyze-activity]
 verify_jwt = false
