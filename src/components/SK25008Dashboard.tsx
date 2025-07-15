@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Upload, CheckCircle, Clock, AlertTriangle, FileText, Building2 } from 'lucide-react';
+import { Calendar, Upload, CheckCircle, Clock, AlertTriangle, FileText, Building2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -36,6 +37,7 @@ export const SK25008Dashboard: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
@@ -149,6 +151,15 @@ export const SK25008Dashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/?page=projects')}
+              className="mr-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Projects
+            </Button>
             <Building2 className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">SK_25008 - 38 Riverview Terrace, Bulleen</h1>
