@@ -29,14 +29,9 @@ export const HomeFloatingBar = ({
   const [isScheduleFullScreen, setIsScheduleFullScreen] = useState(false);
 
   const toggleRibbon = () => {
-    if (!isRibbonOpen) {
-      // Navigate to the appropriate dashboard based on active context
-      const contextRoute = getContextRoute(activeContext);
-      onNavigate(contextRoute);
-      setIsRibbonOpen(true);
-      setSidePageContent(null);
-    } else {
-      setIsRibbonOpen(false);
+    // Simply toggle the ribbon open/closed state without navigation
+    setIsRibbonOpen(!isRibbonOpen);
+    if (isRibbonOpen) {
       setSidePageContent(null);
     }
   };
