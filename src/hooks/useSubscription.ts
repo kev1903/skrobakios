@@ -74,27 +74,57 @@ export const useSubscription = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase.rpc('get_user_subscription');
+      // Instead of using RPC which relies on auth.uid(), fetch directly with user ID
+      const { data, error } = await supabase
+        .from('user_subscriptions')
+        .select(`
+          id,
+          status,
+          billing_cycle,
+          trial_ends_at,
+          current_period_end,
+          subscription_plans!inner(
+            id,
+            name,
+            description,
+            price_monthly,
+            price_yearly,
+            features,
+            max_projects,
+            max_team_members,
+            max_storage_gb
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       if (error) throw error;
       
       if (data && data.length > 0) {
-        const subscription = data[0];
+        const subscriptionRow = data[0];
+        const plan = subscriptionRow.subscription_plans;
+        
+        console.log('✅ Subscription loaded:', plan.name, 'Features:', plan.features);
+        
         setCurrentSubscription({
-          subscription_id: subscription.subscription_id,
-          plan_name: subscription.plan_name,
-          plan_description: subscription.plan_description || '',
-          status: subscription.status,
-          billing_cycle: subscription.billing_cycle,
-          trial_ends_at: subscription.trial_ends_at,
-          current_period_end: subscription.current_period_end,
-          price_monthly: subscription.price_monthly,
-          price_yearly: subscription.price_yearly,
-          features: Array.isArray(subscription.features) ? subscription.features.filter((f): f is string => typeof f === 'string') : [],
-          max_projects: subscription.max_projects,
-          max_team_members: subscription.max_team_members,
-          max_storage_gb: subscription.max_storage_gb
+          subscription_id: subscriptionRow.id,
+          plan_name: plan.name,
+          plan_description: plan.description || '',
+          status: subscriptionRow.status,
+          billing_cycle: subscriptionRow.billing_cycle,
+          trial_ends_at: subscriptionRow.trial_ends_at,
+          current_period_end: subscriptionRow.current_period_end,
+          price_monthly: plan.price_monthly,
+          price_yearly: plan.price_yearly,
+          features: Array.isArray(plan.features) ? plan.features.filter((f): f is string => typeof f === 'string') : [],
+          max_projects: plan.max_projects,
+          max_team_members: plan.max_team_members,
+          max_storage_gb: plan.max_storage_gb
         });
+      } else {
+        console.log('🔍 Subscription Debug - No subscription data found');
+        setCurrentSubscription(null);
       }
     } catch (err) {
       console.error('Error fetching user subscription:', err);
@@ -122,7 +152,11 @@ export const useSubscription = () => {
 
   // Check if user has access to a feature
   const hasFeature = (feature: string) => {
-    return currentSubscription?.features.includes(feature) || false;
+    const result = currentSubscription?.features.includes(feature) || false;
+    if (!result) {
+      console.log(`❌ Missing feature "${feature}". Available:`, currentSubscription?.features);
+    }
+    return result;
   };
 
   // Check if user can perform action based on limits
