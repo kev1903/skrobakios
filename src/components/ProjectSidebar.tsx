@@ -36,8 +36,8 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
   };
 
   // Filter project navigation items based on subscription features
-  // Show all project navigation items if user has Project Management feature
-  const hasProjectManagement = hasFeature('Project Management');
+  // Show all project navigation items if user has projects feature
+  const hasProjectManagement = hasFeature('projects');
   
   const enabledProjectNavItems = hasProjectManagement 
     ? ALL_PROJECT_NAV_ITEMS // Show all project items for subscribed users

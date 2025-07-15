@@ -36,12 +36,12 @@ export const NavigationRibbon = ({
     { id: "sales", label: "Sales", icon: TrendingUp },
   ];
 
-  // Business navigation items mapped to their required subscription features (from SidebarMainContent)
+  // Business navigation items mapped to their required subscription features
   const businessNavigationItems = [
-    { id: "files", label: "Files", icon: File, requiredFeature: "Document Management" },
-    { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "Project Management" },
-    { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign, requiredFeature: "Financial Management" },
-    { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "Sales Management" },
+    { id: "files", label: "Files", icon: File, requiredFeature: "basic_files" },
+    { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "projects" },
+    { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign, requiredFeature: "cost_contracts" },
+    { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "sales_management" },
     { id: "settings", label: "Settings", icon: Settings }, // Settings should always be available
   ];
 

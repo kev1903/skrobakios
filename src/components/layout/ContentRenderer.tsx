@@ -105,127 +105,127 @@ export const ContentRenderer = ({
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "create-project":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <CreateProject onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "projects":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />
         </SubscriptionProtectedRoute>
       );
     case "project-detail":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "project-tasks":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Task Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="basic_tasks" onNavigate={onNavigate}>
           <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-files":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Document Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="basic_files" onNavigate={onNavigate}>
           <ProjectFilePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-settings":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-schedule":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Schedule Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-team":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Team Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="team_management" onNavigate={onNavigate}>
           <ProjectTeamRedirect projectId={currentProject.id} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-digital-twin":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Digital Twin" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="advanced_projects" onNavigate={onNavigate}>
           <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-wbs":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <WBSPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "gantt-chart":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Schedule Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <GanttChartPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "upload":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <UploadProject onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "files":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Document Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="basic_files" onNavigate={onNavigate}>
           <FilePage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "finance":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <FinancePage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "finance-settings":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <FinanceSettingsPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "cashflow":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <CashFlowPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "invoices":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <InvoicesPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "bills":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <BillsPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "recurring":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <RecurringPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "sales":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Sales Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="sales_management" onNavigate={onNavigate}>
           <SalesPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "cost-contracts":
       return (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <CostContractsPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
@@ -237,7 +237,7 @@ export const ContentRenderer = ({
       return <InvitationAcceptancePage onNavigate={onNavigate} />;
     case "project-cost":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
             <ProjectSidebar project={currentProject} onNavigate={onNavigate} getStatusColor={(status: string) => {
             switch (status) {
@@ -270,7 +270,7 @@ export const ContentRenderer = ({
       ) : renderProjectNotFound();
     case "bim":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="Digital Objects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="advanced_projects" onNavigate={onNavigate}>
           <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
