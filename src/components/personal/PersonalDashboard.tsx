@@ -171,10 +171,10 @@ export const PersonalDashboard = ({ onNavigate }: PersonalDashboardProps) => {
 
   const quickActions = [
     {
-      title: 'Edit Profile',
-      description: 'Update your personal information',
+      title: 'View Profile',
+      description: 'View your personal information',
       icon: User,
-      action: () => onNavigate('profile-edit')
+      action: () => onNavigate('personal')
     },
     {
       title: 'Manage Portfolio',

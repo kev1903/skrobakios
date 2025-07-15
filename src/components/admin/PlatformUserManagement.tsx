@@ -122,7 +122,8 @@ export const PlatformUserManagement = ({
     }
   };
   const handleEditProfile = (user: HierarchicalUser) => {
-    window.location.href = `/user-profile/edit?userId=${user.user_id}`;
+    // Profile editing removed - functionality no longer available
+    console.log('Profile editing has been removed from the application');
   };
   const handleUserCreated = () => {
     refreshUsers();

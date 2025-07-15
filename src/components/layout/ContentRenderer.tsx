@@ -14,7 +14,7 @@ import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
 import { LandingPage } from "@/components/LandingPage";
-import { UserProfile } from "@/components/UserProfile";
+// UserProfile import removed
 import { ModuleProtectedRoute } from "@/components/auth/ModuleProtectedRoute";
 
 import { SettingsPage } from "@/components/SettingsPage";
@@ -28,8 +28,7 @@ import { CashFlowPage } from "@/components/CashFlowPage";
 import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
-import { UserEditPage } from "@/components/UserEditPage";
-import { UserProfilePage } from "@/components/user/UserProfilePage";
+// Profile-related imports removed
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
 import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
@@ -282,9 +281,10 @@ export const ContentRenderer = ({
       window.location.href = "/subscription";
       return null;
     case "user-edit":
-      return <UserEditPage onNavigate={onNavigate} />;
     case "existing-user-profile":
-      return <UserProfilePage onNavigate={onNavigate} />;
+      // Profile pages removed - redirect to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "business":
@@ -310,7 +310,9 @@ export const ContentRenderer = ({
     case "portfolio-manage":
       return <PortfolioManagePage onNavigate={onNavigate} />;
     case "user-profile":
-      return <UserProfile onNavigate={onNavigate} />;
+      // Profile page removed - redirect to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "portfolio":
       return <PortfolioViewPage onNavigate={onNavigate} />;
     case "reviews":

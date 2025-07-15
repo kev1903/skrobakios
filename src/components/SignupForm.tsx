@@ -122,9 +122,9 @@ export const SignupForm = ({ onNavigate, onBack }: SignupFormProps) => {
         description: "Please check your email to activate your account.",
       });
 
-      // Redirect to user profile after a short delay
+      // Redirect to home after a short delay
       setTimeout(() => {
-        onNavigate('user-profile');
+        onNavigate('home');
       }, 2000);
 
     } catch (error) {

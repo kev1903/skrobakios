@@ -48,11 +48,7 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
 
   return (
     <SidebarFooterBase className="p-4 border-t border-white/20 bg-white/5 backdrop-blur-sm">
-      <Button
-        variant="ghost"
-        onClick={() => onNavigate('user-edit')}
-        className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg hover:bg-white/15 hover:backdrop-blur-md transition-all duration-300 group shadow-sm hover:shadow-lg justify-start"
-      >
+      <div className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg bg-white/10 backdrop-blur-md transition-all duration-300 shadow-sm justify-start">
         <Avatar className="w-8 h-8 shadow-lg">
           <AvatarImage 
             src={userProfile.avatarUrl || undefined} 
@@ -76,7 +72,7 @@ export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) =
             <p className="text-xs text-slate-500 truncate font-inter">{getUserRole()}</p>
           </div>
         )}
-      </Button>
+      </div>
       
       <Button 
         variant="ghost"

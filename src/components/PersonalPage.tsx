@@ -5,7 +5,7 @@ import { ArrowLeft, User, Save } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
-import { PersonalSection } from '@/components/user-profile/PersonalSection';
+import { PersonalSection } from '@/components/personal/PersonalSection';
 
 interface PersonalPageProps {
   onNavigate?: (page: string) => void;

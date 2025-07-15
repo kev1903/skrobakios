@@ -29,7 +29,7 @@ const PAGE_MAPPINGS: Record<string, {
   showBusinessType?: boolean;
 }> = {
   home: { label: 'Dashboard', icon: Home },
-  'user-edit': { label: 'Profile Settings', icon: User, parent: 'home' },
+  // 'user-edit' route removed
   tasks: { label: 'Tasks', icon: Settings, parent: 'home', requiresCompany: true, showBusinessType: true },
   projects: { label: 'Projects', icon: Building2, parent: 'home', requiresCompany: true, showBusinessType: true },
   team: { label: 'Team', icon: Users, parent: 'home', requiresCompany: true },

@@ -66,12 +66,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
         </div>
       </div>
       
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onNavigate('user-edit')}
-        className="flex items-center space-x-2"
-      >
+      <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-white/10">
         <Avatar className="w-6 h-6">
           <AvatarImage 
             src={userProfile.avatarUrl || undefined} 
@@ -97,7 +92,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
             </span>
           )}
         </div>
-      </Button>
+      </div>
     </header>
   );
 };

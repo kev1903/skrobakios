@@ -163,13 +163,7 @@ const AppContent = () => {
             </CompanyProvider>
           </UserProvider>
         } />
-        <Route path="/user-profile/edit" element={
-          <UserProvider>
-            <CompanyProvider>
-              <UserProfileEditPage />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        {/* Profile edit route removed */}
         <Route path="/impersonate" element={
           <UserProvider>
             <CompanyProvider>

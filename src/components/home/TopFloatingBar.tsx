@@ -101,8 +101,8 @@ export const TopFloatingBar = ({
                  <Inbox className="w-5 h-5 text-white" />
                </button>
               
-              {/* User Profile */}
-              <button onClick={() => onNavigate('user-edit')} className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
+              {/* User Profile Display */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
                 <Avatar className="w-6 h-6">
                   <AvatarImage 
                     src={userProfile.avatarUrl || undefined} 
@@ -119,7 +119,10 @@ export const TopFloatingBar = ({
                     }
                   </AvatarFallback>
                 </Avatar>
-              </button>
+                <span className="text-white text-sm font-medium max-w-24 truncate">
+                  {userProfile?.firstName || 'User'}
+                </span>
+              </div>
             </>
           )}
         </div>
