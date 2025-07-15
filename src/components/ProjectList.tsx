@@ -84,9 +84,13 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
     
     // Find the project to check its project_id
     const project = projects.find(p => p.id === projectId);
+    console.log("Found project for navigation:", project);
+    
     if (project?.project_id === "SK_25008") {
+      console.log("Navigating to SK25008 dashboard: sk25008-schedule");
       onNavigate("sk25008-schedule");
     } else {
+      console.log("Navigating to project detail");
       onNavigate("project-detail");
     }
   };

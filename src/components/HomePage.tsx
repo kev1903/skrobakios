@@ -229,10 +229,13 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         e.stopPropagation();
         if (onSelectProject) {
           onSelectProject(project.id);
+          console.log("Map pin clicked for project:", project);
           // Navigate to SK25008 schedule for SK_25008 project, otherwise to project detail
           if (project.project_id === "SK_25008") {
+            console.log("Navigating to SK25008 dashboard from map pin: sk25008-schedule");
             onNavigate('sk25008-schedule');
           } else {
+            console.log("Navigating to project detail from map pin");
             onNavigate('project-detail');
           }
         }
@@ -416,10 +419,13 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         if (openBtn && onSelectProject) {
           openBtn.addEventListener('click', () => {
             onSelectProject(project.id);
+            console.log("Map popup open button clicked for project:", project);
             // Navigate to SK25008 schedule for SK_25008 project, otherwise to project detail
             if (project.project_id === "SK_25008") {
+              console.log("Navigating to SK25008 dashboard from map popup: sk25008-schedule");
               onNavigate('sk25008-schedule');
             } else {
+              console.log("Navigating to project detail from map popup");
               onNavigate('project-detail');
             }
             popup.remove();
