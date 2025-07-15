@@ -14,6 +14,7 @@ import {
   Briefcase, 
   TrendingUp, 
   HelpCircle,
+  Settings,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
@@ -40,6 +41,7 @@ export const businessNavigation: NavigationItem[] = [
   { id: "projects", label: "Projects", icon: Briefcase },
   { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign },
   { id: "sales", label: "Sales", icon: TrendingUp },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export const supportNavigation: NavigationItem[] = [
