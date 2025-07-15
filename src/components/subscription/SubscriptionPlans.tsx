@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star } from 'lucide-react';
 import { useSubscription, SubscriptionPlan } from '@/hooks/useSubscription';
 import { useToast } from '@/hooks/use-toast';
+import { TrialCongratulations } from './TrialCongratulations';
+import { TrialCountdown } from './TrialCountdown';
 
 interface SubscriptionPlansProps {
   onPlanSelect?: (planId: string) => void;
@@ -14,11 +16,15 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
     availablePlans, 
     currentSubscription, 
     upgradeSubscription, 
-    loading 
+    loading,
+    isOnTrial,
+    trialDaysRemaining
   } = useSubscription();
   const { toast } = useToast();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [showCongratulations, setShowCongratulations] = useState(false);
+  const [trialPlan, setTrialPlan] = useState<SubscriptionPlan | null>(null);
 
   const handleUpgrade = async (plan: SubscriptionPlan) => {
     if (upgrading) return;
@@ -27,10 +33,16 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
     const result = await upgradeSubscription(plan.id, billingCycle);
     
     if (result.success) {
-      toast({
-        title: "Plan Updated",
-        description: `Successfully switched to ${plan.name} plan`,
-      });
+      // For paid plans, show congratulations modal
+      if (plan.price_monthly > 0 || plan.price_yearly > 0) {
+        setTrialPlan(plan);
+        setShowCongratulations(true);
+      } else {
+        toast({
+          title: "Plan Updated",
+          description: `Successfully switched to ${plan.name} plan`,
+        });
+      }
       onPlanSelect?.(plan.id);
     } else {
       toast({
@@ -67,6 +79,14 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
+      {/* Trial Countdown - Show if user is on trial */}
+      {isOnTrial && currentSubscription?.trial_ends_at && (
+        <TrialCountdown
+          trialEndDate={currentSubscription.trial_ends_at}
+          planName={currentSubscription.plan_name}
+        />
+      )}
+
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-3xl font-bold">Choose Your Plan</h1>
@@ -214,6 +234,15 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
           Cancel anytime during your trial period with no charges.
         </p>
       </div>
+
+      {/* Congratulations Modal */}
+      {showCongratulations && trialPlan && currentSubscription?.trial_ends_at && (
+        <TrialCongratulations
+          planName={trialPlan.name}
+          trialEndDate={currentSubscription.trial_ends_at}
+          onClose={() => setShowCongratulations(false)}
+        />
+      )}
     </div>
   );
 };

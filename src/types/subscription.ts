@@ -30,7 +30,7 @@ export interface UserSubscription {
   max_storage_gb: number | null;
 }
 
-export type SubscriptionTier = 'FREE' | 'BASIC' | 'PREMIUM' | 'ENTERPRISE';
+export type SubscriptionTier = 'FREE' | 'BASIC' | 'PROJECT_MANAGEMENT' | 'BUSINESS_MANAGEMENT';
 
 // Define feature access based on subscription tiers
 export const SUBSCRIPTION_FEATURES = {
@@ -49,7 +49,7 @@ export const SUBSCRIPTION_FEATURES = {
     'team_management',
     'basic_reports'
   ],
-  PREMIUM: [
+  PROJECT_MANAGEMENT: [
     'basic_dashboard',
     'basic_tasks',
     'basic_files',
@@ -62,7 +62,7 @@ export const SUBSCRIPTION_FEATURES = {
     'advanced_reports',
     'priority_support'
   ],
-  ENTERPRISE: [
+  BUSINESS_MANAGEMENT: [
     'basic_dashboard',
     'basic_tasks',
     'basic_files',
