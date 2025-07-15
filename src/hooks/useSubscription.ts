@@ -144,26 +144,55 @@ export const useSubscription = () => {
     try {
       setLoading(true);
       
-      // Here you would integrate with Stripe or your payment processor
-      // For now, we'll just update the database directly
-      const { error } = await supabase
-        .from('user_subscriptions')
-        .update({
-          plan_id: planId,
-          billing_cycle: billingCycle,
-          status: 'trial', // Start with trial for 90 days
-          trial_ends_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user?.id);
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
 
-      if (error) throw error;
+      // Check if user already has a subscription
+      const { data: existingSubscription } = await supabase
+        .from('user_subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      const trialEndDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+
+      if (existingSubscription) {
+        // Update existing subscription
+        const { error } = await supabase
+          .from('user_subscriptions')
+          .update({
+            plan_id: planId,
+            billing_cycle: billingCycle,
+            status: 'trial',
+            trial_ends_at: trialEndDate,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      } else {
+        // Create new subscription
+        const { error } = await supabase
+          .from('user_subscriptions')
+          .insert({
+            user_id: user.id,
+            plan_id: planId,
+            billing_cycle: billingCycle,
+            status: 'trial',
+            trial_ends_at: trialEndDate,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (error) throw error;
+      }
       
       await fetchCurrentSubscription();
       return { success: true };
     } catch (err) {
       console.error('Error upgrading subscription:', err);
-      return { success: false, error: 'Failed to upgrade subscription' };
+      return { success: false, error: err instanceof Error ? err.message : 'Failed to upgrade subscription' };
     } finally {
       setLoading(false);
     }

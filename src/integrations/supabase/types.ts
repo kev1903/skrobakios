@@ -2446,7 +2446,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"][]
       }
       get_user_subscription: {
-        Args: { target_user_id?: string }
+        Args: Record<PropertyKey, never> | { target_user_id?: string }
         Returns: {
           subscription_id: string
           plan_name: string
