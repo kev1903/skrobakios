@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { ModernProjectSchedulePage } from '@/components/ModernProjectSchedulePage';
 import {
   Home,
   CalendarDays,
@@ -237,19 +238,12 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
       
       case "schedule":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CalendarDays className="h-5 w-5" />
-                <span>Project Schedule</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Schedule management coming soon...
-              </p>
-            </CardContent>
-          </Card>
+          <div className="animate-fade-in">
+            <ModernProjectSchedulePage 
+              project={project} 
+              onNavigate={onNavigate} 
+            />
+          </div>
         );
       
       case "tasks":
