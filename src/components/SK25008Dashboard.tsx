@@ -7,6 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ProjectSidebar } from './ProjectSidebar';
+import { Project } from '@/hooks/useProjects';
 import { TraditionalGanttChart } from './TraditionalGanttChart';
 import { SK25008FileUpload } from './SK25008FileUpload';
 import { SK25008TaskDetails } from './SK25008TaskDetails';
@@ -38,44 +40,85 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [actualProjectId, setActualProjectId] = useState<string | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Fetch the actual project ID from database
+  // Navigation function for ProjectSidebar
+  const handleNavigate = (page: string) => {
+    if (page.includes('&projectId=')) {
+      navigate(`/?page=${page}`);
+    } else {
+      navigate(`/?page=${page}&projectId=${project?.id || projectId}`);
+    }
+  };
+
+  // Fetch the actual project data from database
   useEffect(() => {
-    const fetchProjectId = async () => {
+    const fetchProject = async () => {
       try {
         const { data, error } = await supabase
           .from('projects')
-          .select('id, project_id')
+          .select('*')
           .or(`project_id.eq.${projectId.toUpperCase()},project_id.eq.SK_25008,id.eq.${projectId}`)
           .single();
         
         if (data && !error) {
-          setActualProjectId(data.id);
-          console.log('Found actual project ID:', data.id, 'for projectId:', projectId);
+          setProject(data);
+          console.log('Found project:', data);
         }
       } catch (error) {
-        console.error('Error fetching project ID:', error);
+        console.error('Error fetching project:', error);
+        // Create a fallback project if not found
+        setProject({
+          id: projectId,
+          project_id: 'SK_25008',
+          name: '38 Riverview Terrace, Bulleen',
+          description: 'Residential Design Project',
+          status: 'running',
+          priority: 'high',
+          location: '38 Riverview Terrace, Bulleen',
+          company_id: '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
       }
     };
     
-    fetchProjectId();
+    fetchProject();
+    fetchTasks();
   }, [projectId]);
 
-  // Memoize the navigation function to prevent re-creation on every render
-  const handleBackNavigation = useCallback(() => {
-    const targetProjectId = actualProjectId || projectId;
-    console.log('Navigating back to project detail for projectId:', targetProjectId);
-    
-    // Use window.location to force a proper navigation instead of navigate
-    const newUrl = `/?page=project-detail&projectId=${targetProjectId}`;
-    window.location.href = newUrl;
-  }, [actualProjectId, projectId]);
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  // Status helper functions for ProjectSidebar
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "running":
+        return "text-green-600";
+      case "completed":
+        return "text-blue-600";
+      case "paused":
+        return "text-yellow-600";
+      case "cancelled":
+        return "text-red-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "running":
+        return "Active";
+      case "completed":
+        return "Completed";
+      case "paused":
+        return "Paused";
+      case "cancelled":
+        return "Cancelled";
+      default:
+        return "Active";
+    }
+  };
   const fetchTasks = async () => {
     try {
       const {
@@ -167,90 +210,120 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
     const totalProgress = tasks.reduce((sum, task) => sum + task.progress_percentage, 0);
     return Math.round(totalProgress / tasks.length);
   };
-  if (loading) {
+  if (loading || !project) {
     return <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>;
   }
-  return <div className="container mx-auto p-6 space-y-6">
-      {/* Project Header */}
-      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={handleBackNavigation} className="mr-2">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Project
-            </Button>
-            <Building2 className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold">Schedule
-            </h1>
-              <p className="text-muted-foreground">Residential Design Project</p>
+
+  return (
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        project={project}
+        onNavigate={handleNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="schedule"
+      />
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
+        {/* Header */}
+        <div className="glass-card border-b border-border px-4 md:px-6 py-3 md:py-4 backdrop-blur-sm flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Building2 className="h-8 w-8 text-primary" />
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">Project Schedule</h1>
+                <p className="text-white/70">{project.name}</p>
+              </div>
             </div>
+            <Button 
+              onClick={optimizeSchedule} 
+              disabled={isOptimizing} 
+              className="bg-primary hover:bg-primary/90"
+            >
+              {isOptimizing ? 'Optimizing...' : 'Optimize Schedule'}
+            </Button>
           </div>
-          <Button onClick={optimizeSchedule} disabled={isOptimizing} className="bg-primary hover:bg-primary/90">
-            {isOptimizing ? 'Optimizing...' : 'Optimize Schedule'}
-          </Button>
         </div>
-        
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{calculateOverallProgress()}%</div>
-              <p className="text-sm text-muted-foreground">Overall Progress</p>
-              <Progress value={calculateOverallProgress()} className="mt-2" />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{tasks.filter(t => t.status === 'complete').length}</div>
-              <p className="text-sm text-muted-foreground">Completed Tasks</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{tasks.filter(t => t.status === 'pending').length}</div>
-              <p className="text-sm text-muted-foreground">Pending Tasks</p>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
+          {/* Progress Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-white">{calculateOverallProgress()}%</div>
+                <p className="text-sm text-white/70">Overall Progress</p>
+                <Progress value={calculateOverallProgress()} className="mt-2" />
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-white">{tasks.filter(t => t.status === 'complete').length}</div>
+                <p className="text-sm text-white/70">Completed Tasks</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-white">{tasks.filter(t => t.status === 'pending').length}</div>
+                <p className="text-sm text-white/70">Pending Tasks</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Gantt Chart */}
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white">Project Timeline</CardTitle>
+              <CardDescription className="text-white/70">
+                Visual timeline with critical path and dependencies
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <TraditionalGanttChart 
+                tasks={tasks} 
+                onTaskUpdate={async (taskId, updates) => {
+                  try {
+                    const { error } = await supabase
+                      .from('sk_25008_design')
+                      .update(updates)
+                      .eq('id', taskId);
+                    
+                    if (error) throw error;
+                    
+                    toast({
+                      title: "Task Updated",
+                      description: "Task schedule updated successfully"
+                    });
+                    fetchTasks();
+                  } catch (error) {
+                    console.error('Error updating task:', error);
+                    toast({
+                      title: "Update Failed",
+                      description: "Failed to update task schedule",
+                      variant: "destructive"
+                    });
+                  }
+                }} 
+              />
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Gantt Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Timeline</CardTitle>
-          <CardDescription>
-            Visual timeline with critical path and dependencies
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <TraditionalGanttChart tasks={tasks} onTaskUpdate={async (taskId, updates) => {
-          try {
-            const {
-              error
-            } = await supabase.from('sk_25008_design').update(updates).eq('id', taskId);
-            if (error) throw error;
-            toast({
-              title: "Task Updated",
-              description: "Task schedule updated successfully"
-            });
-            fetchTasks();
-          } catch (error) {
-            console.error('Error updating task:', error);
-            toast({
-              title: "Update Failed",
-              description: "Failed to update task schedule",
-              variant: "destructive"
-            });
-          }
-        }} />
-        </CardContent>
-      </Card>
-
       {/* Task Details Modal/Panel */}
-      {selectedTask && <SK25008TaskDetails task={selectedTask} onClose={() => setSelectedTask(null)} onUpdate={fetchTasks} />}
-    </div>;
+      {selectedTask && (
+        <SK25008TaskDetails 
+          task={selectedTask} 
+          onClose={() => setSelectedTask(null)} 
+          onUpdate={fetchTasks} 
+        />
+      )}
+    </div>
+  );
 };
