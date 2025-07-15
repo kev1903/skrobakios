@@ -4,7 +4,7 @@ import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
-import { ProjectFilePage } from "@/components/ProjectFilePage";
+
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
@@ -31,9 +31,9 @@ import { RecurringPage } from "@/components/RecurringPage";
 // Profile-related imports removed
 import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
-import { DigitalObjectsPage } from "@/components/DigitalObjectsPage";
+
 import { TimeManagementPage } from "@/components/TimeManagementPage";
-import { CostContractsPage } from "@/components/CostContractsPage";
+
 import { AdminPage } from "@/components/admin/AdminPage";
 import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { BusinessSettingsPage } from "@/components/BusinessSettingsPage";
@@ -50,7 +50,7 @@ import { CreateBusinessPage } from "@/components/CreateBusinessPage";
 import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
-import { ProjectTeamRedirect } from "@/components/projects/ProjectTeamRedirect";
+
 import { MilestonePage } from "@/components/MilestonePage";
 import { BusinessInvitationManager } from "@/components/invitations/BusinessInvitationManager";
 import { PermissionManager } from "@/components/permissions/PermissionManager";
@@ -135,12 +135,6 @@ export const ContentRenderer = ({
           <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
-    case "project-files":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="basic_files" onNavigate={onNavigate}>
-          <ProjectFilePage project={currentProject} onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
     case "project-settings":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
@@ -166,12 +160,6 @@ export const ContentRenderer = ({
           <SK25008Dashboard projectId={projectId} />
         </SubscriptionProtectedRoute>
       );
-    case "project-team":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="team_management" onNavigate={onNavigate}>
-          <ProjectTeamRedirect projectId={currentProject.id} />
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
     case "project-digital-twin":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="advanced_projects" onNavigate={onNavigate}>
@@ -244,12 +232,6 @@ export const ContentRenderer = ({
           <SalesPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
-    case "cost-contracts":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
-          <CostContractsPage onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
     case "business-invitations":
       return <BusinessInvitationManager onNavigate={onNavigate} />;
     case "team-management":
@@ -283,17 +265,19 @@ export const ContentRenderer = ({
                 return "Active";
             }
           }} activeSection="cost" />
-            <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
-              <CostContractsPage onNavigate={onNavigate} />
+            <div className="p-8">
+              <h1 className="text-2xl font-bold text-white">Cost & Contracts</h1>
+              <p className="text-white/70">This feature has been removed.</p>
             </div>
           </div>
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "bim":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="advanced_projects" onNavigate={onNavigate}>
-          <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
+          <div className="p-8">
+            <h1 className="text-2xl font-bold text-white">Digital Objects</h1>
+            <p className="text-white/70">This feature has been removed.</p>
+          </div>
       ) : renderProjectNotFound();
     case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={null} />;

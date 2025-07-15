@@ -1,1 +1,0 @@
-export { DigitalObjectsPage } from "./digital-objects/DigitalObjectsPage";

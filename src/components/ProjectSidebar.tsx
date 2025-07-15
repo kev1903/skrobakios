@@ -1,10 +1,11 @@
-import { ArrowLeft, BarChart3, DollarSign, Calendar, CheckSquare, Folder, Users, Settings, Eye, HelpCircle, Box } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
 import { useCompany } from "@/contexts/CompanyContext";
 import { useSubscription } from '@/hooks/useSubscription';
 import { useEffect } from "react";
+
 interface ProjectSidebarProps {
   project: Project;
   onNavigate: (page: string) => void;
@@ -21,18 +22,6 @@ const ALL_PROJECT_NAV_ITEMS = [{
   icon: Eye,
   page: 'project-detail'
 }, {
-  id: 'digital-twin',
-  key: 'digital-twin',
-  label: 'Digital Twin',
-  icon: Box,
-  page: 'project-digital-twin'
-}, {
-  id: 'cost',
-  key: 'cost-contracts',
-  label: 'Cost & Contracts',
-  icon: DollarSign,
-  page: 'project-cost'
-}, {
   id: 'schedule',
   key: 'schedule',
   label: 'Schedule',
@@ -44,25 +33,8 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Tasks',
   icon: CheckSquare,
   page: 'project-tasks'
-}, {
-  id: 'files',
-  key: 'files',
-  label: 'Files',
-  icon: Folder,
-  page: 'project-files'
-}, {
-  id: 'team',
-  key: 'team',
-  label: 'Team',
-  icon: Users,
-  page: 'project-team'
-}, {
-  id: 'digital-objects',
-  key: 'digital-objects',
-  label: 'Digital Objects',
-  icon: Box,
-  page: 'bim'
 }];
+
 export const ProjectSidebar = ({
   project,
   onNavigate,
@@ -70,12 +42,9 @@ export const ProjectSidebar = ({
   getStatusText,
   activeSection = "insights"
 }: ProjectSidebarProps) => {
-  const {
-    currentCompany
-  } = useCompany();
-  const {
-    hasFeature
-  } = useSubscription();
+  const { currentCompany } = useCompany();
+  const { hasFeature } = useSubscription();
+  
   const handleNavigate = (page: string) => {
     onNavigate(page);
   };
@@ -83,13 +52,11 @@ export const ProjectSidebar = ({
   // Filter project navigation items based on subscription features
   // Show all project navigation items if user has projects feature
   const hasProjectManagement = hasFeature('projects');
-  const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS // Show all project items for subscribed users
-  : [];
-  return <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
-      <div className="flex flex-col h-full pt-20">
-        {/* Back Button */}
-        
+  const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS : [];
 
+  return (
+    <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
+      <div className="flex flex-col h-full pt-20">
         {/* Project Info */}
         <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
           <div className="text-white text-sm font-medium mb-2 truncate">{project.name}</div>
@@ -105,18 +72,32 @@ export const ProjectSidebar = ({
             Project Navigation
           </div>
           
-          {!hasProjectManagement && <div className="px-3 py-4 text-white/60 text-sm text-center">
+          {!hasProjectManagement && (
+            <div className="px-3 py-4 text-white/60 text-sm text-center">
               Upgrade subscription for project features
-            </div>}
+            </div>
+          )}
           
-          {enabledProjectNavItems.length === 0 && hasProjectManagement && <div className="px-3 py-4 text-white/60 text-sm text-center">
+          {enabledProjectNavItems.length === 0 && hasProjectManagement && (
+            <div className="px-3 py-4 text-white/60 text-sm text-center">
               No project modules available
-            </div>}
+            </div>
+          )}
           
-          {enabledProjectNavItems.map(item => <button key={item.id} onClick={() => handleNavigate(item.page)} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left animate-fade-in ${activeSection === item.id ? 'bg-white/20 text-white border border-white/30' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}>
+          {enabledProjectNavItems.map(item => (
+            <button 
+              key={item.id} 
+              onClick={() => handleNavigate(item.page)} 
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left animate-fade-in ${
+                activeSection === item.id 
+                  ? 'bg-white/20 text-white border border-white/30' 
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+              }`}
+            >
               <item.icon className="w-4 h-4" />
               <span className="text-sm font-medium">{item.label}</span>
-            </button>)}
+            </button>
+          ))}
         </div>
 
         {/* Project Settings */}
@@ -124,15 +105,22 @@ export const ProjectSidebar = ({
           <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
             Project Settings
           </div>
-          <button onClick={() => handleNavigate('project-settings')} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left">
+          <button 
+            onClick={() => handleNavigate('project-settings')} 
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
+          >
             <Settings className="w-4 h-4" />
             <span className="text-sm font-medium">Settings</span>
           </button>
-          <button onClick={() => handleNavigate('support')} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left">
+          <button 
+            onClick={() => handleNavigate('support')} 
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
+          >
             <HelpCircle className="w-4 h-4" />
             <span className="text-sm font-medium">Help</span>
           </button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };

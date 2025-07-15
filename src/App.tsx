@@ -10,7 +10,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
 import { AppContextProvider } from "./contexts/AppContextProvider";
-import { CostContractsPage } from "./components/CostContractsPage";
+
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
 import { EstimateCreationPage } from "./components/EstimateCreationPage";
@@ -24,7 +24,7 @@ import { PublicCompanyProfile } from "./components/public/PublicCompanyProfile";
 import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
-import { ProjectTeamPage } from "./components/projects/team/ProjectTeamPage";
+
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
 
@@ -159,7 +159,7 @@ const AppContent = () => {
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
-        <Route path="/cost-contracts" element={<CostContractsPage />} />
+        
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
         <Route path="/company/:companyId/edit" element={
@@ -200,16 +200,6 @@ const AppContent = () => {
           </PlatformAuthProvider>
         } />
         
-        {/* Protected Project Routes */}
-        <Route path="/projects/:projectId/team" element={
-          <PlatformAuthProvider>
-            <UserProvider>
-              <CompanyProvider>
-                <ProjectTeamPage />
-              </CompanyProvider>
-            </UserProvider>
-          </PlatformAuthProvider>
-        } />
         
         {/* SK25008 Project Dashboard */}
         <Route path="/sk25008" element={
