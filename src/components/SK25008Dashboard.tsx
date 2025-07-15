@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, Upload, CheckCircle, Clock, AlertTriangle, FileText, Building2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,10 +38,14 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Memoize the navigation function to prevent re-creation on every render
+  const handleBackNavigation = useCallback(() => {
+    console.log('Navigating back to project detail for projectId:', projectId);
+    navigate(`/?page=project-detail&projectId=${projectId}`);
+  }, [navigate, projectId]);
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -146,7 +150,7 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/?page=project-detail&projectId=${projectId}`)} className="mr-2">
+            <Button variant="ghost" size="sm" onClick={handleBackNavigation} className="mr-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Project
             </Button>

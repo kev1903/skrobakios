@@ -154,9 +154,11 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectId = urlParams.get('projectId') || 'sk-25008';
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <SK25008Dashboard />
+          <SK25008Dashboard projectId={projectId} />
         </SubscriptionProtectedRoute>
       );
     case "project-team":
