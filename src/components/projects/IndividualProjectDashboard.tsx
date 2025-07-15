@@ -87,6 +87,18 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
 
   return (
     <div className="h-screen bg-background">
+      {/* Close Project Button */}
+      <div className="absolute top-4 left-4 z-10">
+        <Button
+          variant="secondary"
+          onClick={() => onNavigate('projects')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Close Project
+        </Button>
+      </div>
+      
       {/* Main Content - Full Screen */}
       <main className="h-full">
         {renderProjectContent()}
