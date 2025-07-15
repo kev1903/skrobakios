@@ -12,8 +12,12 @@ interface SubscriptionPageProps {
 export const SubscriptionPage = ({ onNavigate }: SubscriptionPageProps) => {
   const [activeTab, setActiveTab] = useState('plans');
 
-  const handlePlanSelect = () => {
-    setActiveTab('plans');
+  const handlePlanSelect = (action?: string) => {
+    if (action === 'home') {
+      onNavigate('home');
+    } else {
+      setActiveTab('plans');
+    }
   };
 
   return (

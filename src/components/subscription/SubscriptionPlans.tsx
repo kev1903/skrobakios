@@ -26,6 +26,33 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [trialPlan, setTrialPlan] = useState<SubscriptionPlan | null>(null);
 
+  const handleTrialStart = async (plan: SubscriptionPlan) => {
+    if (upgrading) return;
+    
+    setUpgrading(plan.id);
+    const result = await upgradeSubscription(plan.id, billingCycle);
+    
+    if (result.success) {
+      toast({
+        title: "Welcome to your 90-day trial!",
+        description: "All business modules are now enabled. Redirecting to homepage...",
+      });
+      
+      // Redirect to homepage after a short delay
+      setTimeout(() => {
+        onPlanSelect?.('home');
+      }, 1500);
+    } else {
+      toast({
+        title: "Trial Start Failed",
+        description: result.error || "Failed to start trial",
+        variant: "destructive",
+      });
+    }
+    
+    setUpgrading(null);
+  };
+
   const handleUpgrade = async (plan: SubscriptionPlan) => {
     if (upgrading) return;
     
@@ -202,7 +229,7 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
 
               {/* Action Button */}
               <Button
-                onClick={() => handleUpgrade(plan)}
+                onClick={() => handleTrialStart(plan)}
                 disabled={isCurrent || isUpgrading}
                 className="w-full"
                 variant={isPopular ? "default" : "outline"}
@@ -210,12 +237,10 @@ export const SubscriptionPlans = ({ onPlanSelect }: SubscriptionPlansProps) => {
                 {isUpgrading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                    Upgrading...
+                    Starting Trial...
                   </>
                 ) : isCurrent ? (
                   'Current Plan'
-                ) : price === 0 ? (
-                  'Continue with Free'
                 ) : (
                   `Start 90-Day Trial`
                 )}
