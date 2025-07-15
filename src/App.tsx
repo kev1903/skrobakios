@@ -24,6 +24,7 @@ import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { ProjectTeamPage } from "./components/projects/team/ProjectTeamPage";
+import { SubscriptionPage } from "./pages/SubscriptionPage";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -91,6 +92,17 @@ const ReviewsPageWrapper = () => {
   };
 
   return <ReviewsPage onNavigate={handleNavigate} />;
+};
+
+// Wrapper component for SubscriptionPage with proper navigation
+const SubscriptionPageWrapper = () => {
+  const navigate = useNavigate();
+  
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+
+  return <SubscriptionPage onNavigate={handleNavigate} />;
 };
 
 const App = () => {
@@ -172,6 +184,15 @@ const AppContent = () => {
         <Route path="/company/:slug" element={<PublicCompanyProfile />} />
         <Route path="/reviews" element={<ReviewsPageWrapper />} />
         <Route path="/invite/:token" element={<InvitePage />} />
+        
+        {/* Subscription Management */}
+        <Route path="/subscription" element={
+          <UserProvider>
+            <CompanyProvider>
+              <SubscriptionPageWrapper />
+            </CompanyProvider>
+          </UserProvider>
+        } />
         
         {/* Protected Project Routes */}
         <Route path="/projects/:projectId/team" element={

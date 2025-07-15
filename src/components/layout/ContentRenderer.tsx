@@ -278,6 +278,9 @@ export const ContentRenderer = ({
       return <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={null} />;
     case "support":
       return <SupportPage />;
+    case "subscription":
+      window.location.href = "/subscription";
+      return null;
     case "user-edit":
       return <UserEditPage onNavigate={onNavigate} />;
     case "existing-user-profile":
