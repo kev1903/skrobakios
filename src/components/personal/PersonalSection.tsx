@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { User, Mail, Phone, MapPin, Globe, Calendar, Briefcase } from 'lucide-react';
+import { ProfilePictureUpload } from './ProfilePictureUpload';
 
 interface PersonalSectionProps {
   profileData: {
@@ -34,8 +35,23 @@ export const PersonalSection = ({
   onAddArrayItem,
   onRemoveArrayItem,
 }: PersonalSectionProps) => {
+  const getUserDisplayName = () => {
+    const firstName = profileData.firstName?.trim();
+    const lastName = profileData.lastName?.trim();
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    }
+    return firstName || lastName || 'User';
+  };
+
   return (
     <div className="space-y-6">
+      {/* Profile Picture Upload */}
+      <ProfilePictureUpload
+        currentAvatarUrl={profileData.avatarUrl}
+        onAvatarUpdate={(avatarUrl) => onInputChange('avatarUrl', avatarUrl)}
+        userName={getUserDisplayName()}
+      />
       {/* Basic Information */}
       <Card>
         <CardHeader>
