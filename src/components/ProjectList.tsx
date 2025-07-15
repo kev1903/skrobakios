@@ -29,7 +29,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
     };
 
     fetchProjects();
-  }, []);
+  }, [getProjects]); // Add getProjects dependency
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {

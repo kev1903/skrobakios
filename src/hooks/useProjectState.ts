@@ -29,7 +29,7 @@ export const useProjectState = () => {
     };
 
     autoSelectFirstProject();
-  }, [selectedProject, hasAutoSelected, getProjects]);
+  }, []); // Remove dependencies to prevent infinite loops
 
   useEffect(() => {
     const fetchCurrentProject = async () => {
@@ -53,7 +53,7 @@ export const useProjectState = () => {
     };
 
     fetchCurrentProject();
-  }, [selectedProject, getProjects, getProject]);
+  }, [selectedProject]); // Only depend on selectedProject to prevent loops
 
   const handleSelectProject = (projectId: string) => {
     console.log("Setting selected project:", projectId);
