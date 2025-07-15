@@ -111,58 +111,8 @@ export const NavigationRibbon = ({
       )}
       
       <div className={`flex-1 flex flex-col space-y-6 overflow-y-auto ${isFloatingMode ? 'py-4 px-3' : 'p-4'}`}>
-        {/* Core Business Modules (replacing General section) */}
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-            {!isCollapsed && "Business Modules"}
-          </div>
-          {coreBusinessModules.map(item => {
-            const Icon = item.icon;
-            const isActive = currentPage === item.id;
-            return (
-              <button 
-                key={item.id} 
-                onClick={() => handleNavigateAndClose(item.id)} 
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                  isActive 
-                    ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                    : "text-white hover:bg-white/30"
-                }`}
-              >
-                <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
-                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-              </button>
-            );
-          })}
-        </div>
-
-          {/* Additional Business Features (subscription-based) */}
-          <div className="space-y-1">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-              {!isCollapsed && "Additional Features"}
-            </div>
-            {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales").map(item => {
-            const Icon = item.icon;
-            const isActive = currentPage === item.id;
-            return (
-              <button 
-                key={item.id} 
-                onClick={() => handleNavigateAndClose(item.id)} 
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                  isActive 
-                    ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                    : "text-white hover:bg-white/30"
-                }`}
-              >
-                <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
-                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Profile Navigation - only show when in personal context AND floating mode */}
-        {activeContext === 'personal' && isFloatingMode && (
+        {/* Show Profile Navigation when in personal context, otherwise show business sections */}
+        {activeContext === 'personal' ? (
           <div className="space-y-1">
             <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
               {!isCollapsed && "Profile Navigation"}
@@ -186,6 +136,58 @@ export const NavigationRibbon = ({
               );
             })}
           </div>
+        ) : (
+          <>
+            {/* Core Business Modules (replacing General section) */}
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+                {!isCollapsed && "Business Modules"}
+              </div>
+              {coreBusinessModules.map(item => {
+                const Icon = item.icon;
+                const isActive = currentPage === item.id;
+                return (
+                  <button 
+                    key={item.id} 
+                    onClick={() => handleNavigateAndClose(item.id)} 
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                      isActive 
+                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                        : "text-white hover:bg-white/30"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Additional Business Features (subscription-based) */}
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+                {!isCollapsed && "Additional Features"}
+              </div>
+              {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales").map(item => {
+                const Icon = item.icon;
+                const isActive = currentPage === item.id;
+                return (
+                  <button 
+                    key={item.id} 
+                    onClick={() => handleNavigateAndClose(item.id)} 
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                      isActive 
+                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                        : "text-white hover:bg-white/30"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
