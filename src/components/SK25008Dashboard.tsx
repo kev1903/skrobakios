@@ -29,7 +29,11 @@ interface Task {
   created_by?: string;
   updated_at?: string;
 }
-export const SK25008Dashboard: React.FC = () => {
+interface SK25008DashboardProps {
+  projectId?: string;
+}
+
+export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 'sk-25008' }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -142,9 +146,9 @@ export const SK25008Dashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/?page=projects')} className="mr-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/?page=project-detail&projectId=${projectId}`)} className="mr-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Projects
+              Back to Project
             </Button>
             <Building2 className="h-8 w-8 text-primary" />
             <div>
