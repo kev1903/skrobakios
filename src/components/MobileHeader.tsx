@@ -44,11 +44,17 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Hamburger clicked - toggling sidebar');
-            toggleSidebar();
+            console.log('Hamburger clicked - toggling sidebar', { toggleSidebar });
+            console.log('Event details:', e.type, e.target);
+            if (toggleSidebar) {
+              toggleSidebar();
+            } else {
+              console.error('toggleSidebar function is undefined!');
+            }
           }}
           className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           aria-label="Toggle sidebar"
+          style={{ position: 'relative', zIndex: 9999 }}
         >
           <Menu className="w-4 h-4 text-slate-700" />
         </button>
