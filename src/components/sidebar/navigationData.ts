@@ -35,6 +35,7 @@ export const generalNavigation: NavigationItem[] = [
   { id: "inbox", label: "Inbox", icon: Mail },
 ];
 
+// Business navigation with Settings properly included
 export const businessNavigation: NavigationItem[] = [
   { id: "files", label: "Files", icon: File },
   { id: "projects", label: "Projects", icon: Briefcase },
