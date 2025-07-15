@@ -28,7 +28,7 @@ export type Database = {
         }
         Insert: {
           amount: number
-          billing_date: string
+          billing_date?: string
           created_at?: string
           currency?: string
           id?: string
@@ -1469,46 +1469,46 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
-          features: Json
+          features: string[] | null
           id: string
-          is_active: boolean
+          is_active: boolean | null
           max_projects: number | null
           max_storage_gb: number | null
           max_team_members: number | null
           name: string
           price_monthly: number
           price_yearly: number
-          sort_order: number
+          sort_order: number | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           description?: string | null
-          features?: Json
+          features?: string[] | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           max_projects?: number | null
           max_storage_gb?: number | null
           max_team_members?: number | null
           name: string
           price_monthly?: number
           price_yearly?: number
-          sort_order?: number
+          sort_order?: number | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           description?: string | null
-          features?: Json
+          features?: string[] | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           max_projects?: number | null
           max_storage_gb?: number | null
           max_team_members?: number | null
           name?: string
           price_monthly?: number
           price_yearly?: number
-          sort_order?: number
+          sort_order?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -2000,12 +2000,11 @@ export type Database = {
       user_subscriptions: {
         Row: {
           billing_cycle: string
-          cancelled_at: string | null
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
           id: string
-          plan_id: string | null
+          plan_id: string
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -2015,12 +2014,11 @@ export type Database = {
         }
         Insert: {
           billing_cycle?: string
-          cancelled_at?: string | null
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
-          plan_id?: string | null
+          plan_id: string
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2030,12 +2028,11 @@ export type Database = {
         }
         Update: {
           billing_cycle?: string
-          cancelled_at?: string | null
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
-          plan_id?: string | null
+          plan_id?: string
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2460,7 +2457,7 @@ export type Database = {
           current_period_end: string
           price_monthly: number
           price_yearly: number
-          features: Json
+          features: string[]
           max_projects: number
           max_team_members: number
           max_storage_gb: number
