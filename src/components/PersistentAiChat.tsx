@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ChatMessage {
   id: string;
@@ -33,6 +34,7 @@ export function PersistentAiChat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   // Get context from current route and screen
   const getScreenContext = (): ContextData => {
@@ -93,10 +95,8 @@ export function PersistentAiChat() {
     setIsLoading(true);
 
     try {
-      // Check if user is authenticated first
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
+      // Check if user is authenticated using auth context
+      if (!isAuthenticated) {
         throw new Error('Authentication required');
       }
 
