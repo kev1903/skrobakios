@@ -78,15 +78,15 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
               />
             </div>
 
-            {/* Website */}
+            {/* Web Address */}
             <div className="space-y-2">
               <Label htmlFor="website" className="flex items-center space-x-2 text-slate-700 font-medium">
                 <Globe className="w-4 h-4 text-slate-500" />
-                <span>Website</span>
+                <span>Web Address</span>
               </Label>
               <Input
                 id="website"
-                type="url"
+                type="text"
                 value={formData.website}
                 onChange={(e) => handleChange('website', e.target.value)}
                 placeholder="www.ardelle.com.au"
