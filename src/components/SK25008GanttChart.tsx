@@ -44,13 +44,26 @@ export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) =
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'complete':
-        return 'bg-green-500';
+        return 'bg-emerald-500';
       case 'in-progress':
-        return 'bg-blue-500';
+        return 'bg-cyan-500';
       case 'delayed':
         return 'bg-red-500';
+      case 'pending':
+        return 'bg-slate-300';
       default:
-        return 'bg-gray-300';
+        return 'bg-slate-300';
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'complete':
+        return 'bg-slate-800 text-white';
+      case 'pending':
+        return 'bg-slate-200 text-slate-700';
+      default:
+        return 'bg-slate-200 text-slate-700';
     }
   };
 
@@ -70,84 +83,135 @@ export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) =
   }
 
   return (
-    <div className="space-y-4">
-      {/* Timeline Header */}
-      <div className="flex justify-between text-sm text-muted-foreground mb-4">
-        <span>{formatDate(projectStart.toISOString())}</span>
-        <span>{totalDays} days total</span>
-        <span>{formatDate(projectEnd.toISOString())}</span>
+    <div className="bg-white rounded-lg border border-border overflow-hidden">
+      {/* Header */}
+      <div className="border-b border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground">Project Timeline</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Visual timeline with critical path and dependencies
+        </p>
       </div>
 
-      {/* Timeline Grid */}
-      <div className="relative">
-        {/* Week markers */}
-        <div className="absolute top-0 left-0 right-0 h-2 border-b flex">
-          {Array.from({ length: Math.ceil(totalDays / 7) }, (_, i) => (
-            <div 
-              key={i}
-              className="border-r border-gray-200 flex-1 text-xs text-center"
-              style={{ minWidth: '60px' }}
-            >
-              W{i + 1}
-            </div>
-          ))}
+      {/* Timeline Content */}
+      <div className="p-6">
+        {/* Timeline Header */}
+        <div className="flex justify-between items-center text-sm text-muted-foreground mb-6">
+          <span>{formatDate(projectStart.toISOString())}</span>
+          <span className="font-medium">{totalDays} days total</span>
+          <span>{formatDate(projectEnd.toISOString())}</span>
         </div>
 
-        {/* Tasks */}
-        <div className="mt-8 space-y-3">
-          {tasks.map((task, index) => {
-            const position = getTaskPosition(task);
-            
-            return (
-              <div key={task.id} className="relative">
-                <div className="flex items-center h-12">
-                  <div className="w-40 text-sm font-medium truncate pr-4">
-                    {task.task_name}
-                  </div>
+        {/* Timeline Grid with connecting lines */}
+        <div className="relative">
+          {/* Background grid */}
+          <div className="absolute inset-0 pointer-events-none">
+            <svg className="w-full h-full" style={{ height: `${tasks.length * 80 + 60}px` }}>
+              {/* Curved connecting lines */}
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4" />
+                </marker>
+              </defs>
+              {tasks.map((task, index) => {
+                if (index < tasks.length - 1) {
+                  const startY = 60 + (index * 80) + 20;
+                  const endY = 60 + ((index + 1) * 80) + 20;
+                  const midX = "50%";
                   
-                  <div className="flex-1 relative h-8 bg-gray-100 rounded">
-                    <div
-                      className={`absolute h-full rounded ${getStatusColor(task.status)} opacity-80 flex items-center px-2`}
-                      style={position}
-                    >
-                      <span className="text-white text-xs font-medium">
-                        {task.progress_percentage}%
-                      </span>
+                  return (
+                    <path
+                      key={`line-${index}`}
+                      d={`M 80% ${startY} Q ${midX} ${startY + 30} 20% ${endY}`}
+                      stroke="#06b6d4"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrowhead)"
+                      className="opacity-60"
+                    />
+                  );
+                }
+                return null;
+              })}
+            </svg>
+          </div>
+
+          {/* Week markers */}
+          <div className="flex border-b border-border h-8 mb-4">
+            {Array.from({ length: Math.ceil(totalDays / 7) }, (_, i) => (
+              <div 
+                key={i}
+                className="flex-1 text-xs text-center text-muted-foreground font-medium py-2"
+                style={{ minWidth: '60px' }}
+              >
+                W{i + 1}
+              </div>
+            ))}
+          </div>
+
+          {/* Tasks */}
+          <div className="space-y-4 relative z-10">
+            {tasks.map((task, index) => {
+              const position = getTaskPosition(task);
+              
+              return (
+                <div key={task.id} className="relative h-16">
+                  <div className="flex items-center h-full">
+                    {/* Task Name */}
+                    <div className="w-48 pr-6">
+                      <h4 className="font-medium text-foreground text-sm leading-tight">
+                        {task.task_name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDate(task.start_date)} - {formatDate(task.end_date)} ({task.duration_days} days)
+                      </p>
+                    </div>
+                    
+                    {/* Timeline Bar */}
+                    <div className="flex-1 relative">
+                      <div className="h-8 bg-muted rounded-lg relative overflow-hidden">
+                        <div
+                          className={`absolute h-full rounded-lg ${getStatusColor(task.status)} transition-all duration-300 flex items-center px-3`}
+                          style={position}
+                        >
+                          <span className="text-white text-xs font-medium">
+                            {task.progress_percentage}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Status Badge */}
+                    <div className="w-28 flex justify-end pl-4">
+                      <Badge 
+                        className={`text-xs px-3 py-1 rounded-full ${getStatusBadgeColor(task.status)}`}
+                      >
+                        {task.status}
+                      </Badge>
                     </div>
                   </div>
-                  
-                  <div className="w-24 text-right">
-                    <Badge 
-                      variant={task.status === 'complete' ? 'default' : 'secondary'}
-                      className="text-xs"
-                    >
-                      {task.status}
-                    </Badge>
-                  </div>
                 </div>
-                
-                {/* Task details */}
-                <div className="ml-44 text-xs text-muted-foreground">
-                  {formatDate(task.start_date)} - {formatDate(task.end_date)} ({task.duration_days} days)
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Critical Path Notice */}
+        <Card className="mt-8 border-amber-200 bg-amber-50/50">
+          <CardContent className="p-4">
+            <div className="flex items-start space-x-3">
+              <div className="w-2 h-2 rounded-full bg-amber-500 mt-2 flex-shrink-0"></div>
+              <div className="text-sm">
+                <div className="font-medium text-amber-900 mb-1">
+                  Critical Path: Concept Design → Detailed Design → Review and Approval
+                </div>
+                <div className="text-amber-800">
+                  Any delays in these tasks will impact the final delivery date.
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Critical Path Notice */}
-      <Card className="mt-6 border-amber-200 bg-amber-50">
-        <CardContent className="p-4">
-          <div className="text-sm text-amber-800">
-            <strong>Critical Path:</strong> Concept Design → Detailed Design → Review and Approval
-            <br />
-            <span className="text-amber-700">
-              Any delays in these tasks will impact the final delivery date.
-            </span>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
