@@ -1,7 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 
 const xaiApiKey = Deno.env.get('OPENAI_API_KEY'); // Using same env var name for compatibility
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,12 +18,72 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversation } = await req.json();
+    // Get auth token from request
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Access denied due to permissions' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Create Supabase client with user's JWT
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        headers: { authorization: authHeader }
+      }
+    });
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Access denied due to permissions' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { message, conversation, context } = await req.json();
+
+    // Log interaction for audit purposes
+    await supabaseClient.from('ai_chat_logs').insert({
+      user_id: user.id,
+      message_type: 'user_query',
+      context: context || {},
+      created_at: new Date().toISOString()
+    }).catch(err => console.log('Log insert failed:', err));
+
+    // Build context-aware system prompt
+    let systemPrompt = `You are Grok, an AI assistant for the Skrobaki construction management platform. You have access to the user's business and project data through secure APIs.
+
+CURRENT CONTEXT:
+- User ID: ${user.id}
+- Screen: ${context?.currentPage || 'Unknown'}
+- Project ID: ${context?.projectId || 'None'}
+- Visible Data: ${JSON.stringify(context?.visibleData || {})}
+
+CAPABILITIES:
+- View and analyze user's projects, tasks, schedules, and business data
+- Make updates to projects and tasks (with user permission)
+- Provide insights and recommendations based on current screen context
+- Help with project management, scheduling, and construction processes
+
+SECURITY RULES:
+- Only access data belonging to the authenticated user
+- Respect user permissions and company boundaries
+- Never reveal data from other users or companies
+- All database operations must use user's JWT for RLS enforcement
+
+RESPONSE GUIDELINES:
+- Be concise and actionable
+- Reference current screen context when relevant
+- Ask for confirmation before making significant changes
+- Provide specific, construction-industry relevant advice`;
 
     const messages = [
       {
         role: 'system',
-        content: 'You are a helpful AI assistant for a construction management platform. You can help users with questions about project management, construction processes, scheduling, and general assistance. Be concise and helpful.'
+        content: systemPrompt
       },
       ...conversation,
       { role: 'user', content: message }
@@ -35,7 +98,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'grok-beta',
         messages: messages,
-        max_tokens: 500,
+        max_tokens: 1000,
         temperature: 0.7,
       }),
     });
@@ -47,12 +110,20 @@ serve(async (req) => {
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
+    // Log AI response for audit purposes
+    await supabaseClient.from('ai_chat_logs').insert({
+      user_id: user.id,
+      message_type: 'ai_response',
+      response_length: aiResponse.length,
+      created_at: new Date().toISOString()
+    }).catch(err => console.log('Log insert failed:', err));
+
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in ai-chat function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'An error occurred while processing your request' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
