@@ -41,13 +41,11 @@ import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
-import { BusinessDashboard } from "@/components/business/BusinessDashboard";
 import { ProjectDashboard } from "@/components/projects/ProjectDashboard";
 import { TaskManagement } from "@/components/projects/TaskManagement";
 import { Project } from "@/hooks/useProjects";
 import { BusinessManagementPage } from "@/components/BusinessManagementPage";
 import { CreateBusinessPage } from "@/components/CreateBusinessPage";
-import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
@@ -304,14 +302,8 @@ export const ContentRenderer = ({
           <ModernPlatformDashboard onNavigate={onNavigate} />
         </RoleProtectedRoute>
       );
-    case "business-dashboard":
-      return <BusinessDashboard onNavigate={onNavigate} />;
     case "project-dashboard":
       return <ProjectDashboard onNavigate={onNavigate} />;
-    case "task-management":
-      return <TaskManagement onNavigate={onNavigate} />;
-    case "personal-dashboard":
-      return <PersonalDashboard onNavigate={onNavigate} />;
     case "portfolio-manage":
       return <PortfolioManagePage onNavigate={onNavigate} />;
     case "user-profile":

@@ -69,13 +69,6 @@ export const ContextSwitcher = ({ onNavigate }: ContextSwitcherProps = {}) => {
     if (contextType === 'company' && companyId && companyId !== currentCompany?.id) {
       switchCompany(companyId);
     }
-    
-    // Navigate to appropriate dashboard
-    if (contextType === 'personal') {
-      onNavigate?.('personal-dashboard');
-    } else {
-      onNavigate?.('home');
-    }
   };
 
   const getInitials = (name: string) => {
