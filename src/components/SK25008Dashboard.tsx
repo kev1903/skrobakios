@@ -38,14 +38,41 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [actualProjectId, setActualProjectId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Fetch the actual project ID from database
+  useEffect(() => {
+    const fetchProjectId = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id, project_id')
+          .or(`project_id.eq.${projectId.toUpperCase()},project_id.eq.SK_25008,id.eq.${projectId}`)
+          .single();
+        
+        if (data && !error) {
+          setActualProjectId(data.id);
+          console.log('Found actual project ID:', data.id, 'for projectId:', projectId);
+        }
+      } catch (error) {
+        console.error('Error fetching project ID:', error);
+      }
+    };
+    
+    fetchProjectId();
+  }, [projectId]);
+
   // Memoize the navigation function to prevent re-creation on every render
   const handleBackNavigation = useCallback(() => {
-    console.log('Navigating back to project detail for projectId:', projectId);
-    navigate(`/?page=project-detail&projectId=${projectId}`);
-  }, [navigate, projectId]);
+    const targetProjectId = actualProjectId || projectId;
+    console.log('Navigating back to project detail for projectId:', targetProjectId);
+    
+    // Use window.location to force a proper navigation instead of navigate
+    const newUrl = `/?page=project-detail&projectId=${targetProjectId}`;
+    window.location.href = newUrl;
+  }, [actualProjectId, projectId]);
   useEffect(() => {
     fetchTasks();
   }, []);
