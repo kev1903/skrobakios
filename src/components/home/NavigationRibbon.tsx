@@ -29,12 +29,11 @@ export const NavigationRibbon = ({
   const { hasFeature, currentSubscription } = useSubscription();
   const { isSuperAdmin } = useUserRole();
 
-  // Define navigation items with subscription feature requirements (from SidebarMainContent)
-  const generalNavigation = [
-    { id: "home", label: "Home", icon: Home },
-    { id: "my-tasks", label: "MY TASKS", icon: Calendar },
-    { id: "schedules", label: "My Schedules", icon: Calendar },
-    { id: "inbox", label: "Inbox", icon: Mail },
+  // Core business modules that should always be available (replace General section)
+  const coreBusinessModules = [
+    { id: "projects", label: "Projects", icon: Briefcase },
+    { id: "finance", label: "Finance", icon: DollarSign },
+    { id: "sales", label: "Sales", icon: TrendingUp },
   ];
 
   // Business navigation items mapped to their required subscription features (from SidebarMainContent)
@@ -112,12 +111,12 @@ export const NavigationRibbon = ({
       )}
       
       <div className={`flex-1 flex flex-col space-y-6 overflow-y-auto ${isFloatingMode ? 'py-4 px-3' : 'p-4'}`}>
-        {/* General Navigation */}
+        {/* Core Business Modules (replacing General section) */}
         <div className="space-y-1">
           <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-            {!isCollapsed && "General"}
+            {!isCollapsed && "Business Modules"}
           </div>
-          {generalNavigation.map(item => {
+          {coreBusinessModules.map(item => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
             return (
@@ -137,12 +136,12 @@ export const NavigationRibbon = ({
           })}
         </div>
 
-        {/* Business Navigation - always show, not conditional on personal context */}
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-            {!isCollapsed && "Business"}
-          </div>
-          {businessNavigation.map(item => {
+          {/* Additional Business Features (subscription-based) */}
+          <div className="space-y-1">
+            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              {!isCollapsed && "Additional Features"}
+            </div>
+            {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales").map(item => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
             return (
