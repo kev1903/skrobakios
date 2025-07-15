@@ -111,6 +111,16 @@ export function PersistentAiChat() {
         throw new Error(error.message || 'Failed to get AI response');
       }
 
+      // Check if the response contains an error (edge function returns 200 with error details)
+      if (data.error) {
+        throw new Error(data.details || data.error);
+      }
+
+      // Validate that we have a proper response
+      if (!data.response || typeof data.response !== 'string') {
+        throw new Error('Invalid response format from AI service');
+      }
+
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: data.response,
@@ -126,9 +136,24 @@ export function PersistentAiChat() {
 
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // More specific error handling
+      let errorMessage = "Failed to send message";
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication required')) {
+          errorMessage = "Please log in to use the AI chat";
+        } else if (error.message.includes('AI service temporarily unavailable')) {
+          errorMessage = "AI service is temporarily unavailable. Please try again in a moment.";
+        } else if (error.message.includes('AI service is not configured')) {
+          errorMessage = "AI service is not configured. Please contact support.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message",
+        title: "AI Chat Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
