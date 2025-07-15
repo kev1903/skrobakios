@@ -36,6 +36,7 @@ import { TimeManagementPage } from "@/components/TimeManagementPage";
 import { CostContractsPage } from "@/components/CostContractsPage";
 import { AdminPage } from "@/components/admin/AdminPage";
 import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
+import { BusinessSettingsPage } from "@/components/BusinessSettingsPage";
 import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
 import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
@@ -97,9 +98,7 @@ export const ContentRenderer = ({
     case "time-management":
       return <TimeManagementPage onNavigate={onNavigate} />;
     case "settings":
-      // Redirect to company settings instead of global settings
-      onNavigate("company-settings");
-      return <CompanySettingsPage onNavigate={onNavigate} />;
+      return <BusinessSettingsPage onNavigate={onNavigate} />;
     case "admin":
       // Redirect admin to company settings page with admin tab
       onNavigate("company-settings");
