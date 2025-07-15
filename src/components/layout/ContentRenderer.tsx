@@ -150,7 +150,12 @@ export const ContentRenderer = ({
     case "project-schedule":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+          {/* Check if this is the SK25008 project and render accordingly */}
+          {currentProject.project_id === 'SK_25008' || currentProject.id === 'sk-25008' || currentProject.name.includes('Riverview') ? (
+            <SK25008Dashboard projectId={currentProject.id} />
+          ) : (
+            <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+          )}
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":

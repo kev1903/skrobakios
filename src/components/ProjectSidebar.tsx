@@ -37,7 +37,7 @@ const ALL_PROJECT_NAV_ITEMS = [{
   key: 'schedule',
   label: 'Schedule',
   icon: Calendar,
-  page: 'sk25008-schedule'
+  page: 'project-schedule'
 }, {
   id: 'tasks',
   key: 'tasks',
