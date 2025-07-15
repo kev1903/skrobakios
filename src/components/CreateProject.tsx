@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
 interface CreateProjectProps {
   onNavigate: (page: string) => void;
@@ -30,6 +31,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
   const { createProject, loading } = useProjects();
   const { toast } = useToast();
+  const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'create-project' });
 
   const handleSave = async () => {
     if (!projectName.trim()) {
@@ -62,7 +64,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
         title: "Success",
         description: "Project created successfully",
       });
-      onNavigate("projects");
+      navigateBack();
     } else {
       toast({
         title: "Error",
@@ -73,7 +75,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   };
 
   const handleCancel = () => {
-    onNavigate("dashboard");
+    navigateBack();
   };
 
   return (
@@ -86,7 +88,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onNavigate("dashboard")}
+              onClick={navigateBack}
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="w-4 h-4" />

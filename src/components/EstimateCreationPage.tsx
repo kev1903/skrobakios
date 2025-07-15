@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,9 +38,10 @@ export const EstimateCreationPage = ({ onNavigate }: EstimateCreationPageProps) 
   const [activeTab, setActiveTab] = useState('scope');
   const [estimateDate, setEstimateDate] = useState<Date>();
   const [expiryDate, setExpiryDate] = useState<Date>();
+  const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'estimate-creation' });
 
   const handleBack = () => {
-    onNavigate('estimates');
+    navigateBack();
   };
 
   return (

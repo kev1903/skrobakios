@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
 
 interface CreateBusinessPageProps {
   onNavigate: (page: string) => void;
@@ -16,6 +17,7 @@ interface CreateBusinessPageProps {
 export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'create-business' });
   
   const [formData, setFormData] = useState({
     name: '',
@@ -124,8 +126,8 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
         description: "Business profile created successfully!",
       });
 
-      // Navigate back to business management
-      onNavigate('business');
+      // Navigate back to previous page
+      navigateBack();
     } catch (error) {
       console.error('Error creating business:', error);
       toast({
@@ -148,7 +150,7 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onNavigate('business')}
+                onClick={navigateBack}
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -349,7 +351,7 @@ export const CreateBusinessPage = ({ onNavigate }: CreateBusinessPageProps) => {
           <div className="flex justify-end space-x-4 pt-6">
             <Button
               variant="outline"
-              onClick={() => onNavigate('business')}
+              onClick={navigateBack}
               disabled={isLoading}
             >
               Cancel
