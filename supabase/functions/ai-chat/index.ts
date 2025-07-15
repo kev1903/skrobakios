@@ -26,12 +26,24 @@ serve(async (req) => {
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
     console.log('API key:', apikey ? 'Present' : 'Missing');
     
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('No valid authorization header');
+      return new Response(JSON.stringify({ error: 'Authentication required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Extract the JWT token
+    const jwt = authHeader.replace('Bearer ', '');
+    console.log('JWT token length:', jwt.length);
+    
     // Create Supabase client with user's JWT for authentication
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {
-          ...(authHeader && { authorization: authHeader }),
-          ...(apikey && { apikey })
+          authorization: authHeader,
+          apikey: apikey || supabaseAnonKey
         }
       }
     });
@@ -39,8 +51,8 @@ serve(async (req) => {
     // Create service role client for logging (bypasses RLS)
     const supabaseServiceClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify user authentication
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    // Verify user authentication by getting user info
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(jwt);
     
     console.log('User found:', user ? user.id : 'None');
     console.log('Auth error:', authError ? authError.message : 'None');
