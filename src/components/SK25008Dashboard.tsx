@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Upload, CheckCircle, Clock, AlertTriangle, FileText, Building2 } from 'lucide-react';
+import { Calendar, Upload, CheckCircle, Clock, AlertTriangle, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -229,52 +227,8 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({ projectId = 
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
-        {/* Header */}
-        <div className="glass-card border-b border-border px-4 md:px-6 py-3 md:py-4 backdrop-blur-sm flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Building2 className="h-8 w-8 text-primary" />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white">Project Schedule</h1>
-                <p className="text-white/70">{project.name}</p>
-              </div>
-            </div>
-            <Button 
-              onClick={optimizeSchedule} 
-              disabled={isOptimizing} 
-              className="bg-primary hover:bg-primary/90"
-            >
-              {isOptimizing ? 'Optimizing...' : 'Optimize Schedule'}
-            </Button>
-          </div>
-        </div>
-
         {/* Content Area */}
         <div className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
-          {/* Progress Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-white">{calculateOverallProgress()}%</div>
-                <p className="text-sm text-white/70">Overall Progress</p>
-                <Progress value={calculateOverallProgress()} className="mt-2" />
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-white">{tasks.filter(t => t.status === 'complete').length}</div>
-                <p className="text-sm text-white/70">Completed Tasks</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-4">
-                <div className="text-2xl font-bold text-white">{tasks.filter(t => t.status === 'pending').length}</div>
-                <p className="text-sm text-white/70">Pending Tasks</p>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Gantt Chart */}
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">
