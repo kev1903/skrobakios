@@ -16,7 +16,7 @@ serve(async (req) => {
   try {
     const { tasks, bufferDays = 2 } = await req.json();
     
-    const xaiApiKey = Deno.env.get('OPENAI_API_KEY'); // Using same env var for xAI
+    const xaiApiKey = Deno.env.get('xAi');
     if (!xaiApiKey) {
       throw new Error('xAI API key not configured');
     }
