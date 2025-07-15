@@ -179,22 +179,6 @@ export const SK25008Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Compliance Notice */}
-      <Card className="border-orange-200 bg-orange-50">
-        <CardHeader>
-          <CardTitle className="flex items-center text-orange-800">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Bulleen Council Compliance Notice
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-orange-700">
-            This project must comply with Bulleen residential zoning requirements: Maximum 2 storeys, 
-            5m front setback, 1.5m side setbacks, 8.5m height limit. Manual review by a local architect 
-            is required before council submission.
-          </p>
-        </CardContent>
-      </Card>
 
       {/* Task Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
