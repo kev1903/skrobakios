@@ -10,7 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { TraditionalGanttChart } from './TraditionalGanttChart';
 import { SK25008FileUpload } from './SK25008FileUpload';
 import { SK25008TaskDetails } from './SK25008TaskDetails';
-
 interface Task {
   id: string;
   task_name: string;
@@ -30,26 +29,26 @@ interface Task {
   created_by?: string;
   updated_at?: string;
 }
-
 export const SK25008Dashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     fetchTasks();
   }, []);
-
   const fetchTasks = async () => {
     try {
-      const { data, error } = await supabase
-        .from('sk_25008_design')
-        .select('*')
-        .order('start_date', { ascending: true });
-
+      const {
+        data,
+        error
+      } = await supabase.from('sk_25008_design').select('*').order('start_date', {
+        ascending: true
+      });
       if (error) throw error;
       setTasks(data || []);
     } catch (error) {
@@ -57,20 +56,24 @@ export const SK25008Dashboard: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to load project tasks",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const optimizeSchedule = async () => {
     setIsOptimizing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('optimize-schedule', {
-        body: { tasks, bufferDays: 2 }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('optimize-schedule', {
+        body: {
+          tasks,
+          bufferDays: 2
+        }
       });
-
       if (error) throw error;
 
       // Check if the optimization was successful
@@ -78,14 +81,13 @@ export const SK25008Dashboard: React.FC = () => {
         toast({
           title: "Optimization Notice",
           description: data.error || 'AI optimization not available. Using current schedule.',
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
-
       toast({
         title: "Schedule Optimized",
-        description: "AI-powered schedule optimization completed successfully",
+        description: "AI-powered schedule optimization completed successfully"
       });
 
       // Here you would update the tasks with optimized schedule
@@ -96,13 +98,12 @@ export const SK25008Dashboard: React.FC = () => {
       toast({
         title: "Optimization Failed",
         description: "Could not optimize schedule. Using current timeline.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsOptimizing(false);
     }
   };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'complete':
@@ -115,7 +116,6 @@ export const SK25008Dashboard: React.FC = () => {
         return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
-
   const getStatusBadge = (status: string) => {
     const variants = {
       complete: 'default',
@@ -123,54 +123,37 @@ export const SK25008Dashboard: React.FC = () => {
       pending: 'outline',
       delayed: 'destructive'
     } as const;
-
-    return (
-      <Badge variant={variants[status as keyof typeof variants] || 'outline'}>
+    return <Badge variant={variants[status as keyof typeof variants] || 'outline'}>
         {status.replace('-', ' ').toUpperCase()}
-      </Badge>
-    );
+      </Badge>;
   };
-
   const calculateOverallProgress = () => {
     if (tasks.length === 0) return 0;
     const totalProgress = tasks.reduce((sum, task) => sum + task.progress_percentage, 0);
     return Math.round(totalProgress / tasks.length);
   };
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
+    return <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="container mx-auto p-6 space-y-6">
+  return <div className="container mx-auto p-6 space-y-6">
       {/* Project Header */}
       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/?page=projects')}
-              className="mr-2"
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate('/?page=projects')} className="mr-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Projects
             </Button>
             <Building2 className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold">SK_25008 - 38 Riverview Terrace, Bulleen</h1>
+              <h1 className="text-3xl font-bold">Schedule
+            </h1>
               <p className="text-muted-foreground">Residential Design Project</p>
             </div>
           </div>
-          <Button 
-            onClick={optimizeSchedule} 
-            disabled={isOptimizing}
-            className="bg-primary hover:bg-primary/90"
-          >
+          <Button onClick={optimizeSchedule} disabled={isOptimizing} className="bg-primary hover:bg-primary/90">
             {isOptimizing ? 'Optimizing...' : 'Optimize Schedule'}
           </Button>
         </div>
@@ -211,12 +194,7 @@ export const SK25008Dashboard: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {tasks.map((task) => (
-              <div 
-                key={task.id} 
-                className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
-                onClick={() => setSelectedTask(task)}
-              >
+            {tasks.map(task => <div key={task.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors" onClick={() => setSelectedTask(task)}>
                 <div className="flex items-center space-x-4">
                   {getStatusIcon(task.status)}
                   <div>
@@ -231,8 +209,7 @@ export const SK25008Dashboard: React.FC = () => {
                   <span className="text-sm font-medium">{task.progress_percentage}%</span>
                   {getStatusBadge(task.status)}
                 </div>
-              </div>
-            ))}
+              </div>)}
           </CardContent>
         </Card>
 
@@ -248,44 +225,30 @@ export const SK25008Dashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <TraditionalGanttChart 
-            tasks={tasks} 
-            onTaskUpdate={async (taskId, updates) => {
-              try {
-                const { error } = await supabase
-                  .from('sk_25008_design')
-                  .update(updates)
-                  .eq('id', taskId);
-                
-                if (error) throw error;
-                
-                toast({
-                  title: "Task Updated",
-                  description: "Task schedule updated successfully",
-                });
-                
-                fetchTasks();
-              } catch (error) {
-                console.error('Error updating task:', error);
-                toast({
-                  title: "Update Failed",
-                  description: "Failed to update task schedule",
-                  variant: "destructive",
-                });
-              }
-            }}
-          />
+          <TraditionalGanttChart tasks={tasks} onTaskUpdate={async (taskId, updates) => {
+          try {
+            const {
+              error
+            } = await supabase.from('sk_25008_design').update(updates).eq('id', taskId);
+            if (error) throw error;
+            toast({
+              title: "Task Updated",
+              description: "Task schedule updated successfully"
+            });
+            fetchTasks();
+          } catch (error) {
+            console.error('Error updating task:', error);
+            toast({
+              title: "Update Failed",
+              description: "Failed to update task schedule",
+              variant: "destructive"
+            });
+          }
+        }} />
         </CardContent>
       </Card>
 
       {/* Task Details Modal/Panel */}
-      {selectedTask && (
-        <SK25008TaskDetails 
-          task={selectedTask} 
-          onClose={() => setSelectedTask(null)}
-          onUpdate={fetchTasks}
-        />
-      )}
-    </div>
-  );
+      {selectedTask && <SK25008TaskDetails task={selectedTask} onClose={() => setSelectedTask(null)} onUpdate={fetchTasks} />}
+    </div>;
 };
