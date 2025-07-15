@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 import { ChatBox } from '@/components/ChatBox';
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
-import { AiChatBar } from '@/components/AiChatBar';
+
 import { useCompany } from '@/contexts/CompanyContext';
 import { useUserRole } from '@/hooks/useUserRole';
 
@@ -711,11 +711,9 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
       <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
       
       
+      
       {/* Bottom Chat Box */}
       <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
-      
-      {/* AI Chat Bar */}
-      <AiChatBar />
     </div>
   );
 };

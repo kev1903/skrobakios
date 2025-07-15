@@ -5,6 +5,7 @@ import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { PersistentAiChat } from "@/components/PersistentAiChat";
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
@@ -52,13 +53,17 @@ const Index = () => {
       <TaskProvider>
         {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
-          <ContentRenderer 
-            currentPage={currentPage}
-            onNavigate={handleNavigate}
-            onSelectProject={handleSelectProject}
-            selectedProject={selectedProject}
-            currentProject={currentProject}
-          />
+          <>
+            <ContentRenderer 
+              currentPage={currentPage}
+              onNavigate={handleNavigate}
+              onSelectProject={handleSelectProject}
+              selectedProject={selectedProject}
+              currentProject={currentProject}
+            />
+            {/* Show AI chat on all pages except auth and landing */}
+            {currentPage !== "auth" && currentPage !== "landing" && <PersistentAiChat />}
+          </>
         ) : (
           // Home and all other pages get layout with sidebar
           <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
@@ -76,6 +81,9 @@ const Index = () => {
                 />
               </PageLayout>
             </div>
+            
+            {/* AI Chat appears on all layout pages */}
+            <PersistentAiChat />
           </div>
         )}
       </TaskProvider>

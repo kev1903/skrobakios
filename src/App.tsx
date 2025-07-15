@@ -10,6 +10,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
 import { AppContextProvider } from "./contexts/AppContextProvider";
+import { PersistentAiChat } from "./components/PersistentAiChat";
 
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
@@ -40,7 +41,12 @@ const InvoicesPageWrapper = () => {
     }
   };
 
-  return <InvoicesPage onNavigate={handleNavigate} />;
+  return (
+    <>
+      <InvoicesPage onNavigate={handleNavigate} />
+      <PersistentAiChat />
+    </>
+  );
 };
 
 // Wrapper component for EstimatesPage with proper navigation
@@ -55,7 +61,12 @@ const EstimatesPageWrapper = () => {
     }
   };
 
-  return <EstimatesPage onNavigate={handleNavigate} />;
+  return (
+    <>
+      <EstimatesPage onNavigate={handleNavigate} />
+      <PersistentAiChat />
+    </>
+  );
 };
 
 // Wrapper component for EstimateCreationPage with proper navigation
@@ -70,7 +81,12 @@ const EstimateCreationPageWrapper = () => {
     }
   };
 
-  return <EstimateCreationPage onNavigate={handleNavigate} />;
+  return (
+    <>
+      <EstimateCreationPage onNavigate={handleNavigate} />
+      <PersistentAiChat />
+    </>
+  );
 };
 
 // Wrapper component for CompanyEditPage with proper navigation
@@ -206,7 +222,10 @@ const AppContent = () => {
           <PlatformAuthProvider>
             <UserProvider>
               <CompanyProvider>
-                <SK25008Dashboard />
+                <>
+                  <SK25008Dashboard />
+                  <PersistentAiChat />
+                </>
               </CompanyProvider>
             </UserProvider>
           </PlatformAuthProvider>
