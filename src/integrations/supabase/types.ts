@@ -1465,6 +1465,74 @@ export type Database = {
           },
         ]
       }
+      sk_25008_design: {
+        Row: {
+          client_feedback: string | null
+          company_id: string | null
+          compliance_notes: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          design_files: Json | null
+          duration_days: number
+          end_date: string | null
+          id: string
+          progress_percentage: number | null
+          requirements: string | null
+          start_date: string | null
+          status: string
+          task_name: string
+          task_type: string
+          updated_at: string
+        }
+        Insert: {
+          client_feedback?: string | null
+          company_id?: string | null
+          compliance_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          design_files?: Json | null
+          duration_days: number
+          end_date?: string | null
+          id?: string
+          progress_percentage?: number | null
+          requirements?: string | null
+          start_date?: string | null
+          status?: string
+          task_name: string
+          task_type: string
+          updated_at?: string
+        }
+        Update: {
+          client_feedback?: string | null
+          company_id?: string | null
+          compliance_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          design_files?: Json | null
+          duration_days?: number
+          end_date?: string | null
+          id?: string
+          progress_percentage?: number | null
+          requirements?: string | null
+          start_date?: string | null
+          status?: string
+          task_name?: string
+          task_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sk_25008_design_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           created_at: string

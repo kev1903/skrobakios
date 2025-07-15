@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, CheckCircle, Users, Clock, BarChart3, Shield, Zap, Globe, Bot, Calendar, Target, TrendingUp, Building2, FileText, MessageCircle, Settings, Play, ChevronRight, Workflow, PieChart, Smartphone, Briefcase, Layers, Activity, Star, Award, Rocket, UserCheck, Building, Factory, Hammer, Code, Lightbulb, HeartHandshake } from 'lucide-react';
+import { ArrowRight, CheckCircle, Users, Clock, BarChart3, Shield, Zap, Globe, Bot, Calendar, Target, TrendingUp, Building2, FileText, MessageCircle, Settings, Play, ChevronRight, Workflow, PieChart, Smartphone, Briefcase, Layers, Activity, Star, Award, Rocket, UserCheck, Building, Factory, Hammer, Code, Lightbulb, HeartHandshake, ExternalLink } from 'lucide-react';
 import { SignupForm } from './SignupForm';
 
 interface LandingPageProps {

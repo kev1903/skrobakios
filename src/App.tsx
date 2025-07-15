@@ -26,6 +26,7 @@ import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { ProjectTeamPage } from "./components/projects/team/ProjectTeamPage";
 import { SubscriptionPage } from "./pages/SubscriptionPage";
+import { SK25008Dashboard } from "./components/SK25008Dashboard";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -196,6 +197,15 @@ const AppContent = () => {
           <UserProvider>
             <CompanyProvider>
               <ProjectTeamPage />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+        
+        {/* SK25008 Project Dashboard */}
+        <Route path="/sk25008" element={
+          <UserProvider>
+            <CompanyProvider>
+              <SK25008Dashboard />
             </CompanyProvider>
           </UserProvider>
         } />
