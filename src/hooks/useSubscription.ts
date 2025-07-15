@@ -152,25 +152,14 @@ export const useSubscription = () => {
 
   // Check if user has access to a feature
   const hasFeature = (feature: string) => {
-    const result = currentSubscription?.features.includes(feature) || false;
-    if (!result) {
-      console.log(`❌ Missing feature "${feature}". Available:`, currentSubscription?.features);
-    }
-    return result;
+    // With the new simplified subscription system, everyone has access to all features
+    return true;
   };
 
   // Check if user can perform action based on limits
   const canPerformAction = (action: 'project' | 'team_member', currentCount: number) => {
-    if (!currentSubscription) return false;
-
-    switch (action) {
-      case 'project':
-        return currentSubscription.max_projects === null || currentCount < currentSubscription.max_projects;
-      case 'team_member':
-        return currentSubscription.max_team_members === null || currentCount < currentSubscription.max_team_members;
-      default:
-        return true;
-    }
+    // With the new simplified subscription system, everyone has unlimited access
+    return true;
   };
 
   // Upgrade subscription
