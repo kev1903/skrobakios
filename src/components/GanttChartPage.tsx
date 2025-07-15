@@ -55,16 +55,14 @@ export const GanttChartPage = ({ project, onNavigate }: GanttChartPageProps) => 
           <GanttHeader project={project} />
           <ProjectOverviewCard project={project} />
 
-          {/* Gantt Chart */}
-          <Card>
-            <CardContent className="p-6">
-              <GanttChart
-                tasks={mockGanttTasks}
-                startDate={new Date('2025-05-15')}
-                endDate={new Date('2025-06-10')}
-              />
-            </CardContent>
-          </Card>
+          {/* Gantt Chart - Fullscreen */}
+          <div className="flex-1">
+            <GanttChart
+              tasks={mockGanttTasks}
+              startDate={new Date('2025-05-15')}
+              endDate={new Date('2025-06-10')}
+            />
+          </div>
         </div>
       </div>
     </div>
