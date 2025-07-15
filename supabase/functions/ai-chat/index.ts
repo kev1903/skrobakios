@@ -19,19 +19,20 @@ serve(async (req) => {
   }
 
   try {
-    // Get auth token from request
+    // Get auth token from request headers
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Access denied due to permissions' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
+    const apikey = req.headers.get('apikey');
+    
+    console.log('Auth header:', authHeader ? 'Present' : 'Missing');
+    console.log('API key:', apikey ? 'Present' : 'Missing');
+    
     // Create Supabase client with user's JWT for authentication
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
-        headers: { authorization: authHeader }
+        headers: {
+          ...(authHeader && { authorization: authHeader }),
+          ...(apikey && { apikey })
+        }
       }
     });
 
@@ -40,9 +41,13 @@ serve(async (req) => {
 
     // Verify user authentication
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    
+    console.log('User found:', user ? user.id : 'None');
+    console.log('Auth error:', authError ? authError.message : 'None');
+    
     if (authError || !user) {
-      console.error('Auth error:', authError);
-      return new Response(JSON.stringify({ error: 'Access denied due to permissions' }), {
+      console.error('Authentication failed:', authError);
+      return new Response(JSON.stringify({ error: 'Authentication required' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
