@@ -323,8 +323,8 @@ export const TraditionalGanttChart: React.FC<TraditionalGanttChartProps> = ({
 
   return (
     <TooltipProvider>
-      <Card className="w-full">
-        <CardHeader className="pb-4">
+      <div className="w-full">
+        <div className="pb-4">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-lg font-semibold">Project Timeline</CardTitle>
@@ -375,9 +375,9 @@ export const TraditionalGanttChart: React.FC<TraditionalGanttChartProps> = ({
               </Button>
             </div>
           </div>
-        </CardHeader>
+        </div>
         
-        <CardContent className="p-0">
+        <div className="p-0">
           <div className="flex h-[500px]">
             {/* Left Table */}
             <div className="w-1/2 border-r border-border bg-muted/30">
@@ -531,8 +531,8 @@ export const TraditionalGanttChart: React.FC<TraditionalGanttChartProps> = ({
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </TooltipProvider>
   );
 };
