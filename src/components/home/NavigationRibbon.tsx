@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home } from 'lucide-react';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
-import { useCompanyModules } from '@/hooks/useCompanyModules';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAppContext } from '@/contexts/AppContextProvider';
 import { personalProfileNavigation } from '@/components/sidebar/navigationData';
 interface NavigationRibbonProps {
@@ -61,21 +61,22 @@ export const NavigationRibbon = ({
 }: NavigationRibbonProps) => {
   const { currentCompany } = useCompany();
   const { activeContext } = useAppContext();
-  const {
-    fetchCompanyModules,
-    isModuleEnabled
-  } = useCompanyModules();
+  const { hasFeature } = useSubscription();
 
-  // Fetch company modules when component mounts or company changes
-  useEffect(() => {
-    if (currentCompany?.id) {
-      fetchCompanyModules(currentCompany.id);
-    }
-  }, [currentCompany?.id]);
   if (!isOpen) return null;
 
-  // Filter navigation modules based on enabled company modules
-  const enabledNavigationModules = COMPANY_NAVIGATION_MODULES.filter(module => currentCompany?.id ? isModuleEnabled(currentCompany.id, module.key) : false);
+  // Filter navigation modules based on subscription features
+  const enabledNavigationModules = COMPANY_NAVIGATION_MODULES.filter(module => {
+    // Map module keys to subscription features
+    const featureMap: Record<string, string> = {
+      'projects': 'Project Management',
+      'finance': 'Financial Management',
+      'sales': 'Sales Management'
+    };
+    
+    const requiredFeature = featureMap[module.key];
+    return requiredFeature ? hasFeature(requiredFeature) : true;
+  });
   return <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
       <div className="flex flex-col h-full pt-20">
         {/* Context Switcher */}

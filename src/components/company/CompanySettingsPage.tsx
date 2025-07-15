@@ -37,7 +37,7 @@ import { CompanyRolesTab } from './settings/CompanyRolesTab';
 import { CompanyIntegrationsTab } from './settings/CompanyIntegrationsTab';
 import { CompanyUserManagement } from './settings/CompanyUserManagement';
 import { Company } from '@/types/company';
-import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
+// Module system removed - using subscription-based access control
 
 interface CompanySettingsPageProps {
   onNavigate: (page: string) => void;
@@ -54,7 +54,7 @@ export const CompanySettingsPage = ({ onNavigate }: CompanySettingsPageProps) =>
   const [activeTab, setActiveTab] = useState('profile');
   const { theme, setTheme } = useTheme();
   const { isSuperAdmin, isPlatformAdmin } = useUserRole();
-  const { getEnabledModules, fetchCompanyModules } = useCompanyModules();
+  // Module system removed - functionality moved to subscription-based access
   
   const [companyForm, setCompanyForm] = useState({
     name: '',

@@ -2,8 +2,7 @@ import React from 'react';
 import { SidebarContent } from '@/components/ui/sidebar';
 import { NavigationSection } from './NavigationSection';
 import { File, Briefcase, DollarSign, TrendingUp, Settings, Home, Calendar, Mail, Shield, HelpCircle } from 'lucide-react';
-import { useCompanyModules } from '@/hooks/useCompanyModules';
-import { useCompany } from '@/contexts/CompanyContext';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface SidebarMainContentProps {
   currentPage: string;
@@ -12,17 +11,9 @@ interface SidebarMainContentProps {
 }
 
 export const SidebarMainContent = ({ currentPage, onNavigate, isCollapsed }: SidebarMainContentProps) => {
-  const { currentCompany } = useCompany();
-  const { fetchCompanyModules, isModuleEnabled } = useCompanyModules();
+  const { currentSubscription, hasFeature } = useSubscription();
 
-  // Fetch company modules when component mounts or company changes
-  React.useEffect(() => {
-    if (currentCompany?.id) {
-      fetchCompanyModules(currentCompany.id);
-    }
-  }, [currentCompany?.id, fetchCompanyModules]);
-
-  // Define navigation items with module requirements
+  // Define navigation items with subscription feature requirements
   const generalNavigation = [
     { id: "home", label: "Home", icon: Home },
     { id: "my-tasks", label: "MY TASKS", icon: Calendar },
@@ -30,29 +21,29 @@ export const SidebarMainContent = ({ currentPage, onNavigate, isCollapsed }: Sid
     { id: "inbox", label: "Inbox", icon: Mail },
   ];
 
-  // Business navigation items mapped to their required modules
+  // Business navigation items mapped to their required subscription features
   const businessNavigationItems = [
-    { id: "files", label: "Files", icon: File, requiredModule: "files" },
-    { id: "projects", label: "Projects", icon: Briefcase, requiredModule: "projects" },
-    { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign, requiredModule: "finance" },
-    { id: "sales", label: "Sales", icon: TrendingUp, requiredModule: "sales" },
+    { id: "files", label: "Files", icon: File, requiredFeature: "Document Management" },
+    { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "Project Management" },
+    { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign, requiredFeature: "Financial Management" },
+    { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "Sales Management" },
     { id: "settings", label: "Settings", icon: Settings }, // Settings should always be available
   ];
 
-  // Filter business navigation based on enabled modules
+  // Filter business navigation based on subscription features
   const businessNavigation = businessNavigationItems.filter(item => {
-    // Settings should always be visible regardless of modules
+    // Settings should always be visible regardless of subscription
     if (item.id === "settings") {
       return true;
     }
     
-    // Check if the required module is enabled
-    if (item.requiredModule && currentCompany?.id) {
-      return isModuleEnabled(currentCompany.id, item.requiredModule);
+    // Check if the required feature is included in subscription
+    if (item.requiredFeature) {
+      return hasFeature(item.requiredFeature);
     }
     
-    // Show item if no module requirement or no company context
-    return !item.requiredModule;
+    // Show item if no feature requirement
+    return true;
   });
 
   const supportNavigation = [
@@ -60,23 +51,22 @@ export const SidebarMainContent = ({ currentPage, onNavigate, isCollapsed }: Sid
     { id: "support", label: "Help Center", icon: HelpCircle },
   ];
 
-  // Debug logging to understand what's happening
+  // Debug logging to understand subscription-based filtering
   React.useEffect(() => {
-    console.log("🔍 Debug Info:");
-    console.log("Current Company:", currentCompany?.id);
+    console.log("🔍 Subscription Debug Info:");
+    console.log("Current Subscription:", currentSubscription?.plan_name || 'None');
+    console.log("Subscription Features:", currentSubscription?.features || []);
     console.log("Business Navigation Items:", businessNavigationItems.length);
     console.log("Filtered Business Navigation:", businessNavigation.length);
     console.log("Settings visible:", businessNavigation.some(item => item.id === "settings"));
     
-    if (currentCompany?.id) {
-      businessNavigationItems.forEach(item => {
-        if (item.requiredModule) {
-          const enabled = isModuleEnabled(currentCompany.id, item.requiredModule);
-          console.log(`Module ${item.requiredModule} for ${item.label}: ${enabled}`);
-        }
-      });
-    }
-  }, [currentCompany?.id, businessNavigation.length, businessNavigationItems, isModuleEnabled]);
+    businessNavigationItems.forEach(item => {
+      if (item.requiredFeature) {
+        const hasAccess = hasFeature(item.requiredFeature);
+        console.log(`Feature ${item.requiredFeature} for ${item.label}: ${hasAccess}`);
+      }
+    });
+  }, [currentSubscription, businessNavigation.length, businessNavigationItems, hasFeature]);
 
   return (
     <SidebarContent className="p-4 space-y-6">

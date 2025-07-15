@@ -16,7 +16,7 @@ import { CreateCompanyDialog } from '@/components/CreateCompanyDialog';
 import { Company } from '@/types/company';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
+// Module system removed - functionality moved to subscription-based access
 import { PlatformUserManagement } from '@/components/admin/PlatformUserManagement';
 interface PlatformDashboardProps {
   onNavigate: (page: string) => void;

@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Company } from '@/types/company';
 import { CompanyDetailsForm } from '@/components/company-edit/CompanyDetailsForm';
-import { useCompanyModules, AVAILABLE_MODULES } from '@/hooks/useCompanyModules';
+// Module system removed - using subscription-based access control
 import { CompanyRolesSection } from '@/components/company-edit/CompanyRolesSection';
 import { CompanyPermissionsSection } from '@/components/company-edit/CompanyPermissionsSection';
 import { CompanyRolesTab } from '@/components/company/settings/CompanyRolesTab';
@@ -31,7 +31,7 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
   const { getCompany, updateCompany } = useCompanies();
   const { toast } = useToast();
   const { isSuperAdmin } = useUserRole();
-  const { modules, loading: modulesLoading, fetchCompanyModules, updateModuleStatus, isModuleEnabled } = useCompanyModules();
+  // Module system removed - functionality moved to subscription-based access
 
   useEffect(() => {
     const fetchCompany = async () => {

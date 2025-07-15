@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
 import { useCompany } from "@/contexts/CompanyContext";
-import { useCompanyModules } from "@/hooks/useCompanyModules";
+import { useSubscription } from '@/hooks/useSubscription';
 import { useEffect } from "react";
 
 interface ProjectSidebarProps {
@@ -29,27 +29,18 @@ const ALL_PROJECT_NAV_ITEMS = [
 
 export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusText, activeSection = "insights" }: ProjectSidebarProps) => {
   const { currentCompany } = useCompany();
-  const { fetchCompanyModules, isModuleEnabled } = useCompanyModules();
-
-  // Fetch company modules when component mounts or company changes
-  useEffect(() => {
-    if (currentCompany?.id) {
-      fetchCompanyModules(currentCompany.id);
-    }
-  }, [currentCompany?.id]);
+  const { hasFeature } = useSubscription();
 
   const handleNavigate = (page: string) => {
     onNavigate(page);
   };
 
-  // Filter project navigation items based on enabled modules
-  // Only show project modules if the Projects company module is enabled
-  const isProjectsModuleEnabled = currentCompany?.id ? isModuleEnabled(currentCompany.id, 'projects') : false;
+  // Filter project navigation items based on subscription features
+  // Show all project navigation items if user has Project Management feature
+  const hasProjectManagement = hasFeature('Project Management');
   
-  const enabledProjectNavItems = isProjectsModuleEnabled 
-    ? ALL_PROJECT_NAV_ITEMS.filter(item => 
-        currentCompany?.id ? isModuleEnabled(currentCompany.id, item.key) : false
-      )
+  const enabledProjectNavItems = hasProjectManagement 
+    ? ALL_PROJECT_NAV_ITEMS // Show all project items for subscribed users
     : [];
 
   return (
@@ -84,15 +75,15 @@ export const ProjectSidebar = ({ project, onNavigate, getStatusColor, getStatusT
             Project Navigation
           </div>
           
-          {!isProjectsModuleEnabled && (
+          {!hasProjectManagement && (
             <div className="px-3 py-4 text-white/60 text-sm text-center">
-              Projects module not enabled
+              Upgrade subscription for project features
             </div>
           )}
           
-          {enabledProjectNavItems.length === 0 && isProjectsModuleEnabled && (
+          {enabledProjectNavItems.length === 0 && hasProjectManagement && (
             <div className="px-3 py-4 text-white/60 text-sm text-center">
-              No project modules enabled
+              No project modules available
             </div>
           )}
           

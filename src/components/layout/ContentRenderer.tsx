@@ -15,7 +15,7 @@ import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
 import { LandingPage } from "@/components/LandingPage";
 // UserProfile import removed
-import { ModuleProtectedRoute } from "@/components/auth/ModuleProtectedRoute";
+import { SubscriptionProtectedRoute } from "@/components/auth/SubscriptionProtectedRoute";
 
 import { SettingsPage } from "@/components/SettingsPage";
 import { SupportPage } from "@/components/SupportPage";
@@ -106,129 +106,129 @@ export const ContentRenderer = ({
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "create-project":
       return (
-        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
           <CreateProject onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "projects":
       return (
-        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
           <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "project-detail":
       return (
-        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
           <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "project-tasks":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="tasks" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Task Management" onNavigate={onNavigate}>
           <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-files":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="files" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Document Management" onNavigate={onNavigate}>
           <ProjectFilePage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-settings":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
           <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-schedule":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="schedule" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Schedule Management" onNavigate={onNavigate}>
           <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-team":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="team" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Team Management" onNavigate={onNavigate}>
           <ProjectTeamRedirect projectId={currentProject.id} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-digital-twin":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="digital-twin" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Digital Twin" onNavigate={onNavigate}>
           <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-wbs":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
           <WBSPage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "gantt-chart":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="schedule" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Schedule Management" onNavigate={onNavigate}>
           <GanttChartPage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "upload":
       return (
-        <ModuleProtectedRoute requiredModule="projects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Project Management" onNavigate={onNavigate}>
           <UploadProject onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "files":
       return (
-        <ModuleProtectedRoute requiredModule="files" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Document Management" onNavigate={onNavigate}>
           <FilePage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "finance":
       return (
-        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <FinancePage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "finance-settings":
       return (
-        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <FinanceSettingsPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "cashflow":
       return (
-        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <CashFlowPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "invoices":
       return (
-        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <InvoicesPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "bills":
       return (
-        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <BillsPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "recurring":
       return (
-        <ModuleProtectedRoute requiredModule="finance" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <RecurringPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "sales":
       return (
-        <ModuleProtectedRoute requiredModule="sales" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Sales Management" onNavigate={onNavigate}>
           <SalesPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "cost-contracts":
       return (
-        <ModuleProtectedRoute requiredModule="cost-contracts" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <CostContractsPage onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       );
     case "business-invitations":
       return <BusinessInvitationManager onNavigate={onNavigate} />;
@@ -238,7 +238,7 @@ export const ContentRenderer = ({
       return <InvitationAcceptancePage onNavigate={onNavigate} />;
     case "project-cost":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="cost-contracts" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Financial Management" onNavigate={onNavigate}>
           <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
             <ProjectSidebar project={currentProject} onNavigate={onNavigate} getStatusColor={(status: string) => {
             switch (status) {
@@ -267,13 +267,13 @@ export const ContentRenderer = ({
               <CostContractsPage onNavigate={onNavigate} />
             </div>
           </div>
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "bim":
       return currentProject ? (
-        <ModuleProtectedRoute requiredModule="digital-objects" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="Digital Objects" onNavigate={onNavigate}>
           <DigitalObjectsPage project={currentProject} onNavigate={onNavigate} />
-        </ModuleProtectedRoute>
+        </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={null} />;
