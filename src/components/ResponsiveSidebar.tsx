@@ -5,7 +5,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { SidebarMainContent } from './sidebar/SidebarMainContent';
+import { NavigationRibbon } from './home/NavigationRibbon';
 import { SidebarFooter } from './sidebar/SidebarFooter';
 import { ResponsiveSidebarProps } from './sidebar/types';
 import { Menu } from 'lucide-react';
@@ -41,7 +41,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
         </Button>
       </SidebarHeader>
       
-      <SidebarMainContent 
+      <NavigationRibbon 
         currentPage={currentPage}
         onNavigate={onNavigate}
         isCollapsed={isCollapsed}
