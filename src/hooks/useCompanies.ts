@@ -11,13 +11,23 @@ export const useCompanies = () => {
     setError(null);
     
     try {
+      console.log('🔍 Calling get_user_companies RPC...');
+      
       const { data, error: fetchError } = await supabase
         .rpc('get_user_companies');
 
-      if (fetchError) throw fetchError;
+      console.log('📞 RPC Response:', { data, error: fetchError });
+
+      if (fetchError) {
+        console.error('❌ RPC Error:', fetchError);
+        throw fetchError;
+      }
+      
+      console.log('✅ Companies fetched successfully:', data);
       return (data || []) as UserCompany[];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch companies';
+      console.error('💥 getUserCompanies error:', err);
       setError(errorMessage);
       throw err;
     } finally {

@@ -22,13 +22,15 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshCompanies = useCallback(async () => {
     try {
-      console.log('Refreshing companies...');
+      console.log('🏢 Refreshing companies...');
+      console.log('🔐 Current user:', user?.id, user?.email);
+      console.log('✅ Is authenticated:', isAuthenticated);
       
       // Add a small delay to ensure auth is fully ready
       await new Promise(resolve => setTimeout(resolve, 100));
       
       const userCompanies = await getUserCompanies();
-      console.log('Fetched user companies:', userCompanies);
+      console.log('📊 Fetched user companies:', userCompanies);
       
       setCompanies(userCompanies);
       
