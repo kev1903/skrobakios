@@ -60,14 +60,11 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
     if (!project) return null;
 
     return (
-      <div className="animate-fade-in">
-        {/* Project Schedule */}
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <ModernProjectSchedulePage 
-            project={project} 
-            onNavigate={onNavigate} 
-          />
-        </div>
+      <div className="h-full animate-fade-in">
+        <ModernProjectSchedulePage 
+          project={project} 
+          onNavigate={onNavigate} 
+        />
       </div>
     );
   };
@@ -89,24 +86,9 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 left-0 right-0 h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-        <div className="flex items-center space-x-4 px-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate("projects")}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Projects</span>
-          </Button>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="p-6">
+    <div className="h-screen bg-background">
+      {/* Main Content - Full Screen */}
+      <main className="h-full">
         {renderProjectContent()}
       </main>
     </div>
