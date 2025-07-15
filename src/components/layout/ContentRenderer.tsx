@@ -61,6 +61,7 @@ import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
+import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -145,6 +146,12 @@ export const ContentRenderer = ({
           <ModernProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
+    case "sk25008-schedule":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <SK25008Dashboard />
+        </SubscriptionProtectedRoute>
+      );
     case "project-team":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="team_management" onNavigate={onNavigate}>

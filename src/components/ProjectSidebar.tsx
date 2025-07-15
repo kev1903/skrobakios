@@ -20,7 +20,7 @@ const ALL_PROJECT_NAV_ITEMS = [
   { id: 'dashboard', key: 'dashboard', label: 'Dashboard', icon: Eye, page: 'project-detail' },
   { id: 'digital-twin', key: 'digital-twin', label: 'Digital Twin', icon: Box, page: 'project-digital-twin' },
   { id: 'cost', key: 'cost-contracts', label: 'Cost & Contracts', icon: DollarSign, page: 'project-cost' },
-  { id: 'schedule', key: 'schedule', label: 'Schedule', icon: Calendar, page: 'project-schedule' },
+  { id: 'schedule', key: 'schedule', label: 'Schedule', icon: Calendar, page: 'sk25008-schedule' },
   { id: 'tasks', key: 'tasks', label: 'Tasks', icon: CheckSquare, page: 'project-tasks' },
   { id: 'files', key: 'files', label: 'Files', icon: Folder, page: 'project-files' },
   { id: 'team', key: 'team', label: 'Team', icon: Users, page: 'project-team' },
