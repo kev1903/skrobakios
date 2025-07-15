@@ -16,9 +16,26 @@ serve(async (req) => {
   try {
     const { tasks, bufferDays = 2 } = await req.json();
     
+    console.log('Optimize schedule called with:', { tasksCount: tasks?.length, bufferDays });
+    
     const xaiApiKey = Deno.env.get('xAi');
+    console.log('xAI API key available:', !!xaiApiKey);
+    
     if (!xaiApiKey) {
-      throw new Error('xAI API key not configured');
+      console.error('xAI API key not configured');
+      const fallbackData = {
+        success: false,
+        error: 'xAI API key not configured. Please add the xAi secret in your Supabase project settings.',
+        optimizedTasks: tasks || [],
+        criticalPath: ['concept', 'detailed', 'review'],
+        riskAssessment: { overall: 'medium', factors: ['API configuration issue'] },
+        recommendations: ['Please configure xAI API key to enable AI optimization']
+      };
+      
+      return new Response(JSON.stringify(fallbackData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Prepare AI prompt for schedule optimization
@@ -50,6 +67,7 @@ serve(async (req) => {
     }
     `;
 
+    console.log('Making request to xAI API...');
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -70,8 +88,26 @@ serve(async (req) => {
       }),
     });
 
+    console.log('xAI API response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error(`xAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('xAI API error:', response.status, errorText);
+      
+      // Return fallback data instead of throwing
+      const fallbackData = {
+        success: false,
+        error: `xAI API error: ${response.status} - ${errorText}`,
+        optimizedTasks: tasks || [],
+        criticalPath: ['concept', 'detailed', 'review'],
+        riskAssessment: { overall: 'medium', factors: ['AI service unavailable'] },
+        recommendations: ['Using current schedule due to AI service being temporarily unavailable']
+      };
+      
+      return new Response(JSON.stringify(fallbackData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const data = await response.json();
