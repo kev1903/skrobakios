@@ -17,7 +17,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   const isCollapsed = state === 'collapsed';
 
   const handleRibbonClick = () => {
-    // Navigate to home page (closes current page) and keep sidebar open for navigation
+    // This navigation button is for main navigation, not for toggling sidebar
     onNavigate('home');
   };
 

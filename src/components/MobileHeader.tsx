@@ -41,7 +41,12 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
     <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm md:hidden">
       <div className="flex items-center space-x-3">
         <button 
-          onClick={toggleSidebar}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Hamburger clicked - toggling sidebar');
+            toggleSidebar();
+          }}
           className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           aria-label="Toggle sidebar"
         >
