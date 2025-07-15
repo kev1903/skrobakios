@@ -5,6 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 const xaiApiKey = Deno.env.get('xAi'); // Use the correct secret name
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,12 +28,15 @@ serve(async (req) => {
       });
     }
 
-    // Create Supabase client with user's JWT using anon key
+    // Create Supabase client with user's JWT for authentication
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: { authorization: authHeader }
       }
     });
+
+    // Create service role client for logging (bypasses RLS)
+    const supabaseServiceClient = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verify user authentication
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
@@ -46,8 +50,8 @@ serve(async (req) => {
 
     const { message, conversation, context } = await req.json();
 
-    // Log interaction for audit purposes
-    await supabaseClient.from('ai_chat_logs').insert({
+    // Log interaction for audit purposes using service role client
+    await supabaseServiceClient.from('ai_chat_logs').insert({
       user_id: user.id,
       message_type: 'user_query',
       context: context || {},
@@ -122,8 +126,8 @@ RESPONSE GUIDELINES:
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
-    // Log AI response for audit purposes
-    await supabaseClient.from('ai_chat_logs').insert({
+    // Log AI response for audit purposes using service role client
+    await supabaseServiceClient.from('ai_chat_logs').insert({
       user_id: user.id,
       message_type: 'ai_response',
       response_length: aiResponse.length,
