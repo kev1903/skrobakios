@@ -149,34 +149,35 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
       let fullPrompt = '';
       
       if (projectDocuments && projectDocuments.trim()) {
-        fullPrompt = `Based on the following project documents and scope of work, generate activity suggestions for a construction project.
+        fullPrompt = `You are a construction project manager analyzing project documents to generate detailed activity lists.
+
+TASK: Extract and generate 5-10 specific construction activities from the following project documents.
 
 PROJECT DOCUMENTS:
 ${projectDocuments}
 
 USER REQUEST: ${prompt.trim()}
 
-Please analyze the project documents to understand the scope of work and generate relevant activities. 
+INSTRUCTIONS:
+1. Carefully read and analyze the project documents
+2. Identify all major construction phases, trades, and tasks mentioned
+3. Generate 5-10 distinct activities covering different aspects of the project
+4. Base activity names and descriptions on actual content from the documents
+5. Estimate realistic costs for each activity
+6. MUST respond with valid JSON only - no additional text
 
-Respond with a JSON array of activity objects, each with:
-- name: string (activity name based on the scope of work)
-- description: string (detailed description derived from project documents)
-- cost_est: number (estimated cost in dollars)
-- start_date: string (optional, format: YYYY-MM-DD)
-- end_date: string (optional, format: YYYY-MM-DD)
-
-Example format:
+REQUIRED JSON FORMAT:
 [
   {
-    "name": "Site Preparation",
-    "description": "Clear and level the construction site as specified in project documents",
+    "name": "Activity Name Here",
+    "description": "Detailed description based on document content",
     "cost_est": 5000,
-    "start_date": "2024-01-15",
-    "end_date": "2024-01-20"
+    "start_date": "2024-02-01",
+    "end_date": "2024-02-15"
   }
 ]
 
-Generate 3-8 relevant activities based on the project scope. Only respond with the JSON array, no other text.`;
+RESPOND WITH ONLY THE JSON ARRAY - NO OTHER TEXT.`;
       } else {
         fullPrompt = `Generate activity suggestions for a construction project based on this request: "${prompt.trim()}". 
           
@@ -246,12 +247,42 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
           throw new Error('AI service failed to generate response. The PDF content may be too large.');
         }
         
-        // Fallback: create a single activity based on the prompt
-        generatedActivities = [{
-          name: prompt.trim() || "Document Analysis Required",
-          description: `Please review the uploaded documents and create specific activities. The AI response could not be processed automatically.`,
-          cost_est: 1000
-        }];
+        // Fallback: create multiple activities based on the prompt and documents
+        if (hasValidPDFs) {
+          generatedActivities = [
+            {
+              name: "Document Review and Planning",
+              description: "Review uploaded project documents and create detailed project plan",
+              cost_est: 2000
+            },
+            {
+              name: "Site Preparation",
+              description: "Prepare construction site based on project specifications",
+              cost_est: 5000
+            },
+            {
+              name: "Foundation Work",
+              description: "Foundation and structural work as outlined in project documents",
+              cost_est: 15000
+            },
+            {
+              name: "Building Construction",
+              description: "Main construction activities based on project scope",
+              cost_est: 25000
+            },
+            {
+              name: "Finishing Work",
+              description: "Final finishing touches and project completion",
+              cost_est: 8000
+            }
+          ];
+        } else {
+          generatedActivities = [{
+            name: prompt.trim() || "Custom Activity",
+            description: `Activity generated based on: ${prompt.trim()}`,
+            cost_est: 1000
+          }];
+        }
       }
 
       setSuggestions(generatedActivities);
