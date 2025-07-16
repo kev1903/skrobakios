@@ -6,8 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ProjectSidebar } from '@/components/ProjectSidebar';
-import { PersistentAiChat } from '@/components/PersistentAiChat';
 import { 
   Calendar, 
   ZoomIn, 
@@ -226,37 +224,13 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
     window.history.back();
   };
 
-  // Handle navigation
-  const handleNavigate = (page: string) => {
-    window.location.href = `/?page=${page}&projectId=${projectId}`;
-  };
-
-  // Status helper functions for ProjectSidebar
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return 'hsl(var(--chart-1))';
-      case 'in_progress':
-      case 'in progress':
-        return 'hsl(var(--chart-2))';
-      case 'delayed':
-        return 'hsl(var(--destructive))';
-      default:
-        return 'hsl(var(--primary))';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-  };
-
   // Zoom controls
   const handleZoomIn = () => setZoomLevel(prev => Math.min(prev * 1.2, 3));
   const handleZoomOut = () => setZoomLevel(prev => Math.max(prev / 1.2, 0.3));
 
   if (!project) {
     return (
-      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-lg font-semibold mb-2">Project not found</h2>
           <p className="text-muted-foreground">Unable to load project data.</p>
@@ -266,18 +240,7 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
   }
   
   return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
-      {/* Project Sidebar */}
-      <ProjectSidebar 
-        project={project} 
-        onNavigate={handleNavigate} 
-        getStatusColor={getStatusColor} 
-        getStatusText={getStatusText} 
-        activeSection="timeline" 
-      />
-
-      {/* Main Gantt Chart Content */}
-      <div className="flex-1 flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-card">
           <div className="flex items-center gap-4">
@@ -294,7 +257,7 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
             <div>
               <h1 className="text-xl font-semibold">Project Schedule</h1>
               <p className="text-sm text-muted-foreground">
-                Full-screen Gantt chart with live Skai integration
+                Interactive Gantt chart with live Skai integration
               </p>
             </div>
           </div>
@@ -551,10 +514,6 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
             </div>
           )}
         </div>
-      </div>
-
-      {/* Persistent AI Chat */}
-      <PersistentAiChat />
     </div>
   );
 };

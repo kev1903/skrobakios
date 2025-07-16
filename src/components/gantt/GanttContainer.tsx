@@ -24,7 +24,7 @@ export const GanttContainer: React.FC<GanttContainerProps> = ({
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading project schedule...</p>
@@ -35,7 +35,7 @@ export const GanttContainer: React.FC<GanttContainerProps> = ({
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center">
           <p className="text-destructive mb-4">Failed to load project data</p>
           <p className="text-muted-foreground">{error.message}</p>
