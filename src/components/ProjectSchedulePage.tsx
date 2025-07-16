@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { ArrowLeft, ChevronDown, ChevronRight, Plus, Save, Edit2, Search, Download, Filter, CalendarIcon, Settings, MoreVertical, Trash, Eye, EyeOff, Lock, Unlock, BarChart3, FileText, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,47 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   });
   const [renamingColumn, setRenamingColumn] = useState<string | null>(null);
   const [newColumnName, setNewColumnName] = useState('');
+
+  // Refs for synchronized scrolling
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
+  const isScrollingRef = useRef(false);
+
+  // Synchronized scrolling effect
+  useEffect(() => {
+    const leftElement = leftScrollRef.current;
+    const rightElement = rightScrollRef.current;
+
+    if (!leftElement || !rightElement) return;
+
+    const syncScrollLeft = () => {
+      if (!isScrollingRef.current) {
+        isScrollingRef.current = true;
+        rightElement.scrollTop = leftElement.scrollTop;
+        setTimeout(() => {
+          isScrollingRef.current = false;
+        }, 0);
+      }
+    };
+
+    const syncScrollRight = () => {
+      if (!isScrollingRef.current) {
+        isScrollingRef.current = true;
+        leftElement.scrollTop = rightElement.scrollTop;
+        setTimeout(() => {
+          isScrollingRef.current = false;
+        }, 0);
+      }
+    };
+
+    leftElement.addEventListener('scroll', syncScrollLeft);
+    rightElement.addEventListener('scroll', syncScrollRight);
+
+    return () => {
+      leftElement.removeEventListener('scroll', syncScrollLeft);
+      rightElement.removeEventListener('scroll', syncScrollRight);
+    };
+  }, []);
 
   // Close context menu on click outside
   useEffect(() => {
@@ -814,6 +855,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         <div className="flex h-full">
           {/* Left Side - Data Table */}
           <div 
+            ref={leftScrollRef}
             className="border-r border-border overflow-auto" 
             style={{ width: `${leftWidth}%` }}
           >
@@ -1015,6 +1057,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
           {/* Right Side - Gantt Chart */}
           <div 
+            ref={rightScrollRef}
             className="overflow-auto" 
             style={{ width: `${100 - leftWidth}%` }}
           >
