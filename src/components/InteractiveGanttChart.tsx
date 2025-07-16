@@ -169,7 +169,7 @@ export const InteractiveGanttChart: React.FC<InteractiveGanttChartProps> = ({
       
       // Position nodes based on timeline
       const x = (startOffset / totalDays) * 800 + 50;
-      const y = index * 120 + 50;
+      const y = index * 160 + 50;
 
       nodes.push({
         id: task.id,
