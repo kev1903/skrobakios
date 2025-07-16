@@ -850,9 +850,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         </div>
         </div>
 
-        {/* Main Content - Split Layout - Extended to bottom of screen */}
-        <div className="flex-1 overflow-hidden bg-background schedule-container" style={{ height: 'calc(100vh - 140px)' }}>
-        <div className="flex h-full">
+        {/* Main Content - Split Layout - Extended to bottom of screen with no gaps */}
+        <div className="flex-1 bg-background schedule-container" style={{ height: 'calc(100vh - 120px)', minHeight: 'calc(100vh - 120px)' }}>
+        <div className="flex h-full min-h-full">
           {/* Left Side - Data Table */}
           <div 
             ref={leftScrollRef}
