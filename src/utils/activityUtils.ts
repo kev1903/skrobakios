@@ -9,6 +9,7 @@ export interface ActivityData {
   parent_id: string | null;
   level: number;
   is_expanded: boolean;
+  stage: string | null;
   created_at: string;
   updated_at: string;
   children?: ActivityData[];

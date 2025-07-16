@@ -70,7 +70,8 @@ export const BulkActivityImport = ({ projectId, companyId, onActivitiesCreated }
         company_id: companyId,
         parent_id: null,
         level: 0,
-        is_expanded: true
+        is_expanded: true,
+        stage: '4.0 PRELIMINARY'
       }));
 
       // Insert activities into database

@@ -70,6 +70,12 @@ const ActivityRow = ({
         </TableCell>
         
         <TableCell className="py-2">
+          <div className="text-sm font-medium">
+            {activity.stage || "4.0 PRELIMINARY"}
+          </div>
+        </TableCell>
+        
+        <TableCell className="py-2">
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
@@ -124,13 +130,14 @@ export const ActivitiesTable = ({
             <TableHead className="font-semibold py-3 w-24">ID</TableHead>
             <TableHead className="font-semibold py-3">Activity</TableHead>
             <TableHead className="font-semibold py-3">Description</TableHead>
+            <TableHead className="font-semibold py-3 w-32">Stage</TableHead>
             <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {activities.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
+              <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                 No activities yet. Create your first activity to get started.
               </TableCell>
             </TableRow>

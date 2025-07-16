@@ -46,7 +46,8 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
     start_date: '',
     end_date: '',
     cost_est: '',
-    parent_id: ''
+    parent_id: '',
+    stage: '4.0 PRELIMINARY'
   });
   const { toast } = useToast();
 
@@ -103,7 +104,8 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
           end_date: newActivity.end_date || null,
           cost_est: newActivity.cost_est ? parseFloat(newActivity.cost_est) : null,
           parent_id: newActivity.parent_id || null,
-          level: newActivity.parent_id ? parentLevel + 1 : 0
+          level: newActivity.parent_id ? parentLevel + 1 : 0,
+          stage: newActivity.stage || '4.0 PRELIMINARY'
         })
         .select()
         .single();
@@ -117,7 +119,8 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
         start_date: '',
         end_date: '',
         cost_est: '',
-        parent_id: ''
+        parent_id: '',
+        stage: '4.0 PRELIMINARY'
       });
       setIsCreateDialogOpen(false);
       
@@ -162,7 +165,8 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
       start_date: '',
       end_date: '',
       cost_est: '',
-      parent_id: parentId
+      parent_id: parentId,
+      stage: '4.0 PRELIMINARY'
     });
     setIsCreateDialogOpen(true);
   };
@@ -329,6 +333,24 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                               {activity.name}
                             </SelectItem>
                           ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="stage">Project Stage</Label>
+                      <Select value={newActivity.stage} onValueChange={(value) => setNewActivity({...newActivity, stage: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select project stage" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1.0 CONCEPT">1.0 CONCEPT</SelectItem>
+                          <SelectItem value="2.0 DESIGN DEVELOPMENT">2.0 DESIGN DEVELOPMENT</SelectItem>
+                          <SelectItem value="3.0 DETAILED DESIGN">3.0 DETAILED DESIGN</SelectItem>
+                          <SelectItem value="4.0 PRELIMINARY">4.0 PRELIMINARY</SelectItem>
+                          <SelectItem value="5.0 DOCUMENTATION">5.0 DOCUMENTATION</SelectItem>
+                          <SelectItem value="6.0 CONSTRUCTION">6.0 CONSTRUCTION</SelectItem>
+                          <SelectItem value="7.0 HANDOVER">7.0 HANDOVER</SelectItem>
+                          <SelectItem value="8.0 POST-CONSTRUCTION">8.0 POST-CONSTRUCTION</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

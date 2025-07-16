@@ -31,6 +31,7 @@ export type Database = {
           parent_id: string | null
           project_id: string | null
           quality_metrics: Json | null
+          stage: string | null
           start_date: string | null
           updated_at: string
         }
@@ -50,6 +51,7 @@ export type Database = {
           parent_id?: string | null
           project_id?: string | null
           quality_metrics?: Json | null
+          stage?: string | null
           start_date?: string | null
           updated_at?: string
         }
@@ -69,6 +71,7 @@ export type Database = {
           parent_id?: string | null
           project_id?: string | null
           quality_metrics?: Json | null
+          stage?: string | null
           start_date?: string | null
           updated_at?: string
         }
