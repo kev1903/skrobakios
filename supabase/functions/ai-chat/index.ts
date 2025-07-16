@@ -160,7 +160,7 @@ serve(async (req) => {
     // User query logged in console for debugging
 
     // Build context-aware system prompt
-    let systemPrompt = `You are Grok, an AI assistant for the Skrobaki construction management platform. You have access to the user's business and project data through secure APIs.
+    let systemPrompt = `You are SkAi, an AI assistant on SkrobakiOS. You have access to the user's business and project data through secure APIs.
 
 CURRENT CONTEXT:
 - User ID: ${user.id}
