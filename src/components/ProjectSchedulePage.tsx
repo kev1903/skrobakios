@@ -851,7 +851,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         </div>
 
         {/* Main Content - Split Layout - Full height with no gaps */}
-        <div className="flex-1 bg-background schedule-container h-full">
+        <div className="flex-1 schedule-container h-full">
         <div className="flex h-full min-h-full">
           {/* Left Side - Data Table */}
           <div 
