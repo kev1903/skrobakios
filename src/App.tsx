@@ -11,6 +11,7 @@ import { CompanyProvider } from "./contexts/CompanyContext";
 import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
 import { AppContextProvider } from "./contexts/AppContextProvider";
 import { PersistentAiChat } from "./components/PersistentAiChat";
+import { SkaiAgent } from "./components/SkaiAgent";
 
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";

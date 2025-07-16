@@ -1765,6 +1765,90 @@ export type Database = {
           },
         ]
       }
+      skai_action_log: {
+        Row: {
+          action_description: string
+          action_type: string
+          command_data: Json
+          company_id: string
+          created_at: string | null
+          error_message: string | null
+          execution_result: Json | null
+          execution_time_ms: number | null
+          id: string
+          project_id: string | null
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          command_data: Json
+          company_id: string
+          created_at?: string | null
+          error_message?: string | null
+          execution_result?: Json | null
+          execution_time_ms?: number | null
+          id?: string
+          project_id?: string | null
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          command_data?: Json
+          company_id?: string
+          created_at?: string | null
+          error_message?: string | null
+          execution_result?: Json | null
+          execution_time_ms?: number | null
+          id?: string
+          project_id?: string | null
+          success?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skai_memory: {
+        Row: {
+          action_history: Json | null
+          company_id: string
+          conversation_context: Json | null
+          created_at: string | null
+          id: string
+          learned_patterns: Json | null
+          project_id: string | null
+          updated_at: string | null
+          user_id: string
+          user_preferences: Json | null
+        }
+        Insert: {
+          action_history?: Json | null
+          company_id: string
+          conversation_context?: Json | null
+          created_at?: string | null
+          id?: string
+          learned_patterns?: Json | null
+          project_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          user_preferences?: Json | null
+        }
+        Update: {
+          action_history?: Json | null
+          company_id?: string
+          conversation_context?: Json | null
+          created_at?: string | null
+          id?: string
+          learned_patterns?: Json | null
+          project_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          user_preferences?: Json | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
