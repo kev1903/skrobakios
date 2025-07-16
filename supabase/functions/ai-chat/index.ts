@@ -34,6 +34,26 @@ const withRetry = async (fn: () => Promise<any>, retries = MAX_RETRIES): Promise
   }
 };
 
+// Function to broadcast real-time updates
+const broadcastUpdate = async (supabaseClient: any, table: string, operation: string, data: any) => {
+  try {
+    const channel = supabaseClient.channel(`ai_broadcast_${Date.now()}`);
+    await channel.send({
+      type: 'broadcast',
+      event: 'ai_update',
+      payload: {
+        table,
+        operation,
+        data,
+        timestamp: new Date().toISOString()
+      }
+    });
+    console.log(`Broadcasted ${operation} for ${table}:`, data);
+  } catch (error) {
+    console.error('Failed to broadcast update:', error);
+  }
+};
+
 // Function to execute AI commands
 const executeAiCommand = async (commandData: any, supabaseClient: any, projectId: string) => {
   const { command, data } = commandData;
@@ -43,23 +63,30 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
       case 'CREATE_TASK':
         // For sk_25008_design table (SK project)
         if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
-          const { error } = await supabaseClient
+          const taskData = {
+            task_name: data.task_name,
+            description: data.description,
+            task_type: data.task_type || 'Design',
+            status: data.status || 'pending',
+            start_date: data.start_date,
+            end_date: data.end_date,
+            duration_days: data.duration_days || 1,
+            progress_percentage: data.progress_percentage || 0
+          };
+
+          const { data: insertedData, error } = await supabaseClient
             .from('sk_25008_design')
-            .insert({
-              task_name: data.task_name,
-              description: data.description,
-              task_type: data.task_type || 'Design',
-              status: data.status || 'pending',
-              start_date: data.start_date,
-              end_date: data.end_date,
-              duration_days: data.duration_days || 1,
-              progress_percentage: data.progress_percentage || 0
-            });
+            .insert(taskData)
+            .select()
+            .single();
           
           if (error) {
             console.error('Error creating SK task:', error);
             return { success: false, error: error.message };
           }
+          
+          // Broadcast the update
+          await broadcastUpdate(supabaseClient, 'sk_25008_design', 'INSERT', insertedData);
           
           return { 
             success: true, 
@@ -67,25 +94,32 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           };
         } else {
           // For general tasks table
-          const { error } = await supabaseClient
+          const taskData = {
+            task_name: data.task_name,
+            description: data.description,
+            status: data.status || 'pending',
+            start_date: data.start_date,
+            end_date: data.end_date,
+            due_date: data.end_date || data.due_date,
+            duration: data.duration_days,
+            progress: data.progress_percentage || 0,
+            priority: data.priority || 'medium',
+            project_id: projectId
+          };
+
+          const { data: insertedData, error } = await supabaseClient
             .from('tasks')
-            .insert({
-              task_name: data.task_name,
-              description: data.description,
-              status: data.status || 'pending',
-              start_date: data.start_date,
-              end_date: data.end_date,
-              due_date: data.end_date || data.due_date,
-              duration: data.duration_days,
-              progress: data.progress_percentage || 0,
-              priority: data.priority || 'medium',
-              project_id: projectId
-            });
+            .insert(taskData)
+            .select()
+            .single();
           
           if (error) {
             console.error('Error creating general task:', error);
             return { success: false, error: error.message };
           }
+          
+          // Broadcast the update
+          await broadcastUpdate(supabaseClient, 'tasks', 'INSERT', insertedData);
           
           return { 
             success: true, 
@@ -108,15 +142,20 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           if (updates.duration_days) skUpdates.duration_days = updates.duration_days;
           if (updates.progress_percentage !== undefined) skUpdates.progress_percentage = updates.progress_percentage;
           
-          const { error } = await supabaseClient
+          const { data: updatedData, error } = await supabaseClient
             .from('sk_25008_design')
             .update(skUpdates)
-            .eq('id', id);
+            .eq('id', id)
+            .select()
+            .single();
           
           if (error) {
             console.error('Error updating SK task:', error);
             return { success: false, error: error.message };
           }
+          
+          // Broadcast the update
+          await broadcastUpdate(supabaseClient, 'sk_25008_design', 'UPDATE', updatedData);
           
           return { 
             success: true, 
@@ -124,15 +163,20 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           };
         } else {
           // Update general tasks table
-          const { error } = await supabaseClient
+          const { data: updatedData, error } = await supabaseClient
             .from('tasks')
             .update(updates)
-            .eq('id', id);
+            .eq('id', id)
+            .select()
+            .single();
           
           if (error) {
             console.error('Error updating general task:', error);
             return { success: false, error: error.message };
           }
+          
+          // Broadcast the update
+          await broadcastUpdate(supabaseClient, 'tasks', 'UPDATE', updatedData);
           
           return { 
             success: true, 
@@ -145,6 +189,13 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
         
         // Determine which table to delete from
         if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+          // First get the task data before deletion
+          const { data: taskToDelete } = await supabaseClient
+            .from('sk_25008_design')
+            .select('*')
+            .eq('id', taskId)
+            .single();
+
           const { error } = await supabaseClient
             .from('sk_25008_design')
             .delete()
@@ -155,11 +206,23 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
             return { success: false, error: error.message };
           }
           
+          // Broadcast the deletion
+          if (taskToDelete) {
+            await broadcastUpdate(supabaseClient, 'sk_25008_design', 'DELETE', { id: taskId, old: taskToDelete });
+          }
+          
           return { 
             success: true, 
             message: `Deleted SK design task successfully` 
           };
         } else {
+          // First get the task data before deletion
+          const { data: taskToDelete } = await supabaseClient
+            .from('tasks')
+            .select('*')
+            .eq('id', taskId)
+            .single();
+
           const { error } = await supabaseClient
             .from('tasks')
             .delete()
@@ -168,6 +231,11 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           if (error) {
             console.error('Error deleting general task:', error);
             return { success: false, error: error.message };
+          }
+          
+          // Broadcast the deletion
+          if (taskToDelete) {
+            await broadcastUpdate(supabaseClient, 'tasks', 'DELETE', { id: taskId, old: taskToDelete });
           }
           
           return { 

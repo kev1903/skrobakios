@@ -3,9 +3,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Clock, CheckCircle, AlertTriangle, Zap } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, AlertTriangle, Zap, Wifi, WifiOff, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 
 interface DatabaseTask {
   id: string;
@@ -30,42 +31,31 @@ export const TaskTimelineView = () => {
   const [tasks, setTasks] = useState<DatabaseTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [aiUpdating, setAiUpdating] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Get project ID from URL params
   const projectId = new URLSearchParams(window.location.search).get('projectId');
 
   // Real-time update handler
-  const handleRealtimeUpdate = useCallback((payload: any) => {
-    console.log('Real-time update received:', payload);
+  const handleRealtimeUpdate = useCallback((table: string, payload: any) => {
+    console.log('Timeline received real-time update:', { table, payload });
+    setSyncError(null); // Clear any sync errors
     
     if (payload.eventType === 'INSERT') {
       const newTask = transformTaskData(payload.new);
-      setTasks(prev => [...prev, newTask]);
-      
-      toast({
-        title: "New Task Added",
-        description: `Task "${newTask.task_name}" has been added`,
-        action: <Zap className="w-4 h-4" />
+      setTasks(prev => {
+        // Check if task already exists to prevent duplicates
+        if (prev.some(t => t.id === newTask.id)) return prev;
+        return [...prev, newTask];
       });
     } else if (payload.eventType === 'UPDATE') {
       const updatedTask = transformTaskData(payload.new);
       setTasks(prev => prev.map(task => task.id === updatedTask.id ? updatedTask : task));
-      
-      toast({
-        title: "Task Updated",
-        description: `Task "${updatedTask.task_name}" has been updated`,
-        action: <Zap className="w-4 h-4" />
-      });
     } else if (payload.eventType === 'DELETE') {
       setTasks(prev => prev.filter(task => task.id !== payload.old.id));
-      
-      toast({
-        title: "Task Deleted",
-        description: "A task has been removed from the timeline"
-      });
     }
-  }, [toast]);
+  }, []);
 
   // Transform task data to common format
   const transformTaskData = useCallback((task: any) => {
@@ -151,65 +141,23 @@ export const TaskTimelineView = () => {
     }
   }, [projectId, toast]);
 
+  // Determine which tables to sync based on project
+  const tablesToSync = projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')
+    ? ['sk_25008_design']
+    : ['tasks'];
+
+  // Set up real-time sync
+  const { syncStatus, forceResync, isConnected, isRetrying } = useRealtimeSync({
+    projectId,
+    tables: tablesToSync,
+    onUpdate: handleRealtimeUpdate,
+    retryCount: 5,
+    retryDelay: 2000
+  });
+
   useEffect(() => {
     fetchTasks();
-    
-    // Set up real-time subscriptions
-    let sk25008Channel: any = null;
-    let tasksChannel: any = null;
-    
-    if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
-      // Subscribe to sk_25008_design table changes
-      sk25008Channel = supabase
-        .channel(`sk_25008_design_changes_${projectId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'sk_25008_design'
-          },
-          (payload) => {
-            console.log('Timeline received SK real-time update:', payload);
-            handleRealtimeUpdate(payload);
-          }
-        )
-        .subscribe((status) => {
-          console.log('SK real-time subscription status:', status);
-        });
-    } else {
-      // Subscribe to general tasks table changes for this project
-      tasksChannel = supabase
-        .channel(`tasks_changes_${projectId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'tasks',
-            filter: `project_id=eq.${projectId}`
-          },
-          (payload) => {
-            console.log('Timeline received tasks real-time update:', payload);
-            handleRealtimeUpdate(payload);
-          }
-        )
-        .subscribe((status) => {
-          console.log('Tasks real-time subscription status:', status);
-        });
-    }
-
-    return () => {
-      if (sk25008Channel) {
-        console.log('Removing SK real-time subscription');
-        supabase.removeChannel(sk25008Channel);
-      }
-      if (tasksChannel) {
-        console.log('Removing tasks real-time subscription');
-        supabase.removeChannel(tasksChannel);
-      }
-    };
-  }, [projectId, handleRealtimeUpdate]);
+  }, [fetchTasks]);
 
   // Listen for AI updates via custom events
   useEffect(() => {
@@ -217,24 +165,17 @@ export const TaskTimelineView = () => {
       console.log('Timeline received AI update event:', event.detail);
       setAiUpdating(true);
       
-      // Force refetch after AI update
+      // Brief delay then clear updating state - real-time sync will handle updates
       setTimeout(() => {
-        console.log('Refetching tasks after AI update...');
-        fetchTasks();
         setAiUpdating(false);
-      }, 1000); // Wait 1 second then refetch
+      }, 2000);
     };
 
     const handleForceRefresh = (event: CustomEvent) => {
       console.log('Timeline received force refresh event:', event.detail);
       setAiUpdating(true);
-      
-      // Immediate refetch for force refresh
-      setTimeout(() => {
-        console.log('Force refetching tasks...');
-        fetchTasks();
-        setAiUpdating(false);
-      }, 100);
+      fetchTasks(); // Force immediate refetch
+      setTimeout(() => setAiUpdating(false), 1000);
     };
 
     window.addEventListener('ai-task-update' as any, handleAiUpdate);
@@ -344,12 +285,37 @@ export const TaskTimelineView = () => {
               <Calendar className="w-5 h-5" />
               <span>Project Timeline</span>
             </div>
-            {aiUpdating && (
-              <div className="flex items-center space-x-2 text-blue-400 animate-pulse">
-                <Zap className="w-4 h-4" />
-                <span className="text-sm">SkAi updating...</span>
+            <div className="flex items-center space-x-4">
+              {/* Sync Status Indicator */}
+              <div className="flex items-center space-x-2">
+                {isConnected ? (
+                  <div className="flex items-center space-x-1 text-green-400">
+                    <Wifi className="w-4 h-4" />
+                    <span className="text-xs">Live</span>
+                  </div>
+                ) : isRetrying ? (
+                  <div className="flex items-center space-x-1 text-yellow-400 animate-pulse">
+                    <RotateCcw className="w-4 h-4 animate-spin" />
+                    <span className="text-xs">Reconnecting...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1 text-red-400">
+                    <WifiOff className="w-4 h-4" />
+                    <span className="text-xs cursor-pointer" onClick={forceResync}>
+                      Offline (click to retry)
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
+              
+              {/* AI Update Indicator */}
+              {aiUpdating && (
+                <div className="flex items-center space-x-2 text-blue-400 animate-pulse">
+                  <Zap className="w-4 h-4" />
+                  <span className="text-sm">SkAi updating...</span>
+                </div>
+              )}
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
