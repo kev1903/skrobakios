@@ -6,7 +6,7 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
-import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
+import { GanttContainer } from "@/components/gantt/GanttContainer";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 
 import { GanttChartPage } from "@/components/GanttChartPage";
@@ -145,11 +145,7 @@ export const ContentRenderer = ({
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           {/* Check if this is the SK25008 project and render accordingly */}
-          {currentProject.project_id === 'SK_25008' || currentProject.id === 'sk-25008' || currentProject.name.includes('Riverview') ? (
-            <SK25008Dashboard projectId={currentProject.id} />
-          ) : (
-            <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
-          )}
+          <GanttContainer projectId={currentProject.id} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":
