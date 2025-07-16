@@ -8,13 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { pdfjs } from 'react-pdf';
 
-// Set up PDF.js worker - using a more reliable approach for Vite
-if (typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url
-  ).toString();
-}
+// Disable PDF.js worker to avoid loading issues - run in main thread instead
+pdfjs.GlobalWorkerOptions.workerSrc = null;
+pdfjs.GlobalWorkerOptions.workerPort = null;
 
 interface ChatBoxProps {
   onNavigate?: (page: string) => void;
