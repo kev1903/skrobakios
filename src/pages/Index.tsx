@@ -12,7 +12,7 @@ import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState("landing");
+  const [currentPage, setCurrentPage] = useState("home");
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
