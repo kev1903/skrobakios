@@ -25,7 +25,10 @@ export type Database = {
           duration: unknown | null
           end_date: string | null
           id: string
+          is_expanded: boolean | null
+          level: number | null
           name: string
+          parent_id: string | null
           project_id: string | null
           quality_metrics: Json | null
           start_date: string | null
@@ -41,7 +44,10 @@ export type Database = {
           duration?: unknown | null
           end_date?: string | null
           id?: string
+          is_expanded?: boolean | null
+          level?: number | null
           name: string
+          parent_id?: string | null
           project_id?: string | null
           quality_metrics?: Json | null
           start_date?: string | null
@@ -57,13 +63,23 @@ export type Database = {
           duration?: unknown | null
           end_date?: string | null
           id?: string
+          is_expanded?: boolean | null
+          level?: number | null
           name?: string
+          parent_id?: string | null
           project_id?: string | null
           quality_metrics?: Json | null
           start_date?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "activities_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "activities_project_id_fkey"
             columns: ["project_id"]

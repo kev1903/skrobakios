@@ -19,44 +19,48 @@ import {
   Calendar, 
   Clock, 
   DollarSign,
-  MoreHorizontal 
+  MoreHorizontal,
+  ChevronDown,
+  ChevronRight 
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { SkaiActivityAssistant } from '@/components/activities/SkaiActivityAssistant';
+import { ActivityData, buildActivityHierarchy } from '@/utils/activityUtils';
+import { ActivityCard } from '@/components/activities/ActivityCard';
 
 interface ProjectActivitiesPageProps {
   project: Project;
   onNavigate: (page: string) => void;
 }
 
-interface ActivityData {
-  id: string;
-  name: string;
-  description: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  cost_est: number | null;
-  cost_actual: number | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivitiesPageProps) => {
   const [activities, setActivities] = useState<ActivityData[]>([]);
+  const [hierarchicalActivities, setHierarchicalActivities] = useState<ActivityData[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [newActivity, setNewActivity] = useState({
     name: '',
     description: '',
     start_date: '',
     end_date: '',
-    cost_est: ''
+    cost_est: '',
+    parent_id: ''
   });
   const { toast } = useToast();
 
   useEffect(() => {
     loadActivities();
   }, [project.id]);
+
+  useEffect(() => {
+    if (activities.length > 0) {
+      const hierarchy = buildActivityHierarchy(activities);
+      setHierarchicalActivities(hierarchy);
+    } else {
+      setHierarchicalActivities([]);
+    }
+  }, [activities]);
 
   const loadActivities = async () => {
     try {
@@ -83,6 +87,10 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
 
   const createActivity = async () => {
     try {
+      const parentLevel = newActivity.parent_id 
+        ? activities.find(a => a.id === newActivity.parent_id)?.level || 0
+        : 0;
+
       const { data, error } = await supabase
         .from('activities')
         .insert({
@@ -92,7 +100,9 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
           company_id: project.company_id,
           start_date: newActivity.start_date || null,
           end_date: newActivity.end_date || null,
-          cost_est: newActivity.cost_est ? parseFloat(newActivity.cost_est) : null
+          cost_est: newActivity.cost_est ? parseFloat(newActivity.cost_est) : null,
+          parent_id: newActivity.parent_id || null,
+          level: newActivity.parent_id ? parentLevel + 1 : 0
         })
         .select()
         .single();
@@ -105,7 +115,8 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
         description: '',
         start_date: '',
         end_date: '',
-        cost_est: ''
+        cost_est: '',
+        parent_id: ''
       });
       setIsCreateDialogOpen(false);
       
@@ -121,6 +132,38 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
         variant: "destructive"
       });
     }
+  };
+
+  const toggleActivityExpansion = async (activityId: string) => {
+    const activity = activities.find(a => a.id === activityId);
+    if (!activity) return;
+
+    try {
+      const { error } = await supabase
+        .from('activities')
+        .update({ is_expanded: !activity.is_expanded })
+        .eq('id', activityId);
+
+      if (error) throw error;
+
+      setActivities(prev => 
+        prev.map(a => a.id === activityId ? { ...a, is_expanded: !a.is_expanded } : a)
+      );
+    } catch (error) {
+      console.error('Error updating activity:', error);
+    }
+  };
+
+  const handleCreateChild = (parentId: string) => {
+    setNewActivity({
+      name: '',
+      description: '',
+      start_date: '',
+      end_date: '',
+      cost_est: '',
+      parent_id: parentId
+    });
+    setIsCreateDialogOpen(true);
   };
 
   const deleteActivity = async (activityId: string) => {
@@ -267,6 +310,22 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                       </div>
                     </div>
                     <div>
+                      <Label htmlFor="parent_id">Parent Activity (Optional)</Label>
+                      <Select value={newActivity.parent_id} onValueChange={(value) => setNewActivity({...newActivity, parent_id: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select parent activity" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">None (Root Activity)</SelectItem>
+                          {activities.filter(a => a.level === 0).map((activity) => (
+                            <SelectItem key={activity.id} value={activity.id}>
+                              {activity.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <Label htmlFor="cost_est">Estimated Cost</Label>
                       <Input
                         id="cost_est"
@@ -293,7 +352,7 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
 
             {/* Activities List */}
             <div className="space-y-4">
-              {activities.length === 0 ? (
+              {hierarchicalActivities.length === 0 ? (
                 <Card>
                   <CardContent className="text-center py-12">
                     <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -308,57 +367,14 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                   </CardContent>
                 </Card>
               ) : (
-                activities.map((activity) => (
-                  <Card key={activity.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold mb-2">{activity.name}</h3>
-                          {activity.description && (
-                            <p className="text-muted-foreground mb-4">{activity.description}</p>
-                          )}
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {activity.start_date && (
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">
-                                  Start: {format(new Date(activity.start_date), 'MMM dd, yyyy')}
-                                </span>
-                              </div>
-                            )}
-                            {activity.end_date && (
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">
-                                  End: {format(new Date(activity.end_date), 'MMM dd, yyyy')}
-                                </span>
-                              </div>
-                            )}
-                            {activity.cost_est && (
-                              <div className="flex items-center gap-2">
-                                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">
-                                  Estimated: ${activity.cost_est.toLocaleString()}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteActivity(activity.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                hierarchicalActivities.map((activity) => (
+                  <ActivityCard
+                    key={activity.id}
+                    activity={activity}
+                    onDelete={deleteActivity}
+                    onToggleExpansion={toggleActivityExpansion}
+                    onCreateChild={handleCreateChild}
+                  />
                 ))
               )}
             </div>
