@@ -159,6 +159,7 @@ serve(async (req) => {
     // Fetch user's company and project data
     let userCompanies = [];
     let userProjects = [];
+    let userTasks = [];
     let userProfile = null;
     
     try {
@@ -190,6 +191,71 @@ serve(async (req) => {
           console.error('Error fetching projects:', projectsError);
         } else {
           userProjects = projects || [];
+        }
+      }
+      
+      // Get tasks for the current project or all user projects
+      const currentProjectId = context?.projectId;
+      if (currentProjectId) {
+        // Try to fetch from sk_25008_design table first for the current project
+        if (currentProjectId === '736d0991-6261-4884-8353-3522a7a98720' || currentProjectId?.toLowerCase().includes('sk')) {
+          const { data: sk25008Tasks, error: sk25008Error } = await supabaseClient
+            .from('sk_25008_design')
+            .select('*')
+            .order('start_date', { ascending: true });
+
+          if (!sk25008Error && sk25008Tasks && sk25008Tasks.length > 0) {
+            userTasks = sk25008Tasks.map((task: any) => ({
+              id: task.id,
+              task_name: task.task_name,
+              task_type: task.task_type,
+              status: task.status,
+              start_date: task.start_date,
+              end_date: task.end_date,
+              due_date: task.end_date,
+              duration: task.duration_days,
+              progress: task.progress_percentage,
+              progress_percentage: task.progress_percentage,
+              description: task.description,
+              priority: 'medium',
+              assigned_to_name: 'Project Team',
+              project_id: currentProjectId,
+              requirements: task.requirements,
+              compliance_notes: task.compliance_notes,
+              table_source: 'sk_25008_design'
+            }));
+          }
+        }
+        
+        // If no sk_25008_design tasks found, try general tasks table
+        if (userTasks.length === 0) {
+          const { data: generalTasks, error: generalError } = await supabaseClient
+            .from('tasks')
+            .select('*')
+            .eq('project_id', currentProjectId)
+            .order('due_date', { ascending: true });
+
+          if (!generalError && generalTasks) {
+            userTasks = generalTasks.map((task: any) => ({
+              ...task,
+              table_source: 'tasks'
+            }));
+          }
+        }
+      } else if (userProjects.length > 0) {
+        // Get tasks for all user projects
+        const projectIds = userProjects.map(p => p.id);
+        const { data: allTasks, error: tasksError } = await supabaseClient
+          .from('tasks')
+          .select('*')
+          .in('project_id', projectIds)
+          .order('due_date', { ascending: true });
+        
+        if (!tasksError && allTasks) {
+          userTasks = allTasks.map((task: any) => ({
+            ...task,
+            table_source: 'tasks'
+          }));
         }
       }
       
@@ -225,6 +291,19 @@ ${userCompanies.map(c => `- ${c.name} (Role: ${c.company_members[0]?.role})`).jo
 USER'S PROJECTS:
 ${userProjects.length > 0 ? userProjects.map(p => `- ${p.name} (${p.company_id}) - Status: ${p.status}, Priority: ${p.priority || 'Not set'}`).join('\n') : 'No projects found'}
 
+USER'S TASKS (for current project ${context?.projectId || 'all projects'}):
+${userTasks.length > 0 ? userTasks.map(t => {
+  const formatDate = (dateStr: string) => dateStr ? new Date(dateStr).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not set';
+  return `- **${t.task_name}** - Status: ${t.status}, Progress: ${t.progress || t.progress_percentage || 0}%
+    Type: ${t.task_type || 'General'}, Duration: ${t.duration || 'N/A'} days
+    Start: ${formatDate(t.start_date)}, End: ${formatDate(t.end_date || t.due_date)}
+    ${t.description ? `Description: ${t.description}` : ''}
+    ${t.requirements ? `Requirements: ${t.requirements}` : ''}
+    ${t.compliance_notes ? `Compliance: ${t.compliance_notes}` : ''}
+    Assigned to: ${t.assigned_to_name || 'Unassigned'}
+    Source: ${t.table_source}`;
+}).join('\n') : 'No tasks found'}
+
 CURRENT CONTEXT:
 - User ID: ${user.id}
 - Screen: ${context?.currentPage || 'Unknown'}
@@ -232,10 +311,10 @@ CURRENT CONTEXT:
 - Visible Data: ${JSON.stringify(context?.visibleData || {})}
 
 IMPORTANT SECURITY RULES:
-- ONLY discuss and reference the projects listed above that belong to this user
-- NEVER mention or reference projects from other companies or users
+- ONLY discuss and reference the projects and tasks listed above that belong to this user
+- NEVER mention or reference projects or tasks from other companies or users
 - All project data must be filtered to only include projects from companies where this user is a member
-- If asked about projects not in the list above, respond that no such projects exist for this user
+- If asked about projects or tasks not in the lists above, respond that no such items exist for this user
 
 CAPABILITIES:
 - View and analyze user's projects, tasks, schedules, and business data
@@ -246,9 +325,11 @@ CAPABILITIES:
 RESPONSE GUIDELINES:
 - Be concise and actionable
 - Reference current screen context when relevant
+- Use the EXACT task data shown above - do not make up or hallucinate tasks
+- When listing tasks, only mention the tasks from the USER'S TASKS section above
 - Ask for confirmation before making significant changes
 - Provide specific, construction-industry relevant advice
-- Only reference the projects and companies listed in the USER'S PROJECTS section above`;
+- Only reference the projects, companies, and tasks listed in the sections above`;
 
     const messages = [
       {
