@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, AlertTriangle, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,14 +29,134 @@ interface DatabaseTask {
 export const TaskTimelineView = () => {
   const [tasks, setTasks] = useState<DatabaseTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [aiUpdating, setAiUpdating] = useState(false);
   const { toast } = useToast();
 
   // Get project ID from URL params
   const projectId = new URLSearchParams(window.location.search).get('projectId');
 
+  // Real-time update handler
+  const handleRealtimeUpdate = useCallback((payload: any) => {
+    console.log('Real-time update received:', payload);
+    
+    if (payload.eventType === 'INSERT') {
+      const newTask = transformTaskData(payload.new);
+      setTasks(prev => [...prev, newTask]);
+      
+      toast({
+        title: "New Task Added",
+        description: `Task "${newTask.task_name}" has been added`,
+        action: <Zap className="w-4 h-4" />
+      });
+    } else if (payload.eventType === 'UPDATE') {
+      const updatedTask = transformTaskData(payload.new);
+      setTasks(prev => prev.map(task => task.id === updatedTask.id ? updatedTask : task));
+      
+      toast({
+        title: "Task Updated",
+        description: `Task "${updatedTask.task_name}" has been updated`,
+        action: <Zap className="w-4 h-4" />
+      });
+    } else if (payload.eventType === 'DELETE') {
+      setTasks(prev => prev.filter(task => task.id !== payload.old.id));
+      
+      toast({
+        title: "Task Deleted",
+        description: "A task has been removed from the timeline"
+      });
+    }
+  }, [toast]);
+
+  // Transform task data to common format
+  const transformTaskData = useCallback((task: any) => {
+    // Handle sk_25008_design table format
+    if (task.duration_days !== undefined) {
+      return {
+        id: task.id,
+        task_name: task.task_name,
+        task_type: task.task_type,
+        status: task.status,
+        start_date: task.start_date,
+        end_date: task.end_date,
+        due_date: task.end_date,
+        duration: task.duration_days,
+        progress: task.progress_percentage,
+        progress_percentage: task.progress_percentage,
+        description: task.description,
+        priority: 'medium',
+        assigned_to_name: 'Project Team',
+        project_id: projectId
+      };
+    }
+    
+    // Handle general tasks table format
+    return {
+      ...task,
+      project_id: projectId
+    };
+  }, [projectId]);
+
   useEffect(() => {
     fetchTasks();
-  }, [projectId]);
+    
+    // Set up real-time subscriptions
+    let sk25008Channel: any = null;
+    let tasksChannel: any = null;
+    
+    if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+      // Subscribe to sk_25008_design table changes
+      sk25008Channel = supabase
+        .channel('sk_25008_design_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'sk_25008_design'
+          },
+          handleRealtimeUpdate
+        )
+        .subscribe();
+    } else {
+      // Subscribe to general tasks table changes for this project
+      tasksChannel = supabase
+        .channel('tasks_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'tasks',
+            filter: `project_id=eq.${projectId}`
+          },
+          handleRealtimeUpdate
+        )
+        .subscribe();
+    }
+
+    return () => {
+      if (sk25008Channel) {
+        supabase.removeChannel(sk25008Channel);
+      }
+      if (tasksChannel) {
+        supabase.removeChannel(tasksChannel);
+      }
+    };
+  }, [projectId, handleRealtimeUpdate]);
+
+  // Listen for AI updates via custom events
+  useEffect(() => {
+    const handleAiUpdate = (event: CustomEvent) => {
+      setAiUpdating(true);
+      setTimeout(() => setAiUpdating(false), 2000); // Show AI indicator for 2 seconds
+    };
+
+    window.addEventListener('ai-task-update' as any, handleAiUpdate);
+    
+    return () => {
+      window.removeEventListener('ai-task-update' as any, handleAiUpdate);
+    };
+  }, []);
 
   const fetchTasks = async () => {
     try {
