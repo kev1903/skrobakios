@@ -16,6 +16,12 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   timestamp: Date;
 }
+
+interface UserProfile {
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+}
 interface ContextData {
   currentPage: string;
   projectId?: string;
@@ -36,6 +42,7 @@ export function AiChatSidebar({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -81,25 +88,57 @@ export function AiChatSidebar({
     scrollToBottom();
   }, [messages]);
 
-  // Clear messages when authentication state changes
+  // Fetch user profile when authenticated
   useEffect(() => {
-    if (!isAuthenticated && messages.length > 0) {
-      setMessages([]);
+    const fetchUserProfile = async () => {
+      if (isAuthenticated && user) {
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, email')
+            .eq('user_id', user.id)
+            .single();
+
+          if (error) {
+            console.error('Error fetching user profile:', error);
+            return;
+          }
+
+          setUserProfile(profile);
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      } else {
+        setUserProfile(null);
+      }
+    };
+
+    fetchUserProfile();
+  }, [isAuthenticated, user]);
+
+  // Don't clear messages when authentication state changes - keep continuous
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUserProfile(null);
     }
   }, [isAuthenticated]);
 
-  // Add welcome message for authenticated users
+  // Add welcome message for authenticated users (only when first time or no messages)
   useEffect(() => {
     if (isAuthenticated && user && messages.length === 0) {
+      const userName = userProfile?.first_name && userProfile?.last_name 
+        ? `${userProfile.first_name} ${userProfile.last_name}`
+        : user.email;
+      
       const welcomeMessage: ChatMessage = {
         id: 'welcome',
-        content: `Welcome back, ${user.email}! I'm Grok, your AI assistant. How can I help you with your construction projects today?`,
+        content: `Welcome back, ${userName}! I'm Skai, your AI assistant. How can I help you with your construction projects today?`,
         role: 'assistant',
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, userProfile]);
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
     const userMessage: ChatMessage = {
@@ -166,8 +205,7 @@ export function AiChatSidebar({
         if (error.message.includes('Authentication required') || error.message.includes('Please log in')) {
           setAuthError("Please log in to use the AI chat");
           errorMessage = "Please log in to use the AI chat";
-          // Clear messages on auth error
-          setMessages([]);
+          // Keep messages for continuous chat - don't clear them
         } else if (error.message.includes('AI service temporarily unavailable')) {
           errorMessage = "AI service is temporarily unavailable. Please try again in a moment.";
         } else if (error.message.includes('AI service is not configured')) {
@@ -283,7 +321,9 @@ export function AiChatSidebar({
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-xs text-muted-foreground">
-                      Signed in as {user.email}
+                      Signed in as {userProfile?.first_name && userProfile?.last_name 
+                        ? `${userProfile.first_name} ${userProfile.last_name}` 
+                        : user.email}
                     </span>
                   </div>
                 </div>}
