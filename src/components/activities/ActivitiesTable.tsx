@@ -39,6 +39,12 @@ const ActivityRow = ({
           </div>
         </TableCell>
         
+        <TableCell className="py-2">
+          <div className="text-sm font-medium">
+            {activity.stage || "4.0 PRELIMINARY"}
+          </div>
+        </TableCell>
+        
         <TableCell className="py-2" style={{ paddingLeft: `${paddingLeft + 16}px` }}>
           <div className="flex items-center gap-2">
             {hasChildren && (
@@ -66,12 +72,6 @@ const ActivityRow = ({
         <TableCell className="py-2">
           <div className="text-sm text-muted-foreground max-w-xs truncate">
             {activity.description || "-"}
-          </div>
-        </TableCell>
-        
-        <TableCell className="py-2">
-          <div className="text-sm font-medium">
-            {activity.stage || "4.0 PRELIMINARY"}
           </div>
         </TableCell>
         
@@ -128,9 +128,9 @@ export const ActivitiesTable = ({
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold py-3 w-24">ID</TableHead>
+            <TableHead className="font-semibold py-3 w-32">Stage</TableHead>
             <TableHead className="font-semibold py-3">Activity</TableHead>
             <TableHead className="font-semibold py-3">Description</TableHead>
-            <TableHead className="font-semibold py-3 w-32">Stage</TableHead>
             <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
           </TableRow>
         </TableHeader>
