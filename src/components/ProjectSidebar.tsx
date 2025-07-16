@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -33,6 +33,12 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Tasks',
   icon: CheckSquare,
   page: 'project-tasks'
+}, {
+  id: 'activities',
+  key: 'activities',
+  label: 'Activities',
+  icon: Activity,
+  page: 'project-activities'
 }];
 
 export const ProjectSidebar = ({
