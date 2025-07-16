@@ -42,7 +42,7 @@ import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
 import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
 import { usePlatformAuth } from "@/contexts/PlatformAuthContext";
-import { ProjectDashboard } from "@/components/projects/ProjectDashboard";
+
 import { TaskManagement } from "@/components/projects/TaskManagement";
 import { Project } from "@/hooks/useProjects";
 import { BusinessManagementPage } from "@/components/BusinessManagementPage";
@@ -318,7 +318,9 @@ export const ContentRenderer = ({
         </RoleProtectedRoute>
       );
     case "project-dashboard":
-      return <ProjectDashboard onNavigate={onNavigate} />;
+      // Redirect to projects list instead
+      onNavigate("projects");
+      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "portfolio-manage":
       return <PortfolioManagePage onNavigate={onNavigate} />;
     case "user-profile":
