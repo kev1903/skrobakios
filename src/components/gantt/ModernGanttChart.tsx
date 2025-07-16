@@ -16,8 +16,10 @@ import {
   Edit,
   Plus,
   Trash2,
-  ArrowLeft
+  ArrowLeft,
+  GripVertical
 } from 'lucide-react';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useProjects } from '@/hooks/useProjects';
@@ -281,213 +283,224 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
         </div>
         
         {/* Main Content */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Task Table */}
-          <div className="w-96 border-r border-border bg-card flex flex-col">
-            <div className="p-3 border-b border-border">
-              <h3 className="font-medium">Tasks</h3>
-            </div>
-            
-            <div className="flex-1 overflow-auto">
-              {tasks.map((task, index) => (
-                <div
-                  key={task.id}
-                  className={cn(
-                    "border-b border-border p-3 hover:bg-muted/50 transition-colors",
-                    index % 2 === 0 ? "bg-background" : "bg-muted/20"
-                  )}
-                  style={{ height: rowHeight }}
-                >
-                  {editingTask === task.id ? (
-                    <div className="space-y-2">
-                      <Input
-                        value={editValues[task.id]?.task_name || task.task_name}
-                        onChange={(e) => updateEditValue(task.id, 'task_name', e.target.value)}
-                        className="h-6 text-sm"
-                      />
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="outline" onClick={() => saveTask(task.id)}>
-                          <Save className="w-3 h-3" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={cancelEditing}>
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{task.task_name}</h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge 
-                            variant="secondary" 
-                            className="text-xs"
-                            style={{ backgroundColor: getTaskStatusColor(task.status) + '20' }}
-                          >
-                            {task.status}
-                          </Badge>
-                          {task.is_critical_path && (
-                            <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
-                              Critical
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="mt-1">
-                          <Progress value={task.progress} className="h-1" />
-                          <span className="text-xs text-muted-foreground">{task.progress}%</span>
-                        </div>
-                      </div>
-                      
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => startEditing(task.id, task)}
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  )}
+        <div className="flex-1 overflow-hidden">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
+            {/* Task Table Panel */}
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+              <div className="h-full border-r border-border bg-card flex flex-col">
+                <div className="p-3 border-b border-border">
+                  <h3 className="font-medium">Tasks</h3>
                 </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Chart Area */}
-          <div className="flex-1 flex flex-col overflow-hidden bg-background">
-            {/* Timeline Header */}
-            <div className="h-16 border-b border-border bg-card overflow-hidden">
-              <div
-                ref={chartScrollRef}
-                className="h-full overflow-x-auto overflow-y-hidden"
-                onScroll={(e) => handleScroll('chart', e.currentTarget.scrollLeft)}
-              >
-                <div style={{ width: chartWidth, minWidth: '100%' }}>
-                  {/* Month headers */}
-                  <div className="h-8 flex border-b border-border">
-                    {timelineHeaders.reduce((months: any[], header, index) => {
-                      const monthKey = `${header.date.getFullYear()}-${header.date.getMonth()}`;
-                      const existingMonth = months.find(m => m.key === monthKey);
-                      
-                      if (!existingMonth) {
-                        months.push({
-                          key: monthKey,
-                          label: format(header.date, 'MMM yyyy'),
-                          startIndex: index,
-                          count: 1,
-                        });
-                      } else {
-                        existingMonth.count++;
-                      }
-                      
-                      return months;
-                    }, []).map(month => (
-                      <div
-                        key={month.key}
-                        className="flex items-center justify-center text-sm font-medium border-r border-border last:border-r-0 bg-muted/50"
-                        style={{ width: month.count * dayWidth }}
-                      >
-                        {month.label}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Day headers */}
-                  <div className="h-8 flex">
-                    {timelineHeaders.map((header, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          "flex items-center justify-center text-xs border-r border-border last:border-r-0",
-                          header.isWeekend ? 'bg-muted text-muted-foreground' : 'bg-background'
-                        )}
-                        style={{ width: dayWidth }}
-                      >
-                        {header.day}
-                      </div>
-                    ))}
-                  </div>
+                
+                <div className="flex-1 overflow-auto">
+                  {tasks.map((task, index) => (
+                    <div
+                      key={task.id}
+                      className={cn(
+                        "border-b border-border p-3 hover:bg-muted/50 transition-colors",
+                        index % 2 === 0 ? "bg-background" : "bg-muted/20"
+                      )}
+                      style={{ height: rowHeight }}
+                    >
+                      {editingTask === task.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={editValues[task.id]?.task_name || task.task_name}
+                            onChange={(e) => updateEditValue(task.id, 'task_name', e.target.value)}
+                            className="h-6 text-sm"
+                          />
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="outline" onClick={() => saveTask(task.id)}>
+                              <Save className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={cancelEditing}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm truncate">{task.task_name}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge 
+                                variant="secondary" 
+                                className="text-xs"
+                                style={{ backgroundColor: getTaskStatusColor(task.status) + '20' }}
+                              >
+                                {task.status}
+                              </Badge>
+                              {task.is_critical_path && (
+                                <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
+                                  Critical
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="mt-1">
+                              <Progress value={task.progress} className="h-1" />
+                              <span className="text-xs text-muted-foreground">{task.progress}%</span>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEditing(task.id, task)}
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            </ResizablePanel>
             
-            {/* Chart Content */}
-            <div className="flex-1 overflow-auto">
-              <div
-                ref={tableScrollRef}
-                className="overflow-x-auto overflow-y-hidden"
-                onScroll={(e) => handleScroll('table', e.currentTarget.scrollLeft)}
-              >
-                <div style={{ width: chartWidth, minWidth: '100%' }}>
-                  {tasks.map((task, index) => {
-                    const position = getTaskPosition(task);
-                    
-                    return (
-                      <div
-                        key={task.id}
-                        className={cn(
-                          "relative border-b border-border hover:bg-muted/20 transition-colors",
-                          index % 2 === 0 ? "bg-background" : "bg-muted/10"
-                        )}
-                        style={{ height: rowHeight }}
-                      >
-                        {/* Grid background */}
-                        <div className="absolute inset-0 flex">
-                          {timelineHeaders.map((header, dayIndex) => (
-                            <div
-                              key={dayIndex}
-                              className={cn(
-                                "border-r border-border/50 last:border-r-0",
-                                header.isWeekend ? 'bg-muted/30' : ''
-                              )}
-                              style={{ width: dayWidth }}
-                            />
-                          ))}
-                        </div>
-                        
-                        {/* Task bar */}
-                        {position && (
+            {/* Resizable Handle */}
+            <ResizableHandle className="w-2 bg-border hover:bg-primary/20 transition-colors flex items-center justify-center group">
+              <GripVertical className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
+            </ResizableHandle>
+            
+            {/* Chart Area Panel */}
+            <ResizablePanel defaultSize={70} minSize={50}>
+              <div className="h-full flex flex-col overflow-hidden bg-background">
+                {/* Timeline Header */}
+                <div className="h-16 border-b border-border bg-card overflow-hidden">
+                  <div
+                    ref={chartScrollRef}
+                    className="h-full overflow-x-auto overflow-y-hidden"
+                    onScroll={(e) => handleScroll('chart', e.currentTarget.scrollLeft)}
+                  >
+                    <div style={{ width: chartWidth, minWidth: '100%' }}>
+                      {/* Month headers */}
+                      <div className="h-8 flex border-b border-border">
+                        {timelineHeaders.reduce((months: any[], header, index) => {
+                          const monthKey = `${header.date.getFullYear()}-${header.date.getMonth()}`;
+                          const existingMonth = months.find(m => m.key === monthKey);
+                          
+                          if (!existingMonth) {
+                            months.push({
+                              key: monthKey,
+                              label: format(header.date, 'MMM yyyy'),
+                              startIndex: index,
+                              count: 1,
+                            });
+                          } else {
+                            existingMonth.count++;
+                          }
+                          
+                          return months;
+                        }, []).map(month => (
                           <div
-                            className="absolute top-2 bottom-2 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-                            style={{
-                              left: position.left,
-                              width: position.width,
-                              backgroundColor: getTaskStatusColor(task.status),
-                              minWidth: '20px',
-                            }}
+                            key={month.key}
+                            className="flex items-center justify-center text-sm font-medium border-r border-border last:border-r-0 bg-muted/50"
+                            style={{ width: month.count * dayWidth }}
                           >
-                            {/* Progress overlay */}
-                            <div
-                              className="absolute inset-0 bg-white/20 rounded-md"
-                              style={{ width: `${task.progress}%` }}
-                            />
-                            
-                            {/* Task content */}
-                            <div className="absolute inset-0 flex items-center px-2 text-white text-xs font-medium">
-                              <span className="truncate">
-                                {task.task_name}
-                              </span>
+                            {month.label}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Day headers */}
+                      <div className="h-8 flex">
+                        {timelineHeaders.map((header, index) => (
+                          <div
+                            key={index}
+                            className={cn(
+                              "flex items-center justify-center text-xs border-r border-border last:border-r-0",
+                              header.isWeekend ? 'bg-muted text-muted-foreground' : 'bg-background'
+                            )}
+                            style={{ width: dayWidth }}
+                          >
+                            {header.day}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Chart Content */}
+                <div className="flex-1 overflow-auto">
+                  <div
+                    ref={tableScrollRef}
+                    className="overflow-x-auto overflow-y-hidden"
+                    onScroll={(e) => handleScroll('table', e.currentTarget.scrollLeft)}
+                  >
+                    <div style={{ width: chartWidth, minWidth: '100%' }}>
+                      {tasks.map((task, index) => {
+                        const position = getTaskPosition(task);
+                        
+                        return (
+                          <div
+                            key={task.id}
+                            className={cn(
+                              "relative border-b border-border hover:bg-muted/20 transition-colors",
+                              index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                            )}
+                            style={{ height: rowHeight }}
+                          >
+                            {/* Grid background */}
+                            <div className="absolute inset-0 flex">
+                              {timelineHeaders.map((header, dayIndex) => (
+                                <div
+                                  key={dayIndex}
+                                  className={cn(
+                                    "border-r border-border/50 last:border-r-0",
+                                    header.isWeekend ? 'bg-muted/30' : ''
+                                  )}
+                                  style={{ width: dayWidth }}
+                                />
+                              ))}
                             </div>
                             
-                            {/* Resize handles */}
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-w-resize" />
-                            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-e-resize" />
+                            {/* Task bar */}
+                            {position && (
+                              <div
+                                className="absolute top-2 bottom-2 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                                style={{
+                                  left: position.left,
+                                  width: position.width,
+                                  backgroundColor: getTaskStatusColor(task.status),
+                                  minWidth: '20px',
+                                }}
+                              >
+                                {/* Progress overlay */}
+                                <div
+                                  className="absolute inset-0 bg-white/20 rounded-md"
+                                  style={{ width: `${task.progress}%` }}
+                                />
+                                
+                                {/* Task content */}
+                                <div className="absolute inset-0 flex items-center px-2 text-white text-xs font-medium">
+                                  <span className="truncate">
+                                    {task.task_name}
+                                  </span>
+                                </div>
+                                
+                                {/* Resize handles */}
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-w-resize" />
+                                <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-e-resize" />
+                              </div>
+                            )}
+                            
+                            {/* Milestone indicator */}
+                            {task.is_milestone && position && (
+                              <div
+                                className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-amber-500 rotate-45 border border-white shadow-sm"
+                                style={{ left: position.left + position.width - 6 }}
+                              />
+                            )}
                           </div>
-                        )}
-                        
-                        {/* Milestone indicator */}
-                        {task.is_milestone && position && (
-                          <div
-                            className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-amber-500 rotate-45 border border-white shadow-sm"
-                            style={{ left: position.left + position.width - 6 }}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
         
         {/* Status Bar */}
