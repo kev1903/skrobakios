@@ -343,14 +343,15 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                           <SelectValue placeholder="Select project stage" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1.0 CONCEPT">1.0 CONCEPT</SelectItem>
-                          <SelectItem value="2.0 DESIGN DEVELOPMENT">2.0 DESIGN DEVELOPMENT</SelectItem>
-                          <SelectItem value="3.0 DETAILED DESIGN">3.0 DETAILED DESIGN</SelectItem>
                           <SelectItem value="4.0 PRELIMINARY">4.0 PRELIMINARY</SelectItem>
-                          <SelectItem value="5.0 DOCUMENTATION">5.0 DOCUMENTATION</SelectItem>
-                          <SelectItem value="6.0 CONSTRUCTION">6.0 CONSTRUCTION</SelectItem>
-                          <SelectItem value="7.0 HANDOVER">7.0 HANDOVER</SelectItem>
-                          <SelectItem value="8.0 POST-CONSTRUCTION">8.0 POST-CONSTRUCTION</SelectItem>
+                          <SelectItem value="4.1 PRE-CONSTRUCTION">4.1 PRE-CONSTRUCTION</SelectItem>
+                          <SelectItem value="5.1 BASE STAGE">5.1 BASE STAGE</SelectItem>
+                          <SelectItem value="5.2 FRAME STAGE">5.2 FRAME STAGE</SelectItem>
+                          <SelectItem value="5.3 LOCKUP STAGE">5.3 LOCKUP STAGE</SelectItem>
+                          <SelectItem value="5.4 FIXING STAGE">5.4 FIXING STAGE</SelectItem>
+                          <SelectItem value="5.5 FINALS">5.5 FINALS</SelectItem>
+                          <SelectItem value="5.6 LANDSCAPING">5.6 LANDSCAPING</SelectItem>
+                          <SelectItem value="6.0 HANDOVER & CLOSEOUT">6.0 HANDOVER & CLOSEOUT</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
