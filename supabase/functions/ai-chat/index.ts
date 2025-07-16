@@ -258,12 +258,13 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           // First get all tasks before deletion for broadcasting
           const { data: tasksToDelete } = await supabaseClient
             .from('sk_25008_design')
-            .select('*');
+            .select('*')
+            .eq('company_id', '4042458b-8e95-4842-90d9-29f43815ecf8'); // Filter by company
 
           const { error } = await supabaseClient
             .from('sk_25008_design')
             .delete()
-            .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+            .eq('company_id', '4042458b-8e95-4842-90d9-29f43815ecf8'); // Filter by company for deletion
           
           if (error) {
             console.error('Error deleting all SK tasks:', error);
@@ -277,7 +278,7 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
             }
           }
           
-          return { 
+          return {
             success: true, 
             message: `Deleted all ${tasksToDelete?.length || 0} tasks from project` 
           };
