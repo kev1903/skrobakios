@@ -7,6 +7,7 @@ import { Calendar, Clock, CheckCircle, AlertTriangle, Zap, Wifi, WifiOff, Rotate
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { SyncStatusIndicator } from '@/components/ui/sync-status-indicator';
 
 interface DatabaseTask {
   id: string;
@@ -287,26 +288,12 @@ export const TaskTimelineView = () => {
             </div>
             <div className="flex items-center space-x-4">
               {/* Sync Status Indicator */}
-              <div className="flex items-center space-x-2">
-                {isConnected ? (
-                  <div className="flex items-center space-x-1 text-green-400">
-                    <Wifi className="w-4 h-4" />
-                    <span className="text-xs">Live</span>
-                  </div>
-                ) : isRetrying ? (
-                  <div className="flex items-center space-x-1 text-yellow-400 animate-pulse">
-                    <RotateCcw className="w-4 h-4 animate-spin" />
-                    <span className="text-xs">Reconnecting...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-1 text-red-400">
-                    <WifiOff className="w-4 h-4" />
-                    <span className="text-xs cursor-pointer" onClick={forceResync}>
-                      Offline (click to retry)
-                    </span>
-                  </div>
-                )}
-              </div>
+              <SyncStatusIndicator
+                isConnected={isConnected}
+                isRetrying={isRetrying}
+                onRetry={forceResync}
+                variant="default"
+              />
               
               {/* AI Update Indicator */}
               {aiUpdating && (
