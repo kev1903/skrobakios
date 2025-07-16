@@ -243,6 +243,7 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
             message: `Deleted task successfully` 
           };
         }
+        break;
         
       case 'DELETE_ALL_TASKS':
         // Determine which table to delete from based on project
