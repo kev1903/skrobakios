@@ -240,7 +240,7 @@ export function PersistentAiChat() {
   // Chat bubble component
   if (!isOpen && !isMinimized) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-[100]">
         <Button
           onClick={() => setIsOpen(true)}
           className={`relative h-14 w-14 rounded-full shadow-lg transition-all duration-200 hover:scale-110 ${
@@ -261,7 +261,7 @@ export function PersistentAiChat() {
   }
 
   return (
-    <Card className={`fixed bottom-6 right-6 z-50 shadow-elegant transition-all duration-300 ${
+    <Card className={`fixed bottom-6 right-6 z-[100] shadow-elegant transition-all duration-300 ${
       isMinimized 
         ? 'w-80 h-14' 
         : 'w-96 h-[500px]'
