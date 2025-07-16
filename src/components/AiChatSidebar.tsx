@@ -10,46 +10,51 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AiChatAuth } from './AiChatAuth';
 import { cn } from '@/lib/utils';
-
 interface ChatMessage {
   id: string;
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
 }
-
 interface ContextData {
   currentPage: string;
   projectId?: string;
   visibleData?: any;
   userLocation?: string;
 }
-
 interface AiChatSidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   onNavigate?: (page: string) => void;
 }
-
-export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiChatSidebarProps) {
+export function AiChatSidebar({
+  isCollapsed,
+  onToggleCollapse,
+  onNavigate
+}: AiChatSidebarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const location = useLocation();
-  const { user, session, loading, isAuthenticated } = useAuth();
+  const {
+    user,
+    session,
+    loading,
+    isAuthenticated
+  } = useAuth();
 
   // Get context from current route and screen
   const getScreenContext = (): ContextData => {
     const urlParams = new URLSearchParams(location.search);
     const currentPage = urlParams.get('page') || location.pathname;
     const projectId = urlParams.get('projectId');
-    
     const visibleData: any = {};
-    
     if (currentPage?.includes('project-detail') && projectId) {
       visibleData.projectFocus = projectId;
       visibleData.screenType = 'project_dashboard';
@@ -60,7 +65,6 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
     } else if (currentPage?.includes('dashboard')) {
       visibleData.screenType = 'main_dashboard';
     }
-
     return {
       currentPage: currentPage || 'unknown',
       projectId: projectId || undefined,
@@ -68,11 +72,11 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
       userLocation: location.pathname + location.search
     };
   };
-
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -96,45 +100,40 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
       setMessages([welcomeMessage]);
     }
   }, [isAuthenticated, user]);
-
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
-
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content: input,
       role: 'user',
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     const currentInput = input;
     setInput('');
     setIsLoading(true);
     setAuthError(null);
-
     try {
       // Double-check authentication state before making API call
       if (!isAuthenticated || !session) {
         throw new Error('Authentication required');
       }
-
       const context = getScreenContext();
       const conversation = messages.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
-
       console.log('Sending AI chat request with session:', session.user.email);
-
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: currentInput,
           conversation,
           context
         }
       });
-
       if (error) {
         console.error('Edge function error:', error);
         // Check if it's an HTTP error with status code
@@ -143,7 +142,6 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
         }
         throw new Error(error.message || 'Failed to get AI response');
       }
-
       if (data?.error) {
         console.error('Edge function returned error:', data);
         if (data.error === 'Authentication required' || data.error.includes('Authentication')) {
@@ -151,27 +149,21 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
         }
         throw new Error(data.details || data.error);
       }
-
       if (!data.response || typeof data.response !== 'string') {
         throw new Error('Invalid response format from AI service');
       }
-
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: data.response,
         role: 'assistant',
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, aiMessage]);
-
     } catch (error) {
       console.error('Error sending message:', error);
-      
       let errorMessage = "Failed to send message";
       if (error instanceof Error) {
-        if (error.message.includes('Authentication required') || 
-            error.message.includes('Please log in')) {
+        if (error.message.includes('Authentication required') || error.message.includes('Please log in')) {
           setAuthError("Please log in to use the AI chat");
           errorMessage = "Please log in to use the AI chat";
           // Clear messages on auth error
@@ -184,81 +176,67 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
           errorMessage = error.message;
         }
       }
-      
       toast({
         title: "AI Chat Error",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `chat-uploads/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('task-attachments')
-        .upload(filePath, file);
-
+      const {
+        error: uploadError
+      } = await supabase.storage.from('task-attachments').upload(filePath, file);
       if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('task-attachments')
-        .getPublicUrl(filePath);
-
+      const {
+        data: {
+          publicUrl
+        }
+      } = supabase.storage.from('task-attachments').getPublicUrl(filePath);
       const fileMessage: ChatMessage = {
         id: Date.now().toString(),
         content: `I've uploaded a file: [${file.name}](${publicUrl}). Please analyze this file and help me with any questions about it.`,
         role: 'user',
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, fileMessage]);
-      
       setInput(`Please analyze the uploaded file: ${file.name}`);
       setTimeout(() => sendMessage(), 100);
-
       toast({
         title: "File uploaded",
-        description: `${file.name} has been uploaded successfully`,
+        description: `${file.name} has been uploaded successfully`
       });
-
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
         title: "Upload failed",
         description: "Failed to upload file",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
-
     event.target.value = '';
   };
-
   const formatTime = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return timestamp.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
-
-  return (
-    <div className={cn(
-      "fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
-      isCollapsed ? "w-16" : "w-96"
-    )}>
+  return <div className={cn("fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2 overflow-hidden">
@@ -268,103 +246,65 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
               <Bot className="h-4 w-4" />
             </AvatarFallback>
           </Avatar>
-          {!isCollapsed && (
-            <div className="min-w-0">
-              <h3 className="font-semibold text-sm truncate">Skai AI Assistant</h3>
+          {!isCollapsed && <div className="min-w-0">
+              <h3 className="font-semibold text-sm truncate">SkAi</h3>
               <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
-            </div>
-          )}
+            </div>}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onToggleCollapse}
-          className="h-8 w-8 p-0 flex-shrink-0"
-        >
+        <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-8 w-8 p-0 flex-shrink-0">
           {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
       </div>
 
       {/* Collapsed state */}
-      {isCollapsed && (
-        <div className="flex-1 flex flex-col items-center pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCollapse}
-            className="h-12 w-12 p-0 mb-4"
-          >
+      {isCollapsed && <div className="flex-1 flex flex-col items-center pt-4">
+          <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-12 w-12 p-0 mb-4">
             <MessageCircle className="h-6 w-6" />
           </Button>
-        </div>
-      )}
+        </div>}
 
       {/* Expanded state */}
-      {!isCollapsed && (
-        <>
+      {!isCollapsed && <>
           {/* Show auth component if not authenticated */}
-          {!isAuthenticated && !loading && (
-            <AiChatAuth 
-              onNavigateToAuth={() => onNavigate?.('auth')} 
-            />
-          )}
+          {!isAuthenticated && !loading && <AiChatAuth onNavigateToAuth={() => onNavigate?.('auth')} />}
 
           {/* Show loading state */}
-          {loading && (
-            <div className="flex-1 flex items-center justify-center">
+          {loading && <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
                 <p className="text-sm text-muted-foreground">Loading...</p>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Show chat interface if authenticated */}
-          {isAuthenticated && !loading && (
-            <>
+          {isAuthenticated && !loading && <>
               {/* Authentication status indicator */}
-              {user && (
-                <div className="px-4 py-2 border-b border-border bg-muted/50">
+              {user && <div className="px-4 py-2 border-b border-border bg-muted/50">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-xs text-muted-foreground">
                       Signed in as {user.email}
                     </span>
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 && (
-                  <div className="text-center text-muted-foreground py-8">
+                {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
                     <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
                     <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
-                  </div>
-                )}
+                  </div>}
                 
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {message.role === 'assistant' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarFallback>
                           <Bot className="h-4 w-4" />
                         </AvatarFallback>
-                      </Avatar>
-                    )}
+                      </Avatar>}
                     
                     <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
-                      <div
-                        className={`rounded-lg p-3 text-sm ${
-                          message.role === 'user'
-                            ? 'bg-primary text-primary-foreground ml-auto'
-                            : 'bg-muted'
-                        }`}
-                      >
+                      <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
                         {message.content}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 px-1">
@@ -372,18 +312,14 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
                       </p>
                     </div>
 
-                    {message.role === 'user' && (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
+                    {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
-                      </Avatar>
-                    )}
-                  </div>
-                ))}
+                      </Avatar>}
+                  </div>)}
                 
-                {isLoading && (
-                  <div className="flex gap-3">
+                {isLoading && <div className="flex gap-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>
                         <Bot className="h-4 w-4" />
@@ -392,56 +328,32 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
                     <div className="bg-muted rounded-lg p-3 text-sm">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                  animationDelay: '0.1s'
+                }} />
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                  animationDelay: '0.2s'
+                }} />
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Input area */}
               <div className="p-4 border-t border-border flex-shrink-0">
                 <div className="flex gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex-shrink-0"
-                    disabled={isLoading}
-                  >
+                  <input ref={fileInputRef} type="file" onChange={handleFileUpload} className="hidden" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif" />
+                  <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0" disabled={isLoading}>
                     <Upload className="h-4 w-4" />
                   </Button>
-                  <Input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Ask me anything about your projects..."
-                    className="flex-1"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!input.trim() || isLoading || !isAuthenticated}
-                    size="sm"
-                    className="flex-shrink-0"
-                  >
+                  <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                  <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-            </>
-          )}
-        </>
-      )}
-    </div>
-  );
+            </>}
+        </>}
+    </div>;
 }
