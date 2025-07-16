@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Plus, Sparkles, Send, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Bot, Plus, Sparkles, Send, Loader2, Upload, FileText, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { pdfjs } from 'react-pdf';
+
+// Set up PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface SkaiActivityAssistantProps {
   projectId: string;
@@ -21,42 +26,172 @@ interface ActivitySuggestion {
   end_date?: string;
 }
 
+interface UploadedFile {
+  file: File;
+  content?: string;
+  isProcessing: boolean;
+  error?: string;
+}
+
 export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated }: SkaiActivityAssistantProps) => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [suggestions, setSuggestions] = useState<ActivitySuggestion[]>([]);
   const [isCreatingActivities, setIsCreatingActivities] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n';
+      }
+
+      return fullText.trim();
+    } catch (error) {
+      console.error('Error extracting text from PDF:', error);
+      throw new Error('Failed to extract text from PDF');
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+
+    if (pdfFiles.length === 0) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload PDF files only.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    for (const file of pdfFiles) {
+      const uploadedFile: UploadedFile = {
+        file,
+        isProcessing: true
+      };
+
+      setUploadedFiles(prev => [...prev, uploadedFile]);
+
+      try {
+        const content = await extractTextFromPDF(file);
+        setUploadedFiles(prev => prev.map(f => 
+          f.file === file ? { ...f, content, isProcessing: false } : f
+        ));
+
+        toast({
+          title: "File Processed",
+          description: `Successfully extracted text from ${file.name}`,
+        });
+      } catch (error) {
+        setUploadedFiles(prev => prev.map(f => 
+          f.file === file ? { 
+            ...f, 
+            isProcessing: false, 
+            error: 'Failed to process PDF' 
+          } : f
+        ));
+
+        toast({
+          title: "Processing Failed",
+          description: `Failed to process ${file.name}`,
+          variant: "destructive"
+        });
+      }
+    }
+
+    // Clear the input
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
+
+  const removeFile = (fileToRemove: File) => {
+    setUploadedFiles(prev => prev.filter(f => f.file !== fileToRemove));
+  };
 
   const handleGenerateActivities = async () => {
     if (!prompt.trim()) return;
 
     setIsGenerating(true);
     try {
+      // Combine project files content with user prompt
+      const projectDocuments = uploadedFiles
+        .filter(f => f.content && !f.error)
+        .map(f => `File: ${f.file.name}\nContent: ${f.content}`)
+        .join('\n\n---\n\n');
+
+      let fullPrompt = '';
+      
+      if (projectDocuments && projectDocuments.trim()) {
+        fullPrompt = `Based on the following project documents and scope of work, generate activity suggestions for a construction project.
+
+PROJECT DOCUMENTS:
+${projectDocuments}
+
+USER REQUEST: ${prompt.trim()}
+
+Please analyze the project documents to understand the scope of work and generate relevant activities. 
+
+Respond with a JSON array of activity objects, each with:
+- name: string (activity name based on the scope of work)
+- description: string (detailed description derived from project documents)
+- cost_est: number (estimated cost in dollars)
+- start_date: string (optional, format: YYYY-MM-DD)
+- end_date: string (optional, format: YYYY-MM-DD)
+
+Example format:
+[
+  {
+    "name": "Site Preparation",
+    "description": "Clear and level the construction site as specified in project documents",
+    "cost_est": 5000,
+    "start_date": "2024-01-15",
+    "end_date": "2024-01-20"
+  }
+]
+
+Generate 3-8 relevant activities based on the project scope. Only respond with the JSON array, no other text.`;
+      } else {
+        fullPrompt = `Generate activity suggestions for a construction project based on this request: "${prompt.trim()}". 
+          
+Please respond with a JSON array of activity objects, each with:
+- name: string (activity name)
+- description: string (detailed description)
+- cost_est: number (estimated cost in dollars)
+- start_date: string (optional, format: YYYY-MM-DD)
+- end_date: string (optional, format: YYYY-MM-DD)
+
+Example format:
+[
+  {
+    "name": "Site Preparation",
+    "description": "Clear and level the construction site",
+    "cost_est": 5000,
+    "start_date": "2024-01-15",
+    "end_date": "2024-01-20"
+  }
+]
+
+Generate 3-5 relevant activities. Only respond with the JSON array, no other text.`;
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
-          message: `Generate activity suggestions for a construction project based on this request: "${prompt.trim()}". 
-          
-          Please respond with a JSON array of activity objects, each with:
-          - name: string (activity name)
-          - description: string (detailed description)
-          - cost_est: number (estimated cost in dollars)
-          - start_date: string (optional, format: YYYY-MM-DD)
-          - end_date: string (optional, format: YYYY-MM-DD)
-          
-          Example format:
-          [
-            {
-              "name": "Site Preparation",
-              "description": "Clear and level the construction site",
-              "cost_est": 5000,
-              "start_date": "2024-01-15",
-              "end_date": "2024-01-20"
-            }
-          ]
-          
-          Generate 3-5 relevant activities. Only respond with the JSON array, no other text.`,
+          message: fullPrompt,
           context: {
             currentPage: 'project-activities',
             projectId,
@@ -162,10 +297,11 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
 
   const quickPrompts = [
     "Add carpentry work for the project",
-    "Create plumbing activities for the building",
+    "Create plumbing activities for the building", 
     "Generate electrical work activities",
     "Add site preparation and excavation work",
-    "Create finishing work activities"
+    "Create finishing work activities",
+    "Generate activities from uploaded project documents"
   ];
 
   return (
@@ -189,6 +325,65 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* File Upload Section */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Upload Project Documents (PDF):
+              </label>
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span>Upload PDFs</span>
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  Upload project specs, drawings, or scope documents
+                </span>
+              </div>
+
+              {/* Uploaded Files Display */}
+              {uploadedFiles.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {uploadedFiles.map((uploadedFile, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-secondary/50 rounded-lg text-sm">
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-4 w-4" />
+                        <span className="truncate max-w-[200px]">{uploadedFile.file.name}</span>
+                        {uploadedFile.isProcessing && (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        )}
+                        {uploadedFile.error ? (
+                          <Badge variant="destructive" className="text-xs">Error</Badge>
+                        ) : uploadedFile.content ? (
+                          <Badge variant="default" className="text-xs">Processed</Badge>
+                        ) : null}
+                      </div>
+                      <Button
+                        onClick={() => removeFile(uploadedFile.file)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div>
               <label className="text-sm font-medium mb-2 block">
                 Describe the activities you need:
@@ -196,14 +391,16 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
               <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g., Add carpentry work including framing, drywall installation, and finish carpentry for the residential project"
+                placeholder={uploadedFiles.some(f => f.content) 
+                  ? "Describe what activities you need based on the uploaded documents..." 
+                  : "e.g., Add carpentry work including framing, drywall installation, and finish carpentry for the residential project"}
                 rows={3}
                 className="mb-2"
               />
               <div className="flex justify-between items-center">
                 <Button 
                   onClick={handleGenerateActivities}
-                  disabled={!prompt.trim() || isGenerating}
+                  disabled={(!prompt.trim() && uploadedFiles.filter(f => f.content).length === 0) || isGenerating}
                   size="sm"
                   className="flex items-center space-x-2"
                 >
