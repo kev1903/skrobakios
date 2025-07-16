@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_chat_interactions: {
+        Row: {
+          command_text: string
+          command_type: string | null
+          company_id: string | null
+          context_data: Json | null
+          created_at: string
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          project_id: string | null
+          response_summary: string | null
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          command_text: string
+          command_type?: string | null
+          company_id?: string | null
+          context_data?: Json | null
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          project_id?: string | null
+          response_summary?: string | null
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          command_text?: string
+          command_type?: string | null
+          company_id?: string | null
+          context_data?: Json | null
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          project_id?: string | null
+          response_summary?: string | null
+          success?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_chat_logs: {
         Row: {
           context: Json | null
@@ -1033,6 +1078,81 @@ export type Database = {
           },
         ]
       }
+      project_costs: {
+        Row: {
+          actual_amount: number | null
+          allocated_amount: number | null
+          budget_amount: number | null
+          company_id: string | null
+          cost_category: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          deposit_paid: boolean | null
+          deposit_percentage: number | null
+          description: string | null
+          gst_included: boolean | null
+          id: string
+          last_modified_by: string | null
+          notes: string | null
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_amount?: number | null
+          allocated_amount?: number | null
+          budget_amount?: number | null
+          company_id?: string | null
+          cost_category: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deposit_paid?: boolean | null
+          deposit_percentage?: number | null
+          description?: string | null
+          gst_included?: boolean | null
+          id?: string
+          last_modified_by?: string | null
+          notes?: string | null
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_amount?: number | null
+          allocated_amount?: number | null
+          budget_amount?: number | null
+          company_id?: string | null
+          cost_category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deposit_paid?: boolean | null
+          deposit_percentage?: number | null
+          description?: string | null
+          gst_included?: boolean | null
+          id?: string
+          last_modified_by?: string | null
+          notes?: string | null
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_costs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_costs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_invitations: {
         Row: {
           accepted_at: string | null
@@ -1337,6 +1457,88 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_checks: {
+        Row: {
+          check_name: string
+          check_type: string
+          checked_at: string | null
+          checked_by: string | null
+          company_id: string | null
+          compliance_standard: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          findings: string | null
+          id: string
+          priority: string | null
+          project_id: string | null
+          remediation_notes: string | null
+          status: string | null
+          task_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          check_name: string
+          check_type: string
+          checked_at?: string | null
+          checked_by?: string | null
+          company_id?: string | null
+          compliance_standard?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          findings?: string | null
+          id?: string
+          priority?: string | null
+          project_id?: string | null
+          remediation_notes?: string | null
+          status?: string | null
+          task_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          check_name?: string
+          check_type?: string
+          checked_at?: string | null
+          checked_by?: string | null
+          company_id?: string | null
+          compliance_standard?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          findings?: string | null
+          id?: string
+          priority?: string | null
+          project_id?: string | null
+          remediation_notes?: string | null
+          status?: string | null
+          task_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_checks_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_checks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_checks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]

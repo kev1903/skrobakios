@@ -156,11 +156,74 @@ serve(async (req) => {
     console.log('Context:', JSON.stringify(context, null, 2));
     console.log('User ID:', user.id);
 
-    // Note: Removed audit logging to avoid RLS constraint issues
-    // User query logged in console for debugging
+    // Fetch user's company and project data
+    let userCompanies = [];
+    let userProjects = [];
+    let userProfile = null;
+    
+    try {
+      // Get user's companies
+      const { data: companies, error: companiesError } = await supabaseClient
+        .from('companies')
+        .select(`
+          id, name, slug,
+          company_members!inner(role, status)
+        `)
+        .eq('company_members.user_id', user.id)
+        .eq('company_members.status', 'active');
+      
+      if (companiesError) {
+        console.error('Error fetching companies:', companiesError);
+      } else {
+        userCompanies = companies || [];
+      }
+      
+      // Get user's projects from their companies
+      if (userCompanies.length > 0) {
+        const companyIds = userCompanies.map(c => c.id);
+        const { data: projects, error: projectsError } = await supabaseClient
+          .from('projects')
+          .select('id, name, project_id, description, status, priority, location, company_id')
+          .in('company_id', companyIds);
+        
+        if (projectsError) {
+          console.error('Error fetching projects:', projectsError);
+        } else {
+          userProjects = projects || [];
+        }
+      }
+      
+      // Get user profile
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('first_name, last_name, email, company, job_title')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else {
+        userProfile = profile;
+      }
+      
+    } catch (dbError) {
+      console.error('Database query error:', dbError);
+    }
 
-    // Build context-aware system prompt
-    let systemPrompt = `You are SkAi, an AI assistant on SkrobakiOS. You have access to the user's business and project data through secure APIs.
+    // Build context-aware system prompt with actual user data
+    let systemPrompt = `You are SkAi, an AI assistant for ${userProfile?.first_name || 'the user'} on SkrobakiOS. You have access to their business and project data.
+
+USER PROFILE:
+- Name: ${userProfile?.first_name} ${userProfile?.last_name}
+- Email: ${userProfile?.email}
+- Company: ${userProfile?.company}
+- Job Title: ${userProfile?.job_title}
+
+USER'S COMPANIES:
+${userCompanies.map(c => `- ${c.name} (Role: ${c.company_members[0]?.role})`).join('\n')}
+
+USER'S PROJECTS:
+${userProjects.length > 0 ? userProjects.map(p => `- ${p.name} (${p.company_id}) - Status: ${p.status}, Priority: ${p.priority || 'Not set'}`).join('\n') : 'No projects found'}
 
 CURRENT CONTEXT:
 - User ID: ${user.id}
@@ -168,23 +231,24 @@ CURRENT CONTEXT:
 - Project ID: ${context?.projectId || 'None'}
 - Visible Data: ${JSON.stringify(context?.visibleData || {})}
 
+IMPORTANT SECURITY RULES:
+- ONLY discuss and reference the projects listed above that belong to this user
+- NEVER mention or reference projects from other companies or users
+- All project data must be filtered to only include projects from companies where this user is a member
+- If asked about projects not in the list above, respond that no such projects exist for this user
+
 CAPABILITIES:
 - View and analyze user's projects, tasks, schedules, and business data
 - Make updates to projects and tasks (with user permission)
 - Provide insights and recommendations based on current screen context
 - Help with project management, scheduling, and construction processes
 
-SECURITY RULES:
-- Only access data belonging to the authenticated user
-- Respect user permissions and company boundaries
-- Never reveal data from other users or companies
-- All database operations must use user's JWT for RLS enforcement
-
 RESPONSE GUIDELINES:
 - Be concise and actionable
 - Reference current screen context when relevant
 - Ask for confirmation before making significant changes
-- Provide specific, construction-industry relevant advice`;
+- Provide specific, construction-industry relevant advice
+- Only reference the projects and companies listed in the USER'S PROJECTS section above`;
 
     const messages = [
       {
