@@ -61,6 +61,102 @@ const broadcastUpdate = async (supabaseClient: any, table: string, operation: st
   }
 };
 
+// Utility functions for JSON validation and sanitization
+const sanitizeJsonString = (jsonStr: string): string => {
+  try {
+    // Remove any non-printable characters and excessive whitespace
+    let sanitized = jsonStr.replace(/[\x00-\x1F\x7F]/g, '').trim();
+    
+    // Find the proper JSON boundaries by counting braces
+    let braceCount = 0;
+    let start = -1;
+    let end = -1;
+    
+    for (let i = 0; i < sanitized.length; i++) {
+      if (sanitized[i] === '{') {
+        if (start === -1) start = i;
+        braceCount++;
+      } else if (sanitized[i] === '}') {
+        braceCount--;
+        if (braceCount === 0 && start !== -1) {
+          end = i + 1;
+          break;
+        }
+      }
+    }
+    
+    if (start !== -1 && end !== -1) {
+      sanitized = sanitized.substring(start, end);
+    }
+    
+    // Fix common JSON formatting issues
+    sanitized = sanitized
+      .replace(/,\s*}/g, '}')  // Remove trailing commas before closing braces
+      .replace(/,\s*]/g, ']')  // Remove trailing commas before closing brackets
+      .replace(/'/g, '"')      // Replace single quotes with double quotes
+      .replace(/(\w+):/g, '"$1":') // Quote unquoted keys
+      .replace(/:\s*([a-zA-Z_]\w*)\s*([,}])/g, ':"$1"$2'); // Quote unquoted string values
+    
+    return sanitized;
+  } catch (error) {
+    console.error('Error sanitizing JSON:', error);
+    throw new Error('Failed to sanitize command format');
+  }
+};
+
+const validateAndParseCommand = (jsonStr: string): { valid: boolean; data?: any; error?: string } => {
+  try {
+    if (!jsonStr || typeof jsonStr !== 'string') {
+      return { valid: false, error: 'Empty or invalid command format' };
+    }
+    
+    const parsed = JSON.parse(jsonStr);
+    
+    // Validate required command structure
+    if (!parsed || typeof parsed !== 'object') {
+      return { valid: false, error: 'Command must be a valid object' };
+    }
+    
+    if (!parsed.command || typeof parsed.command !== 'string') {
+      return { valid: false, error: 'Command must have a valid "command" field' };
+    }
+    
+    if (!parsed.data || typeof parsed.data !== 'object') {
+      return { valid: false, error: 'Command must have a valid "data" field' };
+    }
+    
+    // Validate allowed commands
+    const allowedCommands = ['CREATE_TASK', 'UPDATE_TASK', 'DELETE_TASK', 'DELETE_ALL_TASKS'];
+    if (!allowedCommands.includes(parsed.command)) {
+      return { valid: false, error: `Unknown command: ${parsed.command}` };
+    }
+    
+    return { valid: true, data: parsed };
+  } catch (parseError) {
+    console.error('JSON parse error:', parseError);
+    return { 
+      valid: false, 
+      error: `Invalid JSON format: ${parseError.message}` 
+    };
+  }
+};
+
+const requiresConfirmation = (command: string): boolean => {
+  const destructiveCommands = ['DELETE_TASK', 'DELETE_ALL_TASKS'];
+  return destructiveCommands.includes(command);
+};
+
+const getConfirmationMessage = (commandData: any): string => {
+  switch (commandData.command) {
+    case 'DELETE_TASK':
+      return `Are you sure you want to delete this task? Please confirm by saying "yes" or "confirm".`;
+    case 'DELETE_ALL_TASKS':
+      return `⚠️ This will delete ALL tasks in the current project. This action cannot be undone. Are you sure? Please confirm by saying "yes" or "confirm".`;
+    default:
+      return 'Are you sure you want to proceed? Please confirm by saying "yes" or "confirm".';
+  }
+};
+
 // Function to execute AI commands
 const executeAiCommand = async (commandData: any, supabaseClient: any, projectId: string) => {
   const { command, data } = commandData;
@@ -724,41 +820,40 @@ RESPONSE GUIDELINES:
       aiResponse = data.choices[0].message.content;
       console.log('AI response received, length:', aiResponse.length);
 
-      // Process AI commands if present in the response - improved JSON parsing
-      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({[\s\S]*?})/);
+      // Process AI commands if present in the response - robust JSON parsing with validation
+      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({[\s\S]*?}(?:\s|$))/);
       if (commandMatch) {
         try {
-          console.log('Raw command match:', commandMatch[1]);
+          console.log('Raw command match found:', commandMatch[1]);
           
-          // Clean up the JSON string
-          let jsonString = commandMatch[1].trim();
+          // Sanitize and validate JSON string
+          const sanitizedJson = sanitizeJsonString(commandMatch[1].trim());
+          console.log('Sanitized JSON string:', sanitizedJson);
           
-          // Remove any trailing text after the JSON object
-          let braceCount = 0;
-          let endIndex = 0;
-          for (let i = 0; i < jsonString.length; i++) {
-            if (jsonString[i] === '{') braceCount++;
-            if (jsonString[i] === '}') braceCount--;
-            if (braceCount === 0) {
-              endIndex = i + 1;
-              break;
+          // Validate JSON structure before parsing
+          const commandData = validateAndParseCommand(sanitizedJson);
+          if (!commandData.valid) {
+            console.error('Invalid command structure:', commandData.error);
+            aiResponse += `\n\n❌ **Invalid command format—please try rephrasing:** ${commandData.error}`;
+            return;
+          }
+          
+          console.log('Valid command parsed:', commandData.data);
+          
+          // Check if command requires confirmation
+          if (requiresConfirmation(commandData.data.command)) {
+            const confirmationMessage = getConfirmationMessage(commandData.data);
+            if (!message.toLowerCase().includes('yes') && !message.toLowerCase().includes('confirm')) {
+              aiResponse += `\n\n⚠️ **Confirmation required:** ${confirmationMessage}`;
+              return;
             }
           }
           
-          if (endIndex > 0) {
-            jsonString = jsonString.substring(0, endIndex);
-          }
-          
-          console.log('Cleaned JSON string:', jsonString);
-          const commandData = JSON.parse(jsonString);
-          console.log('AI command detected:', commandData);
-          
-          // Execute the command
-          const commandResult = await executeAiCommand(commandData, supabaseClient, context?.projectId);
+          // Execute the command with proper error handling
+          const commandResult = await executeAiCommand(commandData.data, supabaseClient, context?.projectId);
           
           if (commandResult.success) {
             console.log('AI command executed successfully:', commandResult);
-            // Append execution result to AI response
             aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
           } else {
             console.error('AI command failed:', commandResult.error);
@@ -769,9 +864,21 @@ RESPONSE GUIDELINES:
           console.error('Command error details:', {
             message: cmdError.message,
             stack: cmdError.stack,
-            name: cmdError.name
+            name: cmdError.name,
+            input: commandMatch[1]
           });
-          aiResponse += `\n\n❌ **Command processing error:** ${cmdError.message || 'Unable to execute the requested action.'}`;
+          
+          // Provide user-friendly error messages
+          let userFriendlyError = 'Unable to execute the requested action.';
+          if (cmdError.message?.includes('JSON')) {
+            userFriendlyError = 'Invalid command format—please try rephrasing your request.';
+          } else if (cmdError.message?.includes('permission')) {
+            userFriendlyError = 'You don\'t have permission to perform this action.';
+          } else if (cmdError.message?.includes('not found')) {
+            userFriendlyError = 'The requested item was not found. Please check and try again.';
+          }
+          
+          aiResponse += `\n\n❌ **Command processing error:** ${userFriendlyError}`;
         }
       }
 
