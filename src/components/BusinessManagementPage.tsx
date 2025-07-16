@@ -142,13 +142,15 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
                 <h1 className="text-2xl font-bold text-slate-800">Business Management</h1>
               </div>
             </div>
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => onNavigate?.('create-business')}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              CREATE BUSINESS
-            </Button>
+            {canManageCompanies && (
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => onNavigate?.('create-business')}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                CREATE BUSINESS
+              </Button>
+            )}
           </div>
         </div>
       </div>

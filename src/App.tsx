@@ -12,7 +12,6 @@ import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
 import { AppContextProvider } from "./contexts/AppContextProvider";
 import { PersistentAiChat } from "./components/PersistentAiChat";
 
-
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
 import { EstimateCreationPage } from "./components/EstimateCreationPage";

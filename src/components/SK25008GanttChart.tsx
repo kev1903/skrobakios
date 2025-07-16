@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useRealtimeSync } from '@/hooks/useRealtimeSync';
-import { Wifi, WifiOff, RotateCcw } from 'lucide-react';
 
 interface Task {
   id: string;
@@ -20,47 +18,14 @@ interface SK25008GanttChartProps {
 }
 
 export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) => {
-  const [liveTasks, setLiveTasks] = useState(tasks);
-
-  // Handle real-time updates
-  const handleRealtimeUpdate = (table: string, payload: any) => {
-    console.log('Gantt chart received real-time update:', { table, payload });
-    
-    if (payload.eventType === 'INSERT') {
-      const newTask = payload.new;
-      setLiveTasks(prev => {
-        if (prev.some(t => t.id === newTask.id)) return prev;
-        return [...prev, newTask];
-      });
-    } else if (payload.eventType === 'UPDATE') {
-      const updatedTask = payload.new;
-      setLiveTasks(prev => prev.map(task => task.id === updatedTask.id ? updatedTask : task));
-    } else if (payload.eventType === 'DELETE') {
-      setLiveTasks(prev => prev.filter(task => task.id !== payload.old.id));
-    }
-  };
-
-  // Set up real-time sync for SK project
-  const { isConnected, isRetrying, forceResync } = useRealtimeSync({
-    tables: ['sk_25008_design'],
-    onUpdate: handleRealtimeUpdate,
-    retryCount: 3,
-    retryDelay: 2000
-  });
-
-  // Update liveTasks when props change
-  useEffect(() => {
-    setLiveTasks(tasks);
-  }, [tasks]);
-
   const getProjectStart = () => {
-    if (liveTasks.length === 0) return new Date();
-    return new Date(Math.min(...liveTasks.map(t => new Date(t.start_date).getTime())));
+    if (tasks.length === 0) return new Date();
+    return new Date(Math.min(...tasks.map(t => new Date(t.start_date).getTime())));
   };
 
   const getProjectEnd = () => {
-    if (liveTasks.length === 0) return new Date();
-    return new Date(Math.max(...liveTasks.map(t => new Date(t.end_date).getTime())));
+    if (tasks.length === 0) return new Date();
+    return new Date(Math.max(...tasks.map(t => new Date(t.end_date).getTime())));
   };
 
   const projectStart = getProjectStart();
@@ -109,7 +74,7 @@ export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) =
     });
   };
 
-  if (liveTasks.length === 0) {
+  if (tasks.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-8">
         No tasks available for timeline view
@@ -121,34 +86,10 @@ export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) =
     <div className="bg-white rounded-lg border border-border overflow-hidden">
       {/* Header */}
       <div className="border-b border-border p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Project Timeline</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Visual timeline with critical path and dependencies
-            </p>
-          </div>
-          
-          {/* Sync Status */}
-          <div className="flex items-center space-x-2">
-            {isConnected ? (
-              <div className="flex items-center space-x-1 text-green-600">
-                <Wifi className="w-4 h-4" />
-                <span className="text-xs">Live Updates</span>
-              </div>
-            ) : isRetrying ? (
-              <div className="flex items-center space-x-1 text-yellow-600">
-                <RotateCcw className="w-4 h-4 animate-spin" />
-                <span className="text-xs">Reconnecting...</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-1 text-red-600 cursor-pointer" onClick={forceResync}>
-                <WifiOff className="w-4 h-4" />
-                <span className="text-xs">Offline</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <h3 className="text-lg font-semibold text-foreground">Project Timeline</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Visual timeline with critical path and dependencies
+        </p>
       </div>
 
       {/* Timeline Content */}
@@ -171,8 +112,8 @@ export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) =
                   <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4" />
                 </marker>
               </defs>
-              {liveTasks.map((task, index) => {
-                if (index < liveTasks.length - 1) {
+              {tasks.map((task, index) => {
+                if (index < tasks.length - 1) {
                   const startY = 60 + (index * 80) + 20;
                   const endY = 60 + ((index + 1) * 80) + 20;
                   const midX = "50%";
@@ -209,7 +150,7 @@ export const SK25008GanttChart: React.FC<SK25008GanttChartProps> = ({ tasks }) =
 
           {/* Tasks */}
           <div className="space-y-4 relative z-10">
-            {liveTasks.map((task, index) => {
+            {tasks.map((task, index) => {
               const position = getTaskPosition(task);
               
               return (

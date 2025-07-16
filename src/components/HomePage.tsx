@@ -69,15 +69,6 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { currentCompany, loading: companyLoading } = useCompany();
   const { roles, isSuperAdmin } = useUserRole();
-
-  // Debug logging
-  console.log('HomePage Debug:', {
-    currentCompany: currentCompany?.name || 'No company',
-    companyLoading,
-    isLoading,
-    error,
-    isSuperAdmin: isSuperAdmin()
-  });
   const [mapConfig, setMapConfig] = useState({
     center: [144.9631, -37.8136] as [number, number],
     zoom: 6.5,

@@ -6,13 +6,12 @@ import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
-
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState("home");
+  const [currentPage, setCurrentPage] = useState("landing");
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
@@ -43,20 +42,18 @@ const Index = () => {
   // Handle URL parameters for direct navigation
   useEffect(() => {
     const pageParam = searchParams.get('page');
-    const targetPage = pageParam || 'home'; // Default to 'home' when no page parameter
-    
-    if (targetPage !== currentPage) {
+    if (pageParam && pageParam !== currentPage) {
       // Store current page as previous when URL changes
       previousPageRef.current = currentPage;
-      setCurrentPage(targetPage);
+      setCurrentPage(pageParam);
     }
-  }, [searchParams, currentPage]);
+  }, [searchParams]); // Remove currentPage dependency to prevent infinite loops
 
   return (
     <DigitalObjectsProvider>
       <TaskProvider>
-        {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" || currentPage === "project-schedule" || currentPage === "project-timeline" ? (
-          // Sales CRM, Projects, Project Schedule, Landing, and Auth take full screen - no main layout wrapper
+        {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
+          // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex min-h-screen">
             <div className={`flex-1 transition-all duration-300 ${
               currentPage !== "auth" && currentPage !== "landing" ? 
@@ -106,7 +103,6 @@ const Index = () => {
                 onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
                 onNavigate={handleNavigate}
               />
-              
             </div>
           </div>
         )}

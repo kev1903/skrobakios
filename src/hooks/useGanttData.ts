@@ -40,28 +40,13 @@ export const useGanttData = (projectId: string) => {
     queryKey: ['gantt-tasks', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('sk_25008_design')
+        .from('tasks')
         .select('*')
+        .eq('project_id', projectId)
         .order('created_at');
 
       if (error) throw error;
-      
-      // Map sk_25008_design data to Task format
-      return data.map(item => ({
-        id: item.id,
-        task_name: item.task_name,
-        start_date: item.start_date,
-        end_date: item.end_date,
-        estimated_duration: item.duration_days,
-        actual_duration: null,
-        progress: item.progress_percentage || 0,
-        status: item.status,
-        is_milestone: false,
-        is_critical_path: false,
-        assigned_to_name: null,
-        assigned_to_avatar: null,
-        project_id: projectId,
-      })) as Task[];
+      return data as Task[];
     },
     enabled: !!projectId,
   });
@@ -74,25 +59,14 @@ export const useGanttData = (projectId: string) => {
   } = useQuery({
     queryKey: ['task-dependencies', projectId],
     queryFn: async () => {
-      // First, get all tasks for this project to get their IDs
-      const { data: projectTasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('id')
-        .eq('project_id', projectId);
-
-      if (tasksError) throw tasksError;
-      
-      const taskIds = projectTasks?.map(task => task.id) || [];
-      
-      if (taskIds.length === 0) {
-        return [];
-      }
-
-      // Then fetch dependencies where either predecessor or successor belongs to this project
       const { data, error } = await supabase
         .from('task_dependencies')
-        .select('*')
-        .or(`predecessor_task_id.in.(${taskIds.join(',')}),successor_task_id.in.(${taskIds.join(',')})`);
+        .select(`
+          *,
+          predecessor:tasks!predecessor_task_id(project_id),
+          successor:tasks!successor_task_id(project_id)
+        `)
+        .or(`predecessor.project_id.eq.${projectId},successor.project_id.eq.${projectId}`);
 
       if (error) throw error;
       return data as TaskDependency[];

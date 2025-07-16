@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, ClipboardList, Clock, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
+import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 interface TopFloatingBarProps {
   onToggleRibbon: () => void;
   onNavigate: (page: string) => void;
-  onOpenTimeline: () => void;
+  onOpenSchedule: () => void;
   showSaveButton: boolean;
   onSaveMapPosition: () => Promise<void>;
 }
@@ -20,7 +20,7 @@ interface TopFloatingBarProps {
 export const TopFloatingBar = ({
   onToggleRibbon,
   onNavigate,
-  onOpenTimeline,
+  onOpenSchedule,
   showSaveButton,
   onSaveMapPosition
 }: TopFloatingBarProps) => {
@@ -95,14 +95,13 @@ export const TopFloatingBar = ({
                 <ClipboardList className="w-5 h-5 text-white" />
               </button>
               
-              {/* Timeline Icon */}
+              {/* Schedule Icon */}
               <button 
-                onClick={onOpenTimeline}
+                onClick={onOpenSchedule}
                 className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
               >
-                <Clock className="w-5 h-5 text-white" />
+                <CalendarIcon className="w-5 h-5 text-white" />
               </button>
-              
               
               {/* Save Map Position Icon */}
               {showSaveButton && (

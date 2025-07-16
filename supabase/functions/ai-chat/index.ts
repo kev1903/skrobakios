@@ -5,14 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 const xaiApiKey = Deno.env.get('xAi'); // Use the correct secret name
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-console.log('Environment check:', {
-  hasXaiKey: !!xaiApiKey,
-  hasSupabaseUrl: !!supabaseUrl,
-  hasAnonKey: !!supabaseAnonKey,
-  hasServiceKey: !!supabaseServiceKey
-});
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,122 +34,6 @@ const withRetry = async (fn: () => Promise<any>, retries = MAX_RETRIES): Promise
   }
 };
 
-// Function to broadcast real-time updates
-const broadcastUpdate = async (supabaseClient: any, table: string, operation: string, data: any) => {
-  try {
-    const channel = supabaseClient.channel(`ai_broadcast_${Date.now()}`);
-    await channel.send({
-      type: 'broadcast',
-      event: 'ai_update',
-      payload: {
-        table,
-        operation,
-        data,
-        timestamp: new Date().toISOString()
-      }
-    });
-    console.log(`Broadcasted ${operation} for ${table}:`, data);
-  } catch (error) {
-    console.error('Failed to broadcast update:', error);
-  }
-};
-
-// Utility functions for JSON validation and sanitization
-const sanitizeJsonString = (jsonStr: string): string => {
-  try {
-    // Remove any non-printable characters and excessive whitespace
-    let sanitized = jsonStr.replace(/[\x00-\x1F\x7F]/g, '').trim();
-    
-    // Find the proper JSON boundaries by counting braces
-    let braceCount = 0;
-    let start = -1;
-    let end = -1;
-    
-    for (let i = 0; i < sanitized.length; i++) {
-      if (sanitized[i] === '{') {
-        if (start === -1) start = i;
-        braceCount++;
-      } else if (sanitized[i] === '}') {
-        braceCount--;
-        if (braceCount === 0 && start !== -1) {
-          end = i + 1;
-          break;
-        }
-      }
-    }
-    
-    if (start !== -1 && end !== -1) {
-      sanitized = sanitized.substring(start, end);
-    }
-    
-    // Fix common JSON formatting issues
-    sanitized = sanitized
-      .replace(/,\s*}/g, '}')  // Remove trailing commas before closing braces
-      .replace(/,\s*]/g, ']')  // Remove trailing commas before closing brackets
-      .replace(/'/g, '"')      // Replace single quotes with double quotes
-      .replace(/(\w+):/g, '"$1":') // Quote unquoted keys
-      .replace(/:\s*([a-zA-Z_]\w*)\s*([,}])/g, ':"$1"$2'); // Quote unquoted string values
-    
-    return sanitized;
-  } catch (error) {
-    console.error('Error sanitizing JSON:', error);
-    throw new Error('Failed to sanitize command format');
-  }
-};
-
-const validateAndParseCommand = (jsonStr: string): { valid: boolean; data?: any; error?: string } => {
-  try {
-    if (!jsonStr || typeof jsonStr !== 'string') {
-      return { valid: false, error: 'Empty or invalid command format' };
-    }
-    
-    const parsed = JSON.parse(jsonStr);
-    
-    // Validate required command structure
-    if (!parsed || typeof parsed !== 'object') {
-      return { valid: false, error: 'Command must be a valid object' };
-    }
-    
-    if (!parsed.command || typeof parsed.command !== 'string') {
-      return { valid: false, error: 'Command must have a valid "command" field' };
-    }
-    
-    if (!parsed.data || typeof parsed.data !== 'object') {
-      return { valid: false, error: 'Command must have a valid "data" field' };
-    }
-    
-    // Validate allowed commands
-    const allowedCommands = ['CREATE_TASK', 'UPDATE_TASK', 'DELETE_TASK', 'DELETE_ALL_TASKS'];
-    if (!allowedCommands.includes(parsed.command)) {
-      return { valid: false, error: `Unknown command: ${parsed.command}` };
-    }
-    
-    return { valid: true, data: parsed };
-  } catch (parseError) {
-    console.error('JSON parse error:', parseError);
-    return { 
-      valid: false, 
-      error: `Invalid JSON format: ${parseError.message}` 
-    };
-  }
-};
-
-const requiresConfirmation = (command: string): boolean => {
-  const destructiveCommands = ['DELETE_TASK', 'DELETE_ALL_TASKS'];
-  return destructiveCommands.includes(command);
-};
-
-const getConfirmationMessage = (commandData: any): string => {
-  switch (commandData.command) {
-    case 'DELETE_TASK':
-      return `Are you sure you want to delete this task? Please confirm by saying "yes" or "confirm".`;
-    case 'DELETE_ALL_TASKS':
-      return `⚠️ This will delete ALL tasks in the current project. This action cannot be undone. Are you sure? Please confirm by saying "yes" or "confirm".`;
-    default:
-      return 'Are you sure you want to proceed? Please confirm by saying "yes" or "confirm".';
-  }
-};
-
 // Function to execute AI commands
 const executeAiCommand = async (commandData: any, supabaseClient: any, projectId: string) => {
   const { command, data } = commandData;
@@ -166,30 +43,23 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
       case 'CREATE_TASK':
         // For sk_25008_design table (SK project)
         if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
-          const taskData = {
-            task_name: data.task_name,
-            description: data.description,
-            task_type: data.task_type || 'Design',
-            status: data.status || 'pending',
-            start_date: data.start_date,
-            end_date: data.end_date,
-            duration_days: data.duration_days || 1,
-            progress_percentage: data.progress_percentage || 0
-          };
-
-          const { data: insertedData, error } = await supabaseClient
+          const { error } = await supabaseClient
             .from('sk_25008_design')
-            .insert(taskData)
-            .select()
-            .single();
+            .insert({
+              task_name: data.task_name,
+              description: data.description,
+              task_type: data.task_type || 'Design',
+              status: data.status || 'pending',
+              start_date: data.start_date,
+              end_date: data.end_date,
+              duration_days: data.duration_days || 1,
+              progress_percentage: data.progress_percentage || 0
+            });
           
           if (error) {
             console.error('Error creating SK task:', error);
             return { success: false, error: error.message };
           }
-          
-          // Broadcast the update
-          await broadcastUpdate(supabaseClient, 'sk_25008_design', 'INSERT', insertedData);
           
           return { 
             success: true, 
@@ -197,32 +67,25 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           };
         } else {
           // For general tasks table
-          const taskData = {
-            task_name: data.task_name,
-            description: data.description,
-            status: data.status || 'pending',
-            start_date: data.start_date,
-            end_date: data.end_date,
-            due_date: data.end_date || data.due_date,
-            duration: data.duration_days,
-            progress: data.progress_percentage || 0,
-            priority: data.priority || 'medium',
-            project_id: projectId
-          };
-
-          const { data: insertedData, error } = await supabaseClient
+          const { error } = await supabaseClient
             .from('tasks')
-            .insert(taskData)
-            .select()
-            .single();
+            .insert({
+              task_name: data.task_name,
+              description: data.description,
+              status: data.status || 'pending',
+              start_date: data.start_date,
+              end_date: data.end_date,
+              due_date: data.end_date || data.due_date,
+              duration: data.duration_days,
+              progress: data.progress_percentage || 0,
+              priority: data.priority || 'medium',
+              project_id: projectId
+            });
           
           if (error) {
             console.error('Error creating general task:', error);
             return { success: false, error: error.message };
           }
-          
-          // Broadcast the update
-          await broadcastUpdate(supabaseClient, 'tasks', 'INSERT', insertedData);
           
           return { 
             success: true, 
@@ -245,20 +108,15 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           if (updates.duration_days) skUpdates.duration_days = updates.duration_days;
           if (updates.progress_percentage !== undefined) skUpdates.progress_percentage = updates.progress_percentage;
           
-          const { data: updatedData, error } = await supabaseClient
+          const { error } = await supabaseClient
             .from('sk_25008_design')
             .update(skUpdates)
-            .eq('id', id)
-            .select()
-            .single();
+            .eq('id', id);
           
           if (error) {
             console.error('Error updating SK task:', error);
             return { success: false, error: error.message };
           }
-          
-          // Broadcast the update
-          await broadcastUpdate(supabaseClient, 'sk_25008_design', 'UPDATE', updatedData);
           
           return { 
             success: true, 
@@ -266,20 +124,15 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           };
         } else {
           // Update general tasks table
-          const { data: updatedData, error } = await supabaseClient
+          const { error } = await supabaseClient
             .from('tasks')
             .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
+            .eq('id', id);
           
           if (error) {
             console.error('Error updating general task:', error);
             return { success: false, error: error.message };
           }
-          
-          // Broadcast the update
-          await broadcastUpdate(supabaseClient, 'tasks', 'UPDATE', updatedData);
           
           return { 
             success: true, 
@@ -292,13 +145,6 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
         
         // Determine which table to delete from
         if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
-          // First get the task data before deletion
-          const { data: taskToDelete } = await supabaseClient
-            .from('sk_25008_design')
-            .select('*')
-            .eq('id', taskId)
-            .single();
-
           const { error } = await supabaseClient
             .from('sk_25008_design')
             .delete()
@@ -309,23 +155,11 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
             return { success: false, error: error.message };
           }
           
-          // Broadcast the deletion
-          if (taskToDelete) {
-            await broadcastUpdate(supabaseClient, 'sk_25008_design', 'DELETE', { id: taskId, old: taskToDelete });
-          }
-          
           return { 
             success: true, 
             message: `Deleted SK design task successfully` 
           };
         } else {
-          // First get the task data before deletion
-          const { data: taskToDelete } = await supabaseClient
-            .from('tasks')
-            .select('*')
-            .eq('id', taskId)
-            .single();
-
           const { error } = await supabaseClient
             .from('tasks')
             .delete()
@@ -336,78 +170,11 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
             return { success: false, error: error.message };
           }
           
-          // Broadcast the deletion
-          if (taskToDelete) {
-            await broadcastUpdate(supabaseClient, 'tasks', 'DELETE', { id: taskId, old: taskToDelete });
-          }
-          
           return { 
             success: true, 
             message: `Deleted task successfully` 
           };
         }
-        break;
-        
-      case 'DELETE_ALL_TASKS':
-        // Determine which table to delete from based on project
-        if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
-          // First get all tasks before deletion for broadcasting
-          const { data: tasksToDelete } = await supabaseClient
-            .from('sk_25008_design')
-            .select('*')
-            .eq('company_id', '4042458b-8e95-4842-90d9-29f43815ecf8'); // Filter by company
-
-          const { error } = await supabaseClient
-            .from('sk_25008_design')
-            .delete()
-            .eq('company_id', '4042458b-8e95-4842-90d9-29f43815ecf8'); // Filter by company for deletion
-          
-          if (error) {
-            console.error('Error deleting all SK tasks:', error);
-            return { success: false, error: error.message };
-          }
-          
-          // Broadcast deletions for each task
-          if (tasksToDelete && tasksToDelete.length > 0) {
-            for (const task of tasksToDelete) {
-              await broadcastUpdate(supabaseClient, 'sk_25008_design', 'DELETE', { id: task.id, old: task });
-            }
-          }
-          
-          return {
-            success: true, 
-            message: `Deleted all ${tasksToDelete?.length || 0} tasks from project` 
-          };
-        } else {
-          // First get all tasks before deletion for broadcasting
-          const { data: tasksToDelete } = await supabaseClient
-            .from('tasks')
-            .select('*')
-            .eq('project_id', projectId);
-
-          const { error } = await supabaseClient
-            .from('tasks')
-            .delete()
-            .eq('project_id', projectId);
-          
-          if (error) {
-            console.error('Error deleting all general tasks:', error);
-            return { success: false, error: error.message };
-          }
-          
-          // Broadcast deletions for each task
-          if (tasksToDelete && tasksToDelete.length > 0) {
-            for (const task of tasksToDelete) {
-              await broadcastUpdate(supabaseClient, 'tasks', 'DELETE', { id: task.id, old: task });
-            }
-          }
-          
-          return { 
-            success: true, 
-            message: `Deleted all ${tasksToDelete?.length || 0} tasks from project` 
-          };
-        }
-        break;
         
       default:
         return { 
@@ -542,57 +309,15 @@ serve(async (req) => {
       });
     }
 
-    // Check if xAI API key is configured
-    if (!xaiApiKey) {
-      console.error('xAI API key is not configured');
-      return new Response(JSON.stringify({ 
-        error: 'AI service is not configured',
-        details: 'The AI service is temporarily unavailable. Please contact support.'
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     console.log('Message received:', message.substring(0, 100) + '...');
     console.log('Context:', JSON.stringify(context, null, 2));
     console.log('User ID:', user.id);
-
-    // Extract project context from various sources
-    let currentProjectId = null;
-    
-    // 1. Try to get project ID from context
-    if (context?.projectId) {
-      currentProjectId = context.projectId;
-    }
-    
-    // 2. Try to get from URL parameters in context
-    if (!currentProjectId && context?.userLocation) {
-      const urlParams = new URLSearchParams(context.userLocation.split('?')[1] || '');
-      currentProjectId = urlParams.get('projectId');
-    }
-    
-    // 3. Try to extract from current page path
-    if (!currentProjectId && context?.currentPage) {
-      const pageMatches = context.currentPage.match(/\/projects\/([^\/]+)/);
-      if (pageMatches) {
-        currentProjectId = pageMatches[1];
-      }
-    }
-    
-    // 4. Try to get from visible data
-    if (!currentProjectId && context?.visibleData?.projectFocus) {
-      currentProjectId = context.visibleData.projectFocus;
-    }
-    
-    console.log('Determined current project ID:', currentProjectId);
 
     // Fetch user's company and project data
     let userCompanies = [];
     let userProjects = [];
     let userTasks = [];
     let userProfile = null;
-    let currentProject = null;
     
     try {
       // Get user's companies
@@ -623,24 +348,12 @@ serve(async (req) => {
           console.error('Error fetching projects:', projectsError);
         } else {
           userProjects = projects || [];
-          
-          // Find the current project
-          if (currentProjectId) {
-            currentProject = userProjects.find(p => p.id === currentProjectId || p.project_id === currentProjectId);
-            
-            // If not found by ID, try to find by matching the project_id field
-            if (!currentProject) {
-              currentProject = userProjects.find(p => p.id === currentProjectId);
-            }
-            
-            console.log('Found current project:', currentProject ? currentProject.name : 'Not found');
-          }
         }
       }
       
       // Get tasks for the current project or all user projects
-      // If we have a current project, get tasks for that specific project
-      if (currentProjectId && currentProject) {
+      const currentProjectId = context?.projectId;
+      if (currentProjectId) {
         // Try to fetch from sk_25008_design table first for the current project
         if (currentProjectId === '736d0991-6261-4884-8353-3522a7a98720' || currentProjectId?.toLowerCase().includes('sk')) {
           const { data: sk25008Tasks, error: sk25008Error } = await supabaseClient
@@ -733,18 +446,9 @@ USER'S COMPANIES:
 ${userCompanies.map(c => `- ${c.name} (Role: ${c.company_members[0]?.role})`).join('\n')}
 
 USER'S PROJECTS:
-${userProjects.length > 0 ? userProjects.map(p => `- ${p.name} (ID: ${p.id}) - Status: ${p.status}, Priority: ${p.priority || 'Not set'}, Company: ${userCompanies.find(c => c.id === p.company_id)?.name || 'Unknown'}`).join('\n') : 'No projects found'}
+${userProjects.length > 0 ? userProjects.map(p => `- ${p.name} (${p.company_id}) - Status: ${p.status}, Priority: ${p.priority || 'Not set'}`).join('\n') : 'No projects found'}
 
-CURRENT PROJECT CONTEXT:
-${currentProject ? `You are currently focused on project: **${currentProject.name}** (ID: ${currentProject.id})
-- Description: ${currentProject.description || 'No description'}
-- Status: ${currentProject.status}
-- Priority: ${currentProject.priority || 'Not set'}
-- Location: ${currentProject.location || 'Not specified'}
-
-When creating tasks, they will be added to this project automatically.` : 'No specific project context detected. When creating tasks, please specify which project or I will use the first available project.'}
-
-USER'S TASKS (for ${currentProject ? `current project "${currentProject.name}"` : `all projects`}):
+USER'S TASKS (for current project ${context?.projectId || 'all projects'}):
 ${userTasks.length > 0 ? userTasks.map(t => {
   const formatDate = (dateStr: string) => dateStr ? new Date(dateStr).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not set';
   return `- **${t.task_name}** - Status: ${t.status}, Progress: ${t.progress || t.progress_percentage || 0}%
@@ -760,9 +464,7 @@ ${userTasks.length > 0 ? userTasks.map(t => {
 CURRENT CONTEXT:
 - User ID: ${user.id}
 - Screen: ${context?.currentPage || 'Unknown'}
-- Current Project: ${currentProject ? `${currentProject.name} (${currentProject.id})` : 'None detected'}
-- Project ID: ${currentProjectId || 'None'}
-- Available Projects: ${userProjects.map(p => `${p.name} (${p.id})`).join(', ') || 'None'}
+- Project ID: ${context?.projectId || 'None'}
 - Visible Data: ${JSON.stringify(context?.visibleData || {})}
 
 IMPORTANT SECURITY RULES:
@@ -777,30 +479,14 @@ CAPABILITIES:
 - Provide insights and recommendations based on current screen context
 - Help with project management, scheduling, and construction processes
 
-DATABASE COMMANDS:
-When the user requests database changes (create, update, delete tasks), you MUST include an EXECUTE_COMMAND in your response:
-
-For deleting ALL tasks in project:
-EXECUTE_COMMAND: {"command": "DELETE_ALL_TASKS", "data": {}}
-
-For updating a task:
-EXECUTE_COMMAND: {"command": "UPDATE_TASK", "data": {"id": "task-id", "task_name": "name", "progress_percentage": 50, "status": "pending"}}
-
-For creating a task:
-EXECUTE_COMMAND: {"command": "CREATE_TASK", "data": {"task_name": "New Task", "task_type": "design", "duration_days": 5, "status": "pending"}}
-
-For deleting a single task:
-EXECUTE_COMMAND: {"command": "DELETE_TASK", "data": {"id": "task-id"}}
-
 RESPONSE GUIDELINES:
 - Be concise and actionable
 - Reference current screen context when relevant
 - Use the EXACT task data shown above - do not make up or hallucinate tasks
 - When listing tasks, only mention the tasks from the USER'S TASKS section above
-- Ask for confirmation before making significant changes, then include the EXECUTE_COMMAND if confirmed
+- Ask for confirmation before making significant changes
 - Provide specific, construction-industry relevant advice
-- Only reference the projects, companies, and tasks listed in the sections above
-- ALWAYS include EXECUTE_COMMAND when performing database operations`;
+- Only reference the projects, companies, and tasks listed in the sections above`;
 
     const messages = [
       {
@@ -828,17 +514,7 @@ RESPONSE GUIDELINES:
       });
     }
 
-    // If we have a valid project context, use it for command execution
-    let commandProjectId = currentProjectId;
-    
-    // If no current project but user has projects, offer to select one
-    if (!commandProjectId && userProjects.length > 0) {
-      // For task creation commands, try to use the first available project
-      if (message.toLowerCase().includes('task') || message.toLowerCase().includes('checking')) {
-        commandProjectId = userProjects[0].id;
-        console.log('Using default project for task creation:', commandProjectId);
-      }
-    }
+    console.log('xAI API key present, making API call...');
 
     // Make xAI API call with retry logic
     let aiResponse;
@@ -883,45 +559,27 @@ RESPONSE GUIDELINES:
       aiResponse = data.choices[0].message.content;
       console.log('AI response received, length:', aiResponse.length);
 
-      // Extract and execute commands from AI response
-      const commandMatches = aiResponse.matchAll(/EXECUTE_COMMAND:\s*(\{[^}]+\})/g);
-      let commandResults = [];
-      
-      for (const match of commandMatches) {
+      // Process AI commands if present in the response
+      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({.*?})/);
+      if (commandMatch) {
         try {
-          const rawCommandStr = match[1];
-          console.log('Raw command match found:', rawCommandStr);
+          const commandData = JSON.parse(commandMatch[1]);
+          console.log('AI command detected:', commandData);
           
-          const sanitizedCommandStr = sanitizeJsonString(rawCommandStr);
-          console.log('Sanitized JSON string:', sanitizedCommandStr);
+          // Execute the command
+          const commandResult = await executeAiCommand(commandData, supabaseClient, context?.projectId);
           
-          const validationResult = validateAndParseCommand(sanitizedCommandStr);
-          if (!validationResult.valid) {
-            console.error('Command validation failed:', validationResult.error);
-            commandResults.push({
-              success: false,
-              error: validationResult.error
-            });
-            continue;
-          }
-          
-          const commandData = validationResult.data;
-          console.log('Valid command parsed:', commandData);
-          
-          // Execute command with proper project context
-          const result = await executeAiCommand(commandData, supabaseClient, commandProjectId);
-          commandResults.push(result);
-          
-          if (result.success) {
-            console.log('AI command executed successfully:', result);
-            aiResponse += `\n\n✅ **Command executed successfully:** ${result.message}`;
+          if (commandResult.success) {
+            console.log('AI command executed successfully:', commandResult);
+            // Append execution result to AI response
+            aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
           } else {
-            console.error('AI command failed:', result.error);
-            aiResponse += `\n\n❌ **Command failed:** ${result.error}`;
+            console.error('AI command failed:', commandResult.error);
+            aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
           }
         } catch (cmdError) {
           console.error('Error processing AI command:', cmdError);
-          aiResponse += `\n\n❌ **Command processing error:** ${cmdError.message}`;
+          aiResponse += `\n\n❌ **Command processing error:** Unable to execute the requested action.`;
         }
       }
 

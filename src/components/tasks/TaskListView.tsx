@@ -254,7 +254,7 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
               </TableRow>
               
               {tasks.map((task, index) => (
-                <TableRow key={index} className="hover:bg-white/10 border-b border-white/10 h-20">
+                <TableRow key={index} className="hover:bg-white/10 border-b border-white/10">
                   <TableCell>
                     <Checkbox className="border-white/30" />
                   </TableCell>

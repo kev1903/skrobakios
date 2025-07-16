@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, CheckSquare, Clock, Settings, Eye, HelpCircle } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -22,11 +22,11 @@ const ALL_PROJECT_NAV_ITEMS = [{
   icon: Eye,
   page: 'project-detail'
 }, {
-  id: 'timeline',
-  key: 'timeline',
-  label: 'Timeline',
-  icon: Clock,
-  page: 'project-timeline'
+  id: 'schedule',
+  key: 'schedule',
+  label: 'Schedule',
+  icon: Calendar,
+  page: 'project-schedule'
 }, {
   id: 'tasks',
   key: 'tasks',
@@ -55,19 +55,8 @@ export const ProjectSidebar = ({
   const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS : [];
 
   return (
-    <div className="w-64 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl transition-all duration-300 flex-shrink-0">
-      <div className="flex flex-col h-full">
-        {/* Back to Projects Button */}
-        <div className="flex-shrink-0 px-3 py-2 border-b border-white/20">
-          <button 
-            onClick={() => handleNavigate('projects')}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Projects</span>
-          </button>
-        </div>
-
+    <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
+      <div className="flex flex-col h-full pt-20">
         {/* Project Info */}
         <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
           <div className="text-white text-sm font-medium mb-2 truncate">{project.name}</div>

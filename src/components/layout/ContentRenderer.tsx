@@ -6,7 +6,7 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
-import { GanttContainer } from "@/components/gantt/GanttContainer";
+import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 
 import { GanttChartPage } from "@/components/GanttChartPage";
@@ -50,7 +50,6 @@ import { CreateBusinessPage } from "@/components/CreateBusinessPage";
 import { PortfolioManagePage } from "@/components/portfolio/PortfolioManagePage";
 import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
-import { ProjectTimelinePage } from "@/components/ProjectTimelinePage";
 
 import { MilestonePage } from "@/components/MilestonePage";
 import { BusinessInvitationManager } from "@/components/invitations/BusinessInvitationManager";
@@ -142,68 +141,15 @@ export const ContentRenderer = ({
           <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
-    case "project-timeline":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <div className="h-screen flex bg-black/20 border border-white/10">
-            <ProjectSidebar 
-              project={currentProject} 
-              onNavigate={onNavigate} 
-              getStatusColor={(status: string) => {
-                switch (status.toLowerCase()) {
-                  case "completed":
-                    return "bg-green-500/20 text-green-300 border-green-500/30";
-                  case "running":
-                  case "in_progress":
-                  case "in progress":
-                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-                  case "pending":
-                  case "delayed":
-                    return "bg-red-500/20 text-red-300 border-red-500/30";
-                  default:
-                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-                }
-              }} 
-              getStatusText={(status: string) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()} 
-              activeSection="timeline" 
-            />
-            <div className="flex-1 flex">
-              <ProjectTimelinePage project={currentProject} onNavigate={onNavigate} />
-            </div>
-          </div>
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
     case "project-schedule":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <div className="h-screen flex bg-black/20 border border-white/10">
-            <ProjectSidebar 
-              project={currentProject} 
-              onNavigate={onNavigate} 
-              getStatusColor={(status: string) => {
-                switch (status.toLowerCase()) {
-                  case "completed":
-                    return "bg-green-500/20 text-green-300 border-green-500/30";
-                  case "running":
-                  case "in_progress":
-                  case "in progress":
-                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-                  case "pending":
-                  case "delayed":
-                    return "bg-red-500/20 text-red-300 border-red-500/30";
-                  default:
-                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-                }
-              }} 
-              getStatusText={(status: string) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()} 
-              activeSection="schedule" 
-            />
-            <div className="flex-1 flex">
-              <div className="flex-1">
-                <GanttContainer projectId={currentProject.id} />
-              </div>
-            </div>
-          </div>
+          {/* Check if this is the SK25008 project and render accordingly */}
+          {currentProject.project_id === 'SK_25008' || currentProject.id === 'sk-25008' || currentProject.name.includes('Riverview') ? (
+            <SK25008Dashboard projectId={currentProject.id} />
+          ) : (
+            <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+          )}
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":
