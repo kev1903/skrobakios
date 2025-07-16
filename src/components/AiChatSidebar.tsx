@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+// Removed unused import
 import { cn } from '@/lib/utils';
 
 interface ChatMessage {
@@ -36,7 +36,6 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
 
   // Get context from current route and screen
   const getScreenContext = (): ContextData => {
@@ -88,7 +87,10 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
     setIsLoading(true);
 
     try {
-      if (!isAuthenticated) {
+      // Get fresh session to ensure we have valid auth
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
         throw new Error('Authentication required');
       }
 
@@ -97,6 +99,8 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
         role: msg.role,
         content: msg.content
       }));
+
+      console.log('Sending AI chat request with session:', session.user.email);
 
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
