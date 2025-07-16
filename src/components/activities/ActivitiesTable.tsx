@@ -70,24 +70,6 @@ const ActivityRow = ({
         </TableCell>
         
         <TableCell className="py-2">
-          <div className="text-sm">
-            {activity.start_date ? format(new Date(activity.start_date), 'MMM dd, yyyy') : "-"}
-          </div>
-        </TableCell>
-        
-        <TableCell className="py-2">
-          <div className="text-sm">
-            {activity.end_date ? format(new Date(activity.end_date), 'MMM dd, yyyy') : "-"}
-          </div>
-        </TableCell>
-        
-        <TableCell className="py-2">
-          <div className="text-sm font-medium">
-            {activity.cost_est ? `$${activity.cost_est.toLocaleString()}` : "-"}
-          </div>
-        </TableCell>
-        
-        <TableCell className="py-2">
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
@@ -141,16 +123,13 @@ export const ActivitiesTable = ({
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold py-3">Activity</TableHead>
             <TableHead className="font-semibold py-3">Description</TableHead>
-            <TableHead className="font-semibold py-3">Start Date</TableHead>
-            <TableHead className="font-semibold py-3">End Date</TableHead>
-            <TableHead className="font-semibold py-3">Estimated Cost</TableHead>
             <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {activities.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+              <TableCell colSpan={3} className="text-center py-12 text-muted-foreground">
                 No activities yet. Create your first activity to get started.
               </TableCell>
             </TableRow>
