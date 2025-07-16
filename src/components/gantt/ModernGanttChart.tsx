@@ -244,15 +244,6 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-card">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackClick}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
             <Calendar className="w-6 h-6 text-primary" />
             <div>
               <h1 className="text-xl font-semibold">Project Schedule</h1>
