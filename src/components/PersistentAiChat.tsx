@@ -148,10 +148,21 @@ export function PersistentAiChat() {
 
       setMessages(prev => [...prev, aiMessage]);
       
-      // Check if AI response includes command execution confirmation
-      if (data.response.includes('✅ **Command executed successfully:**')) {
+      // Check if AI response includes command execution confirmation or database changes
+      if (data.response.includes('✅ **Command executed successfully:**') || 
+          data.response.includes('I have updated the schedule') ||
+          data.response.includes('schedule has been updated') ||
+          data.response.includes('task') && (data.response.includes('created') || data.response.includes('updated') || data.response.includes('deleted'))) {
         console.log('AI command detected - triggering timeline update');
         triggerAiUpdate();
+        
+        // Also force a page refresh for timeline components
+        setTimeout(() => {
+          const event = new CustomEvent('force-timeline-refresh', {
+            detail: { timestamp: Date.now(), projectId: context?.projectId }
+          });
+          window.dispatchEvent(event);
+        }, 500);
       }
       
       if (!isOpen) {
