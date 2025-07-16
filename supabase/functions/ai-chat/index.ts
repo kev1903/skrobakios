@@ -724,7 +724,13 @@ RESPONSE GUIDELINES:
           }
         } catch (cmdError) {
           console.error('Error processing AI command:', cmdError);
-          aiResponse += `\n\n❌ **Command processing error:** Unable to execute the requested action.`;
+          console.error('Command error details:', {
+            message: cmdError.message,
+            stack: cmdError.stack,
+            name: cmdError.name,
+            commandData: commandData
+          });
+          aiResponse += `\n\n❌ **Command processing error:** ${cmdError.message || 'Unable to execute the requested action.'}`;
         }
       }
 
