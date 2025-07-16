@@ -26,7 +26,7 @@ import {
 import { format } from 'date-fns';
 import { SkaiActivityAssistant } from '@/components/activities/SkaiActivityAssistant';
 import { ActivityData, buildActivityHierarchy } from '@/utils/activityUtils';
-import { ActivityCard } from '@/components/activities/ActivityCard';
+import { ActivitiesTable } from '@/components/activities/ActivitiesTable';
 
 interface ProjectActivitiesPageProps {
   project: Project;
@@ -350,34 +350,13 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
               </div>
             </div>
 
-            {/* Activities List */}
-            <div className="space-y-4">
-              {hierarchicalActivities.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Activities Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Create your first activity to get started.
-                    </p>
-                    <Button onClick={() => setIsCreateDialogOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Activity
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                hierarchicalActivities.map((activity) => (
-                  <ActivityCard
-                    key={activity.id}
-                    activity={activity}
-                    onDelete={deleteActivity}
-                    onToggleExpansion={toggleActivityExpansion}
-                    onCreateChild={handleCreateChild}
-                  />
-                ))
-              )}
-            </div>
+            {/* Activities Table */}
+            <ActivitiesTable
+              activities={hierarchicalActivities}
+              onDelete={deleteActivity}
+              onToggleExpansion={toggleActivityExpansion}
+              onCreateChild={handleCreateChild}
+            />
           </div>
         </div>
       </div>
