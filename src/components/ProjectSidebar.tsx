@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
+import { ArrowLeft, BarChart3, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -21,12 +21,6 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Dashboard',
   icon: Eye,
   page: 'project-detail'
-}, {
-  id: 'schedule',
-  key: 'schedule',
-  label: 'Schedule',
-  icon: Calendar,
-  page: 'project-schedule'
 }, {
   id: 'tasks',
   key: 'tasks',
