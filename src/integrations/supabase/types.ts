@@ -14,65 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      activities: {
-        Row: {
-          company_id: string
-          cost_actual: number | null
-          cost_est: number | null
-          created_at: string
-          dependencies: string[] | null
-          description: string | null
-          duration: unknown | null
-          end_date: string | null
-          id: string
-          name: string
-          project_id: string | null
-          quality_metrics: Json | null
-          start_date: string | null
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          cost_actual?: number | null
-          cost_est?: number | null
-          created_at?: string
-          dependencies?: string[] | null
-          description?: string | null
-          duration?: unknown | null
-          end_date?: string | null
-          id?: string
-          name: string
-          project_id?: string | null
-          quality_metrics?: Json | null
-          start_date?: string | null
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          cost_actual?: number | null
-          cost_est?: number | null
-          created_at?: string
-          dependencies?: string[] | null
-          description?: string | null
-          duration?: unknown | null
-          end_date?: string | null
-          id?: string
-          name?: string
-          project_id?: string | null
-          quality_metrics?: Json | null
-          start_date?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activities_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       ai_chat_interactions: {
         Row: {
           command_text: string

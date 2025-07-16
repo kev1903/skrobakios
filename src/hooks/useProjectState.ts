@@ -1,31 +1,18 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from "react-router-dom";
 import { useProjects, Project } from "@/hooks/useProjects";
 
 export const useProjectState = () => {
-  const [searchParams] = useSearchParams();
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
   const { getProjects, getProject } = useProjects();
   const isInitializedRef = useRef(false);
 
-  // Check URL parameters for projectId first
-  useEffect(() => {
-    const projectIdFromUrl = searchParams.get('projectId');
-    if (projectIdFromUrl && projectIdFromUrl !== selectedProject) {
-      console.log('Setting project from URL:', projectIdFromUrl);
-      setSelectedProject(projectIdFromUrl);
-      return; // Don't auto-select if we have URL parameter
-    }
-  }, [searchParams, selectedProject]);
-
-  // Auto-select first project if none is selected and no URL parameter
+  // Auto-select first project if none is selected
   useEffect(() => {
     const autoSelectFirstProject = async () => {
-      const projectIdFromUrl = searchParams.get('projectId');
-      if (!selectedProject && !hasAutoSelected && !isInitializedRef.current && !projectIdFromUrl) {
+      if (!selectedProject && !hasAutoSelected && !isInitializedRef.current) {
         isInitializedRef.current = true;
         try {
           const projects = await getProjects();
@@ -42,7 +29,7 @@ export const useProjectState = () => {
     };
 
     autoSelectFirstProject();
-  }, [searchParams, selectedProject, hasAutoSelected]); // Add dependencies to properly track state
+  }, []); // Remove dependencies to prevent infinite loops
 
   useEffect(() => {
     const fetchCurrentProject = async () => {

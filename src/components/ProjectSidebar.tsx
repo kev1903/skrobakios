@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Activity } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -33,12 +33,6 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Tasks',
   icon: CheckSquare,
   page: 'project-tasks'
-}, {
-  id: 'activities',
-  key: 'activities',
-  label: 'Activities',
-  icon: Activity,
-  page: 'project-activities'
 }];
 
 export const ProjectSidebar = ({
@@ -77,11 +71,11 @@ export const ProjectSidebar = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onNavigate('projects')}
+            onClick={() => window.history.back()}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left justify-start"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Projects</span>
+            <span className="text-sm font-medium">Back</span>
           </Button>
         </div>
 
@@ -106,13 +100,7 @@ export const ProjectSidebar = ({
           {enabledProjectNavItems.map(item => (
             <button 
               key={item.id} 
-              onClick={() => {
-                if (item.page === 'project-activities') {
-                  handleNavigate(`${item.page}&projectId=${project.id}`);
-                } else {
-                  handleNavigate(item.page);
-                }
-              }} 
+              onClick={() => handleNavigate(item.page)} 
               className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left animate-fade-in ${
                 activeSection === item.id 
                   ? 'bg-white/20 text-white border border-white/30' 

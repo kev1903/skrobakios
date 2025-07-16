@@ -766,7 +766,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 h-screen">
+      <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
         {/* Header */}
         <div className="glass-card border-b border-border px-4 md:px-6 py-3 md:py-4 backdrop-blur-sm flex-shrink-0">
           <div className="flex items-center justify-between max-w-full">
@@ -850,9 +850,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         </div>
         </div>
 
-        {/* Main Content - Split Layout - Full height with no gaps */}
-        <div className="flex-1 schedule-container h-screen min-h-screen">
-        <div className="flex h-full min-h-full">
+        {/* Main Content - Split Layout - Extended to bottom of screen */}
+        <div className="flex-1 overflow-hidden bg-background schedule-container" style={{ height: 'calc(100vh - 140px)' }}>
+        <div className="flex h-full">
           {/* Left Side - Data Table */}
           <div 
             ref={leftScrollRef}

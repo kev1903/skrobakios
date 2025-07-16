@@ -87,36 +87,6 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
     fetchTasks();
   }, [projectId]);
 
-  // Set up real-time subscription for task updates
-  useEffect(() => {
-    const channel = supabase
-      .channel('sk_25008_design_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'sk_25008_design'
-        },
-        (payload) => {
-          console.log('Real-time update received:', payload);
-          // Refresh tasks when any change occurs
-          fetchTasks();
-          
-          // Show toast notification for updates
-          toast({
-            title: "Timeline Updated",
-            description: "Task changes have been automatically synced",
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   // Status helper functions for ProjectSidebar
   const getStatusColor = (status: string) => {
     switch (status) {

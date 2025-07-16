@@ -61,9 +61,8 @@ import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
-
+import { IndividualProjectDashboard } from "@/components/projects/IndividualProjectDashboard";
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import { ActivitiesPage } from "@/components/activities/ActivitiesPage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -119,15 +118,17 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "individual-project-dashboard":
-      // Redirect to main project dashboard instead
-      onNavigate("project-dashboard");
-      return <ProjectDashboard onNavigate={onNavigate} />;
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <IndividualProjectDashboard projectId={selectedProject || ""} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
     case "project-detail":
-      return currentProject ? (
+      return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
+      );
     case "project-tasks":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="basic_tasks" onNavigate={onNavigate}>
@@ -338,15 +339,6 @@ export const ContentRenderer = ({
       return <FamilyPage onNavigate={onNavigate} />;
     case "security":
       return <SecurityPage onNavigate={onNavigate} />;
-    case "project-activities":
-      // Extract projectId from URL params for activities page
-      const activityUrlParams = new URLSearchParams(window.location.search);
-      const activityProjectId = activityUrlParams.get('projectId');
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ActivitiesPage projectId={activityProjectId} onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
     case "user-management":
       return (
         <RoleProtectedRoute 
