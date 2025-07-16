@@ -40,13 +40,28 @@ export const useGanttData = (projectId: string) => {
     queryKey: ['gantt-tasks', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('tasks')
+        .from('sk_25008_design')
         .select('*')
-        .eq('project_id', projectId)
         .order('created_at');
 
       if (error) throw error;
-      return data as Task[];
+      
+      // Map sk_25008_design data to Task format
+      return data.map(item => ({
+        id: item.id,
+        task_name: item.task_name,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        estimated_duration: item.duration_days,
+        actual_duration: null,
+        progress: item.progress_percentage || 0,
+        status: item.status,
+        is_milestone: false,
+        is_critical_path: false,
+        assigned_to_name: null,
+        assigned_to_avatar: null,
+        project_id: projectId,
+      })) as Task[];
     },
     enabled: !!projectId,
   });
