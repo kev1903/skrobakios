@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ProjectSidebar } from '@/components/ProjectSidebar';
 import {
   Clock,
   DollarSign,
@@ -86,19 +85,10 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
     if (!project) return null;
 
     return (
-      <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
-        {/* Project Sidebar */}
-        <ProjectSidebar 
-          project={project} 
-          onNavigate={onNavigate} 
-          getStatusColor={getProjectStatusColor}
-          getStatusText={getProjectStatusText}
-          activeSection="dashboard"
-        />
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in">
-          <div className="max-w-4xl mx-auto p-8">
+      <div className="h-screen backdrop-blur-xl bg-white/95 animate-fade-in">
+        {/* Main Content - Full Width */}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-6xl mx-auto p-8">
             <div className="space-y-6">
               {/* Project Header */}
               <div className="border-b border-border pb-6">
@@ -253,7 +243,6 @@ export const IndividualProjectDashboard = ({ projectId, onNavigate }: Individual
 
   return (
     <div className="h-screen bg-background">
-      
       {/* Main Content - Full Screen */}
       <main className="h-full">
         {renderProjectContent()}
