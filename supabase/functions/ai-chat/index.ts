@@ -835,29 +835,38 @@ RESPONSE GUIDELINES:
           if (!commandData.valid) {
             console.error('Invalid command structure:', commandData.error);
             aiResponse += `\n\n❌ **Invalid command format—please try rephrasing:** ${commandData.error}`;
-            return;
-          }
-          
-          console.log('Valid command parsed:', commandData.data);
-          
-          // Check if command requires confirmation
-          if (requiresConfirmation(commandData.data.command)) {
-            const confirmationMessage = getConfirmationMessage(commandData.data);
-            if (!message.toLowerCase().includes('yes') && !message.toLowerCase().includes('confirm')) {
-              aiResponse += `\n\n⚠️ **Confirmation required:** ${confirmationMessage}`;
-              return;
-            }
-          }
-          
-          // Execute the command with proper error handling
-          const commandResult = await executeAiCommand(commandData.data, supabaseClient, context?.projectId);
-          
-          if (commandResult.success) {
-            console.log('AI command executed successfully:', commandResult);
-            aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
           } else {
-            console.error('AI command failed:', commandResult.error);
-            aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
+            console.log('Valid command parsed:', commandData.data);
+            
+            // Check if command requires confirmation
+            if (requiresConfirmation(commandData.data.command)) {
+              const confirmationMessage = getConfirmationMessage(commandData.data);
+              if (!message.toLowerCase().includes('yes') && !message.toLowerCase().includes('confirm')) {
+                aiResponse += `\n\n⚠️ **Confirmation required:** ${confirmationMessage}`;
+              } else {
+                // Execute the command with proper error handling
+                const commandResult = await executeAiCommand(commandData.data, supabaseClient, context?.projectId);
+                
+                if (commandResult.success) {
+                  console.log('AI command executed successfully:', commandResult);
+                  aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
+                } else {
+                  console.error('AI command failed:', commandResult.error);
+                  aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
+                }
+              }
+            } else {
+              // Execute the command with proper error handling
+              const commandResult = await executeAiCommand(commandData.data, supabaseClient, context?.projectId);
+              
+              if (commandResult.success) {
+                console.log('AI command executed successfully:', commandResult);
+                aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
+              } else {
+                console.error('AI command failed:', commandResult.error);
+                aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
+              }
+            }
           }
         } catch (cmdError) {
           console.error('Error processing AI command:', cmdError);
