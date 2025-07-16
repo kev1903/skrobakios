@@ -39,16 +39,37 @@ serve(async (req) => {
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Use pdf-parse to extract text
-    const pdfParse = await import('https://esm.sh/pdf-parse@1.1.1');
+    // Import PDF.js for Deno
+    const { getDocument } = await import('https://cdn.skypack.dev/pdfjs-dist@3.11.174/es5/build/pdf.min.js');
     
     try {
-      const data = await pdfParse.default(uint8Array);
+      // Configure PDF.js to work without workers in Deno
+      const pdfjsLib = { getDocument };
+      
+      const pdf = await pdfjsLib.getDocument({ 
+        data: uint8Array,
+        useSystemFonts: true,
+        disableFontFace: true,
+        useWorkerFetch: false,
+        isEvalSupported: false,
+        verbosity: 0
+      }).promise;
+      
+      let fullText = '';
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n';
+      }
       
       return new Response(
         JSON.stringify({ 
-          text: data.text,
-          numPages: data.numpages,
+          text: fullText.trim(),
+          numPages: pdf.numPages,
           fileName: file.name
         }),
         { 
@@ -58,7 +79,7 @@ serve(async (req) => {
     } catch (parseError) {
       console.error('PDF parsing error:', parseError);
       return new Response(
-        JSON.stringify({ error: 'Failed to parse PDF content' }),
+        JSON.stringify({ error: 'Failed to parse PDF content: ' + parseError.message }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -69,7 +90,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in extract-pdf-text function:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error: ' + error.message }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
