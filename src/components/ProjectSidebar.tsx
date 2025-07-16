@@ -1,10 +1,23 @@
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle } from "lucide-react";
+import React from 'react';
+import { 
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger,
+  useSidebar,
+  SidebarProvider
+} from '@/components/ui/sidebar';
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
 import { useCompany } from "@/contexts/CompanyContext";
 import { useSubscription } from '@/hooks/useSubscription';
-import { useEffect } from "react";
 
 interface ProjectSidebarProps {
   project: Project;
@@ -35,13 +48,15 @@ const ALL_PROJECT_NAV_ITEMS = [{
   page: 'project-tasks'
 }];
 
-export const ProjectSidebar = ({
+const ProjectSidebarContent = ({
   project,
   onNavigate,
   getStatusColor,
   getStatusText,
   activeSection = "insights"
 }: ProjectSidebarProps) => {
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
   const { currentCompany } = useCompany();
   const { hasFeature } = useSubscription();
   
@@ -50,77 +65,107 @@ export const ProjectSidebar = ({
   };
 
   // Filter project navigation items based on subscription features
-  // Show all project navigation items if user has projects feature
   const hasProjectManagement = hasFeature('projects');
   const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS : [];
 
   return (
-    <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
-      <div className="flex flex-col h-full pt-20">
-        {/* Project Info */}
-        <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
-          <div className="text-white text-sm font-medium mb-2 truncate">{project.name}</div>
-          <div className="text-white/70 text-xs mb-2">#{project.project_id}</div>
-          <Badge variant="outline" className={`${getStatusColor(project.status)} text-xs`}>
-            {getStatusText(project.status)}
-          </Badge>
-        </div>
-
-        {/* Project Navigation Items - Only show if Projects module is enabled */}
-        <div className="flex-1 flex flex-col py-4 space-y-1 overflow-y-auto px-3">
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2 mb-1">
-            Project Navigation
+    <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
+      <SidebarHeader className="p-4 border-b border-white/20">
+        {/* Project Name at the top */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm">
+            <FolderOpen className="w-4 h-4 text-white" />
           </div>
-          
-          {!hasProjectManagement && (
-            <div className="px-3 py-4 text-white/60 text-sm text-center">
-              Upgrade subscription for project features
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <div className="text-white text-sm font-medium truncate">{project.name}</div>
+              <div className="text-white/70 text-xs">#{project.project_id}</div>
             </div>
           )}
-          
-          {enabledProjectNavItems.length === 0 && hasProjectManagement && (
-            <div className="px-3 py-4 text-white/60 text-sm text-center">
-              No project modules available
-            </div>
-          )}
-          
-          {enabledProjectNavItems.map(item => (
-            <button 
-              key={item.id} 
-              onClick={() => handleNavigate(item.page)} 
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left animate-fade-in ${
-                activeSection === item.id 
-                  ? 'bg-white/20 text-white border border-white/30' 
-                  : 'text-white/80 hover:bg-white/10 hover:text-white'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="text-sm font-medium">{item.label}</span>
-            </button>
-          ))}
         </div>
+        
+        {/* Collapse Toggle Button */}
+        <div className="flex justify-end">
+          <SidebarTrigger className="text-white hover:bg-white/20" />
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent>
+        {/* Project Navigation Items */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-white/60">
+            {!isCollapsed && "Project Navigation"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {!hasProjectManagement && (
+                <div className="px-3 py-4 text-white/60 text-sm text-center">
+                  {!isCollapsed && "Upgrade subscription for project features"}
+                </div>
+              )}
+              
+              {enabledProjectNavItems.length === 0 && hasProjectManagement && (
+                <div className="px-3 py-4 text-white/60 text-sm text-center">
+                  {!isCollapsed && "No project modules available"}
+                </div>
+              )}
+              
+              {enabledProjectNavItems.map(item => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton 
+                    onClick={() => handleNavigate(item.page)}
+                    className={`text-white hover:bg-white/20 hover:text-white ${
+                      activeSection === item.id 
+                        ? 'bg-white/20 border border-white/30' 
+                        : 'text-white/80'
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Project Settings */}
-        <div className="border-t border-white/20 px-3 py-4 space-y-1">
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
-            Project Settings
-          </div>
-          <button 
-            onClick={() => handleNavigate('project-settings')} 
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
-          >
-            <Settings className="w-4 h-4" />
-            <span className="text-sm font-medium">Settings</span>
-          </button>
-          <button 
-            onClick={() => handleNavigate('support')} 
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span className="text-sm font-medium">Help</span>
-          </button>
-        </div>
-      </div>
-    </div>
+        <SidebarGroup className="border-t border-white/20">
+          <SidebarGroupLabel className="text-white/60">
+            {!isCollapsed && "Project Settings"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={() => handleNavigate('project-settings')}
+                  className="text-white/80 hover:bg-white/20 hover:text-white"
+                >
+                  <Settings className="w-4 h-4" />
+                  {!isCollapsed && <span className="text-sm font-medium">Settings</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={() => handleNavigate('support')}
+                  className="text-white/80 hover:bg-white/20 hover:text-white"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  {!isCollapsed && <span className="text-sm font-medium">Help</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+};
+
+export const ProjectSidebar = (props: ProjectSidebarProps) => {
+  return (
+    <SidebarProvider>
+      <ProjectSidebarContent {...props} />
+    </SidebarProvider>
   );
 };
