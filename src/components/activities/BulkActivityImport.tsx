@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +37,7 @@ CONTINGENCY`;
 export const BulkActivityImport = ({ projectId, companyId, onActivitiesCreated }: BulkActivityImportProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activitiesText, setActivitiesText] = useState(DEFAULT_ACTIVITIES);
+  const [selectedStage, setSelectedStage] = useState('4.0 PRELIMINARY');
   const [isImporting, setIsImporting] = useState(false);
   const { toast } = useToast();
 
@@ -71,7 +73,7 @@ export const BulkActivityImport = ({ projectId, companyId, onActivitiesCreated }
         parent_id: null,
         level: 0,
         is_expanded: true,
-        stage: '4.0 PRELIMINARY'
+        stage: selectedStage
       }));
 
       // Insert activities into database
@@ -128,6 +130,29 @@ export const BulkActivityImport = ({ projectId, companyId, onActivitiesCreated }
             />
             <p className="text-sm text-muted-foreground mt-2">
               Each line will become a separate activity. Empty lines will be ignored.
+            </p>
+          </div>
+          
+          <div>
+            <Label htmlFor="stage">Project Stage</Label>
+            <Select value={selectedStage} onValueChange={setSelectedStage}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select project stage" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="4.0 PRELIMINARY">4.0 PRELIMINARY</SelectItem>
+                <SelectItem value="4.1 PRE-CONSTRUCTION">4.1 PRE-CONSTRUCTION</SelectItem>
+                <SelectItem value="5.1 BASE STAGE">5.1 BASE STAGE</SelectItem>
+                <SelectItem value="5.2 FRAME STAGE">5.2 FRAME STAGE</SelectItem>
+                <SelectItem value="5.3 LOCKUP STAGE">5.3 LOCKUP STAGE</SelectItem>
+                <SelectItem value="5.4 FIXING STAGE">5.4 FIXING STAGE</SelectItem>
+                <SelectItem value="5.5 FINALS">5.5 FINALS</SelectItem>
+                <SelectItem value="5.6 LANDSCAPING">5.6 LANDSCAPING</SelectItem>
+                <SelectItem value="6.0 HANDOVER & CLOSEOUT">6.0 HANDOVER & CLOSEOUT</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground mt-2">
+              All imported activities will be assigned to this stage.
             </p>
           </div>
           
