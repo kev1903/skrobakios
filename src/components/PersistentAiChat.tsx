@@ -100,6 +100,15 @@ export function PersistentAiChat() {
         throw new Error('Authentication required');
       }
 
+      // Get current session to debug auth issues
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      console.log('Current session status:', currentSession ? 'Valid' : 'No session');
+      console.log('Session token exists:', currentSession?.access_token ? 'Yes' : 'No');
+
+      if (!currentSession) {
+        throw new Error('No valid session found. Please log in again.');
+      }
+
       const context = getScreenContext();
       const conversation = messages.map(msg => ({
         role: msg.role,

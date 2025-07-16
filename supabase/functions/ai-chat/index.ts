@@ -51,14 +51,15 @@ serve(async (req) => {
     
     console.log('Auth header:', authHeader ? 'Present' : 'Missing');
     console.log('API key:', apikey ? 'Present' : 'Missing');
+    console.log('Auth header value:', authHeader ? authHeader.substring(0, 20) + '...' : 'None');
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('No valid authorization header');
+      console.log('No valid authorization header - Header:', authHeader);
       return new Response(JSON.stringify({ 
         error: 'Authentication required',
         details: 'Please log in to use the AI chat'
       }), {
-        status: 200, // Return 200 to avoid generic error handling
+        status: 401, // Return proper 401 status
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -81,11 +82,18 @@ serve(async (req) => {
       }
     });
 
-    // Verify user authentication by passing JWT directly
+    // Create a service role client for authentication verification
+    const serviceClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+    
+    // Verify user authentication by checking the JWT token directly
     let user;
     try {
-      // Pass the JWT token directly to getUser() method
-      const { data: { user: authenticatedUser }, error: authError } = await supabaseClient.auth.getUser(jwt);
+      const { data: { user: authenticatedUser }, error: authError } = await serviceClient.auth.getUser(jwt);
       
       console.log('User found:', authenticatedUser ? authenticatedUser.id : 'None');
       console.log('Auth error:', authError ? authError.message : 'None');
