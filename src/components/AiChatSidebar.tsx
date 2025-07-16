@@ -137,11 +137,18 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
 
       if (error) {
         console.error('Edge function error:', error);
+        // Check if it's an HTTP error with status code
+        if (error.message && error.message.includes('FunctionsHttpError')) {
+          throw new Error('Authentication required');
+        }
         throw new Error(error.message || 'Failed to get AI response');
       }
 
-      if (data.error) {
+      if (data?.error) {
         console.error('Edge function returned error:', data);
+        if (data.error === 'Authentication required' || data.error.includes('Authentication')) {
+          throw new Error('Authentication required');
+        }
         throw new Error(data.details || data.error);
       }
 

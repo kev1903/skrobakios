@@ -67,46 +67,7 @@ serve(async (req) => {
     const jwt = authHeader.replace('Bearer ', '');
     console.log('JWT token length:', jwt.length);
     
-    // Create service role client for user verification (bypasses RLS)
-    const supabaseServiceClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Verify JWT token by parsing it and getting user info
-    let user;
-    try {
-      // Use service role client to verify the JWT token
-      const { data: userData, error: authError } = await supabaseServiceClient.auth.getUser(jwt);
-      
-      console.log('User found:', userData.user ? userData.user.id : 'None');
-      console.log('Auth error:', authError ? authError.message : 'None');
-      
-      if (authError || !userData.user) {
-        console.error('JWT verification failed:', authError);
-        
-        // Don't try to log authentication failures since we don't have a valid user_id
-        // and the ai_chat_logs table requires a non-null user_id
-        
-        return new Response(JSON.stringify({ 
-          error: 'Authentication required',
-          details: 'Please log in to use the AI chat'
-        }), {
-          status: 401, // Use proper HTTP status for authentication errors
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      user = userData.user;
-    } catch (jwtError) {
-      console.error('Failed to verify JWT token:', jwtError);
-      return new Response(JSON.stringify({ 
-        error: 'Authentication required',
-        details: 'Invalid authentication token'
-      }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Create Supabase client for user-specific operations
+    // Create Supabase client with user's JWT for authentication
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {
@@ -119,6 +80,39 @@ serve(async (req) => {
         persistSession: false
       }
     });
+
+    // Verify user authentication directly with the client
+    let user;
+    try {
+      // This will use the JWT token from the authorization header
+      const { data: { user: authenticatedUser }, error: authError } = await supabaseClient.auth.getUser();
+      
+      console.log('User found:', authenticatedUser ? authenticatedUser.id : 'None');
+      console.log('Auth error:', authError ? authError.message : 'None');
+      
+      if (authError || !authenticatedUser) {
+        console.error('Authentication failed:', authError);
+        
+        return new Response(JSON.stringify({ 
+          error: 'Authentication required',
+          details: 'Please log in to use the AI chat'
+        }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      user = authenticatedUser;
+    } catch (jwtError) {
+      console.error('Failed to verify JWT token:', jwtError);
+      return new Response(JSON.stringify({ 
+        error: 'Authentication required',
+        details: 'Invalid authentication token'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Parse request body with error handling
     let requestBody;
@@ -152,6 +146,7 @@ serve(async (req) => {
 
     console.log('Message received:', message.substring(0, 100) + '...');
     console.log('Context:', JSON.stringify(context, null, 2));
+    console.log('User ID:', user.id);
 
     // Note: Removed audit logging to avoid RLS constraint issues
     // User query logged in console for debugging
@@ -204,7 +199,7 @@ RESPONSE GUIDELINES:
         error: 'AI service is not configured',
         details: 'Please configure the xAI API key in the environment settings'
       }), {
-        status: 200,
+        status: 500, // Use proper error status
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
