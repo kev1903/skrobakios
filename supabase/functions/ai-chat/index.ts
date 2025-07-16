@@ -67,7 +67,58 @@ serve(async (req) => {
     const jwt = authHeader.replace('Bearer ', '');
     console.log('JWT token length:', jwt.length);
     
-    // Create Supabase client with user's JWT for authentication
+    // Create service role client for user verification (bypasses RLS)
+    const supabaseServiceClient = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify JWT token by parsing it and getting user info
+    let user;
+    try {
+      // Use service role client to verify the JWT token
+      const { data: userData, error: authError } = await supabaseServiceClient.auth.getUser(jwt);
+      
+      console.log('User found:', userData.user ? userData.user.id : 'None');
+      console.log('Auth error:', authError ? authError.message : 'None');
+      
+      if (authError || !userData.user) {
+        console.error('JWT verification failed:', authError);
+        
+        // Log authentication failure for debugging (without sensitive data)
+        try {
+          await supabaseServiceClient.from('ai_chat_logs').insert({
+            user_id: null, // No user ID available
+            message_type: 'auth_failure',
+            context: { 
+              error: authError?.message || 'No user found',
+              timestamp: new Date().toISOString()
+            },
+            created_at: new Date().toISOString()
+          });
+        } catch (logError) {
+          console.error('Failed to log authentication failure:', logError);
+        }
+        
+        return new Response(JSON.stringify({ 
+          error: 'Authentication required',
+          details: 'Please log in to use the AI chat'
+        }), {
+          status: 401, // Use proper HTTP status for authentication errors
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      user = userData.user;
+    } catch (jwtError) {
+      console.error('Failed to verify JWT token:', jwtError);
+      return new Response(JSON.stringify({ 
+        error: 'Authentication required',
+        details: 'Invalid authentication token'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Create Supabase client for user-specific operations
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {
@@ -80,42 +131,6 @@ serve(async (req) => {
         persistSession: false
       }
     });
-
-    // Create service role client for logging (bypasses RLS)
-    const supabaseServiceClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Verify user authentication by getting user info
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    
-    console.log('User found:', user ? user.id : 'None');
-    console.log('Auth error:', authError ? authError.message : 'None');
-    
-    if (authError || !user) {
-      console.error('Authentication failed:', authError);
-      
-      // Log authentication failure for debugging (without sensitive data)
-      try {
-        await supabaseServiceClient.from('ai_chat_logs').insert({
-          user_id: null, // No user ID available
-          message_type: 'auth_failure',
-          context: { 
-            error: authError?.message || 'No user found',
-            timestamp: new Date().toISOString()
-          },
-          created_at: new Date().toISOString()
-        });
-      } catch (logError) {
-        console.error('Failed to log authentication failure:', logError);
-      }
-      
-      return new Response(JSON.stringify({ 
-        error: 'Authentication required',
-        details: 'Please log in to use the AI chat'
-      }), {
-        status: 401, // Use proper HTTP status for authentication errors
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     // Parse request body with error handling
     let requestBody;
