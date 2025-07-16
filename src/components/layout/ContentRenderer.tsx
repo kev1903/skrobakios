@@ -144,8 +144,32 @@ export const ContentRenderer = ({
     case "project-schedule":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          {/* Check if this is the SK25008 project and render accordingly */}
-          <GanttContainer projectId={currentProject.id} />
+          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+            <ProjectSidebar 
+              project={currentProject} 
+              onNavigate={onNavigate} 
+              getStatusColor={(status: string) => {
+                switch (status.toLowerCase()) {
+                  case "completed":
+                    return "bg-green-500/20 text-green-300 border-green-500/30";
+                  case "running":
+                  case "in_progress":
+                  case "in progress":
+                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+                  case "pending":
+                  case "delayed":
+                    return "bg-red-500/20 text-red-300 border-red-500/30";
+                  default:
+                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                }
+              }} 
+              getStatusText={(status: string) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()} 
+              activeSection="timeline" 
+            />
+            <div className="flex-1">
+              <GanttContainer projectId={currentProject.id} />
+            </div>
+          </div>
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":
