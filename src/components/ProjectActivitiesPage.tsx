@@ -311,12 +311,12 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                     </div>
                     <div>
                       <Label htmlFor="parent_id">Parent Activity (Optional)</Label>
-                      <Select value={newActivity.parent_id} onValueChange={(value) => setNewActivity({...newActivity, parent_id: value})}>
+                      <Select value={newActivity.parent_id || 'none'} onValueChange={(value) => setNewActivity({...newActivity, parent_id: value === 'none' ? '' : value})}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select parent activity" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None (Root Activity)</SelectItem>
+                          <SelectItem value="none">None (Root Activity)</SelectItem>
                           {activities.filter(a => a.level === 0).map((activity) => (
                             <SelectItem key={activity.id} value={activity.id}>
                               {activity.name}
