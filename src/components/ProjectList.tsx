@@ -82,8 +82,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
       onSelectProject(projectId);
     }
     
-    console.log("Navigating to project tasks with project ID:", projectId);
-    onNavigate(`project-tasks&projectId=${projectId}`);
+    console.log("Navigating to project dashboard with project ID:", projectId);
+    onNavigate(`project-detail&projectId=${projectId}`);
   };
 
   if (loading) {
