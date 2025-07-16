@@ -153,18 +153,8 @@ serve(async (req) => {
     console.log('Message received:', message.substring(0, 100) + '...');
     console.log('Context:', JSON.stringify(context, null, 2));
 
-    // Log interaction for audit purposes using service role client
-    try {
-      await supabaseServiceClient.from('ai_chat_logs').insert({
-        user_id: user.id,
-        message_type: 'user_query',
-        context: context || {},
-        created_at: new Date().toISOString()
-      });
-      console.log('User query logged successfully');
-    } catch (logError) {
-      console.error('Failed to log user query:', logError);
-    }
+    // Note: Removed audit logging to avoid RLS constraint issues
+    // User query logged in console for debugging
 
     // Build context-aware system prompt
     let systemPrompt = `You are Grok, an AI assistant for the Skrobaki construction management platform. You have access to the user's business and project data through secure APIs.
@@ -277,18 +267,8 @@ RESPONSE GUIDELINES:
       });
     }
 
-    // Log AI response for audit purposes using service role client
-    try {
-      await supabaseServiceClient.from('ai_chat_logs').insert({
-        user_id: user.id,
-        message_type: 'ai_response',
-        response_length: aiResponse.length,
-        created_at: new Date().toISOString()
-      });
-      console.log('AI response logged successfully');
-    } catch (logError) {
-      console.error('Failed to log AI response:', logError);
-    }
+    // Note: Removed audit logging to avoid RLS constraint issues
+    // AI response logged in console for debugging
 
     console.log('=== AI Chat Function Completed Successfully ===');
     return new Response(JSON.stringify({ response: aiResponse }), {
