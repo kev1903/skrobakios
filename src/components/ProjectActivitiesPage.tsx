@@ -196,31 +196,6 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
     }
   };
 
-  const clearAllActivities = async () => {
-    try {
-      const { error } = await supabase
-        .from('activities')
-        .delete()
-        .eq('project_id', project.id);
-
-      if (error) throw error;
-
-      setActivities([]);
-      setHierarchicalActivities([]);
-      
-      toast({
-        title: "Success",
-        description: "All project activities cleared successfully"
-      });
-    } catch (error) {
-      console.error('Error clearing activities:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear activities",
-        variant: "destructive"
-      });
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -283,16 +258,7 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
               </div>
               
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="destructive" 
-                  onClick={clearAllActivities}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Clear All Activities
-                </Button>
-                
-                <SkaiActivityAssistant 
+                <SkaiActivityAssistant
                   projectId={project.id}
                   companyId={project.company_id}
                   onActivityCreated={loadActivities}
