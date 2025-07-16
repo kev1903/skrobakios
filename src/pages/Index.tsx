@@ -5,13 +5,14 @@ import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { PersistentAiChat } from "@/components/PersistentAiChat";
+import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState("landing");
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
 
@@ -53,17 +54,27 @@ const Index = () => {
       <TaskProvider>
         {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
-          <>
-            <ContentRenderer 
-              currentPage={currentPage}
-              onNavigate={handleNavigate}
-              onSelectProject={handleSelectProject}
-              selectedProject={selectedProject}
-              currentProject={currentProject}
-            />
-            {/* Show AI chat on all pages except auth and landing */}
-            {currentPage !== "auth" && currentPage !== "landing" && <PersistentAiChat />}
-          </>
+          <div className="flex min-h-screen">
+            <div className={`flex-1 transition-all duration-300 ${
+              currentPage !== "auth" && currentPage !== "landing" ? 
+              (isChatCollapsed ? "mr-16" : "mr-96") : ""
+            }`}>
+              <ContentRenderer 
+                currentPage={currentPage}
+                onNavigate={handleNavigate}
+                onSelectProject={handleSelectProject}
+                selectedProject={selectedProject}
+                currentProject={currentProject}
+              />
+            </div>
+            {/* Show AI chat sidebar on all pages except auth and landing */}
+            {currentPage !== "auth" && currentPage !== "landing" && (
+              <AiChatSidebar 
+                isCollapsed={isChatCollapsed} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} 
+              />
+            )}
+          </div>
         ) : (
           // Home and all other pages get layout with sidebar
           <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
@@ -71,19 +82,26 @@ const Index = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
             <div className="relative z-10 flex min-h-screen">
-              <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
-                <ContentRenderer 
-                  currentPage={currentPage}
-                  onNavigate={handleNavigate}
-                  onSelectProject={handleSelectProject}
-                  selectedProject={selectedProject}
-                  currentProject={currentProject}
-                />
-              </PageLayout>
+              <div className={`flex-1 transition-all duration-300 ${
+                isChatCollapsed ? "mr-16" : "mr-96"
+              }`}>
+                <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
+                  <ContentRenderer 
+                    currentPage={currentPage}
+                    onNavigate={handleNavigate}
+                    onSelectProject={handleSelectProject}
+                    selectedProject={selectedProject}
+                    currentProject={currentProject}
+                  />
+                </PageLayout>
+              </div>
+              
+              {/* AI Chat sidebar appears on all layout pages */}
+              <AiChatSidebar 
+                isCollapsed={isChatCollapsed} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} 
+              />
             </div>
-            
-            {/* AI Chat appears on all layout pages */}
-            <PersistentAiChat />
           </div>
         )}
       </TaskProvider>
