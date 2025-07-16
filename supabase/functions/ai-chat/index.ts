@@ -631,7 +631,7 @@ RESPONSE GUIDELINES:
 - Ask for confirmation before making significant changes, then include the EXECUTE_COMMAND if confirmed
 - Provide specific, construction-industry relevant advice
 - Only reference the projects, companies, and tasks listed in the sections above
-- ALWAYS include EXECUTE_COMMAND when performing database operations
+- ALWAYS include EXECUTE_COMMAND when performing database operations`;
 
     const messages = [
       {
