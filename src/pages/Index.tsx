@@ -43,12 +43,14 @@ const Index = () => {
   // Handle URL parameters for direct navigation
   useEffect(() => {
     const pageParam = searchParams.get('page');
-    if (pageParam && pageParam !== currentPage) {
+    const targetPage = pageParam || 'home'; // Default to 'home' when no page parameter
+    
+    if (targetPage !== currentPage) {
       // Store current page as previous when URL changes
       previousPageRef.current = currentPage;
-      setCurrentPage(pageParam);
+      setCurrentPage(targetPage);
     }
-  }, [searchParams]); // Remove currentPage dependency to prevent infinite loops
+  }, [searchParams, currentPage]);
 
   return (
     <DigitalObjectsProvider>
