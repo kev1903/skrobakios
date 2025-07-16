@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TopFloatingBar } from './home/TopFloatingBar';
 import { NavigationRibbon } from './home/NavigationRibbon';
 import { SidePageOverlay } from './home/SidePageOverlay';
-import { FullScreenSchedule } from './home/FullScreenSchedule';
+
 import { ProjectsFullScreen } from './home/ProjectsFullScreen';
 import { OverlayManager } from './home/OverlayManager';
 import { useAppContext } from '@/contexts/AppContextProvider';
@@ -26,7 +26,7 @@ export const HomeFloatingBar = ({
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
   const [sidePageContent, setSidePageContent] = useState<string | null>(null);
-  const [isScheduleFullScreen, setIsScheduleFullScreen] = useState(false);
+  
 
   const toggleRibbon = () => {
     // Simply toggle the ribbon open/closed state without navigation
@@ -54,11 +54,6 @@ export const HomeFloatingBar = ({
     }
   };
 
-  const handleOpenSchedule = () => {
-    setIsScheduleFullScreen(true);
-    setIsRibbonOpen(false);
-    setSidePageContent(null);
-  };
 
   const handleCloseRibbon = () => {
     setIsRibbonOpen(false);
@@ -74,7 +69,6 @@ export const HomeFloatingBar = ({
       <TopFloatingBar
         onToggleRibbon={toggleRibbon}
         onNavigate={onNavigate}
-        onOpenSchedule={handleOpenSchedule}
         showSaveButton={showSaveButton}
         onSaveMapPosition={onSaveMapPosition}
       />
@@ -95,11 +89,6 @@ export const HomeFloatingBar = ({
         onCloseSidePage={handleCloseSidePage}
       />
 
-      <FullScreenSchedule
-        isOpen={isScheduleFullScreen}
-        onNavigate={onNavigate}
-        onClose={() => setIsScheduleFullScreen(false)}
-      />
 
       <ProjectsFullScreen
         isOpen={isProjectSectionOpen}
