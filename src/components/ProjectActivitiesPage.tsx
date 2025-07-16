@@ -22,6 +22,7 @@ import {
   MoreHorizontal 
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { SkaiActivityAssistant } from '@/components/activities/SkaiActivityAssistant';
 
 interface ProjectActivitiesPageProps {
   project: Project;
@@ -207,13 +208,20 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                 </p>
               </div>
               
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Activity
-                  </Button>
-                </DialogTrigger>
+              <div className="flex items-center gap-2">
+                <SkaiActivityAssistant 
+                  projectId={project.id}
+                  companyId={project.company_id}
+                  onActivityCreated={loadActivities}
+                />
+                
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      Add Activity
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Create New Activity</DialogTitle>
@@ -280,6 +288,7 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                   </div>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
 
             {/* Activities List */}
