@@ -123,21 +123,120 @@ export const ContentRenderer = ({
       onNavigate("project-dashboard");
       return <ProjectDashboard onNavigate={onNavigate} />;
     case "project-detail":
-      return (
+      return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
+          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+            <ProjectSidebar 
+              project={currentProject} 
+              onNavigate={onNavigate} 
+              getStatusColor={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "bg-green-500/20 text-green-300 border-green-500/30";
+                  case "running":
+                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+                  case "pending":
+                    return "bg-red-500/20 text-red-300 border-red-500/30";
+                  default:
+                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                }
+              }} 
+              getStatusText={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "Completed";
+                  case "running":
+                    return "In Progress";
+                  case "pending":
+                    return "Pending";
+                  default:
+                    return "Active";
+                }
+              }} 
+              activeSection="dashboard" 
+            />
+            <div className="flex-1 ml-48">
+              <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
+            </div>
+          </div>
         </SubscriptionProtectedRoute>
-      );
+      ) : renderProjectNotFound();
     case "project-tasks":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="basic_tasks" onNavigate={onNavigate}>
-          <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
+          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+            <ProjectSidebar 
+              project={currentProject} 
+              onNavigate={onNavigate} 
+              getStatusColor={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "bg-green-500/20 text-green-300 border-green-500/30";
+                  case "running":
+                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+                  case "pending":
+                    return "bg-red-500/20 text-red-300 border-red-500/30";
+                  default:
+                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                }
+              }} 
+              getStatusText={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "Completed";
+                  case "running":
+                    return "In Progress";
+                  case "pending":
+                    return "Pending";
+                  default:
+                    return "Active";
+                }
+              }} 
+              activeSection="tasks" 
+            />
+            <div className="flex-1 ml-48">
+              <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
+            </div>
+          </div>
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-settings":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
+          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+            <ProjectSidebar 
+              project={currentProject} 
+              onNavigate={onNavigate} 
+              getStatusColor={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "bg-green-500/20 text-green-300 border-green-500/30";
+                  case "running":
+                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+                  case "pending":
+                    return "bg-red-500/20 text-red-300 border-red-500/30";
+                  default:
+                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                }
+              }} 
+              getStatusText={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "Completed";
+                  case "running":
+                    return "In Progress";
+                  case "pending":
+                    return "Pending";
+                  default:
+                    return "Active";
+                }
+              }} 
+              activeSection="settings" 
+            />
+            <div className="flex-1 ml-48">
+              <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
+            </div>
+          </div>
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-schedule":
@@ -147,7 +246,40 @@ export const ContentRenderer = ({
           {currentProject.project_id === 'SK_25008' || currentProject.id === 'sk-25008' || currentProject.name.includes('Riverview') ? (
             <SK25008Dashboard projectId={currentProject.id} />
           ) : (
-            <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+            <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+              <ProjectSidebar 
+                project={currentProject} 
+                onNavigate={onNavigate} 
+                getStatusColor={(status: string) => {
+                  switch (status) {
+                    case "completed":
+                      return "bg-green-500/20 text-green-300 border-green-500/30";
+                    case "running":
+                      return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+                    case "pending":
+                      return "bg-red-500/20 text-red-300 border-red-500/30";
+                    default:
+                      return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                  }
+                }} 
+                getStatusText={(status: string) => {
+                  switch (status) {
+                    case "completed":
+                      return "Completed";
+                    case "running":
+                      return "In Progress";
+                    case "pending":
+                      return "Pending";
+                    default:
+                      return "Active";
+                  }
+                }} 
+                activeSection="schedule" 
+              />
+              <div className="flex-1 ml-48">
+                <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+              </div>
+            </div>
           )}
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
@@ -342,11 +474,44 @@ export const ContentRenderer = ({
       // Extract projectId from URL params for activities page
       const activityUrlParams = new URLSearchParams(window.location.search);
       const activityProjectId = activityUrlParams.get('projectId');
-      return (
+      return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ActivitiesPage projectId={activityProjectId} onNavigate={onNavigate} />
+          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+            <ProjectSidebar 
+              project={currentProject} 
+              onNavigate={onNavigate} 
+              getStatusColor={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "bg-green-500/20 text-green-300 border-green-500/30";
+                  case "running":
+                    return "bg-orange-500/20 text-orange-300 border-orange-500/30";
+                  case "pending":
+                    return "bg-red-500/20 text-red-300 border-red-500/30";
+                  default:
+                    return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+                }
+              }} 
+              getStatusText={(status: string) => {
+                switch (status) {
+                  case "completed":
+                    return "Completed";
+                  case "running":
+                    return "In Progress";
+                  case "pending":
+                    return "Pending";
+                  default:
+                    return "Active";
+                }
+              }} 
+              activeSection="activities" 
+            />
+            <div className="flex-1 ml-48">
+              <ActivitiesPage projectId={activityProjectId} onNavigate={onNavigate} />
+            </div>
+          </div>
         </SubscriptionProtectedRoute>
-      );
+      ) : renderProjectNotFound();
     case "user-management":
       return (
         <RoleProtectedRoute 
