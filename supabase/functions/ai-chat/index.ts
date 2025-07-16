@@ -303,6 +303,7 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
             message: `Deleted all ${tasksToDelete?.length || 0} tasks from project` 
           };
         }
+        break;
         
       default:
         return { 
