@@ -57,16 +57,18 @@ export const ProjectSidebar = ({
   return (
     <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
       <div className="flex flex-col h-full pt-20">
-        {/* Back to Projects Button */}
-        <div className="flex-shrink-0 px-3 py-2 border-b border-white/20">
-          <button 
-            onClick={() => handleNavigate('projects')}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Projects</span>
-          </button>
-        </div>
+        {/* Back to Projects Button - Only show on Dashboard and Schedule pages */}
+        {(activeSection === 'dashboard' || activeSection === 'schedule') && (
+          <div className="flex-shrink-0 px-3 py-2 border-b border-white/20">
+            <button 
+              onClick={() => handleNavigate('projects')}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Back to Projects</span>
+            </button>
+          </div>
+        )}
 
         {/* Project Info */}
         <div className="flex-shrink-0 px-3 py-4 border-b border-white/20">
