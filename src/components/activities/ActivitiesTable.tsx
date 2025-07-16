@@ -33,6 +33,12 @@ const ActivityRow = ({
   return (
     <>
       <TableRow className="hover:bg-muted/50 border-b">
+        <TableCell className="py-2">
+          <div className="text-xs font-mono text-muted-foreground">
+            {activity.id.slice(0, 8)}...
+          </div>
+        </TableCell>
+        
         <TableCell className="py-2" style={{ paddingLeft: `${paddingLeft + 16}px` }}>
           <div className="flex items-center gap-2">
             {hasChildren && (
@@ -53,12 +59,6 @@ const ActivityRow = ({
             
             <div className="flex items-center gap-2">
               <span className="font-medium text-sm">{activity.name}</span>
-              <Badge 
-                variant={level === 0 ? "default" : "secondary"} 
-                className="text-xs px-1.5 py-0.5 h-5"
-              >
-                {level === 0 ? "Parent" : "Child"}
-              </Badge>
             </div>
           </div>
         </TableCell>
@@ -121,6 +121,7 @@ export const ActivitiesTable = ({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
+            <TableHead className="font-semibold py-3 w-24">ID</TableHead>
             <TableHead className="font-semibold py-3">Activity</TableHead>
             <TableHead className="font-semibold py-3">Description</TableHead>
             <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
@@ -129,7 +130,7 @@ export const ActivitiesTable = ({
         <TableBody>
           {activities.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className="text-center py-12 text-muted-foreground">
+              <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
                 No activities yet. Create your first activity to get started.
               </TableCell>
             </TableRow>
