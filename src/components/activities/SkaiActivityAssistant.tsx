@@ -132,8 +132,19 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
       // Combine project files content with user prompt
       const projectDocuments = uploadedFiles
         .filter(f => f.content && !f.error)
-        .map(f => `File: ${f.file.name}\nContent: ${f.content}`)
+        .map(f => {
+          // Truncate large content to prevent token limit issues
+          const maxContentLength = 10000; // Limit to ~10k characters per file
+          let content = f.content || '';
+          if (content.length > maxContentLength) {
+            content = content.substring(0, maxContentLength) + '\n... [Content truncated due to length]';
+          }
+          return `File: ${f.file.name}\nContent: ${content}`;
+        })
         .join('\n\n---\n\n');
+
+      console.log('Project documents length:', projectDocuments.length);
+      console.log('Number of files processed:', uploadedFiles.filter(f => f.content && !f.error).length);
 
       let fullPrompt = '';
       
@@ -208,17 +219,37 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
       // Try to parse the AI response as JSON
       let generatedActivities = [];
       try {
-        const responseText = data?.response || data?.message || '';
+        const responseText = data?.response || data?.message || data?.generatedText || '';
+        console.log('AI Response received:', responseText);
+        
+        if (!responseText || responseText.trim() === '') {
+          throw new Error('Empty response from AI');
+        }
+        
         // Extract JSON from response if it contains other text
         const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-        const jsonText = jsonMatch ? jsonMatch[0] : responseText;
+        const jsonText = jsonMatch ? jsonMatch[0] : responseText.trim();
+        
+        console.log('Attempting to parse JSON:', jsonText);
         generatedActivities = JSON.parse(jsonText);
+        
+        if (!Array.isArray(generatedActivities)) {
+          throw new Error('Response is not an array');
+        }
+        
       } catch (parseError) {
         console.error('Error parsing AI response:', parseError);
+        console.error('Raw response data:', data);
+        
+        // More specific error handling
+        if (data?.error || (!data?.response && !data?.message && !data?.generatedText)) {
+          throw new Error('AI service failed to generate response. The PDF content may be too large.');
+        }
+        
         // Fallback: create a single activity based on the prompt
         generatedActivities = [{
-          name: prompt.trim(),
-          description: `Activity generated based on: ${prompt.trim()}`,
+          name: prompt.trim() || "Document Analysis Required",
+          description: `Please review the uploaded documents and create specific activities. The AI response could not be processed automatically.`,
           cost_est: 1000
         }];
       }
