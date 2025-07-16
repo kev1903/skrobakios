@@ -259,11 +259,30 @@ RESPONSE GUIDELINES:
 
     } catch (apiError) {
       console.error('xAI API call failed after retries:', apiError);
+      console.error('Error details:', {
+        message: apiError.message,
+        stack: apiError.stack,
+        name: apiError.name
+      });
       
-      // Return a user-friendly error message
+      // Return a more specific error message based on the error type
+      let errorMessage = 'AI service temporarily unavailable';
+      let errorDetails = 'Please try again in a moment. If the issue persists, contact support.';
+      
+      if (apiError.message?.includes('401')) {
+        errorMessage = 'AI service authentication failed';
+        errorDetails = 'The AI API key may be invalid or expired. Please contact support.';
+      } else if (apiError.message?.includes('429')) {
+        errorMessage = 'AI service rate limited';
+        errorDetails = 'Too many requests. Please wait a moment and try again.';
+      } else if (apiError.message?.includes('network') || apiError.message?.includes('fetch')) {
+        errorMessage = 'AI service connection failed';
+        errorDetails = 'Unable to connect to the AI service. Please check your internet connection and try again.';
+      }
+      
       return new Response(JSON.stringify({ 
-        error: 'AI service temporarily unavailable',
-        details: 'Please try again in a moment. If the issue persists, contact support.'
+        error: errorMessage,
+        details: errorDetails
       }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
