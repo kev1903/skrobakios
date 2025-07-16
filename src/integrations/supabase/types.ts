@@ -1262,6 +1262,170 @@ export type Database = {
           },
         ]
       }
+      project_network_ai_state: {
+        Row: {
+          ai_suggestions: Json | null
+          created_at: string
+          id: string
+          last_ai_update: string | null
+          optimization_history: Json | null
+          project_id: string
+          simulation_state: Json | null
+          updated_at: string
+        }
+        Insert: {
+          ai_suggestions?: Json | null
+          created_at?: string
+          id?: string
+          last_ai_update?: string | null
+          optimization_history?: Json | null
+          project_id: string
+          simulation_state?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          ai_suggestions?: Json | null
+          created_at?: string
+          id?: string
+          last_ai_update?: string | null
+          optimization_history?: Json | null
+          project_id?: string
+          simulation_state?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_network_ai_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_network_dependencies: {
+        Row: {
+          created_at: string
+          criticality: number
+          dependency_type: string
+          id: string
+          lag_days: number
+          metadata: Json | null
+          predecessor_node_id: string
+          project_id: string
+          successor_node_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          criticality?: number
+          dependency_type?: string
+          id?: string
+          lag_days?: number
+          metadata?: Json | null
+          predecessor_node_id: string
+          project_id: string
+          successor_node_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          criticality?: number
+          dependency_type?: string
+          id?: string
+          lag_days?: number
+          metadata?: Json | null
+          predecessor_node_id?: string
+          project_id?: string
+          successor_node_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_network_dependencies_predecessor_node_id_fkey"
+            columns: ["predecessor_node_id"]
+            isOneToOne: false
+            referencedRelation: "project_network_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_network_dependencies_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_network_dependencies_successor_node_id_fkey"
+            columns: ["successor_node_id"]
+            isOneToOne: false
+            referencedRelation: "project_network_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_network_nodes: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          duration_days: number
+          id: string
+          metadata: Json | null
+          node_type: string
+          position_x: number
+          position_y: number
+          position_z: number
+          progress_percentage: number
+          project_id: string
+          status: string
+          task_name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          id?: string
+          metadata?: Json | null
+          node_type?: string
+          position_x?: number
+          position_y?: number
+          position_z?: number
+          progress_percentage?: number
+          project_id: string
+          status?: string
+          task_name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          id?: string
+          metadata?: Json | null
+          node_type?: string
+          position_x?: number
+          position_y?: number
+          position_z?: number
+          progress_percentage?: number
+          project_id?: string
+          status?: string
+          task_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_network_nodes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_requests: {
         Row: {
           attachments: string[] | null
@@ -1764,6 +1928,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      skai_action_log: {
+        Row: {
+          action_description: string
+          action_type: string
+          command_data: Json
+          company_id: string
+          created_at: string | null
+          error_message: string | null
+          execution_result: Json | null
+          execution_time_ms: number | null
+          id: string
+          project_id: string | null
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          command_data: Json
+          company_id: string
+          created_at?: string | null
+          error_message?: string | null
+          execution_result?: Json | null
+          execution_time_ms?: number | null
+          id?: string
+          project_id?: string | null
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          command_data?: Json
+          company_id?: string
+          created_at?: string | null
+          error_message?: string | null
+          execution_result?: Json | null
+          execution_time_ms?: number | null
+          id?: string
+          project_id?: string | null
+          success?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skai_memory: {
+        Row: {
+          action_history: Json | null
+          company_id: string
+          conversation_context: Json | null
+          created_at: string | null
+          id: string
+          learned_patterns: Json | null
+          project_id: string | null
+          updated_at: string | null
+          user_id: string
+          user_preferences: Json | null
+        }
+        Insert: {
+          action_history?: Json | null
+          company_id: string
+          conversation_context?: Json | null
+          created_at?: string | null
+          id?: string
+          learned_patterns?: Json | null
+          project_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          user_preferences?: Json | null
+        }
+        Update: {
+          action_history?: Json | null
+          company_id?: string
+          conversation_context?: Json | null
+          created_at?: string | null
+          id?: string
+          learned_patterns?: Json | null
+          project_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          user_preferences?: Json | null
+        }
+        Relationships: []
       }
       subscription_plans: {
         Row: {

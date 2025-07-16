@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import { GanttChart } from '@/components/scheduling/GanttChart';
 import { useGanttData } from '@/hooks/useGanttData';
 import { addDays, format } from 'date-fns';
+import { SkaiTaskAssistant } from '@/components/tasks/SkaiTaskAssistant';
 
 interface TaskManagementProps {
   onNavigate: (page: string) => void;
@@ -76,6 +77,9 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'gantt'>('list');
+  const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState<string>('');
   
   const [newTask, setNewTask] = useState({
     task_name: '',
@@ -217,6 +221,91 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
     }
   };
 
+  const updateTaskField = async (taskId: string, field: string, value: string) => {
+    try {
+      const updateData: any = { [field]: value };
+      
+      // Update progress based on status if field is status
+      if (field === 'status') {
+        updateData.progress = value === 'completed' ? 100 : value === 'in-progress' ? 50 : 0;
+      }
+
+      const { error } = await supabase
+        .from('tasks')
+        .update(updateData)
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, ...updateData }
+          : task
+      ));
+
+      setEditingTask(null);
+      setEditingField(null);
+      setTempValue('');
+
+      toast({
+        title: "Success",
+        description: `Task ${field.replace('_', ' ')} updated`
+      });
+
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "Error",
+        description: `Failed to update task ${field.replace('_', ' ')}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const startEditing = (taskId: string, field: string, currentValue: string) => {
+    setEditingTask(taskId);
+    setEditingField(field);
+    setTempValue(currentValue || '');
+  };
+
+  const cancelEditing = () => {
+    setEditingTask(null);
+    setEditingField(null);
+    setTempValue('');
+  };
+
+  const saveEdit = () => {
+    if (editingTask && editingField) {
+      updateTaskField(editingTask, editingField, tempValue);
+    }
+  };
+
+  const deleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      setTasks(prev => prev.filter(task => task.id !== taskId));
+
+      toast({
+        title: "Success",
+        description: "Task deleted successfully"
+      });
+
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-500 text-white';
@@ -281,13 +370,20 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
             Organize and track project tasks efficiently
           </p>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2">
-              <Plus className="h-4 w-4" />
-              <span>New Task</span>
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center space-x-3">
+          {selectedProject && (
+            <SkaiTaskAssistant 
+              projectId={selectedProject} 
+              onTaskCreated={loadData}
+            />
+          )}
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center space-x-2">
+                <Plus className="h-4 w-4" />
+                <span>New Task</span>
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Create New Task</DialogTitle>
@@ -360,7 +456,8 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Project Selector and View Toggle */}
@@ -507,12 +604,35 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
         // Tasks List View
       <div className="space-y-4">
         {filteredTasks.map((task) => (
-          <Card key={task.id} className="glass-card">
+          <Card key={task.id} className="glass-card hover:shadow-lg transition-all duration-200">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold">{task.task_name}</h3>
+                    {editingTask === task.id && editingField === 'task_name' ? (
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          value={tempValue}
+                          onChange={(e) => setTempValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEdit();
+                            if (e.key === 'Escape') cancelEditing();
+                          }}
+                          className="text-lg font-semibold"
+                          autoFocus
+                        />
+                        <Button size="sm" onClick={saveEdit}>Save</Button>
+                        <Button size="sm" variant="ghost" onClick={cancelEditing}>Cancel</Button>
+                      </div>
+                    ) : (
+                      <h3 
+                        className="text-lg font-semibold cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                        onClick={() => startEditing(task.id, 'task_name', task.task_name)}
+                        title="Click to edit task name"
+                      >
+                        {task.task_name}
+                      </h3>
+                    )}
                     <Badge className={getStatusColor(task.status)}>
                       {task.status.replace('-', ' ')}
                     </Badge>
@@ -522,31 +642,138 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
                     </Badge>
                   </div>
                   
-                  <p className="text-muted-foreground mb-4">{task.description}</p>
+                  {editingTask === task.id && editingField === 'description' ? (
+                    <div className="mb-4">
+                      <Textarea
+                        value={tempValue}
+                        onChange={(e) => setTempValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.ctrlKey) saveEdit();
+                          if (e.key === 'Escape') cancelEditing();
+                        }}
+                        className="mb-2"
+                        rows={3}
+                        autoFocus
+                      />
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" onClick={saveEdit}>Save</Button>
+                        <Button size="sm" variant="ghost" onClick={cancelEditing}>Cancel</Button>
+                        <span className="text-xs text-muted-foreground">Ctrl+Enter to save</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p 
+                      className="text-muted-foreground mb-4 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors min-h-[1.5rem]"
+                      onClick={() => startEditing(task.id, 'description', task.description)}
+                      title="Click to edit description"
+                    >
+                      {task.description || 'Click to add description...'}
+                    </p>
+                  )}
                   
                   <div className="flex items-center space-x-6 mb-4">
-                    {task.assigned_to_name && (
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={task.assigned_to_avatar} />
-                          <AvatarFallback>
-                            <User className="h-3 w-3" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{task.assigned_to_name}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center space-x-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      {editingTask === task.id && editingField === 'assigned_to_name' ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            value={tempValue}
+                            onChange={(e) => setTempValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveEdit();
+                              if (e.key === 'Escape') cancelEditing();
+                            }}
+                            placeholder="Assignee name"
+                            className="w-32"
+                            autoFocus
+                          />
+                          <Button size="sm" onClick={saveEdit}>Save</Button>
+                          <Button size="sm" variant="ghost" onClick={cancelEditing}>Cancel</Button>
+                        </div>
+                      ) : (
+                        <span 
+                          className="text-sm cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                          onClick={() => startEditing(task.id, 'assigned_to_name', task.assigned_to_name)}
+                          title="Click to edit assignee"
+                        >
+                          {task.assigned_to_name || 'Unassigned'}
+                        </span>
+                      )}
+                    </div>
                     
-                    {task.due_date && (
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{new Date(task.due_date).toLocaleDateString()}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      {editingTask === task.id && editingField === 'due_date' ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="date"
+                            value={tempValue}
+                            onChange={(e) => setTempValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveEdit();
+                              if (e.key === 'Escape') cancelEditing();
+                            }}
+                            className="w-40"
+                            autoFocus
+                          />
+                          <Button size="sm" onClick={saveEdit}>Save</Button>
+                          <Button size="sm" variant="ghost" onClick={cancelEditing}>Cancel</Button>
+                        </div>
+                      ) : (
+                        <span 
+                          className="text-sm cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                          onClick={() => startEditing(task.id, 'due_date', task.due_date)}
+                          title="Click to edit due date"
+                        >
+                          {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No due date'}
+                        </span>
+                      )}
+                    </div>
                     
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{task.duration}h</span>
+                      {editingTask === task.id && editingField === 'duration' ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            value={tempValue}
+                            onChange={(e) => setTempValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveEdit();
+                              if (e.key === 'Escape') cancelEditing();
+                            }}
+                            className="w-20"
+                            min="0"
+                            step="0.5"
+                            autoFocus
+                          />
+                          <span className="text-sm">h</span>
+                          <Button size="sm" onClick={saveEdit}>Save</Button>
+                          <Button size="sm" variant="ghost" onClick={cancelEditing}>Cancel</Button>
+                        </div>
+                      ) : (
+                        <span 
+                          className="text-sm cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                          onClick={() => startEditing(task.id, 'duration', task.duration?.toString())}
+                          title="Click to edit duration"
+                        >
+                          {task.duration || 0}h
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Flag className="h-4 w-4 text-muted-foreground" />
+                      <Select value={task.priority} onValueChange={(value) => updateTaskField(task.id, 'priority', value)}>
+                        <SelectTrigger className="w-24 h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   
@@ -572,8 +799,14 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
                     </SelectContent>
                   </Select>
                   
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => deleteTask(task.id)}
+                    className="text-destructive hover:text-destructive"
+                    title="Delete task"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="sm">
                     <MoreHorizontal className="h-4 w-4" />
