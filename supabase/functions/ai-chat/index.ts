@@ -747,8 +747,7 @@ RESPONSE GUIDELINES:
           console.error('Command error details:', {
             message: cmdError.message,
             stack: cmdError.stack,
-            name: cmdError.name,
-            commandData: commandData
+            name: cmdError.name
           });
           aiResponse += `\n\n❌ **Command processing error:** ${cmdError.message || 'Unable to execute the requested action.'}`;
         }
