@@ -144,7 +144,7 @@ export const ContentRenderer = ({
     case "project-schedule":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+          <div className="h-screen flex bg-black/20 border border-white/10">
             <ProjectSidebar 
               project={currentProject} 
               onNavigate={onNavigate} 
@@ -164,10 +164,12 @@ export const ContentRenderer = ({
                 }
               }} 
               getStatusText={(status: string) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()} 
-              activeSection="timeline" 
+              activeSection="schedule" 
             />
-            <div className="flex-1">
-              <GanttContainer projectId={currentProject.id} />
+            <div className="flex-1 flex">
+              <div className="flex-1">
+                <GanttContainer projectId={currentProject.id} />
+              </div>
             </div>
           </div>
         </SubscriptionProtectedRoute>

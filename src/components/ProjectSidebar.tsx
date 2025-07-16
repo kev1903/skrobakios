@@ -55,8 +55,8 @@ export const ProjectSidebar = ({
   const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS : [];
 
   return (
-    <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50 transition-all duration-300">
-      <div className="flex flex-col h-full pt-20">
+    <div className="w-64 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl transition-all duration-300 flex-shrink-0">
+      <div className="flex flex-col h-full">
         {/* Back to Projects Button */}
         <div className="flex-shrink-0 px-3 py-2 border-b border-white/20">
           <button 

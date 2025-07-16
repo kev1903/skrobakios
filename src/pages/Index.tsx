@@ -53,8 +53,8 @@ const Index = () => {
   return (
     <DigitalObjectsProvider>
       <TaskProvider>
-        {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
-          // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
+        {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" || currentPage === "project-schedule" ? (
+          // Sales CRM, Projects, Project Schedule, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex min-h-screen">
             <div className={`flex-1 transition-all duration-300 ${
               currentPage !== "auth" && currentPage !== "landing" ? 
