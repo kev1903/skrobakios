@@ -6,7 +6,7 @@ import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
-import { SkaiAgent } from "@/components/SkaiAgent";
+
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
@@ -105,8 +105,6 @@ const Index = () => {
                 onNavigate={handleNavigate}
               />
               
-              {/* Skai Agent - appears on all pages */}
-              <SkaiAgent projectId={currentProject?.id} />
             </div>
           </div>
         )}
