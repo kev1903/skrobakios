@@ -96,6 +96,61 @@ export const TaskTimelineView = () => {
     };
   }, [projectId]);
 
+  const fetchTasks = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Try to fetch from sk_25008_design table first for this specific project
+      if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+        const { data: sk25008Tasks, error: sk25008Error } = await supabase
+          .from('sk_25008_design')
+          .select('*')
+          .order('start_date', { ascending: true });
+
+        if (!sk25008Error && sk25008Tasks && sk25008Tasks.length > 0) {
+          setTasks(sk25008Tasks.map(task => ({
+            id: task.id,
+            task_name: task.task_name,
+            task_type: task.task_type,
+            status: task.status,
+            start_date: task.start_date,
+            end_date: task.end_date,
+            due_date: task.end_date,
+            duration: task.duration_days,
+            progress: task.progress_percentage,
+            progress_percentage: task.progress_percentage,
+            description: task.description,
+            priority: 'medium', // Default priority
+            assigned_to_name: 'Project Team',
+            project_id: projectId
+          })));
+          return;
+        }
+      }
+
+      // Fallback to general tasks table
+      const { data: generalTasks, error: generalError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('project_id', projectId || '')
+        .order('due_date', { ascending: true });
+
+      if (generalError) throw generalError;
+
+      setTasks(generalTasks || []);
+
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load tasks for timeline view",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId, toast]);
+
   useEffect(() => {
     fetchTasks();
     
@@ -170,67 +225,27 @@ export const TaskTimelineView = () => {
       }, 1000); // Wait 1 second then refetch
     };
 
+    const handleForceRefresh = (event: CustomEvent) => {
+      console.log('Timeline received force refresh event:', event.detail);
+      setAiUpdating(true);
+      
+      // Immediate refetch for force refresh
+      setTimeout(() => {
+        console.log('Force refetching tasks...');
+        fetchTasks();
+        setAiUpdating(false);
+      }, 100);
+    };
+
     window.addEventListener('ai-task-update' as any, handleAiUpdate);
+    window.addEventListener('force-timeline-refresh' as any, handleForceRefresh);
     
     return () => {
       window.removeEventListener('ai-task-update' as any, handleAiUpdate);
+      window.removeEventListener('force-timeline-refresh' as any, handleForceRefresh);
     };
-  }, []);
+  }, [fetchTasks]);
 
-  const fetchTasks = async () => {
-    try {
-      setLoading(true);
-      
-      // Try to fetch from sk_25008_design table first for this specific project
-      if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
-        const { data: sk25008Tasks, error: sk25008Error } = await supabase
-          .from('sk_25008_design')
-          .select('*')
-          .order('start_date', { ascending: true });
-
-        if (!sk25008Error && sk25008Tasks && sk25008Tasks.length > 0) {
-          setTasks(sk25008Tasks.map(task => ({
-            id: task.id,
-            task_name: task.task_name,
-            task_type: task.task_type,
-            status: task.status,
-            start_date: task.start_date,
-            end_date: task.end_date,
-            due_date: task.end_date,
-            duration: task.duration_days,
-            progress: task.progress_percentage,
-            progress_percentage: task.progress_percentage,
-            description: task.description,
-            priority: 'medium', // Default priority
-            assigned_to_name: 'Project Team',
-            project_id: projectId
-          })));
-          return;
-        }
-      }
-
-      // Fallback to general tasks table
-      const { data: generalTasks, error: generalError } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('project_id', projectId || '')
-        .order('due_date', { ascending: true });
-
-      if (generalError) throw generalError;
-
-      setTasks(generalTasks || []);
-
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load tasks for timeline view",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {
