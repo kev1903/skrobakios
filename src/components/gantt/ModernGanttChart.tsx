@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ProjectSidebar } from '@/components/ProjectSidebar';
+import { PersistentAiChat } from '@/components/PersistentAiChat';
 import { 
   Calendar, 
   ZoomIn, 
@@ -15,10 +17,12 @@ import {
   Save,
   Edit,
   Plus,
-  Trash2
+  Trash2,
+  ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useProjects } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
 
 interface Task {
@@ -52,6 +56,22 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
   projectId,
 }) => {
   const { toast } = useToast();
+  const { getProjects } = useProjects();
+  const [project, setProject] = useState<any>(null);
+
+  // Load project data
+  useEffect(() => {
+    const loadProject = async () => {
+      try {
+        const projects = await getProjects();
+        const foundProject = projects.find(p => p.id === projectId);
+        setProject(foundProject);
+      } catch (error) {
+        console.error('Error loading project:', error);
+      }
+    };
+    loadProject();
+  }, [projectId, getProjects]);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -119,8 +139,8 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
     };
   };
   
-  // Get status color
-  const getStatusColor = (status: string) => {
+  // Get task status color
+  const getTaskStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'completed':
         return 'hsl(var(--chart-1))';
@@ -201,276 +221,340 @@ export const ModernGanttChart: React.FC<ModernGanttChartProps> = ({
     }
   };
   
+  // Handle navigation back
+  const handleBackClick = () => {
+    window.history.back();
+  };
+
+  // Handle navigation
+  const handleNavigate = (page: string) => {
+    window.location.href = `/?page=${page}&projectId=${projectId}`;
+  };
+
+  // Status helper functions for ProjectSidebar
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'hsl(var(--chart-1))';
+      case 'in_progress':
+      case 'in progress':
+        return 'hsl(var(--chart-2))';
+      case 'delayed':
+        return 'hsl(var(--destructive))';
+      default:
+        return 'hsl(var(--primary))';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+
   // Zoom controls
   const handleZoomIn = () => setZoomLevel(prev => Math.min(prev * 1.2, 3));
   const handleZoomOut = () => setZoomLevel(prev => Math.max(prev / 1.2, 0.3));
+
+  if (!project) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold mb-2">Project not found</h2>
+          <p className="text-muted-foreground">Unable to load project data.</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-card">
-        <div className="flex items-center gap-4">
-          <Calendar className="w-6 h-6 text-primary" />
-          <div>
-            <h1 className="text-xl font-semibold">Project Schedule</h1>
-            <p className="text-sm text-muted-foreground">
-              Full-screen Gantt chart with live Skai integration
-            </p>
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      {/* Project Sidebar */}
+      <ProjectSidebar 
+        project={project} 
+        onNavigate={handleNavigate} 
+        getStatusColor={getStatusColor} 
+        getStatusText={getStatusText} 
+        activeSection="timeline" 
+      />
+
+      {/* Main Gantt Chart Content */}
+      <div className="flex-1 flex flex-col bg-background">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackClick}
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+            <Calendar className="w-6 h-6 text-primary" />
+            <div>
+              <h1 className="text-xl font-semibold">Project Schedule</h1>
+              <p className="text-sm text-muted-foreground">
+                Full-screen Gantt chart with live Skai integration
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isSkaiActive ? "default" : "outline"}
+              size="sm"
+              onClick={activateSkai}
+              className="gap-2"
+            >
+              <Bot className="w-4 h-4" />
+              {isSkaiActive ? 'Skai Active' : 'Activate Skai'}
+            </Button>
+            
+            <div className="flex items-center gap-1 border-l pl-2 ml-2">
+              <Button variant="outline" size="sm" onClick={handleZoomOut}>
+                <ZoomOut className="w-4 h-4" />
+              </Button>
+              <span className="text-xs px-2">{Math.round(zoomLevel * 100)}%</span>
+              <Button variant="outline" size="sm" onClick={handleZoomIn}>
+                <ZoomIn className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <Button variant="outline" size="sm">
+              <Maximize2 className="w-4 h-4" />
+            </Button>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button
-            variant={isSkaiActive ? "default" : "outline"}
-            size="sm"
-            onClick={activateSkai}
-            className="gap-2"
-          >
-            <Bot className="w-4 h-4" />
-            {isSkaiActive ? 'Skai Active' : 'Activate Skai'}
-          </Button>
-          
-          <div className="flex items-center gap-1 border-l pl-2 ml-2">
-            <Button variant="outline" size="sm" onClick={handleZoomOut}>
-              <ZoomOut className="w-4 h-4" />
-            </Button>
-            <span className="text-xs px-2">{Math.round(zoomLevel * 100)}%</span>
-            <Button variant="outline" size="sm" onClick={handleZoomIn}>
-              <ZoomIn className="w-4 h-4" />
-            </Button>
-          </div>
-          
-          <Button variant="outline" size="sm">
-            <Maximize2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Task Table */}
-        <div className="w-96 border-r border-border bg-card flex flex-col">
-          <div className="p-3 border-b border-border">
-            <h3 className="font-medium">Tasks</h3>
-          </div>
-          
-          <div className="flex-1 overflow-auto">
-            {tasks.map((task, index) => (
-              <div
-                key={task.id}
-                className={cn(
-                  "border-b border-border p-3 hover:bg-muted/50 transition-colors",
-                  index % 2 === 0 ? "bg-background" : "bg-muted/20"
-                )}
-                style={{ height: rowHeight }}
-              >
-                {editingTask === task.id ? (
-                  <div className="space-y-2">
-                    <Input
-                      value={editValues[task.id]?.task_name || task.task_name}
-                      onChange={(e) => updateEditValue(task.id, 'task_name', e.target.value)}
-                      className="h-6 text-sm"
-                    />
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => saveTask(task.id)}>
-                        <Save className="w-3 h-3" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={cancelEditing}>
-                        <Trash2 className="w-3 h-3" />
+        {/* Main Content */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Task Table */}
+          <div className="w-96 border-r border-border bg-card flex flex-col">
+            <div className="p-3 border-b border-border">
+              <h3 className="font-medium">Tasks</h3>
+            </div>
+            
+            <div className="flex-1 overflow-auto">
+              {tasks.map((task, index) => (
+                <div
+                  key={task.id}
+                  className={cn(
+                    "border-b border-border p-3 hover:bg-muted/50 transition-colors",
+                    index % 2 === 0 ? "bg-background" : "bg-muted/20"
+                  )}
+                  style={{ height: rowHeight }}
+                >
+                  {editingTask === task.id ? (
+                    <div className="space-y-2">
+                      <Input
+                        value={editValues[task.id]?.task_name || task.task_name}
+                        onChange={(e) => updateEditValue(task.id, 'task_name', e.target.value)}
+                        className="h-6 text-sm"
+                      />
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => saveTask(task.id)}>
+                          <Save className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={cancelEditing}>
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">{task.task_name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge 
+                            variant="secondary" 
+                            className="text-xs"
+                            style={{ backgroundColor: getTaskStatusColor(task.status) + '20' }}
+                          >
+                            {task.status}
+                          </Badge>
+                          {task.is_critical_path && (
+                            <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
+                              Critical
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="mt-1">
+                          <Progress value={task.progress} className="h-1" />
+                          <span className="text-xs text-muted-foreground">{task.progress}%</span>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => startEditing(task.id, task)}
+                      >
+                        <Edit className="w-3 h-3" />
                       </Button>
                     </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Chart Area */}
+          <div className="flex-1 flex flex-col overflow-hidden bg-background">
+            {/* Timeline Header */}
+            <div className="h-16 border-b border-border bg-card overflow-hidden">
+              <div
+                ref={chartScrollRef}
+                className="h-full overflow-x-auto overflow-y-hidden"
+                onScroll={(e) => handleScroll('chart', e.currentTarget.scrollLeft)}
+              >
+                <div style={{ width: chartWidth, minWidth: '100%' }}>
+                  {/* Month headers */}
+                  <div className="h-8 flex border-b border-border">
+                    {timelineHeaders.reduce((months: any[], header, index) => {
+                      const monthKey = `${header.date.getFullYear()}-${header.date.getMonth()}`;
+                      const existingMonth = months.find(m => m.key === monthKey);
+                      
+                      if (!existingMonth) {
+                        months.push({
+                          key: monthKey,
+                          label: format(header.date, 'MMM yyyy'),
+                          startIndex: index,
+                          count: 1,
+                        });
+                      } else {
+                        existingMonth.count++;
+                      }
+                      
+                      return months;
+                    }, []).map(month => (
+                      <div
+                        key={month.key}
+                        className="flex items-center justify-center text-sm font-medium border-r border-border last:border-r-0 bg-muted/50"
+                        style={{ width: month.count * dayWidth }}
+                      >
+                        {month.label}
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate">{task.task_name}</h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge 
-                          variant="secondary" 
-                          className="text-xs"
-                          style={{ backgroundColor: getStatusColor(task.status) + '20' }}
-                        >
-                          {task.status}
-                        </Badge>
-                        {task.is_critical_path && (
-                          <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">
-                            Critical
-                          </Badge>
+                  
+                  {/* Day headers */}
+                  <div className="h-8 flex">
+                    {timelineHeaders.map((header, index) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          "flex items-center justify-center text-xs border-r border-border last:border-r-0",
+                          header.isWeekend ? 'bg-muted text-muted-foreground' : 'bg-background'
+                        )}
+                        style={{ width: dayWidth }}
+                      >
+                        {header.day}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Chart Content */}
+            <div className="flex-1 overflow-auto">
+              <div
+                ref={tableScrollRef}
+                className="overflow-x-auto overflow-y-hidden"
+                onScroll={(e) => handleScroll('table', e.currentTarget.scrollLeft)}
+              >
+                <div style={{ width: chartWidth, minWidth: '100%' }}>
+                  {tasks.map((task, index) => {
+                    const position = getTaskPosition(task);
+                    
+                    return (
+                      <div
+                        key={task.id}
+                        className={cn(
+                          "relative border-b border-border hover:bg-muted/20 transition-colors",
+                          index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                        )}
+                        style={{ height: rowHeight }}
+                      >
+                        {/* Grid background */}
+                        <div className="absolute inset-0 flex">
+                          {timelineHeaders.map((header, dayIndex) => (
+                            <div
+                              key={dayIndex}
+                              className={cn(
+                                "border-r border-border/50 last:border-r-0",
+                                header.isWeekend ? 'bg-muted/30' : ''
+                              )}
+                              style={{ width: dayWidth }}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Task bar */}
+                        {position && (
+                          <div
+                            className="absolute top-2 bottom-2 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                            style={{
+                              left: position.left,
+                              width: position.width,
+                              backgroundColor: getTaskStatusColor(task.status),
+                              minWidth: '20px',
+                            }}
+                          >
+                            {/* Progress overlay */}
+                            <div
+                              className="absolute inset-0 bg-white/20 rounded-md"
+                              style={{ width: `${task.progress}%` }}
+                            />
+                            
+                            {/* Task content */}
+                            <div className="absolute inset-0 flex items-center px-2 text-white text-xs font-medium">
+                              <span className="truncate">
+                                {task.task_name}
+                              </span>
+                            </div>
+                            
+                            {/* Resize handles */}
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-w-resize" />
+                            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-e-resize" />
+                          </div>
+                        )}
+                        
+                        {/* Milestone indicator */}
+                        {task.is_milestone && position && (
+                          <div
+                            className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-amber-500 rotate-45 border border-white shadow-sm"
+                            style={{ left: position.left + position.width - 6 }}
+                          />
                         )}
                       </div>
-                      <div className="mt-1">
-                        <Progress value={task.progress} className="h-1" />
-                        <span className="text-xs text-muted-foreground">{task.progress}%</span>
-                      </div>
-                    </div>
-                    
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => startEditing(task.id, task)}
-                    >
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Chart Area */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-background">
-          {/* Timeline Header */}
-          <div className="h-16 border-b border-border bg-card overflow-hidden">
-            <div
-              ref={chartScrollRef}
-              className="h-full overflow-x-auto overflow-y-hidden"
-              onScroll={(e) => handleScroll('chart', e.currentTarget.scrollLeft)}
-            >
-              <div style={{ width: chartWidth, minWidth: '100%' }}>
-                {/* Month headers */}
-                <div className="h-8 flex border-b border-border">
-                  {timelineHeaders.reduce((months: any[], header, index) => {
-                    const monthKey = `${header.date.getFullYear()}-${header.date.getMonth()}`;
-                    const existingMonth = months.find(m => m.key === monthKey);
-                    
-                    if (!existingMonth) {
-                      months.push({
-                        key: monthKey,
-                        label: format(header.date, 'MMM yyyy'),
-                        startIndex: index,
-                        count: 1,
-                      });
-                    } else {
-                      existingMonth.count++;
-                    }
-                    
-                    return months;
-                  }, []).map(month => (
-                    <div
-                      key={month.key}
-                      className="flex items-center justify-center text-sm font-medium border-r border-border last:border-r-0 bg-muted/50"
-                      style={{ width: month.count * dayWidth }}
-                    >
-                      {month.label}
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Day headers */}
-                <div className="h-8 flex">
-                  {timelineHeaders.map((header, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "flex items-center justify-center text-xs border-r border-border last:border-r-0",
-                        header.isWeekend ? 'bg-muted text-muted-foreground' : 'bg-background'
-                      )}
-                      style={{ width: dayWidth }}
-                    >
-                      {header.day}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        
+        {/* Status Bar */}
+        <div className="h-8 bg-muted/50 border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span>Tasks: {tasks.length}</span>
+            <span>Duration: {totalDays} days</span>
+            <span>Critical Path: {tasks.filter(t => t.is_critical_path).length} tasks</span>
           </div>
           
-          {/* Chart Content */}
-          <div className="flex-1 overflow-auto">
-            <div
-              ref={tableScrollRef}
-              className="overflow-x-auto overflow-y-hidden"
-              onScroll={(e) => handleScroll('table', e.currentTarget.scrollLeft)}
-            >
-              <div style={{ width: chartWidth, minWidth: '100%' }}>
-                {tasks.map((task, index) => {
-                  const position = getTaskPosition(task);
-                  
-                  return (
-                    <div
-                      key={task.id}
-                      className={cn(
-                        "relative border-b border-border hover:bg-muted/20 transition-colors",
-                        index % 2 === 0 ? "bg-background" : "bg-muted/10"
-                      )}
-                      style={{ height: rowHeight }}
-                    >
-                      {/* Grid background */}
-                      <div className="absolute inset-0 flex">
-                        {timelineHeaders.map((header, dayIndex) => (
-                          <div
-                            key={dayIndex}
-                            className={cn(
-                              "border-r border-border/50 last:border-r-0",
-                              header.isWeekend ? 'bg-muted/30' : ''
-                            )}
-                            style={{ width: dayWidth }}
-                          />
-                        ))}
-                      </div>
-                      
-                      {/* Task bar */}
-                      {position && (
-                        <div
-                          className="absolute top-2 bottom-2 rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-                          style={{
-                            left: position.left,
-                            width: position.width,
-                            backgroundColor: getStatusColor(task.status),
-                            minWidth: '20px',
-                          }}
-                        >
-                          {/* Progress overlay */}
-                          <div
-                            className="absolute inset-0 bg-white/20 rounded-md"
-                            style={{ width: `${task.progress}%` }}
-                          />
-                          
-                          {/* Task content */}
-                          <div className="absolute inset-0 flex items-center px-2 text-white text-xs font-medium">
-                            <span className="truncate">
-                              {task.task_name}
-                            </span>
-                          </div>
-                          
-                          {/* Resize handles */}
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-w-resize" />
-                          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 cursor-e-resize" />
-                        </div>
-                      )}
-                      
-                      {/* Milestone indicator */}
-                      {task.is_milestone && position && (
-                        <div
-                          className="absolute top-1/2 transform -translate-y-1/2 w-3 h-3 bg-amber-500 rotate-45 border border-white shadow-sm"
-                          style={{ left: position.left + position.width - 6 }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+          {isSkaiActive && (
+            <div className="flex items-center gap-2 text-primary">
+              <Bot className="w-3 h-3 animate-pulse" />
+              <span>Skai AI Assistant Active</span>
             </div>
-          </div>
+          )}
         </div>
       </div>
-      
-      {/* Status Bar */}
-      <div className="h-8 bg-muted/50 border-t border-border flex items-center justify-between px-4 text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
-          <span>Tasks: {tasks.length}</span>
-          <span>Duration: {totalDays} days</span>
-          <span>Critical Path: {tasks.filter(t => t.is_critical_path).length} tasks</span>
-        </div>
-        
-        {isSkaiActive && (
-          <div className="flex items-center gap-2 text-primary">
-            <Bot className="w-3 h-3 animate-pulse" />
-            <span>Skai AI Assistant Active</span>
-          </div>
-        )}
-      </div>
+
+      {/* Persistent AI Chat */}
+      <PersistentAiChat />
     </div>
   );
 };
