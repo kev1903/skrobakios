@@ -287,14 +287,6 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
     ));
   };
 
-  const quickPrompts = [
-    "Add carpentry work for the project",
-    "Create plumbing activities for the building", 
-    "Generate electrical work activities",
-    "Add site preparation and excavation work",
-    "Create finishing work activities",
-    "Generate activities from uploaded project documents"
-  ];
 
   return (
     <div className="relative">
@@ -413,25 +405,6 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
               </div>
             </div>
 
-            {/* Quick Prompts */}
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                Quick prompts:
-              </label>
-              <div className="space-y-1">
-                {quickPrompts.map((quickPrompt, index) => (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setPrompt(quickPrompt)}
-                    className="w-full text-left justify-start text-xs h-auto py-1 px-2"
-                  >
-                    {quickPrompt}
-                  </Button>
-                ))}
-              </div>
-            </div>
 
             {/* Activity Suggestions */}
             {suggestions.length > 0 && (
