@@ -81,11 +81,11 @@ serve(async (req) => {
       }
     });
 
-    // Verify user authentication directly with the client
+    // Verify user authentication by passing JWT directly
     let user;
     try {
-      // This will use the JWT token from the authorization header
-      const { data: { user: authenticatedUser }, error: authError } = await supabaseClient.auth.getUser();
+      // Pass the JWT token directly to getUser() method
+      const { data: { user: authenticatedUser }, error: authError } = await supabaseClient.auth.getUser(jwt);
       
       console.log('User found:', authenticatedUser ? authenticatedUser.id : 'None');
       console.log('Auth error:', authError ? authError.message : 'None');
