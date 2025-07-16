@@ -305,9 +305,17 @@ export const TaskTimelineView = () => {
     <div className="space-y-6">
       <Card className="bg-white/10 backdrop-blur-sm border-white/20">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-white">
-            <Calendar className="w-5 h-5" />
-            <span>Project Timeline</span>
+          <CardTitle className="flex items-center justify-between text-white">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-5 h-5" />
+              <span>Project Timeline</span>
+            </div>
+            {aiUpdating && (
+              <div className="flex items-center space-x-2 text-blue-400 animate-pulse">
+                <Zap className="w-4 h-4" />
+                <span className="text-sm">SkAi updating...</span>
+              </div>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>

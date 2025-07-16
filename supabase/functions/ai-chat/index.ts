@@ -34,6 +34,163 @@ const withRetry = async (fn: () => Promise<any>, retries = MAX_RETRIES): Promise
   }
 };
 
+// Function to execute AI commands
+const executeAiCommand = async (commandData: any, supabaseClient: any, projectId: string) => {
+  const { command, data } = commandData;
+  
+  try {
+    switch (command) {
+      case 'CREATE_TASK':
+        // For sk_25008_design table (SK project)
+        if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+          const { error } = await supabaseClient
+            .from('sk_25008_design')
+            .insert({
+              task_name: data.task_name,
+              description: data.description,
+              task_type: data.task_type || 'Design',
+              status: data.status || 'pending',
+              start_date: data.start_date,
+              end_date: data.end_date,
+              duration_days: data.duration_days || 1,
+              progress_percentage: data.progress_percentage || 0
+            });
+          
+          if (error) {
+            console.error('Error creating SK task:', error);
+            return { success: false, error: error.message };
+          }
+          
+          return { 
+            success: true, 
+            message: `Created new SK design task: "${data.task_name}"` 
+          };
+        } else {
+          // For general tasks table
+          const { error } = await supabaseClient
+            .from('tasks')
+            .insert({
+              task_name: data.task_name,
+              description: data.description,
+              status: data.status || 'pending',
+              start_date: data.start_date,
+              end_date: data.end_date,
+              due_date: data.end_date || data.due_date,
+              duration: data.duration_days,
+              progress: data.progress_percentage || 0,
+              priority: data.priority || 'medium',
+              project_id: projectId
+            });
+          
+          if (error) {
+            console.error('Error creating general task:', error);
+            return { success: false, error: error.message };
+          }
+          
+          return { 
+            success: true, 
+            message: `Created new task: "${data.task_name}"` 
+          };
+        }
+        
+      case 'UPDATE_TASK':
+        const { id, updates } = data;
+        
+        // Determine which table to update based on project
+        if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+          // Map updates to sk_25008_design format
+          const skUpdates: any = {};
+          if (updates.task_name) skUpdates.task_name = updates.task_name;
+          if (updates.description) skUpdates.description = updates.description;
+          if (updates.status) skUpdates.status = updates.status;
+          if (updates.start_date) skUpdates.start_date = updates.start_date;
+          if (updates.end_date) skUpdates.end_date = updates.end_date;
+          if (updates.duration_days) skUpdates.duration_days = updates.duration_days;
+          if (updates.progress_percentage !== undefined) skUpdates.progress_percentage = updates.progress_percentage;
+          
+          const { error } = await supabaseClient
+            .from('sk_25008_design')
+            .update(skUpdates)
+            .eq('id', id);
+          
+          if (error) {
+            console.error('Error updating SK task:', error);
+            return { success: false, error: error.message };
+          }
+          
+          return { 
+            success: true, 
+            message: `Updated SK design task successfully` 
+          };
+        } else {
+          // Update general tasks table
+          const { error } = await supabaseClient
+            .from('tasks')
+            .update(updates)
+            .eq('id', id);
+          
+          if (error) {
+            console.error('Error updating general task:', error);
+            return { success: false, error: error.message };
+          }
+          
+          return { 
+            success: true, 
+            message: `Updated task successfully` 
+          };
+        }
+        
+      case 'DELETE_TASK':
+        const taskId = data.id;
+        
+        // Determine which table to delete from
+        if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+          const { error } = await supabaseClient
+            .from('sk_25008_design')
+            .delete()
+            .eq('id', taskId);
+          
+          if (error) {
+            console.error('Error deleting SK task:', error);
+            return { success: false, error: error.message };
+          }
+          
+          return { 
+            success: true, 
+            message: `Deleted SK design task successfully` 
+          };
+        } else {
+          const { error } = await supabaseClient
+            .from('tasks')
+            .delete()
+            .eq('id', taskId);
+          
+          if (error) {
+            console.error('Error deleting general task:', error);
+            return { success: false, error: error.message };
+          }
+          
+          return { 
+            success: true, 
+            message: `Deleted task successfully` 
+          };
+        }
+        
+      default:
+        return { 
+          success: false, 
+          error: `Unknown command: ${command}` 
+        };
+    }
+  } catch (error) {
+    console.error('Command execution error:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Unknown error occurred' 
+    };
+  }
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -401,6 +558,30 @@ RESPONSE GUIDELINES:
 
       aiResponse = data.choices[0].message.content;
       console.log('AI response received, length:', aiResponse.length);
+
+      // Process AI commands if present in the response
+      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({.*?})/);
+      if (commandMatch) {
+        try {
+          const commandData = JSON.parse(commandMatch[1]);
+          console.log('AI command detected:', commandData);
+          
+          // Execute the command
+          const commandResult = await executeAiCommand(commandData, supabaseClient, context?.projectId);
+          
+          if (commandResult.success) {
+            console.log('AI command executed successfully:', commandResult);
+            // Append execution result to AI response
+            aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
+          } else {
+            console.error('AI command failed:', commandResult.error);
+            aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
+          }
+        } catch (cmdError) {
+          console.error('Error processing AI command:', cmdError);
+          aiResponse += `\n\n❌ **Command processing error:** Unable to execute the requested action.`;
+        }
+      }
 
     } catch (apiError) {
       console.error('xAI API call failed after retries:', apiError);

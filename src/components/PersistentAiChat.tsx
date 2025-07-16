@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAiSync } from '@/hooks/useAiSync';
 
 interface ChatMessage {
   id: string;
@@ -35,6 +36,7 @@ export function PersistentAiChat() {
   const { toast } = useToast();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const { triggerAiUpdate } = useAiSync();
 
   // Get context from current route and screen
   const getScreenContext = (): ContextData => {
@@ -145,6 +147,12 @@ export function PersistentAiChat() {
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Check if AI response includes command execution confirmation
+      if (data.response.includes('✅ **Command executed successfully:**')) {
+        console.log('AI command detected - triggering timeline update');
+        triggerAiUpdate();
+      }
       
       if (!isOpen) {
         setHasNewMessage(true);
