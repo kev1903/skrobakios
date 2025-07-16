@@ -558,11 +558,41 @@ serve(async (req) => {
     console.log('Context:', JSON.stringify(context, null, 2));
     console.log('User ID:', user.id);
 
+    // Extract project context from various sources
+    let currentProjectId = null;
+    
+    // 1. Try to get project ID from context
+    if (context?.projectId) {
+      currentProjectId = context.projectId;
+    }
+    
+    // 2. Try to get from URL parameters in context
+    if (!currentProjectId && context?.userLocation) {
+      const urlParams = new URLSearchParams(context.userLocation.split('?')[1] || '');
+      currentProjectId = urlParams.get('projectId');
+    }
+    
+    // 3. Try to extract from current page path
+    if (!currentProjectId && context?.currentPage) {
+      const pageMatches = context.currentPage.match(/\/projects\/([^\/]+)/);
+      if (pageMatches) {
+        currentProjectId = pageMatches[1];
+      }
+    }
+    
+    // 4. Try to get from visible data
+    if (!currentProjectId && context?.visibleData?.projectFocus) {
+      currentProjectId = context.visibleData.projectFocus;
+    }
+    
+    console.log('Determined current project ID:', currentProjectId);
+
     // Fetch user's company and project data
     let userCompanies = [];
     let userProjects = [];
     let userTasks = [];
     let userProfile = null;
+    let currentProject = null;
     
     try {
       // Get user's companies
@@ -593,12 +623,24 @@ serve(async (req) => {
           console.error('Error fetching projects:', projectsError);
         } else {
           userProjects = projects || [];
+          
+          // Find the current project
+          if (currentProjectId) {
+            currentProject = userProjects.find(p => p.id === currentProjectId || p.project_id === currentProjectId);
+            
+            // If not found by ID, try to find by matching the project_id field
+            if (!currentProject) {
+              currentProject = userProjects.find(p => p.id === currentProjectId);
+            }
+            
+            console.log('Found current project:', currentProject ? currentProject.name : 'Not found');
+          }
         }
       }
       
       // Get tasks for the current project or all user projects
-      const currentProjectId = context?.projectId;
-      if (currentProjectId) {
+      // If we have a current project, get tasks for that specific project
+      if (currentProjectId && currentProject) {
         // Try to fetch from sk_25008_design table first for the current project
         if (currentProjectId === '736d0991-6261-4884-8353-3522a7a98720' || currentProjectId?.toLowerCase().includes('sk')) {
           const { data: sk25008Tasks, error: sk25008Error } = await supabaseClient
@@ -691,9 +733,18 @@ USER'S COMPANIES:
 ${userCompanies.map(c => `- ${c.name} (Role: ${c.company_members[0]?.role})`).join('\n')}
 
 USER'S PROJECTS:
-${userProjects.length > 0 ? userProjects.map(p => `- ${p.name} (${p.company_id}) - Status: ${p.status}, Priority: ${p.priority || 'Not set'}`).join('\n') : 'No projects found'}
+${userProjects.length > 0 ? userProjects.map(p => `- ${p.name} (ID: ${p.id}) - Status: ${p.status}, Priority: ${p.priority || 'Not set'}, Company: ${userCompanies.find(c => c.id === p.company_id)?.name || 'Unknown'}`).join('\n') : 'No projects found'}
 
-USER'S TASKS (for current project ${context?.projectId || 'all projects'}):
+CURRENT PROJECT CONTEXT:
+${currentProject ? `You are currently focused on project: **${currentProject.name}** (ID: ${currentProject.id})
+- Description: ${currentProject.description || 'No description'}
+- Status: ${currentProject.status}
+- Priority: ${currentProject.priority || 'Not set'}
+- Location: ${currentProject.location || 'Not specified'}
+
+When creating tasks, they will be added to this project automatically.` : 'No specific project context detected. When creating tasks, please specify which project or I will use the first available project.'}
+
+USER'S TASKS (for ${currentProject ? `current project "${currentProject.name}"` : `all projects`}):
 ${userTasks.length > 0 ? userTasks.map(t => {
   const formatDate = (dateStr: string) => dateStr ? new Date(dateStr).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not set';
   return `- **${t.task_name}** - Status: ${t.status}, Progress: ${t.progress || t.progress_percentage || 0}%
@@ -709,7 +760,9 @@ ${userTasks.length > 0 ? userTasks.map(t => {
 CURRENT CONTEXT:
 - User ID: ${user.id}
 - Screen: ${context?.currentPage || 'Unknown'}
-- Project ID: ${context?.projectId || 'None'}
+- Current Project: ${currentProject ? `${currentProject.name} (${currentProject.id})` : 'None detected'}
+- Project ID: ${currentProjectId || 'None'}
+- Available Projects: ${userProjects.map(p => `${p.name} (${p.id})`).join(', ') || 'None'}
 - Visible Data: ${JSON.stringify(context?.visibleData || {})}
 
 IMPORTANT SECURITY RULES:
@@ -775,7 +828,17 @@ RESPONSE GUIDELINES:
       });
     }
 
-    console.log('xAI API key present, making API call...');
+    // If we have a valid project context, use it for command execution
+    let commandProjectId = currentProjectId;
+    
+    // If no current project but user has projects, offer to select one
+    if (!commandProjectId && userProjects.length > 0) {
+      // For task creation commands, try to use the first available project
+      if (message.toLowerCase().includes('task') || message.toLowerCase().includes('checking')) {
+        commandProjectId = userProjects[0].id;
+        console.log('Using default project for task creation:', commandProjectId);
+      }
+    }
 
     // Make xAI API call with retry logic
     let aiResponse;
@@ -820,74 +883,45 @@ RESPONSE GUIDELINES:
       aiResponse = data.choices[0].message.content;
       console.log('AI response received, length:', aiResponse.length);
 
-      // Process AI commands if present in the response - robust JSON parsing with validation
-      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({[\s\S]*?}(?:\s|$))/);
-      if (commandMatch) {
+      // Extract and execute commands from AI response
+      const commandMatches = aiResponse.matchAll(/EXECUTE_COMMAND:\s*(\{[^}]+\})/g);
+      let commandResults = [];
+      
+      for (const match of commandMatches) {
         try {
-          console.log('Raw command match found:', commandMatch[1]);
+          const rawCommandStr = match[1];
+          console.log('Raw command match found:', rawCommandStr);
           
-          // Sanitize and validate JSON string
-          const sanitizedJson = sanitizeJsonString(commandMatch[1].trim());
-          console.log('Sanitized JSON string:', sanitizedJson);
+          const sanitizedCommandStr = sanitizeJsonString(rawCommandStr);
+          console.log('Sanitized JSON string:', sanitizedCommandStr);
           
-          // Validate JSON structure before parsing
-          const commandData = validateAndParseCommand(sanitizedJson);
-          if (!commandData.valid) {
-            console.error('Invalid command structure:', commandData.error);
-            aiResponse += `\n\n❌ **Invalid command format—please try rephrasing:** ${commandData.error}`;
+          const validationResult = validateAndParseCommand(sanitizedCommandStr);
+          if (!validationResult.valid) {
+            console.error('Command validation failed:', validationResult.error);
+            commandResults.push({
+              success: false,
+              error: validationResult.error
+            });
+            continue;
+          }
+          
+          const commandData = validationResult.data;
+          console.log('Valid command parsed:', commandData);
+          
+          // Execute command with proper project context
+          const result = await executeAiCommand(commandData, supabaseClient, commandProjectId);
+          commandResults.push(result);
+          
+          if (result.success) {
+            console.log('AI command executed successfully:', result);
+            aiResponse += `\n\n✅ **Command executed successfully:** ${result.message}`;
           } else {
-            console.log('Valid command parsed:', commandData.data);
-            
-            // Check if command requires confirmation
-            if (requiresConfirmation(commandData.data.command)) {
-              const confirmationMessage = getConfirmationMessage(commandData.data);
-              if (!message.toLowerCase().includes('yes') && !message.toLowerCase().includes('confirm')) {
-                aiResponse += `\n\n⚠️ **Confirmation required:** ${confirmationMessage}`;
-              } else {
-                // Execute the command with proper error handling
-                const commandResult = await executeAiCommand(commandData.data, supabaseClient, context?.projectId);
-                
-                if (commandResult.success) {
-                  console.log('AI command executed successfully:', commandResult);
-                  aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
-                } else {
-                  console.error('AI command failed:', commandResult.error);
-                  aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
-                }
-              }
-            } else {
-              // Execute the command with proper error handling
-              const commandResult = await executeAiCommand(commandData.data, supabaseClient, context?.projectId);
-              
-              if (commandResult.success) {
-                console.log('AI command executed successfully:', commandResult);
-                aiResponse += `\n\n✅ **Command executed successfully:** ${commandResult.message}`;
-              } else {
-                console.error('AI command failed:', commandResult.error);
-                aiResponse += `\n\n❌ **Command failed:** ${commandResult.error}`;
-              }
-            }
+            console.error('AI command failed:', result.error);
+            aiResponse += `\n\n❌ **Command failed:** ${result.error}`;
           }
         } catch (cmdError) {
           console.error('Error processing AI command:', cmdError);
-          console.error('Command error details:', {
-            message: cmdError.message,
-            stack: cmdError.stack,
-            name: cmdError.name,
-            input: commandMatch[1]
-          });
-          
-          // Provide user-friendly error messages
-          let userFriendlyError = 'Unable to execute the requested action.';
-          if (cmdError.message?.includes('JSON')) {
-            userFriendlyError = 'Invalid command format—please try rephrasing your request.';
-          } else if (cmdError.message?.includes('permission')) {
-            userFriendlyError = 'You don\'t have permission to perform this action.';
-          } else if (cmdError.message?.includes('not found')) {
-            userFriendlyError = 'The requested item was not found. Please check and try again.';
-          }
-          
-          aiResponse += `\n\n❌ **Command processing error:** ${userFriendlyError}`;
+          aiResponse += `\n\n❌ **Command processing error:** ${cmdError.message}`;
         }
       }
 
