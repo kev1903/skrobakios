@@ -7,10 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Bot, Plus, Sparkles, Send, Loader2, Upload, FileText, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { pdfjs } from 'react-pdf';
-
-// Set up PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface SkaiActivityAssistantProps {
   projectId: string;
@@ -45,20 +41,16 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
+      const formData = new FormData();
+      formData.append('file', file);
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n';
-      }
+      const { data, error } = await supabase.functions.invoke('extract-pdf-text', {
+        body: formData,
+      });
 
-      return fullText.trim();
+      if (error) throw error;
+
+      return data.text || '';
     } catch (error) {
       console.error('Error extracting text from PDF:', error);
       throw new Error('Failed to extract text from PDF');
