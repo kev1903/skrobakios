@@ -1,9 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { ActivityData } from '@/utils/activityUtils';
+import { useState, useMemo } from 'react';
 
 interface ActivitiesTableProps {
   activities: ActivityData[];
@@ -116,33 +117,78 @@ const ActivityRow = ({
   );
 };
 
+type SortDirection = 'asc' | 'desc' | null;
+
 export const ActivitiesTable = ({ 
   activities, 
   onDelete, 
   onToggleExpansion, 
   onCreateChild 
 }: ActivitiesTableProps) => {
+  const [stageSortDirection, setStageSortDirection] = useState<SortDirection>(null);
+
+  const sortedActivities = useMemo(() => {
+    if (!stageSortDirection) return activities;
+
+    const sorted = [...activities].sort((a, b) => {
+      const stageA = a.stage || "4.0 PRELIMINARY";
+      const stageB = b.stage || "4.0 PRELIMINARY";
+      
+      if (stageSortDirection === 'asc') {
+        return stageA.localeCompare(stageB);
+      } else {
+        return stageB.localeCompare(stageA);
+      }
+    });
+
+    return sorted;
+  }, [activities, stageSortDirection]);
+
+  const handleStageSort = () => {
+    if (stageSortDirection === null) {
+      setStageSortDirection('asc');
+    } else if (stageSortDirection === 'asc') {
+      setStageSortDirection('desc');
+    } else {
+      setStageSortDirection(null);
+    }
+  };
+
+  const getSortIcon = () => {
+    if (stageSortDirection === 'asc') return <ArrowUp className="h-3 w-3 ml-1" />;
+    if (stageSortDirection === 'desc') return <ArrowDown className="h-3 w-3 ml-1" />;
+    return <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" />;
+  };
   return (
     <div className="border rounded-lg overflow-hidden bg-background">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="font-semibold py-3 w-24">ID</TableHead>
-            <TableHead className="font-semibold py-3 w-32">Stage</TableHead>
+            <TableHead className="font-semibold py-3 w-32">
+              <Button
+                variant="ghost"
+                onClick={handleStageSort}
+                className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
+              >
+                Stage
+                {getSortIcon()}
+              </Button>
+            </TableHead>
             <TableHead className="font-semibold py-3">Activity</TableHead>
             <TableHead className="font-semibold py-3">Description</TableHead>
             <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {activities.length === 0 ? (
+          {sortedActivities.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
                 No activities yet. Create your first activity to get started.
               </TableCell>
             </TableRow>
           ) : (
-            activities.map((activity) => (
+            sortedActivities.map((activity) => (
               <ActivityRow
                 key={activity.id}
                 activity={activity}
