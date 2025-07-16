@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Bot, Plus, Sparkles, Send, Loader2, Upload, FileText, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -360,32 +361,35 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
 
 
   return (
-    <div className="relative">
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        variant="outline"
-        className="flex items-center space-x-2 border-dashed border-primary/50 hover:border-primary"
-      >
-        <Bot className="h-4 w-4" />
-        <Sparkles className="h-4 w-4" />
-        <span>Ask Skai to create activities</span>
-      </Button>
-
-      {isOpen && (
-        <Card className="absolute top-12 right-0 w-96 z-50 shadow-xl border-primary/20">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center space-x-2 text-lg">
-              <Bot className="h-5 w-5 text-primary" />
-              <span>Skai Activity Assistant</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="flex items-center space-x-2 border-dashed border-primary/50 hover:border-primary"
+        >
+          <Bot className="h-4 w-4" />
+          <Sparkles className="h-4 w-4" />
+          <span>Ask Skai to create activities</span>
+        </Button>
+      </DialogTrigger>
+      
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center space-x-2 text-xl">
+            <Bot className="h-6 w-6 text-primary" />
+            <span>Skai Activity Assistant</span>
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column - Input Section */}
+          <div className="space-y-6">
             {/* File Upload Section */}
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium mb-3 block">
                 Upload Project Documents (PDF):
               </label>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -397,41 +401,40 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   variant="outline"
-                  size="sm"
                   className="flex items-center space-x-2"
                 >
                   <Upload className="h-4 w-4" />
                   <span>Upload PDFs</span>
                 </Button>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   Upload project specs, drawings, or scope documents
                 </span>
               </div>
 
               {/* Uploaded Files Display */}
               {uploadedFiles.length > 0 && (
-                <div className="space-y-2 mb-3">
+                <div className="space-y-2 mb-4">
                   {uploadedFiles.map((uploadedFile, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-secondary/50 rounded-lg text-sm">
+                    <div key={index} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
                       <div className="flex items-center space-x-2">
                         <FileText className="h-4 w-4" />
-                        <span className="truncate max-w-[200px]">{uploadedFile.file.name}</span>
+                        <span className="truncate max-w-[250px]">{uploadedFile.file.name}</span>
                         {uploadedFile.isProcessing && (
-                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <Loader2 className="h-4 w-4 animate-spin" />
                         )}
                         {uploadedFile.error ? (
-                          <Badge variant="destructive" className="text-xs">Error</Badge>
+                          <Badge variant="destructive">Error</Badge>
                         ) : uploadedFile.content ? (
-                          <Badge variant="default" className="text-xs">Processed</Badge>
+                          <Badge variant="default">Processed</Badge>
                         ) : null}
                       </div>
                       <Button
                         onClick={() => removeFile(uploadedFile.file)}
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0"
+                        className="h-8 w-8 p-0"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
@@ -440,7 +443,7 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium mb-3 block">
                 Describe the activities you need:
               </label>
               <Textarea
@@ -449,14 +452,13 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
                 placeholder={uploadedFiles.some(f => f.content) 
                   ? "Describe what activities you need based on the uploaded documents..." 
                   : "e.g., Add carpentry work including framing, drywall installation, and finish carpentry for the residential project"}
-                rows={3}
-                className="mb-2"
+                rows={6}
+                className="mb-4"
               />
               <div className="flex justify-between items-center">
                 <Button 
                   onClick={handleGenerateActivities}
                   disabled={(!prompt.trim() && uploadedFiles.filter(f => f.content).length === 0) || isGenerating}
-                  size="sm"
                   className="flex items-center space-x-2"
                 >
                   {isGenerating ? (
@@ -469,84 +471,93 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
                 <Button 
                   onClick={() => setIsOpen(false)}
                   variant="ghost"
-                  size="sm"
                 >
                   Cancel
                 </Button>
               </div>
             </div>
+          </div>
 
-
-            {/* Activity Suggestions */}
+          {/* Right Column - Generated Activities */}
+          <div>
             {suggestions.length > 0 && (
-              <div className="space-y-3 max-h-64 overflow-y-auto">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Generated Activities ({suggestions.length})</h4>
+                  <h3 className="text-lg font-medium">Generated Activities ({suggestions.length})</h3>
                   <Button
                     onClick={handleCreateActivities}
                     disabled={isCreatingActivities}
-                    size="sm"
-                    className="flex items-center space-x-1"
+                    className="flex items-center space-x-2"
                   >
                     {isCreatingActivities ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Plus className="h-3 w-3" />
+                      <Plus className="h-4 w-4" />
                     )}
-                    <span>{isCreatingActivities ? 'Creating...' : 'Create All'}</span>
+                    <span>{isCreatingActivities ? 'Creating...' : 'Create All Activities'}</span>
                   </Button>
                 </div>
 
-                {suggestions.map((suggestion, index) => (
-                  <Card key={index} className="border-dashed">
-                    <CardContent className="p-3 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <Input
-                          value={suggestion.name}
-                          onChange={(e) => handleEditSuggestion(index, 'name', e.target.value)}
-                          className="font-medium text-sm"
-                          placeholder="Activity name"
-                        />
-                        <Button
-                          onClick={() => handleRemoveSuggestion(index)}
-                          variant="ghost"
-                          size="sm"
-                          className="ml-2 h-6 w-6 p-0"
-                        >
-                          ×
-                        </Button>
-                      </div>
-                      
-                      <Textarea
-                        value={suggestion.description}
-                        onChange={(e) => handleEditSuggestion(index, 'description', e.target.value)}
-                        className="text-xs"
-                        rows={2}
-                        placeholder="Description"
-                      />
-                      
-                      <div className="flex items-center space-x-2 text-xs">
-                        <div className="flex items-center space-x-1">
-                          <span className="text-xs text-muted-foreground">$</span>
+                <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                  {suggestions.map((suggestion, index) => (
+                    <Card key={index} className="border-dashed">
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-start justify-between">
                           <Input
-                            type="number"
-                            value={suggestion.cost_est}
-                            onChange={(e) => handleEditSuggestion(index, 'cost_est', parseFloat(e.target.value) || 0)}
-                            className="text-xs h-7 w-20"
-                            min="0"
-                            step="100"
-                            placeholder="Cost"
+                            value={suggestion.name}
+                            onChange={(e) => handleEditSuggestion(index, 'name', e.target.value)}
+                            className="font-medium"
+                            placeholder="Activity name"
                           />
+                          <Button
+                            onClick={() => handleRemoveSuggestion(index)}
+                            variant="ghost"
+                            size="sm"
+                            className="ml-2 h-8 w-8 p-0"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        <Textarea
+                          value={suggestion.description}
+                          onChange={(e) => handleEditSuggestion(index, 'description', e.target.value)}
+                          rows={3}
+                          placeholder="Description"
+                        />
+                        
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1">
+                            <span className="text-sm text-muted-foreground">Estimated Cost: $</span>
+                            <Input
+                              type="number"
+                              value={suggestion.cost_est}
+                              onChange={(e) => handleEditSuggestion(index, 'cost_est', parseFloat(e.target.value) || 0)}
+                              className="w-32"
+                              min="0"
+                              step="100"
+                              placeholder="Cost"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-      )}
-    </div>
+            
+            {suggestions.length === 0 && (
+              <div className="flex items-center justify-center h-64 text-muted-foreground">
+                <div className="text-center">
+                  <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Generate activities to see them here</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
