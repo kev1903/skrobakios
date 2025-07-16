@@ -136,10 +136,12 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
       });
 
       if (error) {
+        console.error('Edge function error:', error);
         throw new Error(error.message || 'Failed to get AI response');
       }
 
       if (data.error) {
+        console.error('Edge function returned error:', data);
         throw new Error(data.details || data.error);
       }
 
@@ -161,8 +163,12 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
       
       let errorMessage = "Failed to send message";
       if (error instanceof Error) {
-        if (error.message.includes('Authentication required')) {
+        if (error.message.includes('Authentication required') || 
+            error.message.includes('Please log in')) {
+          setAuthError("Please log in to use the AI chat");
           errorMessage = "Please log in to use the AI chat";
+          // Clear messages on auth error
+          setMessages([]);
         } else if (error.message.includes('AI service temporarily unavailable')) {
           errorMessage = "AI service is temporarily unavailable. Please try again in a moment.";
         } else if (error.message.includes('AI service is not configured')) {

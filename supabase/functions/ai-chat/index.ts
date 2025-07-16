@@ -74,6 +74,10 @@ serve(async (req) => {
           authorization: authHeader,
           apikey: apikey || supabaseAnonKey
         }
+      },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
     });
 
@@ -81,7 +85,7 @@ serve(async (req) => {
     const supabaseServiceClient = createClient(supabaseUrl, supabaseServiceKey);
 
     // Verify user authentication by getting user info
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(jwt);
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     
     console.log('User found:', user ? user.id : 'None');
     console.log('Auth error:', authError ? authError.message : 'None');
