@@ -6,11 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { pdfjs } from 'react-pdf';
-
-// Disable PDF.js worker to avoid loading issues - run in main thread instead
-pdfjs.GlobalWorkerOptions.workerSrc = null;
-pdfjs.GlobalWorkerOptions.workerPort = null;
 
 interface ChatBoxProps {
   onNavigate?: (page: string) => void;
@@ -47,20 +42,16 @@ export const ChatBox = ({ onNavigate, onSpeakingChange, projectId, companyId, on
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
+      const formData = new FormData();
+      formData.append('file', file);
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n';
-      }
+      const { data, error } = await supabase.functions.invoke('extract-pdf-text', {
+        body: formData,
+      });
 
-      return fullText.trim();
+      if (error) throw error;
+
+      return data.text || '';
     } catch (error) {
       console.error('Error extracting text from PDF:', error);
       throw new Error('Failed to extract text from PDF');
