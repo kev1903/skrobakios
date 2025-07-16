@@ -244,6 +244,65 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           };
         }
         
+      case 'DELETE_ALL_TASKS':
+        // Determine which table to delete from based on project
+        if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
+          // First get all tasks before deletion for broadcasting
+          const { data: tasksToDelete } = await supabaseClient
+            .from('sk_25008_design')
+            .select('*');
+
+          const { error } = await supabaseClient
+            .from('sk_25008_design')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all records
+          
+          if (error) {
+            console.error('Error deleting all SK tasks:', error);
+            return { success: false, error: error.message };
+          }
+          
+          // Broadcast deletions for each task
+          if (tasksToDelete && tasksToDelete.length > 0) {
+            for (const task of tasksToDelete) {
+              await broadcastUpdate(supabaseClient, 'sk_25008_design', 'DELETE', { id: task.id, old: task });
+            }
+          }
+          
+          return { 
+            success: true, 
+            message: `Deleted all ${tasksToDelete?.length || 0} tasks from project` 
+          };
+        } else {
+          // First get all tasks before deletion for broadcasting
+          const { data: tasksToDelete } = await supabaseClient
+            .from('tasks')
+            .select('*')
+            .eq('project_id', projectId);
+
+          const { error } = await supabaseClient
+            .from('tasks')
+            .delete()
+            .eq('project_id', projectId);
+          
+          if (error) {
+            console.error('Error deleting all general tasks:', error);
+            return { success: false, error: error.message };
+          }
+          
+          // Broadcast deletions for each task
+          if (tasksToDelete && tasksToDelete.length > 0) {
+            for (const task of tasksToDelete) {
+              await broadcastUpdate(supabaseClient, 'tasks', 'DELETE', { id: task.id, old: task });
+            }
+          }
+          
+          return { 
+            success: true, 
+            message: `Deleted all ${tasksToDelete?.length || 0} tasks from project` 
+          };
+        }
+        
       default:
         return { 
           success: false, 
@@ -547,14 +606,30 @@ CAPABILITIES:
 - Provide insights and recommendations based on current screen context
 - Help with project management, scheduling, and construction processes
 
+DATABASE COMMANDS:
+When the user requests database changes (create, update, delete tasks), you MUST include an EXECUTE_COMMAND in your response:
+
+For deleting ALL tasks in project:
+EXECUTE_COMMAND: {"command": "DELETE_ALL_TASKS", "data": {}}
+
+For updating a task:
+EXECUTE_COMMAND: {"command": "UPDATE_TASK", "data": {"id": "task-id", "task_name": "name", "progress_percentage": 50, "status": "pending"}}
+
+For creating a task:
+EXECUTE_COMMAND: {"command": "CREATE_TASK", "data": {"task_name": "New Task", "task_type": "design", "duration_days": 5, "status": "pending"}}
+
+For deleting a single task:
+EXECUTE_COMMAND: {"command": "DELETE_TASK", "data": {"id": "task-id"}}
+
 RESPONSE GUIDELINES:
 - Be concise and actionable
 - Reference current screen context when relevant
 - Use the EXACT task data shown above - do not make up or hallucinate tasks
 - When listing tasks, only mention the tasks from the USER'S TASKS section above
-- Ask for confirmation before making significant changes
+- Ask for confirmation before making significant changes, then include the EXECUTE_COMMAND if confirmed
 - Provide specific, construction-industry relevant advice
-- Only reference the projects, companies, and tasks listed in the sections above`;
+- Only reference the projects, companies, and tasks listed in the sections above
+- ALWAYS include EXECUTE_COMMAND when performing database operations
 
     const messages = [
       {
