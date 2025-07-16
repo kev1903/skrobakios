@@ -276,7 +276,7 @@ export function PersistentAiChat() {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold text-sm">Grok AI Assistant</h3>
+            <h3 className="font-semibold text-sm">Skai AI Assistant</h3>
             <p className="text-xs text-muted-foreground">Construction Management AI</p>
           </div>
         </div>
@@ -308,7 +308,7 @@ export function PersistentAiChat() {
             {messages.length === 0 && (
               <div className="text-center text-muted-foreground py-8">
                 <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-sm">Hello! I'm Grok, your AI assistant for Skrobaki.</p>
+                <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
                 <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
               </div>
             )}

@@ -56,7 +56,7 @@ export const TopFloatingBar = ({
   };
 
   return (
-    <div className="fixed top-6 left-0 z-50 w-full">
+    <div className="fixed top-6 left-0 z-40 w-full">
       <div className="flex items-center justify-between py-0 px-6 mx-6">
         {/* Navigation Menu Icon */}
         <div className="flex-shrink-0 mr-4">
@@ -158,7 +158,7 @@ export const TopFloatingBar = ({
                  {/* Profile Dropdown */}
                  {showProfileDropdown && (
                    <div 
-                     className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-sm rounded-lg border border-white/30 shadow-elegant z-50"
+                     className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-sm rounded-lg border border-white/30 shadow-elegant z-40"
                      onMouseEnter={() => setShowProfileDropdown(true)}
                      onMouseLeave={() => setShowProfileDropdown(false)}
                    >

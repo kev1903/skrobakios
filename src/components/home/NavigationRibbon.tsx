@@ -224,7 +224,7 @@ export const NavigationRibbon = ({
   if (isFloatingMode) {
     // Floating mode - fixed positioning
     return (
-      <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+      <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-30 transition-all duration-300">
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>

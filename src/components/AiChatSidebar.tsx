@@ -270,7 +270,7 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
           </Avatar>
           {!isCollapsed && (
             <div className="min-w-0">
-              <h3 className="font-semibold text-sm truncate">Grok AI Assistant</h3>
+              <h3 className="font-semibold text-sm truncate">Skai AI Assistant</h3>
               <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
             </div>
           )}
@@ -339,7 +339,7 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiC
                 {messages.length === 0 && (
                   <div className="text-center text-muted-foreground py-8">
                     <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-sm">Hello! I'm Grok, your AI assistant for Skrobaki.</p>
+                    <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
                     <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
                   </div>
                 )}
