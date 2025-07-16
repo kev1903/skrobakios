@@ -61,7 +61,7 @@ import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
-import { IndividualProjectDashboard } from "@/components/projects/IndividualProjectDashboard";
+
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 
 interface ContentRendererProps {
@@ -118,11 +118,9 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "individual-project-dashboard":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <IndividualProjectDashboard projectId={selectedProject || ""} onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
+      // Redirect to main project dashboard instead
+      onNavigate("project-dashboard");
+      return <ProjectDashboard onNavigate={onNavigate} />;
     case "project-detail":
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
