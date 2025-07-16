@@ -1,7 +1,9 @@
 import { ActivitiesCanvas } from "./ActivitiesCanvas";
+import { ActivityPresets } from "./ActivityPresets";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Plus, Grid3X3, Activity } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useState, useEffect } from "react";
 
@@ -14,6 +16,7 @@ export function ActivitiesPage({ projectId, onNavigate }: ActivitiesPageProps) {
   const { getProject } = useProjects();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState<'presets' | 'canvas'>('presets');
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -124,15 +127,57 @@ export function ActivitiesPage({ projectId, onNavigate }: ActivitiesPageProps) {
               </div>
             </div>
             
-            <div className="text-sm text-white/60">
-              Use Skai AI to manage activities: "Create activity Site Prep: 3d, $500 cost"
+            <div className="flex items-center space-x-4">
+              {/* View Toggle */}
+              <div className="flex bg-white/10 rounded-lg p-1">
+                <Button
+                  variant={activeView === 'presets' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setActiveView('presets')}
+                  className={`${
+                    activeView === 'presets' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Presets
+                </Button>
+                <Button
+                  variant={activeView === 'canvas' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setActiveView('canvas')}
+                  className={`${
+                    activeView === 'canvas' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Activity className="w-4 h-4 mr-2" />
+                  Canvas
+                </Button>
+              </div>
+              
+              <Badge variant="outline" className="text-white/60 border-white/20">
+                Use Skai AI: "Create activity Site Prep: 3d, $500 cost"
+              </Badge>
             </div>
           </div>
         </div>
 
-        {/* Activities Canvas */}
+        {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <ActivitiesCanvas projectId={projectId} />
+          {activeView === 'presets' ? (
+            <ActivityPresets 
+              projectId={projectId} 
+              onActivityCreated={() => {
+                // Switch to canvas view after creating activities
+                setActiveView('canvas');
+              }} 
+            />
+          ) : (
+            <ActivitiesCanvas projectId={projectId} />
+          )}
         </div>
       </div>
     </div>
