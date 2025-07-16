@@ -106,7 +106,7 @@ export const TaskTimelineView = () => {
     if (projectId === '736d0991-6261-4884-8353-3522a7a98720' || projectId?.toLowerCase().includes('sk')) {
       // Subscribe to sk_25008_design table changes
       sk25008Channel = supabase
-        .channel('sk_25008_design_changes')
+        .channel(`sk_25008_design_changes_${projectId}`)
         .on(
           'postgres_changes',
           {
@@ -114,13 +114,18 @@ export const TaskTimelineView = () => {
             schema: 'public',
             table: 'sk_25008_design'
           },
-          handleRealtimeUpdate
+          (payload) => {
+            console.log('Timeline received SK real-time update:', payload);
+            handleRealtimeUpdate(payload);
+          }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('SK real-time subscription status:', status);
+        });
     } else {
       // Subscribe to general tasks table changes for this project
       tasksChannel = supabase
-        .channel('tasks_changes')
+        .channel(`tasks_changes_${projectId}`)
         .on(
           'postgres_changes',
           {
@@ -129,16 +134,23 @@ export const TaskTimelineView = () => {
             table: 'tasks',
             filter: `project_id=eq.${projectId}`
           },
-          handleRealtimeUpdate
+          (payload) => {
+            console.log('Timeline received tasks real-time update:', payload);
+            handleRealtimeUpdate(payload);
+          }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('Tasks real-time subscription status:', status);
+        });
     }
 
     return () => {
       if (sk25008Channel) {
+        console.log('Removing SK real-time subscription');
         supabase.removeChannel(sk25008Channel);
       }
       if (tasksChannel) {
+        console.log('Removing tasks real-time subscription');
         supabase.removeChannel(tasksChannel);
       }
     };
@@ -147,8 +159,15 @@ export const TaskTimelineView = () => {
   // Listen for AI updates via custom events
   useEffect(() => {
     const handleAiUpdate = (event: CustomEvent) => {
+      console.log('Timeline received AI update event:', event.detail);
       setAiUpdating(true);
-      setTimeout(() => setAiUpdating(false), 2000); // Show AI indicator for 2 seconds
+      
+      // Force refetch after AI update
+      setTimeout(() => {
+        console.log('Refetching tasks after AI update...');
+        fetchTasks();
+        setAiUpdating(false);
+      }, 1000); // Wait 1 second then refetch
     };
 
     window.addEventListener('ai-task-update' as any, handleAiUpdate);
