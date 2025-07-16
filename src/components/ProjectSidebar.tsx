@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Activity } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Activity, FileText, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -39,6 +39,18 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Activities',
   icon: Activity,
   page: 'project-activities'
+}, {
+  id: 'specification',
+  key: 'specification',
+  label: 'Specification',
+  icon: FileText,
+  page: 'project-specification'
+}, {
+  id: 'cost',
+  key: 'cost',
+  label: 'Cost',
+  icon: DollarSign,
+  page: 'project-cost'
 }];
 
 export const ProjectSidebar = ({
