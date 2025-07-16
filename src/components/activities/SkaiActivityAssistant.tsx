@@ -116,7 +116,16 @@ export const SkaiActivityAssistant = ({ projectId, companyId, onActivityCreated 
   };
 
   const handleGenerateActivities = async () => {
-    if (!prompt.trim()) return;
+    // Allow generation if either prompt is provided OR PDFs with content are uploaded
+    const hasValidPDFs = uploadedFiles.some(f => f.content && !f.error);
+    if (!prompt.trim() && !hasValidPDFs) {
+      toast({
+        title: "Input Required",
+        description: "Please enter a description or upload PDF documents to generate activities.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsGenerating(true);
     try {
