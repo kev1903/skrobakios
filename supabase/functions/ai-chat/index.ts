@@ -88,11 +88,27 @@ serve(async (req) => {
     
     if (authError || !user) {
       console.error('Authentication failed:', authError);
+      
+      // Log authentication failure for debugging (without sensitive data)
+      try {
+        await supabaseServiceClient.from('ai_chat_logs').insert({
+          user_id: null, // No user ID available
+          message_type: 'auth_failure',
+          context: { 
+            error: authError?.message || 'No user found',
+            timestamp: new Date().toISOString()
+          },
+          created_at: new Date().toISOString()
+        });
+      } catch (logError) {
+        console.error('Failed to log authentication failure:', logError);
+      }
+      
       return new Response(JSON.stringify({ 
         error: 'Authentication required',
         details: 'Please log in to use the AI chat'
       }), {
-        status: 200, // Return 200 to avoid generic error handling
+        status: 401, // Use proper HTTP status for authentication errors
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

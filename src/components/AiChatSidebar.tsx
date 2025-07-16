@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, Upload, User, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Send, Bot, Upload, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
+import { Alert, AlertDescription } from './ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
-// Removed unused import
+import { useAuth } from '@/contexts/AuthContext';
+import { AiChatAuth } from './AiChatAuth';
 import { cn } from '@/lib/utils';
 
 interface ChatMessage {
@@ -26,16 +28,19 @@ interface ContextData {
 interface AiChatSidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarProps) {
+export function AiChatSidebar({ isCollapsed, onToggleCollapse, onNavigate }: AiChatSidebarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const location = useLocation();
+  const { user, session, loading, isAuthenticated } = useAuth();
 
   // Get context from current route and screen
   const getScreenContext = (): ContextData => {
@@ -72,6 +77,26 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
     scrollToBottom();
   }, [messages]);
 
+  // Clear messages when authentication state changes
+  useEffect(() => {
+    if (!isAuthenticated && messages.length > 0) {
+      setMessages([]);
+    }
+  }, [isAuthenticated]);
+
+  // Add welcome message for authenticated users
+  useEffect(() => {
+    if (isAuthenticated && user && messages.length === 0) {
+      const welcomeMessage: ChatMessage = {
+        id: 'welcome',
+        content: `Welcome back, ${user.email}! I'm Grok, your AI assistant. How can I help you with your construction projects today?`,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [isAuthenticated, user]);
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -83,14 +108,14 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
+    setAuthError(null);
 
     try {
-      // Get fresh session to ensure we have valid auth
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
+      // Double-check authentication state before making API call
+      if (!isAuthenticated || !session) {
         throw new Error('Authentication required');
       }
 
@@ -104,7 +129,7 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
 
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: input,
+          message: currentInput,
           conversation,
           context
         }
@@ -264,109 +289,144 @@ export function AiChatSidebar({ isCollapsed, onToggleCollapse }: AiChatSidebarPr
       {/* Expanded state */}
       {!isCollapsed && (
         <>
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 && (
-              <div className="text-center text-muted-foreground py-8">
-                <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-sm">Hello! I'm Grok, your AI assistant for Skrobaki.</p>
-                <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+          {/* Show auth component if not authenticated */}
+          {!isAuthenticated && !loading && (
+            <AiChatAuth 
+              onNavigateToAuth={() => onNavigate?.('auth')} 
+            />
+          )}
+
+          {/* Show loading state */}
+          {loading && (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-sm text-muted-foreground">Loading...</p>
               </div>
-            )}
-            
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {message.role === 'assistant' && (
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback>
-                      <Bot className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
+            </div>
+          )}
+
+          {/* Show chat interface if authenticated */}
+          {isAuthenticated && !loading && (
+            <>
+              {/* Authentication status indicator */}
+              {user && (
+                <div className="px-4 py-2 border-b border-border bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-xs text-muted-foreground">
+                      Signed in as {user.email}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.length === 0 && (
+                  <div className="text-center text-muted-foreground py-8">
+                    <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">Hello! I'm Grok, your AI assistant for Skrobaki.</p>
+                    <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+                  </div>
                 )}
                 
-                <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                {messages.map((message) => (
                   <div
-                    className={`rounded-lg p-3 text-sm ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
-                        : 'bg-muted'
-                    }`}
+                    key={message.id}
+                    className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {message.content}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 px-1">
-                    {formatTime(message.timestamp)}
-                  </p>
-                </div>
+                    {message.role === 'assistant' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback>
+                          <Bot className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    
+                    <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                      <div
+                        className={`rounded-lg p-3 text-sm ${
+                          message.role === 'user'
+                            ? 'bg-primary text-primary-foreground ml-auto'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        {message.content}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 px-1">
+                        {formatTime(message.timestamp)}
+                      </p>
+                    </div>
 
-                {message.role === 'user' && (
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
+                    {message.role === 'user' && (
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                ))}
+                
+                {isLoading && (
+                  <div className="flex gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>
+                        <Bot className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="bg-muted rounded-lg p-3 text-sm">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      </div>
+                    </div>
+                  </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
-            ))}
-            
-            {isLoading && (
-              <div className="flex gap-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="bg-muted rounded-lg p-3 text-sm">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                  </div>
+
+              {/* Input area */}
+              <div className="p-4 border-t border-border flex-shrink-0">
+                <div className="flex gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-shrink-0"
+                    disabled={isLoading}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Ask me anything about your projects..."
+                    className="flex-1"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!input.trim() || isLoading || !isAuthenticated}
+                    size="sm"
+                    className="flex-shrink-0"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input area */}
-          <div className="p-4 border-t border-border flex-shrink-0">
-            <div className="flex gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileUpload}
-                className="hidden"
-                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-shrink-0"
-              >
-                <Upload className="h-4 w-4" />
-              </Button>
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask me anything about your projects..."
-                className="flex-1"
-                disabled={isLoading}
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={!input.trim() || isLoading}
-                size="sm"
-                className="flex-shrink-0"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+            </>
+          )}
         </>
       )}
     </div>

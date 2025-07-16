@@ -71,7 +71,8 @@ const Index = () => {
             {currentPage !== "auth" && currentPage !== "landing" && (
               <AiChatSidebar 
                 isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                onNavigate={handleNavigate}
               />
             )}
           </div>
@@ -99,7 +100,8 @@ const Index = () => {
               {/* AI Chat sidebar appears on all layout pages */}
               <AiChatSidebar 
                 isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                onNavigate={handleNavigate}
               />
             </div>
           </div>
