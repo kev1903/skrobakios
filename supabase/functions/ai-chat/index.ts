@@ -724,11 +724,33 @@ RESPONSE GUIDELINES:
       aiResponse = data.choices[0].message.content;
       console.log('AI response received, length:', aiResponse.length);
 
-      // Process AI commands if present in the response
-      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({.*?})/);
+      // Process AI commands if present in the response - improved JSON parsing
+      const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({[\s\S]*?})/);
       if (commandMatch) {
         try {
-          const commandData = JSON.parse(commandMatch[1]);
+          console.log('Raw command match:', commandMatch[1]);
+          
+          // Clean up the JSON string
+          let jsonString = commandMatch[1].trim();
+          
+          // Remove any trailing text after the JSON object
+          let braceCount = 0;
+          let endIndex = 0;
+          for (let i = 0; i < jsonString.length; i++) {
+            if (jsonString[i] === '{') braceCount++;
+            if (jsonString[i] === '}') braceCount--;
+            if (braceCount === 0) {
+              endIndex = i + 1;
+              break;
+            }
+          }
+          
+          if (endIndex > 0) {
+            jsonString = jsonString.substring(0, endIndex);
+          }
+          
+          console.log('Cleaned JSON string:', jsonString);
+          const commandData = JSON.parse(jsonString);
           console.log('AI command detected:', commandData);
           
           // Execute the command
