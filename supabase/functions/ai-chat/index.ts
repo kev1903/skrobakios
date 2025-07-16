@@ -82,20 +82,8 @@ serve(async (req) => {
       if (authError || !userData.user) {
         console.error('JWT verification failed:', authError);
         
-        // Log authentication failure for debugging (without sensitive data)
-        try {
-          await supabaseServiceClient.from('ai_chat_logs').insert({
-            user_id: null, // No user ID available
-            message_type: 'auth_failure',
-            context: { 
-              error: authError?.message || 'No user found',
-              timestamp: new Date().toISOString()
-            },
-            created_at: new Date().toISOString()
-          });
-        } catch (logError) {
-          console.error('Failed to log authentication failure:', logError);
-        }
+        // Don't try to log authentication failures since we don't have a valid user_id
+        // and the ai_chat_logs table requires a non-null user_id
         
         return new Response(JSON.stringify({ 
           error: 'Authentication required',
