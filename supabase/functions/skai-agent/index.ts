@@ -528,6 +528,13 @@ EXECUTE_COMMAND: {
   "data": {"delay_days": 1}
 }
 
+For deleting all tasks:
+EXECUTE_COMMAND: {
+  "action": "DELETE_ALL_TASKS",
+  "modules": ["Tasks"],
+  "data": {}
+}
+
 RESPONSE STYLE:
 - Be conversational and helpful
 - Explain what actions you're taking across which modules
@@ -560,11 +567,33 @@ RESPONSE STYLE:
     const data = await response.json();
     let aiResponse = data.choices[0].message.content;
 
-    // Process commands
-    const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({.*?})/s);
+    // Process commands - improved JSON parsing
+    const commandMatch = aiResponse.match(/EXECUTE_COMMAND:\s*({[\s\S]*?})/);
     if (commandMatch) {
       try {
-        const commandData = JSON.parse(commandMatch[1]);
+        console.log('Raw command match:', commandMatch[1]);
+        
+        // Clean up the JSON string
+        let jsonString = commandMatch[1].trim();
+        
+        // Remove any trailing text after the JSON object
+        let braceCount = 0;
+        let endIndex = 0;
+        for (let i = 0; i < jsonString.length; i++) {
+          if (jsonString[i] === '{') braceCount++;
+          if (jsonString[i] === '}') braceCount--;
+          if (braceCount === 0) {
+            endIndex = i + 1;
+            break;
+          }
+        }
+        
+        if (endIndex > 0) {
+          jsonString = jsonString.substring(0, endIndex);
+        }
+        
+        console.log('Cleaned JSON string:', jsonString);
+        const commandData = JSON.parse(jsonString);
         console.log('Executing AI command:', commandData);
         
         const commandResult = await executeMultiModuleCommand(
