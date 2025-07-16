@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TopFloatingBar } from './home/TopFloatingBar';
 import { NavigationRibbon } from './home/NavigationRibbon';
 import { SidePageOverlay } from './home/SidePageOverlay';
+import { FullScreenTimeline } from './home/FullScreenTimeline';
 
 import { ProjectsFullScreen } from './home/ProjectsFullScreen';
 import { OverlayManager } from './home/OverlayManager';
@@ -26,6 +27,7 @@ export const HomeFloatingBar = ({
   const [isRibbonOpen, setIsRibbonOpen] = useState(false);
   const [isProjectSectionOpen, setIsProjectSectionOpen] = useState(false);
   const [sidePageContent, setSidePageContent] = useState<string | null>(null);
+  const [isTimelineFullScreen, setIsTimelineFullScreen] = useState(false);
   
 
   const toggleRibbon = () => {
@@ -54,6 +56,12 @@ export const HomeFloatingBar = ({
     }
   };
 
+  const handleOpenTimeline = () => {
+    setIsTimelineFullScreen(true);
+    setIsRibbonOpen(false);
+    setSidePageContent(null);
+  };
+
 
   const handleCloseRibbon = () => {
     setIsRibbonOpen(false);
@@ -69,6 +77,7 @@ export const HomeFloatingBar = ({
       <TopFloatingBar
         onToggleRibbon={toggleRibbon}
         onNavigate={onNavigate}
+        onOpenTimeline={handleOpenTimeline}
         showSaveButton={showSaveButton}
         onSaveMapPosition={onSaveMapPosition}
       />
@@ -87,6 +96,12 @@ export const HomeFloatingBar = ({
         onNavigate={onNavigate}
         onSelectProject={onSelectProject}
         onCloseSidePage={handleCloseSidePage}
+      />
+
+      <FullScreenTimeline
+        isOpen={isTimelineFullScreen}
+        onNavigate={onNavigate}
+        onClose={() => setIsTimelineFullScreen(false)}
       />
 
 
