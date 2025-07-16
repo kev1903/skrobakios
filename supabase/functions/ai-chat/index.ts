@@ -93,6 +93,25 @@ const executeAiCommand = async (commandData: any, supabaseClient: any, projectId
           };
         }
         
+      case 'CREATE_ACTIVITY':
+        const { error: activityError } = await supabaseClient.functions.invoke('ai-activity-processor', {
+          body: {
+            command: `Create activity ${data.name}: ${data.duration || '1d'}, $${data.cost_est || 0} cost`,
+            userId: data.userId,
+            companyId: data.companyId,
+            projectId: projectId
+          }
+        });
+        
+        if (activityError) {
+          return { success: false, error: activityError.message };
+        }
+        
+        return { 
+          success: true, 
+          message: `Created new activity: "${data.name}"` 
+        };
+
       case 'UPDATE_TASK':
         const { id, updates } = data;
         

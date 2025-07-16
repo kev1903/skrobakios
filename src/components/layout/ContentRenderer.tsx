@@ -63,6 +63,7 @@ import { SecurityPage } from "@/components/SecurityPage";
 import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
+import { ActivitiesPage } from "@/components/activities/ActivitiesPage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -337,6 +338,15 @@ export const ContentRenderer = ({
       return <FamilyPage onNavigate={onNavigate} />;
     case "security":
       return <SecurityPage onNavigate={onNavigate} />;
+    case "project-activities":
+      // Extract projectId from URL params for activities page
+      const activityUrlParams = new URLSearchParams(window.location.search);
+      const activityProjectId = activityUrlParams.get('projectId');
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ActivitiesPage projectId={activityProjectId} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
     case "user-management":
       return (
         <RoleProtectedRoute 
