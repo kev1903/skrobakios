@@ -445,6 +445,18 @@ serve(async (req) => {
       });
     }
 
+    // Check if xAI API key is configured
+    if (!xaiApiKey) {
+      console.error('xAI API key is not configured');
+      return new Response(JSON.stringify({ 
+        error: 'AI service is not configured',
+        details: 'The AI service is temporarily unavailable. Please contact support.'
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     console.log('Message received:', message.substring(0, 100) + '...');
     console.log('Context:', JSON.stringify(context, null, 2));
     console.log('User ID:', user.id);
