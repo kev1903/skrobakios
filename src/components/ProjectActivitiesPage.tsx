@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { SkaiActivityAssistant } from '@/components/activities/SkaiActivityAssistant';
+import { BulkActivityImport } from '@/components/activities/BulkActivityImport';
 import { ActivityData, buildActivityHierarchy } from '@/utils/activityUtils';
 import { ActivitiesTable } from '@/components/activities/ActivitiesTable';
 
@@ -256,6 +257,12 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                   projectId={project.id}
                   companyId={project.company_id}
                   onActivityCreated={loadActivities}
+                />
+                
+                <BulkActivityImport
+                  projectId={project.id}
+                  companyId={project.company_id}
+                  onActivitiesCreated={loadActivities}
                 />
                 
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
