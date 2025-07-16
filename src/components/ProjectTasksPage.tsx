@@ -96,6 +96,26 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             onTabChange={setActiveTab}
           />
 
+          {/* Timeline Navigation Button */}
+          {activeTab === "list" && (
+            <div className="mb-4 p-3 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl">
+              <p className="text-white/80 text-sm mb-2">
+                🔧 <strong>Timeline View Available:</strong> The enhanced project timeline with extended height is ready!
+              </p>
+              <button
+                onClick={() => {
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('page', 'project-schedule');
+                  window.history.pushState({}, '', url.toString());
+                  onNavigate('project-schedule');
+                }}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors"
+              >
+                View Project Timeline →
+              </button>
+            </div>
+          )}
+
           <div>
             {renderActiveView()}
           </div>
