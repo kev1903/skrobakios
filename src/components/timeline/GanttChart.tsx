@@ -206,22 +206,22 @@ export const GanttChart = ({
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Table headers for task information */}
       <div className="flex bg-muted/30 border-r border-border" style={{ width: tableWidth }}>
-        <div className="w-48 p-2 border-r border-border">
+        <div className="w-48 p-2 border-r border-border flex items-center">
           <h3 className="font-semibold text-xs text-foreground">TASK NAME</h3>
         </div>
-        <div className="w-24 p-2 border-r border-border">
+        <div className="w-24 p-2 border-r border-border flex items-center">
           <h3 className="font-semibold text-xs text-foreground">START DATE</h3>
         </div>
-        <div className="w-24 p-2 border-r border-border">
+        <div className="w-24 p-2 border-r border-border flex items-center">
           <h3 className="font-semibold text-xs text-foreground">END DATE</h3>
         </div>
-        <div className="w-20 p-2 border-r border-border">
+        <div className="w-20 p-2 border-r border-border flex items-center">
           <h3 className="font-semibold text-xs text-foreground">DURATION</h3>
         </div>
-        <div className="w-28 p-2 border-r border-border">
+        <div className="w-28 p-2 border-r border-border flex items-center">
           <h3 className="font-semibold text-xs text-foreground">ASSIGNEE</h3>
         </div>
-        <div className="w-32 p-2">
+        <div className="w-32 p-2 flex items-center">
           <h3 className="font-semibold text-xs text-foreground">DEPENDENCIES</h3>
         </div>
       </div>
