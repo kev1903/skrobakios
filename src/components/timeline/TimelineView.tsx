@@ -148,7 +148,14 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
         task.id === taskId ? { ...task, ...updates } : task
       ));
 
-      // Prepare database update for activities table
+      // Check if this is a stage (starts with "stage-") - these are UI constructs only
+      if (taskId.startsWith('stage-')) {
+        // For stages, we only update local state and don't sync to database
+        // since stages are generated from activities, not stored separately
+        return;
+      }
+
+      // Prepare database update for activities table (only for real activities)
       const dbUpdates: any = {};
       if (updates.name) dbUpdates.name = updates.name;
       if (updates.startDate) dbUpdates.start_date = updates.startDate.toISOString();
