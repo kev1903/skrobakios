@@ -30,7 +30,7 @@ const ALL_PROJECT_NAV_ITEMS = [{
 }, {
   id: 'activities',
   key: 'activities',
-  label: 'WBS',
+  label: 'Activities',
   icon: Activity,
   page: 'project-activities'
 }, {
