@@ -363,78 +363,76 @@ export const GanttChart = ({
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Table headers for task information */}
       <div 
-        className="bg-muted/30 border-r border-border overflow-hidden" 
+        className="bg-muted/30 border-r border-border overflow-hidden flex" 
         style={{ width: isCollapsed ? 60 : tableWidth }}
       >
-        <div className="flex" style={{ width: 520 }}>
-          <div 
-            className="px-2 py-2 border-r border-border flex items-center justify-between"
-            style={{ width: 192 }}
-          >
-            <span className={cn("font-semibold text-xs text-foreground transition-opacity duration-200", isCollapsed && "opacity-0")}>
-              TASK NAME
-            </span>
+        <div 
+          className="px-2 py-2 border-r border-border flex items-center justify-between flex-shrink-0"
+          style={{ width: 192 }}
+        >
+          <span className={cn("font-semibold text-xs text-foreground transition-opacity duration-200", isCollapsed && "opacity-0")}>
+            TASK NAME
+          </span>
+          <div className="flex items-center gap-1">
+            {/* Zoom Controls */}
             <div className="flex items-center gap-1">
-              {/* Zoom Controls */}
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={zoomOut}
-                  className="h-4 w-4 p-0"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-3 h-3" />
-                </Button>
-                <span className="text-xs text-muted-foreground min-w-8 text-center">
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={zoomIn}
-                  className="h-4 w-4 p-0"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-3 h-3" />
-                </Button>
-              </div>
-              {/* Collapse Toggle */}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="h-4 w-4 p-0 flex-shrink-0"
+                onClick={zoomOut}
+                className="h-4 w-4 p-0"
+                title="Zoom Out"
               >
-                <ChevronLeft className={cn("w-3 h-3 transition-transform", isCollapsed && "rotate-180")} />
+                <ZoomOut className="w-3 h-3" />
+              </Button>
+              <span className="text-xs text-muted-foreground min-w-8 text-center">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={zoomIn}
+                className="h-4 w-4 p-0"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-3 h-3" />
               </Button>
             </div>
+            {/* Collapse Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="h-4 w-4 p-0 flex-shrink-0"
+            >
+              <ChevronLeft className={cn("w-3 h-3 transition-transform", isCollapsed && "rotate-180")} />
+            </Button>
           </div>
-          <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-            <span className="font-semibold text-xs text-foreground">
-              START DATE
-            </span>
-          </div>
-          <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-            <span className="font-semibold text-xs text-foreground">
-              END DATE
-            </span>
-          </div>
-          <div className="w-20 px-2 py-2 border-r border-border flex items-center">
-            <span className="font-semibold text-xs text-foreground">
-              DURATION
-            </span>
-          </div>
-          <div className="w-28 px-2 py-2 border-r border-border flex items-center">
-            <span className="font-semibold text-xs text-foreground">
-              ASSIGNEE
-            </span>
-          </div>
-          <div className="w-32 px-2 py-2 flex items-center">
-            <span className="font-semibold text-xs text-foreground">
-              DEPENDENCIES
-            </span>
-          </div>
+        </div>
+        <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+          <span className="font-semibold text-xs text-foreground">
+            START DATE
+          </span>
+        </div>
+        <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+          <span className="font-semibold text-xs text-foreground">
+            END DATE
+          </span>
+        </div>
+        <div className="w-20 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+          <span className="font-semibold text-xs text-foreground">
+            DURATION
+          </span>
+        </div>
+        <div className="w-28 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+          <span className="font-semibold text-xs text-foreground">
+            ASSIGNEE
+          </span>
+        </div>
+        <div className="w-32 px-2 py-2 flex items-center flex-shrink-0">
+          <span className="font-semibold text-xs text-foreground">
+            DEPENDENCIES
+          </span>
         </div>
       </div>
       
@@ -572,94 +570,92 @@ export const GanttChart = ({
         return <div key={task.id} className="flex border-b border-border hover:bg-muted/20">
             {/* Task table columns */}
               <div 
-                className="border-r border-border overflow-hidden" 
+                className="border-r border-border overflow-hidden flex" 
                 style={{ width: isCollapsed ? 60 : tableWidth }}
               >
-                <div className="flex" style={{ width: 520 }}>
-                  {/* Task Name */}
-                  <div 
-                    className="px-2 py-2 border-r border-border flex items-center"
-                    style={{ width: 192 }}
-                  >
-                    <EditableCell
-                      value={task.name}
-                      taskId={task.id}
-                      field="name"
-                      className="font-medium w-full"
-                    />
-                    {/* Dependency indicator */}
-                    {task.dependencies && task.dependencies.length > 0 && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="ml-1 w-2 h-2 bg-primary/60 rounded-full flex-shrink-0" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <div className="text-xs">
-                              <div className="font-medium">Dependencies:</div>
-                              {task.dependencies.map(depId => {
-                                const depTask = tasks.find(t => t.id === depId);
-                                return depTask ? (
-                                  <div key={depId}>• {depTask.name}</div>
-                                ) : (
-                                  <div key={depId}>• {depId}</div>
-                                );
-                              })}
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
-                  </div>
-                  
-                  {/* Start Date */}
-                  <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-                    <EditableCell
-                      value={format(task.startDate, 'yyyy-MM-dd')}
-                      taskId={task.id}
-                      field="startDate"
-                      type="date"
-                      className="text-muted-foreground w-full"
-                    />
-                  </div>
-                  
-                  {/* End Date */}
-                  <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-                    <EditableCell
-                      value={format(task.endDate, 'yyyy-MM-dd')}
-                      taskId={task.id}
-                      field="endDate"
-                      type="date"
-                      className="text-muted-foreground w-full"
-                    />
-                  </div>
-                  
-                  {/* Duration - Read only display */}
-                  <div className="w-20 px-2 py-2 border-r border-border flex items-center">
-                    <span className="text-xs text-muted-foreground">
-                      {differenceInDays(task.endDate, task.startDate) + 1}d
-                    </span>
-                  </div>
-                  
-                  {/* Assignee */}
-                  <div className="w-28 px-2 py-2 border-r border-border flex items-center">
-                    <EditableCell
-                      value={task.assignee || ''}
-                      taskId={task.id}
-                      field="assignee"
-                      className="text-muted-foreground truncate w-full"
-                    />
-                  </div>
-                  
-                  {/* Dependencies */}
-                  <div className="w-32 px-2 py-2 flex items-center">
-                    <EditableCell
-                      value={task.dependencies?.join(', ') || ''}
-                      taskId={task.id}
-                      field="dependencies"
-                      className="text-muted-foreground truncate w-full"
-                    />
-                  </div>
+                {/* Task Name */}
+                <div 
+                  className="px-2 py-2 border-r border-border flex items-center flex-shrink-0"
+                  style={{ width: 192 }}
+                >
+                  <EditableCell
+                    value={task.name}
+                    taskId={task.id}
+                    field="name"
+                    className="font-medium w-full"
+                  />
+                  {/* Dependency indicator */}
+                  {task.dependencies && task.dependencies.length > 0 && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="ml-1 w-2 h-2 bg-primary/60 rounded-full flex-shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-xs">
+                            <div className="font-medium">Dependencies:</div>
+                            {task.dependencies.map(depId => {
+                              const depTask = tasks.find(t => t.id === depId);
+                              return depTask ? (
+                                <div key={depId}>• {depTask.name}</div>
+                              ) : (
+                                <div key={depId}>• {depId}</div>
+                              );
+                            })}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
+                
+                {/* Start Date */}
+                <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                  <EditableCell
+                    value={format(task.startDate, 'yyyy-MM-dd')}
+                    taskId={task.id}
+                    field="startDate"
+                    type="date"
+                    className="text-muted-foreground w-full"
+                  />
+                </div>
+                
+                {/* End Date */}
+                <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                  <EditableCell
+                    value={format(task.endDate, 'yyyy-MM-dd')}
+                    taskId={task.id}
+                    field="endDate"
+                    type="date"
+                    className="text-muted-foreground w-full"
+                  />
+                </div>
+                
+                {/* Duration - Read only display */}
+                <div className="w-20 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                  <span className="text-xs text-muted-foreground">
+                    {differenceInDays(task.endDate, task.startDate) + 1}d
+                  </span>
+                </div>
+                
+                {/* Assignee */}
+                <div className="w-28 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                  <EditableCell
+                    value={task.assignee || ''}
+                    taskId={task.id}
+                    field="assignee"
+                    className="text-muted-foreground truncate w-full"
+                  />
+                </div>
+                
+                {/* Dependencies */}
+                <div className="w-32 px-2 py-2 flex items-center flex-shrink-0">
+                  <EditableCell
+                    value={task.dependencies?.join(', ') || ''}
+                    taskId={task.id}
+                    field="dependencies"
+                    className="text-muted-foreground truncate w-full"
+                  />
                 </div>
               </div>
 
@@ -733,37 +729,35 @@ export const GanttChart = ({
         {/* Add task row */}
         {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10">
             <div 
-              className="border-r border-border overflow-hidden" 
+              className="border-r border-border overflow-hidden flex" 
               style={{ width: isCollapsed ? 60 : tableWidth }}
             >
-              <div className="flex" style={{ width: 520 }}>
-                <div 
-                  className="px-2 py-2 border-r border-border"
-                  style={{ width: 192 }}
-                >
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    // Simple add task - in real implementation, open a form dialog
-                    const newTask: Omit<GanttTask, 'id'> = {
-                      name: 'New Task',
-                      startDate: new Date(),
-                      endDate: addDays(new Date(), 7),
-                      progress: 0,
-                      status: 'pending',
-                      priority: 'Medium',
-                      assignee: ''
-                    };
-                    onTaskAdd(newTask);
-                  }} className="w-full justify-start text-muted-foreground">
-                    <Plus className="w-4 h-4 mr-2" />
-                    {!isCollapsed && <span>Add task</span>}
-                  </Button>
-                </div>
-                <div className="w-24 px-2 py-2 border-r border-border"></div>
-                <div className="w-24 px-2 py-2 border-r border-border"></div>
-                <div className="w-20 px-2 py-2 border-r border-border"></div>
-                <div className="w-28 px-2 py-2 border-r border-border"></div>
-                <div className="w-32 px-2 py-2"></div>
+              <div 
+                className="px-2 py-2 border-r border-border flex-shrink-0"
+                style={{ width: 192 }}
+              >
+                <Button variant="ghost" size="sm" onClick={() => {
+                  // Simple add task - in real implementation, open a form dialog
+                  const newTask: Omit<GanttTask, 'id'> = {
+                    name: 'New Task',
+                    startDate: new Date(),
+                    endDate: addDays(new Date(), 7),
+                    progress: 0,
+                    status: 'pending',
+                    priority: 'Medium',
+                    assignee: ''
+                  };
+                  onTaskAdd(newTask);
+                }} className="w-full justify-start text-muted-foreground">
+                  <Plus className="w-4 h-4 mr-2" />
+                  {!isCollapsed && <span>Add task</span>}
+                </Button>
               </div>
+              <div className="w-24 px-2 py-2 border-r border-border flex-shrink-0"></div>
+              <div className="w-24 px-2 py-2 border-r border-border flex-shrink-0"></div>
+              <div className="w-20 px-2 py-2 border-r border-border flex-shrink-0"></div>
+              <div className="w-28 px-2 py-2 border-r border-border flex-shrink-0"></div>
+              <div className="w-32 px-2 py-2 flex-shrink-0"></div>
             </div>
             
             {/* Resizable divider */}
