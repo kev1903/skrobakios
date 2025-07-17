@@ -134,11 +134,6 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       // Trigger API webhooks for external integrations
       await triggerApiUpdate('task_updated', { taskId, updates });
 
-      toast({
-        title: "Task Updated",
-        description: "Task has been successfully updated"
-      });
-
     } catch (error) {
       console.error('Error updating task:', error);
       // Revert local state on error
