@@ -69,6 +69,15 @@ export const GanttChart = ({
   const [tableWidth, setTableWidth] = useState(400); // Default table width
   const [isResizing, setIsResizing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [columnWidths, setColumnWidths] = useState({
+    name: 192,
+    startDate: 96,
+    endDate: 96,
+    assignee: 100,
+    status: 80,
+    progress: 80
+  });
+  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1); // Add zoom state
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [dragState, setDragState] = useState<{
@@ -85,6 +94,53 @@ export const GanttChart = ({
     draggedIndex: number;
     dropTargetIndex: number | null;
   } | null>(null);
+
+  // Column resize handlers
+  const handleColumnResizeStart = (e: React.MouseEvent, columnKey: string) => {
+    e.preventDefault();
+    setResizingColumn(columnKey);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!resizingColumn) return;
+      
+      const rect = (e.target as HTMLElement).closest('.gantt-container')?.getBoundingClientRect();
+      if (!rect) return;
+      
+      const relativeX = e.clientX - rect.left;
+      let newWidth = 0;
+      
+      // Calculate new width based on column position
+      if (columnKey === 'name') {
+        newWidth = Math.max(100, relativeX - 16);
+      } else {
+        const nameWidth = columnWidths.name;
+        const startDateWidth = columnKey === 'startDate' ? 0 : columnWidths.startDate;
+        const endDateWidth = columnKey === 'endDate' ? 0 : (columnKey === 'startDate' ? 0 : columnWidths.endDate);
+        const offset = nameWidth + startDateWidth + endDateWidth;
+        newWidth = Math.max(60, relativeX - offset);
+      }
+      
+      setColumnWidths(prev => ({
+        ...prev,
+        [columnKey]: newWidth
+      }));
+    };
+    
+    const handleMouseUp = () => {
+      setResizingColumn(null);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Update table width when column widths change
+  useEffect(() => {
+    const totalWidth = Object.values(columnWidths).reduce((sum, width) => sum + width, 0);
+    setTableWidth(totalWidth);
+  }, [columnWidths]);
 
   // Initialize expanded states for stage tasks only on mount
   useEffect(() => {
@@ -390,8 +446,8 @@ export const GanttChart = ({
     taskId: string; 
     field: string; 
     className?: string;
-    type?: 'text' | 'date' | 'select';
-    options?: string[];
+    type?: 'text' | 'date' | 'select' | 'number';
+    options?: Array<string | { value: string; label: string }>;
   }) => {
     const isEditing = editingCell?.taskId === taskId && editingCell?.field === field;
     
@@ -443,9 +499,13 @@ export const GanttChart = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {options.map(option => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
-              ))}
+              {options.map(option => {
+                if (typeof option === 'string') {
+                  return <SelectItem key={option} value={option}>{option}</SelectItem>;
+                } else {
+                  return <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>;
+                }
+              })}
             </SelectContent>
           </Select>
         );
@@ -541,9 +601,14 @@ export const GanttChart = ({
         style={{ width: isCollapsed ? 60 : tableWidth }}
       >
         <div 
-          className="px-2 py-2 border-r border-border flex items-center justify-between flex-shrink-0"
-          style={{ width: 192 }}
+          className="px-2 py-2 border-r border-border flex items-center justify-between flex-shrink-0 relative group"
+          style={{ width: columnWidths.name }}
         >
+          {/* Resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleColumnResizeStart(e, 'name')}
+          />
           <span className={cn("font-semibold text-xs text-foreground transition-opacity duration-200", isCollapsed && "opacity-0")}>
             TASK NAME
           </span>
@@ -583,12 +648,22 @@ export const GanttChart = ({
             </Button>
           </div>
         </div>
-        <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+        <div className="px-2 py-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.startDate }}>
+          {/* Resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleColumnResizeStart(e, 'startDate')}
+          />
           <span className="font-semibold text-xs text-foreground">
             START DATE
           </span>
         </div>
-        <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+        <div className="px-2 py-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.endDate }}>
+          {/* Resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleColumnResizeStart(e, 'endDate')}
+          />
           <span className="font-semibold text-xs text-foreground">
             END DATE
           </span>
@@ -598,14 +673,34 @@ export const GanttChart = ({
             DURATION
           </span>
         </div>
-        <div className="w-28 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+        <div className="px-2 py-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.assignee }}>
+          {/* Resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleColumnResizeStart(e, 'assignee')}
+          />
           <span className="font-semibold text-xs text-foreground">
             ASSIGNEE
           </span>
         </div>
-        <div className="w-32 px-2 py-2 flex items-center flex-shrink-0">
+        <div className="px-2 py-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.status }}>
+          {/* Resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleColumnResizeStart(e, 'status')}
+          />
           <span className="font-semibold text-xs text-foreground">
-            DEPENDENCIES
+            STATUS
+          </span>
+        </div>
+        <div className="px-2 py-2 flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.progress }}>
+          {/* Resize handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            onMouseDown={(e) => handleColumnResizeStart(e, 'progress')}
+          />
+          <span className="font-semibold text-xs text-foreground">
+            PROGRESS
           </span>
         </div>
       </div>
@@ -780,9 +875,14 @@ export const GanttChart = ({
               >
                 {/* Task Name */}
                 <div 
-                  className="px-2 border-r border-border flex items-center flex-shrink-0"
-                  style={{ width: 192, height: rowHeight, paddingLeft: `${8 + (task.depth || 0) * 16}px` }}
+                  className="px-2 border-r border-border flex items-center flex-shrink-0 relative group"
+                  style={{ width: columnWidths.name, height: rowHeight, paddingLeft: `${8 + (task.depth || 0) * 16}px` }}
                 >
+                  {/* Resize handle */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => handleColumnResizeStart(e, 'name')}
+                  />
                   {/* Expand/Collapse button for parent tasks */}
                   {hasChildren && (
                     <Button
@@ -834,7 +934,12 @@ export const GanttChart = ({
                 </div>
                 
                 {/* Start Date */}
-                <div className="w-24 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
+                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.startDate, height: rowHeight }}>
+                  {/* Resize handle */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => handleColumnResizeStart(e, 'startDate')}
+                  />
                   <EditableCell
                     value={format(task.startDate, 'dd/MM/yy')}
                     taskId={task.id}
@@ -845,7 +950,12 @@ export const GanttChart = ({
                 </div>
                 
                 {/* End Date */}
-                <div className="w-24 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
+                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.endDate, height: rowHeight }}>
+                  {/* Resize handle */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => handleColumnResizeStart(e, 'endDate')}
+                  />
                   <EditableCell
                     value={format(task.endDate, 'dd/MM/yy')}
                     taskId={task.id}
@@ -863,7 +973,12 @@ export const GanttChart = ({
                 </div>
                 
                 {/* Assignee */}
-                <div className="w-28 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
+                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.assignee, height: rowHeight }}>
+                  {/* Resize handle */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => handleColumnResizeStart(e, 'assignee')}
+                  />
                   <EditableCell
                     value={task.assignee || ''}
                     taskId={task.id}
@@ -872,13 +987,36 @@ export const GanttChart = ({
                   />
                 </div>
                 
-                {/* Dependencies */}
-                <div className="w-32 px-2 flex items-center flex-shrink-0" style={{ height: rowHeight }}>
+                {/* Status */}
+                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.status, height: rowHeight }}>
+                  {/* Resize handle */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => handleColumnResizeStart(e, 'status')}
+                  />
                   <EditableCell
-                    value={task.dependencies?.join(', ') || ''}
+                    value={task.status}
                     taskId={task.id}
-                    field="dependencies"
-                    className="text-muted-foreground truncate w-full"
+                    field="status"
+                    type="select"
+                     options={['pending', 'in-progress', 'completed', 'delayed']}
+                    className="w-full"
+                  />
+                </div>
+                
+                {/* Progress */}
+                <div className="px-2 flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.progress, height: rowHeight }}>
+                  {/* Resize handle */}
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => handleColumnResizeStart(e, 'progress')}
+                  />
+                  <EditableCell
+                    value={`${task.progress}%`}
+                    taskId={task.id}
+                    field="progress"
+                    type="number"
+                    className="text-muted-foreground text-xs w-full"
                   />
                 </div>
               </div>
@@ -975,7 +1113,7 @@ export const GanttChart = ({
             >
               <div 
                 className="px-2 border-r border-border flex-shrink-0 flex items-center"
-                style={{ width: 192, height: compactMode ? 28 : 36 }}
+                style={{ width: columnWidths.name, height: compactMode ? 28 : 36 }}
               >
                 <Button variant="ghost" size="sm" onClick={() => {
                   // Simple add task - in real implementation, open a form dialog
@@ -994,11 +1132,12 @@ export const GanttChart = ({
                   {!isCollapsed && <span>Add task</span>}
                 </Button>
               </div>
-              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
-              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.startDate, height: compactMode ? 28 : 36 }}></div>
+              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.endDate, height: compactMode ? 28 : 36 }}></div>
               <div className="w-20 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
-              <div className="w-28 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
-              <div className="w-32 px-2 flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.assignee, height: compactMode ? 28 : 36 }}></div>
+              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.status, height: compactMode ? 28 : 36 }}></div>
+              <div className="px-2 flex-shrink-0 flex items-center" style={{ width: columnWidths.progress, height: compactMode ? 28 : 36 }}></div>
             </div>
             
             {/* Resizable divider */}
