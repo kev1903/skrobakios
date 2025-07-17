@@ -187,7 +187,7 @@ export const GanttChart = ({
       </div>
       
       {/* Timeline header */}
-      <div className="flex-1 overflow-x-auto">
+      <div className="flex-1 overflow-hidden">
         <div className="flex" style={{ width: days.length * dayWidth }}>
           {/* Month headers */}
           <div className="flex w-full">
@@ -301,7 +301,6 @@ export const GanttChart = ({
                   {editingTask === task.id ? (
                     <div className="space-y-1">
                       <Input
-                        size="sm"
                         defaultValue={task.name}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {

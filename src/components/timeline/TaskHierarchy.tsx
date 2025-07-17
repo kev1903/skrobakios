@@ -107,161 +107,261 @@ export const TaskHierarchy = ({
       setIsEditing(false);
     };
 
+    if (isEditing) {
+      return (
+        <Card className="mb-2">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <Input
+                defaultValue={task.name}
+                placeholder="Task name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSave({ name: e.currentTarget.value });
+                  } else if (e.key === 'Escape') {
+                    setIsEditing(false);
+                    setEditingTask(null);
+                  }
+                }}
+              />
+              
+              <div className="grid grid-cols-3 gap-2">
+                <Select
+                  defaultValue={task.status}
+                  onValueChange={(value) => handleSave({ status: value as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="delayed">Delayed</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  defaultValue={task.priority}
+                  onValueChange={(value) => handleSave({ priority: value as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="High">High</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="Low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  defaultValue={task.progress}
+                  placeholder="Progress %"
+                  onBlur={(e) => handleSave({ progress: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
     return (
       <Card className="mb-2">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            {/* Expand/Collapse (if has children) */}
-            <div className="w-6">
-              {task.children.length > 0 && (
+        <CardContent className="p-0">
+          {/* Desktop View - Table Format */}
+          <div className="hidden md:grid grid-cols-8 gap-4 px-4 py-3 items-center">
+            <div className="col-span-2">
+              <div className="flex items-center gap-3">
+                {/* Expand/Collapse (if has children) */}
+                <div className="w-6">
+                  {task.children.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(task.id)}
+                      className="p-0 h-6 w-6"
+                    >
+                      {task.expanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+
+                {/* Status Icon */}
+                <div className="flex-shrink-0">
+                  {getStatusIcon(task.status)}
+                </div>
+
+                <h3 className="font-medium text-foreground truncate">{task.name}</h3>
+                <Badge 
+                  variant="outline"
+                  className={getPriorityColor(task.priority)}
+                >
+                  <Flag className="w-3 h-3 mr-1" />
+                  {task.priority}
+                </Badge>
+                <Badge variant="secondary">
+                  {task.status.replace('-', ' ')}
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              {format(task.startDate, 'MMM d, yyyy')}
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              {format(task.endDate, 'MMM d, yyyy')}
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              {Math.ceil((task.endDate.getTime() - task.startDate.getTime()) / (1000 * 3600 * 24))} days
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              {task.dependencies && task.dependencies.length > 0 
+                ? task.dependencies.join(', ') 
+                : 'None'
+              }
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              {task.assignee || 'Unassigned'}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Progress value={task.progress} className="flex-1" />
+              <span className="text-sm font-medium">{task.progress}%</span>
+              <div className="flex items-center gap-1 ml-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => toggleExpanded(task.id)}
-                  className="p-0 h-6 w-6"
+                  onClick={() => {
+                    setEditingTask(task.id);
+                    setIsEditing(true);
+                  }}
                 >
-                  {task.expanded ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4" />
-                  )}
+                  <Edit2 className="w-4 h-4" />
                 </Button>
-              )}
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onTaskDelete?.(task.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
+          </div>
 
-            {/* Status Icon */}
-            <div className="flex-shrink-0">
-              {getStatusIcon(task.status)}
-            </div>
-
-            {/* Task Info */}
-            <div className="flex-1 min-w-0">
-              {isEditing ? (
-                <div className="space-y-3">
-                  <Input
-                    defaultValue={task.name}
-                    placeholder="Task name"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSave({ name: e.currentTarget.value });
-                      } else if (e.key === 'Escape') {
-                        setIsEditing(false);
-                        setEditingTask(null);
-                      }
-                    }}
-                  />
-                  
-                  <div className="grid grid-cols-3 gap-2">
-                    <Select
-                      defaultValue={task.status}
-                      onValueChange={(value) => handleSave({ status: value as any })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="delayed">Delayed</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <Select
-                      defaultValue={task.priority}
-                      onValueChange={(value) => handleSave({ priority: value as any })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="High">High</SelectItem>
-                        <SelectItem value="Medium">Medium</SelectItem>
-                        <SelectItem value="Low">Low</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      defaultValue={task.progress}
-                      placeholder="Progress %"
-                      onBlur={(e) => handleSave({ progress: parseInt(e.target.value) || 0 })}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-medium text-foreground truncate">{task.name}</h3>
-                    
-                    <Badge 
-                      variant="outline"
-                      className={getPriorityColor(task.priority)}
-                    >
-                      <Flag className="w-3 h-3 mr-1" />
-                      {task.priority}
-                    </Badge>
-
-                    <Badge variant="secondary">
-                      {task.status.replace('-', ' ')}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    {task.assignee && (
-                      <div className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        {task.assignee}
-                      </div>
+          {/* Mobile View - Card Format */}
+          <div className="md:hidden p-4">
+            <div className="flex items-center gap-4 mb-4">
+              {/* Expand/Collapse (if has children) */}
+              <div className="w-6">
+                {task.children.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleExpanded(task.id)}
+                    className="p-0 h-6 w-6"
+                  >
+                    {task.expanded ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
                     )}
-                    
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d, yyyy')}
-                    </div>
-                  </div>
+                  </Button>
+                )}
+              </div>
 
-                  {/* Progress Bar */}
-                  <div className="flex items-center gap-3">
-                    <Progress value={task.progress} className="flex-1" />
-                    <span className="text-sm font-medium">{task.progress}%</span>
-                  </div>
+              {/* Status Icon */}
+              <div className="flex-shrink-0">
+                {getStatusIcon(task.status)}
+              </div>
 
-                  {task.description && (
-                    <p className="text-sm text-muted-foreground">{task.description}</p>
-                  )}
+              {/* Task Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-medium text-foreground truncate">{task.name}</h3>
+                  
+                  <Badge 
+                    variant="outline"
+                    className={getPriorityColor(task.priority)}
+                  >
+                    <Flag className="w-3 h-3 mr-1" />
+                    {task.priority}
+                  </Badge>
+
+                  <Badge variant="secondary">
+                    {task.status.replace('-', ' ')}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEditingTask(task.id);
+                    setIsEditing(true);
+                  }}
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onTaskDelete?.(task.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div>
+                <span className="font-medium">Start:</span> {format(task.startDate, 'MMM d, yyyy')}
+              </div>
+              <div>
+                <span className="font-medium">End:</span> {format(task.endDate, 'MMM d, yyyy')}
+              </div>
+              <div>
+                <span className="font-medium">Duration:</span> {Math.ceil((task.endDate.getTime() - task.startDate.getTime()) / (1000 * 3600 * 24))} days
+              </div>
+              <div>
+                <span className="font-medium">Assignee:</span> {task.assignee || 'Unassigned'}
+              </div>
+              {task.dependencies && task.dependencies.length > 0 && (
+                <div className="col-span-2">
+                  <span className="font-medium">Dependencies:</span> {task.dependencies.join(', ')}
                 </div>
               )}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-1">
-              {!isEditing && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditingTask(task.id);
-                      setIsEditing(true);
-                    }}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onTaskDelete?.(task.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </>
-              )}
+            {/* Progress Bar */}
+            <div className="flex items-center gap-3 mt-4">
+              <Progress value={task.progress} className="flex-1" />
+              <span className="text-sm font-medium">{task.progress}%</span>
             </div>
+
+            {task.description && (
+              <p className="text-sm text-muted-foreground mt-2">{task.description}</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -330,6 +430,19 @@ export const TaskHierarchy = ({
           <Plus className="w-4 h-4 mr-2" />
           Add Task
         </Button>
+      </div>
+
+      {/* Table Headers - Desktop Only */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-8 gap-4 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border bg-muted/30 rounded-t-lg">
+          <div className="col-span-2">Task Name</div>
+          <div>Start Date</div>
+          <div>End Date</div>
+          <div>Duration</div>
+          <div>Dependencies</div>
+          <div>Assignee</div>
+          <div>Progress</div>
+        </div>
       </div>
 
       {/* Task List */}
