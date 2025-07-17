@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Calendar, ChevronLeft, ChevronRight, Edit, Plus, Save, X, Settings, ZoomIn, ZoomOut } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { DatePicker } from '@/components/ui/date-picker';
 import { cn } from '@/lib/utils';
 export interface GanttTask {
   id: string;
@@ -261,7 +262,30 @@ export const GanttChart = ({
       setEditingCell(null);
     };
 
+    const handleDateChange = (date: Date | undefined) => {
+      if (date && (field === 'startDate' || field === 'endDate')) {
+        let updateData: Partial<GanttTask> = {};
+        updateData[field] = date;
+        onTaskUpdate?.(taskId, updateData);
+      }
+      setEditingCell(null);
+    };
+
     if (isEditing) {
+      if (type === 'date') {
+        // For date fields, get the actual date from the task object
+        const task = tasks.find(t => t.id === taskId);
+        const currentDate = task && field === 'startDate' ? task.startDate : 
+                           task && field === 'endDate' ? task.endDate : undefined;
+        return (
+          <DatePicker
+            date={currentDate}
+            onDateChange={handleDateChange}
+            className="w-full"
+          />
+        );
+      }
+      
       if (type === 'select' && options) {
         return (
           <Select defaultValue={value} onValueChange={handleSave}>
@@ -613,7 +637,7 @@ export const GanttChart = ({
                 {/* Start Date */}
                 <div className="w-24 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <EditableCell
-                    value={format(task.startDate, 'yyyy-MM-dd')}
+                    value={format(task.startDate, 'dd/MM/yy')}
                     taskId={task.id}
                     field="startDate"
                     type="date"
@@ -624,7 +648,7 @@ export const GanttChart = ({
                 {/* End Date */}
                 <div className="w-24 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <EditableCell
-                    value={format(task.endDate, 'yyyy-MM-dd')}
+                    value={format(task.endDate, 'dd/MM/yy')}
                     taskId={task.id}
                     field="endDate"
                     type="date"
