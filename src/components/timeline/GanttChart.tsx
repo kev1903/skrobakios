@@ -307,6 +307,58 @@ export const GanttChart = ({
     );
   };
 
+  // Dependency lines component
+  const DependencyLines = () => {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-5">
+        <svg className="w-full h-full">
+          {tasks.map((task, taskIndex) => {
+            if (!task.dependencies || task.dependencies.length === 0) return null;
+            
+            return task.dependencies.map((depId) => {
+              const dependencyTask = tasks.find(t => t.id === depId);
+              if (!dependencyTask) return null;
+              
+              const depIndex = tasks.findIndex(t => t.id === depId);
+              const taskGeometry = getTaskGeometry(task);
+              const depGeometry = getTaskGeometry(dependencyTask);
+              
+              // Calculate positions
+              const startY = (depIndex + 1) * (compactMode ? 40 : 60) + (compactMode ? 20 : 30);
+              const endY = (taskIndex + 1) * (compactMode ? 40 : 60) + (compactMode ? 20 : 30);
+              const startX = depGeometry.left + depGeometry.width + (isCollapsed ? 60 : tableWidth) + 1;
+              const endX = taskGeometry.left + (isCollapsed ? 60 : tableWidth) + 1;
+              
+              // Create curved path
+              const midX = (startX + endX) / 2;
+              const pathData = `M ${startX} ${startY} Q ${midX} ${startY} ${midX} ${(startY + endY) / 2} Q ${midX} ${endY} ${endX} ${endY}`;
+              
+              return (
+                <g key={`${task.id}-${depId}`}>
+                  {/* Dependency line */}
+                  <path
+                    d={pathData}
+                    stroke="hsl(var(--primary))"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeDasharray="4 4"
+                    opacity="0.6"
+                  />
+                  {/* Arrow head */}
+                  <polygon
+                    points={`${endX-6},${endY-3} ${endX},${endY} ${endX-6},${endY+3}`}
+                    fill="hsl(var(--primary))"
+                    opacity="0.6"
+                  />
+                </g>
+              );
+            });
+          })}
+        </svg>
+      </div>
+    );
+  };
+
   // Time header component
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Table headers for task information */}
@@ -456,8 +508,11 @@ export const GanttChart = ({
       <TimeHeader />
       
       <div className="relative" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+        {/* Dependency Lines */}
+        <DependencyLines />
+
         {/* Milestones */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-20">
           {milestones.map(milestone => <MilestoneMarker key={milestone.id} milestone={milestone} />)}
         </div>
 
@@ -490,6 +545,29 @@ export const GanttChart = ({
                     field="name"
                     className="font-medium w-full"
                   />
+                  {/* Dependency indicator */}
+                  {task.dependencies && task.dependencies.length > 0 && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="ml-1 w-2 h-2 bg-primary/60 rounded-full flex-shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-xs">
+                            <div className="font-medium">Dependencies:</div>
+                            {task.dependencies.map(depId => {
+                              const depTask = tasks.find(t => t.id === depId);
+                              return depTask ? (
+                                <div key={depId}>• {depTask.name}</div>
+                              ) : (
+                                <div key={depId}>• {depId}</div>
+                              );
+                            })}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
                 
                 {!isCollapsed && (
