@@ -8,6 +8,7 @@ import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { ProjectActivitiesPage } from "@/components/ProjectActivitiesPage";
+import { ProjectTimelinePage } from "@/components/ProjectTimelinePage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
@@ -136,6 +137,12 @@ export const ContentRenderer = ({
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectActivitiesPage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
+    case "project-timeline":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectTimelinePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-settings":
