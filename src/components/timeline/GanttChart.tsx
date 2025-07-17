@@ -86,7 +86,7 @@ export const GanttChart = ({
     dropTargetIndex: number | null;
   } | null>(null);
 
-  // Initialize expanded states for all stage tasks
+  // Initialize expanded states for all stage tasks (only on initial load)
   useEffect(() => {
     const stageIds = new Set<string>();
     tasks.forEach(task => {
@@ -94,7 +94,22 @@ export const GanttChart = ({
         stageIds.add(task.id);
       }
     });
-    setExpandedTasks(stageIds);
+    
+    // Only set initial state if expandedTasks is empty (first load)
+    setExpandedTasks(prev => {
+      if (prev.size === 0) {
+        return stageIds;
+      }
+      // For subsequent updates, preserve existing state and only add new stages
+      const updated = new Set(prev);
+      stageIds.forEach(id => {
+        if (!tasks.some(t => t.id === id && prev.has(id))) {
+          // Only add if this is a truly new stage
+          updated.add(id);
+        }
+      });
+      return updated;
+    });
   }, [tasks]);
 
   // Build hierarchical task structure for display
