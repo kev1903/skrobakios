@@ -17,6 +17,23 @@ export interface Task {
   updated_at: string;
 }
 
+// New interface for Project Timeline View with updated field specifications
+export interface TimelineTask {
+  id: string;
+  activity_name: string; // Name of the activity
+  duration: number; // Duration in days (required)
+  start_date: string; // Task start date (required)
+  end_date: string; // Task end date (required)
+  status: 'Pending' | 'In Progress' | 'Complete' | 'Delayed'; // Updated statuses
+  percent_complete: number; // Progress indicator (0-100)
+  dependency?: string; // Optional task this one depends on
+  assignee: string; // Assigned team member (text email/name)
+  description?: string;
+  project_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Milestone {
   id: string;
   name: string;

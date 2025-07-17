@@ -3,9 +3,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Clock, CheckCircle, AlertTriangle, Zap } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, AlertTriangle, Zap, User, Link } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { TimelineTask } from './types';
 
 interface DatabaseTask {
   id: string;
@@ -24,6 +25,8 @@ interface DatabaseTask {
   assigned_to_avatar?: string;
   project_id?: string;
   created_at?: string;
+  dependency_names?: string; // Dependency task names
+  dependencies?: any[]; // Raw dependency data
 }
 
 export const TaskTimelineView = () => {
@@ -209,16 +212,33 @@ export const TaskTimelineView = () => {
         }
       }
 
-      // Fallback to general tasks table
+      // Fallback to general tasks table with dependencies
       const { data: generalTasks, error: generalError } = await supabase
         .from('tasks')
-        .select('*')
+        .select(`
+          *,
+          dependencies:task_dependencies!successor_task_id(
+            id,
+            predecessor_task_id,
+            dependency_type,
+            lag_days,
+            predecessor:tasks!predecessor_task_id(task_name)
+          )
+        `)
         .eq('project_id', projectId || '')
-        .order('due_date', { ascending: true });
+        .order('start_date', { ascending: true });
 
       if (generalError) throw generalError;
 
-      setTasks(generalTasks || []);
+      // Transform tasks to include dependency names
+      const transformedTasks = (generalTasks || []).map(task => ({
+        ...task,
+        dependency_names: task.dependencies?.map((dep: any) => 
+          dep.predecessor?.task_name || `Task ${dep.predecessor_task_id}`
+        ).join(', ') || undefined
+      }));
+
+      setTasks(transformedTasks);
 
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -351,76 +371,97 @@ export const TaskTimelineView = () => {
                   {/* Task card */}
                   <div className="flex-1 min-w-0">
                     <Card className="hover:shadow-md transition-shadow bg-white/5 backdrop-blur-sm border-white/10">
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h4 className="font-semibold text-white">{task.task_name}</h4>
-                              {task.description && (
-                                <p className="text-sm text-white/70 mt-1">{task.description}</p>
-                              )}
-                              {task.task_type && (
-                                <p className="text-xs text-white/50 mt-1">Type: {task.task_type}</p>
-                              )}
-                            </div>
-                            <div className="flex flex-col space-y-2">
-                              {task.priority && (
-                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                  {task.priority}
-                                </Badge>
-                              )}
-                              <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                {task.status}
-                              </Badge>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex items-center space-x-2">
-                                <Avatar className="w-6 h-6">
-                                  <AvatarFallback className="text-xs bg-white/20 text-white">
-                                    {task.assigned_to_name?.split(' ').map(n => n[0]).join('') || 'PT'}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span className="text-sm text-white/70">
-                                  {task.assigned_to_name || 'Project Team'}
-                                </span>
-                              </div>
-                              
-                              <div className="flex items-center space-x-1 text-sm text-white/50">
-                                <Clock className="w-4 h-4" />
-                                <span>
-                                  {task.start_date && task.end_date 
-                                    ? `${formatDate(task.start_date)} - ${formatDate(task.end_date)}`
-                                    : `Due: ${formatDate(task.due_date)}`
-                                  }
-                                </span>
-                              </div>
-
-                              {task.duration && (
-                                <div className="flex items-center space-x-1 text-sm text-white/50">
-                                  <span>{task.duration} days</span>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {(task.progress || task.progress_percentage) && (
-                              <div className="flex items-center space-x-2">
-                                <div className="w-20 bg-white/20 rounded-full h-2">
-                                  <div 
-                                    className="bg-blue-400 h-2 rounded-full transition-all duration-300" 
-                                    style={{ width: `${task.progress || task.progress_percentage}%` }}
-                                  ></div>
-                                </div>
-                                <span className="text-sm text-white/70">
-                                  {task.progress || task.progress_percentage}%
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
+                       <CardContent className="p-4">
+                         <div className="space-y-4">
+                           {/* Header with activity name and status */}
+                           <div className="flex items-start justify-between">
+                             <div className="flex-1">
+                               <h4 className="font-semibold text-white text-lg">{task.task_name}</h4>
+                               {task.description && (
+                                 <p className="text-sm text-white/70 mt-1">{task.description}</p>
+                               )}
+                             </div>
+                             <div className="flex flex-col space-y-2">
+                               <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
+                                 {task.status}
+                               </Badge>
+                             </div>
+                           </div>
+                           
+                           {/* Main task details grid */}
+                           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                             {/* Duration */}
+                             <div className="flex items-center space-x-2">
+                               <Clock className="w-4 h-4 text-white/50" />
+                               <div>
+                                 <p className="text-white/50 text-xs">Duration</p>
+                                 <p className="text-white">{task.duration || 0} days</p>
+                               </div>
+                             </div>
+                             
+                             {/* Start Date */}
+                             <div className="flex items-center space-x-2">
+                               <Calendar className="w-4 h-4 text-white/50" />
+                               <div>
+                                 <p className="text-white/50 text-xs">Start Date</p>
+                                 <p className="text-white">{formatDate(task.start_date)}</p>
+                               </div>
+                             </div>
+                             
+                             {/* End Date */}
+                             <div className="flex items-center space-x-2">
+                               <Calendar className="w-4 h-4 text-white/50" />
+                               <div>
+                                 <p className="text-white/50 text-xs">End Date</p>
+                                 <p className="text-white">{formatDate(task.end_date)}</p>
+                               </div>
+                             </div>
+                             
+                             {/* Assignee */}
+                             <div className="flex items-center space-x-2">
+                               <User className="w-4 h-4 text-white/50" />
+                               <div>
+                                 <p className="text-white/50 text-xs">Assignee</p>
+                                 <p className="text-white truncate">{task.assigned_to_name || 'Unassigned'}</p>
+                               </div>
+                             </div>
+                           </div>
+                           
+                           {/* Progress and Dependencies */}
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center space-x-4">
+                               {/* Progress */}
+                               <div className="flex items-center space-x-2">
+                                 <span className="text-white/50 text-sm">Progress:</span>
+                                 <div className="flex items-center space-x-2">
+                                   <div className="w-24 bg-white/20 rounded-full h-2">
+                                     <div 
+                                       className="bg-blue-400 h-2 rounded-full transition-all duration-300" 
+                                       style={{ width: `${task.progress || task.progress_percentage || 0}%` }}
+                                     ></div>
+                                   </div>
+                                   <span className="text-sm text-white">
+                                     {task.progress || task.progress_percentage || 0}%
+                                   </span>
+                                 </div>
+                               </div>
+                               
+                               {/* Dependencies */}
+                               {task.dependency_names && (
+                                 <div className="flex items-center space-x-2">
+                                   <Link className="w-4 h-4 text-white/50" />
+                                   <div>
+                                     <span className="text-white/50 text-sm">Depends on:</span>
+                                     <p className="text-white text-sm truncate max-w-[200px]" title={task.dependency_names}>
+                                       {task.dependency_names}
+                                     </p>
+                                   </div>
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </div>
+                       </CardContent>
                     </Card>
                   </div>
                 </div>
