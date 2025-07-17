@@ -449,30 +449,30 @@ export const GanttChart = ({
       
       {/* Timeline header */}
       <div className="flex-1 overflow-x-hidden overflow-y-hidden">
-        <div className="flex" style={{
-        width: days.length * dayWidth
-      }}>
-          {/* Month headers */}
-          <div className="flex w-full">
-            {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
+        {/* Month headers */}
+        <div className="flex border-b border-border" style={{ width: days.length * dayWidth }}>
+          {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
             const monthDays = days.filter(day => format(day, 'MMM yyyy') === month);
-            return <div key={month} className="bg-primary/10 text-primary font-medium text-sm flex items-center justify-center border-r border-border h-8" style={{
-              width: monthDays.length * dayWidth
-            }}>
-                  {month}
-                </div>;
+            return (
+              <div 
+                key={month} 
+                className="bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center border-r border-border h-8" 
+                style={{ width: monthDays.length * dayWidth }}
+              >
+                {month}
+              </div>
+            );
           })}
-          </div>
         </div>
         
         {/* Week headers */}
-        <div className="flex border-t border-border">
+        <div className="flex border-b border-border" style={{ width: days.length * dayWidth }}>
           {(() => {
             const weeks: { weekStart: Date; weekDays: Date[] }[] = [];
             let currentWeek: Date[] = [];
             let currentWeekStart: Date | null = null;
             
-            days.forEach((day, index) => {
+            days.forEach((day) => {
               if (currentWeek.length === 0 || !isSameWeek(day, currentWeek[0], { weekStartsOn: 1 })) {
                 if (currentWeek.length > 0) {
                   weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
@@ -492,9 +492,7 @@ export const GanttChart = ({
               <div 
                 key={`week-${index}`} 
                 className="bg-muted/20 text-muted-foreground font-medium text-xs flex items-center justify-center border-r border-border/50 h-6" 
-                style={{
-                  width: week.weekDays.length * dayWidth
-                }}
+                style={{ width: week.weekDays.length * dayWidth }}
               >
                 Week {format(week.weekStart, 'w')}
               </div>
@@ -503,13 +501,21 @@ export const GanttChart = ({
         </div>
         
         {/* Day headers */}
-        <div className="flex border-t border-border">
-          {days.map((day, index) => <div key={day.toISOString()} className={cn("text-xs text-center py-1 border-r border-border/50 bg-background h-12", format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '', showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : '')} style={{
-          width: dayWidth
-        }}>
+        <div className="flex" style={{ width: days.length * dayWidth }}>
+          {days.map((day) => (
+            <div 
+              key={day.toISOString()} 
+              className={cn(
+                "text-xs text-center py-1 border-r border-border/50 bg-background h-12 flex flex-col justify-center",
+                format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '',
+                showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : ''
+              )} 
+              style={{ width: dayWidth }}
+            >
               <div className="font-medium">{format(day, 'd')}</div>
               <div className="text-[10px] opacity-60">{format(day, 'E')}</div>
-            </div>)}
+            </div>
+          ))}
         </div>
       </div>
     </div>;
