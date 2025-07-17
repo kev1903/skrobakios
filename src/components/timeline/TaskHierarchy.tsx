@@ -29,8 +29,6 @@ interface TaskHierarchyProps {
 
 interface TaskNode extends GanttTask {
   children: TaskNode[];
-  level: number;
-  expanded: boolean;
 }
 
 export const TaskHierarchy = ({
@@ -47,14 +45,35 @@ export const TaskHierarchy = ({
     assignee: 'all'
   });
 
-  // Build task hierarchy (for now, flat structure - could be enhanced with parent-child relationships)
+  // Build task hierarchy with Project Stages as parents
   const buildHierarchy = (): TaskNode[] => {
-    return tasks.map(task => ({
-      ...task,
-      children: [],
-      level: 0,
-      expanded: expandedTasks.has(task.id)
-    }));
+    const taskMap = new Map<string, TaskNode>();
+    const rootTasks: TaskNode[] = [];
+
+    // First pass: Create all task nodes
+    tasks.forEach(task => {
+      taskMap.set(task.id, {
+        ...task,
+        children: [],
+        expanded: task.expanded !== false && expandedTasks.has(task.id)
+      });
+    });
+
+    // Second pass: Build parent-child relationships
+    tasks.forEach(task => {
+      const taskNode = taskMap.get(task.id)!;
+      
+      if (task.parentId && taskMap.has(task.parentId)) {
+        // This task has a parent, add it as a child
+        const parent = taskMap.get(task.parentId)!;
+        parent.children.push(taskNode);
+      } else {
+        // This is a root task (Project Stage)
+        rootTasks.push(taskNode);
+      }
+    });
+
+    return rootTasks;
   };
 
   const toggleExpanded = (taskId: string) => {
@@ -65,6 +84,9 @@ export const TaskHierarchy = ({
       newExpanded.add(taskId);
     }
     setExpandedTasks(newExpanded);
+
+    // Also update the task's expanded state if available
+    onTaskUpdate?.(taskId, { expanded: !expandedTasks.has(taskId) });
   };
 
   const getStatusIcon = (status: string) => {
@@ -98,7 +120,7 @@ export const TaskHierarchy = ({
 
   const uniqueAssignees = Array.from(new Set(tasks.map(t => t.assignee).filter(Boolean)));
 
-  const TaskRow = ({ task }: { task: TaskNode }) => {
+  const TaskRow = ({ task, depth = 0 }: { task: TaskNode; depth?: number }) => {
     const [isEditing, setIsEditing] = useState(editingTask === task.id);
 
     const handleSave = (updates: Partial<GanttTask>) => {
@@ -106,6 +128,8 @@ export const TaskHierarchy = ({
       setEditingTask(null);
       setIsEditing(false);
     };
+
+    const indentStyle = { paddingLeft: `${depth * 24}px` };
 
     if (isEditing) {
       return (
@@ -174,7 +198,7 @@ export const TaskHierarchy = ({
       <Card className="mb-2">
         <CardContent className="p-0">
           {/* Desktop View - Table Format */}
-          <div className="hidden md:grid grid-cols-8 gap-4 px-4 py-3 items-center">
+          <div className="hidden md:grid grid-cols-8 gap-4 px-4 py-3 items-center" style={indentStyle}>
             <div className="col-span-2">
               <div className="flex items-center gap-3">
                 {/* Expand/Collapse (if has children) */}
@@ -200,17 +224,31 @@ export const TaskHierarchy = ({
                   {getStatusIcon(task.status)}
                 </div>
 
-                <h3 className="font-medium text-foreground truncate">{task.name}</h3>
-                <Badge 
-                  variant="outline"
-                  className={getPriorityColor(task.priority)}
-                >
-                  <Flag className="w-3 h-3 mr-1" />
-                  {task.priority}
-                </Badge>
-                <Badge variant="secondary">
-                  {task.status.replace('-', ' ')}
-                </Badge>
+                <h3 className={cn(
+                  "font-medium truncate",
+                  task.isStage ? "text-lg font-bold text-primary" : "text-foreground"
+                )}>
+                  {task.name}
+                </h3>
+                
+                {task.isStage ? (
+                  <Badge variant="default" className="bg-primary">
+                    Stage
+                  </Badge>
+                ) : (
+                  <>
+                    <Badge 
+                      variant="outline"
+                      className={getPriorityColor(task.priority)}
+                    >
+                      <Flag className="w-3 h-3 mr-1" />
+                      {task.priority}
+                    </Badge>
+                    <Badge variant="secondary">
+                      {task.status.replace('-', ' ')}
+                    </Badge>
+                  </>
+                )}
               </div>
             </div>
             
@@ -368,6 +406,17 @@ export const TaskHierarchy = ({
     );
   };
 
+  // Recursive component to render task hierarchy
+  const TaskHierarchyRenderer = ({ task, depth }: { task: TaskNode; depth: number }) => (
+    <div>
+      <TaskRow task={task} depth={depth} />
+      {/* Render children if expanded */}
+      {task.expanded && task.children.map(child => (
+        <TaskHierarchyRenderer key={child.id} task={child} depth={depth + 1} />
+      ))}
+    </div>
+  );
+
   return (
     <div className="space-y-6 p-6">
       {/* Filters */}
@@ -455,15 +504,7 @@ export const TaskHierarchy = ({
           </Card>
         ) : (
           filteredTasks.map(task => (
-            <div key={task.id}>
-              <TaskRow task={task} />
-              {/* Render children if expanded */}
-              {task.expanded && task.children.map(child => (
-                <div key={child.id} className="ml-8">
-                  <TaskRow task={child} />
-                </div>
-              ))}
-            </div>
+            <TaskHierarchyRenderer key={task.id} task={task} depth={0} />
           ))
         )}
       </div>

@@ -39,29 +39,102 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   const loadTimelineData = async () => {
     setLoading(true);
     try {
-      // Load activities from the activities table
+      // Load activities from the activities table with hierarchical structure
       const { data: activitiesData, error: activitiesError } = await supabase
         .from('activities')
         .select('*')
         .eq('project_id', projectId)
+        .order('level', { ascending: true })
         .order('created_at', { ascending: true });
 
       if (activitiesError) throw activitiesError;
 
-      // Convert database activities to GanttTask format
-      const ganttTasks: GanttTask[] = (activitiesData || []).map(activity => ({
-        id: activity.id,
-        name: activity.name,
-        startDate: activity.start_date ? new Date(activity.start_date) : new Date(),
-        endDate: activity.end_date ? new Date(activity.end_date) : addDays(new Date(), 1),
-        progress: 0, // Activities don't have progress field, defaulting to 0
-        status: mapTaskStatus(activity.stage),
-        assignee: '', // Activities don't have assignee field
-        priority: 'Medium' as 'High' | 'Medium' | 'Low',
-        description: activity.description,
-        milestone: false,
-        category: activity.stage,
-      }));
+      // Build hierarchical structure with Project Stages as parents
+      const stageGroups = new Map<string, any[]>();
+      const orphanActivities: any[] = [];
+
+      // Group activities by stage (Project Stage)
+      (activitiesData || []).forEach(activity => {
+        if (!activity.parent_id && activity.level === 0) {
+          // This is a Project Stage (parent)
+          if (!stageGroups.has(activity.stage)) {
+            stageGroups.set(activity.stage, []);
+          }
+          stageGroups.get(activity.stage)!.push(activity);
+        } else {
+          // This is a child activity - group by parent stage
+          const parentStage = activity.stage;
+          if (!stageGroups.has(parentStage)) {
+            stageGroups.set(parentStage, []);
+          }
+          stageGroups.get(parentStage)!.push(activity);
+        }
+      });
+
+      // Convert to hierarchical GanttTask format
+      const ganttTasks: GanttTask[] = [];
+      
+      // Process each stage group
+      stageGroups.forEach((activities, stageName) => {
+        // Create or find stage parent
+        let stageParent = activities.find(a => !a.parent_id && a.level === 0);
+        
+        if (!stageParent) {
+          // Create a virtual stage parent if none exists
+          stageParent = {
+            id: `stage-${stageName}`,
+            name: stageName,
+            stage: stageName,
+            level: 0,
+            parent_id: null,
+            is_expanded: true,
+            start_date: activities.length > 0 ? activities[0].start_date : new Date().toISOString(),
+            end_date: activities.length > 0 ? activities[activities.length - 1].end_date : addDays(new Date(), 1).toISOString(),
+            description: `Project Stage: ${stageName}`
+          };
+        }
+
+        // Add stage parent as a task
+        ganttTasks.push({
+          id: stageParent.id,
+          name: stageParent.name,
+          startDate: stageParent.start_date ? new Date(stageParent.start_date) : new Date(),
+          endDate: stageParent.end_date ? new Date(stageParent.end_date) : addDays(new Date(), 1),
+          progress: 0,
+          status: mapTaskStatus(stageParent.stage),
+          assignee: '',
+          priority: 'High' as 'High' | 'Medium' | 'Low', // Stages are high priority
+          description: stageParent.description,
+          milestone: false,
+          category: stageParent.stage,
+          parentId: stageParent.parent_id,
+          level: stageParent.level || 0,
+          expanded: stageParent.is_expanded !== false,
+          isStage: true
+        });
+
+        // Add child activities under this stage
+        activities
+          .filter(a => a.parent_id || a.level > 0)
+          .forEach(activity => {
+            ganttTasks.push({
+              id: activity.id,
+              name: activity.name,
+              startDate: activity.start_date ? new Date(activity.start_date) : new Date(),
+              endDate: activity.end_date ? new Date(activity.end_date) : addDays(new Date(), 1),
+              progress: 0,
+              status: mapTaskStatus(activity.stage),
+              assignee: '',
+              priority: 'Medium' as 'High' | 'Medium' | 'Low',
+              description: activity.description,
+              milestone: false,
+              category: activity.stage,
+              parentId: stageParent.id,
+              level: activity.level || 1,
+              expanded: activity.is_expanded !== false
+            });
+          });
+      });
 
       setTasks(ganttTasks);
 
@@ -115,6 +188,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       if (updates.endDate) dbUpdates.end_date = updates.endDate.toISOString();
       if (updates.status) dbUpdates.stage = updates.status;
       if (updates.description) dbUpdates.description = updates.description;
+      if (updates.expanded !== undefined) dbUpdates.is_expanded = updates.expanded;
 
       const { error } = await supabase
         .from('activities')
@@ -138,7 +212,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
     }
   };
 
-  const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>) => {
+  const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>, parentId?: string) => {
     try {
       // Get user's company ID for activities table
       const { data: userData } = await supabase.auth.getUser();
@@ -148,6 +222,18 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
         .eq('user_id', userData.user?.id)
         .eq('status', 'active')
         .single();
+
+      // Determine level and parent based on parentId
+      let level = 0;
+      let parent_id = null;
+      
+      if (parentId) {
+        const parentTask = tasks.find(t => t.id === parentId);
+        if (parentTask) {
+          level = (parentTask.level || 0) + 1;
+          parent_id = parentId;
+        }
+      }
 
       const { data, error } = await supabase
         .from('activities')
@@ -159,6 +245,9 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
           end_date: newTask.endDate.toISOString(),
           stage: newTask.status,
           description: newTask.description,
+          parent_id: parent_id,
+          level: level,
+          is_expanded: true
         }])
         .select()
         .single();
@@ -168,7 +257,10 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       // Add to local state
       const ganttTask: GanttTask = {
         id: data.id,
-        ...newTask
+        ...newTask,
+        parentId: parent_id,
+        level: level,
+        expanded: true
       };
       
       setTasks(prev => [...prev, ganttTask]);

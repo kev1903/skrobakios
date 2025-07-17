@@ -23,6 +23,10 @@ export interface GanttTask {
   category?: string;
   priority: 'High' | 'Medium' | 'Low';
   description?: string;
+  parentId?: string;
+  level?: number;
+  expanded?: boolean;
+  isStage?: boolean;
 }
 export interface GanttMilestone {
   id: string;
