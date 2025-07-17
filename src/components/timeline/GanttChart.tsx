@@ -169,21 +169,20 @@ export const GanttChart = ({
   // Resize handlers for the table/gantt divider
   const handleResizeStart = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsResizing(true);
   };
 
-  const handleResizeMove = (e: React.MouseEvent) => {
-    if (!isResizing) return;
-    const newWidth = Math.max(300, Math.min(800, e.clientX));
-    setTableWidth(newWidth);
-  };
-
-  // Add effect to handle document mouse events
+  // Add effect to handle document mouse events for resizing
   useEffect(() => {
     const handleDocumentMouseMove = (e: MouseEvent) => {
       if (isResizing) {
-        const newWidth = Math.max(300, Math.min(800, e.clientX));
-        setTableWidth(newWidth);
+        const rect = document.querySelector('.gantt-container')?.getBoundingClientRect();
+        if (rect) {
+          const relativeX = e.clientX - rect.left;
+          const newWidth = Math.max(300, Math.min(800, relativeX));
+          setTableWidth(newWidth);
+        }
       }
     };
 
@@ -201,6 +200,13 @@ export const GanttChart = ({
       document.removeEventListener('mouseup', handleDocumentMouseUp);
     };
   }, [isResizing]);
+
+  // Calculate today's position
+  const todayOffset = () => {
+    const today = new Date();
+    const daysDiff = differenceInDays(today, viewStart);
+    return daysDiff * dayWidth;
+  };
 
   // Time header component
   const TimeHeader = () => <div className="flex border-b border-border">
@@ -290,7 +296,7 @@ export const GanttChart = ({
         </Tooltip>
       </TooltipProvider>;
   };
-  return <div className="border border-border rounded-lg bg-background">
+  return <div className="border border-border rounded-lg bg-background gantt-container">
       <TimeHeader />
       
       <div className="relative" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
@@ -299,10 +305,13 @@ export const GanttChart = ({
           {milestones.map(milestone => <MilestoneMarker key={milestone.id} milestone={milestone} />)}
         </div>
 
-        {/* Today line */}
-        {showToday && <div className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none" style={{
-        left: differenceInDays(new Date(), viewStart) * dayWidth
-      }} />}
+        {/* Today line - positioned correctly */}
+        {showToday && <div 
+          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none" 
+          style={{
+            left: tableWidth + 1 + todayOffset() // Account for table width and divider
+          }} 
+        />}
 
         {/* Task rows */}
         {tasks.map((task, index) => {
