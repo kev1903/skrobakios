@@ -114,7 +114,7 @@ export const TaskHierarchy = ({
             <div className="space-y-3">
               <Input
                 defaultValue={task.name}
-                placeholder="Task name"
+                placeholder="Activity name"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handleSave({ name: e.currentTarget.value });
@@ -416,8 +416,8 @@ export const TaskHierarchy = ({
         <div className="flex-1" />
 
         <Button
-          onClick={() => onTaskAdd?.({
-            name: 'New Task',
+        onClick={() => onTaskAdd?.({
+          name: 'New Activity',
             startDate: new Date(),
             endDate: new Date(),
             progress: 0,
@@ -428,14 +428,14 @@ export const TaskHierarchy = ({
           size="sm"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Task
+          Add Activity
         </Button>
       </div>
 
       {/* Table Headers - Desktop Only */}
       <div className="hidden md:block">
         <div className="grid grid-cols-8 gap-4 px-4 py-2 text-xs font-medium text-muted-foreground border-b border-border bg-muted/30 rounded-t-lg">
-          <div className="col-span-2">Task Name</div>
+          <div className="col-span-2">Activity Name</div>
           <div>Start Date</div>
           <div>End Date</div>
           <div>Duration</div>
@@ -450,7 +450,7 @@ export const TaskHierarchy = ({
         {filteredTasks.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
-              <p className="text-muted-foreground">No tasks found matching the current filters.</p>
+              <p className="text-muted-foreground">No activities found matching the current filters.</p>
             </CardContent>
           </Card>
         ) : (

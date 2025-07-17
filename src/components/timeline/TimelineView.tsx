@@ -39,28 +39,28 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   const loadTimelineData = async () => {
     setLoading(true);
     try {
-      // Load tasks from the tasks table
-      const { data: tasksData, error: tasksError } = await supabase
-        .from('tasks')
+      // Load activities from the activities table
+      const { data: activitiesData, error: activitiesError } = await supabase
+        .from('activities')
         .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: true });
 
-      if (tasksError) throw tasksError;
+      if (activitiesError) throw activitiesError;
 
-      // Convert database tasks to GanttTask format
-      const ganttTasks: GanttTask[] = (tasksData || []).map(task => ({
-        id: task.id,
-        name: task.task_name,
-        startDate: task.due_date ? new Date(task.due_date) : new Date(),
-        endDate: task.due_date ? addDays(new Date(task.due_date), task.estimated_duration || 1) : addDays(new Date(), 1),
-        progress: task.progress || 0,
-        status: mapTaskStatus(task.status),
-        assignee: task.assigned_to_name || '',
-        priority: task.priority as 'High' | 'Medium' | 'Low' || 'Medium',
-        description: task.description,
-        milestone: task.is_milestone || false,
-        category: task.category,
+      // Convert database activities to GanttTask format
+      const ganttTasks: GanttTask[] = (activitiesData || []).map(activity => ({
+        id: activity.id,
+        name: activity.name,
+        startDate: activity.start_date ? new Date(activity.start_date) : new Date(),
+        endDate: activity.end_date ? new Date(activity.end_date) : addDays(new Date(), 1),
+        progress: 0, // Activities don't have progress field, defaulting to 0
+        status: mapTaskStatus(activity.stage),
+        assignee: '', // Activities don't have assignee field
+        priority: 'Medium' as 'High' | 'Medium' | 'Low',
+        description: activity.description,
+        milestone: false,
+        category: activity.stage,
       }));
 
       setTasks(ganttTasks);
@@ -108,39 +108,31 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
         task.id === taskId ? { ...task, ...updates } : task
       ));
 
-      // Prepare database update
+      // Prepare database update for activities table
       const dbUpdates: any = {};
-      if (updates.name) dbUpdates.task_name = updates.name;
-      if (updates.startDate) dbUpdates.due_date = updates.startDate.toISOString().split('T')[0];
-      if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
-      if (updates.status) dbUpdates.status = updates.status;
-      if (updates.assignee) dbUpdates.assigned_to_name = updates.assignee;
-      if (updates.priority) dbUpdates.priority = updates.priority;
+      if (updates.name) dbUpdates.name = updates.name;
+      if (updates.startDate) dbUpdates.start_date = updates.startDate.toISOString();
+      if (updates.endDate) dbUpdates.end_date = updates.endDate.toISOString();
+      if (updates.status) dbUpdates.stage = updates.status;
       if (updates.description) dbUpdates.description = updates.description;
 
-      // Calculate estimated duration if dates changed
-      if (updates.startDate && updates.endDate) {
-        const duration = Math.ceil((updates.endDate.getTime() - updates.startDate.getTime()) / (1000 * 60 * 60 * 24));
-        dbUpdates.estimated_duration = duration;
-      }
-
       const { error } = await supabase
-        .from('tasks')
+        .from('activities')
         .update(dbUpdates)
         .eq('id', taskId);
 
       if (error) throw error;
 
       // Trigger API webhooks for external integrations
-      await triggerApiUpdate('task_updated', { taskId, updates });
+      await triggerApiUpdate('activity_updated', { activityId: taskId, updates });
 
     } catch (error) {
-      console.error('Error updating task:', error);
+      console.error('Error updating activity:', error);
       // Revert local state on error
       loadTimelineData();
       toast({
         title: "Error",
-        description: "Failed to update task",
+        description: "Failed to update activity",
         variant: "destructive"
       });
     }
@@ -148,22 +140,25 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
 
   const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>) => {
     try {
-      const duration = Math.ceil((newTask.endDate.getTime() - newTask.startDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+      // Get user's company ID for activities table
+      const { data: userData } = await supabase.auth.getUser();
+      const { data: companyData } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', userData.user?.id)
+        .eq('status', 'active')
+        .single();
+
       const { data, error } = await supabase
-        .from('tasks')
+        .from('activities')
         .insert([{
           project_id: projectId,
-          task_name: newTask.name,
-          due_date: newTask.startDate.toISOString().split('T')[0],
-          estimated_duration: duration,
-          progress: newTask.progress,
-          status: newTask.status,
-          assigned_to_name: newTask.assignee,
-          priority: newTask.priority,
+          company_id: companyData?.company_id,
+          name: newTask.name,
+          start_date: newTask.startDate.toISOString(),
+          end_date: newTask.endDate.toISOString(),
+          stage: newTask.status,
           description: newTask.description,
-          is_milestone: newTask.milestone || false,
-          category: newTask.category
         }])
         .select()
         .single();
@@ -179,18 +174,18 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       setTasks(prev => [...prev, ganttTask]);
 
       // Trigger API webhook
-      await triggerApiUpdate('task_created', { task: ganttTask });
+      await triggerApiUpdate('activity_created', { activity: ganttTask });
 
       toast({
-        title: "Task Added",
-        description: "New task has been successfully created"
+        title: "Activity Added",
+        description: "New activity has been successfully created"
       });
 
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error('Error adding activity:', error);
       toast({
         title: "Error",
-        description: "Failed to add task",
+        description: "Failed to add activity",
         variant: "destructive"
       });
     }
@@ -199,7 +194,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   const handleTaskDelete = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from('tasks')
+        .from('activities')
         .delete()
         .eq('id', taskId);
 
@@ -208,18 +203,18 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       setTasks(prev => prev.filter(task => task.id !== taskId));
 
       // Trigger API webhook
-      await triggerApiUpdate('task_deleted', { taskId });
+      await triggerApiUpdate('activity_deleted', { activityId: taskId });
 
       toast({
-        title: "Task Deleted",
-        description: "Task has been successfully deleted"
+        title: "Activity Deleted", 
+        description: "Activity has been successfully deleted"
       });
 
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error('Error deleting activity:', error);
       toast({
         title: "Error",
-        description: "Failed to delete task",
+        description: "Failed to delete activity",
         variant: "destructive"
       });
     }
@@ -236,15 +231,15 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       // by adding a 'sort_order' column to the tasks table
       
       toast({
-        title: "Tasks Reordered",
-        description: "Task order has been updated"
+        title: "Activities Reordered",
+        description: "Activity order has been updated"
       });
 
     } catch (error) {
-      console.error('Error reordering tasks:', error);
+      console.error('Error reordering activities:', error);
       toast({
         title: "Error", 
-        description: "Failed to reorder tasks",
+        description: "Failed to reorder activities",
         variant: "destructive"
       });
     }
@@ -364,7 +359,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold">{stats.totalTasks}</div>
-              <div className="text-xs text-muted-foreground">Total Tasks</div>
+              <div className="text-xs text-muted-foreground">Total Activities</div>
             </CardContent>
           </Card>
           
