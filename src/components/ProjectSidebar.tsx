@@ -20,7 +20,7 @@ const ALL_PROJECT_NAV_ITEMS = [{
   key: 'dashboard',
   label: 'Dashboard',
   icon: Eye,
-  page: 'project-detail'
+  page: 'individual-project-dashboard'
 }, {
   id: 'schedule',
   key: 'schedule',
