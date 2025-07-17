@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, UserPlus, Mail, Settings, Shield, Users, Clock } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Trash2, UserPlus, Mail, Settings, Shield, Users, Clock, UserX, Edit3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface ProjectTeamPageProps {
@@ -43,6 +44,19 @@ interface TeamMember {
   };
 }
 
+interface ManualMember {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  role: string;
+  professionalTitle?: string;
+  skills?: string[];
+  notes?: string;
+  addedAt: string;
+}
+
 const roleOptions = [
   { value: 'owner', label: 'Owner', description: 'Full access to project' },
   { value: 'manager', label: 'Manager', description: 'Can manage tasks and team' },
@@ -56,6 +70,20 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
+  
+  // Manual member addition state
+  const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
+  const [manualMembers, setManualMembers] = useState<ManualMember[]>([]);
+  const [memberForm, setMemberForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    role: "member",
+    professionalTitle: "",
+    skills: "",
+    notes: ""
+  });
 
   // Fetch team members with profile information
   const { data: teamMembers, isLoading } = useQuery({
@@ -174,6 +202,74 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     });
   };
 
+  // Manual member handlers
+  const handleAddManualMember = () => {
+    if (!memberForm.firstName.trim() || !memberForm.lastName.trim() || !memberForm.email.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields (First Name, Last Name, Email)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newMember: ManualMember = {
+      id: crypto.randomUUID(),
+      firstName: memberForm.firstName.trim(),
+      lastName: memberForm.lastName.trim(),
+      email: memberForm.email.trim(),
+      phone: memberForm.phone.trim() || undefined,
+      role: memberForm.role,
+      professionalTitle: memberForm.professionalTitle.trim() || undefined,
+      skills: memberForm.skills.trim() ? memberForm.skills.split(',').map(s => s.trim()) : undefined,
+      notes: memberForm.notes.trim() || undefined,
+      addedAt: new Date().toISOString()
+    };
+
+    setManualMembers(prev => [...prev, newMember]);
+    setMemberForm({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      role: "member",
+      professionalTitle: "",
+      skills: "",
+      notes: ""
+    });
+    setIsAddMemberDialogOpen(false);
+    
+    toast({
+      title: "Success",
+      description: "Team member details added. You can send invitations later.",
+    });
+  };
+
+  const handleRemoveManualMember = (memberId: string) => {
+    setManualMembers(prev => prev.filter(m => m.id !== memberId));
+    toast({
+      title: "Success",
+      description: "Manual member entry removed",
+    });
+  };
+
+  const handleSendInvitesToManualMembers = () => {
+    manualMembers.forEach(member => {
+      inviteMemberMutation.mutate({
+        email: member.email,
+        role: member.role
+      });
+    });
+    
+    // Clear manual members after sending invites
+    setManualMembers([]);
+    
+    toast({
+      title: "Success",
+      description: `Invitations sent to ${manualMembers.length} team members`,
+    });
+  };
+
   const getStatusBadge = (member: TeamMember) => {
     switch (member.status) {
       case 'active':
@@ -227,64 +323,274 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
           <p className="text-muted-foreground">Manage project team members and their roles</p>
         </div>
         
-        <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <UserPlus className="w-4 h-4" />
-              Invite Member
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Invite Team Member</DialogTitle>
-              <DialogDescription>
-                Invite a new member to join this project team.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="Enter email address"
-                />
-              </div>
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roleOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <div className="flex flex-col">
-                          <span>{option.label}</span>
-                          <span className="text-xs text-muted-foreground">{option.description}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
-                Cancel
+        <div className="flex gap-2">
+          <Dialog open={isAddMemberDialogOpen} onOpenChange={setIsAddMemberDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Edit3 className="w-4 h-4" />
+                Add Members
               </Button>
-              <Button 
-                onClick={handleInviteMember}
-                disabled={inviteMemberMutation.isPending}
-              >
-                {inviteMemberMutation.isPending ? "Inviting..." : "Send Invitation"}
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add Team Member Details</DialogTitle>
+                <DialogDescription>
+                  Manually enter team member details. You can send invitations later.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      value={memberForm.firstName}
+                      onChange={(e) => setMemberForm({...memberForm, firstName: e.target.value})}
+                      placeholder="Enter first name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      id="lastName"
+                      value={memberForm.lastName}
+                      onChange={(e) => setMemberForm({...memberForm, lastName: e.target.value})}
+                      placeholder="Enter last name"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="memberEmail">Email Address *</Label>
+                    <Input
+                      id="memberEmail"
+                      type="email"
+                      value={memberForm.email}
+                      onChange={(e) => setMemberForm({...memberForm, email: e.target.value})}
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      value={memberForm.phone}
+                      onChange={(e) => setMemberForm({...memberForm, phone: e.target.value})}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="memberRole">Role</Label>
+                    <Select value={memberForm.role} onValueChange={(value) => setMemberForm({...memberForm, role: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roleOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            <div className="flex flex-col">
+                              <span>{option.label}</span>
+                              <span className="text-xs text-muted-foreground">{option.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="professionalTitle">Professional Title</Label>
+                    <Input
+                      id="professionalTitle"
+                      value={memberForm.professionalTitle}
+                      onChange={(e) => setMemberForm({...memberForm, professionalTitle: e.target.value})}
+                      placeholder="e.g., Senior Engineer"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="skills">Skills</Label>
+                  <Input
+                    id="skills"
+                    value={memberForm.skills}
+                    onChange={(e) => setMemberForm({...memberForm, skills: e.target.value})}
+                    placeholder="Enter skills separated by commas"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={memberForm.notes}
+                    onChange={(e) => setMemberForm({...memberForm, notes: e.target.value})}
+                    placeholder="Any additional notes about this team member"
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddMemberDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddManualMember}>
+                  Add Member Details
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Invite Member
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Invite Team Member</DialogTitle>
+                <DialogDescription>
+                  Invite a new member to join this project team.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="Enter email address"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="role">Role</Label>
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roleOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div className="flex flex-col">
+                            <span>{option.label}</span>
+                            <span className="text-xs text-muted-foreground">{option.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleInviteMember}
+                  disabled={inviteMemberMutation.isPending}
+                >
+                  {inviteMemberMutation.isPending ? "Inviting..." : "Send Invitation"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Manual Members Section */}
+      {manualMembers.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Draft Members</CardTitle>
+                <CardDescription>
+                  Team members added manually. Send invitations when ready.
+                </CardDescription>
+              </div>
+              <Button onClick={handleSendInvitesToManualMembers} className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Send Invitations ({manualMembers.length})
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {manualMembers.map((member) => (
+                <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg bg-muted/20">
+                  <div className="flex items-center gap-4">
+                    <Avatar>
+                      <AvatarFallback>
+                        {member.firstName[0]}{member.lastName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">{member.firstName} {member.lastName}</h4>
+                        <Badge variant="outline">Draft</Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Mail className="w-3 h-3" />
+                        {member.email}
+                      </div>
+                      {member.professionalTitle && (
+                        <div className="text-sm text-muted-foreground">
+                          {member.professionalTitle}
+                        </div>
+                      )}
+                      {member.phone && (
+                        <div className="text-sm text-muted-foreground">
+                          📞 {member.phone}
+                        </div>
+                      )}
+                      {member.skills && member.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {member.skills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {member.skills.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{member.skills.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      {getRoleIcon(member.role)}
+                      <Badge variant="outline" className="capitalize">
+                        {member.role}
+                      </Badge>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveManualMember(member.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <UserX className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Team Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -294,7 +600,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teamMembers?.length || 0}</div>
+            <div className="text-2xl font-bold">{(teamMembers?.length || 0) + manualMembers.length}</div>
           </CardContent>
         </Card>
         
@@ -317,7 +623,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teamMembers?.filter(m => m.status === 'pending').length || 0}
+              {(teamMembers?.filter(m => m.status === 'pending').length || 0) + manualMembers.length}
             </div>
           </CardContent>
         </Card>
