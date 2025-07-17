@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, ChevronLeft, ChevronRight, Edit, Plus, Save, X, Settings } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Edit, Plus, Save, X, Settings, ZoomIn, ZoomOut } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 export interface GanttTask {
@@ -62,6 +62,7 @@ export const GanttChart = ({
   const [tableWidth, setTableWidth] = useState(400); // Default table width
   const [isResizing, setIsResizing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1); // Add zoom state
   const [dragState, setDragState] = useState<{
     taskId: string;
     type: 'move' | 'resize-start' | 'resize-end';
@@ -76,7 +77,17 @@ export const GanttChart = ({
     start: viewStart,
     end: viewEnd
   });
-  const dayWidth = 24; // pixels per day
+  const baseDayWidth = 24; // base pixels per day
+  const dayWidth = baseDayWidth * zoomLevel; // dynamic day width based on zoom
+
+  // Zoom functions
+  const zoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.25, 3)); // Max zoom 3x
+  };
+
+  const zoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.25, 0.25)); // Min zoom 0.25x
+  };
 
   // Status colors
   const getStatusColor = (status: string) => {
@@ -310,14 +321,41 @@ export const GanttChart = ({
           <span className={cn("font-semibold text-xs text-foreground transition-opacity duration-200", isCollapsed && "opacity-0")}>
             TASK NAME
           </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-4 w-4 p-0 flex-shrink-0"
-          >
-            <ChevronLeft className={cn("w-3 h-3 transition-transform", isCollapsed && "rotate-180")} />
-          </Button>
+          <div className="flex items-center gap-1">
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={zoomOut}
+                className="h-4 w-4 p-0"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-3 h-3" />
+              </Button>
+              <span className="text-xs text-muted-foreground min-w-8 text-center">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={zoomIn}
+                className="h-4 w-4 p-0"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-3 h-3" />
+              </Button>
+            </div>
+            {/* Collapse Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="h-4 w-4 p-0 flex-shrink-0"
+            >
+              <ChevronLeft className={cn("w-3 h-3 transition-transform", isCollapsed && "rotate-180")} />
+            </Button>
+          </div>
         </div>
         {!isCollapsed && (
           <>
