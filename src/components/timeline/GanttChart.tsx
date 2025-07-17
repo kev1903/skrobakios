@@ -70,6 +70,7 @@ export const GanttChart = ({
   const [isResizing, setIsResizing] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1); // Add zoom state
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [dragState, setDragState] = useState<{
     taskId: string;
     type: 'move' | 'resize-start' | 'resize-end';
@@ -84,6 +85,71 @@ export const GanttChart = ({
     draggedIndex: number;
     dropTargetIndex: number | null;
   } | null>(null);
+
+  // Initialize expanded states for all stage tasks
+  useEffect(() => {
+    const stageIds = new Set<string>();
+    tasks.forEach(task => {
+      if (task.isStage) {
+        stageIds.add(task.id);
+      }
+    });
+    setExpandedTasks(stageIds);
+  }, [tasks]);
+
+  // Build hierarchical task structure for display
+  const getVisibleTasks = useMemo(() => {
+    interface TaskWithChildren extends GanttTask {
+      children: TaskWithChildren[];
+    }
+    
+    const taskMap = new Map<string, TaskWithChildren>();
+    const rootTasks: TaskWithChildren[] = [];
+
+    // First pass: Create all task nodes
+    tasks.forEach(task => {
+      taskMap.set(task.id, { ...task, children: [] });
+    });
+
+    // Second pass: Build parent-child relationships
+    tasks.forEach(task => {
+      const taskNode = taskMap.get(task.id)!;
+      if (task.parentId && taskMap.has(task.parentId)) {
+        const parent = taskMap.get(task.parentId)!;
+        parent.children.push(taskNode);
+      } else {
+        rootTasks.push(taskNode);
+      }
+    });
+
+    // Third pass: Flatten hierarchy respecting expansion state
+    const flattenTasks = (task: TaskWithChildren, depth = 0): (GanttTask & { depth: number })[] => {
+      const result: (GanttTask & { depth: number })[] = [{ ...task, depth }];
+      
+      if (expandedTasks.has(task.id) && task.children.length > 0) {
+        task.children.forEach(child => {
+          result.push(...flattenTasks(child, depth + 1));
+        });
+      }
+      
+      return result;
+    };
+
+    return rootTasks.flatMap(task => flattenTasks(task));
+  }, [tasks, expandedTasks]);
+
+  const toggleExpanded = (taskId: string) => {
+    const newExpanded = new Set(expandedTasks);
+    if (newExpanded.has(taskId)) {
+      newExpanded.delete(taskId);
+    } else {
+      newExpanded.add(taskId);
+    }
+    setExpandedTasks(newExpanded);
+    
+    // Also notify parent component
+    onTaskUpdate?.(taskId, { expanded: !expandedTasks.has(taskId) });
+  };
 
   // Calculate view range (show 6 months)
   const viewEnd = endOfMonth(addDays(viewStart, 180));
@@ -665,12 +731,13 @@ export const GanttChart = ({
         />}
 
         {/* Task rows */}
-        {tasks.map((task, index) => {
+        {getVisibleTasks.map((task, index) => {
         const geometry = getTaskGeometry(task);
         if (!geometry.visible) return null;
         const rowHeight = compactMode ? 28 : 36;
         const isDraggedOver = rowDragState?.dropTargetIndex === index;
         const isDragging = rowDragState?.draggedTaskId === task.id;
+        const hasChildren = tasks.filter(t => t.parentId === task.id).length > 0;
         
         return <div 
           key={task.id} 
@@ -678,7 +745,8 @@ export const GanttChart = ({
             "flex border-b border-border transition-colors",
             isDraggedOver && "bg-primary/10 border-primary/50",
             isDragging && "opacity-50",
-            "hover:bg-muted/20 cursor-grab active:cursor-grabbing"
+            "hover:bg-muted/20 cursor-grab active:cursor-grabbing",
+            task.isStage && "bg-muted/5 border-l-4 border-l-primary/60"
           )}
           style={{ height: rowHeight }}
           draggable={editable && !!onTaskReorder}
@@ -706,14 +774,40 @@ export const GanttChart = ({
                 {/* Task Name */}
                 <div 
                   className="px-2 border-r border-border flex items-center flex-shrink-0"
-                  style={{ width: 192, height: rowHeight }}
+                  style={{ width: 192, height: rowHeight, paddingLeft: `${8 + (task.depth || 0) * 16}px` }}
                 >
+                  {/* Expand/Collapse button for parent tasks */}
+                  {hasChildren && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(task.id)}
+                      className="p-0 h-4 w-4 mr-2 flex-shrink-0"
+                    >
+                      <div className={cn(
+                        "w-0 h-0 border-l-4 border-l-foreground border-y-2 border-y-transparent transition-transform",
+                        expandedTasks.has(task.id) && "rotate-90"
+                      )} />
+                    </Button>
+                  )}
+                  
+                  {/* Stage indicator */}
+                  {task.isStage && (
+                    <Badge variant="default" className="mr-2 text-xs py-0 px-1 bg-primary">
+                      Stage
+                    </Badge>
+                  )}
+                  
                   <EditableCell
                     value={task.name}
                     taskId={task.id}
                     field="name"
-                    className="font-medium w-full"
+                    className={cn(
+                      "w-full",
+                      task.isStage ? "font-bold text-primary" : "font-medium"
+                    )}
                   />
+                  
                   {/* Dependency indicator */}
                   {task.dependencies && task.dependencies.length > 0 && (
                     <TooltipProvider>
@@ -809,23 +903,35 @@ export const GanttChart = ({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className={cn("absolute top-1/2 -translate-y-1/2 rounded cursor-pointer border-l-4", getStatusColor(task.status), getPriorityColor(task.priority), "hover:shadow-md transition-shadow")} style={{
-                      left: geometry.left,
-                      width: geometry.width,
-                      height: compactMode ? 16 : 20
-                    }} onMouseDown={e => handleMouseDown(e, task.id, 'move')}>
+                        <div className={cn(
+                          "absolute top-1/2 -translate-y-1/2 rounded cursor-pointer border-l-4", 
+                          getStatusColor(task.status), 
+                          getPriorityColor(task.priority), 
+                          "hover:shadow-md transition-shadow",
+                          task.isStage && "opacity-80 bg-primary/20"
+                        )} 
+                        style={{
+                          left: geometry.left,
+                          width: geometry.width,
+                          height: compactMode ? 16 : 20
+                        }} 
+                        onMouseDown={e => !task.isStage && handleMouseDown(e, task.id, 'move')}
+                        >
                           {/* Progress bar */}
                           {task.progress > 0 && <div className="absolute inset-0 bg-primary/30 rounded-r" style={{
                         width: `${task.progress}%`
                       }} />}
                           
                           {/* Task label */}
-                          <div className="absolute inset-0 flex items-center px-2 text-xs font-medium text-white">
+                          <div className={cn(
+                            "absolute inset-0 flex items-center px-2 text-xs font-medium",
+                            task.isStage ? "text-primary font-bold" : "text-white"
+                          )}>
                             <span className="truncate">{task.name}</span>
                           </div>
 
-                          {/* Resize handles */}
-                          {editable && <>
+                          {/* Resize handles - only for non-stage tasks */}
+                          {editable && !task.isStage && <>
                               <div className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-white/20" onMouseDown={e => {
                           e.stopPropagation();
                           handleMouseDown(e, task.id, 'resize-start');
@@ -847,6 +953,11 @@ export const GanttChart = ({
                           <Badge variant="outline" className="text-xs">
                             {task.status}
                           </Badge>
+                          {task.isStage && (
+                            <Badge variant="default" className="text-xs">
+                              Project Stage
+                            </Badge>
+                          )}
                         </div>
                       </TooltipContent>
                     </Tooltip>
