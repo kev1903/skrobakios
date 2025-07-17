@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, parseISO, isWithinInterval } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, parseISO, isWithinInterval, startOfWeek, endOfWeek, isSameWeek } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -456,7 +456,7 @@ export const GanttChart = ({
           <div className="flex w-full">
             {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
             const monthDays = days.filter(day => format(day, 'MMM yyyy') === month);
-            return <div key={month} className="bg-primary/10 text-primary font-medium text-sm flex items-center justify-center border-r border-border" style={{
+            return <div key={month} className="bg-primary/10 text-primary font-medium text-sm flex items-center justify-center border-r border-border h-8" style={{
               width: monthDays.length * dayWidth
             }}>
                   {month}
@@ -465,12 +465,49 @@ export const GanttChart = ({
           </div>
         </div>
         
+        {/* Week headers */}
+        <div className="flex border-t border-border">
+          {(() => {
+            const weeks: { weekStart: Date; weekDays: Date[] }[] = [];
+            let currentWeek: Date[] = [];
+            let currentWeekStart: Date | null = null;
+            
+            days.forEach((day, index) => {
+              if (currentWeek.length === 0 || !isSameWeek(day, currentWeek[0], { weekStartsOn: 1 })) {
+                if (currentWeek.length > 0) {
+                  weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
+                }
+                currentWeek = [day];
+                currentWeekStart = startOfWeek(day, { weekStartsOn: 1 });
+              } else {
+                currentWeek.push(day);
+              }
+            });
+            
+            if (currentWeek.length > 0) {
+              weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
+            }
+            
+            return weeks.map((week, index) => (
+              <div 
+                key={`week-${index}`} 
+                className="bg-muted/20 text-muted-foreground font-medium text-xs flex items-center justify-center border-r border-border/50 h-6" 
+                style={{
+                  width: week.weekDays.length * dayWidth
+                }}
+              >
+                Week {format(week.weekStart, 'w')}
+              </div>
+            ));
+          })()}
+        </div>
+        
         {/* Day headers */}
         <div className="flex border-t border-border">
-          {days.map((day, index) => <div key={day.toISOString()} className={cn("text-xs text-center py-1 border-r border-border/50 bg-background", format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '', showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : '')} style={{
+          {days.map((day, index) => <div key={day.toISOString()} className={cn("text-xs text-center py-1 border-r border-border/50 bg-background h-12", format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '', showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : '')} style={{
           width: dayWidth
         }}>
-              <div>{format(day, 'd')}</div>
+              <div className="font-medium">{format(day, 'd')}</div>
               <div className="text-[10px] opacity-60">{format(day, 'E')}</div>
             </div>)}
         </div>
