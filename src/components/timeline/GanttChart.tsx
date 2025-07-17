@@ -59,6 +59,8 @@ export const GanttChart = ({
     return startOfMonth(earliest);
   });
   const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [tableWidth, setTableWidth] = useState(400); // Default table width
+  const [isResizing, setIsResizing] = useState(false);
   const [dragState, setDragState] = useState<{
     taskId: string;
     type: 'move' | 'resize-start' | 'resize-end';
@@ -161,12 +163,49 @@ export const GanttChart = ({
   };
   const handleMouseUp = () => {
     setDragState(null);
+    setIsResizing(false);
   };
+
+  // Resize handlers for the table/gantt divider
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  const handleResizeMove = (e: React.MouseEvent) => {
+    if (!isResizing) return;
+    const newWidth = Math.max(300, Math.min(800, e.clientX));
+    setTableWidth(newWidth);
+  };
+
+  // Add effect to handle document mouse events
+  useEffect(() => {
+    const handleDocumentMouseMove = (e: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = Math.max(300, Math.min(800, e.clientX));
+        setTableWidth(newWidth);
+      }
+    };
+
+    const handleDocumentMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleDocumentMouseMove);
+      document.addEventListener('mouseup', handleDocumentMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleDocumentMouseMove);
+      document.removeEventListener('mouseup', handleDocumentMouseUp);
+    };
+  }, [isResizing]);
 
   // Time header component
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Table headers for task information */}
-      <div className="flex bg-muted/30 border-r border-border">
+      <div className="flex bg-muted/30 border-r border-border" style={{ width: tableWidth }}>
         <div className="w-48 p-2 border-r border-border">
           <h3 className="font-semibold text-xs text-foreground">TASK NAME</h3>
         </div>
@@ -186,6 +225,13 @@ export const GanttChart = ({
           <h3 className="font-semibold text-xs text-foreground">DEPENDENCIES</h3>
         </div>
       </div>
+      
+      {/* Resizable divider */}
+      <div 
+        className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
+        onMouseDown={handleResizeStart}
+        title="Drag to resize table"
+      />
       
       {/* Timeline header */}
       <div className="flex-1 overflow-hidden">
@@ -264,7 +310,7 @@ export const GanttChart = ({
         if (!geometry.visible) return null;
         return <div key={task.id} className="flex border-b border-border hover:bg-muted/20">
               {/* Task table columns */}
-              <div className="flex border-r border-border">
+              <div className="flex border-r border-border" style={{ width: tableWidth }}>
                 {/* Task Name */}
                 <div className="w-48 p-2 border-r border-border flex items-center">
                   {editingTask === task.id ? (
@@ -331,6 +377,12 @@ export const GanttChart = ({
                 </div>
               </div>
 
+              {/* Resizable divider */}
+              <div 
+                className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
+                onMouseDown={handleResizeStart}
+              />
+
               {/* Timeline column */}
               <div className="flex-1 relative p-2" style={{
             height: compactMode ? 40 : 60
@@ -394,7 +446,7 @@ export const GanttChart = ({
 
         {/* Add task row */}
         {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10">
-            <div className="flex border-r border-border">
+            <div className="flex border-r border-border" style={{ width: tableWidth }}>
               <div className="w-48 p-2 border-r border-border">
                 <Button variant="ghost" size="sm" onClick={() => {
                   // Simple add task - in real implementation, open a form dialog
@@ -419,6 +471,13 @@ export const GanttChart = ({
               <div className="w-28 p-2 border-r border-border"></div>
               <div className="w-32 p-2"></div>
             </div>
+            
+            {/* Resizable divider */}
+            <div 
+              className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
+              onMouseDown={handleResizeStart}
+            />
+            
             <div className="flex-1 p-2"></div>
           </div>}
       </div>
