@@ -543,10 +543,13 @@ export const GanttChart = ({
         </Tooltip>
       </TooltipProvider>;
   };
-  return <div className="border border-border rounded-lg bg-background gantt-container overflow-x-hidden">
+  return <div className="border border-border rounded-lg bg-background gantt-container">
       <TimeHeader />
       
-      <div className="relative" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+      {/* Scrollable timeline area */}
+      <div className="relative overflow-x-auto" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+        {/* Inner container with actual timeline width */}
+        <div className="relative" style={{ minWidth: `${(isCollapsed ? 60 : tableWidth) + 1 + (days.length * dayWidth)}px` }}>
         {/* Dependency Lines */}
         <DependencyLines />
 
@@ -768,6 +771,7 @@ export const GanttChart = ({
             
             <div className="flex-1 p-2"></div>
           </div>}
+        </div>
       </div>
     </div>;
 };
