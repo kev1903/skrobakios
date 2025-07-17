@@ -51,6 +51,7 @@ interface ManualMember {
   email: string;
   phone?: string;
   role: string;
+  company?: string;
   professionalTitle?: string;
   skills?: string[];
   notes?: string;
@@ -61,7 +62,8 @@ const roleOptions = [
   { value: 'owner', label: 'Owner', description: 'Full access to project' },
   { value: 'manager', label: 'Manager', description: 'Can manage tasks and team' },
   { value: 'member', label: 'Member', description: 'Can view and edit tasks' },
-  { value: 'viewer', label: 'Viewer', description: 'Can only view project' }
+  { value: 'viewer', label: 'Viewer', description: 'Can only view project' },
+  { value: 'client', label: 'Client', description: 'External client with limited access' }
 ];
 
 export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) => {
@@ -80,6 +82,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     email: "",
     phone: "",
     role: "member",
+    company: "",
     professionalTitle: "",
     skills: "",
     notes: ""
@@ -220,6 +223,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       email: memberForm.email.trim(),
       phone: memberForm.phone.trim() || undefined,
       role: memberForm.role,
+      company: memberForm.company.trim() || undefined,
       professionalTitle: memberForm.professionalTitle.trim() || undefined,
       skills: memberForm.skills.trim() ? memberForm.skills.split(',').map(s => s.trim()) : undefined,
       notes: memberForm.notes.trim() || undefined,
@@ -233,6 +237,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       email: "",
       phone: "",
       role: "member",
+      company: "",
       professionalTitle: "",
       skills: "",
       notes: ""
@@ -402,6 +407,18 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                     </Select>
                   </div>
                   <div>
+                    <Label htmlFor="company">Company</Label>
+                    <Input
+                      id="company"
+                      value={memberForm.company}
+                      onChange={(e) => setMemberForm({...memberForm, company: e.target.value})}
+                      placeholder="e.g., ABC Construction"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <Label htmlFor="professionalTitle">Professional Title</Label>
                     <Input
                       id="professionalTitle"
@@ -410,16 +427,15 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                       placeholder="e.g., Senior Engineer"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="skills">Skills</Label>
-                  <Input
-                    id="skills"
-                    value={memberForm.skills}
-                    onChange={(e) => setMemberForm({...memberForm, skills: e.target.value})}
-                    placeholder="Enter skills separated by commas"
-                  />
+                  <div>
+                    <Label htmlFor="skills">Skills</Label>
+                    <Input
+                      id="skills"
+                      value={memberForm.skills}
+                      onChange={(e) => setMemberForm({...memberForm, skills: e.target.value})}
+                      placeholder="Enter skills separated by commas"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -541,6 +557,11 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                         <Mail className="w-3 h-3" />
                         {member.email}
                       </div>
+                      {member.company && (
+                        <div className="text-sm text-muted-foreground">
+                          🏢 {member.company}
+                        </div>
+                      )}
                       {member.professionalTitle && (
                         <div className="text-sm text-muted-foreground">
                           {member.professionalTitle}
