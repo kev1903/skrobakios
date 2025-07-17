@@ -678,14 +678,25 @@ export const GanttChart = ({
           )}
           style={{ height: rowHeight }}
           draggable={editable && !!onTaskReorder}
-          onDragStart={(e) => handleRowDragStart(e, task.id, index)}
+          onDragStart={(e) => {
+            // Only allow row drag if we're not clicking on the timeline area or interactive elements
+            const target = e.target as HTMLElement;
+            const isTimelineArea = target.closest('.timeline-area');
+            const isInteractiveElement = target.closest('input, button, select, [role="button"]');
+            
+            if (isTimelineArea || isInteractiveElement) {
+              e.preventDefault();
+              return;
+            }
+            handleRowDragStart(e, task.id, index);
+          }}
           onDragEnd={handleRowDragEnd}
           onDragOver={(e) => handleRowDragOver(e, index)}
           onDrop={(e) => handleRowDrop(e, index)}
         >
             {/* Task table columns */}
               <div 
-                className="border-r border-border overflow-hidden flex" 
+                className="border-r border-border overflow-hidden flex task-info-area" 
                 style={{ width: isCollapsed ? 60 : tableWidth, height: rowHeight }}
               >
                 {/* Task Name */}
@@ -781,7 +792,7 @@ export const GanttChart = ({
               />
 
               {/* Timeline column */}
-              <div className="flex-1 relative" style={{
+              <div className="flex-1 relative timeline-area" style={{
                 height: rowHeight
               }}>
                 <div className="relative h-full">

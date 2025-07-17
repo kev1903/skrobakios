@@ -225,6 +225,31 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
     }
   };
 
+  const handleTaskReorder = async (taskIds: string[]) => {
+    try {
+      // Update local state immediately
+      const reorderedTasks = taskIds.map(id => tasks.find(task => task.id === id)!).filter(Boolean);
+      setTasks(reorderedTasks);
+
+      // Note: For now, we'll just update the local state
+      // In a real implementation, you might want to persist the order to the database
+      // by adding a 'sort_order' column to the tasks table
+      
+      toast({
+        title: "Tasks Reordered",
+        description: "Task order has been updated"
+      });
+
+    } catch (error) {
+      console.error('Error reordering tasks:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to reorder tasks",
+        variant: "destructive"
+      });
+    }
+  };
+
   const triggerApiUpdate = async (action: string, data: any) => {
     const promises = [];
 
@@ -424,6 +449,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
               onTaskUpdate={handleTaskUpdate}
               onTaskAdd={handleTaskAdd}
               onTaskDelete={handleTaskDelete}
+              onTaskReorder={handleTaskReorder}
               editable={true}
               showGrid={true}
               showToday={true}
