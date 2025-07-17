@@ -206,23 +206,23 @@ export const GanttChart = ({
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Table headers for task information */}
       <div className="flex bg-muted/30 border-r border-border" style={{ width: tableWidth }}>
-        <div className="w-48 p-2 border-r border-border flex items-center">
-          <h3 className="font-semibold text-xs text-foreground">TASK NAME</h3>
+        <div className="w-48 px-2 py-2 border-r border-border flex items-center">
+          <span className="font-semibold text-xs text-foreground">TASK NAME</span>
         </div>
-        <div className="w-24 p-2 border-r border-border flex items-center">
-          <h3 className="font-semibold text-xs text-foreground">START DATE</h3>
+        <div className="w-24 px-2 py-2 border-r border-border flex items-center">
+          <span className="font-semibold text-xs text-foreground">START DATE</span>
         </div>
-        <div className="w-24 p-2 border-r border-border flex items-center">
-          <h3 className="font-semibold text-xs text-foreground">END DATE</h3>
+        <div className="w-24 px-2 py-2 border-r border-border flex items-center">
+          <span className="font-semibold text-xs text-foreground">END DATE</span>
         </div>
-        <div className="w-20 p-2 border-r border-border flex items-center">
-          <h3 className="font-semibold text-xs text-foreground">DURATION</h3>
+        <div className="w-20 px-2 py-2 border-r border-border flex items-center">
+          <span className="font-semibold text-xs text-foreground">DURATION</span>
         </div>
-        <div className="w-28 p-2 border-r border-border flex items-center">
-          <h3 className="font-semibold text-xs text-foreground">ASSIGNEE</h3>
+        <div className="w-28 px-2 py-2 border-r border-border flex items-center">
+          <span className="font-semibold text-xs text-foreground">ASSIGNEE</span>
         </div>
-        <div className="w-32 p-2 flex items-center">
-          <h3 className="font-semibold text-xs text-foreground">DEPENDENCIES</h3>
+        <div className="w-32 px-2 py-2 flex items-center">
+          <span className="font-semibold text-xs text-foreground">DEPENDENCIES</span>
         </div>
       </div>
       
@@ -312,7 +312,7 @@ export const GanttChart = ({
               {/* Task table columns */}
               <div className="flex border-r border-border" style={{ width: tableWidth }}>
                 {/* Task Name */}
-                <div className="w-48 p-2 border-r border-border flex items-center">
+                <div className="w-48 px-2 py-2 border-r border-border flex items-center">
                   {editingTask === task.id ? (
                     <Input 
                       defaultValue={task.name} 
@@ -340,35 +340,35 @@ export const GanttChart = ({
                 </div>
                 
                 {/* Start Date */}
-                <div className="w-24 p-2 border-r border-border flex items-center">
+                <div className="w-24 px-2 py-2 border-r border-border flex items-center">
                   <span className="text-xs text-muted-foreground">
                     {format(task.startDate, 'MMM d')}
                   </span>
                 </div>
                 
                 {/* End Date */}
-                <div className="w-24 p-2 border-r border-border flex items-center">
+                <div className="w-24 px-2 py-2 border-r border-border flex items-center">
                   <span className="text-xs text-muted-foreground">
                     {format(task.endDate, 'MMM d')}
                   </span>
                 </div>
                 
                 {/* Duration */}
-                <div className="w-20 p-2 border-r border-border flex items-center">
+                <div className="w-20 px-2 py-2 border-r border-border flex items-center">
                   <span className="text-xs text-muted-foreground">
                     {differenceInDays(task.endDate, task.startDate) + 1}d
                   </span>
                 </div>
                 
                 {/* Assignee */}
-                <div className="w-28 p-2 border-r border-border flex items-center">
+                <div className="w-28 px-2 py-2 border-r border-border flex items-center">
                   <span className="text-xs text-muted-foreground truncate">
                     {task.assignee || '-'}
                   </span>
                 </div>
                 
                 {/* Dependencies */}
-                <div className="w-32 p-2 flex items-center">
+                <div className="w-32 px-2 py-2 flex items-center">
                   <span className="text-xs text-muted-foreground truncate">
                     {task.dependencies && task.dependencies.length > 0 
                       ? task.dependencies.join(', ') 
@@ -447,7 +447,7 @@ export const GanttChart = ({
         {/* Add task row */}
         {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10">
             <div className="flex border-r border-border" style={{ width: tableWidth }}>
-              <div className="w-48 p-2 border-r border-border">
+              <div className="w-48 px-2 py-2 border-r border-border">
                 <Button variant="ghost" size="sm" onClick={() => {
                   // Simple add task - in real implementation, open a form dialog
                   const newTask: Omit<GanttTask, 'id'> = {
@@ -465,11 +465,11 @@ export const GanttChart = ({
                   Add task
                 </Button>
               </div>
-              <div className="w-24 p-2 border-r border-border"></div>
-              <div className="w-24 p-2 border-r border-border"></div>
-              <div className="w-20 p-2 border-r border-border"></div>
-              <div className="w-28 p-2 border-r border-border"></div>
-              <div className="w-32 p-2"></div>
+              <div className="w-24 px-2 py-2 border-r border-border"></div>
+              <div className="w-24 px-2 py-2 border-r border-border"></div>
+              <div className="w-20 px-2 py-2 border-r border-border"></div>
+              <div className="w-28 px-2 py-2 border-r border-border"></div>
+              <div className="w-32 px-2 py-2"></div>
             </div>
             
             {/* Resizable divider */}
