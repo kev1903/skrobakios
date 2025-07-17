@@ -10,6 +10,7 @@ import { Calendar, ChevronLeft, ChevronRight, Edit, Plus, Save, X, Settings, Zoo
 import { Progress } from '@/components/ui/progress';
 import { DatePicker } from '@/components/ui/date-picker';
 import { cn } from '@/lib/utils';
+
 export interface GanttTask {
   id: string;
   name: string;
@@ -28,6 +29,7 @@ export interface GanttTask {
   expanded?: boolean;
   isStage?: boolean;
 }
+
 export interface GanttMilestone {
   id: string;
   name: string;
@@ -35,6 +37,7 @@ export interface GanttMilestone {
   status: 'upcoming' | 'completed' | 'overdue';
   description?: string;
 }
+
 interface GanttChartProps {
   tasks: GanttTask[];
   milestones?: GanttMilestone[];
@@ -48,6 +51,7 @@ interface GanttChartProps {
   showToday?: boolean;
   compactMode?: boolean;
 }
+
 export const GanttChart = ({
   tasks,
   milestones = [],
@@ -245,6 +249,7 @@ export const GanttChart = ({
         return 'bg-slate-400';
     }
   };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'High':
@@ -276,7 +281,7 @@ export const GanttChart = ({
   };
 
   // Mouse handlers for drag operations
-  const handleMouseDown = (e: React.MouseEvent, taskId: string, type: 'move' | 'resize-start' | 'resize-end') => {
+  const handleTaskMouseDown = (e: React.MouseEvent, taskId: string, type: 'move' | 'resize-start' | 'resize-end') => {
     if (!editable) return;
     e.preventDefault();
     const task = tasks.find(t => t.id === taskId);
@@ -289,6 +294,7 @@ export const GanttChart = ({
       originalEnd: task.endDate
     });
   };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!dragState || !onTaskUpdate) return;
     const deltaX = e.clientX - dragState.startX;
@@ -316,6 +322,7 @@ export const GanttChart = ({
       endDate: newEnd
     });
   };
+
   const handleMouseUp = () => {
     setDragState(null);
     setIsResizing(false);
@@ -593,13 +600,11 @@ export const GanttChart = ({
     );
   };
 
-  // Time header component
-  const TimeHeader = () => <div className="flex border-b border-border">
-      {/* Table headers for task information */}
-      <div 
-        className="bg-muted/30 border-r border-border overflow-hidden flex" 
-        style={{ width: isCollapsed ? 60 : tableWidth }}
-      >
+  // Time header component - split into fixed and scrollable parts
+  const TimeHeader = () => 
+    <div className="border-b border-border bg-muted/10 flex" style={{ width: isCollapsed ? 60 : tableWidth, height: 72 }}>
+      {!isCollapsed && (
+        <>
         <div 
           className="px-2 py-2 border-r border-border flex items-center justify-between flex-shrink-0 relative group"
           style={{ width: columnWidths.name }}
@@ -703,86 +708,20 @@ export const GanttChart = ({
             PROGRESS
           </span>
         </div>
-      </div>
-      
-      {/* Resizable divider */}
-      <div 
-        className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
-        onMouseDown={handleResizeStart}
-        title="Drag to resize table"
-      />
-      
-      {/* Timeline header */}
-      <div className="flex-1 overflow-x-hidden overflow-y-hidden">
-        {/* Month headers */}
-        <div className="flex border-b border-border" style={{ width: days.length * dayWidth }}>
-          {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
-            const monthDays = days.filter(day => format(day, 'MMM yyyy') === month);
-            return (
-              <div 
-                key={month} 
-                className="bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center border-r border-border h-8" 
-                style={{ width: monthDays.length * dayWidth }}
-              >
-                {month}
-              </div>
-            );
-          })}
+        </>
+      )}
+      {isCollapsed && (
+        <div className="px-2 py-2 flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(false)}
+            className="h-4 w-4 p-0"
+          >
+            <ChevronRight className="w-3 h-3" />
+          </Button>
         </div>
-        
-        {/* Week headers */}
-        <div className="flex border-b border-border" style={{ width: days.length * dayWidth }}>
-          {(() => {
-            const weeks: { weekStart: Date; weekDays: Date[] }[] = [];
-            let currentWeek: Date[] = [];
-            let currentWeekStart: Date | null = null;
-            
-            days.forEach((day) => {
-              if (currentWeek.length === 0 || !isSameWeek(day, currentWeek[0], { weekStartsOn: 1 })) {
-                if (currentWeek.length > 0) {
-                  weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
-                }
-                currentWeek = [day];
-                currentWeekStart = startOfWeek(day, { weekStartsOn: 1 });
-              } else {
-                currentWeek.push(day);
-              }
-            });
-            
-            if (currentWeek.length > 0) {
-              weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
-            }
-            
-            return weeks.map((week, index) => (
-              <div 
-                key={`week-${index}`} 
-                className="bg-muted/20 text-muted-foreground font-medium text-xs flex items-center justify-center border-r border-border/50 h-6" 
-                style={{ width: week.weekDays.length * dayWidth }}
-              >
-                Week {format(week.weekStart, 'w')}
-              </div>
-            ));
-          })()}
-        </div>
-        
-        {/* Day headers */}
-        <div className="flex" style={{ width: days.length * dayWidth }}>
-          {days.map((day) => (
-            <div 
-              key={day.toISOString()} 
-              className={cn(
-                "text-xs text-center py-1 border-r border-border/50 bg-background h-12 flex flex-col justify-center",
-                format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '',
-                showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : ''
-              )} 
-              style={{ width: dayWidth }}
-            >
-              <div className="font-medium">{format(day, 'd')}</div>
-              <div className="text-[10px] opacity-60">{format(day, 'E')}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </div>;
 
   // Milestone component
@@ -812,342 +751,438 @@ export const GanttChart = ({
         </Tooltip>
       </TooltipProvider>;
   };
-  return <div className="border border-border rounded-lg bg-background gantt-container overflow-x-hidden">
-      <TimeHeader />
-      
-      <div className="relative" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-        {/* Dependency Lines */}
-        <DependencyLines />
 
-        {/* Milestones */}
-        <div className="absolute inset-0 pointer-events-none z-20">
-          {milestones.map(milestone => <MilestoneMarker key={milestone.id} milestone={milestone} />)}
+  return (
+    <div className="border border-border rounded-lg bg-background gantt-container overflow-hidden">
+      <div className="flex">
+        {/* Fixed table header */}
+        <div className="border-b border-border bg-muted/10 flex-shrink-0" style={{ width: isCollapsed ? 60 : tableWidth }}>
+          <TimeHeader />
         </div>
-
-        {/* Today line - positioned correctly */}
-        {showToday && <div 
-          className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none" 
-          style={{
-            left: getTodayPosition()
-          }} 
-        />}
-
-        {/* Task rows */}
-        {getVisibleTasks.map((task, index) => {
-        const geometry = getTaskGeometry(task);
-        if (!geometry.visible) return null;
-        const rowHeight = compactMode ? 28 : 36;
-        const isDraggedOver = rowDragState?.dropTargetIndex === index;
-        const isDragging = rowDragState?.draggedTaskId === task.id;
-        const hasChildren = tasks.filter(t => t.parentId === task.id).length > 0;
         
-        return <div 
-          key={task.id} 
-          className={cn(
-            "flex border-b border-border transition-colors",
-            isDraggedOver && "bg-primary/10 border-primary/50",
-            isDragging && "opacity-50",
-            "hover:bg-muted/20 cursor-grab active:cursor-grabbing",
-            task.isStage && "bg-muted/5 border-l-4 border-l-primary/60"
-          )}
-          style={{ height: rowHeight }}
-          draggable={editable && !!onTaskReorder}
-          onDragStart={(e) => {
-            // Only allow row drag if we're not clicking on the timeline area or interactive elements
-            const target = e.target as HTMLElement;
-            const isTimelineArea = target.closest('.timeline-area');
-            const isInteractiveElement = target.closest('input, button, select, [role="button"]');
-            
-            if (isTimelineArea || isInteractiveElement) {
-              e.preventDefault();
-              return;
-            }
-            handleRowDragStart(e, task.id, index);
-          }}
-          onDragEnd={handleRowDragEnd}
-          onDragOver={(e) => handleRowDragOver(e, index)}
-          onDrop={(e) => handleRowDrop(e, index)}
-        >
-            {/* Task table columns */}
-              <div 
-                className="border-r border-border overflow-hidden flex task-info-area" 
-                style={{ width: isCollapsed ? 60 : tableWidth, height: rowHeight }}
-              >
-                {/* Task Name */}
-                <div 
-                  className="px-2 border-r border-border flex items-center flex-shrink-0 relative group"
-                  style={{ width: columnWidths.name, height: rowHeight, paddingLeft: `${8 + (task.depth || 0) * 16}px` }}
-                >
-                  {/* Resize handle */}
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => handleColumnResizeStart(e, 'name')}
-                  />
-                  {/* Expand/Collapse button for parent tasks */}
-                  {hasChildren && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpanded(task.id)}
-                      className="p-0 h-4 w-4 mr-2 flex-shrink-0"
-                    >
-                      <div className={cn(
-                        "w-0 h-0 border-l-4 border-l-foreground border-y-2 border-y-transparent transition-transform",
-                        expandedTasks.has(task.id) && "rotate-90"
-                      )} />
-                    </Button>
-                  )}
-                  
-                  <EditableCell
-                    value={task.name}
-                    taskId={task.id}
-                    field="name"
-                    className={cn(
-                      "w-full",
-                      task.isStage ? "font-bold text-primary" : "font-medium"
-                    )}
-                  />
-                  
-                  {/* Dependency indicator */}
-                  {task.dependencies && task.dependencies.length > 0 && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="ml-1 w-2 h-2 bg-primary/60 rounded-full flex-shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <div className="text-xs">
-                            <div className="font-medium">Dependencies:</div>
-                            {task.dependencies.map(depId => {
-                              const depTask = tasks.find(t => t.id === depId);
-                              return depTask ? (
-                                <div key={depId}>• {depTask.name}</div>
-                              ) : (
-                                <div key={depId}>• {depId}</div>
-                              );
-                            })}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </div>
-                
-                {/* Start Date */}
-                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.startDate, height: rowHeight }}>
-                  {/* Resize handle */}
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => handleColumnResizeStart(e, 'startDate')}
-                  />
-                  <EditableCell
-                    value={format(task.startDate, 'dd/MM/yy')}
-                    taskId={task.id}
-                    field="startDate"
-                    type="date"
-                    className="text-muted-foreground w-full"
-                  />
-                </div>
-                
-                {/* End Date */}
-                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.endDate, height: rowHeight }}>
-                  {/* Resize handle */}
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => handleColumnResizeStart(e, 'endDate')}
-                  />
-                  <EditableCell
-                    value={format(task.endDate, 'dd/MM/yy')}
-                    taskId={task.id}
-                    field="endDate"
-                    type="date"
-                    className="text-muted-foreground w-full"
-                  />
-                </div>
-                
-                {/* Duration - Read only display */}
-                <div className="w-20 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
-                  <span className="text-xs text-muted-foreground">
-                    {differenceInDays(task.endDate, task.startDate) + 1}d
-                  </span>
-                </div>
-                
-                {/* Assignee */}
-                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.assignee, height: rowHeight }}>
-                  {/* Resize handle */}
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => handleColumnResizeStart(e, 'assignee')}
-                  />
-                  <EditableCell
-                    value={task.assignee || ''}
-                    taskId={task.id}
-                    field="assignee"
-                    className="text-muted-foreground truncate w-full"
-                  />
-                </div>
-                
-                {/* Status */}
-                <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.status, height: rowHeight }}>
-                  {/* Resize handle */}
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => handleColumnResizeStart(e, 'status')}
-                  />
-                  <EditableCell
-                    value={task.status}
-                    taskId={task.id}
-                    field="status"
-                    type="select"
-                     options={['pending', 'in-progress', 'completed', 'delayed']}
-                    className="w-full"
-                  />
-                </div>
-                
-                {/* Progress */}
-                <div className="px-2 flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.progress, height: rowHeight }}>
-                  {/* Resize handle */}
-                  <div
-                    className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => handleColumnResizeStart(e, 'progress')}
-                  />
-                  <EditableCell
-                    value={`${task.progress}%`}
-                    taskId={task.id}
-                    field="progress"
-                    type="number"
-                    className="text-muted-foreground text-xs w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Resizable divider */}
-              <div 
-                className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
-                onMouseDown={handleResizeStart}
-              />
-
-              {/* Timeline column */}
-              <div className="flex-1 relative timeline-area" style={{
-                height: rowHeight
-              }}>
-                <div className="relative h-full">
-                  {/* Grid lines */}
-                  {showGrid && days.filter((_, i) => i % 7 === 0).map((day, i) => <div key={i} className="absolute top-0 bottom-0 w-px bg-border/30" style={{
-                left: i * 7 * dayWidth
-              }} />)}
-
-                  {/* Task bar */}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className={cn(
-                          "absolute top-1/2 -translate-y-1/2 rounded cursor-pointer border-l-4", 
-                          getStatusColor(task.status), 
-                          getPriorityColor(task.priority), 
-                          "hover:shadow-md transition-shadow",
-                          task.isStage && "opacity-80 bg-primary/20"
-                        )} 
-                        style={{
-                          left: geometry.left,
-                          width: geometry.width,
-                          height: compactMode ? 16 : 20
-                        }} 
-                        onMouseDown={e => !task.isStage && handleMouseDown(e, task.id, 'move')}
-                        >
-                          {/* Progress bar */}
-                          {task.progress > 0 && <div className="absolute inset-0 bg-primary/30 rounded-r" style={{
-                        width: `${task.progress}%`
-                      }} />}
-                          
-                          {/* Task label */}
-                          <div className={cn(
-                            "absolute inset-0 flex items-center px-2 text-xs font-medium",
-                            task.isStage ? "text-primary font-bold" : "text-white"
-                          )}>
-                            <span className="truncate">{task.name}</span>
-                          </div>
-
-                          {/* Resize handles - only for non-stage tasks */}
-                          {editable && !task.isStage && <>
-                              <div className="absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-white/20" onMouseDown={e => {
-                          e.stopPropagation();
-                          handleMouseDown(e, task.id, 'resize-start');
-                        }} />
-                              <div className="absolute right-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-white/20" onMouseDown={e => {
-                          e.stopPropagation();
-                          handleMouseDown(e, task.id, 'resize-end');
-                        }} />
-                            </>}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div className="space-y-1 text-sm">
-                          <div className="font-medium">{task.name}</div>
-                          <div>{format(task.startDate, 'MMM d')} - {format(task.endDate, 'MMM d, yyyy')}</div>
-                          <div>{differenceInDays(task.endDate, task.startDate) + 1} days</div>
-                          {task.assignee && <div>Assigned to: {task.assignee}</div>}
-                          <div>Progress: {task.progress}%</div>
-                          <Badge variant="outline" className="text-xs">
-                            {task.status}
-                          </Badge>
-                          {task.isStage && (
-                            <Badge variant="default" className="text-xs">
-                              Project Stage
-                            </Badge>
-                          )}
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            </div>;
-      })}
-
-        {/* Add task row */}
-        {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10" style={{ height: compactMode ? 28 : 36 }}>
-            <div 
-              className="border-r border-border overflow-hidden flex" 
-              style={{ width: isCollapsed ? 60 : tableWidth, height: compactMode ? 28 : 36 }}
-            >
-              <div 
-                className="px-2 border-r border-border flex-shrink-0 flex items-center"
-                style={{ width: columnWidths.name, height: compactMode ? 28 : 36 }}
-              >
-                <Button variant="ghost" size="sm" onClick={() => {
-                  // Simple add task - in real implementation, open a form dialog
-                  const newTask: Omit<GanttTask, 'id'> = {
-                    name: 'New Task',
-                    startDate: new Date(),
-                    endDate: addDays(new Date(), 7),
-                    progress: 0,
-                    status: 'pending',
-                    priority: 'Medium',
-                    assignee: ''
-                  };
-                  onTaskAdd(newTask);
-                }} className="w-full justify-start text-muted-foreground">
-                  <Plus className="w-4 h-4 mr-2" />
-                  {!isCollapsed && <span>Add task</span>}
-                </Button>
-              </div>
-              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.startDate, height: compactMode ? 28 : 36 }}></div>
-              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.endDate, height: compactMode ? 28 : 36 }}></div>
-              <div className="w-20 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
-              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.assignee, height: compactMode ? 28 : 36 }}></div>
-              <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.status, height: compactMode ? 28 : 36 }}></div>
-              <div className="px-2 flex-shrink-0 flex items-center" style={{ width: columnWidths.progress, height: compactMode ? 28 : 36 }}></div>
+        {/* Scrollable timeline header */}
+        <div className="border-b border-border bg-muted/10 flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+          <div style={{ width: days.length * dayWidth }}>
+            {/* Month headers */}
+            <div className="flex border-b border-border" style={{ width: days.length * dayWidth }}>
+              {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
+                const monthDays = days.filter(day => format(day, 'MMM yyyy') === month);
+                return (
+                  <div 
+                    key={month} 
+                    className="bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center border-r border-border h-8" 
+                    style={{ width: monthDays.length * dayWidth }}
+                  >
+                    {month}
+                  </div>
+                );
+              })}
             </div>
             
-            {/* Resizable divider */}
-            <div 
-              className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
-              onMouseDown={handleResizeStart}
-            />
+            {/* Week headers */}
+            <div className="flex border-b border-border bg-muted/10 h-6">
+              {(() => {
+                const weeks: { weekStart: Date; weekDays: Date[] }[] = [];
+                let currentWeek: Date[] = [];
+                let currentWeekStart: Date | null = null;
+                
+                days.forEach((day) => {
+                  if (currentWeek.length === 0 || !isSameWeek(day, currentWeek[0], { weekStartsOn: 1 })) {
+                    if (currentWeek.length > 0) {
+                      weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
+                    }
+                    currentWeek = [day];
+                    currentWeekStart = startOfWeek(day, { weekStartsOn: 1 });
+                  } else {
+                    currentWeek.push(day);
+                  }
+                });
+                
+                if (currentWeek.length > 0) {
+                  weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
+                }
+                
+                return weeks.map((week, index) => (
+                  <div 
+                    key={`week-${index}`} 
+                    className="bg-muted/20 text-muted-foreground font-medium text-xs flex items-center justify-center border-r border-border/50 h-6" 
+                    style={{ width: week.weekDays.length * dayWidth }}
+                  >
+                    Week {format(week.weekStart, 'w')}
+                  </div>
+                ));
+              })()}
+            </div>
             
-            <div className="flex-1" style={{ height: compactMode ? 28 : 36 }}></div>
-          </div>}
+            {/* Day headers */}
+            <div className="flex" style={{ width: days.length * dayWidth }}>
+              {days.map((day) => (
+                <div 
+                  key={day.toISOString()} 
+                  className={cn(
+                    "text-xs text-center py-1 border-r border-border/50 bg-background h-12 flex flex-col justify-center",
+                    format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '',
+                    showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : ''
+                  )} 
+                  style={{ width: dayWidth }}
+                >
+                  <div className="font-medium">{format(day, 'd')}</div>
+                  <div className="text-[10px] opacity-60">{format(day, 'E')}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>;
+      
+      <div className="relative flex">
+        {/* Fixed task table */}
+        <div className="flex-shrink-0" style={{ width: isCollapsed ? 60 : tableWidth }}>
+          {/* Tasks */}
+          {getVisibleTasks.map((task, index) => {
+            const geometry = getTaskGeometry(task);
+            if (!geometry.visible) return null;
+            const rowHeight = compactMode ? 28 : 36;
+            const isDraggedOver = rowDragState?.dropTargetIndex === index;
+            const isDragging = rowDragState?.draggedTaskId === task.id;
+            const hasChildren = tasks.filter(t => t.parentId === task.id).length > 0;
+            
+            return (
+              <div 
+                key={task.id} 
+                className={cn(
+                  "flex border-b border-border transition-colors",
+                  isDraggedOver && "bg-primary/10 border-primary/50",
+                  isDragging && "opacity-50",
+                  "hover:bg-muted/20 cursor-grab active:cursor-grabbing",
+                  task.isStage && "bg-muted/5 border-l-4 border-l-primary/60"
+                )}
+                style={{ height: rowHeight }}
+                draggable={editable && !!onTaskReorder}
+                onDragStart={(e) => {
+                  // Only allow row drag if we're not clicking on the timeline area or interactive elements
+                  const target = e.target as HTMLElement;
+                  const isTimelineArea = target.closest('.timeline-area');
+                  const isInteractiveElement = target.closest('input, button, select, [role="button"]');
+                  
+                  if (isTimelineArea || isInteractiveElement) {
+                    e.preventDefault();
+                    return;
+                  }
+                  handleRowDragStart(e, task.id, index);
+                }}
+                onDragEnd={handleRowDragEnd}
+                onDragOver={(e) => handleRowDragOver(e, index)}
+                onDrop={(e) => handleRowDrop(e, index)}
+              >
+                {/* Task table columns */}
+                <div 
+                  className="border-r border-border overflow-hidden flex task-info-area" 
+                  style={{ width: isCollapsed ? 60 : tableWidth, height: rowHeight }}
+                >
+                  {/* Task Name */}
+                  <div 
+                    className="px-2 border-r border-border flex items-center flex-shrink-0 relative group"
+                    style={{ width: columnWidths.name, height: rowHeight, paddingLeft: `${8 + (task.depth || 0) * 16}px` }}
+                  >
+                    {/* Resize handle */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onMouseDown={(e) => handleColumnResizeStart(e, 'name')}
+                    />
+                    {/* Expand/Collapse button for parent tasks */}
+                    {hasChildren && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(task.id)}
+                        className="p-0 h-4 w-4 mr-2 flex-shrink-0"
+                      >
+                        <div className={cn(
+                          "w-0 h-0 border-l-4 border-l-foreground border-y-2 border-y-transparent transition-transform",
+                          expandedTasks.has(task.id) && "rotate-90"
+                        )} />
+                      </Button>
+                    )}
+                    
+                    <EditableCell
+                      value={task.name}
+                      taskId={task.id}
+                      field="name"
+                      className={cn(
+                        "w-full",
+                        task.isStage ? "font-bold text-primary" : "font-medium"
+                      )}
+                    />
+                    
+                    {/* Dependency indicator */}
+                    {task.dependencies && task.dependencies.length > 0 && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="ml-1 w-2 h-2 bg-primary/60 rounded-full flex-shrink-0" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="text-xs">
+                              <div className="font-medium">Dependencies:</div>
+                              {task.dependencies.map(depId => {
+                                const depTask = tasks.find(t => t.id === depId);
+                                return depTask ? (
+                                  <div key={depId}>• {depTask.name}</div>
+                                ) : (
+                                  <div key={depId}>• {depId}</div>
+                                );
+                              })}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </div>
+                  
+                  {/* Start Date */}
+                  <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.startDate, height: rowHeight }}>
+                    {/* Resize handle */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onMouseDown={(e) => handleColumnResizeStart(e, 'startDate')}
+                    />
+                    <EditableCell
+                      value={format(task.startDate, 'dd/MM/yy')}
+                      taskId={task.id}
+                      field="startDate"
+                      type="date"
+                      className="text-muted-foreground w-full"
+                    />
+                  </div>
+                  
+                  {/* End Date */}
+                  <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.endDate, height: rowHeight }}>
+                    {/* Resize handle */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onMouseDown={(e) => handleColumnResizeStart(e, 'endDate')}
+                    />
+                    <EditableCell
+                      value={format(task.endDate, 'dd/MM/yy')}
+                      taskId={task.id}
+                      field="endDate"
+                      type="date"
+                      className="text-muted-foreground w-full"
+                    />
+                  </div>
+                  
+                  {/* Duration - Read only display */}
+                  <div className="w-20 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
+                    <span className="text-xs text-muted-foreground">
+                      {differenceInDays(task.endDate, task.startDate) + 1}d
+                    </span>
+                  </div>
+                  
+                  {/* Assignee */}
+                  <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.assignee, height: rowHeight }}>
+                    {/* Resize handle */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onMouseDown={(e) => handleColumnResizeStart(e, 'assignee')}
+                    />
+                    <EditableCell
+                      value={task.assignee || ''}
+                      taskId={task.id}
+                      field="assignee"
+                      className="text-muted-foreground truncate w-full"
+                    />
+                  </div>
+                  
+                  {/* Status */}
+                  <div className="px-2 border-r border-border flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.status, height: rowHeight }}>
+                    {/* Resize handle */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onMouseDown={(e) => handleColumnResizeStart(e, 'status')}
+                    />
+                    <EditableCell
+                      value={task.status}
+                      taskId={task.id}
+                      field="status"
+                      type="select"
+                      options={['pending', 'in-progress', 'completed', 'delayed']}
+                      className="w-full"
+                    />
+                  </div>
+                  
+                  {/* Progress */}
+                  <div className="px-2 flex items-center flex-shrink-0 relative group" style={{ width: columnWidths.progress, height: rowHeight }}>
+                    {/* Resize handle */}
+                    <div
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onMouseDown={(e) => handleColumnResizeStart(e, 'progress')}
+                    />
+                    <EditableCell
+                      value={`${task.progress}%`}
+                      taskId={task.id}
+                      field="progress"
+                      type="number"
+                      className="text-muted-foreground text-xs w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          
+          {/* Add task row */}
+          {editable && onTaskAdd && (
+            <div className="flex border-b border-border">
+              <div className="flex" style={{ width: isCollapsed ? 60 : tableWidth }}>
+                <div 
+                  className="px-2 border-r border-border flex-shrink-0 flex items-center"
+                  style={{ width: columnWidths.name, height: compactMode ? 28 : 36 }}
+                >
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    // Simple add task - in real implementation, open a form dialog
+                    const newTask: Omit<GanttTask, 'id'> = {
+                      name: 'New Task',
+                      startDate: new Date(),
+                      endDate: addDays(new Date(), 7),
+                      progress: 0,
+                      status: 'pending',
+                      priority: 'Medium',
+                      assignee: ''
+                    };
+                    onTaskAdd(newTask);
+                  }} className="w-full justify-start text-muted-foreground">
+                    <Plus className="w-4 h-4 mr-2" />
+                    {!isCollapsed && <span>Add task</span>}
+                  </Button>
+                </div>
+                <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.startDate, height: compactMode ? 28 : 36 }}></div>
+                <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.endDate, height: compactMode ? 28 : 36 }}></div>
+                <div className="w-20 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+                <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.assignee, height: compactMode ? 28 : 36 }}></div>
+                <div className="px-2 border-r border-border flex-shrink-0 flex items-center" style={{ width: columnWidths.status, height: compactMode ? 28 : 36 }}></div>
+                <div className="px-2 flex-shrink-0 flex items-center" style={{ width: columnWidths.progress, height: compactMode ? 28 : 36 }}></div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Resizable divider */}
+        <div 
+          className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
+          onMouseDown={handleResizeStart}
+        />
+        
+        {/* Scrollable timeline area */}
+        <div className="flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+          <div 
+            className="relative timeline-area" 
+            style={{ width: days.length * dayWidth }} 
+            onMouseMove={handleMouseMove} 
+            onMouseUp={handleMouseUp} 
+            onMouseLeave={handleMouseUp}
+          >
+            {/* Dependency Lines */}
+            <DependencyLines />
+
+            {/* Milestones */}
+            <div className="absolute inset-0 pointer-events-none z-20">
+              {milestones.map(milestone => <MilestoneMarker key={milestone.id} milestone={milestone} />)}
+            </div>
+
+            {/* Today line - positioned correctly */}
+            {showToday && <div 
+              className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 pointer-events-none" 
+              style={{
+                left: todayOffset()
+              }} 
+            />}
+
+            {/* Timeline for each task */}
+            {getVisibleTasks.map((task, index) => {
+              const geometry = getTaskGeometry(task);
+              if (!geometry.visible) return null;
+              const rowHeight = compactMode ? 28 : 36;
+              
+              return (
+                <div 
+                  key={`timeline-${task.id}`}
+                  className="border-b border-border relative"
+                  style={{ height: rowHeight }}
+                >
+                  <div className="relative h-full">
+                    {/* Grid lines */}
+                    {showGrid && days.filter((_, i) => i % 7 === 0).map((day, i) => (
+                      <div key={i} className="absolute top-0 bottom-0 w-px bg-border/30" style={{
+                        left: i * 7 * dayWidth
+                      }} />
+                    ))}
+
+                    {/* Weekend highlighting */}
+                    {days.map((day, i) => (
+                      format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? (
+                        <div key={i} className="absolute top-0 bottom-0 bg-muted/10 pointer-events-none" style={{
+                          left: i * dayWidth,
+                          width: dayWidth
+                        }} />
+                      ) : null
+                    ))}
+
+                    {/* Task bar */}
+                    <div 
+                      className={cn(
+                        "absolute flex items-center cursor-move rounded-sm transition-colors",
+                        getStatusColor(task.status),
+                        dragState?.taskId === task.id && "opacity-80",
+                        task.isStage ? "h-4" : "h-3"
+                      )}
+                      style={{
+                        left: geometry.left,
+                        width: geometry.width,
+                        top: task.isStage ? '6px' : '8px',
+                        zIndex: task.isStage ? 2 : 1,
+                      }}
+                      onMouseDown={(e) => handleTaskMouseDown(e, task.id, 'move')}
+                    >
+                      {/* Task content */}
+                      <div className="flex-1 px-2 overflow-hidden">
+                        <span className={cn(
+                          "text-xs font-medium text-white truncate",
+                          task.isStage && "font-bold"
+                        )}>
+                          {task.name}
+                        </span>
+                      </div>
+
+                      {/* Progress overlay */}
+                      <div 
+                        className="absolute inset-0 bg-white/30 rounded-sm pointer-events-none"
+                        style={{ width: `${task.progress}%` }}
+                      />
+
+                      {/* Resize handles */}
+                      <div 
+                        className="absolute left-0 top-0 bottom-0 w-1 cursor-w-resize bg-white/40 opacity-0 hover:opacity-100 transition-opacity"
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          handleTaskMouseDown(e, task.id, 'resize-start');
+                        }}
+                      />
+                      <div 
+                        className="absolute right-0 top-0 bottom-0 w-1 cursor-e-resize bg-white/40 opacity-0 hover:opacity-100 transition-opacity"
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          handleTaskMouseDown(e, task.id, 'resize-end');
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
