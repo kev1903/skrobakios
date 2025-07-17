@@ -23,6 +23,7 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
       // Project flows
       'create-project': 'projects',
       'project-detail': 'projects',
+      'project-team': 'project-detail',
       'project-settings': 'project-detail',
       
       // Estimate flows

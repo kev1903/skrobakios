@@ -27,9 +27,9 @@ import { CashFlowPage } from "@/components/CashFlowPage";
 import { InvoicesPage } from "@/components/InvoicesPage";
 import { BillsPage } from "@/components/BillsPage";
 import { RecurringPage } from "@/components/RecurringPage";
-// Profile-related imports removed
-import { SalesPage } from "@/components/SalesPage";
 import { WBSPage } from "@/components/WBSPage";
+import { SalesPage } from "@/components/SalesPage";
+import { ProjectTeamPage } from "@/components/projects/ProjectTeamPage";
 
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 
@@ -143,6 +143,12 @@ export const ContentRenderer = ({
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectTimelinePage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+       ) : renderProjectNotFound();
+    case "project-team":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="team_management" onNavigate={onNavigate}>
+          <ProjectTeamPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-settings":
