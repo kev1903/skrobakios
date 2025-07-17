@@ -324,8 +324,8 @@ export const GanttChart = ({
               const depGeometry = getTaskGeometry(dependencyTask);
               
               // Calculate positions
-              const startY = (depIndex + 1) * (compactMode ? 40 : 60) + (compactMode ? 20 : 30);
-              const endY = (taskIndex + 1) * (compactMode ? 40 : 60) + (compactMode ? 20 : 30);
+              const startY = (depIndex + 1) * (compactMode ? 28 : 36) + (compactMode ? 14 : 18);
+              const endY = (taskIndex + 1) * (compactMode ? 28 : 36) + (compactMode ? 14 : 18);
               const startX = depGeometry.left + depGeometry.width + (isCollapsed ? 60 : tableWidth) + 1;
               const endX = taskGeometry.left + (isCollapsed ? 60 : tableWidth) + 1;
               
@@ -567,7 +567,7 @@ export const GanttChart = ({
         {tasks.map((task, index) => {
         const geometry = getTaskGeometry(task);
         if (!geometry.visible) return null;
-        const rowHeight = compactMode ? 40 : 60;
+        const rowHeight = compactMode ? 28 : 36;
         return <div key={task.id} className="flex border-b border-border hover:bg-muted/20" style={{ height: rowHeight }}>
             {/* Task table columns */}
               <div 
@@ -683,7 +683,7 @@ export const GanttChart = ({
                         <div className={cn("absolute top-1/2 -translate-y-1/2 rounded cursor-pointer border-l-4", getStatusColor(task.status), getPriorityColor(task.priority), "hover:shadow-md transition-shadow")} style={{
                       left: geometry.left,
                       width: geometry.width,
-                      height: compactMode ? 20 : 32
+                      height: compactMode ? 16 : 20
                     }} onMouseDown={e => handleMouseDown(e, task.id, 'move')}>
                           {/* Progress bar */}
                           {task.progress > 0 && <div className="absolute inset-0 bg-primary/30 rounded-r" style={{
@@ -728,14 +728,14 @@ export const GanttChart = ({
       })}
 
         {/* Add task row */}
-        {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10" style={{ height: compactMode ? 40 : 60 }}>
+        {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10" style={{ height: compactMode ? 28 : 36 }}>
             <div 
               className="border-r border-border overflow-hidden flex" 
-              style={{ width: isCollapsed ? 60 : tableWidth, height: compactMode ? 40 : 60 }}
+              style={{ width: isCollapsed ? 60 : tableWidth, height: compactMode ? 28 : 36 }}
             >
               <div 
                 className="px-2 border-r border-border flex-shrink-0 flex items-center"
-                style={{ width: 192, height: compactMode ? 40 : 60 }}
+                style={{ width: 192, height: compactMode ? 28 : 36 }}
               >
                 <Button variant="ghost" size="sm" onClick={() => {
                   // Simple add task - in real implementation, open a form dialog
@@ -754,11 +754,11 @@ export const GanttChart = ({
                   {!isCollapsed && <span>Add task</span>}
                 </Button>
               </div>
-              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
-              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
-              <div className="w-20 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
-              <div className="w-28 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
-              <div className="w-32 px-2 flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
+              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+              <div className="w-20 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+              <div className="w-28 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
+              <div className="w-32 px-2 flex-shrink-0 flex items-center" style={{ height: compactMode ? 28 : 36 }}></div>
             </div>
             
             {/* Resizable divider */}
@@ -767,7 +767,7 @@ export const GanttChart = ({
               onMouseDown={handleResizeStart}
             />
             
-            <div className="flex-1" style={{ height: compactMode ? 40 : 60 }}></div>
+            <div className="flex-1" style={{ height: compactMode ? 28 : 36 }}></div>
           </div>}
       </div>
     </div>;
