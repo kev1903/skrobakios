@@ -2354,9 +2354,11 @@ export type Database = {
       }
       tasks: {
         Row: {
+          activity_name: string | null
           actual_duration: number | null
           assigned_to_avatar: string | null
           assigned_to_name: string | null
+          assignee: string | null
           category: string | null
           created_at: string
           description: string | null
@@ -2368,6 +2370,7 @@ export type Database = {
           id: string
           is_critical_path: boolean | null
           is_milestone: boolean | null
+          percent_complete: number | null
           priority: string
           progress: number
           project_id: string
@@ -2377,9 +2380,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          activity_name?: string | null
           actual_duration?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
+          assignee?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -2391,6 +2396,7 @@ export type Database = {
           id?: string
           is_critical_path?: boolean | null
           is_milestone?: boolean | null
+          percent_complete?: number | null
           priority?: string
           progress?: number
           project_id: string
@@ -2400,9 +2406,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          activity_name?: string | null
           actual_duration?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
+          assignee?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -2414,6 +2422,7 @@ export type Database = {
           id?: string
           is_critical_path?: boolean | null
           is_milestone?: boolean | null
+          percent_complete?: number | null
           priority?: string
           progress?: number
           project_id?: string

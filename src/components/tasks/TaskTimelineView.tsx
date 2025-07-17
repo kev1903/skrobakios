@@ -10,6 +10,7 @@ import { TimelineTask } from './types';
 
 interface DatabaseTask {
   id: string;
+  activity_name: string; // Use the new activity_name field
   task_name: string;
   task_type?: string;
   status: string;
@@ -17,10 +18,12 @@ interface DatabaseTask {
   end_date?: string;
   due_date?: string;
   duration?: number;
+  percent_complete?: number; // Use the new percent_complete field
   progress?: number;
   progress_percentage?: number;
   description?: string;
   priority?: string;
+  assignee?: string; // Use the new assignee field
   assigned_to_name?: string;
   assigned_to_avatar?: string;
   project_id?: string;
@@ -76,6 +79,7 @@ export const TaskTimelineView = () => {
     if (task.duration_days !== undefined) {
       return {
         id: task.id,
+        activity_name: task.task_name || task.activity_name,
         task_name: task.task_name,
         task_type: task.task_type,
         status: task.status,
@@ -83,10 +87,12 @@ export const TaskTimelineView = () => {
         end_date: task.end_date,
         due_date: task.end_date,
         duration: task.duration_days,
+        percent_complete: task.progress_percentage || 0,
         progress: task.progress_percentage,
         progress_percentage: task.progress_percentage,
         description: task.description,
         priority: 'medium',
+        assignee: 'Project Team',
         assigned_to_name: 'Project Team',
         project_id: projectId
       };
@@ -95,6 +101,9 @@ export const TaskTimelineView = () => {
     // Handle general tasks table format
     return {
       ...task,
+      activity_name: task.activity_name || task.task_name,
+      assignee: task.assignee || task.assigned_to_name || 'Unassigned',
+      percent_complete: task.percent_complete || task.progress || 0,
       project_id: projectId
     };
   }, [projectId]);
@@ -194,6 +203,7 @@ export const TaskTimelineView = () => {
         if (!sk25008Error && sk25008Tasks && sk25008Tasks.length > 0) {
           setTasks(sk25008Tasks.map(task => ({
             id: task.id,
+            activity_name: task.task_name,
             task_name: task.task_name,
             task_type: task.task_type,
             status: task.status,
@@ -201,10 +211,12 @@ export const TaskTimelineView = () => {
             end_date: task.end_date,
             due_date: task.end_date,
             duration: task.duration_days,
+            percent_complete: task.progress_percentage || 0,
             progress: task.progress_percentage,
             progress_percentage: task.progress_percentage,
             description: task.description,
             priority: 'medium', // Default priority
+            assignee: 'Project Team',
             assigned_to_name: 'Project Team',
             project_id: projectId
           })));
@@ -373,20 +385,20 @@ export const TaskTimelineView = () => {
                     <Card className="hover:shadow-md transition-shadow bg-white/5 backdrop-blur-sm border-white/10">
                        <CardContent className="p-4">
                          <div className="space-y-4">
-                           {/* Header with activity name and status */}
-                           <div className="flex items-start justify-between">
-                             <div className="flex-1">
-                               <h4 className="font-semibold text-white text-lg">{task.task_name}</h4>
-                               {task.description && (
-                                 <p className="text-sm text-white/70 mt-1">{task.description}</p>
-                               )}
-                             </div>
-                             <div className="flex flex-col space-y-2">
-                               <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                                 {task.status}
-                               </Badge>
-                             </div>
-                           </div>
+                            {/* Header with activity name and status */}
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-white text-lg">{task.activity_name}</h4>
+                                {task.description && (
+                                  <p className="text-sm text-white/70 mt-1">{task.description}</p>
+                                )}
+                              </div>
+                              <div className="flex flex-col space-y-2">
+                                <Badge variant="outline" className="text-xs bg-white/10 text-white border-white/20">
+                                  {task.status}
+                                </Badge>
+                              </div>
+                            </div>
                            
                            {/* Main task details grid */}
                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
@@ -417,34 +429,34 @@ export const TaskTimelineView = () => {
                                </div>
                              </div>
                              
-                             {/* Assignee */}
-                             <div className="flex items-center space-x-2">
-                               <User className="w-4 h-4 text-white/50" />
-                               <div>
-                                 <p className="text-white/50 text-xs">Assignee</p>
-                                 <p className="text-white truncate">{task.assigned_to_name || 'Unassigned'}</p>
-                               </div>
-                             </div>
+                              {/* Assignee */}
+                              <div className="flex items-center space-x-2">
+                                <User className="w-4 h-4 text-white/50" />
+                                <div>
+                                  <p className="text-white/50 text-xs">Assignee</p>
+                                  <p className="text-white truncate">{task.assignee || task.assigned_to_name || 'Unassigned'}</p>
+                                </div>
+                              </div>
                            </div>
                            
                            {/* Progress and Dependencies */}
                            <div className="flex items-center justify-between">
                              <div className="flex items-center space-x-4">
-                               {/* Progress */}
-                               <div className="flex items-center space-x-2">
-                                 <span className="text-white/50 text-sm">Progress:</span>
-                                 <div className="flex items-center space-x-2">
-                                   <div className="w-24 bg-white/20 rounded-full h-2">
-                                     <div 
-                                       className="bg-blue-400 h-2 rounded-full transition-all duration-300" 
-                                       style={{ width: `${task.progress || task.progress_percentage || 0}%` }}
-                                     ></div>
-                                   </div>
-                                   <span className="text-sm text-white">
-                                     {task.progress || task.progress_percentage || 0}%
-                                   </span>
-                                 </div>
-                               </div>
+                                {/* Progress */}
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-white/50 text-sm">Progress:</span>
+                                  <div className="flex items-center space-x-2">
+                                    <div className="w-24 bg-white/20 rounded-full h-2">
+                                      <div 
+                                        className="bg-blue-400 h-2 rounded-full transition-all duration-300" 
+                                        style={{ width: `${task.percent_complete || task.progress || task.progress_percentage || 0}%` }}
+                                      ></div>
+                                    </div>
+                                    <span className="text-sm text-white">
+                                      {task.percent_complete || task.progress || task.progress_percentage || 0}%
+                                    </span>
+                                  </div>
+                                </div>
                                
                                {/* Dependencies */}
                                {task.dependency_names && (
