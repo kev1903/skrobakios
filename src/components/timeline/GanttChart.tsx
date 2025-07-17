@@ -798,13 +798,6 @@ export const GanttChart = ({
                     </Button>
                   )}
                   
-                  {/* Stage indicator */}
-                  {task.isStage && (
-                    <Badge variant="default" className="mr-2 text-xs py-0 px-1 bg-primary">
-                      Stage
-                    </Badge>
-                  )}
-                  
                   <EditableCell
                     value={task.name}
                     taskId={task.id}
