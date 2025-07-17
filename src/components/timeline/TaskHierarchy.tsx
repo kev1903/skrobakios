@@ -55,7 +55,7 @@ export const TaskHierarchy = ({
       taskMap.set(task.id, {
         ...task,
         children: [],
-        expanded: task.expanded !== false && expandedTasks.has(task.id)
+        expanded: task.isStage ? true : (task.expanded !== false || expandedTasks.has(task.id))
       });
     });
 
@@ -71,6 +71,13 @@ export const TaskHierarchy = ({
         // This is a root task (Project Stage)
         rootTasks.push(taskNode);
       }
+    });
+
+    // Sort root tasks - stages first, then other tasks
+    rootTasks.sort((a, b) => {
+      if (a.isStage && !b.isStage) return -1;
+      if (!a.isStage && b.isStage) return 1;
+      return a.name.localeCompare(b.name);
     });
 
     return rootTasks;

@@ -49,24 +49,59 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
 
       if (activitiesError) throw activitiesError;
 
-      // Convert database activities to GanttTask format
-      const ganttTasks: GanttTask[] = (activitiesData || []).map(activity => ({
-        id: activity.id,
-        name: activity.name,
-        startDate: activity.start_date ? new Date(activity.start_date) : new Date(),
-        endDate: activity.end_date ? new Date(activity.end_date) : addDays(new Date(), 1),
-        progress: 0,
-        status: mapTaskStatus(activity.stage),
-        assignee: '',
-        priority: activity.level === 0 ? 'High' as 'High' | 'Medium' | 'Low' : 'Medium' as 'High' | 'Medium' | 'Low',
-        description: activity.description,
-        milestone: false,
-        category: activity.stage,
-        parentId: activity.parent_id,
-        level: activity.level || 0,
-        expanded: activity.is_expanded !== false,
-        isStage: activity.level === 0 // Level 0 activities are stages
-      }));
+      // Group activities by stage and create hierarchy
+      const allActivities = activitiesData || [];
+      const stageMap = new Map();
+      const ganttTasks: GanttTask[] = [];
+      
+      // First, collect all unique stages from activities
+      allActivities.forEach(activity => {
+        if (activity.stage && !stageMap.has(activity.stage)) {
+          stageMap.set(activity.stage, {
+            id: `stage-${activity.stage.replace(/\s+/g, '-').toLowerCase()}`,
+            name: activity.stage,
+            startDate: new Date(),
+            endDate: addDays(new Date(), 30),
+            progress: 0,
+            status: 'pending' as const,
+            assignee: '',
+            priority: 'High' as const,
+            description: `Project stage: ${activity.stage}`,
+            milestone: false,
+            category: activity.stage,
+            parentId: undefined,
+            level: 0,
+            expanded: true,
+            isStage: true
+          });
+        }
+      });
+
+      // Add all stage headers as parent tasks
+      stageMap.forEach(stage => ganttTasks.push(stage));
+
+      // Then add all activities as children of their respective stages
+      allActivities.forEach(activity => {
+        const stageParentId = `stage-${activity.stage?.replace(/\s+/g, '-').toLowerCase()}`;
+        
+        ganttTasks.push({
+          id: activity.id,
+          name: activity.name,
+          startDate: activity.start_date ? new Date(activity.start_date) : new Date(),
+          endDate: activity.end_date ? new Date(activity.end_date) : addDays(new Date(), 1),
+          progress: 0,
+          status: mapTaskStatus(activity.stage),
+          assignee: '',
+          priority: 'Medium' as const,
+          description: activity.description,
+          milestone: false,
+          category: activity.stage,
+          parentId: stageParentId, // All activities are children of their stage
+          level: 1, // All activities are level 1 (children of stages)
+          expanded: activity.is_expanded !== false,
+          isStage: false
+        });
+      });
 
       setTasks(ganttTasks);
 
