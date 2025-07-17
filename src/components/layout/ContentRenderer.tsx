@@ -147,7 +147,7 @@ export const ContentRenderer = ({
        ) : renderProjectNotFound();
     case "project-team":
       return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="team_management" onNavigate={onNavigate}>
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectTeamPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, UserPlus, Mail, Settings, Shield, Users, Clock } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 interface ProjectTeamPageProps {
   project: Project;
@@ -32,6 +32,15 @@ interface TeamMember {
   project_id: string;
   permissions: any;
   invited_by: string;
+  // Additional profile information we'll fetch separately
+  profile?: {
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+    professional_title?: string;
+    phone?: string;
+    skills?: string[];
+  };
 }
 
 const roleOptions = [
@@ -48,22 +57,39 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
 
-  // Fetch team members
+  // Fetch team members with profile information
   const { data: teamMembers, isLoading } = useQuery({
     queryKey: ["project-team-members", project.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get project members
+      const { data: members, error: membersError } = await supabase
         .from("project_members")
         .select("*")
         .eq("project_id", project.id)
         .order("joined_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching team members:", error);
-        throw error;
+      if (membersError) {
+        console.error("Error fetching team members:", membersError);
+        throw membersError;
       }
 
-      return data;
+      // Then get profile information for each member
+      const membersWithProfiles = await Promise.all(
+        (members || []).map(async (member) => {
+          if (member.user_id) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("first_name, last_name, avatar_url, professional_title, phone, skills")
+              .eq("user_id", member.user_id)
+              .single();
+            
+            return { ...member, profile };
+          }
+          return member;
+        })
+      );
+
+      return membersWithProfiles as TeamMember[];
     },
     enabled: !!project.id
   });
@@ -86,7 +112,10 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       return data;
     },
     onSuccess: () => {
-      toast.success("Team member invited successfully");
+      toast({
+        title: "Success",
+        description: "Team member invited successfully",
+      });
       setIsInviteDialogOpen(false);
       setInviteEmail("");
       setInviteRole("member");
@@ -94,7 +123,11 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     },
     onError: (error) => {
       console.error("Error inviting member:", error);
-      toast.error("Failed to invite member");
+      toast({
+        title: "Error",
+        description: "Failed to invite member",
+        variant: "destructive",
+      });
     }
   });
 
@@ -109,18 +142,29 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Team member removed successfully");
+      toast({
+        title: "Success",
+        description: "Team member removed successfully",
+      });
       queryClient.invalidateQueries({ queryKey: ["project-team-members", project.id] });
     },
     onError: (error) => {
       console.error("Error removing member:", error);
-      toast.error("Failed to remove member");
+      toast({
+        title: "Error", 
+        description: "Failed to remove member",
+        variant: "destructive",
+      });
     }
   });
 
   const handleInviteMember = () => {
     if (!inviteEmail.trim()) {
-      toast.error("Please enter an email address");
+      toast({
+        title: "Error",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -155,6 +199,9 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   };
 
   const getMemberDisplayName = (member: TeamMember) => {
+    if (member.profile?.first_name || member.profile?.last_name) {
+      return `${member.profile.first_name || ''} ${member.profile.last_name || ''}`.trim();
+    }
     return member.email || 'Unknown User';
   };
 
@@ -303,7 +350,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                 <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-4">
                     <Avatar>
-                      <AvatarImage src={undefined} />
+                      <AvatarImage src={member.profile?.avatar_url || undefined} />
                       <AvatarFallback>{getInitials(member)}</AvatarFallback>
                     </Avatar>
                     
@@ -316,6 +363,30 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                         <Mail className="w-3 h-3" />
                         {member.email}
                       </div>
+                      {member.profile?.professional_title && (
+                        <div className="text-sm text-muted-foreground">
+                          {member.profile.professional_title}
+                        </div>
+                      )}
+                      {member.profile?.phone && (
+                        <div className="text-sm text-muted-foreground">
+                          📞 {member.profile.phone}
+                        </div>
+                      )}
+                      {member.profile?.skills && member.profile.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {member.profile.skills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {member.profile.skills.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{member.profile.skills.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
