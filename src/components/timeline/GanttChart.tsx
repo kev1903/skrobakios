@@ -37,6 +37,7 @@ interface GanttChartProps {
   onTaskUpdate?: (taskId: string, updates: Partial<GanttTask>) => void;
   onTaskAdd?: (task: Omit<GanttTask, 'id'>) => void;
   onTaskDelete?: (taskId: string) => void;
+  onTaskReorder?: (taskIds: string[]) => void;
   onMilestoneUpdate?: (milestoneId: string, updates: Partial<GanttMilestone>) => void;
   editable?: boolean;
   showGrid?: boolean;
@@ -49,6 +50,7 @@ export const GanttChart = ({
   onTaskUpdate,
   onTaskAdd,
   onTaskDelete,
+  onTaskReorder,
   onMilestoneUpdate,
   editable = true,
   showGrid = true,
@@ -70,6 +72,13 @@ export const GanttChart = ({
     startX: number;
     originalStart: Date;
     originalEnd: Date;
+  } | null>(null);
+  
+  // Row drag and drop state
+  const [rowDragState, setRowDragState] = useState<{
+    draggedTaskId: string;
+    draggedIndex: number;
+    dropTargetIndex: number | null;
   } | null>(null);
 
   // Calculate view range (show 6 months)
@@ -225,6 +234,70 @@ export const GanttChart = ({
   const getTodayPosition = () => {
     const currentTableWidth = isCollapsed ? 60 : tableWidth;
     return currentTableWidth + 1 + todayOffset();
+  };
+
+  // Row drag and drop handlers
+  const handleRowDragStart = (e: React.DragEvent, taskId: string, index: number) => {
+    if (!editable || !onTaskReorder) return;
+    
+    setRowDragState({
+      draggedTaskId: taskId,
+      draggedIndex: index,
+      dropTargetIndex: null
+    });
+    
+    // Set drag data
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', taskId);
+    
+    // Add a visual effect to the dragged element
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '0.5';
+    }
+  };
+
+  const handleRowDragEnd = (e: React.DragEvent) => {
+    // Reset visual effects
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = '1';
+    }
+    
+    setRowDragState(null);
+  };
+
+  const handleRowDragOver = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    if (rowDragState) {
+      setRowDragState(prev => prev ? {
+        ...prev,
+        dropTargetIndex: targetIndex
+      } : null);
+    }
+  };
+
+  const handleRowDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    
+    if (!rowDragState || !onTaskReorder) return;
+    
+    const { draggedIndex } = rowDragState;
+    
+    if (draggedIndex === targetIndex) {
+      setRowDragState(null);
+      return;
+    }
+    
+    // Create new task order
+    const newTasks = [...tasks];
+    const [draggedTask] = newTasks.splice(draggedIndex, 1);
+    newTasks.splice(targetIndex, 0, draggedTask);
+    
+    // Notify parent of new order
+    onTaskReorder(newTasks.map(task => task.id));
+    
+    setRowDragState(null);
   };
 
   // Editable cell component
@@ -592,7 +665,24 @@ export const GanttChart = ({
         const geometry = getTaskGeometry(task);
         if (!geometry.visible) return null;
         const rowHeight = compactMode ? 28 : 36;
-        return <div key={task.id} className="flex border-b border-border hover:bg-muted/20" style={{ height: rowHeight }}>
+        const isDraggedOver = rowDragState?.dropTargetIndex === index;
+        const isDragging = rowDragState?.draggedTaskId === task.id;
+        
+        return <div 
+          key={task.id} 
+          className={cn(
+            "flex border-b border-border transition-colors",
+            isDraggedOver && "bg-primary/10 border-primary/50",
+            isDragging && "opacity-50",
+            "hover:bg-muted/20 cursor-grab active:cursor-grabbing"
+          )}
+          style={{ height: rowHeight }}
+          draggable={editable && !!onTaskReorder}
+          onDragStart={(e) => handleRowDragStart(e, task.id, index)}
+          onDragEnd={handleRowDragEnd}
+          onDragOver={(e) => handleRowDragOver(e, index)}
+          onDrop={(e) => handleRowDrop(e, index)}
+        >
             {/* Task table columns */}
               <div 
                 className="border-r border-border overflow-hidden flex" 
