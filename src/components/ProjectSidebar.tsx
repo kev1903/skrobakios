@@ -34,6 +34,12 @@ const ALL_PROJECT_NAV_ITEMS = [{
   icon: Activity,
   page: 'project-activities'
 }, {
+  id: 'timeline',
+  key: 'timeline',
+  label: 'Timeline',
+  icon: Calendar,
+  page: 'project-timeline'
+}, {
   id: 'specification',
   key: 'specification',
   label: 'Specification',
