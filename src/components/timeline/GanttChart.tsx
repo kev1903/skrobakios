@@ -358,7 +358,7 @@ export const GanttChart = ({
       />
       
       {/* Timeline header */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-x-hidden overflow-y-hidden">
         <div className="flex" style={{
         width: days.length * dayWidth
       }}>
@@ -414,7 +414,7 @@ export const GanttChart = ({
         </Tooltip>
       </TooltipProvider>;
   };
-  return <div className="border border-border rounded-lg bg-background gantt-container">
+  return <div className="border border-border rounded-lg bg-background gantt-container overflow-x-hidden">
       <TimeHeader />
       
       <div className="relative" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
