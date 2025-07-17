@@ -167,7 +167,7 @@ export const GanttChart = ({
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Left column for task names */}
       <div className="w-80 bg-muted/30 border-r border-border p-2 flex items-center justify-between">
-        
+        <h3 className="font-semibold text-sm text-foreground">ACTIVITIES</h3>
       </div>
       
       {/* Timeline header */}
