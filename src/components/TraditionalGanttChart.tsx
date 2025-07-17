@@ -383,7 +383,7 @@ export const TraditionalGanttChart: React.FC<TraditionalGanttChartProps> = ({
             <div className="w-1/2 border-r border-border bg-muted/30">
               {/* Table Header */}
               <div className="grid grid-cols-6 gap-2 p-4 border-b border-border bg-background font-medium text-sm">
-                <div className="col-span-2">Task Name</div>
+                <div className="col-span-2">Activity Name</div>
                 <div>Duration</div>
                 <div>Start Date</div>
                 <div>End Date</div>
@@ -402,7 +402,7 @@ export const TraditionalGanttChart: React.FC<TraditionalGanttChartProps> = ({
                   >
                     <div className="col-span-2 flex items-center">
                       <div>
-                        <div className="font-medium text-sm">{task.task_name}</div>
+                        <div className="font-medium text-sm">{(task as any).activity_name || task.task_name}</div>
                         {task.dependencies && task.dependencies.length > 0 && (
                           <div className="text-xs text-muted-foreground">
                             Depends on: {task.dependencies.join(', ')}
