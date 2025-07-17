@@ -754,84 +754,22 @@ export const GanttChart = ({
 
   return (
     <div className="border border-border rounded-lg bg-background gantt-container overflow-hidden">
-      <div className="flex">
+      {/* Fixed header row */}
+      <div className="flex border-b border-border bg-muted/10">
         {/* Fixed table header */}
-        <div className="border-b border-border bg-muted/10 flex-shrink-0" style={{ width: isCollapsed ? 60 : tableWidth }}>
+        <div className="flex-shrink-0" style={{ width: isCollapsed ? 60 : tableWidth }}>
           <TimeHeader />
         </div>
         
-        {/* Scrollable timeline header */}
-        <div className="border-b border-border bg-muted/10 flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-          <div style={{ width: days.length * dayWidth }}>
-            {/* Month headers */}
-            <div className="flex border-b border-border" style={{ width: days.length * dayWidth }}>
-              {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
-                const monthDays = days.filter(day => format(day, 'MMM yyyy') === month);
-                return (
-                  <div 
-                    key={month} 
-                    className="bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center border-r border-border h-8" 
-                    style={{ width: monthDays.length * dayWidth }}
-                  >
-                    {month}
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* Week headers */}
-            <div className="flex border-b border-border bg-muted/10 h-6">
-              {(() => {
-                const weeks: { weekStart: Date; weekDays: Date[] }[] = [];
-                let currentWeek: Date[] = [];
-                let currentWeekStart: Date | null = null;
-                
-                days.forEach((day) => {
-                  if (currentWeek.length === 0 || !isSameWeek(day, currentWeek[0], { weekStartsOn: 1 })) {
-                    if (currentWeek.length > 0) {
-                      weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
-                    }
-                    currentWeek = [day];
-                    currentWeekStart = startOfWeek(day, { weekStartsOn: 1 });
-                  } else {
-                    currentWeek.push(day);
-                  }
-                });
-                
-                if (currentWeek.length > 0) {
-                  weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
-                }
-                
-                return weeks.map((week, index) => (
-                  <div 
-                    key={`week-${index}`} 
-                    className="bg-muted/20 text-muted-foreground font-medium text-xs flex items-center justify-center border-r border-border/50 h-6" 
-                    style={{ width: week.weekDays.length * dayWidth }}
-                  >
-                    Week {format(week.weekStart, 'w')}
-                  </div>
-                ));
-              })()}
-            </div>
-            
-            {/* Day headers */}
-            <div className="flex" style={{ width: days.length * dayWidth }}>
-              {days.map((day) => (
-                <div 
-                  key={day.toISOString()} 
-                  className={cn(
-                    "text-xs text-center py-1 border-r border-border/50 bg-background h-12 flex flex-col justify-center",
-                    format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '',
-                    showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : ''
-                  )} 
-                  style={{ width: dayWidth }}
-                >
-                  <div className="font-medium">{format(day, 'd')}</div>
-                  <div className="text-[10px] opacity-60">{format(day, 'E')}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Resizable divider */}
+        <div 
+          className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
+          onMouseDown={handleResizeStart}
+        />
+        
+        {/* Timeline header spacer */}
+        <div className="flex-1 bg-muted/10 h-[72px] flex items-center justify-center">
+          <span className="text-xs text-muted-foreground">Timeline</span>
         </div>
       </div>
       
@@ -1067,21 +1005,87 @@ export const GanttChart = ({
           )}
         </div>
         
-        {/* Resizable divider */}
-        <div 
-          className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
-          onMouseDown={handleResizeStart}
-        />
         
         {/* Scrollable timeline area */}
         <div className="flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-          <div 
-            className="relative timeline-area" 
-            style={{ width: days.length * dayWidth }} 
-            onMouseMove={handleMouseMove} 
-            onMouseUp={handleMouseUp} 
-            onMouseLeave={handleMouseUp}
-          >
+          <div style={{ width: days.length * dayWidth }}>
+            {/* Month headers */}
+            <div className="flex border-b border-border bg-muted/10" style={{ width: days.length * dayWidth }}>
+              {Array.from(new Set(days.map(day => format(day, 'MMM yyyy')))).map(month => {
+                const monthDays = days.filter(day => format(day, 'MMM yyyy') === month);
+                return (
+                  <div 
+                    key={month} 
+                    className="bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center border-r border-border h-8" 
+                    style={{ width: monthDays.length * dayWidth }}
+                  >
+                    {month}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Week headers */}
+            <div className="flex border-b border-border bg-muted/10 h-6">
+              {(() => {
+                const weeks: { weekStart: Date; weekDays: Date[] }[] = [];
+                let currentWeek: Date[] = [];
+                let currentWeekStart: Date | null = null;
+                
+                days.forEach((day) => {
+                  if (currentWeek.length === 0 || !isSameWeek(day, currentWeek[0], { weekStartsOn: 1 })) {
+                    if (currentWeek.length > 0) {
+                      weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
+                    }
+                    currentWeek = [day];
+                    currentWeekStart = startOfWeek(day, { weekStartsOn: 1 });
+                  } else {
+                    currentWeek.push(day);
+                  }
+                });
+                
+                if (currentWeek.length > 0) {
+                  weeks.push({ weekStart: currentWeekStart!, weekDays: currentWeek });
+                }
+                
+                return weeks.map((week, index) => (
+                  <div 
+                    key={`week-${index}`} 
+                    className="bg-muted/20 text-muted-foreground font-medium text-xs flex items-center justify-center border-r border-border/50 h-6" 
+                    style={{ width: week.weekDays.length * dayWidth }}
+                  >
+                    Week {format(week.weekStart, 'w')}
+                  </div>
+                ));
+              })()}
+            </div>
+            
+            {/* Day headers */}
+            <div className="flex" style={{ width: days.length * dayWidth }}>
+              {days.map((day) => (
+                <div 
+                  key={day.toISOString()} 
+                  className={cn(
+                    "text-xs text-center py-1 border-r border-border/50 bg-background h-12 flex flex-col justify-center",
+                    format(day, 'E') === 'Sat' || format(day, 'E') === 'Sun' ? 'bg-muted/20' : '',
+                    showToday && format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') ? 'bg-primary/20' : ''
+                  )} 
+                  style={{ width: dayWidth }}
+                >
+                  <div className="font-medium">{format(day, 'd')}</div>
+                  <div className="text-[10px] opacity-60">{format(day, 'E')}</div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Timeline content area */}
+            <div 
+              className="relative timeline-area" 
+              style={{ width: days.length * dayWidth }} 
+              onMouseMove={handleMouseMove} 
+              onMouseUp={handleMouseUp} 
+              onMouseLeave={handleMouseUp}
+            >
             {/* Dependency Lines */}
             <DependencyLines />
 
@@ -1180,6 +1184,7 @@ export const GanttChart = ({
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       </div>
