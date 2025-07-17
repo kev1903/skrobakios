@@ -301,7 +301,6 @@ export const GanttChart = ({
                   {editingTask === task.id ? (
                     <div className="space-y-1">
                       <Input
-                        size="sm"
                         defaultValue={task.name}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
