@@ -165,9 +165,26 @@ export const GanttChart = ({
 
   // Time header component
   const TimeHeader = () => <div className="flex border-b border-border">
-      {/* Left column for task names */}
-      <div className="w-80 bg-muted/30 border-r border-border p-2 flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-foreground">ACTIVITIES</h3>
+      {/* Table headers for task information */}
+      <div className="flex bg-muted/30 border-r border-border">
+        <div className="w-48 p-2 border-r border-border">
+          <h3 className="font-semibold text-xs text-foreground">TASK NAME</h3>
+        </div>
+        <div className="w-24 p-2 border-r border-border">
+          <h3 className="font-semibold text-xs text-foreground">START DATE</h3>
+        </div>
+        <div className="w-24 p-2 border-r border-border">
+          <h3 className="font-semibold text-xs text-foreground">END DATE</h3>
+        </div>
+        <div className="w-20 p-2 border-r border-border">
+          <h3 className="font-semibold text-xs text-foreground">DURATION</h3>
+        </div>
+        <div className="w-28 p-2 border-r border-border">
+          <h3 className="font-semibold text-xs text-foreground">ASSIGNEE</h3>
+        </div>
+        <div className="w-32 p-2">
+          <h3 className="font-semibold text-xs text-foreground">DEPENDENCIES</h3>
+        </div>
       </div>
       
       {/* Timeline header */}
@@ -246,41 +263,72 @@ export const GanttChart = ({
         const geometry = getTaskGeometry(task);
         if (!geometry.visible) return null;
         return <div key={task.id} className="flex border-b border-border hover:bg-muted/20">
-              {/* Task info column */}
-              <div className="w-80 border-r border-border p-2 flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  {editingTask === task.id ? <div className="space-y-1">
-                      <Input defaultValue={task.name} onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    onTaskUpdate?.(task.id, {
-                      name: e.currentTarget.value
-                    });
-                    setEditingTask(null);
-                  } else if (e.key === 'Escape') {
-                    setEditingTask(null);
-                  }
-                }} autoFocus />
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => setEditingTask(null)}>
-                          <Save className="w-3 h-3" />
+              {/* Task table columns */}
+              <div className="flex border-r border-border">
+                {/* Task Name */}
+                <div className="w-48 p-2 border-r border-border flex items-center">
+                  {editingTask === task.id ? (
+                    <Input 
+                      defaultValue={task.name} 
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          onTaskUpdate?.(task.id, { name: e.currentTarget.value });
+                          setEditingTask(null);
+                        } else if (e.key === 'Escape') {
+                          setEditingTask(null);
+                        }
+                      }} 
+                      autoFocus 
+                      className="text-xs"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-medium text-xs truncate">{task.name}</span>
+                      {editable && (
+                        <Button variant="ghost" size="sm" onClick={() => setEditingTask(task.id)}>
+                          <Edit className="w-3 h-3" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingTask(null)}>
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div> : <div>
-                      <div className="font-medium text-sm truncate">{task.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {task.assignee && <span>{task.assignee}</span>}
-                        {task.assignee && task.progress !== undefined && <span> • </span>}
-                        {task.progress !== undefined && <span>{task.progress}%</span>}
-                      </div>
-                    </div>}
+                      )}
+                    </div>
+                  )}
                 </div>
                 
-                {editable && editingTask !== task.id && <Button variant="ghost" size="sm" onClick={() => setEditingTask(task.id)}>
-                    <Edit className="w-3 h-3" />
-                  </Button>}
+                {/* Start Date */}
+                <div className="w-24 p-2 border-r border-border flex items-center">
+                  <span className="text-xs text-muted-foreground">
+                    {format(task.startDate, 'MMM d')}
+                  </span>
+                </div>
+                
+                {/* End Date */}
+                <div className="w-24 p-2 border-r border-border flex items-center">
+                  <span className="text-xs text-muted-foreground">
+                    {format(task.endDate, 'MMM d')}
+                  </span>
+                </div>
+                
+                {/* Duration */}
+                <div className="w-20 p-2 border-r border-border flex items-center">
+                  <span className="text-xs text-muted-foreground">
+                    {differenceInDays(task.endDate, task.startDate) + 1}d
+                  </span>
+                </div>
+                
+                {/* Assignee */}
+                <div className="w-28 p-2 border-r border-border flex items-center">
+                  <span className="text-xs text-muted-foreground truncate">
+                    {task.assignee || '-'}
+                  </span>
+                </div>
+                
+                {/* Dependencies */}
+                <div className="w-32 p-2 flex items-center">
+                  <span className="text-xs text-muted-foreground truncate">
+                    {task.dependencies && task.dependencies.length > 0 
+                      ? task.dependencies.join(', ') 
+                      : '-'}
+                  </span>
+                </div>
               </div>
 
               {/* Timeline column */}
@@ -346,23 +394,30 @@ export const GanttChart = ({
 
         {/* Add task row */}
         {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10">
-            <div className="w-80 border-r border-border p-2">
-              <Button variant="ghost" size="sm" onClick={() => {
-            // Simple add task - in real implementation, open a form dialog
-            const newTask: Omit<GanttTask, 'id'> = {
-              name: 'New Task',
-              startDate: new Date(),
-              endDate: addDays(new Date(), 7),
-              progress: 0,
-              status: 'pending',
-              priority: 'Medium',
-              assignee: ''
-            };
-            onTaskAdd(newTask);
-          }} className="w-full justify-start text-muted-foreground">
-                <Plus className="w-4 h-4 mr-2" />
-                Add task
-              </Button>
+            <div className="flex border-r border-border">
+              <div className="w-48 p-2 border-r border-border">
+                <Button variant="ghost" size="sm" onClick={() => {
+                  // Simple add task - in real implementation, open a form dialog
+                  const newTask: Omit<GanttTask, 'id'> = {
+                    name: 'New Task',
+                    startDate: new Date(),
+                    endDate: addDays(new Date(), 7),
+                    progress: 0,
+                    status: 'pending',
+                    priority: 'Medium',
+                    assignee: ''
+                  };
+                  onTaskAdd(newTask);
+                }} className="w-full justify-start text-muted-foreground">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add task
+                </Button>
+              </div>
+              <div className="w-24 p-2 border-r border-border"></div>
+              <div className="w-24 p-2 border-r border-border"></div>
+              <div className="w-20 p-2 border-r border-border"></div>
+              <div className="w-28 p-2 border-r border-border"></div>
+              <div className="w-32 p-2"></div>
             </div>
             <div className="flex-1 p-2"></div>
           </div>}
