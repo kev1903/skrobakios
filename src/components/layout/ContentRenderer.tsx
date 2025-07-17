@@ -62,7 +62,6 @@ import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
-import { IndividualProjectDashboard } from "@/components/projects/IndividualProjectDashboard";
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 
 interface ContentRendererProps {
@@ -121,7 +120,7 @@ export const ContentRenderer = ({
     case "individual-project-dashboard":
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <IndividualProjectDashboard projectId={selectedProject || ""} onNavigate={onNavigate} />
+          <SK25008Dashboard projectId={selectedProject || ""} />
         </SubscriptionProtectedRoute>
       );
     case "project-detail":
