@@ -567,16 +567,17 @@ export const GanttChart = ({
         {tasks.map((task, index) => {
         const geometry = getTaskGeometry(task);
         if (!geometry.visible) return null;
-        return <div key={task.id} className="flex border-b border-border hover:bg-muted/20">
+        const rowHeight = compactMode ? 40 : 60;
+        return <div key={task.id} className="flex border-b border-border hover:bg-muted/20" style={{ height: rowHeight }}>
             {/* Task table columns */}
               <div 
                 className="border-r border-border overflow-hidden flex" 
-                style={{ width: isCollapsed ? 60 : tableWidth }}
+                style={{ width: isCollapsed ? 60 : tableWidth, height: rowHeight }}
               >
                 {/* Task Name */}
                 <div 
-                  className="px-2 py-2 border-r border-border flex items-center flex-shrink-0"
-                  style={{ width: 192 }}
+                  className="px-2 border-r border-border flex items-center flex-shrink-0"
+                  style={{ width: 192, height: rowHeight }}
                 >
                   <EditableCell
                     value={task.name}
@@ -610,7 +611,7 @@ export const GanttChart = ({
                 </div>
                 
                 {/* Start Date */}
-                <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                <div className="w-24 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <EditableCell
                     value={format(task.startDate, 'yyyy-MM-dd')}
                     taskId={task.id}
@@ -621,7 +622,7 @@ export const GanttChart = ({
                 </div>
                 
                 {/* End Date */}
-                <div className="w-24 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                <div className="w-24 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <EditableCell
                     value={format(task.endDate, 'yyyy-MM-dd')}
                     taskId={task.id}
@@ -632,14 +633,14 @@ export const GanttChart = ({
                 </div>
                 
                 {/* Duration - Read only display */}
-                <div className="w-20 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                <div className="w-20 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <span className="text-xs text-muted-foreground">
                     {differenceInDays(task.endDate, task.startDate) + 1}d
                   </span>
                 </div>
                 
                 {/* Assignee */}
-                <div className="w-28 px-2 py-2 border-r border-border flex items-center flex-shrink-0">
+                <div className="w-28 px-2 border-r border-border flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <EditableCell
                     value={task.assignee || ''}
                     taskId={task.id}
@@ -649,7 +650,7 @@ export const GanttChart = ({
                 </div>
                 
                 {/* Dependencies */}
-                <div className="w-32 px-2 py-2 flex items-center flex-shrink-0">
+                <div className="w-32 px-2 flex items-center flex-shrink-0" style={{ height: rowHeight }}>
                   <EditableCell
                     value={task.dependencies?.join(', ') || ''}
                     taskId={task.id}
@@ -666,9 +667,9 @@ export const GanttChart = ({
               />
 
               {/* Timeline column */}
-              <div className="flex-1 relative p-2" style={{
-            height: compactMode ? 40 : 60
-          }}>
+              <div className="flex-1 relative" style={{
+                height: rowHeight
+              }}>
                 <div className="relative h-full">
                   {/* Grid lines */}
                   {showGrid && days.filter((_, i) => i % 7 === 0).map((day, i) => <div key={i} className="absolute top-0 bottom-0 w-px bg-border/30" style={{
@@ -727,14 +728,14 @@ export const GanttChart = ({
       })}
 
         {/* Add task row */}
-        {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10">
+        {editable && onTaskAdd && <div className="flex border-b border-border bg-muted/10" style={{ height: compactMode ? 40 : 60 }}>
             <div 
               className="border-r border-border overflow-hidden flex" 
-              style={{ width: isCollapsed ? 60 : tableWidth }}
+              style={{ width: isCollapsed ? 60 : tableWidth, height: compactMode ? 40 : 60 }}
             >
               <div 
-                className="px-2 py-2 border-r border-border flex-shrink-0"
-                style={{ width: 192 }}
+                className="px-2 border-r border-border flex-shrink-0 flex items-center"
+                style={{ width: 192, height: compactMode ? 40 : 60 }}
               >
                 <Button variant="ghost" size="sm" onClick={() => {
                   // Simple add task - in real implementation, open a form dialog
@@ -753,11 +754,11 @@ export const GanttChart = ({
                   {!isCollapsed && <span>Add task</span>}
                 </Button>
               </div>
-              <div className="w-24 px-2 py-2 border-r border-border flex-shrink-0"></div>
-              <div className="w-24 px-2 py-2 border-r border-border flex-shrink-0"></div>
-              <div className="w-20 px-2 py-2 border-r border-border flex-shrink-0"></div>
-              <div className="w-28 px-2 py-2 border-r border-border flex-shrink-0"></div>
-              <div className="w-32 px-2 py-2 flex-shrink-0"></div>
+              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
+              <div className="w-24 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
+              <div className="w-20 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
+              <div className="w-28 px-2 border-r border-border flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
+              <div className="w-32 px-2 flex-shrink-0 flex items-center" style={{ height: compactMode ? 40 : 60 }}></div>
             </div>
             
             {/* Resizable divider */}
@@ -766,7 +767,7 @@ export const GanttChart = ({
               onMouseDown={handleResizeStart}
             />
             
-            <div className="flex-1 p-2"></div>
+            <div className="flex-1" style={{ height: compactMode ? 40 : 60 }}></div>
           </div>}
       </div>
     </div>;
