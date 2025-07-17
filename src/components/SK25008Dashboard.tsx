@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from './ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
-import { TraditionalGanttChart } from './TraditionalGanttChart';
+
 import { SK25008FileUpload } from './SK25008FileUpload';
 import { SK25008TaskDetails } from './SK25008TaskDetails';
 interface Task {
@@ -221,30 +221,18 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
         {/* Content Area */}
         <div className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
 
-          {/* Gantt Chart */}
+          {/* Schedule Section */}
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-            
-            <CardContent className="p-0">
-              <TraditionalGanttChart tasks={tasks} onTaskUpdate={async (taskId, updates) => {
-              try {
-                const {
-                  error
-                } = await supabase.from('sk_25008_design').update(updates).eq('id', taskId);
-                if (error) throw error;
-                toast({
-                  title: "Task Updated",
-                  description: "Task schedule updated successfully"
-                });
-                fetchTasks();
-              } catch (error) {
-                console.error('Error updating task:', error);
-                toast({
-                  title: "Update Failed",
-                  description: "Failed to update task schedule",
-                  variant: "destructive"
-                });
-              }
-            }} />
+            <CardHeader>
+              <CardTitle className="text-white">Project Schedule</CardTitle>
+              <CardDescription className="text-white/70">
+                Timeline and task management
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="text-center text-muted-foreground">
+                <p>Schedule functionality has been removed.</p>
+              </div>
             </CardContent>
           </Card>
         </div>

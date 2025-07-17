@@ -6,11 +6,8 @@ import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
-import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 import { ProjectActivitiesPage } from "@/components/ProjectActivitiesPage";
-
-import { GanttChartPage } from "@/components/GanttChartPage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
@@ -147,17 +144,6 @@ export const ContentRenderer = ({
           <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
-    case "project-schedule":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          {/* Check if this is the SK25008 project and render accordingly */}
-          {currentProject.project_id === 'SK_25008' || currentProject.id === 'sk-25008' || currentProject.name.includes('Riverview') ? (
-            <SK25008Dashboard projectId={currentProject.id} />
-          ) : (
-            <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
-          )}
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
     case "sk25008-schedule":
       const urlParams = new URLSearchParams(window.location.search);
       const projectId = urlParams.get('projectId') || 'sk-25008';
@@ -176,12 +162,6 @@ export const ContentRenderer = ({
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <WBSPage project={currentProject} onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
-    case "gantt-chart":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <GanttChartPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "upload":

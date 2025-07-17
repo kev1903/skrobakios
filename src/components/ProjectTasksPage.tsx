@@ -5,7 +5,7 @@ import { TaskProvider, useTaskContext } from './tasks/TaskContext';
 import { TaskListView } from './tasks/TaskListView';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
-import { TaskTimelineView } from './tasks/TaskTimelineView';
+
 import { TaskCalendarView } from './tasks/TaskCalendarView';
 import { ProjectSidebar } from './ProjectSidebar';
 import { TaskPageHeader } from './tasks/TaskPageHeader';
@@ -42,7 +42,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       case "board":
         return <TaskBoardView projectId={project.id} />;
       case "timeline":
-        return <TaskTimelineView />;
+        return <div className="p-8 text-center text-muted-foreground">Timeline view has been removed</div>;
       case "calendar":
         return <TaskCalendarView />;
       case "overview":

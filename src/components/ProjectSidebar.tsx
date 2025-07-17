@@ -22,12 +22,6 @@ const ALL_PROJECT_NAV_ITEMS = [{
   icon: Eye,
   page: 'project-detail'
 }, {
-  id: 'schedule',
-  key: 'schedule',
-  label: 'Schedule',
-  icon: Calendar,
-  page: 'project-schedule'
-}, {
   id: 'tasks',
   key: 'tasks',
   label: 'Tasks',

@@ -25,7 +25,7 @@ export const taskService = {
       status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: task.progress,
       description: task.description,
-      duration: task.duration,
+      
       digital_object_id: task.digital_object_id,
       created_at: task.created_at,
       updated_at: task.updated_at
@@ -45,7 +45,7 @@ export const taskService = {
     if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
-    if (updates.duration !== undefined) dbUpdates.duration = updates.duration;
+    
     if (updates.digital_object_id !== undefined) dbUpdates.digital_object_id = updates.digital_object_id;
 
     const { error } = await supabase
@@ -71,7 +71,7 @@ export const taskService = {
       status: taskData.status,
       progress: taskData.progress,
       description: taskData.description || null,
-      duration: taskData.duration || null,
+      
       digital_object_id: taskData.digital_object_id || null
     };
 
@@ -97,7 +97,7 @@ export const taskService = {
       status: data.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: data.progress,
       description: data.description,
-      duration: data.duration,
+      
       digital_object_id: data.digital_object_id,
       created_at: data.created_at,
       updated_at: data.updated_at
@@ -181,17 +181,6 @@ export const taskService = {
           user_avatar: userAvatar,
           action_type: 'task_updated',
           action_description: 'updated due date'
-        })
-      );
-    }
-    if (updates.duration !== undefined) {
-      activityPromises.push(
-        supabase.from('task_activity_log').insert({
-          task_id: taskId,
-          user_name: userName,
-          user_avatar: userAvatar,
-          action_type: 'task_updated',
-          action_description: 'updated expected time'
         })
       );
     }

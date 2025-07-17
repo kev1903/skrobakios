@@ -31,8 +31,8 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { GanttChart } from '@/components/scheduling/GanttChart';
-import { useGanttData } from '@/hooks/useGanttData';
+
+
 import { addDays, format } from 'date-fns';
 import { SkaiTaskAssistant } from '@/components/tasks/SkaiTaskAssistant';
 
@@ -53,7 +53,7 @@ interface Task {
   due_date: string;
   category: string;
   project_id: string;
-  duration: number;
+  
   created_at: string;
   updated_at: string;
 }
@@ -89,7 +89,6 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
     assigned_to_name: '',
     due_date: '',
     category: 'development',
-    duration: 1
   });
 
   useEffect(() => {
@@ -170,7 +169,7 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
         assigned_to_name: '',
         due_date: '',
         category: 'development',
-        duration: 1
+        
       });
 
       toast({
@@ -339,14 +338,6 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
     todo: tasks.filter(t => t.status === 'todo').length
   };
 
-  // Gantt chart integration
-  const { 
-    tasks: ganttTasks, 
-    dependencies, 
-    handleTaskUpdate, 
-    handleDependencyCreate, 
-    handleDependencyDelete 
-  } = useGanttData(selectedProject);
 
   // Calculate project timeline
   const projectStartDate = new Date(Math.min(...tasks.map(t => new Date(t.created_at).getTime())));
@@ -579,27 +570,9 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
       {/* Content based on view mode */}
       {viewMode === 'gantt' ? (
         // Gantt Chart View
-        selectedProject ? (
-          <GanttChart
-            tasks={ganttTasks}
-            dependencies={dependencies}
-            projectStartDate={projectStartDate}
-            projectEndDate={projectEndDate}
-            onTaskUpdate={handleTaskUpdate}
-            onDependencyCreate={handleDependencyCreate}
-            onDependencyDelete={handleDependencyDelete}
-          />
-        ) : (
-          <Card className="glass-card">
-            <CardContent className="text-center py-12">
-              <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Select a Project</h3>
-              <p className="text-muted-foreground">
-                Choose a project to view the Gantt chart timeline
-              </p>
-            </CardContent>
-          </Card>
-        )
+        <div className="flex items-center justify-center h-64 text-muted-foreground">
+          Schedule functionality has been removed
+        </div>
       ) : (
         // Tasks List View
       <div className="space-y-4">
@@ -730,37 +703,6 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
                       )}
                     </div>
                     
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      {editingTask === task.id && editingField === 'duration' ? (
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="number"
-                            value={tempValue}
-                            onChange={(e) => setTempValue(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') saveEdit();
-                              if (e.key === 'Escape') cancelEditing();
-                            }}
-                            className="w-20"
-                            min="0"
-                            step="0.5"
-                            autoFocus
-                          />
-                          <span className="text-sm">h</span>
-                          <Button size="sm" onClick={saveEdit}>Save</Button>
-                          <Button size="sm" variant="ghost" onClick={cancelEditing}>Cancel</Button>
-                        </div>
-                      ) : (
-                        <span 
-                          className="text-sm cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors"
-                          onClick={() => startEditing(task.id, 'duration', task.duration?.toString())}
-                          title="Click to edit duration"
-                        >
-                          {task.duration || 0}h
-                        </span>
-                      )}
-                    </div>
 
                     <div className="flex items-center space-x-2">
                       <Flag className="h-4 w-4 text-muted-foreground" />

@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 interface TopFloatingBarProps {
   onToggleRibbon: () => void;
   onNavigate: (page: string) => void;
-  onOpenSchedule: () => void;
   showSaveButton: boolean;
   onSaveMapPosition: () => Promise<void>;
 }
@@ -20,7 +19,6 @@ interface TopFloatingBarProps {
 export const TopFloatingBar = ({
   onToggleRibbon,
   onNavigate,
-  onOpenSchedule,
   showSaveButton,
   onSaveMapPosition
 }: TopFloatingBarProps) => {
@@ -95,13 +93,6 @@ export const TopFloatingBar = ({
                 <ClipboardList className="w-5 h-5 text-white" />
               </button>
               
-              {/* Schedule Icon */}
-              <button 
-                onClick={onOpenSchedule}
-                className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-              >
-                <CalendarIcon className="w-5 h-5 text-white" />
-              </button>
               
               {/* Save Map Position Icon */}
               {showSaveButton && (
