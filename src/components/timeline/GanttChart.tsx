@@ -58,9 +58,10 @@ export const GanttChart = ({
     const earliest = tasks.reduce((min, task) => task.startDate < min ? task.startDate : min, new Date());
     return startOfMonth(earliest);
   });
-  const [editingTask, setEditingTask] = useState<string | null>(null);
+  const [editingCell, setEditingCell] = useState<{ taskId: string; field: string } | null>(null);
   const [tableWidth, setTableWidth] = useState(400); // Default table width
   const [isResizing, setIsResizing] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [dragState, setDragState] = useState<{
     taskId: string;
     type: 'move' | 'resize-start' | 'resize-end';
@@ -208,27 +209,128 @@ export const GanttChart = ({
     return daysDiff * dayWidth;
   };
 
+  // Editable cell component
+  const EditableCell = ({ 
+    value, 
+    taskId, 
+    field, 
+    className, 
+    type = 'text',
+    options 
+  }: { 
+    value: string; 
+    taskId: string; 
+    field: string; 
+    className?: string;
+    type?: 'text' | 'date' | 'select';
+    options?: string[];
+  }) => {
+    const isEditing = editingCell?.taskId === taskId && editingCell?.field === field;
+    
+    const handleSave = (newValue: string) => {
+      let updateData: Partial<GanttTask> = {};
+      
+      if (field === 'startDate' || field === 'endDate') {
+        updateData[field] = new Date(newValue);
+      } else if (field === 'dependencies') {
+        updateData.dependencies = newValue ? newValue.split(', ').map(dep => dep.trim()) : [];
+      } else if (field === 'name') {
+        updateData.name = newValue;
+      } else if (field === 'assignee') {
+        updateData.assignee = newValue;
+      }
+      
+      onTaskUpdate?.(taskId, updateData);
+      setEditingCell(null);
+    };
+
+    if (isEditing) {
+      if (type === 'select' && options) {
+        return (
+          <Select defaultValue={value} onValueChange={handleSave}>
+            <SelectTrigger className="text-xs h-6">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map(option => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      }
+      
+      return (
+        <Input
+          defaultValue={value}
+          type={type}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              handleSave(e.currentTarget.value);
+            } else if (e.key === 'Escape') {
+              setEditingCell(null);
+            }
+          }}
+          onBlur={e => handleSave(e.currentTarget.value)}
+          autoFocus
+          className="text-xs h-6"
+        />
+      );
+    }
+
+    return (
+      <div 
+        className={cn("cursor-pointer hover:bg-muted/50 p-1 rounded", className)}
+        onClick={() => setEditingCell({ taskId, field })}
+      >
+        <span className={cn("text-xs", isCollapsed && "opacity-0")}>
+          {value || '-'}
+        </span>
+      </div>
+    );
+  };
+
   // Time header component
   const TimeHeader = () => <div className="flex border-b border-border">
       {/* Table headers for task information */}
       <div className="flex bg-muted/30 border-r border-border" style={{ width: tableWidth }}>
-        <div className="w-48 px-2 py-2 border-r border-border flex items-center">
-          <span className="font-semibold text-xs text-foreground">TASK NAME</span>
+        <div className="w-48 px-2 py-2 border-r border-border flex items-center justify-between">
+          <span className={cn("font-semibold text-xs text-foreground", isCollapsed && "opacity-0")}>
+            TASK NAME
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="h-4 w-4 p-0"
+          >
+            <ChevronLeft className={cn("w-3 h-3 transition-transform", isCollapsed && "rotate-180")} />
+          </Button>
         </div>
         <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-          <span className="font-semibold text-xs text-foreground">START DATE</span>
+          <span className={cn("font-semibold text-xs text-foreground", isCollapsed && "opacity-0")}>
+            START DATE
+          </span>
         </div>
         <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-          <span className="font-semibold text-xs text-foreground">END DATE</span>
+          <span className={cn("font-semibold text-xs text-foreground", isCollapsed && "opacity-0")}>
+            END DATE
+          </span>
         </div>
         <div className="w-20 px-2 py-2 border-r border-border flex items-center">
-          <span className="font-semibold text-xs text-foreground">DURATION</span>
+          <span className={cn("font-semibold text-xs text-foreground", isCollapsed && "opacity-0")}>
+            DURATION
+          </span>
         </div>
         <div className="w-28 px-2 py-2 border-r border-border flex items-center">
-          <span className="font-semibold text-xs text-foreground">ASSIGNEE</span>
+          <span className={cn("font-semibold text-xs text-foreground", isCollapsed && "opacity-0")}>
+            ASSIGNEE
+          </span>
         </div>
         <div className="w-32 px-2 py-2 flex items-center">
-          <span className="font-semibold text-xs text-foreground">DEPENDENCIES</span>
+          <span className={cn("font-semibold text-xs text-foreground", isCollapsed && "opacity-0")}>
+            DEPENDENCIES
+          </span>
         </div>
       </div>
       
@@ -322,67 +424,61 @@ export const GanttChart = ({
               <div className="flex border-r border-border" style={{ width: tableWidth }}>
                 {/* Task Name */}
                 <div className="w-48 px-2 py-2 border-r border-border flex items-center">
-                  {editingTask === task.id ? (
-                    <Input 
-                      defaultValue={task.name} 
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          onTaskUpdate?.(task.id, { name: e.currentTarget.value });
-                          setEditingTask(null);
-                        } else if (e.key === 'Escape') {
-                          setEditingTask(null);
-                        }
-                      }} 
-                      autoFocus 
-                      className="text-xs"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-between w-full">
-                      <span className="font-medium text-xs truncate">{task.name}</span>
-                      {editable && (
-                        <Button variant="ghost" size="sm" onClick={() => setEditingTask(task.id)}>
-                          <Edit className="w-3 h-3" />
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                  <EditableCell
+                    value={task.name}
+                    taskId={task.id}
+                    field="name"
+                    className="font-medium w-full"
+                  />
                 </div>
                 
                 {/* Start Date */}
                 <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-                  <span className="text-xs text-muted-foreground">
-                    {format(task.startDate, 'MMM d')}
-                  </span>
+                  <EditableCell
+                    value={format(task.startDate, 'yyyy-MM-dd')}
+                    taskId={task.id}
+                    field="startDate"
+                    type="date"
+                    className="text-muted-foreground w-full"
+                  />
                 </div>
                 
                 {/* End Date */}
                 <div className="w-24 px-2 py-2 border-r border-border flex items-center">
-                  <span className="text-xs text-muted-foreground">
-                    {format(task.endDate, 'MMM d')}
-                  </span>
+                  <EditableCell
+                    value={format(task.endDate, 'yyyy-MM-dd')}
+                    taskId={task.id}
+                    field="endDate"
+                    type="date"
+                    className="text-muted-foreground w-full"
+                  />
                 </div>
                 
-                {/* Duration */}
+                {/* Duration - Read only display */}
                 <div className="w-20 px-2 py-2 border-r border-border flex items-center">
-                  <span className="text-xs text-muted-foreground">
+                  <span className={cn("text-xs text-muted-foreground", isCollapsed && "opacity-0")}>
                     {differenceInDays(task.endDate, task.startDate) + 1}d
                   </span>
                 </div>
                 
                 {/* Assignee */}
                 <div className="w-28 px-2 py-2 border-r border-border flex items-center">
-                  <span className="text-xs text-muted-foreground truncate">
-                    {task.assignee || '-'}
-                  </span>
+                  <EditableCell
+                    value={task.assignee || ''}
+                    taskId={task.id}
+                    field="assignee"
+                    className="text-muted-foreground truncate w-full"
+                  />
                 </div>
                 
                 {/* Dependencies */}
                 <div className="w-32 px-2 py-2 flex items-center">
-                  <span className="text-xs text-muted-foreground truncate">
-                    {task.dependencies && task.dependencies.length > 0 
-                      ? task.dependencies.join(', ') 
-                      : '-'}
-                  </span>
+                  <EditableCell
+                    value={task.dependencies?.join(', ') || ''}
+                    taskId={task.id}
+                    field="dependencies"
+                    className="text-muted-foreground truncate w-full"
+                  />
                 </div>
               </div>
 
