@@ -214,37 +214,95 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
   }
   return <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
       {/* Project Sidebar */}
-      <ProjectSidebar project={project} onNavigate={handleNavigate} getStatusColor={getStatusColor} getStatusText={getStatusText} activeSection="schedule" />
+      <ProjectSidebar project={project} onNavigate={handleNavigate} getStatusColor={getStatusColor} getStatusText={getStatusText} activeSection="dashboard" />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
         {/* Content Area */}
         <div className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
+          {/* Project Overview Dashboard */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Status Card */}
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge className={getStatusColor(project.status || 'active')}>
+                  {getStatusText(project.status || 'active')}
+                </Badge>
+              </CardContent>
+            </Card>
 
-          {/* Gantt Chart */}
+            {/* Progress Card */}
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">{calculateOverallProgress()}%</div>
+                <p className="text-white/60">Overall completion</p>
+              </CardContent>
+            </Card>
+
+            {/* Tasks Summary Card */}
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Tasks
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">{tasks.length}</div>
+                <p className="text-white/60">Total tasks</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-            
-            <CardContent className="p-0">
-              <TraditionalGanttChart tasks={tasks} onTaskUpdate={async (taskId, updates) => {
-              try {
-                const {
-                  error
-                } = await supabase.from('sk_25008_design').update(updates).eq('id', taskId);
-                if (error) throw error;
-                toast({
-                  title: "Task Updated",
-                  description: "Task schedule updated successfully"
-                });
-                fetchTasks();
-              } catch (error) {
-                console.error('Error updating task:', error);
-                toast({
-                  title: "Update Failed",
-                  description: "Failed to update task schedule",
-                  variant: "destructive"
-                });
-              }
-            }} />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button 
+                onClick={() => handleNavigate('project-schedule')}
+                className="h-auto p-4 flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Calendar className="h-6 w-6" />
+                <span className="text-sm">View Schedule</span>
+              </button>
+              <button 
+                onClick={() => handleNavigate('project-tasks')}
+                className="h-auto p-4 flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <CheckCircle className="h-6 w-6" />
+                <span className="text-sm">Manage Tasks</span>
+              </button>
+              <button 
+                onClick={() => handleNavigate('project-activities')}
+                className="h-auto p-4 flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <AlertTriangle className="h-6 w-6" />
+                <span className="text-sm">Activities</span>
+              </button>
+              <button 
+                onClick={() => handleNavigate('project-settings')}
+                className="h-auto p-4 flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <Upload className="h-6 w-6" />
+                <span className="text-sm">Settings</span>
+              </button>
             </CardContent>
           </Card>
         </div>
