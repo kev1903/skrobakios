@@ -174,7 +174,7 @@ const moduleConfig = {
     icon: TrendingUp,
     color: 'bg-green-500',
     title: 'Sales',
-    subtitle: 'Lead Management',
+    subtitle: 'Sales Management',
     table: 'leads',
     category: 'business'
   },
@@ -182,7 +182,7 @@ const moduleConfig = {
     icon: DollarSign,
     color: 'bg-purple-500',
     title: 'Finance',
-    subtitle: 'Cost Management',
+    subtitle: 'Financial Management',
     table: 'project_costs',
     category: 'business'
   },
@@ -197,8 +197,8 @@ const moduleConfig = {
   'cost-contracts': {
     icon: FileText,
     color: 'bg-orange-500',
-    title: 'Contracts',
-    subtitle: 'Cost & Contracts',
+    title: 'Cost & Contracts',
+    subtitle: 'Cost & Contract Management',
     table: 'estimates',
     category: 'business'
   },
