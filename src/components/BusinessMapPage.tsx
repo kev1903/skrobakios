@@ -18,7 +18,7 @@ import '@xyflow/react/dist/style.css';
 import { 
   ArrowLeft, Database, Building2, Users, FileText, TrendingUp, 
   DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings,
-  FolderOpen, CheckSquare, BarChart3, Search, Filter
+  FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -147,7 +147,7 @@ const moduleConfig = {
     table: null
   },
   'digital-twin': {
-    icon: Map,
+    icon: MapPin,
     color: 'bg-cyan-500',
     title: 'Digital Twin',
     subtitle: '3D Models & Mapping',
