@@ -38,18 +38,14 @@ const ActivityRow = ({
   return (
     <>
       <TableRow className="hover:bg-muted/50 border-b cursor-pointer" onClick={() => onActivityClick(activity)}>
+        {/* ID */}
         <TableCell className="py-2">
           <div className="text-xs font-mono text-muted-foreground">
             {activity.id.slice(0, 8)}...
           </div>
         </TableCell>
         
-        <TableCell className="py-2">
-          <div className="text-sm font-medium">
-            {activity.stage || "4.0 PRELIMINARY"}
-          </div>
-        </TableCell>
-        
+        {/* Task */}
         <TableCell className="py-2" style={{ paddingLeft: `${paddingLeft + 16}px` }} onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2">
             {hasChildren && (
@@ -74,12 +70,91 @@ const ActivityRow = ({
           </div>
         </TableCell>
         
+        {/* Description */}
         <TableCell className="py-2">
           <div className="text-sm text-muted-foreground truncate max-w-[200px]">
             {activity.description || "-"}
           </div>
         </TableCell>
         
+        {/* Assigned To */}
+        <TableCell className="py-2">
+          <div className="text-sm">
+            {activity.assigned_to || "Unassigned"}
+          </div>
+        </TableCell>
+        
+        {/* Status */}
+        <TableCell className="py-2">
+          <Badge variant={activity.status === 'Completed' ? 'default' : 'secondary'} className="text-xs">
+            {activity.status || "Not Started"}
+          </Badge>
+        </TableCell>
+        
+        {/* % Complete */}
+        <TableCell className="py-2">
+          <div className="text-sm font-medium">
+            {activity.progress || 0}%
+          </div>
+        </TableCell>
+        
+        {/* Start Date */}
+        <TableCell className="py-2">
+          <div className="text-sm">
+            {activity.start_date ? format(new Date(activity.start_date), 'MMM dd') : "-"}
+          </div>
+        </TableCell>
+        
+        {/* End Date */}
+        <TableCell className="py-2">
+          <div className="text-sm">
+            {activity.end_date ? format(new Date(activity.end_date), 'MMM dd') : "-"}
+          </div>
+        </TableCell>
+        
+        {/* Duration */}
+        <TableCell className="py-2">
+          <div className="text-sm">
+            {activity.duration && typeof activity.duration === 'number' ? `${activity.duration}d` : "-"}
+          </div>
+        </TableCell>
+        
+        {/* Health */}
+        <TableCell className="py-2">
+          <Badge 
+            variant={
+              activity.health === 'Good' ? 'default' : 
+              activity.health === 'At Risk' ? 'secondary' : 
+              activity.health === 'Critical' ? 'destructive' : 'outline'
+            }
+            className="text-xs"
+          >
+            {activity.health || "Unknown"}
+          </Badge>
+        </TableCell>
+        
+        {/* Progress */}
+        <TableCell className="py-2">
+          <Badge 
+            variant={
+              activity.progress_status === 'On Track' ? 'default' : 
+              activity.progress_status === 'Behind' ? 'destructive' : 
+              activity.progress_status === 'Ahead' ? 'default' : 'secondary'
+            }
+            className="text-xs"
+          >
+            {activity.progress_status || "On Track"}
+          </Badge>
+        </TableCell>
+        
+        {/* At Risk */}
+        <TableCell className="py-2">
+          <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
+            {activity.at_risk ? "Yes" : "No"}
+          </Badge>
+        </TableCell>
+        
+        {/* Actions */}
         <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-1">
             <Button
@@ -190,26 +265,25 @@ export const ActivitiesTable = ({
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead className="font-semibold py-3 w-20">ID</TableHead>
-              <TableHead className="font-semibold py-3 w-40">
-                <Button
-                  variant="ghost"
-                  onClick={handleStageSort}
-                  className="h-auto p-0 font-semibold hover:bg-transparent flex items-center"
-                >
-                  Stage
-                  {getSortIcon()}
-                </Button>
-              </TableHead>
-              <TableHead className="font-semibold py-3 w-64">Activity</TableHead>
-              <TableHead className="font-semibold py-3 w-80">Description</TableHead>
+              <TableHead className="font-semibold py-3 w-16">ID</TableHead>
+              <TableHead className="font-semibold py-3 w-48">Task</TableHead>
+              <TableHead className="font-semibold py-3 w-64">Description</TableHead>
+              <TableHead className="font-semibold py-3 w-32">Assigned To</TableHead>
+              <TableHead className="font-semibold py-3 w-24">Status</TableHead>
+              <TableHead className="font-semibold py-3 w-20">% Complete</TableHead>
+              <TableHead className="font-semibold py-3 w-28">Start Date</TableHead>
+              <TableHead className="font-semibold py-3 w-28">End Date</TableHead>
+              <TableHead className="font-semibold py-3 w-20">Duration</TableHead>
+              <TableHead className="font-semibold py-3 w-20">Health</TableHead>
+              <TableHead className="font-semibold py-3 w-20">Progress</TableHead>
+              <TableHead className="font-semibold py-3 w-20">At Risk</TableHead>
               <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedActivities.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={13} className="text-center py-12 text-muted-foreground">
                   No activities yet. Create your first activity to get started.
                 </TableCell>
               </TableRow>

@@ -4,12 +4,23 @@ export interface ActivityData {
   description: string | null;
   start_date: string | null;
   end_date: string | null;
+  duration?: number | null | unknown; // Duration in days (flexible type for DB compatibility)
   cost_est: number | null;
   cost_actual: number | null;
   parent_id: string | null;
   level: number;
   is_expanded: boolean;
   stage: string | null;
+  
+  // Standardized fields matching Gantt chart requirements
+  assigned_to?: string | null; // Assigned team member
+  status?: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' | 'Delayed' | null; // Status
+  progress?: number | null; // % Complete (0-100)
+  health?: 'Good' | 'At Risk' | 'Critical' | 'Unknown' | null; // Health status
+  progress_status?: 'On Track' | 'Behind' | 'Ahead' | 'Blocked' | null; // Progress status
+  at_risk?: boolean | null; // At Risk flag
+  priority?: 'High' | 'Medium' | 'Low' | null; // Priority
+  
   created_at: string;
   updated_at: string;
   children?: ActivityData[];
