@@ -25,7 +25,6 @@ export const ActivityDetailsModal = ({
 }: ActivityDetailsModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedActivity, setEditedActivity] = useState<Partial<ActivityData>>({});
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,7 +41,6 @@ export const ActivityDetailsModal = ({
   const handleSave = async () => {
     if (!activity || !editedActivity.name) return;
 
-    setIsLoading(true);
     try {
       const { error } = await supabase
         .from('activities')
@@ -71,8 +69,6 @@ export const ActivityDetailsModal = ({
         description: "Failed to update activity",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -201,11 +197,11 @@ export const ActivityDetailsModal = ({
           <div className="flex justify-end gap-2 pt-4 border-t">
             {isEditing ? (
               <>
-                <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
+                <Button variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={isLoading || !editedActivity.name}>
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                <Button onClick={handleSave} disabled={!editedActivity.name}>
+                  Save Changes
                 </Button>
               </>
             ) : (
