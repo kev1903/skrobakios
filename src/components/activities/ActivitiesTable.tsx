@@ -143,7 +143,8 @@ const ActivityRow = ({
                   className="font-medium text-sm truncate cursor-pointer hover:text-primary transition-colors"
                   onClick={() => onActivityEdit(activity.id, activity.name)}
                 >
-                  {activity.name}
+                  {/* Extract just the text part without the number prefix */}
+                  {activity.name.replace(/^[0-9]+\.[0-9]+\s+/, '')}
                 </span>
               )}
             </div>
@@ -620,7 +621,8 @@ export const ActivitiesTable = ({
 
   const handleActivityEdit = (activityId: string, name: string) => {
     setEditingActivity(activityId);
-    setEditingActivityName(name);
+    // Remove the number prefix when editing, so user only edits the text part
+    setEditingActivityName(name.replace(/^[0-9]+\.[0-9]+\s+/, ''));
   };
 
   const handleActivityEditSave = async () => {
