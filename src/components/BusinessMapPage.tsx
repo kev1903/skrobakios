@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, BackgroundVariant, MarkerType, NodeTypes, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -281,6 +281,76 @@ export const BusinessMapPage = ({
     isOpen: false,
     moduleData: null
   });
+  const [isMapLocked, setIsMapLocked] = useState(false);
+  const [lastSavedPositions, setLastSavedPositions] = useState<Record<string, { x: number; y: number }>>({});
+
+  // Auto-save node positions when they change (only in unlocked mode)
+  const handleNodesChange = useCallback((changes: any[]) => {
+    if (!isMapLocked) {
+      onNodesChange(changes);
+      
+      // Check if any position changes occurred
+      const positionChanges = changes.filter(change => change.type === 'position');
+      if (positionChanges.length > 0 && currentCompany) {
+        // Debounced auto-save implementation
+        const saveTimer = setTimeout(async () => {
+          try {
+            const currentPositions: Record<string, { x: number; y: number }> = {};
+            nodes.forEach(node => {
+              if (node.id !== 'company-center') {
+                currentPositions[node.id] = { x: node.position.x, y: node.position.y };
+              }
+            });
+
+            // Only save if positions actually changed
+            const hasChanges = Object.keys(currentPositions).some(nodeId => {
+              const current = currentPositions[nodeId];
+              const saved = lastSavedPositions[nodeId];
+              return !saved || current.x !== saved.x || current.y !== saved.y;
+            });
+
+            if (hasChanges) {
+              // Save to localStorage for now (could be extended to database)
+              const saveKey = `business-map-positions-${currentCompany.id}`;
+              localStorage.setItem(saveKey, JSON.stringify(currentPositions));
+              setLastSavedPositions(currentPositions);
+              
+              toast.success('Map layout auto-saved', { duration: 1000 });
+            }
+          } catch (error) {
+            console.error('Error auto-saving positions:', error);
+          }
+        }, 1000); // 1 second debounce
+
+        return () => clearTimeout(saveTimer);
+      }
+    }
+  }, [isMapLocked, onNodesChange, nodes, lastSavedPositions, currentCompany]);
+
+  // Load saved positions on component mount
+  useEffect(() => {
+    if (currentCompany) {
+      const saveKey = `business-map-positions-${currentCompany.id}`;
+      const savedPositions = localStorage.getItem(saveKey);
+      if (savedPositions) {
+        try {
+          const positions = JSON.parse(savedPositions);
+          setLastSavedPositions(positions);
+        } catch (error) {
+          console.error('Error loading saved positions:', error);
+        }
+      }
+    }
+  }, [currentCompany]);
+
+  // Toggle lock/unlock mode
+  const toggleMapLock = useCallback(() => {
+    setIsMapLocked(prev => {
+      const newLocked = !prev;
+      toast.success(newLocked ? 'Map locked - View only mode' : 'Map unlocked - Edit mode enabled');
+      return newLocked;
+    });
+  }, []);
 
   // Fetch company modules and their data
   useEffect(() => {
@@ -466,8 +536,13 @@ export const BusinessMapPage = ({
 
     // Position business modules on the left side with increased spacing
     const businessNodes: Node[] = businessModules.map((module, index) => {
-      const y = centerY + (index - (businessModules.length - 1) / 2) * 220;
-      const x = centerX - 450;
+      const defaultY = centerY + (index - (businessModules.length - 1) / 2) * 220;
+      const defaultX = centerX - 450;
+      
+      // Use saved position if available
+      const savedPos = lastSavedPositions[module.id];
+      const position = savedPos ? savedPos : { x: defaultX, y: defaultY };
+      
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
       const moduleStats = data[module.module_name] || {
         count: 0,
@@ -476,10 +551,7 @@ export const BusinessMapPage = ({
       return {
         id: module.id,
         type: 'moduleNode',
-        position: {
-          x,
-          y
-        },
+        position,
         data: {
           id: module.id,
           ...config,
@@ -490,14 +562,19 @@ export const BusinessMapPage = ({
           onClick: handleNodeClick,
           onHover: handleNodeHover
         },
-        draggable: true
+        draggable: !isMapLocked
       };
     });
 
     // Position project modules on the right side with increased spacing
     const projectNodes: Node[] = projectModules.map((module, index) => {
-      const y = centerY + (index - (projectModules.length - 1) / 2) * 220;
-      const x = centerX + 450;
+      const defaultY = centerY + (index - (projectModules.length - 1) / 2) * 220;
+      const defaultX = centerX + 450;
+      
+      // Use saved position if available
+      const savedPos = lastSavedPositions[module.id];
+      const position = savedPos ? savedPos : { x: defaultX, y: defaultY };
+      
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
       const moduleStats = data[module.module_name] || {
         count: 0,
@@ -506,10 +583,7 @@ export const BusinessMapPage = ({
       return {
         id: module.id,
         type: 'moduleNode',
-        position: {
-          x,
-          y
-        },
+        position,
         data: {
           id: module.id,
           ...config,
@@ -520,7 +594,7 @@ export const BusinessMapPage = ({
           onClick: handleNodeClick,
           onHover: handleNodeHover
         },
-        draggable: true
+        draggable: !isMapLocked
       };
     });
 
@@ -633,16 +707,53 @@ export const BusinessMapPage = ({
 
       {/* Main Canvas */}
       <div className="flex-1 relative">
-        <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} nodeTypes={nodeTypes} fitView className="bg-background" nodesDraggable={true} nodesConnectable={true} elementsSelectable={true} panOnDrag={true} panOnScroll={true} zoomOnScroll={true} zoomOnPinch={true} zoomOnDoubleClick={true} minZoom={0.1} maxZoom={2} defaultViewport={{
-        x: 0,
-        y: 0,
-        zoom: 0.7
-      }}>
+        <ReactFlow 
+          nodes={nodes} 
+          edges={edges} 
+          onNodesChange={handleNodesChange} 
+          onEdgesChange={onEdgesChange} 
+          onConnect={onConnect} 
+          nodeTypes={nodeTypes} 
+          fitView 
+          className="bg-background" 
+          nodesDraggable={!isMapLocked} 
+          nodesConnectable={!isMapLocked} 
+          elementsSelectable={!isMapLocked} 
+          panOnDrag={true} 
+          panOnScroll={true} 
+          zoomOnScroll={true} 
+          zoomOnPinch={true} 
+          zoomOnDoubleClick={true} 
+          minZoom={0.1} 
+          maxZoom={2} 
+          defaultViewport={{
+            x: 0,
+            y: 0,
+            zoom: 0.7
+          }}
+        >
           <Controls className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" showZoom={true} showFitView={true} showInteractive={true} />
+          
+          {/* Custom Lock/Unlock Control */}
+          <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg">
+            <Button
+              variant={isMapLocked ? "destructive" : "default"}
+              size="sm"
+              onClick={toggleMapLock}
+              className="m-2"
+              title={isMapLocked ? "Click to unlock map editing" : "Click to lock map (view only)"}
+            >
+              {isMapLocked ? (
+                <Lock className="w-4 h-4" />
+              ) : (
+                <Unlock className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
           <MiniMap className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" nodeColor={node => {
-          if (node.id === 'company-center') return 'hsl(var(--primary))';
-          return 'hsl(var(--muted))';
-        }} nodeStrokeWidth={2} zoomable pannable />
+            if (node.id === 'company-center') return 'hsl(var(--primary))';
+            return 'hsl(var(--muted))';
+          }} nodeStrokeWidth={2} zoomable pannable />
           <Background variant={BackgroundVariant.Dots} gap={30} size={1} className="text-muted-foreground/10" />
         </ReactFlow>
 
