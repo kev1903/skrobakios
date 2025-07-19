@@ -34,6 +34,7 @@ export const NavigationRibbon = ({
     { id: "projects", label: "Projects", icon: Briefcase },
     { id: "finance", label: "Finance", icon: DollarSign },
     { id: "sales", label: "Sales", icon: TrendingUp },
+    { id: "system", label: "Business Map", icon: Database },
   ];
 
   // Business navigation items mapped to their required subscription features
@@ -169,7 +170,7 @@ export const NavigationRibbon = ({
               <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
                 {!isCollapsed && "Additional Features"}
               </div>
-              {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales").map(item => {
+              {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales" && item.id !== "system").map(item => {
                 const Icon = item.icon;
                 const isActive = currentPage === item.id;
                 return (
