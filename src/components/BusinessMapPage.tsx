@@ -67,6 +67,158 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
   const [companyModules, setCompanyModules] = useState<CompanyModule[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const generateBusinessMap = useCallback((modules: CompanyModule[]) => {
+    console.log('🎯 Generating business map with modules:', modules);
+    const enabledModules = modules.filter(m => m.enabled);
+    console.log('✅ Enabled modules:', enabledModules);
+    
+    if (enabledModules.length === 0) {
+      console.log('⚠️ No enabled modules, not generating map');
+      return;
+    }
+
+    const centerX = 400;
+    const centerY = 300;
+    const radius = 200;
+
+    // Create company center node
+    const companyNode: Node = {
+      id: 'company-center',
+      type: 'default',
+      position: { x: centerX - 75, y: centerY - 35 },
+      data: { 
+        label: currentCompany?.name || 'Business Core'
+      },
+      style: { 
+        background: '#3b82f6',
+        border: '2px solid #1e40af',
+        borderRadius: '16px',
+        color: 'white',
+        padding: '10px',
+        width: '150px',
+        height: '70px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '14px',
+        fontWeight: 'bold',
+      },
+      draggable: false,
+    };
+
+    console.log('🏢 Created company node:', companyNode);
+
+    // Create module nodes in a circle around the company
+    const moduleNodes: Node[] = enabledModules.map((module, index) => {
+      const angle = (index / enabledModules.length) * 2 * Math.PI;
+      const x = centerX + radius * Math.cos(angle) - 70;
+      const y = centerY + radius * Math.sin(angle) - 35;
+      
+      const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
+
+      const node: Node = {
+        id: module.id,
+        type: 'default',
+        position: { x, y },
+        data: { 
+          label: module.module_name.replace('-', ' ').toUpperCase()
+        },
+        style: { 
+          background: '#10b981',
+          border: '2px solid #059669',
+          borderRadius: '12px',
+          color: 'white',
+          padding: '10px',
+          width: '140px',
+          height: '70px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          textAlign: 'center',
+        },
+        draggable: true,
+      };
+      
+      console.log(`📦 Created module node ${index + 1}:`, node);
+      return node;
+    });
+
+    // Create edges connecting all modules to the company center
+    const moduleEdges: Edge[] = enabledModules.map((module, index) => {
+      const edge: Edge = {
+        id: `company-${module.id}`,
+        source: 'company-center',
+        target: module.id,
+        type: 'smoothstep',
+        animated: true,
+        style: {
+          stroke: '#3b82f6',
+          strokeWidth: 2,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#3b82f6',
+        },
+      };
+      console.log(`🔗 Created edge ${index + 1}:`, edge);
+      return edge;
+    });
+
+    // Add interconnections between related modules
+    const additionalEdges: Edge[] = [];
+    const projectsModule = enabledModules.find(m => m.module_name === 'projects');
+    const financeModule = enabledModules.find(m => m.module_name === 'finance');
+    const salesModule = enabledModules.find(m => m.module_name === 'sales');
+    const tasksModule = enabledModules.find(m => m.module_name === 'tasks');
+
+    if (projectsModule && financeModule) {
+      additionalEdges.push({
+        id: `${projectsModule.id}-${financeModule.id}`,
+        source: projectsModule.id,
+        target: financeModule.id,
+        type: 'smoothstep',
+        style: { stroke: '#6b7280', strokeWidth: 1 },
+      });
+    }
+
+    if (salesModule && projectsModule) {
+      additionalEdges.push({
+        id: `${salesModule.id}-${projectsModule.id}`,
+        source: salesModule.id,
+        target: projectsModule.id,
+        type: 'smoothstep',
+        style: { stroke: '#6b7280', strokeWidth: 1 },
+      });
+    }
+
+    if (projectsModule && tasksModule) {
+      additionalEdges.push({
+        id: `${projectsModule.id}-${tasksModule.id}`,
+        source: projectsModule.id,
+        target: tasksModule.id,
+        type: 'smoothstep',
+        style: { stroke: '#6b7280', strokeWidth: 1 },
+      });
+    }
+
+    const allNodes = [companyNode, ...moduleNodes];
+    const allEdges = [...moduleEdges, ...additionalEdges];
+    
+    console.log('🎯 Final nodes array:', allNodes);
+    console.log('🔗 Final edges array:', allEdges);
+    console.log('📊 Setting nodes and edges in state...');
+    
+    setNodes(allNodes);
+    setEdges(allEdges);
+    
+    // Force a re-render and fit view after a short delay
+    setTimeout(() => {
+      console.log('🔄 Attempting fitView after delay');
+    }, 100);
+  }, [currentCompany, setNodes, setEdges]);
+
   // Fetch company modules from database
   useEffect(() => {
     const fetchCompanyModules = async () => {
@@ -145,135 +297,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
     };
 
     fetchCompanyModules();
-  }, [currentCompany]);
-
-  const generateBusinessMap = useCallback((modules: CompanyModule[]) => {
-    const enabledModules = modules.filter(m => m.enabled);
-    const centerX = 400;
-    const centerY = 300;
-    const radius = 200;
-
-    // Create company center node
-    const companyNode: Node = {
-      id: 'company-center',
-      type: 'default',
-      position: { x: centerX - 75, y: centerY - 30 },
-      data: { 
-        label: (
-          <div className="flex items-center gap-2 p-3">
-            <Building2 className="w-5 h-5 text-primary" />
-            <div className="text-center">
-              <div className="font-semibold text-sm">{currentCompany?.name}</div>
-              <div className="text-xs text-muted-foreground">Business Core</div>
-            </div>
-          </div>
-        )
-      },
-      style: { 
-        background: 'rgba(59, 130, 246, 0.1)',
-        border: '2px solid rgba(59, 130, 246, 0.3)',
-        borderRadius: '16px',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        width: '150px',
-        height: '70px',
-      },
-      draggable: false,
-    };
-
-    // Create module nodes in a circle around the company
-    const moduleNodes: Node[] = enabledModules.map((module, index) => {
-      const angle = (index / enabledModules.length) * 2 * Math.PI;
-      const x = centerX + radius * Math.cos(angle) - 60;
-      const y = centerY + radius * Math.sin(angle) - 30;
-      
-      const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
-
-      return {
-        id: module.id,
-        type: 'default',
-        position: { x, y },
-        data: { 
-          label: (
-            <div className="flex items-center gap-2 p-3">
-              <Icon className="w-4 h-4 text-foreground" />
-              <div className="text-center">
-                <div className="font-medium text-sm capitalize">{module.module_name.replace('-', ' ')}</div>
-                <Badge variant="secondary" className="mt-1 text-xs">Active</Badge>
-              </div>
-            </div>
-          )
-        },
-        style: { 
-          background: 'rgba(255, 255, 255, 0.8)',
-          border: '2px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: '12px',
-          backdropFilter: 'blur(8px)',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-          width: '140px',
-          height: '70px',
-        },
-        draggable: true,
-      };
-    });
-
-    // Create edges connecting all modules to the company center
-    const moduleEdges: Edge[] = enabledModules.map((module) => ({
-      id: `company-${module.id}`,
-      source: 'company-center',
-      target: module.id,
-      type: 'smoothstep',
-      animated: true,
-      style: {
-        stroke: 'rgba(59, 130, 246, 0.4)',
-        strokeWidth: 2,
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: 'rgba(59, 130, 246, 0.6)',
-      },
-    }));
-
-    // Add interconnections between related modules
-    const additionalEdges: Edge[] = [];
-    const projectsModule = enabledModules.find(m => m.module_name === 'projects');
-    const financeModule = enabledModules.find(m => m.module_name === 'finance');
-    const salesModule = enabledModules.find(m => m.module_name === 'sales');
-    const tasksModule = enabledModules.find(m => m.module_name === 'tasks');
-
-    if (projectsModule && financeModule) {
-      additionalEdges.push({
-        id: `${projectsModule.id}-${financeModule.id}`,
-        source: projectsModule.id,
-        target: financeModule.id,
-        type: 'smoothstep',
-        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
-      });
-    }
-
-    if (salesModule && projectsModule) {
-      additionalEdges.push({
-        id: `${salesModule.id}-${projectsModule.id}`,
-        source: salesModule.id,
-        target: projectsModule.id,
-        type: 'smoothstep',
-        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
-      });
-    }
-
-    if (projectsModule && tasksModule) {
-      additionalEdges.push({
-        id: `${projectsModule.id}-${tasksModule.id}`,
-        source: projectsModule.id,
-        target: tasksModule.id,
-        type: 'smoothstep',
-        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
-      });
-    }
-
-    setNodes([companyNode, ...moduleNodes]);
-    setEdges([...moduleEdges, ...additionalEdges]);
-  }, [currentCompany]);
+  }, [currentCompany, generateBusinessMap]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
