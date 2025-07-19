@@ -701,6 +701,20 @@ export const BusinessMapPage = ({
               <Plus className="w-4 h-4 mr-2" />
               Add Cards
             </Button>
+
+            {/* Lock/Unlock Button */}
+            <Button
+              variant={isMapLocked ? "destructive" : "outline"}
+              size="sm"
+              onClick={toggleMapLock}
+              title={isMapLocked ? "Click to unlock map editing" : "Click to lock map (view only)"}
+            >
+              {isMapLocked ? (
+                <Lock className="w-4 h-4" />
+              ) : (
+                <Unlock className="w-4 h-4" />
+              )}
+            </Button>
           </div>
         </div>
       </div>
@@ -733,23 +747,6 @@ export const BusinessMapPage = ({
           }}
         >
           <Controls className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" showZoom={true} showFitView={true} showInteractive={true} />
-          
-          {/* Custom Lock/Unlock Control */}
-          <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg">
-            <Button
-              variant={isMapLocked ? "destructive" : "default"}
-              size="sm"
-              onClick={toggleMapLock}
-              className="m-2"
-              title={isMapLocked ? "Click to unlock map editing" : "Click to lock map (view only)"}
-            >
-              {isMapLocked ? (
-                <Lock className="w-4 h-4" />
-              ) : (
-                <Unlock className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
           <MiniMap className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" nodeColor={node => {
             if (node.id === 'company-center') return 'hsl(var(--primary))';
             return 'hsl(var(--muted))';
