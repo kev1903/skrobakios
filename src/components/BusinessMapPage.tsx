@@ -41,19 +41,57 @@ const ModuleNode = ({
   const isSelected = selected || data.isSelected;
   const isConnecting = data.isConnecting;
   return <>
-      {/* Handle for connections - positioned on the left to connect to center */}
-      <Handle type="target" position={Position.Left} id="input" style={{
-      background: '#3b82f6',
-      width: '12px',
-      height: '12px',
-      border: '2px solid white'
-    }} />
-      <Handle type="source" position={Position.Right} id="output" style={{
-      background: '#3b82f6',
-      width: '12px',
-      height: '12px',
-      border: '2px solid white'
-    }} />
+      {/* Multiple handles for shortest distance connections */}
+      <Handle type="target" position={Position.Left} id="left" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      <Handle type="target" position={Position.Right} id="right" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      <Handle type="target" position={Position.Top} id="top" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      <Handle type="target" position={Position.Bottom} id="bottom" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      
+      {/* Source handles for output connections */}
+      <Handle type="source" position={Position.Left} id="output-left" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      <Handle type="source" position={Position.Right} id="output-right" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      <Handle type="source" position={Position.Top} id="output-top" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
+      <Handle type="source" position={Position.Bottom} id="output-bottom" style={{
+        background: '#3b82f6',
+        width: '12px',
+        height: '12px',
+        border: '2px solid white'
+      }} />
       
       <div className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] transition-all duration-300 cursor-pointer
         ${isSelected ? 'border-primary shadow-primary/20 scale-105' : 'border-border hover:shadow-xl hover:scale-102'}
@@ -498,6 +536,51 @@ export const BusinessMapPage = ({
     }));
   }, []);
 
+  // Calculate shortest distance connection points between two nodes
+  const calculateShortestConnection = useCallback((sourceNode: Node, targetNode: Node) => {
+    const sourceRect = {
+      x: sourceNode.position.x,
+      y: sourceNode.position.y,
+      width: sourceNode.id === 'company-center' ? 250 : 200, // Approximate node widths
+      height: sourceNode.id === 'company-center' ? 150 : 120  // Approximate node heights
+    };
+    
+    const targetRect = {
+      x: targetNode.position.x,
+      y: targetNode.position.y,
+      width: targetNode.id === 'company-center' ? 250 : 200,
+      height: targetNode.id === 'company-center' ? 150 : 120
+    };
+
+    // Calculate center points
+    const sourceCenterX = sourceRect.x + sourceRect.width / 2;
+    const sourceCenterY = sourceRect.y + sourceRect.height / 2;
+    const targetCenterX = targetRect.x + targetRect.width / 2;
+    const targetCenterY = targetRect.y + targetRect.height / 2;
+
+    // Determine which sides are closest
+    let sourceHandle = 'right';
+    let targetHandle = 'left';
+
+    // If target is to the left of source
+    if (targetCenterX < sourceCenterX) {
+      sourceHandle = 'left';
+      targetHandle = 'right';
+    }
+    // If target is above source
+    else if (targetCenterY < sourceCenterY && Math.abs(targetCenterY - sourceCenterY) > Math.abs(targetCenterX - sourceCenterX)) {
+      sourceHandle = 'top';
+      targetHandle = 'bottom';
+    }
+    // If target is below source
+    else if (targetCenterY > sourceCenterY && Math.abs(targetCenterY - sourceCenterY) > Math.abs(targetCenterX - sourceCenterX)) {
+      sourceHandle = 'bottom';
+      targetHandle = 'top';
+    }
+
+    return { sourceHandle, targetHandle };
+  }, []);
+
   // Add blank card to canvas
   const addBlankCard = useCallback(() => {
     if (isMapLocked) {
@@ -643,63 +726,81 @@ export const BusinessMapPage = ({
       };
     });
 
-    // Create dynamic edges based on data relationships
+    // Create dynamic edges based on data relationships with shortest distance connections
+    const allNodes = [...businessNodes, ...projectNodes, companyNode];
     const moduleEdges: Edge[] = enabledModules.map(module => {
-      const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
-      const isBusinessModule = config?.category === 'business';
+      const sourceNode = allNodes.find(n => n.id === 'company-center');
+      const targetNode = allNodes.find(n => n.id === module.id);
+      
+      if (!sourceNode || !targetNode) return null;
+      
+      const { sourceHandle, targetHandle } = calculateShortestConnection(sourceNode, targetNode);
+      
       return {
         id: `company-${module.id}`,
         source: 'company-center',
-        sourceHandle: isBusinessModule ? 'left' : 'right',
-        // Use appropriate handle based on module position
+        sourceHandle,
         target: module.id,
-        targetHandle: 'input',
-        type: 'default',
+        targetHandle,
+        type: 'smoothstep', // Use smoothstep for better curved connections
         animated: true,
         style: {
           stroke: '#3b82f6',
-          strokeWidth: 3,
-          strokeOpacity: 0.8
+          strokeWidth: 2,
+          strokeOpacity: 0.7
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: '#3b82f6',
-          width: 20,
-          height: 20
-        },
-        labelStyle: {
-          fill: '#3b82f6',
-          fontWeight: 600
-        },
-        labelBgStyle: {
-          fill: 'white',
-          fillOpacity: 0.8
+          width: 15,
+          height: 15
         }
       };
-    });
+    }).filter(Boolean) as Edge[];
 
     // Add smart interconnections based on business logic
     const additionalEdges: Edge[] = [];
     const moduleMap = new Map<string, string>();
     enabledModules.forEach(m => moduleMap.set(m.module_name, m.id));
 
-    // Business workflow connections
+    // Business workflow connections with shortest distance
     const connections = [['sales', 'projects'], ['projects', 'tasks'], ['projects', 'finance'], ['tasks', 'team'], ['files', 'projects'], ['digital-twin', 'projects'], ['cost-contracts', 'finance']];
     connections.forEach(([source, target]) => {
       const sourceId = moduleMap.get(source);
       const targetId = moduleMap.get(target);
       if (sourceId && targetId) {
-        additionalEdges.push({
-          id: `${sourceId}-${targetId}`,
-          source: sourceId,
-          target: targetId,
-          type: 'smoothstep',
-          style: {
-            stroke: 'hsl(var(--muted-foreground))',
-            strokeWidth: 1,
-            strokeDasharray: '5,5'
-          }
-        });
+        const sourceNode = allNodes.find(n => n.id === sourceId);
+        const targetNode = allNodes.find(n => n.id === targetId);
+        
+        if (sourceNode && targetNode) {
+          const { sourceHandle, targetHandle } = calculateShortestConnection(sourceNode, targetNode);
+          
+          // Map to correct handle IDs
+          const sourceHandleId = sourceHandle === 'left' ? 'output-left' : 
+                                sourceHandle === 'right' ? 'output-right' :
+                                sourceHandle === 'top' ? 'output-top' : 'output-bottom';
+          
+          additionalEdges.push({
+            id: `${sourceId}-${targetId}`,
+            source: sourceId,
+            sourceHandle: sourceHandleId,
+            target: targetId,
+            targetHandle,
+            type: 'smoothstep',
+            style: {
+              stroke: '#64748b',
+              strokeWidth: 1.5,
+              strokeOpacity: 0.5,
+              strokeDasharray: '5,5'
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#64748b',
+              width: 12,
+              height: 12
+            }
+          });
+        }
       }
     });
     setNodes([companyNode, ...businessNodes, ...projectNodes]);
