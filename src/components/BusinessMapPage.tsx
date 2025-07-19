@@ -70,9 +70,23 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
   // Fetch company modules from database
   useEffect(() => {
     const fetchCompanyModules = async () => {
-      if (!currentCompany) return;
+      if (!currentCompany) {
+        // If no company, show default modules
+        console.log('No current company, showing default modules');
+        const defaultModules = [
+          { id: 'default-1', module_name: 'projects', enabled: true },
+          { id: 'default-2', module_name: 'sales', enabled: true },
+          { id: 'default-3', module_name: 'finance', enabled: true },
+          { id: 'default-4', module_name: 'team', enabled: true },
+        ];
+        setCompanyModules(defaultModules);
+        generateBusinessMap(defaultModules);
+        setLoading(false);
+        return;
+      }
 
       try {
+        console.log('Fetching modules for company:', currentCompany.id);
         const { data: modules, error } = await supabase
           .from('company_modules')
           .select('*')
@@ -81,14 +95,50 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         if (error) {
           console.error('Error fetching company modules:', error);
           toast.error('Failed to load business modules');
+          // Show default modules on error
+          const defaultModules = [
+            { id: 'default-1', module_name: 'projects', enabled: true },
+            { id: 'default-2', module_name: 'sales', enabled: true },
+            { id: 'default-3', module_name: 'finance', enabled: true },
+            { id: 'default-4', module_name: 'team', enabled: true },
+          ];
+          setCompanyModules(defaultModules);
+          generateBusinessMap(defaultModules);
+          setLoading(false);
           return;
         }
 
-        setCompanyModules(modules || []);
-        generateBusinessMap(modules || []);
+        console.log('Fetched modules:', modules);
+        const modulesList = modules || [];
+        
+        // If no modules or no enabled modules, create some default ones
+        const enabledModules = modulesList.filter(m => m.enabled);
+        if (enabledModules.length === 0) {
+          console.log('No enabled modules found, showing default modules');
+          const defaultModules = [
+            { id: 'default-1', module_name: 'projects', enabled: true },
+            { id: 'default-2', module_name: 'sales', enabled: true },
+            { id: 'default-3', module_name: 'finance', enabled: true },
+            { id: 'default-4', module_name: 'team', enabled: true },
+          ];
+          setCompanyModules(defaultModules);
+          generateBusinessMap(defaultModules);
+        } else {
+          setCompanyModules(modulesList);
+          generateBusinessMap(modulesList);
+        }
       } catch (error) {
         console.error('Error:', error);
         toast.error('Failed to load business data');
+        // Show default modules on error
+        const defaultModules = [
+          { id: 'default-1', module_name: 'projects', enabled: true },
+          { id: 'default-2', module_name: 'sales', enabled: true },
+          { id: 'default-3', module_name: 'finance', enabled: true },
+          { id: 'default-4', module_name: 'team', enabled: true },
+        ];
+        setCompanyModules(defaultModules);
+        generateBusinessMap(defaultModules);
       } finally {
         setLoading(false);
       }
