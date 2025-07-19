@@ -14,9 +14,9 @@ import {
   MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Plus, Save, Download, Database, Building2, Settings, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Download, Database, Building2, Settings, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -110,7 +110,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       position: { x: centerX - 75, y: centerY - 30 },
       data: { 
         label: (
-          <div className="flex items-center gap-2 p-2">
+          <div className="flex items-center gap-2 p-3">
             <Building2 className="w-5 h-5 text-primary" />
             <div className="text-center">
               <div className="font-semibold text-sm">{currentCompany?.name}</div>
@@ -120,13 +120,13 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         )
       },
       style: { 
-        background: 'linear-gradient(135deg, hsl(var(--primary))/20, hsl(var(--primary))/30)',
-        border: '2px solid hsl(var(--primary))/40',
+        background: 'rgba(59, 130, 246, 0.1)',
+        border: '2px solid rgba(59, 130, 246, 0.3)',
         borderRadius: '16px',
         backdropFilter: 'blur(12px)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         width: '150px',
-        height: '60px',
+        height: '70px',
       },
       draggable: false,
     };
@@ -138,7 +138,6 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       const y = centerY + radius * Math.sin(angle) - 30;
       
       const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
-      const colorClass = moduleColors[module.module_name as keyof typeof moduleColors] || 'from-gray-500/20 to-gray-600/30 border-gray-400/30';
 
       return {
         id: module.id,
@@ -147,22 +146,22 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         data: { 
           label: (
             <div className="flex items-center gap-2 p-3">
-              <Icon className="w-4 h-4 text-white" />
+              <Icon className="w-4 h-4 text-foreground" />
               <div className="text-center">
-                <div className="font-medium text-sm capitalize text-white">{module.module_name.replace('-', ' ')}</div>
+                <div className="font-medium text-sm capitalize">{module.module_name.replace('-', ' ')}</div>
                 <Badge variant="secondary" className="mt-1 text-xs">Active</Badge>
               </div>
             </div>
           )
         },
         style: { 
-          background: `linear-gradient(135deg, ${colorClass.split(' ')[0].replace('from-', '').replace('/20', '/30')}, ${colorClass.split(' ')[1].replace('to-', '').replace('/30', '/40')})`,
-          border: `2px solid ${colorClass.split(' ')[2].replace('border-', '').replace('/30', '/50')}`,
+          background: 'rgba(255, 255, 255, 0.8)',
+          border: '2px solid rgba(59, 130, 246, 0.2)',
           borderRadius: '12px',
-          backdropFilter: 'blur(16px)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
-          width: '120px',
-          height: '60px',
+          backdropFilter: 'blur(8px)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+          width: '140px',
+          height: '70px',
         },
         draggable: true,
       };
@@ -176,12 +175,12 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       type: 'smoothstep',
       animated: true,
       style: {
-        stroke: 'hsl(var(--primary))/40',
+        stroke: 'rgba(59, 130, 246, 0.4)',
         strokeWidth: 2,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: 'hsl(var(--primary))/60',
+        color: 'rgba(59, 130, 246, 0.6)',
       },
     }));
 
@@ -198,7 +197,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         source: projectsModule.id,
         target: financeModule.id,
         type: 'smoothstep',
-        style: { stroke: 'hsl(var(--muted-foreground))/30', strokeWidth: 1 },
+        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
       });
     }
 
@@ -208,7 +207,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         source: salesModule.id,
         target: projectsModule.id,
         type: 'smoothstep',
-        style: { stroke: 'hsl(var(--muted-foreground))/30', strokeWidth: 1 },
+        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
       });
     }
 
@@ -218,7 +217,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         source: projectsModule.id,
         target: tasksModule.id,
         type: 'smoothstep',
-        style: { stroke: 'hsl(var(--muted-foreground))/30', strokeWidth: 1 },
+        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
       });
     }
 
@@ -230,6 +229,31 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
+
+  const refreshData = useCallback(async () => {
+    if (!currentCompany) return;
+
+    setLoading(true);
+    try {
+      const { data: modules, error } = await supabase
+        .from('company_modules')
+        .select('*')
+        .eq('company_id', currentCompany.id);
+
+      if (error) {
+        toast.error('Failed to refresh business modules');
+        return;
+      }
+
+      setCompanyModules(modules || []);
+      generateBusinessMap(modules || []);
+      toast.success('Business map refreshed');
+    } catch (error) {
+      toast.error('Failed to refresh business data');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentCompany, generateBusinessMap]);
 
   const saveMap = useCallback(() => {
     const mapData = { nodes, edges, companyId: currentCompany?.id };
@@ -259,7 +283,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+      <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading business map...</p>
@@ -269,27 +293,15 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-      
+    <div className="flex-1 flex flex-col h-full">
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between p-6 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg">
+      <div className="flex items-center justify-between p-6 border-b bg-background/50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate('home')}
-            className="hover:bg-white/20 text-white border border-white/20"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
           <div>
-            <h1 className="text-2xl font-bold text-white drop-shadow-lg">
+            <h1 className="text-2xl font-bold text-foreground">
               {currentCompany?.name} Business Map
             </h1>
-            <p className="text-sm text-white/80">Interactive visualization of your business ecosystem</p>
+            <p className="text-sm text-muted-foreground">Interactive visualization of your business ecosystem</p>
           </div>
         </div>
         
@@ -297,8 +309,18 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
           <Button
             variant="outline"
             size="sm"
+            onClick={refreshData}
+            disabled={loading}
+            className="hover:bg-muted"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={saveMap}
-            className="hover:bg-white/20 text-white border-white/20 backdrop-blur-sm"
+            className="hover:bg-muted"
           >
             <Save className="w-4 h-4 mr-2" />
             Save Map
@@ -307,7 +329,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
             variant="outline"
             size="sm"
             onClick={exportMap}
-            className="hover:bg-white/20 text-white border-white/20 backdrop-blur-sm"
+            className="hover:bg-muted"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -315,90 +337,95 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="flex-1 relative z-10">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          className="bg-transparent"
-          nodesDraggable={true}
-          nodesConnectable={true}
-          elementsSelectable={true}
-        >
-          <Controls 
-            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg"
-            showZoom={true}
-            showFitView={true}
-            showInteractive={true}
-          />
-          <MiniMap 
-            className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg"
-            nodeColor={(node) => {
-              if (node.id === 'company-center') {
-                return 'hsl(var(--primary))';
-              }
-              return '#60a5fa';
-            }}
-            nodeStrokeWidth={2}
-            zoomable
-            pannable
-          />
-          <Background 
-            variant={BackgroundVariant.Dots} 
-            gap={30} 
-            size={2}
-            className="text-white/10"
-          />
-        </ReactFlow>
+      {/* Main Content */}
+      <div className="flex-1 flex gap-6 p-6">
+        {/* Business Map Canvas */}
+        <div className="flex-1 relative border rounded-lg bg-background shadow-sm">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            fitView
+            className="bg-background"
+            nodesDraggable={true}
+            nodesConnectable={true}
+            elementsSelectable={true}
+          >
+            <Controls 
+              className="bg-background border border-border rounded-lg shadow-lg"
+              showZoom={true}
+              showFitView={true}
+              showInteractive={true}
+            />
+            <MiniMap 
+              className="bg-background border border-border rounded-lg shadow-lg"
+              nodeColor={(node) => {
+                if (node.id === 'company-center') {
+                  return '#3b82f6';
+                }
+                return '#60a5fa';
+              }}
+              nodeStrokeWidth={2}
+              zoomable
+              pannable
+            />
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={30} 
+              size={2}
+              className="text-muted-foreground/20"
+            />
+          </ReactFlow>
+        </div>
+
+        {/* Business Modules Panel */}
+        <Card className="w-80">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Business Modules ({companyModules.filter(m => m.enabled).length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {companyModules.map((module) => {
+                const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
+                return (
+                  <div 
+                    key={module.id} 
+                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                      module.enabled 
+                        ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' 
+                        : 'bg-gray-50 border-gray-200 dark:bg-gray-950 dark:border-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4 text-foreground" />
+                      <span className="text-sm font-medium capitalize">
+                        {module.module_name.replace('-', ' ')}
+                      </span>
+                    </div>
+                    <Badge 
+                      variant={module.enabled ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      {module.enabled ? 'Active' : 'Disabled'}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Business Modules Panel */}
-      <Card className="absolute top-20 right-6 w-80 bg-white/10 backdrop-blur-md border-white/20 shadow-xl">
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
-            <Database className="w-4 h-4" />
-            Business Modules ({companyModules.filter(m => m.enabled).length})
-          </h3>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {companyModules.map((module) => {
-              const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
-              return (
-                <div 
-                  key={module.id} 
-                  className={`flex items-center justify-between p-2 rounded-lg transition-all ${
-                    module.enabled 
-                      ? 'bg-green-500/20 border border-green-400/30' 
-                      : 'bg-gray-500/20 border border-gray-400/30'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-4 h-4 text-white" />
-                    <span className="text-sm text-white capitalize">
-                      {module.module_name.replace('-', ' ')}
-                    </span>
-                  </div>
-                  <Badge 
-                    variant={module.enabled ? "default" : "secondary"}
-                    className="text-xs"
-                  >
-                    {module.enabled ? 'Active' : 'Disabled'}
-                  </Badge>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Instructions Panel */}
-      <Card className="absolute bottom-6 left-6 max-w-sm bg-white/10 backdrop-blur-md border-white/20 shadow-xl">
+      <Card className="absolute bottom-6 left-6 max-w-sm bg-background/95 backdrop-blur-sm border shadow-lg">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-sm text-white mb-2">Navigation Guide:</h3>
-          <ul className="text-xs text-white/80 space-y-1">
+          <h3 className="font-semibold text-sm text-foreground mb-2">Navigation Guide:</h3>
+          <ul className="text-xs text-muted-foreground space-y-1">
             <li>• Drag modules to reorganize your business map</li>
             <li>• Connect systems by dragging between connection points</li>
             <li>• Use zoom controls to explore the ecosystem</li>
