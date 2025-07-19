@@ -625,7 +625,7 @@ export const BusinessMapPage = ({
             
             <Button size="sm">
               <Plus className="w-4 h-4 mr-2" />
-              Add Module
+              Add Cards
             </Button>
           </div>
         </div>
