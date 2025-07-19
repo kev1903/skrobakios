@@ -31,10 +31,10 @@ export const NavigationRibbon = ({
 
   // Core business modules that should always be available (replace General section)
   const coreBusinessModules = [
-    { id: "projects", label: "Projects", icon: Briefcase },
-    { id: "finance", label: "Finance", icon: DollarSign },
-    { id: "sales", label: "Sales", icon: TrendingUp },
     { id: "system", label: "Business Map", icon: Database },
+    { id: "projects", label: "Projects", icon: Briefcase },
+    { id: "sales", label: "Sales", icon: TrendingUp },
+    { id: "finance", label: "Finance", icon: DollarSign },
   ];
 
   // Business navigation items mapped to their required subscription features
