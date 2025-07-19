@@ -420,16 +420,21 @@ export const BusinessMapPage = ({
       id: `company-${module.id}`,
       source: 'company-center',
       target: module.id,
-      type: 'smoothstep',
+      type: 'default',
       animated: true,
       style: {
-        stroke: 'hsl(var(--primary))',
-        strokeWidth: 2
+        stroke: '#3b82f6',
+        strokeWidth: 3,
+        strokeOpacity: 0.8
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: 'hsl(var(--primary))'
-      }
+        color: '#3b82f6',
+        width: 20,
+        height: 20
+      },
+      labelStyle: { fill: '#3b82f6', fontWeight: 600 },
+      labelBgStyle: { fill: 'white', fillOpacity: 0.8 }
     }));
 
     // Add smart interconnections based on business logic
@@ -549,7 +554,30 @@ export const BusinessMapPage = ({
             </Button>
           </div>}
 
+        {/* Connection Status Indicator */}
+        <div className="absolute top-4 left-4 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <h4 className="font-semibold text-sm">Live Connections</h4>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            <div>Active Modules: {nodes.length - 1}</div>
+            <div>Total Connections: {edges.length}</div>
+          </div>
+        </div>
+
         {/* Interactive Instructions */}
+        {!interactionState.connectionMode && (
+          <div className="absolute bottom-6 left-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
+            <h4 className="font-semibold text-sm mb-2">Interactive Guide</h4>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Click Skrobaki center to enter connection mode</li>
+              <li>• Drag modules to reposition them</li>
+              <li>• Blue lines show live data connections</li>
+              <li>• Dashed lines show workflow relationships</li>
+            </ul>
+          </div>
+        )}
         
       </div>
     </div>;
