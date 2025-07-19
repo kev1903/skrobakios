@@ -350,26 +350,69 @@ export const ActivitiesTable = ({
       
       if (!draggedActivity) return;
 
-      // If moving to a different stage, update the stage
-      if (sourceStage !== destStage) {
-        const { error } = await supabase
-          .from('activities')
-          .update({ stage: destStage })
-          .eq('id', draggableId);
+      // Get all activities in the destination stage, ordered by sort_order
+      const destStageActivities = stageGroups
+        .find(sg => sg.stage === destStage)?.activities
+        .slice()
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
 
-        if (error) {
-          console.error('Error moving activity:', error);
-          toast({
-            title: "Error",
-            description: "Failed to move activity. Please try again.",
-            variant: "destructive",
-          });
-          return;
-        }
+      // Calculate new sort order
+      let newSortOrder: number;
+      
+      if (destination.index === 0) {
+        // Moving to first position
+        const firstActivity = destStageActivities[0];
+        newSortOrder = firstActivity ? Math.max(0, (firstActivity.sort_order || 100) - 100) : 100;
+      } else if (destination.index >= destStageActivities.length) {
+        // Moving to last position
+        const lastActivity = destStageActivities[destStageActivities.length - 1];
+        newSortOrder = lastActivity ? (lastActivity.sort_order || 0) + 100 : 100;
+      } else {
+        // Moving between existing items
+        const prevActivity = destStageActivities[destination.index - 1];
+        const nextActivity = destStageActivities[destination.index];
+        const prevOrder = prevActivity?.sort_order || 0;
+        const nextOrder = nextActivity?.sort_order || 100;
+        newSortOrder = Math.floor((prevOrder + nextOrder) / 2);
       }
 
-      // For now, just refresh the data - in a full implementation, 
-      // you'd want to update a sort_order field in the database
+      // Update the dragged activity
+      const updateData: any = { 
+        sort_order: newSortOrder,
+        updated_at: new Date().toISOString()
+      };
+
+      // If moving to a different stage, update the stage
+      if (sourceStage !== destStage) {
+        updateData.stage = destStage;
+      }
+
+      const { error } = await supabase
+        .from('activities')
+        .update(updateData)
+        .eq('id', draggableId);
+
+      if (error) {
+        console.error('Error moving activity:', error);
+        toast({
+          title: "Error",
+          description: "Failed to move activity. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If we moved to a very close position, we might need to rebalance sort orders
+      if (newSortOrder <= 1 || (destination.index > 0 && newSortOrder - (destStageActivities[destination.index - 1]?.sort_order || 0) <= 1)) {
+        await rebalanceSortOrders(destStage);
+      }
+
+      toast({
+        title: "Success",
+        description: "Activity moved successfully.",
+      });
+
+      // Refresh the data
       if (onActivityUpdated) {
         onActivityUpdated();
       }
@@ -380,6 +423,29 @@ export const ActivitiesTable = ({
         description: "Failed to move activity. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  // Function to rebalance sort orders when they get too close
+  const rebalanceSortOrders = async (stage: string) => {
+    try {
+      const stageActivities = activities
+        .filter(a => a.stage === stage)
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+      const updates = stageActivities.map((activity, index) => ({
+        id: activity.id,
+        sort_order: (index + 1) * 100
+      }));
+
+      for (const update of updates) {
+        await supabase
+          .from('activities')
+          .update({ sort_order: update.sort_order })
+          .eq('id', update.id);
+      }
+    } catch (error) {
+      console.error('Error rebalancing sort orders:', error);
     }
   };
 
@@ -413,10 +479,18 @@ export const ActivitiesTable = ({
       groups.get(stage)!.push(activity);
     });
 
-    // Convert to array and preserve original order (no automatic sorting)
+    // Convert to array and sort activities within each stage by sort_order
     const stageGroupsArray: StageGroup[] = Array.from(groups.entries()).map(([stage, activities]) => ({
       stage,
-      activities: activities, // Keep original order - don't sort automatically
+      activities: activities.sort((a, b) => {
+        // Sort by sort_order first, then by created_at as fallback
+        const orderA = a.sort_order ?? 0;
+        const orderB = b.sort_order ?? 0;
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }),
       isExpanded: expandedStages.has(stage)
     }));
 

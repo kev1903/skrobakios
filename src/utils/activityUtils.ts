@@ -11,6 +11,7 @@ export interface ActivityData {
   level: number;
   is_expanded: boolean;
   stage: string | null;
+  sort_order?: number | null; // For drag-and-drop ordering
   
   // Standardized fields matching Gantt chart requirements
   assigned_to?: string | null; // Assigned team member
