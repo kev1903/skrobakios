@@ -39,6 +39,7 @@ export const ChatBox = ({ onNavigate, onSpeakingChange, projectId, companyId, on
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [suggestions, setSuggestions] = useState<ActivitySuggestion[]>([]);
   const [isCreatingActivities, setIsCreatingActivities] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true); // Collapsed by default
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     try {
@@ -326,135 +327,166 @@ Generate 3-5 relevant activities. Only respond with the JSON array, no other tex
 
   return (
     <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 sm:px-0">
-      {/* Activity Suggestions Card */}
-      {showActivityMode && suggestions.length > 0 && (
-        <Card className="mb-4 bg-white/95 backdrop-blur-sm border-primary/20 shadow-xl">
-          <CardContent className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-foreground">Generated Activities ({suggestions.length})</h4>
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCreateActivities}
-                  disabled={isCreatingActivities}
-                  size="sm"
-                  className="flex items-center space-x-1"
-                >
-                  {isCreatingActivities ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <Plus className="h-3 w-3" />
-                  )}
-                  <span>{isCreatingActivities ? 'Creating...' : 'Create All'}</span>
-                </Button>
-                <Button
-                  onClick={() => {
-                    setSuggestions([]);
-                    setShowActivityMode(false);
-                  }}
-                  variant="ghost"
-                  size="sm"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
+      {isCollapsed ? (
+        /* Collapsed State - Show only the chat icon button */
+        <div className="flex justify-center">
+          <Button
+            onClick={() => setIsCollapsed(false)}
+            className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-3 shadow-xl hover:bg-white/25 transition-all duration-200"
+            size="sm"
+          >
+            <div className="relative">
+              <MessageCircle className="w-5 h-5 text-white" />
+              {isProcessing && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
+              )}
             </div>
-
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {suggestions.map((suggestion, index) => (
-                <div key={index} className="p-3 bg-secondary/30 rounded-lg border border-border/50">
-                  <div className="font-medium text-sm text-foreground">{suggestion.name}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{suggestion.description}</div>
-                  <div className="text-xs text-primary font-medium mt-1">${suggestion.cost_est.toLocaleString()}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* File Upload Display */}
-      {uploadedFiles.length > 0 && (
-        <Card className="mb-4 bg-white/95 backdrop-blur-sm border-primary/20 shadow-xl">
-          <CardContent className="p-3 space-y-2">
-            <div className="text-sm font-medium text-foreground">Uploaded Documents:</div>
-            {uploadedFiles.map((uploadedFile, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-secondary/30 rounded-lg text-sm">
-                <div className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4" />
-                  <span className="truncate max-w-[200px]">{uploadedFile.file.name}</span>
-                  {uploadedFile.isProcessing && (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  )}
-                  {uploadedFile.error ? (
-                    <Badge variant="destructive" className="text-xs">Error</Badge>
-                  ) : uploadedFile.content ? (
-                    <Badge variant="default" className="text-xs">Processed</Badge>
-                  ) : null}
-                </div>
-                <Button
-                  onClick={() => removeFile(uploadedFile.file)}
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Chat Input */}
-      <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-3 sm:px-4 py-2 shadow-xl hover:bg-white/25 transition-all duration-200">
-        <div className="relative flex-shrink-0">
-          <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-          {isProcessing && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full animate-pulse" />
-          )}
+          </Button>
         </div>
+      ) : (
+        /* Expanded State - Show full chat interface */
+        <>
+          {/* Activity Suggestions Card */}
+          {showActivityMode && suggestions.length > 0 && (
+            <Card className="mb-4 bg-white/95 backdrop-blur-sm border-primary/20 shadow-xl">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium text-foreground">Generated Activities ({suggestions.length})</h4>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleCreateActivities}
+                      disabled={isCreatingActivities}
+                      size="sm"
+                      className="flex items-center space-x-1"
+                    >
+                      {isCreatingActivities ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Plus className="h-3 w-3" />
+                      )}
+                      <span>{isCreatingActivities ? 'Creating...' : 'Create All'}</span>
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setSuggestions([]);
+                        setShowActivityMode(false);
+                      }}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
 
-        {/* File Upload Button */}
-        {projectId && companyId && (
-          <>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf"
-              multiple
-              onChange={handleFileUpload}
-              className="hidden"
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {suggestions.map((suggestion, index) => (
+                    <div key={index} className="p-3 bg-secondary/30 rounded-lg border border-border/50">
+                      <div className="font-medium text-sm text-foreground">{suggestion.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{suggestion.description}</div>
+                      <div className="text-xs text-primary font-medium mt-1">${suggestion.cost_est.toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* File Upload Display */}
+          {uploadedFiles.length > 0 && (
+            <Card className="mb-4 bg-white/95 backdrop-blur-sm border-primary/20 shadow-xl">
+              <CardContent className="p-3 space-y-2">
+                <div className="text-sm font-medium text-foreground">Uploaded Documents:</div>
+                {uploadedFiles.map((uploadedFile, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-secondary/30 rounded-lg text-sm">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-4 w-4" />
+                      <span className="truncate max-w-[200px]">{uploadedFile.file.name}</span>
+                      {uploadedFile.isProcessing && (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      )}
+                      {uploadedFile.error ? (
+                        <Badge variant="destructive" className="text-xs">Error</Badge>
+                      ) : uploadedFile.content ? (
+                        <Badge variant="default" className="text-xs">Processed</Badge>
+                      ) : null}
+                    </div>
+                    <Button
+                      onClick={() => removeFile(uploadedFile.file)}
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Chat Input */}
+          <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-3 sm:px-4 py-2 shadow-xl hover:bg-white/25 transition-all duration-200">
+            <div className="relative flex-shrink-0">
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              {isProcessing && (
+                <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full animate-pulse" />
+              )}
+            </div>
+
+            {/* File Upload Button */}
+            {projectId && companyId && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="ghost"
+                  size="sm"
+                  className="p-1.5 sm:p-2 h-auto text-white hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
+                >
+                  <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                </Button>
+              </>
+            )}
+
+            <Input
+              type="text"
+              placeholder={isProcessing ? "AI is thinking..." : projectId ? "Ask Skai to create activities or anything else..." : "Ask Skai anything..."}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isProcessing}
+              className="border-none bg-transparent text-white placeholder-white/90 focus:ring-0 focus:outline-none text-sm flex-1 disabled:opacity-70"
             />
             <Button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleSend}
+              disabled={isProcessing || !message.trim()}
+              size="sm"
+              variant="ghost"
+              className="p-1.5 sm:p-2 h-auto text-white hover:text-white hover:bg-white/10 rounded-full disabled:opacity-50 flex-shrink-0"
+            >
+              <Send className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Button>
+            
+            {/* Collapse Button */}
+            <Button
+              onClick={() => setIsCollapsed(true)}
               variant="ghost"
               size="sm"
               className="p-1.5 sm:p-2 h-auto text-white hover:text-white hover:bg-white/10 rounded-full flex-shrink-0"
             >
-              <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+              <X className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
-          </>
-        )}
-
-        <Input
-          type="text"
-          placeholder={isProcessing ? "AI is thinking..." : projectId ? "Ask Skai to create activities or anything else..." : "Ask Skai anything..."}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          disabled={isProcessing}
-          className="border-none bg-transparent text-white placeholder-white/90 focus:ring-0 focus:outline-none text-sm flex-1 disabled:opacity-70"
-        />
-        <Button
-          onClick={handleSend}
-          disabled={isProcessing || !message.trim()}
-          size="sm"
-          variant="ghost"
-          className="p-1.5 sm:p-2 h-auto text-white hover:text-white hover:bg-white/10 rounded-full disabled:opacity-50 flex-shrink-0"
-        >
-          <Send className="w-3 h-3 sm:w-4 sm:h-4" />
-        </Button>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
