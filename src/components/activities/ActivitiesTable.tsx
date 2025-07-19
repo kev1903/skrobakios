@@ -517,16 +517,7 @@ export const ActivitiesTable = ({
         return;
       }
 
-      toast({
-        title: "Success",
-        description: `Activity renamed to "${editingActivityName.trim()}"`,
-      });
-
-      // Trigger a refresh of the activities data
-      if (onActivityUpdated) {
-        onActivityUpdated();
-      }
-
+      // Update the local activities data without refreshing the page
       setEditingActivity(null);
       setEditingActivityName('');
     } catch (error) {
