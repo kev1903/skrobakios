@@ -337,115 +337,58 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex gap-6 p-6">
-        {/* Business Map Canvas */}
-        <div className="flex-1 relative border rounded-lg bg-background shadow-sm overflow-hidden">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            fitView
-            className="bg-background"
-            nodesDraggable={true}
-            nodesConnectable={true}
-            elementsSelectable={true}
-            panOnDrag={true}
-            panOnScroll={true}
-            panOnScrollSpeed={0.5}
-            zoomOnScroll={true}
-            zoomOnPinch={true}
-            zoomOnDoubleClick={true}
-            preventScrolling={true}
-            minZoom={0.1}
-            maxZoom={4}
-            translateExtent={[[-5000, -5000], [5000, 5000]]}
-            nodeExtent={[[-4500, -4500], [4500, 4500]]}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-          >
-            <Controls 
-              className="bg-background border border-border rounded-lg shadow-lg"
-              showZoom={true}
-              showFitView={true}
-              showInteractive={true}
-            />
-            <MiniMap 
-              className="bg-background border border-border rounded-lg shadow-lg"
-              nodeColor={(node) => {
-                if (node.id === 'company-center') {
-                  return '#3b82f6';
-                }
-                return '#60a5fa';
-              }}
-              nodeStrokeWidth={2}
-              zoomable
-              pannable
-            />
-            <Background 
-              variant={BackgroundVariant.Dots} 
-              gap={30} 
-              size={2}
-              className="text-muted-foreground/20"
-            />
-          </ReactFlow>
-        </div>
-
-        {/* Business Modules Panel */}
-        <Card className="w-80">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              Business Modules ({companyModules.filter(m => m.enabled).length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {companyModules.map((module) => {
-                const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
-                return (
-                  <div 
-                    key={module.id} 
-                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                      module.enabled 
-                        ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' 
-                        : 'bg-gray-50 border-gray-200 dark:bg-gray-950 dark:border-gray-800'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 text-foreground" />
-                      <span className="text-sm font-medium capitalize">
-                        {module.module_name.replace('-', ' ')}
-                      </span>
-                    </div>
-                    <Badge 
-                      variant={module.enabled ? "default" : "secondary"}
-                      className="text-xs"
-                    >
-                      {module.enabled ? 'Active' : 'Disabled'}
-                    </Badge>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Main Content - Full Screen Canvas */}
+      <div className="flex-1 relative">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          className="bg-background w-full h-full"
+          nodesDraggable={true}
+          nodesConnectable={true}
+          elementsSelectable={true}
+          panOnDrag={true}
+          panOnScroll={true}
+          panOnScrollSpeed={0.5}
+          zoomOnScroll={true}
+          zoomOnPinch={true}
+          zoomOnDoubleClick={true}
+          preventScrolling={true}
+          minZoom={0.1}
+          maxZoom={4}
+          translateExtent={[[-5000, -5000], [5000, 5000]]}
+          nodeExtent={[[-4500, -4500], [4500, 4500]]}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+        >
+          <Controls 
+            className="bg-background border border-border rounded-lg shadow-lg"
+            showZoom={true}
+            showFitView={true}
+            showInteractive={true}
+          />
+          <MiniMap 
+            className="bg-background border border-border rounded-lg shadow-lg"
+            nodeColor={(node) => {
+              if (node.id === 'company-center') {
+                return '#3b82f6';
+              }
+              return '#60a5fa';
+            }}
+            nodeStrokeWidth={2}
+            zoomable
+            pannable
+          />
+          <Background 
+            variant={BackgroundVariant.Dots} 
+            gap={30} 
+            size={2}
+            className="text-muted-foreground/20"
+          />
+        </ReactFlow>
       </div>
-
-      {/* Instructions Panel */}
-      <Card className="absolute bottom-6 left-6 max-w-sm bg-background/95 backdrop-blur-sm border shadow-lg">
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-sm text-foreground mb-2">Navigation Guide:</h3>
-          <ul className="text-xs text-muted-foreground space-y-1">
-            <li>• Drag modules to reorganize your business map</li>
-            <li>• Connect systems by dragging between connection points</li>
-            <li>• Use zoom controls to explore the ecosystem</li>
-            <li>• Central node represents your business core</li>
-            <li>• Only active modules are displayed</li>
-          </ul>
-        </CardContent>
-      </Card>
     </div>
   );
 };
