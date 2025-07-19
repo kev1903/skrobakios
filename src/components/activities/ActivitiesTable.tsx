@@ -84,21 +84,21 @@ const ActivityRow = ({
     <>
       <TableRow className="hover:bg-muted/50 border-b cursor-pointer" onClick={() => onActivityClick(activity)}>
         {/* ID */}
-        <TableCell className="py-2">
-          <div className="text-sm font-mono font-semibold text-foreground">
+        <TableCell className="py-2 w-20 min-w-20 max-w-20">
+          <div className="text-sm font-mono font-semibold text-foreground truncate">
             {hierarchicalId}
           </div>
         </TableCell>
         
         {/* Task */}
-        <TableCell className="py-2" style={{ paddingLeft: `${paddingLeft + 16}px` }} onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-2">
+        <TableCell className="py-2 w-48 min-w-48 max-w-48" style={{ paddingLeft: `${paddingLeft + 16}px` }} onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-2 min-w-0">
             {hasChildren && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onToggleExpansion(activity.id)}
-                className="p-0 h-4 w-4 hover:bg-transparent"
+                className="p-0 h-4 w-4 hover:bg-transparent flex-shrink-0"
               >
                 {activity.is_expanded ? (
                   <ChevronDown className="h-3 w-3" />
@@ -107,101 +107,109 @@ const ActivityRow = ({
                 )}
               </Button>
             )}
-            {!hasChildren && <div className="w-4" />}
+            {!hasChildren && <div className="w-4 flex-shrink-0" />}
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <span className="font-medium text-sm truncate">{activity.name}</span>
             </div>
           </div>
         </TableCell>
         
         {/* Description */}
-        <TableCell className="py-2">
-          <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+        <TableCell className="py-2 w-48 min-w-48 max-w-48">
+          <div className="text-sm text-muted-foreground truncate">
             {activity.description || "-"}
           </div>
         </TableCell>
         
         {/* Assigned To */}
-        <TableCell className="py-2">
-          <div className="text-sm">
+        <TableCell className="py-2 w-32 min-w-32 max-w-32">
+          <div className="text-sm truncate">
             {activity.assigned_to || "Unassigned"}
           </div>
         </TableCell>
         
         {/* Status */}
-        <TableCell className="py-2">
-          <Badge variant={activity.status === 'Completed' ? 'default' : 'secondary'} className="text-xs">
-            {activity.status || "Not Started"}
-          </Badge>
+        <TableCell className="py-2 w-24 min-w-24 max-w-24">
+          <div className="truncate">
+            <Badge variant={activity.status === 'Completed' ? 'default' : 'secondary'} className="text-xs truncate">
+              {activity.status || "Not Started"}
+            </Badge>
+          </div>
         </TableCell>
         
         {/* % Complete */}
-        <TableCell className="py-2">
-          <div className="text-sm font-medium">
+        <TableCell className="py-2 w-24 min-w-24 max-w-24">
+          <div className="text-sm font-medium text-center">
             {activity.progress || 0}%
           </div>
         </TableCell>
         
         {/* Start Date */}
-        <TableCell className="py-2">
-          <div className="text-sm">
+        <TableCell className="py-2 w-28 min-w-28 max-w-28">
+          <div className="text-sm text-center">
             {activity.start_date ? format(new Date(activity.start_date), 'MMM dd') : "-"}
           </div>
         </TableCell>
         
         {/* End Date */}
-        <TableCell className="py-2">
-          <div className="text-sm">
+        <TableCell className="py-2 w-28 min-w-28 max-w-28">
+          <div className="text-sm text-center">
             {activity.end_date ? format(new Date(activity.end_date), 'MMM dd') : "-"}
           </div>
         </TableCell>
         
         {/* Duration */}
-        <TableCell className="py-2">
-          <div className="text-sm">
+        <TableCell className="py-2 w-20 min-w-20 max-w-20">
+          <div className="text-sm text-center">
             {activity.duration && typeof activity.duration === 'number' ? `${activity.duration}d` : "-"}
           </div>
         </TableCell>
         
         {/* Health */}
-        <TableCell className="py-2">
-          <Badge 
-            variant={
-              activity.health === 'Good' ? 'default' : 
-              activity.health === 'At Risk' ? 'secondary' : 
-              activity.health === 'Critical' ? 'destructive' : 'outline'
-            }
-            className="text-xs"
-          >
-            {activity.health || "Unknown"}
-          </Badge>
+        <TableCell className="py-2 w-20 min-w-20 max-w-20">
+          <div className="truncate flex justify-center">
+            <Badge 
+              variant={
+                activity.health === 'Good' ? 'default' : 
+                activity.health === 'At Risk' ? 'secondary' : 
+                activity.health === 'Critical' ? 'destructive' : 'outline'
+              }
+              className="text-xs truncate"
+            >
+              {activity.health || "Unknown"}
+            </Badge>
+          </div>
         </TableCell>
         
         {/* Progress */}
-        <TableCell className="py-2">
-          <Badge 
-            variant={
-              activity.progress_status === 'On Track' ? 'default' : 
-              activity.progress_status === 'Behind' ? 'destructive' : 
-              activity.progress_status === 'Ahead' ? 'default' : 'secondary'
-            }
-            className="text-xs"
-          >
-            {activity.progress_status || "On Track"}
-          </Badge>
+        <TableCell className="py-2 w-20 min-w-20 max-w-20">
+          <div className="truncate flex justify-center">
+            <Badge 
+              variant={
+                activity.progress_status === 'On Track' ? 'default' : 
+                activity.progress_status === 'Behind' ? 'destructive' : 
+                activity.progress_status === 'Ahead' ? 'default' : 'secondary'
+              }
+              className="text-xs truncate"
+            >
+              {activity.progress_status || "On Track"}
+            </Badge>
+          </div>
         </TableCell>
         
         {/* At Risk */}
-        <TableCell className="py-2">
-          <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
-            {activity.at_risk ? "Yes" : "No"}
-          </Badge>
+        <TableCell className="py-2 w-20 min-w-20 max-w-20">
+          <div className="flex justify-center">
+            <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
+              {activity.at_risk ? "Yes" : "No"}
+            </Badge>
+          </div>
         </TableCell>
         
         {/* Actions */}
-        <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-1">
+        <TableCell className="py-2 w-20 min-w-20 max-w-20" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-center gap-1">
             <Button
               variant="ghost"
               size="sm"
@@ -408,22 +416,22 @@ export const ActivitiesTable = ({
   return (
     <>
       <div className="border rounded-lg overflow-hidden bg-background">
-        <Table>
+        <Table className="table-fixed w-full">
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead className="font-semibold py-3 w-16">ID</TableHead>
-              <TableHead className="font-semibold py-3 w-48">Task</TableHead>
-              <TableHead className="font-semibold py-3 w-64">Description</TableHead>
-              <TableHead className="font-semibold py-3 w-32">Assigned To</TableHead>
-              <TableHead className="font-semibold py-3 w-24">Status</TableHead>
-              <TableHead className="font-semibold py-3 w-20">% Complete</TableHead>
-              <TableHead className="font-semibold py-3 w-28">Start Date</TableHead>
-              <TableHead className="font-semibold py-3 w-28">End Date</TableHead>
-              <TableHead className="font-semibold py-3 w-20">Duration</TableHead>
-              <TableHead className="font-semibold py-3 w-20">Health</TableHead>
-              <TableHead className="font-semibold py-3 w-20">Progress</TableHead>
-              <TableHead className="font-semibold py-3 w-20">At Risk</TableHead>
-              <TableHead className="font-semibold py-3 w-20">Actions</TableHead>
+              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">ID</TableHead>
+              <TableHead className="font-semibold py-3 w-48 min-w-48 max-w-48">Task</TableHead>
+              <TableHead className="font-semibold py-3 w-48 min-w-48 max-w-48">Description</TableHead>
+              <TableHead className="font-semibold py-3 w-32 min-w-32 max-w-32">Assigned To</TableHead>
+              <TableHead className="font-semibold py-3 w-24 min-w-24 max-w-24">Status</TableHead>
+              <TableHead className="font-semibold py-3 w-24 min-w-24 max-w-24">% Complete</TableHead>
+              <TableHead className="font-semibold py-3 w-28 min-w-28 max-w-28">Start Date</TableHead>
+              <TableHead className="font-semibold py-3 w-28 min-w-28 max-w-28">End Date</TableHead>
+              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Duration</TableHead>
+              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Health</TableHead>
+              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Progress</TableHead>
+              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">At Risk</TableHead>
+              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
