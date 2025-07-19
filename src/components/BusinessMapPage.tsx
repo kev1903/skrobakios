@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
+import { ModuleSidePopup } from './ModuleSidePopup';
 interface BusinessMapPageProps {
   onNavigate: (page: string) => void;
 }
@@ -273,6 +274,13 @@ export const BusinessMapPage = ({
     hoveredNode: null,
     connectionMode: false
   });
+  const [sidePopup, setSidePopup] = useState<{
+    isOpen: boolean;
+    moduleData: any;
+  }>({
+    isOpen: false,
+    moduleData: null
+  });
 
   // Fetch company modules and their data
   useEffect(() => {
@@ -350,7 +358,24 @@ export const BusinessMapPage = ({
         selectedNodes: prev.connectionMode ? [] : ['company-center']
       }));
     } else {
-      // Handle module node clicks
+      // Handle module node clicks - show side popup instead of just selecting
+      const moduleNode = nodes.find(n => n.id === nodeId);
+      if (moduleNode && moduleNode.data) {
+        // Open side popup with module data
+        setSidePopup({
+          isOpen: true,
+          moduleData: {
+            id: moduleNode.id,
+            title: moduleNode.data.title,
+            subtitle: moduleNode.data.subtitle,
+            icon: moduleNode.data.icon,
+            color: moduleNode.data.color,
+            table: moduleNode.data.table,
+            moduleName: moduleNode.data.moduleName
+          }
+        });
+      }
+
       if (interactionState.connectionMode && interactionState.selectedNodes.includes('company-center')) {
         // Create a temporary highlighted connection
         setInteractionState(prev => ({
@@ -376,7 +401,7 @@ export const BusinessMapPage = ({
           }
         };
         setEdges(prev => [...prev, newEdge]);
-        toast.success(`Connected Skrobaki to ${nodes.find(n => n.id === nodeId)?.data?.title || 'Module'}`);
+        toast.success(`Connected ${currentCompany?.name} to ${nodes.find(n => n.id === nodeId)?.data?.title || 'Module'}`);
 
         // Auto-clear connection mode after 2 seconds
         setTimeout(() => {
@@ -667,5 +692,13 @@ export const BusinessMapPage = ({
         {!interactionState.connectionMode}
         
       </div>
+
+      {/* Module Side Popup */}
+      <ModuleSidePopup
+        isOpen={sidePopup.isOpen}
+        onClose={() => setSidePopup({ isOpen: false, moduleData: null })}
+        moduleData={sidePopup.moduleData}
+        onNavigate={onNavigate}
+      />
     </div>;
 };
