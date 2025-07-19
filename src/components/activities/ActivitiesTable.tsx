@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { ActivityData } from '@/utils/activityUtils';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import React from 'react';
 import { ActivityDetailsModal } from './ActivityDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -303,12 +303,34 @@ export const ActivitiesTable = ({
   const [stageSortDirection, setStageSortDirection] = useState<SortDirection>(null);
   const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+  const [expandedStages, setExpandedStages] = useState<Set<string>>(() => {
+    // Initialize with all stages expanded by default
+    const stages = [...new Set(activities.map(activity => activity.stage || "4.0 PRELIMINARY"))];
+    return new Set(stages);
+  });
   const [editingStage, setEditingStage] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [editingActivity, setEditingActivity] = useState<string | null>(null);
   const [editingActivityName, setEditingActivityName] = useState<string>('');
   const { toast } = useToast();
+
+  // Preserve expanded stages when activities data changes
+  useEffect(() => {
+    const currentStages = [...new Set(activities.map(activity => activity.stage || "4.0 PRELIMINARY"))];
+    
+    setExpandedStages(prevExpanded => {
+      const newExpandedStages = new Set(prevExpanded);
+      
+      // Add any new stages to expanded state (expand new stages by default)
+      currentStages.forEach(stage => {
+        if (!newExpandedStages.has(stage)) {
+          newExpandedStages.add(stage);
+        }
+      });
+      
+      return newExpandedStages;
+    });
+  }, [activities]);
 
   const stageGroups = useMemo(() => {
     // Group activities by stage
