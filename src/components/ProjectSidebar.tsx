@@ -1,4 +1,4 @@
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Activity, FileText, DollarSign, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -30,8 +30,8 @@ const ALL_PROJECT_NAV_ITEMS = [{
 }, {
   id: 'activities',
   key: 'activities',
-  label: 'WBS',
-  icon: Activity,
+  label: 'Blocks',
+  icon: Boxes,
   page: 'project-activities'
 }, {
   id: 'timeline',
