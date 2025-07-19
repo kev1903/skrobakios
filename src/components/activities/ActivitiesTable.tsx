@@ -327,24 +327,32 @@ export const ActivitiesTable = ({
     }
 
     try {
-      // Update the activity's stage in the database
-      const newStage = destination.droppableId;
-      const { error } = await supabase
-        .from('activities')
-        .update({ stage: newStage })
-        .eq('id', draggableId);
+      const sourceStage = source.droppableId;
+      const destStage = destination.droppableId;
+      const draggedActivity = activities.find(a => a.id === draggableId);
+      
+      if (!draggedActivity) return;
 
-      if (error) {
-        console.error('Error moving activity:', error);
-        toast({
-          title: "Error",
-          description: "Failed to move activity. Please try again.",
-          variant: "destructive",
-        });
-        return;
+      // If moving to a different stage, update the stage
+      if (sourceStage !== destStage) {
+        const { error } = await supabase
+          .from('activities')
+          .update({ stage: destStage })
+          .eq('id', draggableId);
+
+        if (error) {
+          console.error('Error moving activity:', error);
+          toast({
+            title: "Error",
+            description: "Failed to move activity. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
       }
 
-      // Refresh the activities data
+      // For now, just refresh the data - in a full implementation, 
+      // you'd want to update a sort_order field in the database
       if (onActivityUpdated) {
         onActivityUpdated();
       }
@@ -658,16 +666,17 @@ export const ActivitiesTable = ({
                   {stageGroup.isExpanded && (
                     <Droppable droppableId={stageGroup.stage}>
                       {(provided, snapshot) => (
-                        <tbody ref={provided.innerRef} {...provided.droppableProps}>
+                        <>
                           {stageGroup.activities.map((activity, index) => (
                             <Draggable key={activity.id} draggableId={activity.id} index={index}>
                               {(provided, snapshot) => (
-                                <tr
+                                <TableRow
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   className={`hover:bg-muted/50 border-b cursor-pointer ${
                                     snapshot.isDragging ? 'bg-muted shadow-lg' : ''
                                   }`}
+                                  onClick={() => handleActivityClick(activity)}
                                 >
                                   {/* Drag Handle */}
                                   <TableCell className="py-2 w-20 min-w-20 max-w-20">
@@ -682,7 +691,7 @@ export const ActivitiesTable = ({
                                   </TableCell>
                                   
                                   {/* Task */}
-                                  <TableCell className="py-2 w-48 min-w-48 max-w-48" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-48 min-w-48 max-w-48">
                                     <div className="flex items-center gap-2 min-w-0">
                                       {editingActivity === activity.id ? (
                                         <Input
@@ -715,21 +724,21 @@ export const ActivitiesTable = ({
                                   </TableCell>
                                   
                                   {/* Description */}
-                                  <TableCell className="py-2 w-48 min-w-48 max-w-48" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-48 min-w-48 max-w-48">
                                     <div className="text-sm text-muted-foreground truncate">
                                       {activity.description || "-"}
                                     </div>
                                   </TableCell>
                                   
                                   {/* Assigned To */}
-                                  <TableCell className="py-2 w-32 min-w-32 max-w-32" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-32 min-w-32 max-w-32">
                                     <div className="text-sm truncate">
                                       {activity.assigned_to || "Unassigned"}
                                     </div>
                                   </TableCell>
                                   
                                   {/* Status */}
-                                  <TableCell className="py-2 w-24 min-w-24 max-w-24" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-24 min-w-24 max-w-24">
                                     <div className="truncate">
                                       <Badge variant={activity.status === 'Completed' ? 'default' : 'secondary'} className="text-xs truncate">
                                         {activity.status || "Not Started"}
@@ -738,35 +747,35 @@ export const ActivitiesTable = ({
                                   </TableCell>
                                   
                                   {/* % Complete */}
-                                  <TableCell className="py-2 w-24 min-w-24 max-w-24" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-24 min-w-24 max-w-24">
                                     <div className="text-sm font-medium text-center">
                                       {activity.progress || 0}%
                                     </div>
                                   </TableCell>
                                   
                                   {/* Start Date */}
-                                  <TableCell className="py-2 w-28 min-w-28 max-w-28" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-28 min-w-28 max-w-28">
                                     <div className="text-sm text-center">
                                       {activity.start_date ? format(new Date(activity.start_date), 'MMM dd') : "-"}
                                     </div>
                                   </TableCell>
                                   
                                   {/* End Date */}
-                                  <TableCell className="py-2 w-28 min-w-28 max-w-28" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-28 min-w-28 max-w-28">
                                     <div className="text-sm text-center">
                                       {activity.end_date ? format(new Date(activity.end_date), 'MMM dd') : "-"}
                                     </div>
                                   </TableCell>
                                   
                                   {/* Duration */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
                                     <div className="text-sm text-center">
                                       {activity.duration && typeof activity.duration === 'number' ? `${activity.duration}d` : "-"}
                                     </div>
                                   </TableCell>
                                   
                                   {/* Health */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
                                     <div className="truncate flex justify-center">
                                       <Badge 
                                         variant={
@@ -782,7 +791,7 @@ export const ActivitiesTable = ({
                                   </TableCell>
                                   
                                   {/* Progress */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
                                     <div className="truncate flex justify-center">
                                       <Badge 
                                         variant={
@@ -798,7 +807,7 @@ export const ActivitiesTable = ({
                                   </TableCell>
                                   
                                   {/* At Risk */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20" onClick={() => handleActivityClick(activity)}>
+                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
                                     <div className="flex justify-center">
                                       <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
                                         {activity.at_risk ? "Yes" : "No"}
@@ -827,12 +836,14 @@ export const ActivitiesTable = ({
                                       </Button>
                                     </div>
                                   </TableCell>
-                                </tr>
+                                </TableRow>
                               )}
                             </Draggable>
                           ))}
-                          {provided.placeholder}
-                        </tbody>
+                          <tr ref={provided.innerRef} style={{ display: 'none' }}>
+                            <td>{provided.placeholder}</td>
+                          </tr>
+                        </>
                       )}
                     </Droppable>
                   )}
