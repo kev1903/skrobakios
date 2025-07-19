@@ -493,12 +493,7 @@ export const BusinessMapPage = ({
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search modules..." 
-                value={searchTerm} 
-                onChange={e => setSearchTerm(e.target.value)} 
-                className="pl-9 w-64" 
-              />
+              <Input placeholder="Search modules..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9 w-64" />
             </div>
             
             <Button size="sm">
@@ -555,16 +550,7 @@ export const BusinessMapPage = ({
           </div>}
 
         {/* Interactive Instructions */}
-        <div className="absolute bottom-6 left-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
-          <h3 className="font-semibold text-sm mb-2">Interactive Guide</h3>
-          <ul className="text-xs text-muted-foreground space-y-1">
-            <li>• Click <strong>Skrobaki center</strong> to activate connection mode</li>
-            <li>• Click <strong>modules</strong> while in connection mode to create links</li>
-            <li>• <strong>Hover</strong> over nodes for visual feedback</li>
-            <li>• <strong>Drag</strong> modules to reorganize your map</li>
-            <li>• Connections auto-clear after 2 seconds</li>
-          </ul>
-        </div>
+        
       </div>
     </div>;
 };
