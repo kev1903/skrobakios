@@ -12,12 +12,18 @@ import {
   Node,
   BackgroundVariant,
   MarkerType,
+  NodeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Plus, Save, Download, Database, Building2, Settings, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw } from 'lucide-react';
+import { 
+  ArrowLeft, Database, Building2, Users, FileText, TrendingUp, 
+  DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings,
+  FolderOpen, CheckSquare, BarChart3, Search, Filter
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -32,32 +38,161 @@ interface CompanyModule {
   enabled: boolean;
 }
 
-// Module icons mapping
-const moduleIcons = {
-  projects: Briefcase,
-  sales: TrendingUp,
-  finance: DollarSign,
-  dashboard: Database,
-  'digital-twin': Database,
-  'cost-contracts': DollarSign,
-  tasks: Calendar,
-  files: FileText,
-  team: Users,
-  'digital-objects': Database,
+interface ModuleData {
+  count: number;
+  recent: any[];
+  status?: string;
+}
+
+// Custom Node Components
+const ModuleNode = ({ data }: { data: any }) => {
+  const Icon = data.icon;
+  return (
+    <div className="bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg p-4 min-w-[200px] hover:shadow-xl transition-all duration-200">
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`p-2 rounded-lg ${data.color}`}>
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-sm">{data.title}</h3>
+          <p className="text-xs text-muted-foreground">{data.subtitle}</p>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-xs font-medium">Total Count</span>
+          <Badge variant="secondary" className="text-xs">{data.count || 0}</Badge>
+        </div>
+        
+        {data.status && (
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium">Status</span>
+            <Badge variant="outline" className="text-xs">{data.status}</Badge>
+          </div>
+        )}
+        
+        {data.recent && data.recent.length > 0 && (
+          <div className="mt-3 pt-2 border-t border-border/50">
+            <p className="text-xs font-medium mb-1">Recent Activity</p>
+            <div className="space-y-1">
+              {data.recent.slice(0, 2).map((item: any, index: number) => (
+                <div key={index} className="text-xs text-muted-foreground truncate">
+                  • {item.name || item.title || item.description || 'Item'}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
-// Module colors for glass morphism effect
-const moduleColors = {
-  projects: 'from-blue-500/20 to-blue-600/30 border-blue-400/30',
-  sales: 'from-green-500/20 to-green-600/30 border-green-400/30',
-  finance: 'from-purple-500/20 to-purple-600/30 border-purple-400/30',
-  dashboard: 'from-indigo-500/20 to-indigo-600/30 border-indigo-400/30',
-  'digital-twin': 'from-cyan-500/20 to-cyan-600/30 border-cyan-400/30',
-  'cost-contracts': 'from-orange-500/20 to-orange-600/30 border-orange-400/30',
-  tasks: 'from-pink-500/20 to-pink-600/30 border-pink-400/30',
-  files: 'from-yellow-500/20 to-yellow-600/30 border-yellow-400/30',
-  team: 'from-red-500/20 to-red-600/30 border-red-400/30',
-  'digital-objects': 'from-teal-500/20 to-teal-600/30 border-teal-400/30',
+const CompanyCenterNode = ({ data }: { data: any }) => {
+  return (
+    <div className="bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 border-primary/40 rounded-2xl shadow-xl p-6 min-w-[250px]">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="p-3 bg-primary/20 rounded-xl">
+          <Building2 className="w-8 h-8 text-primary" />
+        </div>
+        <div>
+          <h2 className="font-bold text-lg text-foreground">{data.companyName}</h2>
+          <p className="text-sm text-muted-foreground">Business Ecosystem Hub</p>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div className="text-center p-2 bg-white/20 rounded-lg">
+          <div className="text-lg font-bold text-primary">{data.moduleCount}</div>
+          <div className="text-xs text-muted-foreground">Active Modules</div>
+        </div>
+        <div className="text-center p-2 bg-white/20 rounded-lg">
+          <div className="text-lg font-bold text-primary">{data.projectCount || 0}</div>
+          <div className="text-xs text-muted-foreground">Projects</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Module configuration with enhanced data
+const moduleConfig = {
+  projects: {
+    icon: Briefcase,
+    color: 'bg-blue-500',
+    title: 'Projects',
+    subtitle: 'Project Management',
+    table: 'projects'
+  },
+  sales: {
+    icon: TrendingUp,
+    color: 'bg-green-500',
+    title: 'Sales',
+    subtitle: 'Lead Management',
+    table: 'leads'
+  },
+  finance: {
+    icon: DollarSign,
+    color: 'bg-purple-500',
+    title: 'Finance',
+    subtitle: 'Cost Management',
+    table: 'project_costs'
+  },
+  dashboard: {
+    icon: BarChart3,
+    color: 'bg-indigo-500',
+    title: 'Dashboard',
+    subtitle: 'Analytics & Reports',
+    table: null
+  },
+  'digital-twin': {
+    icon: Map,
+    color: 'bg-cyan-500',
+    title: 'Digital Twin',
+    subtitle: '3D Models & Mapping',
+    table: 'model_3d'
+  },
+  'cost-contracts': {
+    icon: FileText,
+    color: 'bg-orange-500',
+    title: 'Contracts',
+    subtitle: 'Cost & Contracts',
+    table: 'estimates'
+  },
+  tasks: {
+    icon: CheckSquare,
+    color: 'bg-pink-500',
+    title: 'Tasks',
+    subtitle: 'Task Management',
+    table: 'activities'
+  },
+  files: {
+    icon: FolderOpen,
+    color: 'bg-yellow-500',
+    title: 'Files',
+    subtitle: 'Document Management',
+    table: 'portfolio_items'
+  },
+  team: {
+    icon: Users,
+    color: 'bg-red-500',
+    title: 'Team',
+    subtitle: 'Team Management',
+    table: 'company_members'
+  },
+  'digital-objects': {
+    icon: Database,
+    color: 'bg-teal-500',
+    title: 'Digital Objects',
+    subtitle: 'Object Management',
+    table: 'digital_objects'
+  }
+};
+
+const nodeTypes: NodeTypes = {
+  moduleNode: ModuleNode,
+  companyCenter: CompanyCenterNode,
 };
 
 export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
@@ -65,27 +200,62 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [companyModules, setCompanyModules] = useState<CompanyModule[]>([]);
+  const [moduleData, setModuleData] = useState<Record<string, ModuleData>>({});
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch company modules from database
+  // Fetch company modules and their data
   useEffect(() => {
-    const fetchCompanyModules = async () => {
+    const fetchBusinessData = async () => {
       if (!currentCompany) return;
 
       try {
-        const { data: modules, error } = await supabase
+        // Fetch modules
+        const { data: modules, error: modulesError } = await supabase
           .from('company_modules')
           .select('*')
           .eq('company_id', currentCompany.id);
 
-        if (error) {
-          console.error('Error fetching company modules:', error);
-          toast.error('Failed to load business modules');
-          return;
-        }
+        if (modulesError) throw modulesError;
 
         setCompanyModules(modules || []);
-        generateBusinessMap(modules || []);
+
+        // Fetch data for each enabled module
+        const enabledModules = modules?.filter(m => m.enabled) || [];
+        const dataPromises = enabledModules.map(async (module) => {
+          const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+          if (!config?.table) return { moduleName: module.module_name, data: { count: 0, recent: [] } };
+
+          const { data, error } = await supabase
+            .from(config.table)
+            .select('*')
+            .eq('company_id', currentCompany.id)
+            .limit(5)
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error(`Error fetching ${config.table}:`, error);
+            return { moduleName: module.module_name, data: { count: 0, recent: [] } };
+          }
+
+          return {
+            moduleName: module.module_name,
+            data: {
+              count: data?.length || 0,
+              recent: data || [],
+              status: (data && data.length > 0 && 'status' in data[0]) ? String(data[0].status) : 'Active'
+            }
+          };
+        });
+
+        const results = await Promise.all(dataPromises);
+        const dataMap = results.reduce((acc, result) => {
+          acc[result.moduleName] = result.data;
+          return acc;
+        }, {} as Record<string, ModuleData>);
+
+        setModuleData(dataMap);
+        generateBusinessMap(enabledModules, dataMap);
       } catch (error) {
         console.error('Error:', error);
         toast.error('Failed to load business data');
@@ -94,80 +264,51 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       }
     };
 
-    fetchCompanyModules();
+    fetchBusinessData();
   }, [currentCompany]);
 
-  const generateBusinessMap = useCallback((modules: CompanyModule[]) => {
+  const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
-    const centerX = 400;
-    const centerY = 300;
-    const radius = 200;
+    const centerX = 600;
+    const centerY = 400;
+    const radius = 350;
 
     // Create company center node
     const companyNode: Node = {
       id: 'company-center',
-      type: 'default',
-      position: { x: centerX - 75, y: centerY - 30 },
-      data: { 
-        label: (
-          <div className="flex items-center gap-2 p-3">
-            <Building2 className="w-5 h-5 text-primary" />
-            <div className="text-center">
-              <div className="font-semibold text-sm">{currentCompany?.name}</div>
-              <div className="text-xs text-muted-foreground">Business Core</div>
-            </div>
-          </div>
-        )
-      },
-      style: { 
-        background: 'rgba(59, 130, 246, 0.1)',
-        border: '2px solid rgba(59, 130, 246, 0.3)',
-        borderRadius: '16px',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        width: '150px',
-        height: '70px',
+      type: 'companyCenter',
+      position: { x: centerX - 125, y: centerY - 75 },
+      data: {
+        companyName: currentCompany?.name,
+        moduleCount: enabledModules.length,
+        projectCount: data.projects?.count || 0
       },
       draggable: false,
     };
 
-    // Create module nodes in a circle around the company
+    // Create module nodes with real data
     const moduleNodes: Node[] = enabledModules.map((module, index) => {
       const angle = (index / enabledModules.length) * 2 * Math.PI;
-      const x = centerX + radius * Math.cos(angle) - 60;
-      const y = centerY + radius * Math.sin(angle) - 30;
+      const x = centerX + radius * Math.cos(angle) - 100;
+      const y = centerY + radius * Math.sin(angle) - 60;
       
-      const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
+      const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+      const moduleStats = data[module.module_name] || { count: 0, recent: [] };
 
       return {
         id: module.id,
-        type: 'default',
+        type: 'moduleNode',
         position: { x, y },
-        data: { 
-          label: (
-            <div className="flex items-center gap-2 p-3">
-              <Icon className="w-4 h-4 text-foreground" />
-              <div className="text-center">
-                <div className="font-medium text-sm capitalize">{module.module_name.replace('-', ' ')}</div>
-                <Badge variant="secondary" className="mt-1 text-xs">Active</Badge>
-              </div>
-            </div>
-          )
-        },
-        style: { 
-          background: 'rgba(255, 255, 255, 0.8)',
-          border: '2px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: '12px',
-          backdropFilter: 'blur(8px)',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
-          width: '140px',
-          height: '70px',
+        data: {
+          ...config,
+          ...moduleStats,
+          moduleName: module.module_name
         },
         draggable: true,
       };
     });
 
-    // Create edges connecting all modules to the company center
+    // Create dynamic edges based on data relationships
     const moduleEdges: Edge[] = enabledModules.map((module) => ({
       id: `company-${module.id}`,
       source: 'company-center',
@@ -175,51 +316,48 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       type: 'smoothstep',
       animated: true,
       style: {
-        stroke: 'rgba(59, 130, 246, 0.4)',
+        stroke: 'hsl(var(--primary))',
         strokeWidth: 2,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: 'rgba(59, 130, 246, 0.6)',
+        color: 'hsl(var(--primary))',
       },
     }));
 
-    // Add interconnections between related modules
+    // Add smart interconnections based on business logic
     const additionalEdges: Edge[] = [];
-    const projectsModule = enabledModules.find(m => m.module_name === 'projects');
-    const financeModule = enabledModules.find(m => m.module_name === 'finance');
-    const salesModule = enabledModules.find(m => m.module_name === 'sales');
-    const tasksModule = enabledModules.find(m => m.module_name === 'tasks');
+    const moduleMap = new Map<string, string>();
+    enabledModules.forEach(m => moduleMap.set(m.module_name, m.id));
 
-    if (projectsModule && financeModule) {
-      additionalEdges.push({
-        id: `${projectsModule.id}-${financeModule.id}`,
-        source: projectsModule.id,
-        target: financeModule.id,
-        type: 'smoothstep',
-        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
-      });
-    }
+    // Business workflow connections
+    const connections = [
+      ['sales', 'projects'],
+      ['projects', 'tasks'],
+      ['projects', 'finance'],
+      ['tasks', 'team'],
+      ['files', 'projects'],
+      ['digital-twin', 'projects'],
+      ['cost-contracts', 'finance']
+    ];
 
-    if (salesModule && projectsModule) {
-      additionalEdges.push({
-        id: `${salesModule.id}-${projectsModule.id}`,
-        source: salesModule.id,
-        target: projectsModule.id,
-        type: 'smoothstep',
-        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
-      });
-    }
-
-    if (projectsModule && tasksModule) {
-      additionalEdges.push({
-        id: `${projectsModule.id}-${tasksModule.id}`,
-        source: projectsModule.id,
-        target: tasksModule.id,
-        type: 'smoothstep',
-        style: { stroke: 'rgba(156, 163, 175, 0.3)', strokeWidth: 1 },
-      });
-    }
+    connections.forEach(([source, target]) => {
+      const sourceId = moduleMap.get(source);
+      const targetId = moduleMap.get(target);
+      if (sourceId && targetId) {
+        additionalEdges.push({
+          id: `${sourceId}-${targetId}`,
+          source: sourceId,
+          target: targetId,
+          type: 'smoothstep',
+          style: { 
+            stroke: 'hsl(var(--muted-foreground))', 
+            strokeWidth: 1,
+            strokeDasharray: '5,5'
+          },
+        });
+      }
+    });
 
     setNodes([companyNode, ...moduleNodes]);
     setEdges([...moduleEdges, ...additionalEdges]);
@@ -230,192 +368,160 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
     [setEdges],
   );
 
-  const refreshData = useCallback(async () => {
-    if (!currentCompany) return;
-
-    setLoading(true);
-    try {
-      const { data: modules, error } = await supabase
-        .from('company_modules')
-        .select('*')
-        .eq('company_id', currentCompany.id);
-
-      if (error) {
-        toast.error('Failed to refresh business modules');
-        return;
-      }
-
-      setCompanyModules(modules || []);
-      generateBusinessMap(modules || []);
-      toast.success('Business map refreshed');
-    } catch (error) {
-      toast.error('Failed to refresh business data');
-    } finally {
-      setLoading(false);
-    }
-  }, [currentCompany, generateBusinessMap]);
-
-  const saveMap = useCallback(() => {
-    const mapData = { nodes, edges, companyId: currentCompany?.id };
-    localStorage.setItem(`businessMap-${currentCompany?.id}`, JSON.stringify(mapData));
-    toast.success('Business map saved successfully');
-  }, [nodes, edges, currentCompany]);
-
-  const exportMap = useCallback(() => {
-    const mapData = { 
-      company: currentCompany?.name,
-      companyId: currentCompany?.id,
-      modules: companyModules,
-      nodes, 
-      edges,
-      exportedAt: new Date().toISOString()
-    };
-    const dataStr = JSON.stringify(mapData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `business-map-${currentCompany?.name?.replace(/\s+/g, '-').toLowerCase()}.json`;
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    toast.success('Business map exported');
-  }, [nodes, edges, currentCompany, companyModules]);
+  const filteredModules = companyModules.filter(module =>
+    module.module_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading business map...</p>
+          <p className="text-muted-foreground">Loading business ecosystem...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b bg-background/50 backdrop-blur-sm">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate('home')}
-            className="hover:bg-muted"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {currentCompany?.name} Business Map
-            </h1>
-            <p className="text-sm text-muted-foreground">Interactive visualization of your business ecosystem</p>
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <div className="w-80 border-r bg-card/50 backdrop-blur-sm flex flex-col">
+        <div className="p-4 border-b">
+          <div className="flex items-center gap-2 mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onNavigate('home')}
+              className="p-1"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h2 className="font-semibold">Business Map</h2>
+          </div>
+          
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search modules..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refreshData}
-            disabled={loading}
-            className="hover:bg-muted"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">ACTIVE MODULES</h3>
+              <Badge variant="secondary">{companyModules.filter(m => m.enabled).length}</Badge>
+            </div>
+            
+            {filteredModules.map((module) => {
+              const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+              const data = moduleData[module.module_name] || { count: 0, recent: [] };
+              const Icon = config?.icon || Database;
+              
+              return (
+                <Card 
+                  key={module.id} 
+                  className={`p-3 cursor-pointer transition-all hover:shadow-md ${
+                    module.enabled ? 'border-primary/20 bg-card' : 'opacity-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${config?.color || 'bg-gray-500'}`}>
+                      <Icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm capitalize">
+                        {config?.title || module.module_name.replace('-', ' ')}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">{config?.subtitle}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant={module.enabled ? "default" : "secondary"} className="text-xs">
+                          {module.enabled ? 'Active' : 'Disabled'}
+                        </Badge>
+                        {module.enabled && (
+                          <span className="text-xs text-muted-foreground">{data.count} items</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="p-4 border-t">
+          <Button className="w-full" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Module
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Canvas */}
+      <div className="flex-1 relative">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          fitView
+          className="bg-background"
+          nodesDraggable={true}
+          nodesConnectable={true}
+          elementsSelectable={true}
+          panOnDrag={true}
+          panOnScroll={true}
+          zoomOnScroll={true}
+          zoomOnPinch={true}
+          zoomOnDoubleClick={true}
+          minZoom={0.1}
+          maxZoom={2}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
+        >
+          <Controls 
+            className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg"
+            showZoom={true}
+            showFitView={true}
+            showInteractive={true}
+          />
+          <MiniMap 
+            className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg"
+            nodeColor={(node) => {
+              if (node.id === 'company-center') return 'hsl(var(--primary))';
+              return 'hsl(var(--muted))';
+            }}
+            nodeStrokeWidth={2}
+            zoomable
+            pannable
+          />
+          <Background 
+            variant={BackgroundVariant.Dots} 
+            gap={30} 
+            size={1}
+            className="text-muted-foreground/10"
+          />
+        </ReactFlow>
+
+        {/* Action Buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Button variant="outline" size="sm" className="bg-card/90 backdrop-blur-sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={saveMap}
-            className="hover:bg-muted"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save Map
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={exportMap}
-            className="hover:bg-muted"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export
+          <Button variant="outline" size="sm" className="bg-card/90 backdrop-blur-sm">
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
           </Button>
         </div>
       </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex gap-6 p-6">
-        {/* Business Map Canvas */}
-        <div className="flex-1 relative border rounded-lg bg-background shadow-sm overflow-hidden">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            fitView
-            className="bg-background"
-            nodesDraggable={true}
-            nodesConnectable={true}
-            elementsSelectable={true}
-            panOnDrag={true}
-            panOnScroll={true}
-            panOnScrollSpeed={0.5}
-            zoomOnScroll={true}
-            zoomOnPinch={true}
-            zoomOnDoubleClick={true}
-            preventScrolling={true}
-            minZoom={0.1}
-            maxZoom={4}
-            translateExtent={[[-5000, -5000], [5000, 5000]]}
-            nodeExtent={[[-4500, -4500], [4500, 4500]]}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-          >
-            <Controls 
-              className="bg-background border border-border rounded-lg shadow-lg"
-              showZoom={true}
-              showFitView={true}
-              showInteractive={true}
-            />
-            <MiniMap 
-              className="bg-background border border-border rounded-lg shadow-lg"
-              nodeColor={(node) => {
-                if (node.id === 'company-center') {
-                  return '#3b82f6';
-                }
-                return '#60a5fa';
-              }}
-              nodeStrokeWidth={2}
-              zoomable
-              pannable
-            />
-            <Background 
-              variant={BackgroundVariant.Dots} 
-              gap={30} 
-              size={2}
-              className="text-muted-foreground/20"
-            />
-          </ReactFlow>
-        </div>
-
-      </div>
-
-      {/* Instructions Panel */}
-      <Card className="absolute bottom-6 left-6 max-w-sm bg-background/95 backdrop-blur-sm border shadow-lg">
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-sm text-foreground mb-2">Navigation Guide:</h3>
-          <ul className="text-xs text-muted-foreground space-y-1">
-            <li>• Drag modules to reorganize your business map</li>
-            <li>• Connect systems by dragging between connection points</li>
-            <li>• Use zoom controls to explore the ecosystem</li>
-            <li>• Central node represents your business core</li>
-            <li>• Only active modules are displayed</li>
-          </ul>
-        </CardContent>
-      </Card>
     </div>
   );
 };
