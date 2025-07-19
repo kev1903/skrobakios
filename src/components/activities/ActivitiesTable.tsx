@@ -5,7 +5,14 @@ import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown, ArrowUpDow
 import { format } from 'date-fns';
 import { ActivityData } from '@/utils/activityUtils';
 import { useState, useMemo } from 'react';
+import React from 'react';
 import { ActivityDetailsModal } from './ActivityDetailsModal';
+
+interface StageGroup {
+  stage: string;
+  activities: ActivityData[];
+  isExpanded: boolean;
+}
 
 interface ActivitiesTableProps {
   activities: ActivityData[];
@@ -209,23 +216,38 @@ export const ActivitiesTable = ({
   const [stageSortDirection, setStageSortDirection] = useState<SortDirection>(null);
   const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
-  const sortedActivities = useMemo(() => {
-    if (!stageSortDirection) return activities;
-
-    const sorted = [...activities].sort((a, b) => {
-      const stageA = a.stage || "4.0 PRELIMINARY";
-      const stageB = b.stage || "4.0 PRELIMINARY";
-      
-      if (stageSortDirection === 'asc') {
-        return stageA.localeCompare(stageB);
-      } else {
-        return stageB.localeCompare(stageA);
+  const stageGroups = useMemo(() => {
+    // Group activities by stage
+    const groups = new Map<string, ActivityData[]>();
+    
+    activities.forEach(activity => {
+      const stage = activity.stage || "4.0 PRELIMINARY";
+      if (!groups.has(stage)) {
+        groups.set(stage, []);
       }
+      groups.get(stage)!.push(activity);
     });
 
-    return sorted;
-  }, [activities, stageSortDirection]);
+    // Convert to array and sort stages
+    const stageGroupsArray: StageGroup[] = Array.from(groups.entries()).map(([stage, activities]) => ({
+      stage,
+      activities: activities.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()),
+      isExpanded: expandedStages.has(stage)
+    }));
+
+    // Sort stages
+    if (stageSortDirection === 'asc') {
+      stageGroupsArray.sort((a, b) => a.stage.localeCompare(b.stage));
+    } else if (stageSortDirection === 'desc') {
+      stageGroupsArray.sort((a, b) => b.stage.localeCompare(a.stage));
+    } else {
+      stageGroupsArray.sort((a, b) => a.stage.localeCompare(b.stage)); // Default sort
+    }
+
+    return stageGroupsArray;
+  }, [activities, stageSortDirection, expandedStages]);
 
   const handleStageSort = () => {
     if (stageSortDirection === null) {
@@ -235,6 +257,16 @@ export const ActivitiesTable = ({
     } else {
       setStageSortDirection(null);
     }
+  };
+
+  const toggleStageExpansion = (stage: string) => {
+    const newExpandedStages = new Set(expandedStages);
+    if (newExpandedStages.has(stage)) {
+      newExpandedStages.delete(stage);
+    } else {
+      newExpandedStages.add(stage);
+    }
+    setExpandedStages(newExpandedStages);
   };
 
   const getSortIcon = () => {
@@ -281,22 +313,51 @@ export const ActivitiesTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedActivities.length === 0 ? (
+            {stageGroups.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={13} className="text-center py-12 text-muted-foreground">
                   No activities yet. Create your first activity to get started.
                 </TableCell>
               </TableRow>
             ) : (
-              sortedActivities.map((activity) => (
-                <ActivityRow
-                  key={activity.id}
-                  activity={activity}
-                  onDelete={onDelete}
-                  onToggleExpansion={onToggleExpansion}
-                  onCreateChild={onCreateChild}
-                  onActivityClick={handleActivityClick}
-                />
+              stageGroups.map((stageGroup) => (
+                <React.Fragment key={stageGroup.stage}>
+                  {/* Stage Group Header */}
+                  <TableRow className="bg-muted/30 hover:bg-muted/50 border-b-2 border-border">
+                    <TableCell colSpan={13} className="py-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleStageExpansion(stageGroup.stage)}
+                          className="p-0 h-5 w-5 hover:bg-transparent"
+                        >
+                          {stageGroup.isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <span className="font-semibold text-base">{stageGroup.stage}</span>
+                        <Badge variant="secondary" className="ml-2">
+                          {stageGroup.activities.length} task{stageGroup.activities.length !== 1 ? 's' : ''}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  
+                  {/* Stage Activities */}
+                  {stageGroup.isExpanded && stageGroup.activities.map((activity) => (
+                    <ActivityRow
+                      key={activity.id}
+                      activity={activity}
+                      onDelete={onDelete}
+                      onToggleExpansion={onToggleExpansion}
+                      onCreateChild={onCreateChild}
+                      onActivityClick={handleActivityClick}
+                    />
+                  ))}
+                </React.Fragment>
               ))
             )}
           </TableBody>
