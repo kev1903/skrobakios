@@ -44,27 +44,19 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
   }
 
   const handleSave = async () => {
-    console.log('Save button clicked!', { editedTask, hasUnsavedChanges });
     if (editedTask && hasUnsavedChanges) {
       try {
-        console.log('Saving task updates:', editedTask);
-        await updateTask(editedTask.id, editedTask);
+        // Save immediately without blocking UI
+        updateTask(editedTask.id, editedTask);
         setHasUnsavedChanges(false);
-        console.log('Task saved successfully');
-        toast({
-          title: "Task saved",
-          description: "Your changes have been saved successfully.",
-        });
+        // Remove the success toast to make it completely seamless
       } catch (error) {
-        console.error('Error saving task:', error);
         toast({
           title: "Error saving task",
           description: "There was an error saving your changes. Please try again.",
           variant: "destructive",
         });
       }
-    } else {
-      console.log('No changes to save', { editedTask, hasUnsavedChanges });
     }
   };
 
