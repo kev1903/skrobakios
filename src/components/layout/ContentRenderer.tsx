@@ -61,6 +61,7 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
+import { BusinessMapPage } from "@/components/BusinessMapPage";
 
 interface ContentRendererProps {
   currentPage: string;
@@ -231,6 +232,8 @@ export const ContentRenderer = ({
           <SalesPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
+    case "system":
+      return <BusinessMapPage onNavigate={onNavigate} />;
     case "business-invitations":
       return <BusinessInvitationManager onNavigate={onNavigate} />;
     case "team-management":
