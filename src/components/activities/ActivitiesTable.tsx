@@ -8,8 +8,11 @@ import { useState, useMemo } from 'react';
 import React from 'react';
 import { ActivityDetailsModal } from './ActivityDetailsModal';
 
-// Generate hierarchical ID based on parent-child relationship
-const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityData[], stageActivities: ActivityData[]): string => {
+// Generate hierarchical ID based on parent-child relationship and stage number
+const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityData[], stageActivities: ActivityData[], stage: string): string => {
+  // Extract stage number from stage name (e.g., "4.0 PRELIMINARY" -> "4")
+  const stageNumber = stage.split('.')[0];
+  
   // Get siblings at the same level within the same stage
   const siblings = stageActivities.filter(a => 
     a.parent_id === activity.parent_id && a.level === activity.level
@@ -18,18 +21,18 @@ const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityD
   const siblingIndex = siblings.findIndex(s => s.id === activity.id) + 1;
   
   if (!activity.parent_id || activity.level === 0) {
-    // Root level activity
-    return siblingIndex.toString();
+    // Root level activity - use stage number as prefix
+    return `${stageNumber}.${siblingIndex}`;
   }
   
   // Find parent and get its ID
   const parent = allActivities.find(a => a.id === activity.parent_id);
   if (parent) {
-    const parentId = generateHierarchicalId(parent, allActivities, stageActivities);
+    const parentId = generateHierarchicalId(parent, allActivities, stageActivities, stage);
     return `${parentId}.${siblingIndex}`;
   }
   
-  return siblingIndex.toString();
+  return `${stageNumber}.${siblingIndex}`;
 };
 
 interface StageGroup {
@@ -55,6 +58,7 @@ interface ActivityRowProps {
   level?: number;
   allActivities: ActivityData[];
   stageActivities: ActivityData[];
+  stage: string;
 }
 
 const ActivityRow = ({ 
@@ -65,11 +69,12 @@ const ActivityRow = ({
   onActivityClick,
   level = 0,
   allActivities,
-  stageActivities
+  stageActivities,
+  stage
 }: ActivityRowProps) => {
   const hasChildren = activity.children && activity.children.length > 0;
   const paddingLeft = level * 24;
-  const hierarchicalId = generateHierarchicalId(activity, allActivities, stageActivities);
+  const hierarchicalId = generateHierarchicalId(activity, allActivities, stageActivities, stage);
 
   return (
     <>
@@ -227,6 +232,7 @@ const ActivityRow = ({
               level={level + 1}
               allActivities={allActivities}
               stageActivities={stageActivities}
+              stage={stage}
             />
           ))}
         </>
@@ -388,6 +394,7 @@ export const ActivitiesTable = ({
                       onActivityClick={handleActivityClick}
                       allActivities={activities}
                       stageActivities={stageGroup.activities}
+                      stage={stageGroup.stage}
                     />
                   ))}
                 </React.Fragment>
