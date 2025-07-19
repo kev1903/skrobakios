@@ -44,13 +44,30 @@ interface ModuleData {
   status?: string;
 }
 
-// Custom Node Components
-const ModuleNode = ({ data }: { data: any }) => {
+interface NodeInteractionState {
+  selectedNodes: string[];
+  hoveredNode: string | null;
+  connectionMode: boolean;
+}
+
+// Custom Node Components with Interactive Features
+const ModuleNode = ({ data, selected }: { data: any; selected?: boolean }) => {
   const Icon = data.icon;
+  const isSelected = selected || data.isSelected;
+  const isConnecting = data.isConnecting;
+  
   return (
-    <div className="bg-white/90 backdrop-blur-sm border border-border rounded-xl shadow-lg p-4 min-w-[200px] hover:shadow-xl transition-all duration-200">
+    <div 
+      className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] transition-all duration-300 cursor-pointer
+        ${isSelected ? 'border-primary shadow-primary/20 scale-105' : 'border-border hover:shadow-xl hover:scale-102'}
+        ${isConnecting ? 'ring-2 ring-primary/50 animate-pulse' : ''}
+      `}
+      onClick={() => data.onClick?.(data.id)}
+      onMouseEnter={() => data.onHover?.(data.id)}
+      onMouseLeave={() => data.onHover?.(null)}
+    >
       <div className="flex items-center gap-3 mb-3">
-        <div className={`p-2 rounded-lg ${data.color}`}>
+        <div className={`p-2 rounded-lg ${data.color} transition-all duration-200 ${isSelected ? 'scale-110' : ''}`}>
           <Icon className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -84,34 +101,61 @@ const ModuleNode = ({ data }: { data: any }) => {
             </div>
           </div>
         )}
+        
+        {isSelected && (
+          <div className="mt-3 pt-2 border-t border-primary/20">
+            <p className="text-xs font-medium text-primary">Click to connect</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-const CompanyCenterNode = ({ data }: { data: any }) => {
+const CompanyCenterNode = ({ data, selected }: { data: any; selected?: boolean }) => {
+  const isSelected = selected || data.isSelected;
+  const isConnecting = data.isConnecting;
+  
   return (
-    <div className="bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 border-primary/40 rounded-2xl shadow-xl p-6 min-w-[250px]">
+    <div 
+      className={`bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 rounded-2xl shadow-xl p-6 min-w-[250px] transition-all duration-300 cursor-pointer
+        ${isSelected ? 'border-primary scale-105 shadow-primary/30' : 'border-primary/40'}
+        ${isConnecting ? 'ring-4 ring-primary/30 animate-pulse' : ''}
+      `}
+      onClick={() => data.onClick?.(data.id)}
+      onMouseEnter={() => data.onHover?.(data.id)}
+      onMouseLeave={() => data.onHover?.(null)}
+    >
       <div className="flex items-center gap-4 mb-4">
-        <div className="p-3 bg-primary/20 rounded-xl">
+        <div className={`p-3 bg-primary/20 rounded-xl transition-all duration-200 ${isSelected ? 'scale-110 bg-primary/30' : ''}`}>
           <Building2 className="w-8 h-8 text-primary" />
         </div>
         <div>
           <h2 className="font-bold text-lg text-foreground">{data.companyName}</h2>
-          <p className="text-sm text-muted-foreground">Business Ecosystem Hub</p>
+          <p className="text-sm text-muted-foreground">
+            {isSelected ? 'Connection Hub - Click modules to connect' : 'Business Ecosystem Hub'}
+          </p>
         </div>
       </div>
       
       <div className="grid grid-cols-2 gap-3">
-        <div className="text-center p-2 bg-white/20 rounded-lg">
+        <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
           <div className="text-lg font-bold text-primary">{data.moduleCount}</div>
           <div className="text-xs text-muted-foreground">Active Modules</div>
         </div>
-        <div className="text-center p-2 bg-white/20 rounded-lg">
+        <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
           <div className="text-lg font-bold text-primary">{data.projectCount || 0}</div>
           <div className="text-xs text-muted-foreground">Projects</div>
         </div>
       </div>
+      
+      {isSelected && (
+        <div className="mt-4 p-2 bg-primary/10 rounded-lg">
+          <p className="text-xs font-medium text-primary text-center">
+            Connection Mode Active
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -216,6 +260,11 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
   const [moduleData, setModuleData] = useState<Record<string, ModuleData>>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [interactionState, setInteractionState] = useState<NodeInteractionState>({
+    selectedNodes: [],
+    hoveredNode: null,
+    connectionMode: false
+  });
 
   // Fetch company modules and their data
   useEffect(() => {
@@ -280,21 +329,90 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
     fetchBusinessData();
   }, [currentCompany]);
 
+  // Interactive node handlers
+  const handleNodeClick = useCallback((nodeId: string) => {
+    if (nodeId === 'company-center') {
+      // Toggle connection mode when clicking company center
+      setInteractionState(prev => ({
+        ...prev,
+        connectionMode: !prev.connectionMode,
+        selectedNodes: prev.connectionMode ? [] : ['company-center']
+      }));
+    } else {
+      // Handle module node clicks
+      if (interactionState.connectionMode && interactionState.selectedNodes.includes('company-center')) {
+        // Create a temporary highlighted connection
+        setInteractionState(prev => ({
+          ...prev,
+          selectedNodes: [...prev.selectedNodes, nodeId]
+        }));
+        
+        // Create dynamic connection animation
+        const newEdge: Edge = {
+          id: `dynamic-${Date.now()}`,
+          source: 'company-center',
+          target: nodeId,
+          type: 'smoothstep',
+          animated: true,
+          style: {
+            stroke: 'hsl(var(--primary))',
+            strokeWidth: 3,
+            strokeDasharray: '10,5'
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: 'hsl(var(--primary))',
+          },
+        };
+        
+        setEdges(prev => [...prev, newEdge]);
+        toast.success(`Connected Skrobaki to ${nodes.find(n => n.id === nodeId)?.data?.title || 'Module'}`);
+        
+        // Auto-clear connection mode after 2 seconds
+        setTimeout(() => {
+          setInteractionState(prev => ({
+            ...prev,
+            connectionMode: false,
+            selectedNodes: []
+          }));
+        }, 2000);
+      } else {
+        // Regular module selection
+        setInteractionState(prev => ({
+          ...prev,
+          selectedNodes: [nodeId]
+        }));
+      }
+    }
+  }, [interactionState, nodes, setEdges]);
+
+  const handleNodeHover = useCallback((nodeId: string | null) => {
+    setInteractionState(prev => ({
+      ...prev,
+      hoveredNode: nodeId
+    }));
+  }, []);
+
   const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
     const centerX = 600;
     const centerY = 400;
     const radius = 350;
 
-    // Create company center node
+    // Create company center node with interactive handlers
     const companyNode: Node = {
       id: 'company-center',
       type: 'companyCenter',
       position: { x: centerX - 125, y: centerY - 75 },
       data: {
+        id: 'company-center',
         companyName: currentCompany?.name,
         moduleCount: enabledModules.length,
-        projectCount: data.projects?.count || 0
+        projectCount: data.projects?.count || 0,
+        isSelected: interactionState.selectedNodes.includes('company-center'),
+        isConnecting: interactionState.connectionMode,
+        onClick: handleNodeClick,
+        onHover: handleNodeHover
       },
       draggable: false,
     };
@@ -313,9 +431,14 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         type: 'moduleNode',
         position: { x, y },
         data: {
+          id: module.id,
           ...config,
           ...moduleStats,
-          moduleName: module.module_name
+          moduleName: module.module_name,
+          isSelected: interactionState.selectedNodes.includes(module.id),
+          isConnecting: interactionState.connectionMode && interactionState.selectedNodes.includes('company-center'),
+          onClick: handleNodeClick,
+          onHover: handleNodeHover
         },
         draggable: true,
       };
@@ -374,7 +497,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
 
     setNodes([companyNode, ...moduleNodes]);
     setEdges([...moduleEdges, ...additionalEdges]);
-  }, [currentCompany]);
+  }, [currentCompany, interactionState, handleNodeClick, handleNodeHover]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -590,6 +713,39 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
+        </div>
+
+        {/* Connection Status Panel */}
+        {interactionState.connectionMode && (
+          <div className="absolute bottom-6 right-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+              <h3 className="font-semibold text-sm">Connection Mode Active</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Click on any module to create a dynamic connection to Skrobaki
+            </p>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => setInteractionState(prev => ({ ...prev, connectionMode: false, selectedNodes: [] }))}
+              className="w-full"
+            >
+              Exit Connection Mode
+            </Button>
+          </div>
+        )}
+
+        {/* Interactive Instructions */}
+        <div className="absolute bottom-6 left-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
+          <h3 className="font-semibold text-sm mb-2">Interactive Guide</h3>
+          <ul className="text-xs text-muted-foreground space-y-1">
+            <li>• Click <strong>Skrobaki center</strong> to activate connection mode</li>
+            <li>• Click <strong>modules</strong> while in connection mode to create links</li>
+            <li>• <strong>Hover</strong> over nodes for visual feedback</li>
+            <li>• <strong>Drag</strong> modules to reorganize your map</li>
+            <li>• Connections auto-clear after 2 seconds</li>
+          </ul>
         </div>
       </div>
     </div>
