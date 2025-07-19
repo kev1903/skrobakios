@@ -352,6 +352,7 @@ export const BusinessMapPage = ({
     });
   }, []);
 
+
   // Fetch company modules and their data
   useEffect(() => {
     const fetchBusinessData = async () => {
@@ -496,6 +497,50 @@ export const BusinessMapPage = ({
       hoveredNode: nodeId
     }));
   }, []);
+
+  // Add blank card to canvas
+  const addBlankCard = useCallback(() => {
+    if (isMapLocked) {
+      toast.error('Map is locked. Unlock to add cards.');
+      return;
+    }
+
+    const newCardId = `blank-card-${Date.now()}`;
+    const centerX = 500;
+    const centerY = 300;
+    
+    // Position new card slightly offset from center to avoid overlap
+    const offsetX = (Math.random() - 0.5) * 200;
+    const offsetY = (Math.random() - 0.5) * 200;
+
+    const newCard: Node = {
+      id: newCardId,
+      type: 'moduleNode',
+      position: {
+        x: centerX + offsetX,
+        y: centerY + offsetY
+      },
+      data: {
+        id: newCardId,
+        icon: Plus,
+        color: 'bg-gray-500',
+        title: 'Blank Card',
+        subtitle: 'Customize this card',
+        count: 0,
+        recent: [],
+        moduleName: 'blank',
+        table: null,
+        isSelected: false,
+        isConnecting: false,
+        onClick: handleNodeClick,
+        onHover: handleNodeHover
+      },
+      draggable: !isMapLocked
+    };
+
+    setNodes(prev => [...prev, newCard]);
+    toast.success('Blank card added to canvas');
+  }, [isMapLocked, handleNodeClick, handleNodeHover, setNodes]);
   const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
 
@@ -697,7 +742,7 @@ export const BusinessMapPage = ({
               <Input placeholder="Search modules..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9 w-64" />
             </div>
             
-            <Button size="sm">
+            <Button size="sm" onClick={addBlankCard} disabled={isMapLocked}>
               <Plus className="w-4 h-4 mr-2" />
               Add Cards
             </Button>
