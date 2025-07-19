@@ -8,6 +8,8 @@ import { ActivityData } from '@/utils/activityUtils';
 import { useState, useMemo } from 'react';
 import React from 'react';
 import { ActivityDetailsModal } from './ActivityDetailsModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 // Generate hierarchical ID based on parent-child relationship and stage number
 const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityData[], stageActivities: ActivityData[], stage: string): string => {
@@ -258,6 +260,7 @@ export const ActivitiesTable = ({
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
   const [editingStage, setEditingStage] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const { toast } = useToast();
 
   const stageGroups = useMemo(() => {
     // Group activities by stage
@@ -337,11 +340,56 @@ export const ActivitiesTable = ({
     setEditValue(stage);
   };
 
-  const handleStageEditSave = () => {
-    // Here you could add logic to update the stage in the database
-    // For now, we'll just close the edit mode
-    setEditingStage(null);
-    setEditValue('');
+  const handleStageEditSave = async () => {
+    if (!editingStage || !editValue.trim()) {
+      handleStageEditCancel();
+      return;
+    }
+
+    // Only proceed if the value actually changed
+    if (editValue.trim() === editingStage) {
+      setEditingStage(null);
+      setEditValue('');
+      return;
+    }
+
+    try {
+      // Update all activities that have the old stage name to the new stage name
+      const { error } = await supabase
+        .from('activities')
+        .update({ stage: editValue.trim() })
+        .eq('stage', editingStage);
+
+      if (error) {
+        console.error('Error updating stage:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update stage name. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: `Stage renamed from "${editingStage}" to "${editValue.trim()}"`,
+      });
+
+      // Trigger a refresh of the activities data
+      if (onActivityUpdated) {
+        onActivityUpdated();
+      }
+
+      setEditingStage(null);
+      setEditValue('');
+    } catch (error) {
+      console.error('Error updating stage:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update stage name. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleStageEditCancel = () => {
