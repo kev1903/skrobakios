@@ -439,10 +439,10 @@ export const BusinessMapPage = ({
       return config?.category === 'project';
     });
 
-    // Position business modules on the left side
+    // Position business modules on the left side with increased spacing
     const businessNodes: Node[] = businessModules.map((module, index) => {
-      const y = centerY + (index - (businessModules.length - 1) / 2) * 150;
-      const x = centerX - 400;
+      const y = centerY + (index - (businessModules.length - 1) / 2) * 220;
+      const x = centerX - 450;
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
       const moduleStats = data[module.module_name] || {
         count: 0,
@@ -469,10 +469,10 @@ export const BusinessMapPage = ({
       };
     });
 
-    // Position project modules on the right side
+    // Position project modules on the right side with increased spacing
     const projectNodes: Node[] = projectModules.map((module, index) => {
-      const y = centerY + (index - (projectModules.length - 1) / 2) * 150;
-      const x = centerX + 400;
+      const y = centerY + (index - (projectModules.length - 1) / 2) * 220;
+      const x = centerX + 450;
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
       const moduleStats = data[module.module_name] || {
         count: 0,
