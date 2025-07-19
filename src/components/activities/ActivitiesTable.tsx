@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { ActivityData } from '@/utils/activityUtils';
@@ -255,6 +256,8 @@ export const ActivitiesTable = ({
   const [selectedActivity, setSelectedActivity] = useState<ActivityData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+  const [editingStage, setEditingStage] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>('');
 
   const stageGroups = useMemo(() => {
     // Group activities by stage
@@ -329,6 +332,31 @@ export const ActivitiesTable = ({
     }
   };
 
+  const handleStageEdit = (stage: string) => {
+    setEditingStage(stage);
+    setEditValue(stage);
+  };
+
+  const handleStageEditSave = () => {
+    // Here you could add logic to update the stage in the database
+    // For now, we'll just close the edit mode
+    setEditingStage(null);
+    setEditValue('');
+  };
+
+  const handleStageEditCancel = () => {
+    setEditingStage(null);
+    setEditValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleStageEditSave();
+    } else if (e.key === 'Escape') {
+      handleStageEditCancel();
+    }
+  };
+
   return (
     <>
       <div className="border rounded-lg overflow-hidden bg-background">
@@ -376,7 +404,23 @@ export const ActivitiesTable = ({
                             <ChevronRight className="h-4 w-4" />
                           )}
                         </Button>
-                        <span className="font-semibold text-base">{stageGroup.stage}</span>
+                        {editingStage === stageGroup.stage ? (
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={handleStageEditSave}
+                            onKeyDown={handleKeyDown}
+                            className="font-semibold text-base h-6 w-48"
+                            autoFocus
+                          />
+                        ) : (
+                          <span 
+                            className="font-semibold text-base cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => handleStageEdit(stageGroup.stage)}
+                          >
+                            {stageGroup.stage}
+                          </span>
+                        )}
                         <Badge variant="secondary" className="ml-2">
                           {stageGroup.activities.length} task{stageGroup.activities.length !== 1 ? 's' : ''}
                         </Badge>
