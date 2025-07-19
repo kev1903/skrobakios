@@ -388,56 +388,58 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       </div>
 
       {/* Main Content - Full Screen Canvas */}
-      <div className="flex-1 relative">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          className="bg-background w-full h-full"
-          nodesDraggable={true}
-          nodesConnectable={true}
-          elementsSelectable={true}
-          panOnDrag={true}
-          panOnScroll={true}
-          panOnScrollSpeed={0.5}
-          zoomOnScroll={true}
-          zoomOnPinch={true}
-          zoomOnDoubleClick={true}
-          preventScrolling={true}
-          minZoom={0.1}
-          maxZoom={4}
-          translateExtent={[[-5000, -5000], [5000, 5000]]}
-          nodeExtent={[[-4500, -4500], [4500, 4500]]}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-        >
-          <Controls 
-            className="bg-background border border-border rounded-lg shadow-lg"
-            showZoom={true}
-            showFitView={true}
-            showInteractive={true}
-          />
-          <MiniMap 
-            className="bg-background border border-border rounded-lg shadow-lg"
-            nodeColor={(node) => {
-              if (node.id === 'company-center') {
-                return '#3b82f6';
-              }
-              return '#60a5fa';
-            }}
-            nodeStrokeWidth={2}
-            zoomable
-            pannable
-          />
-          <Background 
-            variant={BackgroundVariant.Dots} 
-            gap={30} 
-            size={2}
-            className="text-muted-foreground/20"
-          />
-        </ReactFlow>
+      <div className="flex-1 relative w-full h-full">
+        <div className="w-full h-full">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            fitView
+            className="w-full h-full"
+            nodesDraggable={true}
+            nodesConnectable={true}
+            elementsSelectable={true}
+            panOnDrag={true}
+            panOnScroll={true}
+            panOnScrollSpeed={0.5}
+            zoomOnScroll={true}
+            zoomOnPinch={true}
+            zoomOnDoubleClick={true}
+            preventScrolling={true}
+            minZoom={0.1}
+            maxZoom={4}
+            translateExtent={[[-5000, -5000], [5000, 5000]]}
+            nodeExtent={[[-4500, -4500], [4500, 4500]]}
+            defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
+          >
+            <Controls 
+              className="bg-background border border-border rounded-lg shadow-lg"
+              showZoom={true}
+              showFitView={true}
+              showInteractive={true}
+            />
+            <MiniMap 
+              className="bg-background border border-border rounded-lg shadow-lg"
+              nodeColor={(node) => {
+                if (node.id === 'company-center') {
+                  return '#3b82f6';
+                }
+                return '#60a5fa';
+              }}
+              nodeStrokeWidth={2}
+              zoomable
+              pannable
+            />
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={30} 
+              size={2}
+              className="text-muted-foreground/20"
+            />
+          </ReactFlow>
+        </div>
       </div>
     </div>
   );
