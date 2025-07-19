@@ -116,77 +116,90 @@ const CompanyCenterNode = ({ data }: { data: any }) => {
   );
 };
 
-// Module configuration with enhanced data
+// Module configuration with enhanced data and categories
 const moduleConfig = {
-  projects: {
-    icon: Briefcase,
-    color: 'bg-blue-500',
-    title: 'Projects',
-    subtitle: 'Project Management',
-    table: 'projects'
-  },
+  // Business Modules
   sales: {
     icon: TrendingUp,
     color: 'bg-green-500',
     title: 'Sales',
     subtitle: 'Lead Management',
-    table: 'leads'
+    table: 'leads',
+    category: 'business'
   },
   finance: {
     icon: DollarSign,
     color: 'bg-purple-500',
     title: 'Finance',
     subtitle: 'Cost Management',
-    table: 'project_costs'
+    table: 'project_costs',
+    category: 'business'
   },
   dashboard: {
     icon: BarChart3,
     color: 'bg-indigo-500',
     title: 'Dashboard',
     subtitle: 'Analytics & Reports',
-    table: null
-  },
-  'digital-twin': {
-    icon: MapPin,
-    color: 'bg-cyan-500',
-    title: 'Digital Twin',
-    subtitle: '3D Models & Mapping',
-    table: 'model_3d'
+    table: null,
+    category: 'business'
   },
   'cost-contracts': {
     icon: FileText,
     color: 'bg-orange-500',
     title: 'Contracts',
     subtitle: 'Cost & Contracts',
-    table: 'estimates'
-  },
-  tasks: {
-    icon: CheckSquare,
-    color: 'bg-pink-500',
-    title: 'Tasks',
-    subtitle: 'Task Management',
-    table: 'activities'
-  },
-  files: {
-    icon: FolderOpen,
-    color: 'bg-yellow-500',
-    title: 'Files',
-    subtitle: 'Document Management',
-    table: 'portfolio_items'
+    table: 'estimates',
+    category: 'business'
   },
   team: {
     icon: Users,
     color: 'bg-red-500',
     title: 'Team',
     subtitle: 'Team Management',
-    table: 'company_members'
+    table: 'company_members',
+    category: 'business'
+  },
+  
+  // Project Modules
+  projects: {
+    icon: Briefcase,
+    color: 'bg-blue-500',
+    title: 'Projects',
+    subtitle: 'Project Management',
+    table: 'projects',
+    category: 'project'
+  },
+  'digital-twin': {
+    icon: MapPin,
+    color: 'bg-cyan-500',
+    title: 'Digital Twin',
+    subtitle: '3D Models & Mapping',
+    table: 'model_3d',
+    category: 'project'
+  },
+  tasks: {
+    icon: CheckSquare,
+    color: 'bg-pink-500',
+    title: 'Tasks',
+    subtitle: 'Task Management',
+    table: 'activities',
+    category: 'project'
+  },
+  files: {
+    icon: FolderOpen,
+    color: 'bg-yellow-500',
+    title: 'Files',
+    subtitle: 'Document Management',
+    table: 'portfolio_items',
+    category: 'project'
   },
   'digital-objects': {
     icon: Database,
     color: 'bg-teal-500',
     title: 'Digital Objects',
     subtitle: 'Object Management',
-    table: 'digital_objects'
+    table: 'digital_objects',
+    category: 'project'
   }
 };
 
@@ -372,6 +385,17 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
     module.module_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Group modules by category
+  const businessModules = filteredModules.filter(module => {
+    const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+    return config?.category === 'business';
+  });
+
+  const projectModules = filteredModules.filter(module => {
+    const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+    return config?.category === 'project';
+  });
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -412,46 +436,92 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">ACTIVE MODULES</h3>
-              <Badge variant="secondary">{companyModules.filter(m => m.enabled).length}</Badge>
-            </div>
-            
-            {filteredModules.map((module) => {
-              const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
-              const data = moduleData[module.module_name] || { count: 0, recent: [] };
-              const Icon = config?.icon || Database;
+          <div className="space-y-6">
+            {/* Business Modules Section */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-muted-foreground">BUSINESS MODULES</h3>
+                <Badge variant="secondary">{businessModules.filter(m => m.enabled).length}</Badge>
+              </div>
               
-              return (
-                <Card 
-                  key={module.id} 
-                  className={`p-3 cursor-pointer transition-all hover:shadow-md ${
-                    module.enabled ? 'border-primary/20 bg-card' : 'opacity-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${config?.color || 'bg-gray-500'}`}>
-                      <Icon className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm capitalize">
-                        {config?.title || module.module_name.replace('-', ' ')}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">{config?.subtitle}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant={module.enabled ? "default" : "secondary"} className="text-xs">
-                          {module.enabled ? 'Active' : 'Disabled'}
-                        </Badge>
-                        {module.enabled && (
-                          <span className="text-xs text-muted-foreground">{data.count} items</span>
-                        )}
+              {businessModules.map((module) => {
+                const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+                const data = moduleData[module.module_name] || { count: 0, recent: [] };
+                const Icon = config?.icon || Database;
+                
+                return (
+                  <Card 
+                    key={module.id} 
+                    className={`p-3 cursor-pointer transition-all hover:shadow-md ${
+                      module.enabled ? 'border-primary/20 bg-card' : 'opacity-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${config?.color || 'bg-gray-500'}`}>
+                        <Icon className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm capitalize">
+                          {config?.title || module.module_name.replace('-', ' ')}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">{config?.subtitle}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={module.enabled ? "default" : "secondary"} className="text-xs">
+                            {module.enabled ? 'Active' : 'Disabled'}
+                          </Badge>
+                          {module.enabled && (
+                            <span className="text-xs text-muted-foreground">{data.count} items</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              );
-            })}
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Project Modules Section */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-muted-foreground">PROJECT MODULES</h3>
+                <Badge variant="secondary">{projectModules.filter(m => m.enabled).length}</Badge>
+              </div>
+              
+              {projectModules.map((module) => {
+                const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+                const data = moduleData[module.module_name] || { count: 0, recent: [] };
+                const Icon = config?.icon || Database;
+                
+                return (
+                  <Card 
+                    key={module.id} 
+                    className={`p-3 cursor-pointer transition-all hover:shadow-md ${
+                      module.enabled ? 'border-primary/20 bg-card' : 'opacity-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${config?.color || 'bg-gray-500'}`}>
+                        <Icon className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm capitalize">
+                          {config?.title || module.module_name.replace('-', ' ')}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">{config?.subtitle}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={module.enabled ? "default" : "secondary"} className="text-xs">
+                            {module.enabled ? 'Active' : 'Disabled'}
+                          </Badge>
+                          {module.enabled && (
+                            <span className="text-xs text-muted-foreground">{data.count} items</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         </div>
 
