@@ -29,7 +29,8 @@ const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityD
   const parent = allActivities.find(a => a.id === activity.parent_id);
   if (parent) {
     const parentId = generateHierarchicalId(parent, allActivities, stageActivities, stage);
-    return `${parentId}.${siblingIndex}`;
+    // Concatenate child number directly to parent (e.g., 5.1 -> 5.11, 5.12)
+    return `${parentId}${siblingIndex}`;
   }
   
   return `${stageNumber}.${siblingIndex}`;
