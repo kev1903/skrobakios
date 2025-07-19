@@ -39,31 +39,20 @@ const ModuleNode = ({
   const Icon = data.icon;
   const isSelected = selected || data.isSelected;
   const isConnecting = data.isConnecting;
-  return (
-    <>
+  return <>
       {/* Handle for connections - positioned on the left to connect to center */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="input"
-        style={{
-          background: '#3b82f6',
-          width: '12px',
-          height: '12px',
-          border: '2px solid white'
-        }}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="output"
-        style={{
-          background: '#3b82f6',
-          width: '12px',
-          height: '12px',
-          border: '2px solid white'
-        }}
-      />
+      <Handle type="target" position={Position.Left} id="input" style={{
+      background: '#3b82f6',
+      width: '12px',
+      height: '12px',
+      border: '2px solid white'
+    }} />
+      <Handle type="source" position={Position.Right} id="output" style={{
+      background: '#3b82f6',
+      width: '12px',
+      height: '12px',
+      border: '2px solid white'
+    }} />
       
       <div className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] transition-all duration-300 cursor-pointer
         ${isSelected ? 'border-primary shadow-primary/20 scale-105' : 'border-border hover:shadow-xl hover:scale-102'}
@@ -104,8 +93,7 @@ const ModuleNode = ({
             </div>}
         </div>
       </div>
-    </>
-  );
+    </>;
 };
 const CompanyCenterNode = ({
   data,
@@ -116,53 +104,32 @@ const CompanyCenterNode = ({
 }) => {
   const isSelected = selected || data.isSelected;
   const isConnecting = data.isConnecting;
-  return (
-    <>
+  return <>
       {/* Center node handles - multiple positions for all connections */}
-      <Handle
-        type="source"
-        position={Position.Left}
-        id="left"
-        style={{
-          background: '#3b82f6',
-          width: '12px',
-          height: '12px',
-          border: '2px solid white'
-        }}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="right"
-        style={{
-          background: '#3b82f6',
-          width: '12px',
-          height: '12px',
-          border: '2px solid white'
-        }}
-      />
-      <Handle
-        type="source"
-        position={Position.Top}
-        id="top"
-        style={{
-          background: '#3b82f6',
-          width: '12px',
-          height: '12px',
-          border: '2px solid white'
-        }}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id="bottom"
-        style={{
-          background: '#3b82f6',
-          width: '12px',
-          height: '12px',
-          border: '2px solid white'
-        }}
-      />
+      <Handle type="source" position={Position.Left} id="left" style={{
+      background: '#3b82f6',
+      width: '12px',
+      height: '12px',
+      border: '2px solid white'
+    }} />
+      <Handle type="source" position={Position.Right} id="right" style={{
+      background: '#3b82f6',
+      width: '12px',
+      height: '12px',
+      border: '2px solid white'
+    }} />
+      <Handle type="source" position={Position.Top} id="top" style={{
+      background: '#3b82f6',
+      width: '12px',
+      height: '12px',
+      border: '2px solid white'
+    }} />
+      <Handle type="source" position={Position.Bottom} id="bottom" style={{
+      background: '#3b82f6',
+      width: '12px',
+      height: '12px',
+      border: '2px solid white'
+    }} />
       
       <div className={`bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 rounded-2xl shadow-xl p-6 min-w-[250px] transition-all duration-300 cursor-pointer
         ${isSelected ? 'border-primary scale-105 shadow-primary/30' : 'border-primary/40'}
@@ -197,8 +164,7 @@ const CompanyCenterNode = ({
             </p>
           </div>}
       </div>
-    </>
-  );
+    </>;
 };
 
 // Module configuration with enhanced data and categories
@@ -437,7 +403,7 @@ export const BusinessMapPage = ({
   }, []);
   const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
-    
+
     // Create a more mind-map style layout instead of radial
     const centerX = 500;
     const centerY = 300;
@@ -468,7 +434,6 @@ export const BusinessMapPage = ({
       const config = moduleConfig[m.module_name as keyof typeof moduleConfig];
       return config?.category === 'business';
     });
-    
     const projectModules = enabledModules.filter(m => {
       const config = moduleConfig[m.module_name as keyof typeof moduleConfig];
       return config?.category === 'project';
@@ -479,12 +444,17 @@ export const BusinessMapPage = ({
       const y = centerY + (index - (businessModules.length - 1) / 2) * 150;
       const x = centerX - 400;
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
-      const moduleStats = data[module.module_name] || { count: 0, recent: [] };
-      
+      const moduleStats = data[module.module_name] || {
+        count: 0,
+        recent: []
+      };
       return {
         id: module.id,
         type: 'moduleNode',
-        position: { x, y },
+        position: {
+          x,
+          y
+        },
         data: {
           id: module.id,
           ...config,
@@ -504,12 +474,17 @@ export const BusinessMapPage = ({
       const y = centerY + (index - (projectModules.length - 1) / 2) * 150;
       const x = centerX + 400;
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
-      const moduleStats = data[module.module_name] || { count: 0, recent: [] };
-      
+      const moduleStats = data[module.module_name] || {
+        count: 0,
+        recent: []
+      };
       return {
         id: module.id,
         type: 'moduleNode',
-        position: { x, y },
+        position: {
+          x,
+          y
+        },
         data: {
           id: module.id,
           ...config,
@@ -528,11 +503,11 @@ export const BusinessMapPage = ({
     const moduleEdges: Edge[] = enabledModules.map(module => {
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
       const isBusinessModule = config?.category === 'business';
-      
       return {
         id: `company-${module.id}`,
         source: 'company-center',
-        sourceHandle: isBusinessModule ? 'left' : 'right', // Use appropriate handle based on module position
+        sourceHandle: isBusinessModule ? 'left' : 'right',
+        // Use appropriate handle based on module position
         target: module.id,
         targetHandle: 'input',
         type: 'default',
@@ -548,8 +523,14 @@ export const BusinessMapPage = ({
           width: 20,
           height: 20
         },
-        labelStyle: { fill: '#3b82f6', fontWeight: 600 },
-        labelBgStyle: { fill: 'white', fillOpacity: 0.8 }
+        labelStyle: {
+          fill: '#3b82f6',
+          fontWeight: 600
+        },
+        labelBgStyle: {
+          fill: 'white',
+          fillOpacity: 0.8
+        }
       };
     });
 
@@ -683,17 +664,7 @@ export const BusinessMapPage = ({
         </div>
 
         {/* Interactive Instructions */}
-        {!interactionState.connectionMode && (
-          <div className="absolute bottom-6 left-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
-            <h4 className="font-semibold text-sm mb-2">Interactive Guide</h4>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              <li>• Click Skrobaki center to enter connection mode</li>
-              <li>• Drag modules to reposition them</li>
-              <li>• Blue lines show live data connections</li>
-              <li>• Dashed lines show workflow relationships</li>
-            </ul>
-          </div>
-        )}
+        {!interactionState.connectionMode}
         
       </div>
     </div>;
