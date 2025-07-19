@@ -11,7 +11,7 @@ import { ActivityDetailsModal } from './ActivityDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DragDropContext, Droppable, Draggable, DropResult, DragUpdate } from 'react-beautiful-dnd';
-import { useRowContextMenu } from '@/components/ui/row-context-menu';
+import { RowContextMenu } from '@/components/ui/row-context-menu';
 
 // Extract hierarchical ID from activity name (database-generated)
 const extractHierarchicalId = (activityName: string): string => {
@@ -641,6 +641,17 @@ export const ActivitiesTable = ({
     setEditingActivityName('');
   };
 
+  // State for context menu
+  const [contextMenuData, setContextMenuData] = useState<{
+    isOpen: boolean;
+    position: { x: number; y: number };
+    activity: ActivityData | null;
+  }>({
+    isOpen: false,
+    position: { x: 0, y: 0 },
+    activity: null
+  });
+
   // Context menu items for activity rows
   const getContextMenuItems = (activity: ActivityData) => [
     {
@@ -755,9 +766,24 @@ export const ActivitiesTable = ({
     }
   ];
 
-  const { handleContextMenu, contextMenu } = useRowContextMenu({ 
-    items: []
-  });
+  // Handle context menu open
+  const handleContextMenuOpen = (event: React.MouseEvent, activity: ActivityData) => {
+    event.preventDefault();
+    setContextMenuData({
+      isOpen: true,
+      position: { x: event.clientX, y: event.clientY },
+      activity
+    });
+  };
+
+  // Handle context menu close
+  const handleContextMenuClose = () => {
+    setContextMenuData({
+      isOpen: false,
+      position: { x: 0, y: 0 },
+      activity: null
+    });
+  };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd} onDragUpdate={handleDragUpdate}>
@@ -835,48 +861,42 @@ export const ActivitiesTable = ({
                     <Droppable droppableId={stageGroup.stage}>
                       {(provided, snapshot) => (
                         <div ref={provided.innerRef} {...provided.droppableProps}>
-                          {stageGroup.activities.map((activity, index) => {
-                            const contextMenuItems = getContextMenuItems(activity);
-                            const { handleContextMenu: handleRowContextMenu, contextMenu: rowContextMenu } = useRowContextMenu({ 
-                              items: contextMenuItems
-                            });
-                            
-                            return (
-                              <Draggable key={activity.id} draggableId={activity.id} index={index}>
-                                {(provided, snapshot) => {
-                                  // Calculate if this row should have shuffle spacing
-                                  const isBeingDraggedOver = draggedOverStage === stageGroup.stage && 
-                                                            draggedOverIndex !== null && 
-                                                            index >= draggedOverIndex && 
-                                                            !snapshot.isDragging;
-                                  
-                                  const dragStyle = snapshot.isDragging 
-                                    ? {
-                                        transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
-                                        zIndex: 1000,
-                                      }
-                                    : provided.draggableProps.style;
+                          {stageGroup.activities.map((activity, index) => (
+                            <Draggable key={activity.id} draggableId={activity.id} index={index}>
+                              {(provided, snapshot) => {
+                                // Calculate if this row should have shuffle spacing
+                                const isBeingDraggedOver = draggedOverStage === stageGroup.stage && 
+                                                          draggedOverIndex !== null && 
+                                                          index >= draggedOverIndex && 
+                                                          !snapshot.isDragging;
+                                
+                                const dragStyle = snapshot.isDragging 
+                                  ? {
+                                      transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
+                                      zIndex: 1000,
+                                    }
+                                  : provided.draggableProps.style;
 
-                                  return (
-                                    <>
-                                      <TableRow
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        className={`hover:bg-muted/50 border-b cursor-pointer transition-all duration-300 ease-out ${
-                                          snapshot.isDragging 
-                                            ? 'bg-muted shadow-xl scale-105 z-50 opacity-90' 
-                                            : isBeingDraggedOver 
-                                              ? 'transform translate-y-4' 
-                                              : ''
-                                        }`}
-                                        style={{
-                                          ...dragStyle,
-                                          marginBottom: snapshot.isDragging ? '16px' : isBeingDraggedOver ? '16px' : '0px',
-                                          marginTop: snapshot.isDragging ? '16px' : '0px',
-                                        }}
-                                        onClick={() => !snapshot.isDragging && handleActivityClick(activity)}
-                                        onContextMenu={handleRowContextMenu}
-                                      >
+                                return (
+                                  <>
+                                    <TableRow
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      className={`hover:bg-muted/50 border-b cursor-pointer transition-all duration-300 ease-out ${
+                                        snapshot.isDragging 
+                                          ? 'bg-muted shadow-xl scale-105 z-50 opacity-90' 
+                                          : isBeingDraggedOver 
+                                            ? 'transform translate-y-4' 
+                                            : ''
+                                      }`}
+                                      style={{
+                                        ...dragStyle,
+                                        marginBottom: snapshot.isDragging ? '16px' : isBeingDraggedOver ? '16px' : '0px',
+                                        marginTop: snapshot.isDragging ? '16px' : '0px',
+                                      }}
+                                      onClick={() => !snapshot.isDragging && handleActivityClick(activity)}
+                                      onContextMenu={(e) => handleContextMenuOpen(e, activity)}
+                                    >
                                      {/* Drag Handle */}
                                      <TableCell className="py-2 w-20 min-w-20 max-w-20">
                                        <div className="flex items-center gap-2">
@@ -1013,14 +1033,12 @@ export const ActivitiesTable = ({
                                          </Badge>
                                        </div>
                                      </TableCell>
-                                    </TableRow>
-                                    {rowContextMenu}
-                                    </>
-                                  );
-                                }}
-                              </Draggable>
-                            );
-                          })}
+                                     </TableRow>
+                                     </>
+                                   );
+                                 }}
+                               </Draggable>
+                            ))}
                           <tr ref={provided.innerRef} style={{ display: 'none' }}>
                             <td>{provided.placeholder}</td>
                           </tr>
@@ -1041,7 +1059,16 @@ export const ActivitiesTable = ({
        onClose={handleModalClose}
        onActivityUpdated={handleActivityUpdated}
      />
-     {contextMenu}
+     
+     {/* Context Menu */}
+     {contextMenuData.isOpen && contextMenuData.activity && (
+       <RowContextMenu
+         items={getContextMenuItems(contextMenuData.activity)}
+         isOpen={contextMenuData.isOpen}
+         position={contextMenuData.position}
+         onClose={handleContextMenuClose}
+       />
+     )}
    </DragDropContext>
  );
 };
