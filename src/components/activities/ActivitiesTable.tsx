@@ -265,30 +265,28 @@ const ActivityRow = ({
       </TableRow>
       
       {/* Render children if expanded */}
-      {hasChildren && activity.is_expanded && (
-        <>
-          {activity.children!.map((child) => (
-            <ActivityRow
-              key={child.id}
-              activity={child}
-              onDelete={onDelete}
-              onToggleExpansion={onToggleExpansion}
-              onCreateChild={onCreateChild}
-              onActivityClick={onActivityClick}
-              level={level + 1}
-              allActivities={allActivities}
-              stageActivities={stageActivities}
-              stage={stage}
-              editingActivity={editingActivity}
-              editingActivityName={editingActivityName}
-              onActivityEdit={onActivityEdit}
-              onActivityEditSave={onActivityEditSave}
-              onActivityEditCancel={onActivityEditCancel}
-              setEditingActivityName={setEditingActivityName}
-            />
-          ))}
-        </>
-      )}
+      {hasChildren && activity.is_expanded && 
+        activity.children!.map((child) => (
+          <ActivityRow
+            key={child.id}
+            activity={child}
+            onDelete={onDelete}
+            onToggleExpansion={onToggleExpansion}
+            onCreateChild={onCreateChild}
+            onActivityClick={onActivityClick}
+            level={level + 1}
+            allActivities={allActivities}
+            stageActivities={stageActivities}
+            stage={stage}
+            editingActivity={editingActivity}
+            editingActivityName={editingActivityName}
+            onActivityEdit={onActivityEdit}
+            onActivityEditSave={onActivityEditSave}
+            onActivityEditCancel={onActivityEditCancel}
+            setEditingActivityName={setEditingActivityName}
+          />
+        ))
+      }
     </>
   );
 };
