@@ -297,6 +297,15 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b bg-background/50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate('home')}
+            className="hover:bg-muted"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">
               {currentCompany?.name} Business Map
