@@ -387,6 +387,7 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
               onDelete={deleteActivity}
               onToggleExpansion={toggleActivityExpansion}
               onCreateChild={handleCreateChild}
+              onActivityUpdated={loadActivities}
             />
           </div>
         </div>
