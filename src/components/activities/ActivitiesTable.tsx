@@ -12,32 +12,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DragDropContext, Droppable, Draggable, DropResult, DragUpdate } from 'react-beautiful-dnd';
 
-// Generate hierarchical ID based on parent-child relationship and stage number
-const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityData[], stageActivities: ActivityData[], stage: string): string => {
-  // Extract stage number from stage name (e.g., "4.0 PRELIMINARY" -> "4")
-  const stageNumber = stage.split('.')[0];
-  
-  // Get siblings at the same level within the same stage
-  const siblings = stageActivities.filter(a => 
-    a.parent_id === activity.parent_id && a.level === activity.level
-  ).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-  
-  const siblingIndex = siblings.findIndex(s => s.id === activity.id) + 1;
-  
-  if (!activity.parent_id || activity.level === 0) {
-    // Root level activity - use stage number as prefix
-    return `${stageNumber}.${siblingIndex}`;
-  }
-  
-  // Find parent and get its ID
-  const parent = allActivities.find(a => a.id === activity.parent_id);
-  if (parent) {
-    const parentId = generateHierarchicalId(parent, allActivities, stageActivities, stage);
-    // Concatenate child number directly to parent (e.g., 5.1 -> 5.11, 5.12)
-    return `${parentId}${siblingIndex}`;
-  }
-  
-  return `${stageNumber}.${siblingIndex}`;
+// Extract hierarchical ID from activity name (database-generated)
+const extractHierarchicalId = (activityName: string): string => {
+  const match = activityName.match(/^([0-9]+\.[0-9]+)/);
+  return match ? match[1] : '';
 };
 
 interface StageGroup {
@@ -91,7 +69,7 @@ const ActivityRow = ({
 }: ActivityRowProps) => {
   const hasChildren = activity.children && activity.children.length > 0;
   const paddingLeft = level * 24;
-  const hierarchicalId = generateHierarchicalId(activity, allActivities, stageActivities, stage);
+  const hierarchicalId = extractHierarchicalId(activity.name);
 
   return (
     <>
@@ -800,9 +778,9 @@ export const ActivitiesTable = ({
                                       <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
                                         <GripVertical className="h-4 w-4 text-muted-foreground" />
                                       </div>
-                                      <div className="text-sm font-mono font-semibold text-foreground truncate">
-                                        {generateHierarchicalId(activity, activities, stageGroup.activities, stageGroup.stage)}
-                                      </div>
+                                       <div className="text-sm font-mono font-semibold text-foreground truncate">
+                                         {extractHierarchicalId(activity.name)}
+                                       </div>
                                     </div>
                                   </TableCell>
                                   
