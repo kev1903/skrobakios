@@ -479,30 +479,33 @@ export const BusinessMapPage = ({
         </div>
       </div>;
   }
-  return <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <div className="w-80 border-r bg-card/50 backdrop-blur-sm flex flex-col">
-        <div className="p-4 border-b">
-          <div className="flex items-center gap-2 mb-4">
+  return <div className="h-screen bg-background flex flex-col">
+      {/* Header with Back Button, Title, and Search */}
+      <div className="bg-card/50 backdrop-blur-sm border-b p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => onNavigate('home')} className="p-1">
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <h2 className="font-semibold">Business Map</h2>
           </div>
           
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Search modules..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9" />
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search modules..." 
+                value={searchTerm} 
+                onChange={e => setSearchTerm(e.target.value)} 
+                className="pl-9 w-64" 
+              />
+            </div>
+            
+            <Button size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Module
+            </Button>
           </div>
-        </div>
-
-        
-
-        <div className="p-4 border-t">
-          <Button className="w-full" size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Module
-          </Button>
         </div>
       </div>
 
