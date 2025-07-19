@@ -173,25 +173,38 @@ export function TaskCollaborationPanel({ taskId, projectId }: TaskCollaborationP
         {activeTab === 'comments' && (
           <>
             {/* Add Comment Form */}
-            <form onSubmit={handleSubmitComment} className="space-y-3">
+            <div className="space-y-3">
               <Textarea
                 placeholder="Add a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50 resize-none"
                 rows={3}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    if (newComment.trim() && !addCommentMutation.isPending) {
+                      addCommentMutation.mutate(newComment.trim());
+                    }
+                  }
+                }}
               />
               <div className="flex justify-end">
                 <Button
-                  type="submit"
+                  type="button"
                   disabled={!newComment.trim() || addCommentMutation.isPending}
                   className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    if (newComment.trim() && !addCommentMutation.isPending) {
+                      addCommentMutation.mutate(newComment.trim());
+                    }
+                  }}
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {addCommentMutation.isPending ? 'Sending...' : 'Send'}
                 </Button>
               </div>
-            </form>
+            </div>
 
             <Separator className="bg-white/20" />
 
