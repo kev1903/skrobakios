@@ -63,6 +63,12 @@ interface ActivityRowProps {
   allActivities: ActivityData[];
   stageActivities: ActivityData[];
   stage: string;
+  editingActivity: string | null;
+  editingActivityName: string;
+  onActivityEdit: (activityId: string, name: string) => void;
+  onActivityEditSave: () => void;
+  onActivityEditCancel: () => void;
+  setEditingActivityName: (name: string) => void;
 }
 
 const ActivityRow = ({ 
@@ -74,7 +80,13 @@ const ActivityRow = ({
   level = 0,
   allActivities,
   stageActivities,
-  stage
+  stage,
+  editingActivity,
+  editingActivityName,
+  onActivityEdit,
+  onActivityEditSave,
+  onActivityEditCancel,
+  setEditingActivityName
 }: ActivityRowProps) => {
   const hasChildren = activity.children && activity.children.length > 0;
   const paddingLeft = level * 24;
@@ -110,7 +122,29 @@ const ActivityRow = ({
             {!hasChildren && <div className="w-4 flex-shrink-0" />}
             
             <div className="flex items-center gap-2 min-w-0">
-              <span className="font-medium text-sm truncate">{activity.name}</span>
+              {editingActivity === activity.id ? (
+                <Input
+                  value={editingActivityName}
+                  onChange={(e) => setEditingActivityName(e.target.value)}
+                  onBlur={onActivityEditSave}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onActivityEditSave();
+                    } else if (e.key === 'Escape') {
+                      onActivityEditCancel();
+                    }
+                  }}
+                  className="font-medium text-sm h-6"
+                  autoFocus
+                />
+              ) : (
+                <span 
+                  className="font-medium text-sm truncate cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => onActivityEdit(activity.id, activity.name)}
+                >
+                  {activity.name}
+                </span>
+              )}
             </div>
           </div>
         </TableCell>
@@ -245,6 +279,12 @@ const ActivityRow = ({
               allActivities={allActivities}
               stageActivities={stageActivities}
               stage={stage}
+              editingActivity={editingActivity}
+              editingActivityName={editingActivityName}
+              onActivityEdit={onActivityEdit}
+              onActivityEditSave={onActivityEditSave}
+              onActivityEditCancel={onActivityEditCancel}
+              setEditingActivityName={setEditingActivityName}
             />
           ))}
         </>
@@ -268,6 +308,8 @@ export const ActivitiesTable = ({
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
   const [editingStage, setEditingStage] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [editingActivity, setEditingActivity] = useState<string | null>(null);
+  const [editingActivityName, setEditingActivityName] = useState<string>('');
   const { toast } = useToast();
 
   const stageGroups = useMemo(() => {
@@ -413,6 +455,75 @@ export const ActivitiesTable = ({
     }
   };
 
+  const handleActivityEdit = (activityId: string, name: string) => {
+    setEditingActivity(activityId);
+    setEditingActivityName(name);
+  };
+
+  const handleActivityEditSave = async () => {
+    if (!editingActivity || !editingActivityName.trim()) {
+      handleActivityEditCancel();
+      return;
+    }
+
+    // Find the activity to get the original name for comparison
+    const originalActivity = activities.find(a => a.id === editingActivity);
+    if (!originalActivity) {
+      handleActivityEditCancel();
+      return;
+    }
+
+    // Only proceed if the value actually changed
+    if (editingActivityName.trim() === originalActivity.name) {
+      setEditingActivity(null);
+      setEditingActivityName('');
+      return;
+    }
+
+    try {
+      // Update the activity name in the database
+      const { error } = await supabase
+        .from('activities')
+        .update({ name: editingActivityName.trim() })
+        .eq('id', editingActivity);
+
+      if (error) {
+        console.error('Error updating activity:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update activity name. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: `Activity renamed to "${editingActivityName.trim()}"`,
+      });
+
+      // Trigger a refresh of the activities data
+      if (onActivityUpdated) {
+        onActivityUpdated();
+      }
+
+      setEditingActivity(null);
+      setEditingActivityName('');
+    } catch (error) {
+      console.error('Error updating activity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update activity name. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleActivityEditCancel = () => {
+    setEditingActivity(null);
+    setEditingActivityName('');
+  };
+
   return (
     <>
       <div className="border rounded-lg overflow-hidden bg-background">
@@ -496,6 +607,12 @@ export const ActivitiesTable = ({
                       allActivities={activities}
                       stageActivities={stageGroup.activities}
                       stage={stageGroup.stage}
+                      editingActivity={editingActivity}
+                      editingActivityName={editingActivityName}
+                      onActivityEdit={handleActivityEdit}
+                      onActivityEditSave={handleActivityEditSave}
+                      onActivityEditCancel={handleActivityEditCancel}
+                      setEditingActivityName={setEditingActivityName}
                     />
                   ))}
                 </React.Fragment>
