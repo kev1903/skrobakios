@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, BackgroundVariant, MarkerType, NodeTypes } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, BackgroundVariant, MarkerType, NodeTypes, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ interface NodeInteractionState {
   connectionMode: boolean;
 }
 
-// Custom Node Components with Interactive Features
+// Custom Node Components with Interactive Features and Handles
 const ModuleNode = ({
   data,
   selected
@@ -39,45 +39,73 @@ const ModuleNode = ({
   const Icon = data.icon;
   const isSelected = selected || data.isSelected;
   const isConnecting = data.isConnecting;
-  return <div className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] transition-all duration-300 cursor-pointer
+  return (
+    <>
+      {/* Handle for connections - positioned on the left to connect to center */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="input"
+        style={{
+          background: '#3b82f6',
+          width: '12px',
+          height: '12px',
+          border: '2px solid white'
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="output"
+        style={{
+          background: '#3b82f6',
+          width: '12px',
+          height: '12px',
+          border: '2px solid white'
+        }}
+      />
+      
+      <div className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] transition-all duration-300 cursor-pointer
         ${isSelected ? 'border-primary shadow-primary/20 scale-105' : 'border-border hover:shadow-xl hover:scale-102'}
         ${isConnecting ? 'ring-2 ring-primary/50 animate-pulse' : ''}
       `} onClick={() => data.onClick?.(data.id)} onMouseEnter={() => data.onHover?.(data.id)} onMouseLeave={() => data.onHover?.(null)}>
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`p-2 rounded-lg ${data.color} transition-all duration-200 ${isSelected ? 'scale-110' : ''}`}>
-          <Icon className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`p-2 rounded-lg ${data.color} transition-all duration-200 ${isSelected ? 'scale-110' : ''}`}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">{data.title}</h3>
+            <p className="text-xs text-muted-foreground">{data.subtitle}</p>
+          </div>
         </div>
-        <div>
-          <h3 className="font-semibold text-sm">{data.title}</h3>
-          <p className="text-xs text-muted-foreground">{data.subtitle}</p>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium">Total Count</span>
+            <Badge variant="secondary" className="text-xs">{data.count || 0}</Badge>
+          </div>
+          
+          {data.status && <div className="flex justify-between items-center">
+              <span className="text-xs font-medium">Status</span>
+              <Badge variant="outline" className="text-xs">{data.status}</Badge>
+            </div>}
+          
+          {data.recent && data.recent.length > 0 && <div className="mt-3 pt-2 border-t border-border/50">
+              <p className="text-xs font-medium mb-1">Recent Activity</p>
+              <div className="space-y-1">
+                {data.recent.slice(0, 2).map((item: any, index: number) => <div key={index} className="text-xs text-muted-foreground truncate">
+                    • {item.name || item.title || item.description || 'Item'}
+                  </div>)}
+              </div>
+            </div>}
+          
+          {isSelected && <div className="mt-3 pt-2 border-t border-primary/20">
+              <p className="text-xs font-medium text-primary">Click to connect</p>
+            </div>}
         </div>
       </div>
-      
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-medium">Total Count</span>
-          <Badge variant="secondary" className="text-xs">{data.count || 0}</Badge>
-        </div>
-        
-        {data.status && <div className="flex justify-between items-center">
-            <span className="text-xs font-medium">Status</span>
-            <Badge variant="outline" className="text-xs">{data.status}</Badge>
-          </div>}
-        
-        {data.recent && data.recent.length > 0 && <div className="mt-3 pt-2 border-t border-border/50">
-            <p className="text-xs font-medium mb-1">Recent Activity</p>
-            <div className="space-y-1">
-              {data.recent.slice(0, 2).map((item: any, index: number) => <div key={index} className="text-xs text-muted-foreground truncate">
-                  • {item.name || item.title || item.description || 'Item'}
-                </div>)}
-            </div>
-          </div>}
-        
-        {isSelected && <div className="mt-3 pt-2 border-t border-primary/20">
-            <p className="text-xs font-medium text-primary">Click to connect</p>
-          </div>}
-      </div>
-    </div>;
+    </>
+  );
 };
 const CompanyCenterNode = ({
   data,
@@ -88,39 +116,89 @@ const CompanyCenterNode = ({
 }) => {
   const isSelected = selected || data.isSelected;
   const isConnecting = data.isConnecting;
-  return <div className={`bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 rounded-2xl shadow-xl p-6 min-w-[250px] transition-all duration-300 cursor-pointer
+  return (
+    <>
+      {/* Center node handles - multiple positions for all connections */}
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="left"
+        style={{
+          background: '#3b82f6',
+          width: '12px',
+          height: '12px',
+          border: '2px solid white'
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        style={{
+          background: '#3b82f6',
+          width: '12px',
+          height: '12px',
+          border: '2px solid white'
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Top}
+        id="top"
+        style={{
+          background: '#3b82f6',
+          width: '12px',
+          height: '12px',
+          border: '2px solid white'
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        style={{
+          background: '#3b82f6',
+          width: '12px',
+          height: '12px',
+          border: '2px solid white'
+        }}
+      />
+      
+      <div className={`bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 rounded-2xl shadow-xl p-6 min-w-[250px] transition-all duration-300 cursor-pointer
         ${isSelected ? 'border-primary scale-105 shadow-primary/30' : 'border-primary/40'}
         ${isConnecting ? 'ring-4 ring-primary/30 animate-pulse' : ''}
       `} onClick={() => data.onClick?.(data.id)} onMouseEnter={() => data.onHover?.(data.id)} onMouseLeave={() => data.onHover?.(null)}>
-      <div className="flex items-center gap-4 mb-4">
-        <div className={`p-3 bg-primary/20 rounded-xl transition-all duration-200 ${isSelected ? 'scale-110 bg-primary/30' : ''}`}>
-          <Building2 className="w-8 h-8 text-primary" />
+        <div className="flex items-center gap-4 mb-4">
+          <div className={`p-3 bg-primary/20 rounded-xl transition-all duration-200 ${isSelected ? 'scale-110 bg-primary/30' : ''}`}>
+            <Building2 className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-bold text-lg text-foreground">{data.companyName}</h2>
+            <p className="text-sm text-muted-foreground">
+              {isSelected ? 'Connection Hub - Click modules to connect' : 'Business Ecosystem Hub'}
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-bold text-lg text-foreground">{data.companyName}</h2>
-          <p className="text-sm text-muted-foreground">
-            {isSelected ? 'Connection Hub - Click modules to connect' : 'Business Ecosystem Hub'}
-          </p>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
+            <div className="text-lg font-bold text-primary">{data.moduleCount}</div>
+            <div className="text-xs text-muted-foreground">Active Modules</div>
+          </div>
+          <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
+            <div className="text-lg font-bold text-primary">{data.projectCount || 0}</div>
+            <div className="text-xs text-muted-foreground">Projects</div>
+          </div>
         </div>
+        
+        {isSelected && <div className="mt-4 p-2 bg-primary/10 rounded-lg">
+            <p className="text-xs font-medium text-primary text-center">
+              Connection Mode Active
+            </p>
+          </div>}
       </div>
-      
-      <div className="grid grid-cols-2 gap-3">
-        <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
-          <div className="text-lg font-bold text-primary">{data.moduleCount}</div>
-          <div className="text-xs text-muted-foreground">Active Modules</div>
-        </div>
-        <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
-          <div className="text-lg font-bold text-primary">{data.projectCount || 0}</div>
-          <div className="text-xs text-muted-foreground">Projects</div>
-        </div>
-      </div>
-      
-      {isSelected && <div className="mt-4 p-2 bg-primary/10 rounded-lg">
-          <p className="text-xs font-medium text-primary text-center">
-            Connection Mode Active
-          </p>
-        </div>}
-    </div>;
+    </>
+  );
 };
 
 // Module configuration with enhanced data and categories
@@ -447,26 +525,33 @@ export const BusinessMapPage = ({
     });
 
     // Create dynamic edges based on data relationships
-    const moduleEdges: Edge[] = enabledModules.map(module => ({
-      id: `company-${module.id}`,
-      source: 'company-center',
-      target: module.id,
-      type: 'default',
-      animated: true,
-      style: {
-        stroke: '#3b82f6',
-        strokeWidth: 3,
-        strokeOpacity: 0.8
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: '#3b82f6',
-        width: 20,
-        height: 20
-      },
-      labelStyle: { fill: '#3b82f6', fontWeight: 600 },
-      labelBgStyle: { fill: 'white', fillOpacity: 0.8 }
-    }));
+    const moduleEdges: Edge[] = enabledModules.map(module => {
+      const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+      const isBusinessModule = config?.category === 'business';
+      
+      return {
+        id: `company-${module.id}`,
+        source: 'company-center',
+        sourceHandle: isBusinessModule ? 'left' : 'right', // Use appropriate handle based on module position
+        target: module.id,
+        targetHandle: 'input',
+        type: 'default',
+        animated: true,
+        style: {
+          stroke: '#3b82f6',
+          strokeWidth: 3,
+          strokeOpacity: 0.8
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#3b82f6',
+          width: 20,
+          height: 20
+        },
+        labelStyle: { fill: '#3b82f6', fontWeight: 600 },
+        labelBgStyle: { fill: 'white', fillOpacity: 0.8 }
+      };
+    });
 
     // Add smart interconnections based on business logic
     const additionalEdges: Edge[] = [];
