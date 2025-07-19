@@ -347,9 +347,9 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 flex gap-6 p-6">
         {/* Business Map Canvas */}
-        <div className="w-full h-full relative border rounded-lg bg-background shadow-sm overflow-hidden">
+        <div className="flex-1 relative border rounded-lg bg-background shadow-sm overflow-hidden">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -400,6 +400,46 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
             />
           </ReactFlow>
         </div>
+
+        {/* Business Modules Panel */}
+        <Card className="w-80">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Business Modules ({companyModules.filter(m => m.enabled).length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {companyModules.map((module) => {
+                const Icon = moduleIcons[module.module_name as keyof typeof moduleIcons] || Database;
+                return (
+                  <div 
+                    key={module.id} 
+                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                      module.enabled 
+                        ? 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800' 
+                        : 'bg-gray-50 border-gray-200 dark:bg-gray-950 dark:border-gray-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4 text-foreground" />
+                      <span className="text-sm font-medium capitalize">
+                        {module.module_name.replace('-', ' ')}
+                      </span>
+                    </div>
+                    <Badge 
+                      variant={module.enabled ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      {module.enabled ? 'Active' : 'Disabled'}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Instructions Panel */}
