@@ -359,11 +359,12 @@ export const BusinessMapPage = ({
   }, []);
   const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
-    const centerX = 600;
-    const centerY = 400;
-    const radius = 350;
+    
+    // Create a more mind-map style layout instead of radial
+    const centerX = 500;
+    const centerY = 300;
 
-    // Create company center node with interactive handlers
+    // Create company center node
     const companyNode: Node = {
       id: 'company-center',
       type: 'companyCenter',
@@ -384,23 +385,53 @@ export const BusinessMapPage = ({
       draggable: false
     };
 
-    // Create module nodes with real data
-    const moduleNodes: Node[] = enabledModules.map((module, index) => {
-      const angle = index / enabledModules.length * 2 * Math.PI;
-      const x = centerX + radius * Math.cos(angle) - 100;
-      const y = centerY + radius * Math.sin(angle) - 60;
+    // Create mind-map style layout with business modules and project modules in different areas
+    const businessModules = enabledModules.filter(m => {
+      const config = moduleConfig[m.module_name as keyof typeof moduleConfig];
+      return config?.category === 'business';
+    });
+    
+    const projectModules = enabledModules.filter(m => {
+      const config = moduleConfig[m.module_name as keyof typeof moduleConfig];
+      return config?.category === 'project';
+    });
+
+    // Position business modules on the left side
+    const businessNodes: Node[] = businessModules.map((module, index) => {
+      const y = centerY + (index - (businessModules.length - 1) / 2) * 150;
+      const x = centerX - 400;
       const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
-      const moduleStats = data[module.module_name] || {
-        count: 0,
-        recent: []
-      };
+      const moduleStats = data[module.module_name] || { count: 0, recent: [] };
+      
       return {
         id: module.id,
         type: 'moduleNode',
-        position: {
-          x,
-          y
+        position: { x, y },
+        data: {
+          id: module.id,
+          ...config,
+          ...moduleStats,
+          moduleName: module.module_name,
+          isSelected: interactionState.selectedNodes.includes(module.id),
+          isConnecting: interactionState.connectionMode && interactionState.selectedNodes.includes('company-center'),
+          onClick: handleNodeClick,
+          onHover: handleNodeHover
         },
+        draggable: true
+      };
+    });
+
+    // Position project modules on the right side
+    const projectNodes: Node[] = projectModules.map((module, index) => {
+      const y = centerY + (index - (projectModules.length - 1) / 2) * 150;
+      const x = centerX + 400;
+      const config = moduleConfig[module.module_name as keyof typeof moduleConfig];
+      const moduleStats = data[module.module_name] || { count: 0, recent: [] };
+      
+      return {
+        id: module.id,
+        type: 'moduleNode',
+        position: { x, y },
         data: {
           id: module.id,
           ...config,
@@ -461,7 +492,7 @@ export const BusinessMapPage = ({
         });
       }
     });
-    setNodes([companyNode, ...moduleNodes]);
+    setNodes([companyNode, ...businessNodes, ...projectNodes]);
     setEdges([...moduleEdges, ...additionalEdges]);
   }, [currentCompany, interactionState, handleNodeClick, handleNodeHover]);
   const onConnect = useCallback((params: Edge | Connection) => setEdges(eds => addEdge(params, eds)), [setEdges]);
