@@ -8,6 +8,30 @@ import { useState, useMemo } from 'react';
 import React from 'react';
 import { ActivityDetailsModal } from './ActivityDetailsModal';
 
+// Generate hierarchical ID based on parent-child relationship
+const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityData[], stageActivities: ActivityData[]): string => {
+  // Get siblings at the same level within the same stage
+  const siblings = stageActivities.filter(a => 
+    a.parent_id === activity.parent_id && a.level === activity.level
+  ).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  
+  const siblingIndex = siblings.findIndex(s => s.id === activity.id) + 1;
+  
+  if (!activity.parent_id || activity.level === 0) {
+    // Root level activity
+    return siblingIndex.toString();
+  }
+  
+  // Find parent and get its ID
+  const parent = allActivities.find(a => a.id === activity.parent_id);
+  if (parent) {
+    const parentId = generateHierarchicalId(parent, allActivities, stageActivities);
+    return `${parentId}.${siblingIndex}`;
+  }
+  
+  return siblingIndex.toString();
+};
+
 interface StageGroup {
   stage: string;
   activities: ActivityData[];
@@ -29,6 +53,8 @@ interface ActivityRowProps {
   onCreateChild: (parentId: string) => void;
   onActivityClick: (activity: ActivityData) => void;
   level?: number;
+  allActivities: ActivityData[];
+  stageActivities: ActivityData[];
 }
 
 const ActivityRow = ({ 
@@ -37,18 +63,21 @@ const ActivityRow = ({
   onToggleExpansion, 
   onCreateChild,
   onActivityClick,
-  level = 0 
+  level = 0,
+  allActivities,
+  stageActivities
 }: ActivityRowProps) => {
   const hasChildren = activity.children && activity.children.length > 0;
   const paddingLeft = level * 24;
+  const hierarchicalId = generateHierarchicalId(activity, allActivities, stageActivities);
 
   return (
     <>
       <TableRow className="hover:bg-muted/50 border-b cursor-pointer" onClick={() => onActivityClick(activity)}>
         {/* ID */}
         <TableCell className="py-2">
-          <div className="text-xs font-mono text-muted-foreground">
-            {activity.id.slice(0, 8)}...
+          <div className="text-sm font-mono font-semibold text-foreground">
+            {hierarchicalId}
           </div>
         </TableCell>
         
@@ -196,6 +225,8 @@ const ActivityRow = ({
               onCreateChild={onCreateChild}
               onActivityClick={onActivityClick}
               level={level + 1}
+              allActivities={allActivities}
+              stageActivities={stageActivities}
             />
           ))}
         </>
@@ -355,6 +386,8 @@ export const ActivitiesTable = ({
                       onToggleExpansion={onToggleExpansion}
                       onCreateChild={onCreateChild}
                       onActivityClick={handleActivityClick}
+                      allActivities={activities}
+                      stageActivities={stageGroup.activities}
                     />
                   ))}
                 </React.Fragment>
