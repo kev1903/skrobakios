@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown, ArrowUpDown, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash2, ArrowUp, ArrowDown, ArrowUpDown, GripVertical, Copy, Scissors, FileText, History, Indent, Outdent, Image, Link, Calculator } from 'lucide-react';
 import { format } from 'date-fns';
 import { ActivityData } from '@/utils/activityUtils';
 import { useState, useMemo, useEffect } from 'react';
@@ -11,6 +11,7 @@ import { ActivityDetailsModal } from './ActivityDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DragDropContext, Droppable, Draggable, DropResult, DragUpdate } from 'react-beautiful-dnd';
+import { useRowContextMenu } from '@/components/ui/row-context-menu';
 
 // Extract hierarchical ID from activity name (database-generated)
 const extractHierarchicalId = (activityName: string): string => {
@@ -218,28 +219,6 @@ const ActivityRow = ({
             <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
               {activity.at_risk ? "Yes" : "No"}
             </Badge>
-          </div>
-        </TableCell>
-        
-        {/* Actions */}
-        <TableCell className="py-2 w-20 min-w-20 max-w-20" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onCreateChild(activity.id)}
-              className="h-6 w-6 p-0 hover:bg-primary/10"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(activity.id)}
-              className="h-6 w-6 p-0 hover:bg-destructive/10 text-destructive"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
           </div>
         </TableCell>
       </TableRow>
@@ -662,6 +641,124 @@ export const ActivitiesTable = ({
     setEditingActivityName('');
   };
 
+  // Context menu items for activity rows
+  const getContextMenuItems = (activity: ActivityData) => [
+    {
+      label: 'Cut',
+      action: () => console.log('Cut activity:', activity.id),
+      shortcut: 'Ctrl + X',
+      icon: <Scissors className="w-4 h-4" />
+    },
+    {
+      label: 'Copy',
+      action: () => console.log('Copy activity:', activity.id),
+      shortcut: 'Ctrl + C',
+      icon: <Copy className="w-4 h-4" />
+    },
+    {
+      label: 'Paste',
+      action: () => console.log('Paste'),
+      shortcut: 'Ctrl + V',
+      disabled: true
+    },
+    {
+      label: 'Paste Special...',
+      action: () => console.log('Paste Special'),
+      shortcut: 'Ctrl + Shift + V',
+      disabled: true
+    },
+    {
+      label: 'Clear Contents',
+      action: () => console.log('Clear Contents:', activity.id),
+    },
+    {
+      separator: true,
+      label: '',
+      action: () => {}
+    },
+    {
+      label: 'View Cell History...',
+      action: () => console.log('View Cell History:', activity.id),
+      icon: <History className="w-4 h-4" />
+    },
+    {
+      separator: true,
+      label: '',
+      action: () => {}
+    },
+    {
+      label: 'Insert Row',
+      action: () => onCreateChild(activity.id),
+    },
+    {
+      label: 'Delete Row',
+      action: () => onDelete(activity.id),
+    },
+    {
+      label: 'Add a Row Comment',
+      action: () => console.log('Add Row Comment:', activity.id),
+    },
+    {
+      label: 'Row Actions...',
+      action: () => console.log('Row Actions:', activity.id),
+    },
+    {
+      separator: true,
+      label: '',
+      action: () => {}
+    },
+    {
+      label: 'Indent',
+      action: () => console.log('Indent:', activity.id),
+      shortcut: 'Ctrl + ]',
+      icon: <Indent className="w-4 h-4" />
+    },
+    {
+      label: 'Outdent',
+      action: () => console.log('Outdent:', activity.id),
+      shortcut: 'Ctrl + [',
+      icon: <Outdent className="w-4 h-4" />
+    },
+    {
+      separator: true,
+      label: '',
+      action: () => {}
+    },
+    {
+      label: 'Insert Image',
+      action: () => console.log('Insert Image:', activity.id),
+      icon: <Image className="w-4 h-4" />
+    },
+    {
+      label: 'Link from Cell in Other Sheet...',
+      action: () => console.log('Link from Cell:', activity.id),
+      icon: <Link className="w-4 h-4" />
+    },
+    {
+      label: 'Manage References...',
+      action: () => console.log('Manage References:', activity.id),
+    },
+    {
+      label: 'Hyperlink...',
+      action: () => console.log('Hyperlink:', activity.id),
+      shortcut: 'Ctrl + K'
+    },
+    {
+      separator: true,
+      label: '',
+      action: () => {}
+    },
+    {
+      label: 'Convert to Column Formula',
+      action: () => console.log('Convert to Column Formula:', activity.id),
+      icon: <Calculator className="w-4 h-4" />
+    }
+  ];
+
+  const { handleContextMenu, contextMenu } = useRowContextMenu({ 
+    items: []
+  });
+
   return (
     <DragDropContext onDragEnd={handleDragEnd} onDragUpdate={handleDragUpdate}>
       <div className="border rounded-lg overflow-hidden bg-background">
@@ -680,13 +777,13 @@ export const ActivitiesTable = ({
               <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Health</TableHead>
               <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Progress</TableHead>
               <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">At Risk</TableHead>
-              <TableHead className="font-semibold py-3 w-20 min-w-20 max-w-20">Actions</TableHead>
+              
             </TableRow>
           </TableHeader>
           <TableBody>
             {stageGroups.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={13} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={12} className="text-center py-12 text-muted-foreground">
                   No activities yet. Create your first activity to get started.
                 </TableCell>
               </TableRow>
@@ -695,7 +792,7 @@ export const ActivitiesTable = ({
                 <React.Fragment key={stageGroup.stage}>
                   {/* Stage Group Header */}
                   <TableRow className="bg-muted/30 hover:bg-muted/50 border-b-2 border-border">
-                    <TableCell colSpan={13} className="py-3">
+                    <TableCell colSpan={12} className="py-3">
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
@@ -738,223 +835,213 @@ export const ActivitiesTable = ({
                     <Droppable droppableId={stageGroup.stage}>
                       {(provided, snapshot) => (
                         <div ref={provided.innerRef} {...provided.droppableProps}>
-                          {stageGroup.activities.map((activity, index) => (
-                            <Draggable key={activity.id} draggableId={activity.id} index={index}>
-                               {(provided, snapshot) => {
-                                 // Calculate if this row should have shuffle spacing
-                                 const isBeingDraggedOver = draggedOverStage === stageGroup.stage && 
-                                                           draggedOverIndex !== null && 
-                                                           index >= draggedOverIndex && 
-                                                           !snapshot.isDragging;
-                                 
-                                 const dragStyle = snapshot.isDragging 
-                                   ? {
-                                       transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
-                                       zIndex: 1000,
-                                     }
-                                   : provided.draggableProps.style;
+                          {stageGroup.activities.map((activity, index) => {
+                            const contextMenuItems = getContextMenuItems(activity);
+                            const { handleContextMenu: handleRowContextMenu, contextMenu: rowContextMenu } = useRowContextMenu({ 
+                              items: contextMenuItems
+                            });
+                            
+                            return (
+                              <Draggable key={activity.id} draggableId={activity.id} index={index}>
+                                {(provided, snapshot) => {
+                                  // Calculate if this row should have shuffle spacing
+                                  const isBeingDraggedOver = draggedOverStage === stageGroup.stage && 
+                                                            draggedOverIndex !== null && 
+                                                            index >= draggedOverIndex && 
+                                                            !snapshot.isDragging;
+                                  
+                                  const dragStyle = snapshot.isDragging 
+                                    ? {
+                                        transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
+                                        zIndex: 1000,
+                                      }
+                                    : provided.draggableProps.style;
 
-                                 return (
-                                   <TableRow
-                                     ref={provided.innerRef}
-                                     {...provided.draggableProps}
-                                     className={`hover:bg-muted/50 border-b cursor-pointer transition-all duration-300 ease-out ${
-                                       snapshot.isDragging 
-                                         ? 'bg-muted shadow-xl scale-105 z-50 opacity-90' 
-                                         : isBeingDraggedOver 
-                                           ? 'transform translate-y-4' 
-                                           : ''
-                                     }`}
-                                     style={{
-                                       ...dragStyle,
-                                       marginBottom: snapshot.isDragging ? '16px' : isBeingDraggedOver ? '16px' : '0px',
-                                       marginTop: snapshot.isDragging ? '16px' : '0px',
-                                     }}
-                                     onClick={() => !snapshot.isDragging && handleActivityClick(activity)}
-                                   >
-                                  {/* Drag Handle */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
-                                    <div className="flex items-center gap-2">
-                                      <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                        <GripVertical className="h-4 w-4 text-muted-foreground" />
-                                      </div>
-                                       <div className="text-sm font-mono font-semibold text-foreground truncate">
-                                         {extractHierarchicalId(activity.name)}
+                                  return (
+                                    <>
+                                      <TableRow
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        className={`hover:bg-muted/50 border-b cursor-pointer transition-all duration-300 ease-out ${
+                                          snapshot.isDragging 
+                                            ? 'bg-muted shadow-xl scale-105 z-50 opacity-90' 
+                                            : isBeingDraggedOver 
+                                              ? 'transform translate-y-4' 
+                                              : ''
+                                        }`}
+                                        style={{
+                                          ...dragStyle,
+                                          marginBottom: snapshot.isDragging ? '16px' : isBeingDraggedOver ? '16px' : '0px',
+                                          marginTop: snapshot.isDragging ? '16px' : '0px',
+                                        }}
+                                        onClick={() => !snapshot.isDragging && handleActivityClick(activity)}
+                                        onContextMenu={handleRowContextMenu}
+                                      >
+                                     {/* Drag Handle */}
+                                     <TableCell className="py-2 w-20 min-w-20 max-w-20">
+                                       <div className="flex items-center gap-2">
+                                         <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                                           <GripVertical className="h-4 w-4 text-muted-foreground" />
+                                         </div>
+                                          <div className="text-sm font-mono font-semibold text-foreground truncate">
+                                            {extractHierarchicalId(activity.name)}
+                                          </div>
                                        </div>
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Task */}
-                                  <TableCell className="py-2 w-48 min-w-48 max-w-48">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      {editingActivity === activity.id ? (
-                                        <Input
-                                          value={editingActivityName}
-                                          onChange={(e) => setEditingActivityName(e.target.value)}
-                                          onBlur={handleActivityEditSave}
-                                          onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                              handleActivityEditSave();
-                                            } else if (e.key === 'Escape') {
-                                              handleActivityEditCancel();
-                                            }
-                                          }}
-                                          className="font-medium text-sm h-6"
-                                          autoFocus
-                                          onClick={(e) => e.stopPropagation()}
-                                        />
-                                      ) : (
-                                        <span 
-                                          className="font-medium text-sm truncate cursor-pointer hover:text-primary transition-colors"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleActivityEdit(activity.id, activity.name);
-                                          }}
-                                        >
-                                          {activity.name}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Description */}
-                                  <TableCell className="py-2 w-48 min-w-48 max-w-48">
-                                    <div className="text-sm text-muted-foreground truncate">
-                                      {activity.description || "-"}
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Assigned To */}
-                                  <TableCell className="py-2 w-32 min-w-32 max-w-32">
-                                    <div className="text-sm truncate">
-                                      {activity.assigned_to || "Unassigned"}
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Status */}
-                                  <TableCell className="py-2 w-24 min-w-24 max-w-24">
-                                    <div className="truncate">
-                                      <Badge variant={activity.status === 'Completed' ? 'default' : 'secondary'} className="text-xs truncate">
-                                        {activity.status || "Not Started"}
-                                      </Badge>
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* % Complete */}
-                                  <TableCell className="py-2 w-24 min-w-24 max-w-24">
-                                    <div className="text-sm font-medium text-center">
-                                      {activity.progress || 0}%
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Start Date */}
-                                  <TableCell className="py-2 w-28 min-w-28 max-w-28">
-                                    <div className="text-sm text-center">
-                                      {activity.start_date ? format(new Date(activity.start_date), 'MMM dd') : "-"}
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* End Date */}
-                                  <TableCell className="py-2 w-28 min-w-28 max-w-28">
-                                    <div className="text-sm text-center">
-                                      {activity.end_date ? format(new Date(activity.end_date), 'MMM dd') : "-"}
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Duration */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
-                                    <div className="text-sm text-center">
-                                      {activity.duration && typeof activity.duration === 'number' ? `${activity.duration}d` : "-"}
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Health */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
-                                    <div className="truncate flex justify-center">
-                                      <Badge 
-                                        variant={
-                                          activity.health === 'Good' ? 'default' : 
-                                          activity.health === 'At Risk' ? 'secondary' : 
-                                          activity.health === 'Critical' ? 'destructive' : 'outline'
-                                        }
-                                        className="text-xs truncate"
-                                      >
-                                        {activity.health || "Unknown"}
-                                      </Badge>
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Progress */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
-                                    <div className="truncate flex justify-center">
-                                      <Badge 
-                                        variant={
-                                          activity.progress_status === 'On Track' ? 'default' : 
-                                          activity.progress_status === 'Behind' ? 'destructive' : 
-                                          activity.progress_status === 'Ahead' ? 'default' : 'secondary'
-                                        }
-                                        className="text-xs truncate"
-                                      >
-                                        {activity.progress_status || "On Track"}
-                                      </Badge>
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* At Risk */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
-                                    <div className="flex justify-center">
-                                      <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
-                                        {activity.at_risk ? "Yes" : "No"}
-                                      </Badge>
-                                    </div>
-                                  </TableCell>
-                                  
-                                  {/* Actions */}
-                                  <TableCell className="py-2 w-20 min-w-20 max-w-20">
-                                    <div className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => onCreateChild(activity.id)}
-                                        className="h-6 w-6 p-0 hover:bg-primary/10"
-                                      >
-                                        <Plus className="h-3 w-3" />
-                                      </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => onDelete(activity.id)}
-                                        className="h-6 w-6 p-0 hover:bg-destructive/10 text-destructive"
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  </TableCell>
-                                 </TableRow>
-                                 );
-                               }}
-                             </Draggable>
-                           ))}
-                           <tr ref={provided.innerRef} style={{ display: 'none' }}>
-                             <td>{provided.placeholder}</td>
-                           </tr>
-                         </div>
-                      )}
-                    </Droppable>
-                  )}
-                </React.Fragment>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                                     </TableCell>
+                                     
+                                     {/* Task */}
+                                     <TableCell className="py-2 w-48 min-w-48 max-w-48">
+                                       <div className="flex items-center gap-2 min-w-0">
+                                         {editingActivity === activity.id ? (
+                                           <Input
+                                             value={editingActivityName}
+                                             onChange={(e) => setEditingActivityName(e.target.value)}
+                                             onBlur={handleActivityEditSave}
+                                             onKeyDown={(e) => {
+                                               if (e.key === 'Enter') {
+                                                 handleActivityEditSave();
+                                               } else if (e.key === 'Escape') {
+                                                 handleActivityEditCancel();
+                                               }
+                                             }}
+                                             className="font-medium text-sm h-6"
+                                             autoFocus
+                                             onClick={(e) => e.stopPropagation()}
+                                           />
+                                         ) : (
+                                           <span 
+                                             className="font-medium text-sm truncate cursor-pointer hover:text-primary transition-colors"
+                                             onClick={(e) => {
+                                               e.stopPropagation();
+                                               handleActivityEdit(activity.id, activity.name);
+                                             }}
+                                           >
+                                             {activity.name}
+                                           </span>
+                                         )}
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Description */}
+                                     <TableCell className="py-2 w-48 min-w-48 max-w-48">
+                                       <div className="text-sm text-muted-foreground truncate">
+                                         {activity.description || "-"}
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Assigned To */}
+                                     <TableCell className="py-2 w-32 min-w-32 max-w-32">
+                                       <div className="text-sm truncate">
+                                         {activity.assigned_to || "Unassigned"}
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Status */}
+                                     <TableCell className="py-2 w-24 min-w-24 max-w-24">
+                                       <div className="truncate">
+                                         <Badge variant={activity.status === 'Completed' ? 'default' : 'secondary'} className="text-xs truncate">
+                                           {activity.status || "Not Started"}
+                                         </Badge>
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* % Complete */}
+                                     <TableCell className="py-2 w-24 min-w-24 max-w-24">
+                                       <div className="text-sm font-medium text-center">
+                                         {activity.progress || 0}%
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Start Date */}
+                                     <TableCell className="py-2 w-28 min-w-28 max-w-28">
+                                       <div className="text-sm text-center">
+                                         {activity.start_date ? format(new Date(activity.start_date), 'MMM dd') : "-"}
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* End Date */}
+                                     <TableCell className="py-2 w-28 min-w-28 max-w-28">
+                                       <div className="text-sm text-center">
+                                         {activity.end_date ? format(new Date(activity.end_date), 'MMM dd') : "-"}
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Duration */}
+                                     <TableCell className="py-2 w-20 min-w-20 max-w-20">
+                                       <div className="text-sm text-center">
+                                         {activity.duration && typeof activity.duration === 'number' ? `${activity.duration}d` : "-"}
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Health */}
+                                     <TableCell className="py-2 w-20 min-w-20 max-w-20">
+                                       <div className="truncate flex justify-center">
+                                         <Badge 
+                                           variant={
+                                             activity.health === 'Good' ? 'default' : 
+                                             activity.health === 'At Risk' ? 'secondary' : 
+                                             activity.health === 'Critical' ? 'destructive' : 'outline'
+                                           }
+                                           className="text-xs truncate"
+                                         >
+                                           {activity.health || "Unknown"}
+                                         </Badge>
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* Progress */}
+                                     <TableCell className="py-2 w-20 min-w-20 max-w-20">
+                                       <div className="truncate flex justify-center">
+                                         <Badge 
+                                           variant={
+                                             activity.progress_status === 'On Track' ? 'default' : 
+                                             activity.progress_status === 'Behind' ? 'destructive' : 
+                                             activity.progress_status === 'Ahead' ? 'default' : 'secondary'
+                                           }
+                                           className="text-xs truncate"
+                                         >
+                                           {activity.progress_status || "On Track"}
+                                         </Badge>
+                                       </div>
+                                     </TableCell>
+                                     
+                                     {/* At Risk */}
+                                     <TableCell className="py-2 w-20 min-w-20 max-w-20">
+                                       <div className="flex justify-center">
+                                         <Badge variant={activity.at_risk ? 'destructive' : 'outline'} className="text-xs">
+                                           {activity.at_risk ? "Yes" : "No"}
+                                         </Badge>
+                                       </div>
+                                     </TableCell>
+                                    </TableRow>
+                                    {rowContextMenu}
+                                    </>
+                                  );
+                                }}
+                              </Draggable>
+                            );
+                          })}
+                          <tr ref={provided.innerRef} style={{ display: 'none' }}>
+                            <td>{provided.placeholder}</td>
+                          </tr>
+                        </div>
+                     )}
+                   </Droppable>
+                 )}
+               </React.Fragment>
+             ))
+           )}
+         </TableBody>
+       </Table>
+     </div>
 
-      <ActivityDetailsModal
-        activity={selectedActivity}
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onActivityUpdated={handleActivityUpdated}
-      />
-    </DragDropContext>
-  );
+     <ActivityDetailsModal
+       activity={selectedActivity}
+       isOpen={isModalOpen}
+       onClose={handleModalClose}
+       onActivityUpdated={handleActivityUpdated}
+     />
+     {contextMenu}
+   </DragDropContext>
+ );
 };

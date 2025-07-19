@@ -10,14 +10,14 @@ interface ContextMenuItem {
   icon?: React.ReactNode;
 }
 
-interface ContextMenuProps {
+interface RowContextMenuProps {
   items: ContextMenuItem[];
   isOpen: boolean;
   position: { x: number; y: number };
   onClose: () => void;
 }
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({
+export const RowContextMenu: React.FC<RowContextMenuProps> = ({
   items,
   isOpen,
   position,
@@ -115,11 +115,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   );
 };
 
-interface UseContextMenuProps {
+interface UseRowContextMenuProps {
   items: ContextMenuItem[];
 }
 
-export const useContextMenu = ({ items }: UseContextMenuProps) => {
+export const useRowContextMenu = ({ items }: UseRowContextMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -134,7 +134,7 @@ export const useContextMenu = ({ items }: UseContextMenuProps) => {
   };
 
   const contextMenu = (
-    <ContextMenu
+    <RowContextMenu
       items={items}
       isOpen={isOpen}
       position={position}
