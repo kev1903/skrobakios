@@ -517,7 +517,11 @@ export const ActivitiesTable = ({
         return;
       }
 
-      // Update the local activities data without refreshing the page
+      // Update the local activities data to reflect the change
+      if (onActivityUpdated) {
+        onActivityUpdated();
+      }
+
       setEditingActivity(null);
       setEditingActivityName('');
     } catch (error) {
