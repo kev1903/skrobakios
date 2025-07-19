@@ -412,8 +412,8 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       </div>
 
       {/* Main Content - Full Screen Canvas */}
-      <div className="flex-1 relative w-full h-full">
-        <div className="w-full h-full">
+      <div className="flex-1 relative w-full" style={{ height: 'calc(100vh - 97px)' }}>
+        <div className="w-full h-full" style={{ width: '100%', height: '100%' }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -422,6 +422,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
             onConnect={onConnect}
             fitView
             className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
             nodesDraggable={true}
             nodesConnectable={true}
             elementsSelectable={true}
