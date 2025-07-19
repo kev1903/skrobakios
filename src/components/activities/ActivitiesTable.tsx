@@ -10,7 +10,7 @@ import React from 'react';
 import { ActivityDetailsModal } from './ActivityDetailsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DragUpdate } from 'react-beautiful-dnd';
 
 // Generate hierarchical ID based on parent-child relationship and stage number
 const generateHierarchicalId = (activity: ActivityData, allActivities: ActivityData[], stageActivities: ActivityData[], stage: string): string => {
@@ -313,10 +313,27 @@ export const ActivitiesTable = ({
   const [editValue, setEditValue] = useState<string>('');
   const [editingActivity, setEditingActivity] = useState<string | null>(null);
   const [editingActivityName, setEditingActivityName] = useState<string>('');
+  const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
+  const [draggedOverStage, setDraggedOverStage] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Handle drag update to track drag position for shuffle effect
+  const handleDragUpdate = (update: DragUpdate) => {
+    if (update.destination) {
+      setDraggedOverIndex(update.destination.index);
+      setDraggedOverStage(update.destination.droppableId);
+    } else {
+      setDraggedOverIndex(null);
+      setDraggedOverStage(null);
+    }
+  };
 
   // Handle drag and drop
   const handleDragEnd = async (result: DropResult) => {
+    // Reset drag state
+    setDraggedOverIndex(null);
+    setDraggedOverStage(null);
+    
     if (!result.destination) return;
 
     const { source, destination, draggableId } = result;
@@ -592,7 +609,7 @@ export const ActivitiesTable = ({
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+    <DragDropContext onDragEnd={handleDragEnd} onDragUpdate={handleDragUpdate}>
       <div className="border rounded-lg overflow-hidden bg-background">
         <Table className="table-fixed w-full">
           <TableHeader>
@@ -666,18 +683,41 @@ export const ActivitiesTable = ({
                   {stageGroup.isExpanded && (
                     <Droppable droppableId={stageGroup.stage}>
                       {(provided, snapshot) => (
-                        <>
+                        <div ref={provided.innerRef} {...provided.droppableProps}>
                           {stageGroup.activities.map((activity, index) => (
                             <Draggable key={activity.id} draggableId={activity.id} index={index}>
-                              {(provided, snapshot) => (
-                                <TableRow
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`hover:bg-muted/50 border-b cursor-pointer ${
-                                    snapshot.isDragging ? 'bg-muted shadow-lg' : ''
-                                  }`}
-                                  onClick={() => handleActivityClick(activity)}
-                                >
+                               {(provided, snapshot) => {
+                                 // Calculate if this row should have shuffle spacing
+                                 const isBeingDraggedOver = draggedOverStage === stageGroup.stage && 
+                                                           draggedOverIndex !== null && 
+                                                           index >= draggedOverIndex && 
+                                                           !snapshot.isDragging;
+                                 
+                                 const dragStyle = snapshot.isDragging 
+                                   ? {
+                                       transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
+                                       zIndex: 1000,
+                                     }
+                                   : provided.draggableProps.style;
+
+                                 return (
+                                   <TableRow
+                                     ref={provided.innerRef}
+                                     {...provided.draggableProps}
+                                     className={`hover:bg-muted/50 border-b cursor-pointer transition-all duration-300 ease-out ${
+                                       snapshot.isDragging 
+                                         ? 'bg-muted shadow-xl scale-105 z-50 opacity-90' 
+                                         : isBeingDraggedOver 
+                                           ? 'transform translate-y-4' 
+                                           : ''
+                                     }`}
+                                     style={{
+                                       ...dragStyle,
+                                       marginBottom: snapshot.isDragging ? '16px' : isBeingDraggedOver ? '16px' : '0px',
+                                       marginTop: snapshot.isDragging ? '16px' : '0px',
+                                     }}
+                                     onClick={() => !snapshot.isDragging && handleActivityClick(activity)}
+                                   >
                                   {/* Drag Handle */}
                                   <TableCell className="py-2 w-20 min-w-20 max-w-20">
                                     <div className="flex items-center gap-2">
@@ -836,14 +876,15 @@ export const ActivitiesTable = ({
                                       </Button>
                                     </div>
                                   </TableCell>
-                                </TableRow>
-                              )}
-                            </Draggable>
-                          ))}
-                          <tr ref={provided.innerRef} style={{ display: 'none' }}>
-                            <td>{provided.placeholder}</td>
-                          </tr>
-                        </>
+                                 </TableRow>
+                                 );
+                               }}
+                             </Draggable>
+                           ))}
+                           <tr ref={provided.innerRef} style={{ display: 'none' }}>
+                             <td>{provided.placeholder}</td>
+                           </tr>
+                         </div>
                       )}
                     </Droppable>
                   )}
