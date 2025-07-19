@@ -340,7 +340,7 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
       {/* Main Content */}
       <div className="flex-1 flex gap-6 p-6">
         {/* Business Map Canvas */}
-        <div className="flex-1 relative border rounded-lg bg-background shadow-sm">
+        <div className="flex-1 relative border rounded-lg bg-background shadow-sm overflow-hidden">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -352,6 +352,18 @@ export const BusinessMapPage = ({ onNavigate }: BusinessMapPageProps) => {
             nodesDraggable={true}
             nodesConnectable={true}
             elementsSelectable={true}
+            panOnDrag={true}
+            panOnScroll={true}
+            panOnScrollSpeed={0.5}
+            zoomOnScroll={true}
+            zoomOnPinch={true}
+            zoomOnDoubleClick={true}
+            preventScrolling={true}
+            minZoom={0.1}
+            maxZoom={4}
+            translateExtent={[[-5000, -5000], [5000, 5000]]}
+            nodeExtent={[[-4500, -4500], [4500, 4500]]}
+            defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
           >
             <Controls 
               className="bg-background border border-border rounded-lg shadow-lg"
