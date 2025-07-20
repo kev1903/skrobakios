@@ -21,7 +21,7 @@ interface CreateProjectProps {
 export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   const [startDate, setStartDate] = useState<Date>();
   const [deadline, setDeadline] = useState<Date>();
-  const [projectId, setProjectId] = useState("SK 002");
+  const [projectId, setProjectId] = useState("");
   const [projectName, setProjectName] = useState("");
   const [contractPrice, setContractPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -148,6 +148,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                   </Label>
                   <Input
                     id="projectId"
+                    placeholder="Enter Project ID"
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
                     className="w-full"
