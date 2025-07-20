@@ -152,26 +152,26 @@ export const TimelineGanttView = ({
       task.end_date ? new Date(task.end_date) : null
     ]).filter(Boolean) as Date[];
     
-    const earliestTask = taskDates.length > 0 ? new Date(Math.min(...taskDates.map(d => d.getTime()))) : now;
-    const latestTask = taskDates.length > 0 ? new Date(Math.max(...taskDates.map(d => d.getTime()))) : now;
+    // If no tasks, default to current month
+    if (taskDates.length === 0) {
+      const start = startOfMonth(now);
+      const end = endOfMonth(addDays(now, 60)); // Show 2 months ahead
+      return eachDayOfInterval({ start, end });
+    }
     
-    // Ensure we show full months in the view
-    const currentMonthStart = startOfMonth(now);
-    const currentMonthEnd = endOfMonth(now);
+    const earliestTask = new Date(Math.min(...taskDates.map(d => d.getTime())));
+    const latestTask = new Date(Math.max(...taskDates.map(d => d.getTime())));
     
-    // Start from the beginning of the month containing the earliest task or current month
-    const startMonth = earliestTask < currentMonthStart ? 
-      startOfMonth(earliestTask) : 
-      currentMonthStart;
+    // Always use task dates as the primary basis for the timeline
+    // Start from the month containing the earliest task
+    const startMonth = startOfMonth(earliestTask);
     
-    // End at the end of the month containing the latest task, but at least show 2 months
-    const endMonth = latestTask > currentMonthEnd ? 
-      endOfMonth(latestTask) : 
-      endOfMonth(addDays(currentMonthEnd, 32)); // Ensure we show at least next month too
+    // End at the month containing the latest task, with buffer
+    const endMonth = endOfMonth(addDays(latestTask, 30)); // Add 30 days buffer
     
-    // Add one month buffer on each side for better navigation
-    const start = startOfMonth(addDays(startMonth, -32));
-    const end = endOfMonth(addDays(endMonth, 32));
+    // Use task-based range, not current month
+    const start = startMonth;
+    const end = endMonth;
     
     switch (timeScale) {
       case 'weeks':
