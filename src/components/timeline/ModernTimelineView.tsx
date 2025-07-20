@@ -237,28 +237,6 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
         {/* View Toggle and Controls */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            {/* List/Gantt Toggle */}
-            <div className="flex items-center bg-muted/30 rounded-md p-1">
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="h-8 px-3"
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-              <Button
-                variant={viewMode === 'gantt' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('gantt')}
-                className="h-8 px-3"
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Gantt View
-              </Button>
-            </div>
-
             {/* Date Range Filter */}
             <div className="flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-muted-foreground" />
@@ -306,6 +284,28 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
                   <SelectItem value="project">Project</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* List/Gantt Toggle - Moved to top right */}
+            <div className="flex items-center bg-muted/30 rounded-md p-1">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="h-8 px-3"
+              >
+                <List className="w-4 h-4 mr-2" />
+                List View
+              </Button>
+              <Button
+                variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('gantt')}
+                className="h-8 px-3"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Gantt View
+              </Button>
             </div>
           </div>
         </div>
