@@ -396,6 +396,45 @@ export const TimelineGanttView = ({
     return null; // Placeholder for dependency visualization
   };
 
+  // Handle task indentation
+  const handleIndentTask = () => {
+    if (!selectedTask) return;
+    
+    // Find the selected task and the task above it
+    const allTasks = [...enhancedTasks];
+    const currentTaskIndex = allTasks.findIndex(t => t.id === selectedTask);
+    
+    if (currentTaskIndex <= 0) return; // Can't indent first task or if not found
+    
+    const currentTask = allTasks[currentTaskIndex];
+    const taskAbove = allTasks[currentTaskIndex - 1];
+    
+    // Don't indent if the task above is already a child of something at the same level
+    if (currentTask.level >= taskAbove.level + 1) return;
+    
+    // Update the selected task to be a child of the task above
+    onTaskUpdate?.(selectedTask, {
+      parent_id: taskAbove.id,
+      level: (taskAbove.level || 0) + 1
+    });
+  };
+
+  // Handle task outdentation  
+  const handleOutdentTask = () => {
+    if (!selectedTask) return;
+    
+    const currentTask = enhancedTasks.find(t => t.id === selectedTask);
+    if (!currentTask || !currentTask.parent_id || (currentTask.level || 0) <= 0) return;
+    
+    // Find the parent task to get its parent_id and level
+    const parentTask = enhancedTasks.find(t => t.id === currentTask.parent_id);
+    
+    onTaskUpdate?.(selectedTask, {
+      parent_id: parentTask?.parent_id || null,
+      level: Math.max(0, (currentTask.level || 0) - 1)
+    });
+  };
+
   
   // Render task list item (left panel)
   const renderTaskListItem = (task: GanttTask, level: number = 0): React.ReactNode[] => {
@@ -1037,7 +1076,13 @@ export const TimelineGanttView = ({
             <div className="flex items-center gap-1 border-r border-border pr-2">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0"
+                    onClick={handleOutdentTask}
+                    disabled={!selectedTask}
+                  >
                     <Outdent className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
@@ -1047,7 +1092,13 @@ export const TimelineGanttView = ({
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0"
+                    onClick={handleIndentTask}
+                    disabled={!selectedTask}
+                  >
                     <Indent className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
