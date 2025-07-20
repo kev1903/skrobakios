@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
-import { TimelineView } from "./timeline/TimelineView";
+import { ResponsiveTimelineView } from "./timeline/ResponsiveTimelineView";
 import { useScreenSize } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -79,7 +79,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
         {/* Mobile Content */}
         <div className="flex-1 overflow-auto backdrop-blur-xl bg-white/95">
           <div className="p-4">
-            <TimelineView 
+            <ResponsiveTimelineView 
               projectId={project.id}
               projectName={project.name}
               companyId={project.company_id}
@@ -118,7 +118,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
         {/* Tablet Content */}
         <div className="flex-1 overflow-auto backdrop-blur-xl bg-white/95 border-l border-white/10">
           <div className="p-6">
-            <TimelineView 
+            <ResponsiveTimelineView 
               projectId={project.id}
               projectName={project.name}
               companyId={project.company_id}
@@ -144,7 +144,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
       {/* Desktop Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in">
         <div className="max-w-7xl mx-auto p-6">
-          <TimelineView 
+          <ResponsiveTimelineView 
             projectId={project.id}
             projectName={project.name}
             companyId={project.company_id}

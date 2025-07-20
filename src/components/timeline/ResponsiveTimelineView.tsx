@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TimelineView } from './TimelineView';
+import { ModernTimelineView } from './ModernTimelineView';
 import { useScreenSize } from '@/hooks/use-mobile';
 
 interface ResponsiveTimelineViewProps {
@@ -24,7 +24,7 @@ export const ResponsiveTimelineView = ({
         ? 'space-y-5' 
         : 'space-y-6'
     }`}>
-      <TimelineView
+      <ModernTimelineView
         projectId={projectId}
         projectName={projectName}
         companyId={companyId}
