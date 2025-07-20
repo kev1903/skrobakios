@@ -30,6 +30,7 @@ import { RecurringPage } from "@/components/RecurringPage";
 import { WBSPage } from "@/components/WBSPage";
 import { SalesPage } from "@/components/SalesPage";
 import { ProjectTeamPage } from "@/components/projects/ProjectTeamPage";
+import { ProjectsWithSidePanel } from "@/components/projects/ProjectsWithSidePanel";
 
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 
@@ -113,7 +114,7 @@ export const ContentRenderer = ({
     case "projects":
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />
+          <ProjectsWithSidePanel onNavigate={onNavigate} onSelectProject={onSelectProject} />
         </SubscriptionProtectedRoute>
       );
     case "individual-project-dashboard":
