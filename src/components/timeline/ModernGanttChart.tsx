@@ -97,11 +97,39 @@ export const ModernGanttChart = ({
   };
 
   const getTaskPosition = (task: ModernGanttTask) => {
-    const startOffset = differenceInDays(task.startDate, viewStart);
-    const duration = differenceInDays(task.endDate, task.startDate) + 1;
+    // Find the exact day index in our days array for precise alignment
+    const taskStartDay = new Date(task.startDate.getFullYear(), task.startDate.getMonth(), task.startDate.getDate());
+    const taskEndDay = new Date(task.endDate.getFullYear(), task.endDate.getMonth(), task.endDate.getDate());
+    
+    // Find start index in the days array
+    const startIndex = days.findIndex(day => {
+      const dayDate = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+      return dayDate.getTime() === taskStartDay.getTime();
+    });
+    
+    // Find end index in the days array  
+    const endIndex = days.findIndex(day => {
+      const dayDate = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+      return dayDate.getTime() === taskEndDay.getTime();
+    });
+    
+    // If task is outside visible range, use fallback calculation
+    if (startIndex === -1 || endIndex === -1) {
+      const startOffset = differenceInDays(task.startDate, viewStart);
+      const duration = differenceInDays(task.endDate, task.startDate) + 1;
+      return {
+        left: Math.max(0, startOffset * dayWidth),
+        width: Math.max(dayWidth, duration * dayWidth)
+      };
+    }
+    
+    // Use exact day grid alignment
+    const left = startIndex * dayWidth;
+    const width = (endIndex - startIndex + 1) * dayWidth;
+    
     return {
-      left: Math.max(0, startOffset * dayWidth),
-      width: Math.max(dayWidth, duration * dayWidth)
+      left: Math.max(0, left),
+      width: Math.max(dayWidth, width)
     };
   };
 
