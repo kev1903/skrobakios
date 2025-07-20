@@ -105,25 +105,25 @@ export const ModernGanttChart = ({
   };
 
   const getTaskPosition = (task: ModernGanttTask) => {
-    // Find the exact day index in our actualDays array for precise alignment
+    // Find the exact day index in our currentDays array for precise alignment
     const taskStartDay = new Date(task.startDate.getFullYear(), task.startDate.getMonth(), task.startDate.getDate());
     const taskEndDay = new Date(task.endDate.getFullYear(), task.endDate.getMonth(), task.endDate.getDate());
     
-    // Find start index in the actualDays array
-    const startIndex = actualDays.findIndex(day => {
+    // Find start index in the currentDays array
+    const startIndex = currentDays.findIndex(day => {
       const dayDate = new Date(day.getFullYear(), day.getMonth(), day.getDate());
       return dayDate.getTime() === taskStartDay.getTime();
     });
     
-    // Find end index in the actualDays array  
-    const endIndex = actualDays.findIndex(day => {
+    // Find end index in the currentDays array  
+    const endIndex = currentDays.findIndex(day => {
       const dayDate = new Date(day.getFullYear(), day.getMonth(), day.getDate());
       return dayDate.getTime() === taskEndDay.getTime();
     });
     
     // If task is outside visible range, use fallback calculation
     if (startIndex === -1 || endIndex === -1) {
-      const startOffset = differenceInDays(task.startDate, actualViewStart);
+      const startOffset = differenceInDays(task.startDate, currentViewStart);
       const duration = differenceInDays(task.endDate, task.startDate) + 1;
       return {
         left: Math.max(0, startOffset * dayWidth),
@@ -167,23 +167,29 @@ export const ModernGanttChart = ({
     }
   };
 
-  const [currentViewOffset, setCurrentViewOffset] = useState(0);
+  // Reset offset when tasks change to ensure we always start with task-relevant view
+  const [viewOffset, setViewOffset] = useState(0);
+  
+  // Reset offset when tasks change
+  useMemo(() => {
+    setViewOffset(0);
+  }, [tasks]);
 
   const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentViewOffset(prev => direction === 'next' ? prev + 30 : prev - 30);
+    setViewOffset(prev => direction === 'next' ? prev + 30 : prev - 30);
   };
 
-  // Calculate actual view start with offset
-  const actualViewStart = useMemo(() => {
-    return addDays(viewStart, currentViewOffset);
-  }, [viewStart, currentViewOffset]);
+  // Calculate the current view start based on tasks + navigation offset
+  const currentViewStart = useMemo(() => {
+    return startOfMonth(addDays(viewStart, viewOffset));
+  }, [viewStart, viewOffset]);
 
-  // Recalculate days based on actual view start
-  const actualDays = useMemo(() => {
-    const start = actualViewStart;
-    const end = addDays(start, 60); // Show 2 months
+  // Generate days for the current view (3 months)
+  const currentDays = useMemo(() => {
+    const start = currentViewStart;
+    const end = addDays(start, 90); // Show 3 months
     return eachDayOfInterval({ start, end });
-  }, [actualViewStart]);
+  }, [currentViewStart]);
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
@@ -199,7 +205,7 @@ export const ModernGanttChart = ({
                 ←
               </Button>
               <span className="text-sm font-medium text-gray-600 min-w-[120px] text-center">
-                {format(actualViewStart, 'MMM yyyy')}
+                {format(currentViewStart, 'MMM yyyy')}
               </span>
               <Button variant="outline" size="sm" onClick={() => navigateMonth('next')}>
                 →
@@ -304,8 +310,8 @@ export const ModernGanttChart = ({
         <div className="flex-1 overflow-x-auto">
           {/* Timeline Header */}
           <div className="border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
-            <div className="flex" style={{ width: actualDays.length * dayWidth }}>
-              {actualDays.map((day, index) => (
+            <div className="flex" style={{ width: currentDays.length * dayWidth }}>
+              {currentDays.map((day, index) => (
                 <div
                   key={day.toString()}
                   className={cn(
@@ -356,11 +362,11 @@ export const ModernGanttChart = ({
             ))}
 
             {/* Today Line */}
-            {actualDays.some(day => isToday(day)) && (
+            {currentDays.some(day => isToday(day)) && (
               <div
                 className="absolute top-0 w-0.5 bg-blue-500 z-20"
                 style={{
-                  left: actualDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
+                  left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
                   height: visibleTasks.length * 52
                 }}
               />
