@@ -828,7 +828,8 @@ export const BusinessMapPage = ({
         </div>
       </div>;
   }
-  return <div className="h-screen bg-background flex flex-col">
+  return (
+    <div className="h-screen bg-background flex flex-col">
       {/* Header with Back Button, Title, and Search */}
       <div className="bg-card/50 backdrop-blur-sm border-b p-4">
         <div className="flex items-center justify-between gap-4">
@@ -915,7 +916,8 @@ export const BusinessMapPage = ({
         </div>
 
         {/* Connection Status Panel */}
-        {interactionState.connectionMode && <div className="absolute bottom-6 right-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
+        {interactionState.connectionMode && (
+          <div className="absolute bottom-6 right-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
               <h3 className="font-semibold text-sm">Connection Mode Active</h3>
@@ -924,13 +926,14 @@ export const BusinessMapPage = ({
               Click on any module to create a dynamic connection to Skrobaki
             </p>
             <Button size="sm" variant="outline" onClick={() => setInteractionState(prev => ({
-          ...prev,
-          connectionMode: false,
-          selectedNodes: []
-        }))} className="w-full">
+              ...prev,
+              connectionMode: false,
+              selectedNodes: []
+            }))} className="w-full">
               Exit Connection Mode
             </Button>
-          </div>}
+          </div>
+        )}
 
         {/* Connection Status Indicator */}
         <div className="absolute top-4 left-4 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3">
