@@ -297,13 +297,26 @@ export const ModernGanttChart = ({
           </div>
 
           {/* Timeline Content */}
-          <div className="relative">
+          <div className="relative" style={{ height: visibleTasks.length * 52 }}>
+            {/* Grid lines for visual alignment */}
+            {visibleTasks.map((_, index) => (
+              <div
+                key={`grid-${index}`}
+                className="absolute w-full border-b border-gray-100"
+                style={{
+                  top: index * 52,
+                  height: 52
+                }}
+              />
+            ))}
+
             {/* Today Line */}
             {days.some(day => isToday(day)) && (
               <div
-                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 z-20"
+                className="absolute top-0 w-0.5 bg-blue-500 z-20"
                 style={{
-                  left: days.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2
+                  left: days.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
+                  height: visibleTasks.length * 52
                 }}
               />
             )}
@@ -314,8 +327,13 @@ export const ModernGanttChart = ({
               return (
                 <div
                   key={`${task.id}-bar`}
-                  className="relative border-b border-gray-100"
-                  style={{ height: 52 }}
+                  className="absolute"
+                  style={{
+                    top: index * 52,
+                    left: position.left,
+                    width: position.width,
+                    height: 52
+                  }}
                 >
                   <div
                     className={cn(
@@ -324,7 +342,6 @@ export const ModernGanttChart = ({
                       task.isStage ? "h-8 top-2" : ""
                     )}
                     style={{
-                      left: position.left,
                       width: position.width,
                       minWidth: dayWidth
                     }}
