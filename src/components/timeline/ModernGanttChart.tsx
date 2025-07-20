@@ -186,8 +186,9 @@ export const ModernGanttChart = ({
                   "border-b border-gray-100 hover:bg-gray-50 transition-colors",
                   task.isStage && "bg-blue-50 border-b-blue-200"
                 )}
+                style={{ height: 52 }}
               >
-                <div className="p-3">
+                <div className="p-3 h-full flex items-center">
                   <div className="grid grid-cols-12 gap-2 items-center">
                     {/* Task Name */}
                     <div className="col-span-6 flex items-center gap-2">
