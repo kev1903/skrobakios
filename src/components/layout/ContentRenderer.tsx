@@ -30,6 +30,7 @@ import { RecurringPage } from "@/components/RecurringPage";
 import { WBSPage } from "@/components/WBSPage";
 import { SalesPage } from "@/components/SalesPage";
 import { ProjectTeamPage } from "@/components/projects/ProjectTeamPage";
+import { ProjectCostPage } from "@/components/project-cost/ProjectCostPage";
 
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 
@@ -267,9 +268,8 @@ export const ContentRenderer = ({
                 return "Active";
             }
           }} activeSection="cost" />
-            <div className="p-8">
-              <h1 className="text-2xl font-bold text-white">Cost & Contracts</h1>
-              <p className="text-white/70">This feature has been removed.</p>
+            <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in">
+              <ProjectCostPage project={currentProject} />
             </div>
           </div>
         </SubscriptionProtectedRoute>
