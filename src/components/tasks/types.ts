@@ -5,6 +5,7 @@ export interface Task {
   project_id: string;
   projectName?: string;
   taskName: string;
+  taskType: 'Task' | 'Issue';
   priority: 'High' | 'Medium' | 'Low';
   assignedTo: { name: string; avatar: string; userId?: string };
   dueDate: string;
