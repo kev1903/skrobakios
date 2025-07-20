@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth } from 'date-fns';
 import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,10 @@ export const ModernGanttChart = ({
   onTaskDelete
 }: ModernGanttChartProps) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  
+  // Refs for scroll synchronization
+  const ganttHeaderRef = useRef<HTMLDivElement>(null);
+  const ganttScrollBodyRef = useRef<HTMLDivElement>(null);
   
   // Calculate view range dynamically based on all tasks
   const viewStart = useMemo(() => {
@@ -196,6 +200,25 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
+  // Set up scroll synchronization
+  useEffect(() => {
+    const ganttHeader = ganttHeaderRef.current;
+    const ganttScrollBody = ganttScrollBodyRef.current;
+    
+    if (!ganttHeader || !ganttScrollBody) return;
+
+    const syncScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      ganttHeader.scrollLeft = target.scrollLeft;
+    };
+
+    ganttScrollBody.addEventListener('scroll', syncScroll);
+    
+    return () => {
+      ganttScrollBody.removeEventListener('scroll', syncScroll);
+    };
+  }, []);
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       {/* Header */}
@@ -310,9 +333,13 @@ export const ModernGanttChart = ({
         </div>
 
         {/* Timeline */}
-        <div className="flex-1 overflow-x-auto">
-          {/* Timeline Header */}
-          <div className="border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
+        <div className="flex-1 flex flex-col">
+          {/* Timeline Header - Separately scrollable */}
+          <div 
+            ref={ganttHeaderRef}
+            className="gantt-calendar-header border-b border-gray-200 bg-gray-50 overflow-x-hidden z-10"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             <div className="flex" style={{ width: currentDays.length * dayWidth }}>
               {currentDays.map((day, index) => (
                 <div
@@ -350,68 +377,73 @@ export const ModernGanttChart = ({
             </div>
           </div>
 
-          {/* Timeline Content */}
-          <div className="relative" style={{ height: visibleTasks.length * 52 }}>
-            {/* Grid lines for visual alignment */}
-            {visibleTasks.map((_, index) => (
-              <div
-                key={`grid-${index}`}
-                className="absolute w-full border-b border-gray-100"
-                style={{
-                  top: index * 52,
-                  height: 52
-                }}
-              />
-            ))}
-
-            {/* Today Line */}
-            {currentDays.some(day => isToday(day)) && (
-              <div
-                className="absolute top-0 w-0.5 bg-blue-500 z-20"
-                style={{
-                  left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
-                  height: visibleTasks.length * 52
-                }}
-              />
-            )}
-
-            {/* Task Bars */}
-            {visibleTasks.map((task, index) => {
-              const position = getTaskPosition(task);
-              return (
+          {/* Timeline Content - Main scrollable area */}
+          <div 
+            ref={ganttScrollBodyRef}
+            className="gantt-scroll-body flex-1 overflow-x-auto overflow-y-hidden"
+          >
+            <div className="relative" style={{ height: visibleTasks.length * 52, width: currentDays.length * dayWidth }}>
+              {/* Grid lines for visual alignment */}
+              {visibleTasks.map((_, index) => (
                 <div
-                  key={`${task.id}-bar`}
-                  className="absolute"
+                  key={`grid-${index}`}
+                  className="absolute w-full border-b border-gray-100"
                   style={{
                     top: index * 52,
-                    left: position.left,
-                    width: position.width,
                     height: 52
                   }}
-                >
+                />
+              ))}
+
+              {/* Today Line */}
+              {currentDays.some(day => isToday(day)) && (
+                <div
+                  className="absolute top-0 w-0.5 bg-blue-500 z-20"
+                  style={{
+                    left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
+                    height: visibleTasks.length * 52
+                  }}
+                />
+              )}
+
+              {/* Task Bars */}
+              {visibleTasks.map((task, index) => {
+                const position = getTaskPosition(task);
+                return (
                   <div
-                    className={cn(
-                      "absolute top-3 h-6 rounded-md shadow-sm flex items-center px-2",
-                      getTaskBarColor(task),
-                      task.isStage ? "h-8 top-2" : ""
-                    )}
+                    key={`${task.id}-bar`}
+                    className="absolute"
                     style={{
+                      top: index * 52,
+                      left: position.left,
                       width: position.width,
-                      minWidth: dayWidth
+                      height: 52
                     }}
                   >
-                    {task.assignee && (
-                      <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-medium text-gray-700 mr-2">
-                        {task.assignee.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <span className="text-xs font-medium text-white truncate">
-                      {task.name}
-                    </span>
+                    <div
+                      className={cn(
+                        "absolute top-3 h-6 rounded-md shadow-sm flex items-center px-2",
+                        getTaskBarColor(task),
+                        task.isStage ? "h-8 top-2" : ""
+                      )}
+                      style={{
+                        width: position.width,
+                        minWidth: dayWidth
+                      }}
+                    >
+                      {task.assignee && (
+                        <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-medium text-gray-700 mr-2">
+                          {task.assignee.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span className="text-xs font-medium text-white truncate">
+                        {task.name}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
