@@ -353,7 +353,7 @@ export const BusinessMapPage = ({
               localStorage.setItem(saveKey, JSON.stringify(currentPositions));
               setLastSavedPositions(currentPositions);
               
-              toast.success('Map layout auto-saved', { duration: 1000 });
+              // toast.success('Map layout auto-saved', { duration: 1000 });
             }
           } catch (error) {
             console.error('Error auto-saving positions:', error);
