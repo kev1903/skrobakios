@@ -275,12 +275,18 @@ export const TimelineGanttView = ({
 
   // Enhanced task geometry calculation
   const getTaskGeometry = (task: GanttTask) => {
-    if (!task.start_date || !task.end_date) return null;
+    if (!task.start_date || !task.end_date) {
+      console.log('Task missing dates:', task.name, task.start_date, task.end_date);
+      return null;
+    }
     
     const startDate = new Date(task.start_date);
     const endDate = new Date(task.end_date);
     const timelineStart = timelineDates[0];
     const timelineEnd = timelineDates[timelineDates.length - 1];
+    
+    console.log('Timeline range:', timelineStart, 'to', timelineEnd);
+    console.log('Task dates:', task.name, startDate, 'to', endDate);
     
     let startOffset, duration;
     
@@ -295,11 +301,15 @@ export const TimelineGanttView = ({
       duration = Math.max(1, differenceInDays(endDate, startDate) + 1);
     }
     
-    return {
+    const geometry = {
       left: Math.max(0, startOffset * timeConfig.dayWidth),
       width: Math.max(timeConfig.dayWidth * 0.8, duration * timeConfig.dayWidth),
       visible: startDate <= timelineEnd && endDate >= timelineStart
     };
+    
+    console.log('Task geometry:', task.name, geometry);
+    
+    return geometry;
   };
 
   // Enhanced hierarchical structure with dependencies
