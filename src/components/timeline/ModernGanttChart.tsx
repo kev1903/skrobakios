@@ -105,11 +105,11 @@ export const ModernGanttChart = ({
   };
 
   const getTaskPosition = (task: ModernGanttTask) => {
-    // Find the exact day index in our currentDays array for precise alignment
+    // Normalize dates to remove time component for accurate comparison
     const taskStartDay = new Date(task.startDate.getFullYear(), task.startDate.getMonth(), task.startDate.getDate());
     const taskEndDay = new Date(task.endDate.getFullYear(), task.endDate.getMonth(), task.endDate.getDate());
     
-    // Find start index in the currentDays array
+    // Find start index in the currentDays array using the same date comparison as calendar header
     const startIndex = currentDays.findIndex(day => {
       const dayDate = new Date(day.getFullYear(), day.getMonth(), day.getDate());
       return dayDate.getTime() === taskStartDay.getTime();
@@ -121,22 +121,25 @@ export const ModernGanttChart = ({
       return dayDate.getTime() === taskEndDay.getTime();
     });
     
-    // If task is outside visible range, use fallback calculation
+    // If task dates are outside current view, calculate position relative to currentDays[0]
+    // This ensures consistency with the calendar header coordinate system
     if (startIndex === -1 || endIndex === -1) {
-      const startOffset = differenceInDays(task.startDate, currentViewStart);
-      const duration = differenceInDays(task.endDate, task.startDate) + 1;
+      const firstVisibleDay = new Date(currentDays[0].getFullYear(), currentDays[0].getMonth(), currentDays[0].getDate());
+      const startOffset = differenceInDays(taskStartDay, firstVisibleDay);
+      const duration = differenceInDays(taskEndDay, taskStartDay) + 1;
+      
       return {
-        left: Math.max(0, startOffset * dayWidth),
+        left: startOffset * dayWidth,
         width: Math.max(dayWidth, duration * dayWidth)
       };
     }
     
-    // Use exact day grid alignment
+    // Use exact day grid alignment for tasks within the visible range
     const left = startIndex * dayWidth;
     const width = (endIndex - startIndex + 1) * dayWidth;
     
     return {
-      left: Math.max(0, left),
+      left: left,
       width: Math.max(dayWidth, width)
     };
   };
