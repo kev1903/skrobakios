@@ -89,5 +89,86 @@ export const TimelineListView = ({
     return 'Draft';
   };
   const groups = groupedEntries();
-  return;
+
+  return (
+    <div className="p-6 space-y-6">
+      {Object.entries(groups).map(([groupName, entries]) => (
+        <div key={groupName} className="space-y-4">
+          {/* Group Header */}
+          <div className="flex items-center space-x-2 pb-2 border-b border-white/20">
+            <h3 className="text-lg font-semibold text-foreground">{groupName}</h3>
+            <Badge variant="secondary" className="text-xs">
+              {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
+            </Badge>
+          </div>
+
+          {/* Entries List */}
+          <div className="space-y-3">
+            {entries.map((entry) => (
+              <div
+                key={entry.id}
+                className="backdrop-blur-sm bg-white/30 border border-white/20 rounded-lg p-4 hover:bg-white/40 transition-all duration-200"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  {/* Entry Info */}
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: categoryColors[entry.category] || '#6b7280' }}
+                      />
+                      <h4 className="font-medium text-foreground">{entry.task_activity}</h4>
+                      <Badge className={cn("text-xs", getStatusColor(entry))}>
+                        {getStatusText(entry)}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{format(new Date(entry.start_time), 'MMM d, h:mm a')}</span>
+                      </div>
+                      {entry.duration && (
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{formatDuration(entry.duration)}</span>
+                        </div>
+                      )}
+                      {entry.project_name && (
+                        <div className="flex items-center space-x-1">
+                          <User className="w-4 h-4" />
+                          <span>{entry.project_name}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Tag className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{entry.category}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center space-x-2">
+                    {entry.is_active ? (
+                      <Button size="sm" variant="outline" className="border-red-200 text-red-700 hover:bg-red-50">
+                        <Pause className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
+                        <Play className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 };
