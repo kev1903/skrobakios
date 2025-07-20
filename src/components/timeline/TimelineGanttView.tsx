@@ -614,16 +614,16 @@ export const TimelineGanttView = ({
         onClick={() => setSelectedTask(task.id)}
       >
         <div className="p-2">
-          <div className="grid grid-cols-12 gap-2 items-center">
+          <div className="flex items-center">
             {/* WBS Number Column */}
-            <div className="col-span-1 text-center">
+            <div className="w-[60px] text-center">
               <span className="text-xs font-mono text-muted-foreground">
                 {wbsNumbers.get(task.id) || ''}
               </span>
             </div>
 
             {/* Task Name Column */}
-            <div className="col-span-4 flex items-center gap-1" style={{ paddingLeft: `${level * 12}px` }}>
+            <div className="w-[280px] flex items-center gap-1 px-2" style={{ paddingLeft: `${level * 12 + 8}px` }}>
               {/* Drag Handle */}
               <div className="drag-handle cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100">
                 <GripVertical className="h-3 w-3 text-muted-foreground" />
@@ -673,7 +673,7 @@ export const TimelineGanttView = ({
             </div>
 
             {/* Start Date Column */}
-            <div className="col-span-2 text-center">
+            <div className="w-[120px] text-center">
               {editingDateCell?.taskId === task.id && editingDateCell?.column === 'start' ? (
                 <DatePicker
                   date={task.start_date ? new Date(task.start_date) : undefined}
@@ -716,7 +716,7 @@ export const TimelineGanttView = ({
             </div>
 
             {/* End Date Column */}
-            <div className="col-span-2 text-center">
+            <div className="w-[120px] text-center">
               {editingDateCell?.taskId === task.id && editingDateCell?.column === 'end' ? (
                 <DatePicker
                   date={task.end_date ? new Date(task.end_date) : undefined}
@@ -759,14 +759,14 @@ export const TimelineGanttView = ({
             </div>
 
             {/* Duration Column */}
-            <div className="col-span-1 text-center">
+            <div className="w-[80px] text-center">
               <span className="text-xs text-muted-foreground">
                 {task.duration ? `${task.duration}d` : '-'}
               </span>
             </div>
 
             {/* Dependencies Column */}
-            <div className="col-span-2 text-center">
+            <div className="w-[140px] text-center">
               <span className="text-xs text-muted-foreground">
                 {task.dependencies && task.dependencies.length > 0 
                   ? task.dependencies.map(dep => dep.predecessorId).join(', ')
@@ -1362,18 +1362,18 @@ export const TimelineGanttView = ({
 
         {/* Fixed Layout with Overlay Zoom */}
         <div className="w-full h-full flex">
-          {/* Task List Panel - Fixed Width */}
-          <div className="w-96 h-full flex flex-col border-r border-border/30">
+          {/* Task List Panel - Fixed Width with Fixed Columns */}
+          <div className="w-[800px] h-full flex flex-col border-r border-border/30">
             {/* Task list header */}
             <div className="border-b border-border/30 bg-muted/50">
               <div className="p-3">
-                <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-muted-foreground">
-                  <div className="col-span-1 text-center">WBS</div>
-                  <div className="col-span-4">Task Name</div>
-                  <div className="col-span-2 text-center">Start Date</div>
-                  <div className="col-span-2 text-center">End Date</div>
-                  <div className="col-span-1 text-center">Duration</div>
-                  <div className="col-span-2 text-center">Dependencies</div>
+                <div className="flex text-xs font-semibold text-muted-foreground">
+                  <div className="w-[60px] text-center">WBS</div>
+                  <div className="w-[280px] px-2">Task Name</div>
+                  <div className="w-[120px] text-center">Start Date</div>
+                  <div className="w-[120px] text-center">End Date</div>
+                  <div className="w-[80px] text-center">Duration</div>
+                  <div className="w-[140px] text-center">Dependencies</div>
                 </div>
               </div>
             </div>
