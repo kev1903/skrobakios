@@ -596,11 +596,6 @@ export const BusinessMapPage = ({
     const offsetX = (Math.random() - 0.5) * 200;
     const offsetY = (Math.random() - 0.5) * 200;
 
-    // Get all projects data
-    const projectsData = moduleData.projects || { count: 0, recent: [] };
-    const totalProjects = projectsData.count;
-    const allProjects = projectsData.recent || [];
-
     const newCard: Node = {
       id: newCardId,
       type: 'moduleNode',
@@ -608,20 +603,16 @@ export const BusinessMapPage = ({
         x: centerX + offsetX,
         y: centerY + offsetY
       },
-        data: {
+      data: {
         id: newCardId,
-        icon: Briefcase,
-        color: 'bg-blue-500',
-        title: 'All Projects',
-        subtitle: `${totalProjects} Total Projects`,
-        count: totalProjects,
-        recent: allProjects.map((p: any) => ({ 
-          name: p.name || p.title || 'Unnamed Project',
-          status: p.status || 'pending'
-        })),
-        status: totalProjects > 0 ? 'Active' : 'No Projects',
-        moduleName: 'all-projects',
-        table: 'projects',
+        icon: Plus,
+        color: 'bg-gray-500',
+        title: 'Blank Card',
+        subtitle: 'Customize this card',
+        count: 0,
+        recent: [],
+        moduleName: 'blank',
+        table: null,
         isSelected: false,
         isConnecting: false,
         onClick: handleNodeClick,
@@ -631,8 +622,8 @@ export const BusinessMapPage = ({
     };
 
     setNodes(prev => [...prev, newCard]);
-    toast.success('All projects card added to canvas');
-  }, [isMapLocked, handleNodeClick, handleNodeHover, setNodes, moduleData]);
+    toast.success('Blank card added to canvas');
+  }, [isMapLocked, handleNodeClick, handleNodeHover, setNodes]);
   const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
 
