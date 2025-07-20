@@ -4,7 +4,8 @@ import { CentralTask } from '@/services/centralTaskService';
 import { cn } from '@/lib/utils';
 import { 
   ChevronDown, 
-  ChevronRight, 
+  ChevronRight,
+  ChevronLeft,
   MoreHorizontal, 
   Edit, 
   Calendar, 
@@ -27,7 +28,8 @@ import {
   Maximize2,
   GripVertical,
   Indent,
-  Outdent
+  Outdent,
+  Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -1272,98 +1274,145 @@ export const TimelineGanttView = ({
   return (
     <TooltipProvider>
       <div className="w-full h-full bg-background border rounded-lg overflow-hidden">
-        {/* Simplified Formatting Toolbar */}
+        {/* Enhanced Gantt Toolbar with all relocated icons */}
         <div className="border-b border-border/30 p-3 bg-background">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Indent Controls */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8 p-0"
-                    onClick={handleOutdentTask}
-                    disabled={!selectedTask}
-                  >
-                    <Outdent className="h-3 w-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Decrease Indent</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8 p-0"
-                    onClick={handleIndentTask}
-                    disabled={!selectedTask}
-                  >
-                    <Indent className="h-3 w-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Increase Indent</p>
-                </TooltipContent>
-              </Tooltip>
+          <div className="flex items-center justify-between gap-4">
+            {/* Left Side - Navigation and Basic Controls */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Navigation Controls */}
+              <div className="flex items-center gap-1 border-r border-border pr-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <ChevronLeft className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Navigate Backward</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <ChevronRight className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Navigate Forward</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              {/* Indent Controls */}
+              <div className="flex items-center gap-1 border-r border-border pr-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={handleOutdentTask}
+                      disabled={!selectedTask}
+                    >
+                      <Outdent className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Decrease Indent</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={handleIndentTask}
+                      disabled={!selectedTask}
+                    >
+                      <Indent className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Increase Indent</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              {/* Time Scale */}
+              <div className="flex items-center gap-2 border-r border-border pr-2">
+                <Select value={timeScale} onValueChange={(value: TimeScale) => setTimeScale(value)}>
+                  <SelectTrigger className="w-20 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="days">Days</SelectItem>
+                    <SelectItem value="weeks">Weeks</SelectItem>
+                    <SelectItem value="months">Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Search */}
+              <div className="flex items-center gap-1 border-r border-border pr-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Search className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Search Tasks</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-1 border-r border-border pr-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+                  disabled={zoom <= 0.5}
+                  className="h-8"
+                >
+                  <ZoomOut className="h-3 w-3" />
+                </Button>
+                <span className="text-xs px-2 min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+                  disabled={zoom >= 3}
+                  className="h-8"
+                >
+                  <ZoomIn className="h-3 w-3" />
+                </Button>
+              </div>
+              
+              {/* Critical Path Toggle */}
+              <div className="flex items-center gap-1 border-r border-border pr-2">
+                <Button
+                  variant={showCriticalPath ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowCriticalPath(!showCriticalPath)}
+                  className="h-8"
+                >
+                  <Target className="h-3 w-3 mr-1" />
+                  <span className="text-xs">Critical Path</span>
+                </Button>
+              </div>
+
+              {/* Baselines */}
+              <div className="flex items-center gap-1 border-r border-border pr-2">
+                <Button variant="ghost" size="sm" className="h-8 text-xs">
+                  Baselines
+                </Button>
+              </div>
             </div>
 
-            {/* View Options */}
-            <div className="flex items-center gap-2 border-r border-border pr-2">
-              <Select value={timeScale} onValueChange={(value: TimeScale) => setTimeScale(value)}>
-                <SelectTrigger className="w-20 h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="days">Days</SelectItem>
-                  <SelectItem value="weeks">Weeks</SelectItem>
-                  <SelectItem value="months">Months</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-                disabled={zoom <= 0.5}
-                className="h-8"
-              >
-                <ZoomOut className="h-3 w-3" />
-              </Button>
-              <span className="text-xs px-2">{Math.round(zoom * 100)}%</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setZoom(Math.min(3, zoom + 0.25))}
-                disabled={zoom >= 3}
-                className="h-8"
-              >
-                <ZoomIn className="h-3 w-3" />
-              </Button>
-            </div>
-            
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button
-                variant={showCriticalPath ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowCriticalPath(!showCriticalPath)}
-                className="h-8"
-              >
-                <Target className="h-3 w-3 mr-1" />
-                <span className="text-xs">Critical Path</span>
-              </Button>
-            </div>
-
-            {/* Action Buttons */}
+            {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" className="h-8 text-xs">
-                Baselines
-              </Button>
               <Button variant="outline" size="sm" className="h-8">
                 <Download className="h-3 w-3 mr-1" />
                 <span className="text-xs">Export</span>
