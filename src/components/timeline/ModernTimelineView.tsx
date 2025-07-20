@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TimelineListView } from './TimelineListView';
 import { TimelineGanttView } from './TimelineGanttView';
 import { TimelineFilters } from './TimelineFilters';
-import { TimelineStats } from './TimelineStats';
 
 interface ModernTimelineViewProps {
   projectId: string;
@@ -101,13 +100,6 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
           </Button>
         </div>
 
-        {/* Stats Overview */}
-        <TimelineStats
-          totalEntries={filteredEntries.length}
-          totalDuration={totalDuration}
-          stats={stats}
-          screenSize={screenSize}
-        />
       </div>
 
       {/* Filters and Controls */}
