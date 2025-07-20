@@ -419,20 +419,6 @@ export const TimelineGanttView = ({
             )}
           </div>
         </div>
-        
-        <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground" style={{ paddingLeft: `${level * 20 + 24}px` }}>
-          <span>{task.duration || 0} days</span>
-          <span>{progress}%</span>
-          {task.assigned_to && (
-            <div className="flex items-center gap-1">
-              <Avatar className="h-4 w-4">
-                <AvatarFallback className="text-xs">
-                  {task.assigned_to.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-          )}
-        </div>
       </div>
     );
 
@@ -594,33 +580,13 @@ export const TimelineGanttView = ({
               </div>
             </div>
             
-            {/* Enhanced task details */}
-            <div className="mt-1" style={{ paddingLeft: `${level * 20 + 24}px` }}>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>{task.duration || 0} days</span>
-                <span>{progress}%</span>
-                {task.budgeted_cost && (
-                  <span>${task.budgeted_cost.toLocaleString()}</span>
-                )}
-                {task.assigned_to && (
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    <Avatar className="h-4 w-4">
-                      <AvatarFallback className="text-xs">
-                        {task.assigned_to.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                )}
+            
+            {/* Task description preview */}
+            {task.description && (
+              <div className="mt-1 text-xs text-muted-foreground truncate max-w-64">
+                {task.description}
               </div>
-              
-              {/* Task description preview */}
-              {task.description && (
-                <div className="mt-1 text-xs text-muted-foreground truncate max-w-64">
-                  {task.description}
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Enhanced timeline column */}
