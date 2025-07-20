@@ -25,8 +25,9 @@ export const taskService = {
       status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: task.progress,
       description: task.description,
-      
-      digital_object_id: task.digital_object_id,
+      duration: task.estimated_duration,
+      is_milestone: task.is_milestone,
+      is_critical_path: task.is_critical_path,
       created_at: task.created_at,
       updated_at: task.updated_at
     }));
@@ -45,8 +46,9 @@ export const taskService = {
     if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
-    
-    if (updates.digital_object_id !== undefined) dbUpdates.digital_object_id = updates.digital_object_id;
+    if (updates.duration !== undefined) dbUpdates.estimated_duration = updates.duration;
+    if (updates.is_milestone !== undefined) dbUpdates.is_milestone = updates.is_milestone;
+    if (updates.is_critical_path !== undefined) dbUpdates.is_critical_path = updates.is_critical_path;
 
     const { error } = await supabase
       .from('tasks')
@@ -71,8 +73,9 @@ export const taskService = {
       status: taskData.status,
       progress: taskData.progress,
       description: taskData.description || null,
-      
-      digital_object_id: taskData.digital_object_id || null
+      estimated_duration: taskData.duration || null,
+      is_milestone: taskData.is_milestone || false,
+      is_critical_path: taskData.is_critical_path || false
     };
 
     const { data, error } = await supabase
@@ -97,8 +100,9 @@ export const taskService = {
       status: data.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: data.progress,
       description: data.description,
-      
-      digital_object_id: data.digital_object_id,
+      duration: data.estimated_duration,
+      is_milestone: data.is_milestone,
+      is_critical_path: data.is_critical_path,
       created_at: data.created_at,
       updated_at: data.updated_at
     };

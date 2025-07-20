@@ -10,7 +10,6 @@ import { Check, ChevronsUpDown, Calendar, User, Clock, FileText, Flag } from 'lu
 import { cn } from '@/lib/utils';
 import { Task } from './TaskContext';
 
-import { useDigitalObjectsContext } from '@/contexts/DigitalObjectsContext';
 interface TaskEditFormProps {
   task: Task;
   onFieldChange: (field: keyof Task, value: any) => void;
@@ -23,8 +22,6 @@ export const TaskEditForm = ({
  }: TaskEditFormProps) => {
   // Simplified - no team member assignments
   const teamMembers: any[] = [];
-  const { digitalObjects } = useDigitalObjectsContext();
-  const [digitalObjectOpen, setDigitalObjectOpen] = useState(false);
   const [expectedTimeValue, setExpectedTimeValue] = useState('');
   const [expectedTimeUnit, setExpectedTimeUnit] = useState<'minutes' | 'days'>('days');
 
@@ -71,59 +68,6 @@ export const TaskEditForm = ({
     }
   };
   return <div className="space-y-6 mt-6">
-      {/* Digital Object Selection */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
-          <FileText className="w-4 h-4 mr-2" />
-          Digital Object
-        </label>
-        <Popover open={digitalObjectOpen} onOpenChange={setDigitalObjectOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={digitalObjectOpen}
-              className="w-full justify-between"
-            >
-              {task.digital_object_id
-                ? digitalObjects.find((obj) => obj.id === task.digital_object_id)?.name || "Select digital object..."
-                : "Select digital object..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0 z-50 bg-white border border-gray-200 shadow-lg">
-            <Command>
-              <CommandInput placeholder="Search digital objects..." />
-              <CommandList>
-                <CommandEmpty>No digital object found.</CommandEmpty>
-                <CommandGroup>
-                  {digitalObjects.map((obj) => (
-                    <CommandItem
-                      key={obj.id}
-                      value={`${obj.name} ${obj.stage}`}
-                      onSelect={() => {
-                        onFieldChange('digital_object_id', obj.id);
-                        setDigitalObjectOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          task.digital_object_id === obj.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{obj.name}</span>
-                        <span className="text-xs text-muted-foreground">{obj.stage}</span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
 
       {/* Assignee Dropdown */}
       <div className="space-y-2">
