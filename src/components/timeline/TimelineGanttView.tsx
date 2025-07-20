@@ -565,7 +565,7 @@ export const TimelineGanttView = ({
     return wbsMap;
   }, [hierarchicalTasks, expandedTasks]);
 
-  const wbsNumbers = generateWbsNumbers();
+  const wbsNumbers = generateWbsNumbers;
 
   
   // Render task list item (left panel)
