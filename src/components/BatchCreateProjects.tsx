@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface ProjectData {
   project_id: string;
@@ -44,6 +45,9 @@ export const BatchCreateProjects = ({ onNavigate }: BatchCreateProjectsProps) =>
   const { createProject } = useProjects();
   const { toast } = useToast();
   const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'batch-create-projects' });
+  
+  // Add company context for debugging
+  const { currentCompany } = useCompany();
 
   const handleProjectChange = (index: number, field: keyof ProjectData, value: string) => {
     const updatedProjects = [...projects];
@@ -67,6 +71,17 @@ export const BatchCreateProjects = ({ onNavigate }: BatchCreateProjectsProps) =>
   };
 
   const handleCreateAll = async () => {
+    if (!currentCompany) {
+      toast({
+        title: "No Company Selected",
+        description: "Please select a company before creating projects",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log(`Creating projects for company: ${currentCompany.name} (${currentCompany.id})`);
+    
     setIsCreating(true);
     let successCount = 0;
     let failureCount = 0;
@@ -144,6 +159,11 @@ export const BatchCreateProjects = ({ onNavigate }: BatchCreateProjectsProps) =>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">
               Batch Create Projects
             </h1>
+            {currentCompany && (
+              <p className="text-sm text-muted-foreground">
+                Creating projects for: <span className="font-medium">{currentCompany.name}</span>
+              </p>
+            )}
           </div>
           <div className="flex items-center space-x-3">
             <Button variant="outline" onClick={exportTemplate}>
