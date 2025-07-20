@@ -10,6 +10,8 @@ import { Calendar, ChevronLeft, ChevronRight, Edit, Plus, Save, X, Settings, Zoo
 import { Progress } from '@/components/ui/progress';
 import { DatePicker } from '@/components/ui/date-picker';
 import { cn } from '@/lib/utils';
+import { GanttTaskList } from './GanttTaskList';
+import { CentralTask } from '@/services/centralTaskService';
 
 export interface GanttTask {
   id: string;
@@ -40,8 +42,10 @@ export interface GanttMilestone {
 
 interface GanttChartProps {
   tasks: GanttTask[];
+  centralTasks?: CentralTask[];
   milestones?: GanttMilestone[];
   onTaskUpdate?: (taskId: string, updates: Partial<GanttTask>) => void;
+  onCentralTaskUpdate?: (taskId: string, updates: Partial<CentralTask>) => void;
   onTaskAdd?: (task: Omit<GanttTask, 'id'>) => void;
   onTaskDelete?: (taskId: string) => void;
   onTaskReorder?: (taskIds: string[]) => void;
@@ -50,12 +54,15 @@ interface GanttChartProps {
   showGrid?: boolean;
   showToday?: boolean;
   compactMode?: boolean;
+  showTaskList?: boolean;
 }
 
 export const GanttChart = ({
   tasks,
+  centralTasks = [],
   milestones = [],
   onTaskUpdate,
+  onCentralTaskUpdate,
   onTaskAdd,
   onTaskDelete,
   onTaskReorder,
@@ -63,7 +70,8 @@ export const GanttChart = ({
   editable = true,
   showGrid = true,
   showToday = true,
-  compactMode = false
+  compactMode = false,
+  showTaskList = false
 }: GanttChartProps) => {
   const [viewStart, setViewStart] = useState(() => {
     const earliest = tasks.reduce((min, task) => task.startDate < min ? task.startDate : min, new Date());
@@ -845,8 +853,16 @@ export const GanttChart = ({
       <div className="relative flex">
         {/* Fixed task table */}
         <div className="flex-shrink-0" style={{ width: isCollapsed ? 60 : tableWidth }}>
-          {/* Tasks */}
-          {getVisibleTasks.map((task, index) => {
+          {showTaskList && centralTasks.length > 0 ? (
+            <GanttTaskList 
+              tasks={centralTasks}
+              onTaskUpdate={onCentralTaskUpdate}
+              className="h-full"
+            />
+          ) : (
+            <>
+              {/* Tasks */}
+              {getVisibleTasks.map((task, index) => {
             const geometry = getTaskGeometry(task);
             if (!geometry.visible) return null;
             const rowHeight = compactMode ? 28 : 36;
@@ -1072,8 +1088,15 @@ export const GanttChart = ({
               </div>
             </div>
           )}
+            </>
+          )}
         </div>
         
+        {/* Resizable divider */}
+        <div 
+          className="w-1 bg-border cursor-col-resize hover:bg-primary/50 transition-colors"
+          onMouseDown={handleResizeStart}
+        />
         
         {/* Scrollable timeline area - content only */}
         <div className="flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">

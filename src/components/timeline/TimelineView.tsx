@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GanttChart, GanttTask, GanttMilestone } from './GanttChart';
 import { ModernGanttChart, ModernGanttTask } from './ModernGanttChart';
+import { ProfessionalGanttChart } from './ProfessionalGanttChart';
 import { TaskHierarchy } from './TaskHierarchy';
 import { TimelineControls } from './TimelineControls';
 import { MilestoneManager } from './MilestoneManager';
@@ -14,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useUser } from '@/contexts/UserContext';
 import { format, addDays, parseISO } from 'date-fns';
+import { CentralTask } from '@/services/centralTaskService';
 
 interface TimelineViewProps {
   projectId: string;
@@ -507,11 +509,25 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       <Card>
         <CardContent className="p-0">
           {viewMode === 'gantt' ? (
-            <ModernGanttChart
-              tasks={modernGanttTasks}
-              onTaskUpdate={handleModernTaskUpdate}
-              onTaskAdd={handleModernTaskAdd}
-              onTaskDelete={handleTaskDelete}
+            <ProfessionalGanttChart
+              tasks={centralTasks}
+              onTaskUpdate={async (taskId: string, updates: Partial<CentralTask>) => {
+                try {
+                  await updateTask(taskId, updates);
+                  toast({
+                    title: "Task Updated",
+                    description: "Task has been successfully updated"
+                  });
+                } catch (error) {
+                  console.error('Error updating task:', error);
+                  toast({
+                    title: "Error",
+                    description: "Failed to update task",
+                    variant: "destructive"
+                  });
+                }
+              }}
+              projectTitle={projectName}
             />
           ) : (
             <TaskHierarchy
