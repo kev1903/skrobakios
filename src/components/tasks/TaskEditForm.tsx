@@ -103,8 +103,23 @@ export const TaskEditForm = ({
         </Select>
       </div>
 
-      {/* Status and Priority side by side */}
+      {/* Task Type and Status side by side */}
       <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 flex items-center">
+            <Flag className="w-4 h-4 mr-2" />
+            Task Type
+          </label>
+          <Select value={task.taskType} onValueChange={(value) => onFieldChange('taskType', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+              <SelectItem value="Task">Task</SelectItem>
+              <SelectItem value="Issue">Issue</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700 flex items-center">
             <Flag className="w-4 h-4 mr-2" />
@@ -122,22 +137,24 @@ export const TaskEditForm = ({
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 flex items-center">
-            <Flag className="w-4 h-4 mr-2" />
-            Priority
-          </label>
-          <Select value={task.priority} onValueChange={(value) => onFieldChange('priority', value)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
-              <SelectItem value="Low">Low</SelectItem>
-              <SelectItem value="Medium">Medium</SelectItem>
-              <SelectItem value="High">High</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      </div>
+
+      {/* Priority */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 flex items-center">
+          <Flag className="w-4 h-4 mr-2" />
+          Priority
+        </label>
+        <Select value={task.priority} onValueChange={(value) => onFieldChange('priority', value)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+            <SelectItem value="Low">Low</SelectItem>
+            <SelectItem value="Medium">Medium</SelectItem>
+            <SelectItem value="High">High</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Due Date and Duration side by side */}

@@ -61,6 +61,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
           project_id: task.project_id,
           projectName: task.projects?.name || 'Unknown Project',
           taskName: task.task_name,
+          taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
           priority: task.priority as 'High' | 'Medium' | 'Low',
           assignedTo: {
             name: task.assigned_to_name || '',

@@ -83,6 +83,7 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
     const finalTask = {
       project_id: projectId,
       taskName: newTaskTitle.trim(),
+      taskType: 'Task' as const,
       priority: 'Medium' as const,
       assignedTo: { name: 'Unassigned', avatar: '' },
       dueDate: new Date().toISOString().split('T')[0],

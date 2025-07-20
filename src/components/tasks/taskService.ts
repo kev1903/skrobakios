@@ -16,6 +16,7 @@ export const taskService = {
       id: task.id,
       project_id: task.project_id,
       taskName: task.task_name,
+      taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
       priority: task.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {
         name: task.assigned_to_name || '',
@@ -37,6 +38,7 @@ export const taskService = {
     // Map component fields to database fields
     const dbUpdates: any = {};
     if (updates.taskName !== undefined) dbUpdates.task_name = updates.taskName;
+    if (updates.taskType !== undefined) dbUpdates.task_type = updates.taskType;
     if (updates.assignedTo !== undefined) {
       dbUpdates.assigned_to_name = updates.assignedTo.name;
       dbUpdates.assigned_to_avatar = updates.assignedTo.avatar;
@@ -66,6 +68,7 @@ export const taskService = {
     const dbTask = {
       project_id: taskData.project_id,
       task_name: taskData.taskName,
+      task_type: taskData.taskType || 'Task',
       priority: taskData.priority,
       assigned_to_name: taskData.assignedTo?.name || null,
       assigned_to_avatar: taskData.assignedTo?.avatar || null,
@@ -91,6 +94,7 @@ export const taskService = {
       id: data.id,
       project_id: data.project_id,
       taskName: data.task_name,
+      taskType: (data.task_type as 'Task' | 'Issue') || 'Task',
       priority: data.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {
         name: data.assigned_to_name || '',

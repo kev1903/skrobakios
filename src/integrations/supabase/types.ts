@@ -2151,6 +2151,7 @@ export type Database = {
           project_id: string
           status: string
           task_name: string
+          task_type: string
           updated_at: string
         }
         Insert: {
@@ -2171,6 +2172,7 @@ export type Database = {
           project_id: string
           status?: string
           task_name: string
+          task_type?: string
           updated_at?: string
         }
         Update: {
@@ -2191,6 +2193,7 @@ export type Database = {
           project_id?: string
           status?: string
           task_name?: string
+          task_type?: string
           updated_at?: string
         }
         Relationships: [
