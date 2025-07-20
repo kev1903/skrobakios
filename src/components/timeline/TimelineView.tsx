@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Calendar, BarChart3, List, Settings, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
@@ -503,24 +504,49 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         </Card>
       )}
 
-      {/* Main Timeline View */}
+      {/* Main Timeline View with Resizable Panels */}
       <Card>
         <CardContent className="p-0">
-          {viewMode === 'gantt' ? (
-            <ModernGanttChart
-              tasks={modernGanttTasks}
-              onTaskUpdate={handleModernTaskUpdate}
-              onTaskAdd={handleModernTaskAdd}
-              onTaskDelete={handleTaskDelete}
-            />
-          ) : (
-            <TaskHierarchy
-              tasks={ganttTasks}
-              onTaskUpdate={handleTaskUpdate}
-              onTaskAdd={handleTaskAdd}
-              onTaskDelete={handleTaskDelete}
-            />
-          )}
+          <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
+            {/* Task List Panel */}
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+              <div className="h-full p-4 border-r border-border">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Tasks</h3>
+                  <div className="text-sm text-muted-foreground">
+                    {ganttTasks.filter(t => !t.isStage).length} activities
+                  </div>
+                </div>
+                <TaskHierarchy
+                  tasks={ganttTasks}
+                  onTaskUpdate={handleTaskUpdate}
+                  onTaskAdd={handleTaskAdd}
+                  onTaskDelete={handleTaskDelete}
+                />
+              </div>
+            </ResizablePanel>
+            
+            {/* Resizable Handle */}
+            <ResizableHandle withHandle />
+            
+            {/* Gantt Chart Panel */}
+            <ResizablePanel defaultSize={70} minSize={50}>
+              <div className="h-full">
+                <div className="p-4 border-b border-border bg-muted/50">
+                  <h3 className="text-lg font-semibold">Timeline</h3>
+                  <div className="text-sm text-muted-foreground">
+                    Gantt chart view
+                  </div>
+                </div>
+                <ModernGanttChart
+                  tasks={modernGanttTasks}
+                  onTaskUpdate={handleModernTaskUpdate}
+                  onTaskAdd={handleModernTaskAdd}
+                  onTaskDelete={handleTaskDelete}
+                />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </CardContent>
       </Card>
 
