@@ -945,7 +945,7 @@ export const TimelineGanttView = ({
   return (
     <TooltipProvider>
       <div className="w-full h-full bg-background border rounded-lg overflow-hidden">
-        {/* Comprehensive Formatting Toolbar */}
+        {/* Simplified Formatting Toolbar */}
         <div className="border-b border-border/30 p-3 bg-background">
           <div className="flex items-center gap-2 flex-wrap">
             {/* Text Formatting Group */}
@@ -1122,11 +1122,6 @@ export const TimelineGanttView = ({
                 <div className="p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-sm">Task Details</span>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>Duration</span>
-                      <span>Progress</span>
-                      <span>Assignee</span>
-                    </div>
                   </div>
                 </div>
               </div>
