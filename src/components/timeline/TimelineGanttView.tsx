@@ -599,7 +599,7 @@ export const TimelineGanttView = ({
       <div 
         key={task.id} 
         className={cn(
-          "p-3 border-b border-border/30 hover:bg-muted/50 transition-colors cursor-pointer relative",
+          "border-b border-border/30 hover:bg-muted/50 transition-colors cursor-pointer relative",
           isSelected && "bg-primary/10 border-l-4 border-primary",
           isDraggedOver && dropPosition === 'inside' && "bg-primary/5 border-l-2 border-primary",
           isBeingDragged && "opacity-50"
@@ -612,57 +612,95 @@ export const TimelineGanttView = ({
         onDrop={(e) => handleRowDrop(e, task.id)}
         onClick={() => setSelectedTask(task.id)}
       >
-        <div className="flex items-center gap-2" style={{ paddingLeft: `${level * 20}px` }}>
-          {/* Drag Handle */}
-          <div className="drag-handle cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded">
-            <GripVertical className="h-3 w-3 text-muted-foreground" />
-          </div>
-          
-          {hasChildren && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-4 w-4 p-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpanded(task.id);
-              }}
-            >
-              {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-            </Button>
-          )}
-          
-          <div className="flex items-center gap-2 flex-1">
-            {/* WBS Number */}
-            <span className="text-xs font-mono text-muted-foreground min-w-[40px]">
-              {wbsNumbers.get(task.id) || ''}
-            </span>
-            
-            {editingTaskId === task.id ? (
-              <Input
-                value={editingTaskName}
-                onChange={(e) => setEditingTaskName(e.target.value)}
-                onBlur={handleTaskNameSave}
-                onKeyDown={handleTaskNameKeyDown}
-                className="font-medium text-sm h-6 px-1 py-0 border-primary"
-                autoFocus
-                onClick={(e) => e.stopPropagation()}
-              />
-            ) : (
-              <span 
-                className="font-medium text-sm truncate cursor-pointer hover:text-primary transition-colors"
-                onClick={(e) => handleTaskNameClick(task, e)}
-                title="Click to edit"
-              >
-                {task.name}
+        <div className="p-2">
+          <div className="grid grid-cols-12 gap-2 items-center">
+            {/* WBS Number Column */}
+            <div className="col-span-1 text-center">
+              <span className="text-xs font-mono text-muted-foreground">
+                {wbsNumbers.get(task.id) || ''}
               </span>
-            )}
-            
-            {showCriticalPath && task.isCritical && (
-              <Badge variant="destructive" className="text-xs px-1 py-0">
-                Critical
-              </Badge>
-            )}
+            </div>
+
+            {/* Task Name Column */}
+            <div className="col-span-4 flex items-center gap-1" style={{ paddingLeft: `${level * 12}px` }}>
+              {/* Drag Handle */}
+              <div className="drag-handle cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100">
+                <GripVertical className="h-3 w-3 text-muted-foreground" />
+              </div>
+              
+              {hasChildren && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpanded(task.id);
+                  }}
+                >
+                  {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                </Button>
+              )}
+              
+              <div className="flex-1 min-w-0">
+                {editingTaskId === task.id ? (
+                  <Input
+                    value={editingTaskName}
+                    onChange={(e) => setEditingTaskName(e.target.value)}
+                    onBlur={handleTaskNameSave}
+                    onKeyDown={handleTaskNameKeyDown}
+                    className="text-sm h-6 px-1 py-0 border-primary"
+                    autoFocus
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <span 
+                    className="text-sm truncate cursor-pointer hover:text-primary transition-colors block"
+                    onClick={(e) => handleTaskNameClick(task, e)}
+                    title={task.name}
+                  >
+                    {task.name}
+                  </span>
+                )}
+                
+                {showCriticalPath && task.isCritical && (
+                  <Badge variant="destructive" className="text-xs px-1 py-0 mt-1">
+                    Critical
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Start Date Column */}
+            <div className="col-span-2 text-center">
+              <span className="text-xs text-muted-foreground">
+                {task.start_date ? format(new Date(task.start_date), 'MMM dd, yyyy') : '-'}
+              </span>
+            </div>
+
+            {/* End Date Column */}
+            <div className="col-span-2 text-center">
+              <span className="text-xs text-muted-foreground">
+                {task.end_date ? format(new Date(task.end_date), 'MMM dd, yyyy') : '-'}
+              </span>
+            </div>
+
+            {/* Duration Column */}
+            <div className="col-span-1 text-center">
+              <span className="text-xs text-muted-foreground">
+                {task.duration ? `${task.duration}d` : '-'}
+              </span>
+            </div>
+
+            {/* Dependencies Column */}
+            <div className="col-span-2 text-center">
+              <span className="text-xs text-muted-foreground">
+                {task.dependencies && task.dependencies.length > 0 
+                  ? task.dependencies.map(dep => dep.predecessorId).join(', ')
+                  : '-'
+                }
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -1372,8 +1410,13 @@ export const TimelineGanttView = ({
               {/* Task list header */}
               <div className="border-b border-border/30 bg-muted/50">
                 <div className="p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm">Task Details</span>
+                  <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-muted-foreground">
+                    <div className="col-span-1 text-center">WBS</div>
+                    <div className="col-span-4">Task Name</div>
+                    <div className="col-span-2 text-center">Start Date</div>
+                    <div className="col-span-2 text-center">End Date</div>
+                    <div className="col-span-1 text-center">Duration</div>
+                    <div className="col-span-2 text-center">Dependencies</div>
                   </div>
                 </div>
               </div>
