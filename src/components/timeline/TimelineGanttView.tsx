@@ -945,13 +945,106 @@ export const TimelineGanttView = ({
   return (
     <TooltipProvider>
       <div className="w-full h-full bg-background border rounded-lg overflow-hidden">
-        {/* Enhanced toolbar */}
-        <div className="flex items-center justify-between p-4 border-b bg-muted/30">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Label className="text-sm font-medium">Time Scale:</Label>
+        {/* Comprehensive Formatting Toolbar */}
+        <div className="border-b border-border/30 p-3 bg-background">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Text Formatting Group */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Select defaultValue="arial">
+                <SelectTrigger className="w-24 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="arial">Arial</SelectItem>
+                  <SelectItem value="times">Times</SelectItem>
+                  <SelectItem value="helvetica">Helvetica</SelectItem>
+                  <SelectItem value="courier">Courier</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select defaultValue="10">
+                <SelectTrigger className="w-16 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="8">8</SelectItem>
+                  <SelectItem value="9">9</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="11">11</SelectItem>
+                  <SelectItem value="12">12</SelectItem>
+                  <SelectItem value="14">14</SelectItem>
+                  <SelectItem value="16">16</SelectItem>
+                  <SelectItem value="18">18</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Style Buttons */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <strong className="text-sm">B</strong>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <em className="text-sm">I</em>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <u className="text-sm">U</u>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <s className="text-sm">S</s>
+              </Button>
+            </div>
+
+            {/* Color Tools */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="w-4 h-4 bg-red-500 border"></div>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="w-4 h-4 bg-yellow-300 border"></div>
+              </Button>
+            </div>
+
+            {/* Alignment */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="text-xs">⫸</div>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="text-xs">≡</div>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="text-xs">⫷</div>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="text-xs">≣</div>
+              </Button>
+            </div>
+
+            {/* Lists */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="text-xs">•</div>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <div className="text-xs">1.</div>
+              </Button>
+            </div>
+
+            {/* Insert Tools */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Edit className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Link className="h-3 w-3" />
+              </Button>
+            </div>
+
+            {/* View Options */}
+            <div className="flex items-center gap-2 border-r border-border pr-2">
               <Select value={timeScale} onValueChange={(value: TimeScale) => setTimeScale(value)}>
-                <SelectTrigger className="w-24">
+                <SelectTrigger className="w-20 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -962,47 +1055,60 @@ export const TimelineGanttView = ({
               </Select>
             </div>
             
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 border-r border-border pr-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
                 disabled={zoom <= 0.5}
+                className="h-8"
               >
-                <ZoomOut className="h-4 w-4" />
+                <ZoomOut className="h-3 w-3" />
               </Button>
-              <span className="text-sm px-2">{Math.round(zoom * 100)}%</span>
+              <span className="text-xs px-2">{Math.round(zoom * 100)}%</span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setZoom(Math.min(3, zoom + 0.25))}
                 disabled={zoom >= 3}
+                className="h-8"
               >
-                <ZoomIn className="h-4 w-4" />
+                <ZoomIn className="h-3 w-3" />
               </Button>
             </div>
             
-            <Separator orientation="vertical" className="h-6" />
-            
-            <Button
-              variant={showCriticalPath ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowCriticalPath(!showCriticalPath)}
-            >
-              <Target className="h-4 w-4 mr-2" />
-              Critical Path
-            </Button>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm" onClick={handleCreateTask}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Task
-            </Button>
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button
+                variant={showCriticalPath ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowCriticalPath(!showCriticalPath)}
+                className="h-8"
+              >
+                <Target className="h-3 w-3 mr-1" />
+                <span className="text-xs">Critical Path</span>
+              </Button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="sm" className="h-8 text-xs">
+                Baselines
+              </Button>
+              <Button variant="outline" size="sm" className="h-8">
+                <Download className="h-3 w-3 mr-1" />
+                <span className="text-xs">Export</span>
+              </Button>
+              <Button size="sm" onClick={handleCreateTask} className="h-8">
+                <Plus className="h-3 w-3 mr-1" />
+                <span className="text-xs">Add Task</span>
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Settings className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Maximize2 className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         </div>
 
