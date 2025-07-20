@@ -52,6 +52,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
           <TimelineView 
             projectId={project.id}
             projectName={project.name}
+            companyId={project.company_id}
           />
         </div>
       </div>

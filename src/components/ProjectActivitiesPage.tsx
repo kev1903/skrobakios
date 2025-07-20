@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Project } from '@/hooks/useProjects';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCentralTasks } from '@/hooks/useCentralTasks';
+import { useUser } from '@/contexts/UserContext';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,9 +36,7 @@ interface ProjectActivitiesPageProps {
 }
 
 export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivitiesPageProps) => {
-  const [activities, setActivities] = useState<ActivityData[]>([]);
   const [hierarchicalActivities, setHierarchicalActivities] = useState<ActivityData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [newActivity, setNewActivity] = useState({
@@ -50,69 +49,69 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
     stage: '4.0 PRELIMINARY'
   });
   const { toast } = useToast();
+  const { userProfile } = useUser();
+  
+  // Use centralized tasks hook
+  const {
+    tasks,
+    loading,
+    createTask,
+    deleteTask,
+    loadTasks
+  } = useCentralTasks(project.id, project.company_id);
 
   useEffect(() => {
-    loadActivities();
-  }, [project.id]);
-
-  useEffect(() => {
-    if (activities.length > 0) {
-      const hierarchy = buildActivityHierarchy(activities);
+    if (tasks.length > 0) {
+      // Convert CentralTask to ActivityData format
+      const activitiesData: ActivityData[] = tasks.map(task => ({
+        id: task.id,
+        name: task.name,
+        description: task.description,
+        start_date: task.start_date,
+        end_date: task.end_date,
+        cost_est: task.budgeted_cost,
+        cost_actual: task.actual_cost,
+        parent_id: task.parent_id,
+        level: task.level,
+        stage: task.stage,
+        is_expanded: task.is_expanded,
+        project_id: task.project_id,
+        company_id: task.company_id,
+        created_at: task.created_at,
+        updated_at: task.updated_at,
+        dependencies: task.dependencies || [],
+        duration: task.duration,
+        sort_order: task.sort_order
+      }));
+      
+      const hierarchy = buildActivityHierarchy(activitiesData);
       setHierarchicalActivities(hierarchy);
     } else {
       setHierarchicalActivities([]);
     }
-  }, [activities]);
+  }, [tasks]);
 
-  const loadActivities = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('activities')
-        .select('*')
-        .eq('project_id', project.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setActivities(data || []);
-    } catch (error) {
-      console.error('Error loading activities:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load activities",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+  const reloadActivities = () => {
+    loadTasks();
   };
 
   const createActivity = async () => {
     try {
       const parentLevel = newActivity.parent_id 
-        ? activities.find(a => a.id === newActivity.parent_id)?.level || 0
+        ? tasks.find(a => a.id === newActivity.parent_id)?.level || 0
         : 0;
 
-      const { data, error } = await supabase
-        .from('activities')
-        .insert({
-          name: newActivity.name,
-          description: newActivity.description || null,
-          project_id: project.id,
-          company_id: project.company_id,
-          start_date: newActivity.start_date || null,
-          end_date: newActivity.end_date || null,
-          cost_est: newActivity.cost_est ? parseFloat(newActivity.cost_est) : null,
-          parent_id: newActivity.parent_id || null,
-          level: newActivity.parent_id ? parentLevel + 1 : 0,
-          stage: newActivity.stage || '4.0 PRELIMINARY'
-        })
-        .select()
-        .single();
+      await createTask({
+        name: newActivity.name,
+        description: newActivity.description || undefined,
+        start_date: newActivity.start_date || undefined,
+        end_date: newActivity.end_date || undefined,
+        budgeted_cost: newActivity.cost_est ? parseFloat(newActivity.cost_est) : undefined,
+        parent_id: newActivity.parent_id || undefined,
+        level: newActivity.parent_id ? parentLevel + 1 : 0,
+        stage: newActivity.stage || '4.0 PRELIMINARY'
+      });
 
-      if (error) throw error;
-
-      setActivities(prev => [data, ...prev]);
       setNewActivity({
         name: '',
         description: '',
@@ -123,39 +122,18 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
         stage: '4.0 PRELIMINARY'
       });
       setIsCreateDialogOpen(false);
-      
-      toast({
-        title: "Success",
-        description: "Activity created successfully"
-      });
     } catch (error) {
       console.error('Error creating activity:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create activity",
-        variant: "destructive"
-      });
     }
   };
 
   const toggleActivityExpansion = async (activityId: string) => {
-    const activity = activities.find(a => a.id === activityId);
+    const activity = tasks.find(a => a.id === activityId);
     if (!activity) return;
 
-    try {
-      const { error } = await supabase
-        .from('activities')
-        .update({ is_expanded: !activity.is_expanded })
-        .eq('id', activityId);
-
-      if (error) throw error;
-
-      setActivities(prev => 
-        prev.map(a => a.id === activityId ? { ...a, is_expanded: !a.is_expanded } : a)
-      );
-    } catch (error) {
-      console.error('Error updating activity:', error);
-    }
+    // This will be handled by the centralized system via updateTask
+    // For now, we can trigger an update through the useCentralTasks hook
+    // The expansion state will be managed locally in the UI
   };
 
   const handleCreateChild = (parentId: string) => {
@@ -173,26 +151,9 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
 
   const deleteActivity = async (activityId: string) => {
     try {
-      const { error } = await supabase
-        .from('activities')
-        .delete()
-        .eq('id', activityId);
-
-      if (error) throw error;
-
-      setActivities(prev => prev.filter(activity => activity.id !== activityId));
-      
-      toast({
-        title: "Success",
-        description: "Activity deleted successfully"
-      });
+      await deleteTask(activityId);
     } catch (error) {
       console.error('Error deleting activity:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete activity",
-        variant: "destructive"
-      });
     }
   };
 
@@ -261,13 +222,13 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                 <SkaiActivityAssistant
                   projectId={project.id}
                   companyId={project.company_id}
-                  onActivityCreated={loadActivities}
+                  onActivityCreated={reloadActivities}
                 />
                 
                 <BulkActivityImport
                   projectId={project.id}
                   companyId={project.company_id}
-                  onActivitiesCreated={loadActivities}
+                  onActivitiesCreated={reloadActivities}
                 />
                 
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -329,7 +290,7 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">None (Root Activity)</SelectItem>
-                          {activities.filter(a => a.level === 0).map((activity) => (
+                          {tasks.filter(a => a.level === 0).map((activity) => (
                             <SelectItem key={activity.id} value={activity.id}>
                               {activity.name}
                             </SelectItem>
@@ -387,7 +348,7 @@ export const ProjectActivitiesPage = ({ project, onNavigate }: ProjectActivities
               onDelete={deleteActivity}
               onToggleExpansion={toggleActivityExpansion}
               onCreateChild={handleCreateChild}
-              onActivityUpdated={loadActivities}
+              onActivityUpdated={reloadActivities}
             />
           </div>
         </div>

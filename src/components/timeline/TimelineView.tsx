@@ -10,18 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, BarChart3, List, Settings, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useCentralTasks } from '@/hooks/useCentralTasks';
+import { useUser } from '@/contexts/UserContext';
 import { format, addDays, parseISO } from 'date-fns';
 
 interface TimelineViewProps {
   projectId: string;
   projectName: string;
+  companyId?: string;
 }
 
-export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
-  const [tasks, setTasks] = useState<GanttTask[]>([]);
+export const TimelineView = ({ projectId, projectName, companyId }: TimelineViewProps) => {
+  const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([]);
   const [milestones, setMilestones] = useState<GanttMilestone[]>([]);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'gantt' | 'hierarchy'>('gantt');
   const [showControls, setShowControls] = useState(false);
   const [apiConnections, setApiConnections] = useState({
@@ -30,45 +31,43 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   });
   
   const { toast } = useToast();
+  const { userProfile } = useUser();
+  
+  // Use centralized tasks hook  
+  const {
+    tasks: centralTasks,
+    loading,
+    updateTask,
+    createTask,
+    deleteTask
+  } = useCentralTasks(projectId, companyId || 'default-company-id');
 
-  // Load data from database
+  // Convert central tasks to gantt format
   useEffect(() => {
-    loadTimelineData();
-  }, [projectId]);
+    convertTasksToGanttFormat();
+  }, [centralTasks]);
 
-  const loadTimelineData = async () => {
-    setLoading(true);
+  const convertTasksToGanttFormat = () => {
     try {
-      // Load activities from the activities table
-      const { data: activitiesData, error: activitiesError } = await supabase
-        .from('activities')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('level', { ascending: true })
-        .order('created_at', { ascending: true });
-
-      if (activitiesError) throw activitiesError;
-
-      // Group activities by stage and create hierarchy
-      const allActivities = activitiesData || [];
+      // Group central tasks by stage and create hierarchy
       const stageMap = new Map();
       const ganttTasks: GanttTask[] = [];
       
       // First, collect all unique stages from activities
-      allActivities.forEach(activity => {
-        if (activity.stage && !stageMap.has(activity.stage)) {
-          stageMap.set(activity.stage, {
-            id: `stage-${activity.stage.replace(/\s+/g, '-').toLowerCase()}`,
-            name: activity.stage,
+      centralTasks.forEach(task => {
+        if (task.stage && !stageMap.has(task.stage)) {
+          stageMap.set(task.stage, {
+            id: `stage-${task.stage.replace(/\s+/g, '-').toLowerCase()}`,
+            name: task.stage,
             startDate: new Date(),
             endDate: addDays(new Date(), 30),
             progress: 0,
             status: 'pending' as const,
             assignee: '',
             priority: 'High' as const,
-            description: `Project stage: ${activity.stage}`,
+            description: `Project stage: ${task.stage}`,
             milestone: false,
-            category: activity.stage,
+            category: task.stage,
             parentId: undefined,
             level: 0,
             expanded: true,
@@ -81,29 +80,29 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       stageMap.forEach(stage => ganttTasks.push(stage));
 
       // Then add all activities as children of their respective stages
-      allActivities.forEach(activity => {
-        const stageParentId = `stage-${activity.stage?.replace(/\s+/g, '-').toLowerCase()}`;
+      centralTasks.forEach(task => {
+        const stageParentId = `stage-${task.stage?.replace(/\s+/g, '-').toLowerCase()}`;
         
         ganttTasks.push({
-          id: activity.id,
-          name: activity.name,
-          startDate: activity.start_date ? new Date(activity.start_date) : new Date(),
-          endDate: activity.end_date ? new Date(activity.end_date) : addDays(new Date(), 1),
-          progress: 0,
-          status: mapTaskStatus(activity.stage),
-          assignee: '',
-          priority: 'Medium' as const,
-          description: activity.description,
+          id: task.id,
+          name: task.name,
+          startDate: task.start_date ? new Date(task.start_date) : new Date(),
+          endDate: task.end_date ? new Date(task.end_date) : addDays(new Date(), 1),
+          progress: task.progress || 0,
+          status: mapTaskStatus(task.stage),
+          assignee: task.assigned_to || '',
+          priority: (task.priority as any) || 'Medium',
+          description: task.description,
           milestone: false,
-          category: activity.stage,
+          category: task.stage,
           parentId: stageParentId, // All activities are children of their stage
           level: 1, // All activities are level 1 (children of stages)
-          expanded: activity.is_expanded !== false,
+          expanded: task.is_expanded !== false,
           isStage: false
         });
       });
 
-      setTasks(ganttTasks);
+      setGanttTasks(ganttTasks);
 
       // Load milestones (tasks marked as milestones)
       const milestoneData: GanttMilestone[] = ganttTasks
@@ -120,14 +119,12 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
       setMilestones(milestoneData);
 
     } catch (error) {
-      console.error('Error loading timeline data:', error);
+      console.error('Error converting tasks to gantt format:', error);
       toast({
         title: "Error",
-        description: "Failed to load timeline data",
+        description: "Failed to process timeline data",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -144,7 +141,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   const handleTaskUpdate = async (taskId: string, updates: Partial<GanttTask>) => {
     try {
       // Update local state immediately
-      setTasks(prev => prev.map(task => 
+      setGanttTasks(prev => prev.map(task => 
         task.id === taskId ? { ...task, ...updates } : task
       ));
 
@@ -155,29 +152,22 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
         return;
       }
 
-      // Prepare database update for activities table (only for real activities)
-      const dbUpdates: any = {};
-      if (updates.name) dbUpdates.name = updates.name;
-      if (updates.startDate) dbUpdates.start_date = updates.startDate.toISOString();
-      if (updates.endDate) dbUpdates.end_date = updates.endDate.toISOString();
-      if (updates.status) dbUpdates.stage = updates.status;
-      if (updates.description) dbUpdates.description = updates.description;
-      if (updates.expanded !== undefined) dbUpdates.is_expanded = updates.expanded;
+      // Use centralized task update
+      const taskUpdates: any = {};
+      if (updates.name) taskUpdates.name = updates.name;
+      if (updates.startDate) taskUpdates.start_date = updates.startDate.toISOString();
+      if (updates.endDate) taskUpdates.end_date = updates.endDate.toISOString();
+      if (updates.description) taskUpdates.description = updates.description;
+      if (updates.expanded !== undefined) taskUpdates.is_expanded = updates.expanded;
+      if (updates.progress !== undefined) taskUpdates.progress = updates.progress;
 
-      const { error } = await supabase
-        .from('activities')
-        .update(dbUpdates)
-        .eq('id', taskId);
-
-      if (error) throw error;
+      await updateTask(taskId, taskUpdates);
 
       // Trigger API webhooks for external integrations
       await triggerApiUpdate('activity_updated', { activityId: taskId, updates });
 
     } catch (error) {
       console.error('Error updating activity:', error);
-      // Revert local state on error
-      loadTimelineData();
       toast({
         title: "Error",
         description: "Failed to update activity",
@@ -188,64 +178,33 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
 
   const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>, parentId?: string) => {
     try {
-      // Get user's company ID for activities table
-      const { data: userData } = await supabase.auth.getUser();
-      const { data: companyData } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', userData.user?.id)
-        .eq('status', 'active')
-        .single();
-
-      if (!companyData) {
-        throw new Error('User is not a member of any company');
-      }
-
       // Determine level and parent based on parentId
       let level = 0;
       let parent_id = null;
       
       if (parentId) {
-        const parentTask = tasks.find(t => t.id === parentId);
+        const parentTask = ganttTasks.find(t => t.id === parentId);
         if (parentTask) {
           level = (parentTask.level || 0) + 1;
           parent_id = parentId;
         }
       }
 
-      const { data, error } = await supabase
-        .from('activities')
-        .insert([{
-          project_id: projectId,
-          company_id: companyData.company_id,
-          name: newTask.name,
-          start_date: newTask.startDate.toISOString(),
-          end_date: newTask.endDate.toISOString(),
-          stage: newTask.category || '4.0 PRELIMINARY',
-          description: newTask.description,
-          parent_id: parent_id,
-          level: level,
-          is_expanded: true
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Add to local state
-      const ganttTask: GanttTask = {
-        id: data.id,
-        ...newTask,
-        parentId: parent_id,
+      // Use centralized task creation
+      await createTask({
+        name: newTask.name,
+        start_date: newTask.startDate.toISOString(),
+        end_date: newTask.endDate.toISOString(),
+        stage: newTask.category || '4.0 PRELIMINARY',
+        description: newTask.description,
+        parent_id: parent_id,
         level: level,
-        expanded: true,
-        isStage: level === 0
-      };
-      
-      setTasks(prev => [...prev, ganttTask]);
+        is_expanded: true,
+        progress: newTask.progress
+      });
 
       // Trigger API webhook
-      await triggerApiUpdate('activity_created', { activity: ganttTask });
+      await triggerApiUpdate('activity_created', { activity: newTask });
 
       toast({
         title: "Activity Added",
@@ -264,14 +223,8 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
 
   const handleTaskDelete = async (taskId: string) => {
     try {
-      const { error } = await supabase
-        .from('activities')
-        .delete()
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      setTasks(prev => prev.filter(task => task.id !== taskId));
+      // Use centralized task deletion
+      await deleteTask(taskId);
 
       // Trigger API webhook
       await triggerApiUpdate('activity_deleted', { activityId: taskId });
@@ -294,8 +247,8 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   const handleTaskReorder = async (taskIds: string[]) => {
     try {
       // Update local state immediately
-      const reorderedTasks = taskIds.map(id => tasks.find(task => task.id === id)!).filter(Boolean);
-      setTasks(reorderedTasks);
+      const reorderedTasks = taskIds.map(id => ganttTasks.find(task => task.id === id)!).filter(Boolean);
+      setGanttTasks(reorderedTasks);
 
       // Note: For now, we'll just update the local state
       // In a real implementation, you might want to persist the order to the database
@@ -359,10 +312,10 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
   };
 
   const getProjectStats = () => {
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(t => t.status === 'completed').length;
-    const inProgressTasks = tasks.filter(t => t.status === 'in-progress').length;
-    const overdueTasks = tasks.filter(t => t.endDate < new Date() && t.status !== 'completed').length;
+    const totalTasks = ganttTasks.length;
+    const completedTasks = ganttTasks.filter(t => t.status === 'completed').length;
+    const inProgressTasks = ganttTasks.filter(t => t.status === 'in-progress').length;
+    const overdueTasks = ganttTasks.filter(t => t.endDate < new Date() && t.status !== 'completed').length;
     
     const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
@@ -510,7 +463,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
         <CardContent className="p-0">
           {viewMode === 'gantt' ? (
             <GanttChart
-              tasks={tasks}
+              tasks={ganttTasks}
               milestones={milestones}
               onTaskUpdate={handleTaskUpdate}
               onTaskAdd={handleTaskAdd}
@@ -522,7 +475,7 @@ export const TimelineView = ({ projectId, projectName }: TimelineViewProps) => {
             />
           ) : (
             <TaskHierarchy
-              tasks={tasks}
+              tasks={ganttTasks}
               onTaskUpdate={handleTaskUpdate}
               onTaskAdd={handleTaskAdd}
               onTaskDelete={handleTaskDelete}
