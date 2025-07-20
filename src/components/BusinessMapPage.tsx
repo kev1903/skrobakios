@@ -124,7 +124,15 @@ const ModuleNode = ({
               <p className="text-xs font-medium mb-2">All Projects</p>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {data.recent.map((project: any, index: number) => (
-                  <div key={index} className="text-xs text-muted-foreground truncate">
+                  <div 
+                    key={index} 
+                    className="text-xs text-muted-foreground truncate cursor-pointer hover:text-primary hover:bg-primary/5 p-1 rounded transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      data.onProjectClick?.(project.id, project.name);
+                    }}
+                    title={`Click to open ${project.name} dashboard`}
+                  >
                     • {project.name} ({project.status || 'No status'})
                   </div>
                 ))}
@@ -555,6 +563,12 @@ export const BusinessMapPage = ({
     }));
   }, []);
 
+  // Handle project click to navigate to project dashboard
+  const handleProjectClick = useCallback((projectId: string, projectName: string) => {
+    toast.success(`Opening ${projectName} dashboard...`);
+    onNavigate(`project-dashboard/${projectId}`);
+  }, [onNavigate]);
+
   // Calculate shortest distance connection points between two nodes
   const calculateShortestConnection = useCallback((sourceNode: Node, targetNode: Node) => {
     const sourceRect = {
@@ -707,7 +721,8 @@ export const BusinessMapPage = ({
           isSelected: interactionState.selectedNodes.includes(module.id),
           isConnecting: interactionState.connectionMode && interactionState.selectedNodes.includes('company-center'),
           onClick: handleNodeClick,
-          onHover: handleNodeHover
+          onHover: handleNodeHover,
+          onProjectClick: module.module_name === 'projects' ? handleProjectClick : undefined
         },
         draggable: !isMapLocked
       };
@@ -739,7 +754,8 @@ export const BusinessMapPage = ({
           isSelected: interactionState.selectedNodes.includes(module.id),
           isConnecting: interactionState.connectionMode && interactionState.selectedNodes.includes('company-center'),
           onClick: handleNodeClick,
-          onHover: handleNodeHover
+          onHover: handleNodeHover,
+          onProjectClick: module.module_name === 'projects' ? handleProjectClick : undefined
         },
         draggable: !isMapLocked
       };
