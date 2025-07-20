@@ -673,16 +673,62 @@ export const TimelineGanttView = ({
 
             {/* Start Date Column */}
             <div className="col-span-2 text-center">
-              <span className="text-xs text-muted-foreground">
-                {task.start_date ? format(new Date(task.start_date), 'MMM dd, yyyy') : '-'}
-              </span>
+              <DatePicker
+                date={task.start_date ? new Date(task.start_date) : undefined}
+                onDateChange={(date) => {
+                  if (date) {
+                    const startDate = date.toISOString().split('T')[0];
+                    let updates: Partial<CentralTask> = { start_date: startDate };
+                    
+                    // Auto-calculate end date if duration exists but no end date
+                    if (task.duration && !task.end_date) {
+                      const endDate = addDays(date, task.duration - 1);
+                      updates.end_date = endDate.toISOString().split('T')[0];
+                    }
+                    
+                    // Auto-calculate duration if both start and end dates exist
+                    if (task.end_date) {
+                      const endDate = new Date(task.end_date);
+                      const duration = Math.max(1, differenceInDays(endDate, date) + 1);
+                      updates.duration = duration;
+                    }
+                    
+                    onTaskUpdate?.(task.id, updates);
+                  }
+                }}
+                placeholder="Start date"
+                formatString="MMM dd, yy"
+              />
             </div>
 
             {/* End Date Column */}
             <div className="col-span-2 text-center">
-              <span className="text-xs text-muted-foreground">
-                {task.end_date ? format(new Date(task.end_date), 'MMM dd, yyyy') : '-'}
-              </span>
+              <DatePicker
+                date={task.end_date ? new Date(task.end_date) : undefined}
+                onDateChange={(date) => {
+                  if (date) {
+                    const endDate = date.toISOString().split('T')[0];
+                    let updates: Partial<CentralTask> = { end_date: endDate };
+                    
+                    // Auto-calculate start date if duration exists but no start date
+                    if (task.duration && !task.start_date) {
+                      const startDate = addDays(date, -(task.duration - 1));
+                      updates.start_date = startDate.toISOString().split('T')[0];
+                    }
+                    
+                    // Auto-calculate duration if both start and end dates exist
+                    if (task.start_date) {
+                      const startDate = new Date(task.start_date);
+                      const duration = Math.max(1, differenceInDays(date, startDate) + 1);
+                      updates.duration = duration;
+                    }
+                    
+                    onTaskUpdate?.(task.id, updates);
+                  }
+                }}
+                placeholder="End date"
+                formatString="MMM dd, yy"
+              />
             </div>
 
             {/* Duration Column */}
