@@ -273,32 +273,60 @@ export const TimelineGanttView = ({
     return 'hsl(220, 8.9%, 46.1%)'; // Gray for not started
   };
 
-  // Enhanced task geometry calculation
+  // Enhanced task geometry calculation with precise calendar alignment
   const getTaskGeometry = (task: GanttTask) => {
     if (!task.start_date || !task.end_date) return null;
     
     const startDate = new Date(task.start_date);
     const endDate = new Date(task.end_date);
-    const timelineStart = timelineDates[0];
-    const timelineEnd = timelineDates[timelineDates.length - 1];
     
-    let startOffset, duration;
+    // Normalize dates to remove time components for accurate day-to-day comparison
+    const taskStartDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const taskEndDay = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
     
-    if (timeScale === 'weeks') {
-      startOffset = Math.floor(differenceInDays(startDate, timelineStart) / 7);
-      duration = Math.max(1, Math.ceil(differenceInDays(endDate, startDate) / 7));
-    } else if (timeScale === 'months') {
-      startOffset = differenceInDays(startDate, timelineStart) / 30;
-      duration = Math.max(1, differenceInDays(endDate, startDate) / 30);
-    } else {
-      startOffset = differenceInDays(startDate, timelineStart);
-      duration = Math.max(1, differenceInDays(endDate, startDate) + 1);
+    // Find exact indices in the timelineDates array for precise alignment
+    const startIndex = timelineDates.findIndex(date => {
+      const timelineDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      return timelineDay.getTime() === taskStartDay.getTime();
+    });
+    
+    const endIndex = timelineDates.findIndex(date => {
+      const timelineDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      return timelineDay.getTime() === taskEndDay.getTime();
+    });
+    
+    // If task is outside visible range, use fallback calculation
+    if (startIndex === -1 || endIndex === -1) {
+      const timelineStart = timelineDates[0];
+      const timelineEnd = timelineDates[timelineDates.length - 1];
+      
+      let startOffset, duration;
+      if (timeScale === 'weeks') {
+        startOffset = Math.floor(differenceInDays(startDate, timelineStart) / 7);
+        duration = Math.max(1, Math.ceil(differenceInDays(endDate, startDate) / 7));
+      } else if (timeScale === 'months') {
+        startOffset = differenceInDays(startDate, timelineStart) / 30;
+        duration = Math.max(1, differenceInDays(endDate, startDate) / 30);
+      } else {
+        startOffset = differenceInDays(startDate, timelineStart);
+        duration = Math.max(1, differenceInDays(endDate, startDate) + 1);
+      }
+      
+      return {
+        left: Math.max(0, startOffset * timeConfig.dayWidth),
+        width: Math.max(timeConfig.dayWidth * 0.8, duration * timeConfig.dayWidth),
+        visible: startDate <= timelineEnd && endDate >= timelineStart
+      };
     }
     
+    // Use exact grid alignment with timelineDates indices
+    const left = startIndex * timeConfig.dayWidth;
+    const width = (endIndex - startIndex + 1) * timeConfig.dayWidth;
+    
     return {
-      left: Math.max(0, startOffset * timeConfig.dayWidth),
-      width: Math.max(timeConfig.dayWidth * 0.8, duration * timeConfig.dayWidth),
-      visible: startDate <= timelineEnd && endDate >= timelineStart
+      left: Math.max(0, left),
+      width: Math.max(timeConfig.dayWidth * 0.8, width),
+      visible: true
     };
   };
 
