@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Calendar, BarChart3, List, Settings, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
@@ -442,12 +441,22 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
           
           <div className="flex items-center backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg">
             <Button
-              variant="default"
+              variant={viewMode === 'gantt' ? 'default' : 'ghost'}
               size="sm"
-              className="text-white bg-white/20 hover:bg-white/30"
+              onClick={() => setViewMode('gantt')}
+              className="text-white hover:bg-white/20"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
-              Split View
+              Gantt
+            </Button>
+            <Button
+              variant={viewMode === 'hierarchy' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('hierarchy')}
+              className="text-white hover:bg-white/20"
+            >
+              <List className="w-4 h-4 mr-2" />
+              List
             </Button>
           </div>
         </div>
@@ -494,51 +503,24 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         </Card>
       )}
 
-      {/* Main Timeline View - Resizable Layout */}
+      {/* Main Timeline View */}
       <Card>
         <CardContent className="p-0">
-          <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
-            {/* Task List Panel */}
-            <ResizablePanel defaultSize={35} minSize={20} maxSize={60}>
-              <div className="h-full border-r border-border">
-                <div className="p-4 border-b border-border bg-muted/30">
-                  <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                    Task List
-                  </h3>
-                </div>
-                <div className="h-full overflow-auto">
-                  <TaskHierarchy
-                    tasks={ganttTasks}
-                    onTaskUpdate={handleTaskUpdate}
-                    onTaskAdd={handleTaskAdd}
-                    onTaskDelete={handleTaskDelete}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
-
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
-
-            {/* Gantt Chart Panel */}
-            <ResizablePanel defaultSize={65} minSize={40}>
-              <div className="h-full">
-                <div className="p-4 border-b border-border bg-muted/30">
-                  <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                    Timeline Chart
-                  </h3>
-                </div>
-                <div className="h-full overflow-auto">
-                  <ModernGanttChart
-                    tasks={modernGanttTasks}
-                    onTaskUpdate={handleModernTaskUpdate}
-                    onTaskAdd={handleModernTaskAdd}
-                    onTaskDelete={handleTaskDelete}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          {viewMode === 'gantt' ? (
+            <ModernGanttChart
+              tasks={modernGanttTasks}
+              onTaskUpdate={handleModernTaskUpdate}
+              onTaskAdd={handleModernTaskAdd}
+              onTaskDelete={handleTaskDelete}
+            />
+          ) : (
+            <TaskHierarchy
+              tasks={ganttTasks}
+              onTaskUpdate={handleTaskUpdate}
+              onTaskAdd={handleTaskAdd}
+              onTaskDelete={handleTaskDelete}
+            />
+          )}
         </CardContent>
       </Card>
 
