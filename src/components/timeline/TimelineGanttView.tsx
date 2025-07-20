@@ -430,15 +430,6 @@ export const TimelineGanttView = ({
           )}
           
           <div className="flex items-center gap-2 flex-1">
-            {progress === 100 ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            ) : isOverdue ? (
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-            ) : progress > 0 ? (
-              <Clock className="h-4 w-4 text-blue-600" />
-            ) : (
-              <Circle className="h-4 w-4 text-muted-foreground" />
-            )}
             
             
             {editingTaskId === task.id ? (
