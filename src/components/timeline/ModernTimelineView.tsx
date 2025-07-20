@@ -232,72 +232,84 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
             <h1 className="text-2xl font-bold tracking-tight">{projectName} Timeline</h1>
             <p className="text-muted-foreground">Track and visualize project activities</p>
           </div>
-          <Button className="bg-gradient-primary hover:opacity-90 text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            New Entry
-          </Button>
         </div>
 
-      </div>
-
-      {/* Filters and Controls */}
-      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl">
-        <CardContent className="p-4">
-          <div className="flex flex-col space-y-4">
-            {/* View Mode Toggle */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="transition-all duration-200"
-                >
-                  <List className="w-4 h-4 mr-2" />
-                  List View
-                </Button>
-                <Button
-                  variant={viewMode === 'gantt' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('gantt')}
-                  className="transition-all duration-200"
-                >
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Gantt View
-                </Button>
-              </div>
-
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search activities..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-64 bg-white/20 border-white/30"
-                />
-              </div>
+        {/* View Toggle and Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {/* List/Gantt Toggle */}
+            <div className="flex items-center bg-muted/30 rounded-md p-1">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="h-8 px-3"
+              >
+                <List className="w-4 h-4 mr-2" />
+                List View
+              </Button>
+              <Button
+                variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('gantt')}
+                className="h-8 px-3"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Gantt View
+              </Button>
             </div>
 
-            {/* Filters */}
-            <TimelineFilters
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              selectedCategories={selectedCategories}
-              onCategoriesChange={setSelectedCategories}
-              selectedProjects={selectedProjects}
-              onProjectsChange={setSelectedProjects}
-              availableCategories={availableCategories}
-              availableProjects={availableProjects}
-              sortBy={sortBy}
-              onSortByChange={setSortBy}
-              groupBy={groupBy}
-              onGroupByChange={setGroupBy}
-              screenSize={screenSize}
-            />
+            {/* Date Range Filter */}
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Date Range:</span>
+              <div className="flex items-center bg-muted/30 rounded-md p-1">
+                {['today', 'week', 'month', 'custom'].map((range) => (
+                  <Button
+                    key={range}
+                    variant={dateRange === range ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setDateRange(range as any)}
+                    className="h-7 px-3 text-xs capitalize"
+                  >
+                    {range}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Right Controls */}
+          <div className="flex items-center gap-3">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search activities"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-64 h-9"
+              />
+            </div>
+
+            {/* Sort */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Sort by</span>
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <SelectTrigger className="w-24 h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="duration">Duration</SelectItem>
+                  <SelectItem value="category">Category</SelectItem>
+                  <SelectItem value="project">Project</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Timeline Content */}
       <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
