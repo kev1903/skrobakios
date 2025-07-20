@@ -10,12 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, BarChart3, List, Settings, Zap } from 'lucide-react';
+import { Calendar, BarChart3, List, Settings, Zap, Menu } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useUser } from '@/contexts/UserContext';
+import { useScreenSize } from '@/hooks/use-mobile';
 import { format, addDays, parseISO } from 'date-fns';
 import { CentralTask } from '@/services/centralTaskService';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface TimelineViewProps {
   projectId: string;
@@ -36,6 +38,7 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
   
   const { toast } = useToast();
   const { userProfile } = useUser();
+  const screenSize = useScreenSize();
   
   // Use centralized tasks hook  
   const {
@@ -46,7 +49,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     deleteTask
   } = useCentralTasks(projectId, companyId || 'default-company-id');
 
-  // Convert central tasks to gantt format
   useEffect(() => {
     convertTasksToGanttFormat();
   }, [centralTasks]);
@@ -101,8 +103,8 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
           description: task.description,
           milestone: false,
           category: task.stage,
-          parentId: stageParentId, // All activities are children of their stage
-          level: 1, // All activities are level 1 (children of stages)
+          parentId: stageParentId,
+          level: 1,
           expanded: task.is_expanded !== false,
           isStage: false
         };
@@ -133,7 +135,7 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
 
       // Add stages to modern tasks too
       stageMap.forEach(stage => {
-        const duration = '30 days'; // Default stage duration
+        const duration = '30 days';
         const modernStage: ModernGanttTask = {
           id: stage.id,
           name: stage.name,
@@ -195,8 +197,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
 
       // Check if this is a stage (starts with "stage-") - these are UI constructs only
       if (taskId.startsWith('stage-')) {
-        // For stages, we only update local state and don't sync to database
-        // since stages are generated from activities, not stored separately
         return;
       }
 
@@ -210,8 +210,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       if (updates.progress !== undefined) taskUpdates.progress = updates.progress;
 
       await updateTask(taskId, taskUpdates);
-
-      // Trigger API webhooks for external integrations
       await triggerApiUpdate('activity_updated', { activityId: taskId, updates });
 
     } catch (error) {
@@ -224,7 +222,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     }
   };
 
-  // Wrapper for modern gantt chart
   const handleModernTaskUpdate = async (taskId: string, updates: Partial<ModernGanttTask>) => {
     const ganttUpdates: Partial<GanttTask> = {
       name: updates.name,
@@ -240,7 +237,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
 
   const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>, parentId?: string) => {
     try {
-      // Determine level and parent based on parentId
       let level = 0;
       let parent_id = null;
       
@@ -252,7 +248,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         }
       }
 
-      // Use centralized task creation
       await createTask({
         name: newTask.name,
         start_date: newTask.startDate.toISOString(),
@@ -265,7 +260,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         progress: newTask.progress
       });
 
-      // Trigger API webhook
       await triggerApiUpdate('activity_created', { activity: newTask });
 
       toast({
@@ -283,7 +277,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     }
   };
 
-  // Wrapper for modern gantt chart
   const handleModernTaskAdd = async (newTask: Omit<ModernGanttTask, 'id'>) => {
     const ganttTask: Omit<GanttTask, 'id'> = {
       name: newTask.name,
@@ -292,7 +285,7 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       progress: newTask.progress,
       status: newTask.status,
       assignee: newTask.assignee || '',
-      priority: 'Medium', // Default priority
+      priority: 'Medium',
       description: '',
       category: newTask.category,
       parentId: newTask.parentId,
@@ -307,10 +300,7 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
 
   const handleTaskDelete = async (taskId: string) => {
     try {
-      // Use centralized task deletion
       await deleteTask(taskId);
-
-      // Trigger API webhook
       await triggerApiUpdate('activity_deleted', { activityId: taskId });
 
       toast({
@@ -330,13 +320,8 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
 
   const handleTaskReorder = async (taskIds: string[]) => {
     try {
-      // Update local state immediately
       const reorderedTasks = taskIds.map(id => ganttTasks.find(task => task.id === id)!).filter(Boolean);
       setGanttTasks(reorderedTasks);
-
-      // Note: For now, we'll just update the local state
-      // In a real implementation, you might want to persist the order to the database
-      // by adding a 'sort_order' column to the tasks table
       
       toast({
         title: "Activities Reordered",
@@ -356,7 +341,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
   const triggerApiUpdate = async (action: string, data: any) => {
     const promises = [];
 
-    // Trigger n8n webhook if connected
     if (apiConnections.n8n.connected && apiConnections.n8n.webhook) {
       promises.push(
         fetch(apiConnections.n8n.webhook, {
@@ -374,7 +358,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       );
     }
 
-    // Trigger Skai webhook if connected
     if (apiConnections.skai.connected && apiConnections.skai.webhook) {
       promises.push(
         fetch(apiConnections.skai.webhook, {
@@ -400,16 +383,9 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     const completedTasks = ganttTasks.filter(t => t.status === 'completed').length;
     const inProgressTasks = ganttTasks.filter(t => t.status === 'in-progress').length;
     const overdueTasks = ganttTasks.filter(t => t.endDate < new Date() && t.status !== 'completed').length;
-    
     const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-    return {
-      totalTasks,
-      completedTasks,
-      inProgressTasks,
-      overdueTasks,
-      overallProgress
-    };
+    return { totalTasks, completedTasks, inProgressTasks, overdueTasks, overallProgress };
   };
 
   const stats = getProjectStats();
@@ -418,6 +394,285 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (screenSize === 'mobile') {
+    return (
+      <div className="space-y-4">
+        {/* Mobile Header */}
+        <div className="flex flex-col space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">{projectName} Timeline</h2>
+            <p className="text-sm text-muted-foreground">Project schedule and milestone tracking</p>
+          </div>
+          
+          {/* Mobile Controls */}
+          <div className="flex flex-col space-y-3">
+            <Sheet open={showControls} onOpenChange={setShowControls}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Controls
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[80vh]">
+                <div className="space-y-4 pt-6">
+                  <Tabs defaultValue="view" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="view">View</TabsTrigger>
+                      <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                      <TabsTrigger value="api">API</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="view">
+                      <TimelineControls />
+                    </TabsContent>
+                    
+                    <TabsContent value="milestones">
+                      <MilestoneManager 
+                        milestones={milestones}
+                        onMilestoneUpdate={setMilestones}
+                        projectId={projectId}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="api">
+                      <ApiIntegration 
+                        connections={apiConnections}
+                        onConnectionUpdate={setApiConnections}
+                        onTestConnection={triggerApiUpdate}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </SheetContent>
+            </Sheet>
+            
+            <div className="flex items-center backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-1">
+              <Button
+                variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('gantt')}
+                className="flex-1 text-white hover:bg-white/20"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Gantt
+              </Button>
+              <Button
+                variant={viewMode === 'hierarchy' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('hierarchy')}
+                className="flex-1 text-white hover:bg-white/20"
+              >
+                <List className="w-4 h-4 mr-2" />
+                List
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Timeline Content */}
+        <Card>
+          <CardContent className="p-2">
+            {viewMode === 'gantt' ? (
+              <div className="overflow-x-auto">
+                <ProfessionalGanttChart
+                  tasks={centralTasks}
+                  onTaskUpdate={async (taskId: string, updates: Partial<CentralTask>) => {
+                    try {
+                      await updateTask(taskId, updates);
+                      toast({
+                        title: "Task Updated",
+                        description: "Task has been successfully updated"
+                      });
+                    } catch (error) {
+                      console.error('Error updating task:', error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to update task",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                  projectTitle={projectName}
+                />
+              </div>
+            ) : (
+              <TaskHierarchy
+                tasks={ganttTasks}
+                onTaskUpdate={handleTaskUpdate}
+                onTaskAdd={handleTaskAdd}
+                onTaskDelete={handleTaskDelete}
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* API Status */}
+        {(apiConnections.n8n.connected || apiConnections.skai.connected) && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">API Integrations:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {apiConnections.n8n.connected && (
+                    <Badge variant="secondary">n8n Connected</Badge>
+                  )}
+                  {apiConnections.skai.connected && (
+                    <Badge variant="secondary">Skai Connected</Badge>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  if (screenSize === 'tablet') {
+    return (
+      <div className="space-y-5">
+        {/* Tablet Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold">{projectName} Timeline</h2>
+            <p className="text-muted-foreground">Project schedule and milestone tracking</p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowControls(!showControls)}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Controls
+            </Button>
+            
+            <div className="flex items-center backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg">
+              <Button
+                variant={viewMode === 'gantt' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('gantt')}
+                className="text-white hover:bg-white/20"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Gantt
+              </Button>
+              <Button
+                variant={viewMode === 'hierarchy' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('hierarchy')}
+                className="text-white hover:bg-white/20"
+              >
+                <List className="w-4 h-4 mr-2" />
+                List
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tablet Controls Panel */}
+        {showControls && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Timeline Controls
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="view" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="view">View Settings</TabsTrigger>
+                  <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                  <TabsTrigger value="api">API Integration</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="view">
+                  <TimelineControls />
+                </TabsContent>
+                
+                <TabsContent value="milestones">
+                  <MilestoneManager 
+                    milestones={milestones}
+                    onMilestoneUpdate={setMilestones}
+                    projectId={projectId}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="api">
+                  <ApiIntegration 
+                    connections={apiConnections}
+                    onConnectionUpdate={setApiConnections}
+                    onTestConnection={triggerApiUpdate}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tablet Timeline Content */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="overflow-x-auto">
+              {viewMode === 'gantt' ? (
+                <ProfessionalGanttChart
+                  tasks={centralTasks}
+                  onTaskUpdate={async (taskId: string, updates: Partial<CentralTask>) => {
+                    try {
+                      await updateTask(taskId, updates);
+                      toast({
+                        title: "Task Updated",
+                        description: "Task has been successfully updated"
+                      });
+                    } catch (error) {
+                      console.error('Error updating task:', error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to update task",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                  projectTitle={projectName}
+                />
+              ) : (
+                <TaskHierarchy
+                  tasks={ganttTasks}
+                  onTaskUpdate={handleTaskUpdate}
+                  onTaskAdd={handleTaskAdd}
+                  onTaskDelete={handleTaskDelete}
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* API Status */}
+        {(apiConnections.n8n.connected || apiConnections.skai.connected) && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <Zap className="w-5 h-5 text-primary" />
+                <span className="text-sm font-medium">API Integrations Active:</span>
+                {apiConnections.n8n.connected && (
+                  <Badge variant="secondary">n8n Connected</Badge>
+                )}
+                {apiConnections.skai.connected && (
+                  <Badge variant="secondary">Skai Connected</Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }
