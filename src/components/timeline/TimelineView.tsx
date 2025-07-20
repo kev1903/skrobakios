@@ -340,80 +340,43 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
 
   return (
     <div className="space-y-6">
-      {/* Header with project stats */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">{projectName} Timeline</h2>
-            <p className="text-muted-foreground">Project schedule and milestone tracking</p>
-          </div>
+      {/* Header with view controls */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">{projectName} Timeline</h2>
+          <p className="text-muted-foreground">Project schedule and milestone tracking</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowControls(!showControls)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Controls
+          </Button>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowControls(!showControls)}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Controls
-            </Button>
-            
-            <Button
-              variant={viewMode === 'gantt' ? 'default' : 'outline'}
+              variant={viewMode === 'gantt' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('gantt')}
+              className="text-white hover:bg-white/20"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Gantt
             </Button>
-            
             <Button
-              variant={viewMode === 'hierarchy' ? 'default' : 'outline'}
+              variant={viewMode === 'hierarchy' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('hierarchy')}
+              className="text-white hover:bg-white/20"
             >
               <List className="w-4 h-4 mr-2" />
-              Hierarchy
+              List
             </Button>
           </div>
-        </div>
-
-        {/* Project Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{stats.totalTasks}</div>
-              <div className="text-xs text-muted-foreground">Total Activities</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-emerald-600">{stats.completedTasks}</div>
-              <div className="text-xs text-muted-foreground">Completed</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-blue-600">{stats.inProgressTasks}</div>
-              <div className="text-xs text-muted-foreground">In Progress</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-red-600">{stats.overdueTasks}</div>
-              <div className="text-xs text-muted-foreground">Overdue</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold">{stats.overallProgress}%</div>
-              <div className="text-xs text-muted-foreground">Overall Progress</div>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
