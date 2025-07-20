@@ -64,16 +64,11 @@ export const NavigationRibbon = ({
   });
 
   const supportNavigation = [
-    { id: "platform", label: "Platform", icon: Shield, requiredRole: "superadmin" as const },
     { id: "support", label: "Help Center", icon: HelpCircle },
   ];
 
-  // Filter support navigation based on user role
-  const filteredSupportNavigation = supportNavigation.filter((item) => {
-    if (!item.requiredRole) return true;
-    if (item.requiredRole === 'superadmin') return isSuperAdmin();
-    return true;
-  });
+  // All support navigation items are now available to everyone
+  const filteredSupportNavigation = supportNavigation;
 
   // Debug logging to understand subscription-based filtering (from SidebarMainContent)
   useEffect(() => {
