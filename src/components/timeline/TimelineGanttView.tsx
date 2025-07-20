@@ -99,6 +99,7 @@ export const TimelineGanttView = ({
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<'above' | 'below' | 'inside' | null>(null);
+  const [editingDateCell, setEditingDateCell] = useState<{ taskId: string; column: 'start' | 'end' } | null>(null);
   
   const ganttRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -673,62 +674,88 @@ export const TimelineGanttView = ({
 
             {/* Start Date Column */}
             <div className="col-span-2 text-center">
-              <DatePicker
-                date={task.start_date ? new Date(task.start_date) : undefined}
-                onDateChange={(date) => {
-                  if (date) {
-                    const startDate = date.toISOString().split('T')[0];
-                    let updates: Partial<CentralTask> = { start_date: startDate };
-                    
-                    // Auto-calculate end date if duration exists but no end date
-                    if (task.duration && !task.end_date) {
-                      const endDate = addDays(date, task.duration - 1);
-                      updates.end_date = endDate.toISOString().split('T')[0];
+              {editingDateCell?.taskId === task.id && editingDateCell?.column === 'start' ? (
+                <DatePicker
+                  date={task.start_date ? new Date(task.start_date) : undefined}
+                  onDateChange={(date) => {
+                    if (date) {
+                      const startDate = date.toISOString().split('T')[0];
+                      let updates: Partial<CentralTask> = { start_date: startDate };
+                      
+                      // Auto-calculate end date if duration exists but no end date
+                      if (task.duration && !task.end_date) {
+                        const endDate = addDays(date, task.duration - 1);
+                        updates.end_date = endDate.toISOString().split('T')[0];
+                      }
+                      
+                      // Auto-calculate duration if both start and end dates exist
+                      if (task.end_date) {
+                        const endDate = new Date(task.end_date);
+                        const duration = Math.max(1, differenceInDays(endDate, date) + 1);
+                        updates.duration = duration;
+                      }
+                      
+                      onTaskUpdate?.(task.id, updates);
                     }
-                    
-                    // Auto-calculate duration if both start and end dates exist
-                    if (task.end_date) {
-                      const endDate = new Date(task.end_date);
-                      const duration = Math.max(1, differenceInDays(endDate, date) + 1);
-                      updates.duration = duration;
-                    }
-                    
-                    onTaskUpdate?.(task.id, updates);
-                  }
-                }}
-                placeholder="Start date"
-                formatString="MMM dd, yy"
-              />
+                    setEditingDateCell(null);
+                  }}
+                  placeholder="Start date"
+                  formatString="MMM dd, yy"
+                />
+              ) : (
+                <div 
+                  className="text-xs text-muted-foreground cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition-colors min-h-[24px] flex items-center justify-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingDateCell({ taskId: task.id, column: 'start' });
+                  }}
+                >
+                  {task.start_date ? format(new Date(task.start_date), 'MMM dd, yy') : 'Click to set'}
+                </div>
+              )}
             </div>
 
             {/* End Date Column */}
             <div className="col-span-2 text-center">
-              <DatePicker
-                date={task.end_date ? new Date(task.end_date) : undefined}
-                onDateChange={(date) => {
-                  if (date) {
-                    const endDate = date.toISOString().split('T')[0];
-                    let updates: Partial<CentralTask> = { end_date: endDate };
-                    
-                    // Auto-calculate start date if duration exists but no start date
-                    if (task.duration && !task.start_date) {
-                      const startDate = addDays(date, -(task.duration - 1));
-                      updates.start_date = startDate.toISOString().split('T')[0];
+              {editingDateCell?.taskId === task.id && editingDateCell?.column === 'end' ? (
+                <DatePicker
+                  date={task.end_date ? new Date(task.end_date) : undefined}
+                  onDateChange={(date) => {
+                    if (date) {
+                      const endDate = date.toISOString().split('T')[0];
+                      let updates: Partial<CentralTask> = { end_date: endDate };
+                      
+                      // Auto-calculate start date if duration exists but no start date
+                      if (task.duration && !task.start_date) {
+                        const startDate = addDays(date, -(task.duration - 1));
+                        updates.start_date = startDate.toISOString().split('T')[0];
+                      }
+                      
+                      // Auto-calculate duration if both start and end dates exist
+                      if (task.start_date) {
+                        const startDate = new Date(task.start_date);
+                        const duration = Math.max(1, differenceInDays(date, startDate) + 1);
+                        updates.duration = duration;
+                      }
+                      
+                      onTaskUpdate?.(task.id, updates);
                     }
-                    
-                    // Auto-calculate duration if both start and end dates exist
-                    if (task.start_date) {
-                      const startDate = new Date(task.start_date);
-                      const duration = Math.max(1, differenceInDays(date, startDate) + 1);
-                      updates.duration = duration;
-                    }
-                    
-                    onTaskUpdate?.(task.id, updates);
-                  }
-                }}
-                placeholder="End date"
-                formatString="MMM dd, yy"
-              />
+                    setEditingDateCell(null);
+                  }}
+                  placeholder="End date"
+                  formatString="MMM dd, yy"
+                />
+              ) : (
+                <div 
+                  className="text-xs text-muted-foreground cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition-colors min-h-[24px] flex items-center justify-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingDateCell({ taskId: task.id, column: 'end' });
+                  }}
+                >
+                  {task.end_date ? format(new Date(task.end_date), 'MMM dd, yy') : 'Click to set'}
+                </div>
+              )}
             </div>
 
             {/* Duration Column */}
