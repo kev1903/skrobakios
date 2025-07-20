@@ -55,10 +55,7 @@ const Index = () => {
         {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex min-h-screen">
-            <div className={`flex-1 transition-all duration-300 ${
-              currentPage !== "auth" && currentPage !== "landing" ? 
-              (isChatCollapsed ? "mr-16" : "mr-96") : ""
-            }`}>
+            <div className="flex-1 transition-all duration-300">
               <ContentRenderer 
                 currentPage={currentPage}
                 onNavigate={handleNavigate}
@@ -67,14 +64,7 @@ const Index = () => {
                 currentProject={currentProject}
               />
             </div>
-            {/* Show AI chat sidebar on all pages except auth and landing */}
-            {currentPage !== "auth" && currentPage !== "landing" && (
-              <AiChatSidebar 
-                isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                onNavigate={handleNavigate}
-              />
-            )}
+            {/* No AI chat sidebar in first branch - system page is in second branch */}
           </div>
         ) : (
           // Home and all other pages get layout with sidebar
@@ -84,7 +74,7 @@ const Index = () => {
             
             <div className="relative z-10 flex min-h-screen">
               <div className={`flex-1 transition-all duration-300 ${
-                isChatCollapsed ? "mr-16" : "mr-96"
+                currentPage === "system" ? (isChatCollapsed ? "mr-16" : "mr-96") : ""
               }`}>
                 <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
                   <ContentRenderer 
@@ -97,12 +87,14 @@ const Index = () => {
                 </PageLayout>
               </div>
               
-              {/* AI Chat sidebar appears on all layout pages */}
-              <AiChatSidebar 
-                isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                onNavigate={handleNavigate}
-              />
+              {/* AI Chat sidebar appears only on Business Map page */}
+              {currentPage === "system" && (
+                <AiChatSidebar 
+                  isCollapsed={isChatCollapsed} 
+                  onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                  onNavigate={handleNavigate}
+                />
+              )}
             </div>
           </div>
         )}
