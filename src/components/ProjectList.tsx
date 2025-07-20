@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
-import { ProjectListProps, SortField, SortDirection, ViewMode } from "./projects/types";
+import { useSortPreferences, SortDirection } from "@/hooks/useSortPreferences";
+import { ProjectListProps, SortField, ViewMode } from "./projects/types";
 import { ProjectListHeader } from "./projects/ProjectListHeader";
 import { ProjectGridView } from "./projects/ProjectGridView";
 import { ProjectTableView } from "./projects/ProjectTableView";
@@ -14,10 +15,9 @@ import { ProjectEmptyState } from "./projects/ProjectEmptyState";
 export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [sortField, setSortField] = useState<SortField>('name');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { getProjects, loading } = useProjects();
+  const { sortField, sortDirection, handleSort: handleSortPersistent, loading: sortLoading } = useSortPreferences('projects', 'name' as SortField);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -32,12 +32,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }, [getProjects]); // Add getProjects dependency
 
   const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
+    handleSortPersistent(field);
   };
 
   const getSortedProjects = () => {

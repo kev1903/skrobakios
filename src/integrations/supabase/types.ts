@@ -2453,6 +2453,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sort_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          sort_direction: string
+          sort_field: string
+          table_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sort_direction: string
+          sort_field: string
+          table_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sort_direction?: string
+          sort_field?: string
+          table_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           billing_cycle: string

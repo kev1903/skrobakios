@@ -1,7 +1,8 @@
 import { Task } from '../tasks/types';
+import { SortDirection } from "@/hooks/useSortPreferences";
 
 export type SortField = 'taskName' | 'priority' | 'assignedTo' | 'dueDate' | 'status' | 'projectName';
-export type SortDirection = 'asc' | 'desc';
+export type { SortDirection };
 export type ViewMode = 'list' | 'grid';
 
 export interface MyTasksHeaderProps {

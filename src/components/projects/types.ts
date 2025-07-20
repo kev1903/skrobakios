@@ -1,4 +1,5 @@
 import { Project } from "@/hooks/useProjects";
+import { SortDirection } from "@/hooks/useSortPreferences";
 
 export interface ProjectListProps {
   onNavigate: (page: string) => void;
@@ -6,7 +7,6 @@ export interface ProjectListProps {
 }
 
 export type SortField = 'project_id' | 'name' | 'description' | 'status';
-export type SortDirection = 'asc' | 'desc';
 export type ViewMode = 'list' | 'grid' | 'dashboard';
 
 export interface ProjectListHeaderProps {
