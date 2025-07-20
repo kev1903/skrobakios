@@ -712,8 +712,6 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
       
       
       
-      {/* Bottom Chat Box */}
-      <ChatBox onNavigate={onNavigate} onSpeakingChange={setIsSpeaking} />
     </div>
   );
 };

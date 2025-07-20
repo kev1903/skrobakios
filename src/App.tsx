@@ -42,10 +42,7 @@ const InvoicesPageWrapper = () => {
   };
 
   return (
-    <>
-      <InvoicesPage onNavigate={handleNavigate} />
-      <PersistentAiChat />
-    </>
+    <InvoicesPage onNavigate={handleNavigate} />
   );
 };
 
@@ -62,10 +59,7 @@ const EstimatesPageWrapper = () => {
   };
 
   return (
-    <>
-      <EstimatesPage onNavigate={handleNavigate} />
-      <PersistentAiChat />
-    </>
+    <EstimatesPage onNavigate={handleNavigate} />
   );
 };
 
@@ -82,10 +76,7 @@ const EstimateCreationPageWrapper = () => {
   };
 
   return (
-    <>
-      <EstimateCreationPage onNavigate={handleNavigate} />
-      <PersistentAiChat />
-    </>
+    <EstimateCreationPage onNavigate={handleNavigate} />
   );
 };
 
@@ -222,10 +213,7 @@ const AppContent = () => {
           <PlatformAuthProvider>
             <UserProvider>
               <CompanyProvider>
-                <>
-                  <SK25008Dashboard />
-                  <PersistentAiChat />
-                </>
+                <SK25008Dashboard />
               </CompanyProvider>
             </UserProvider>
           </PlatformAuthProvider>

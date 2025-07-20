@@ -362,12 +362,6 @@ export const TaskManagement = ({ onNavigate, projectId }: TaskManagementProps) =
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          {selectedProject && (
-            <SkaiTaskAssistant 
-              projectId={selectedProject} 
-              onTaskCreated={loadData}
-            />
-          )}
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button className="flex items-center space-x-2">
