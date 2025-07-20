@@ -19,6 +19,7 @@ import { SubscriptionProtectedRoute } from "@/components/auth/SubscriptionProtec
 import { SettingsPage } from "@/components/SettingsPage";
 import { SupportPage } from "@/components/SupportPage";
 import { CreateProject } from "@/components/CreateProject";
+import { BatchCreateProjects } from "@/components/BatchCreateProjects";
 import { ProjectList } from "@/components/ProjectList";
 import { FilePage } from "@/components/FilePage";
 import { FinancePage } from "@/components/FinancePage";
@@ -108,6 +109,12 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <CreateProject onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "batch-create-projects":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <BatchCreateProjects onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "projects":
