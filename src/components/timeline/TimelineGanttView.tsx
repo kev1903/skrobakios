@@ -710,7 +710,7 @@ export const TimelineGanttView = ({
                     setEditingDateCell({ taskId: task.id, column: 'start' });
                   }}
                 >
-                  {task.start_date ? format(new Date(task.start_date), 'MMM dd, yy') : 'Click to set'}
+                  {task.start_date ? format(new Date(task.start_date), 'MMM dd, yy') : ''}
                 </div>
               )}
             </div>
@@ -753,7 +753,7 @@ export const TimelineGanttView = ({
                     setEditingDateCell({ taskId: task.id, column: 'end' });
                   }}
                 >
-                  {task.end_date ? format(new Date(task.end_date), 'MMM dd, yy') : 'Click to set'}
+                  {task.end_date ? format(new Date(task.end_date), 'MMM dd, yy') : ''}
                 </div>
               )}
             </div>
