@@ -108,7 +108,7 @@ export const TimelineGanttView = ({
 
   // Enhanced time scale configuration
   const getTimeScaleConfig = () => {
-    const baseWidth = screenSize === 'mobile' ? 20 : screenSize === 'tablet' ? 28 : 36;
+    const baseWidth = screenSize === 'mobile' ? 30 : screenSize === 'tablet' ? 40 : 50;
     const scaledWidth = baseWidth * zoom;
     
     switch (timeScale) {
@@ -128,7 +128,7 @@ export const TimelineGanttView = ({
         };
       default:
         return {
-          dayWidth: scaledWidth,
+          dayWidth: Math.max(50, scaledWidth), // Ensure minimum 50px width
           interval: 'day' as const,
           format: 'MMM d',
           subFormat: 'd'
@@ -1498,7 +1498,7 @@ export const TimelineGanttView = ({
                 </div>
                 
                 {/* Day/Week/Month headers */}
-                <div className="relative h-6 bg-background border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
+                <div className="relative h-8 bg-background border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
                   {timelineDates.map((date, index) => {
                     const isToday = isSameDay(date, new Date());
                     const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -1507,16 +1507,19 @@ export const TimelineGanttView = ({
                       <div
                         key={date.toISOString()}
                         className={cn(
-                          "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10",
+                          "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10 font-medium",
                           isToday && "bg-primary text-primary-foreground font-bold",
                           isWeekend && !isToday && "bg-muted/50 text-muted-foreground"
                         )}
                         style={{
                           left: index * timeConfig.dayWidth,
-                          width: timeConfig.dayWidth
+                          width: timeConfig.dayWidth,
+                          minWidth: '50px'
                         }}
                       >
-                        {format(date, timeConfig.subFormat)}
+                        <span className="truncate px-1">
+                          {format(date, timeConfig.subFormat)}
+                        </span>
                       </div>
                     );
                   })}
