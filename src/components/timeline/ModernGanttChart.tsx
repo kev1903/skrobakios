@@ -200,22 +200,26 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Set up scroll synchronization
+  // Set up scroll synchronization between header and body
   useEffect(() => {
     const ganttHeader = ganttHeaderRef.current;
-    const ganttScrollBody = ganttScrollBodyRef.current;
+    const ganttBody = ganttScrollBodyRef.current;
     
-    if (!ganttHeader || !ganttScrollBody) return;
+    if (!ganttHeader || !ganttBody) return;
 
-    const syncScroll = (e: Event) => {
+    const handleScroll = (e: Event) => {
       const target = e.target as HTMLElement;
-      ganttHeader.scrollLeft = target.scrollLeft;
+      if (ganttHeader) {
+        ganttHeader.scrollLeft = target.scrollLeft;
+      }
     };
 
-    ganttScrollBody.addEventListener('scroll', syncScroll);
+    // Add scroll listener to the body
+    ganttBody.addEventListener('scroll', handleScroll);
     
+    // Cleanup
     return () => {
-      ganttScrollBody.removeEventListener('scroll', syncScroll);
+      ganttBody.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
