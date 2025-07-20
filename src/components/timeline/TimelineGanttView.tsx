@@ -275,18 +275,12 @@ export const TimelineGanttView = ({
 
   // Enhanced task geometry calculation
   const getTaskGeometry = (task: GanttTask) => {
-    if (!task.start_date || !task.end_date) {
-      console.log('Task missing dates:', task.name, task.start_date, task.end_date);
-      return null;
-    }
+    if (!task.start_date || !task.end_date) return null;
     
     const startDate = new Date(task.start_date);
     const endDate = new Date(task.end_date);
     const timelineStart = timelineDates[0];
     const timelineEnd = timelineDates[timelineDates.length - 1];
-    
-    console.log('Timeline range:', timelineStart, 'to', timelineEnd);
-    console.log('Task dates:', task.name, startDate, 'to', endDate);
     
     let startOffset, duration;
     
@@ -301,15 +295,11 @@ export const TimelineGanttView = ({
       duration = Math.max(1, differenceInDays(endDate, startDate) + 1);
     }
     
-    const geometry = {
+    return {
       left: Math.max(0, startOffset * timeConfig.dayWidth),
       width: Math.max(timeConfig.dayWidth * 0.8, duration * timeConfig.dayWidth),
       visible: startDate <= timelineEnd && endDate >= timelineStart
     };
-    
-    console.log('Task geometry:', task.name, geometry);
-    
-    return geometry;
   };
 
   // Enhanced hierarchical structure with dependencies
@@ -636,7 +626,7 @@ export const TimelineGanttView = ({
 
   
   // Render task list item (left panel)
-  const renderTaskListItem = (task: GanttTask, level: number = 0): React.ReactNode[] => {
+  const renderTaskListItem = (task: GanttTask, level: number = 0, rowIndex?: number): React.ReactNode[] => {
     const isExpanded = expandedTasks.has(task.id);
     const hasChildren = task.children && task.children.length > 0;
     const progress = task.progress || 0;
@@ -1572,7 +1562,21 @@ export const TimelineGanttView = ({
               {/* Task rows scrollable area */}
               <div className="flex-1 overflow-auto">
                 {hierarchicalTasks.length > 0 ? (
-                  hierarchicalTasks.map(task => renderTaskListItem(task))
+                  flattenTasksWithPositions(hierarchicalTasks).map(({ task, rowIndex }) => {
+                    // Find depth for proper indentation
+                    const findTaskDepth = (tasks: GanttTask[], targetId: string, depth: number = 0): number => {
+                      for (const t of tasks) {
+                        if (t.id === targetId) return depth;
+                        if (t.children) {
+                          const childDepth = findTaskDepth(t.children, targetId, depth + 1);
+                          if (childDepth !== -1) return childDepth;
+                        }
+                      }
+                      return 0;
+                    };
+                    
+                    return renderTaskListItem(task, findTaskDepth(hierarchicalTasks, task.id), rowIndex);
+                  })
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
                     <div className="text-lg font-medium">No tasks found</div>
