@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, BarChart3, List, Plus, Search, Filter, Calendar as CalendarIcon, Clock, User, AlertCircle } from 'lucide-react';
 import { useTimeTracking, TimeEntry, DEFAULT_CATEGORY_COLORS } from '@/hooks/useTimeTracking';
+import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { format, isToday, isYesterday, isThisWeek, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,6 +31,143 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
 
   const screenSize = useScreenSize();
   const { timeEntries, loading, getDailyStats } = useTimeTracking();
+  const { tasks, loading: tasksLoading, updateTask } = useCentralTasks(projectId, companyId || '');
+
+  // Sample tasks for development/testing
+  const sampleTasks = [
+    {
+      id: '1',
+      project_id: projectId,
+      company_id: companyId || '',
+      name: 'Research',
+      description: 'Market research and analysis',
+      stage: 'Research',
+      level: 0,
+      start_date: '2024-03-25',
+      end_date: '2024-04-02',
+      duration: 10,
+      progress: 70,
+      budgeted_cost: 5000,
+      actual_cost: 3500,
+      is_expanded: true,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assigned_to: 'John'
+    },
+    {
+      id: '2',
+      project_id: projectId,
+      company_id: companyId || '',
+      name: 'Market Research',
+      description: 'Detailed market analysis',
+      stage: 'Research',
+      level: 1,
+      parent_id: '1',
+      start_date: '2024-03-25',
+      end_date: '2024-03-27',
+      duration: 7,
+      progress: 80,
+      budgeted_cost: 2000,
+      actual_cost: 1600,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assigned_to: 'Sarah'
+    },
+    {
+      id: '3',
+      project_id: projectId,
+      company_id: companyId || '',
+      name: 'Design',
+      description: 'UI/UX Design phase',
+      stage: 'Design',
+      level: 0,
+      start_date: '2024-03-28',
+      end_date: '2024-04-15',
+      duration: 14,
+      progress: 50,
+      budgeted_cost: 8000,
+      actual_cost: 4000,
+      is_expanded: true,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assigned_to: 'Alex'
+    },
+    {
+      id: '4',
+      project_id: projectId,
+      company_id: companyId || '',
+      name: 'Wireframing',
+      description: 'Create wireframes',
+      stage: 'Design',
+      level: 1,
+      parent_id: '3',
+      start_date: '2024-03-28',
+      end_date: '2024-04-05',
+      duration: 5,
+      progress: 100,
+      budgeted_cost: 3000,
+      actual_cost: 3000,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assigned_to: 'Emma'
+    },
+    {
+      id: '5',
+      project_id: projectId,
+      company_id: companyId || '',
+      name: 'Development',
+      description: 'Development phase',
+      stage: 'Development',
+      level: 0,
+      start_date: '2024-04-01',
+      end_date: '2024-05-15',
+      duration: 15,
+      progress: 70,
+      budgeted_cost: 15000,
+      actual_cost: 10500,
+      is_expanded: true,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assigned_to: 'Mike'
+    },
+    {
+      id: '6',
+      project_id: projectId,
+      company_id: companyId || '',
+      name: 'HTML Coding',
+      description: 'Frontend development',
+      stage: 'Development',
+      level: 1,
+      parent_id: '5',
+      start_date: '2024-04-01',
+      end_date: '2024-04-14',
+      duration: 14,
+      progress: 100,
+      budgeted_cost: 7000,
+      actual_cost: 7000,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      assigned_to: 'Lisa'
+    }
+  ];
+
+  // Use sample tasks if no real tasks are available
+  const displayTasks = tasks.length > 0 ? tasks : sampleTasks;
 
   // Filter and process entries
   const filteredEntries = timeEntries.filter(entry => {
@@ -74,7 +212,7 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
   const stats = getDailyStats(filteredEntries);
   const totalDuration = filteredEntries.reduce((sum, entry) => sum + (entry.duration || 0), 0);
 
-  if (loading) {
+  if (loading || tasksLoading) {
     return (
       <div className="flex items-center justify-center p-12">
         <div className="flex flex-col items-center space-y-4">
@@ -174,9 +312,8 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
             />
           ) : (
             <TimelineGanttView
-              entries={filteredEntries}
-              categoryColors={DEFAULT_CATEGORY_COLORS}
-              dateRange={dateRange}
+              tasks={displayTasks}
+              onTaskUpdate={updateTask}
               screenSize={screenSize}
             />
           )}
