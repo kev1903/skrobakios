@@ -650,7 +650,7 @@ export const TimelineGanttView = ({
         onDrop={(e) => handleRowDrop(e, task.id)}
         onClick={() => setSelectedTask(task.id)}
       >
-        <div className="p-2 overflow-x-auto" style={{ minWidth: '320px' }}>
+        <div className="p-2" style={{ minWidth: '320px' }}>
           <div className="grid gap-2 items-center" style={{
             gridTemplateColumns: `
               minmax(40px, 1fr) 
@@ -1488,7 +1488,7 @@ export const TimelineGanttView = ({
               style={{ minWidth: '320px' }}
             >
               {/* Task list header */}
-              <div className="border-b border-border/30 bg-muted/50 overflow-x-auto">
+              <div className="border-b border-border/30 bg-muted/50">
                 <div className="p-3" style={{ minWidth: '320px' }}>
                   <div className="grid gap-2 text-xs font-semibold text-muted-foreground" style={{
                     gridTemplateColumns: `
