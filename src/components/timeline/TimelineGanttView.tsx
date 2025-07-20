@@ -24,7 +24,8 @@ import {
   PlayCircle,
   PauseCircle,
   AlertTriangle,
-  Maximize2
+  Maximize2,
+  GripVertical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -46,6 +47,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 interface TimelineGanttViewProps {
   tasks: CentralTask[];
@@ -362,7 +364,157 @@ export const TimelineGanttView = ({
     return null; // Placeholder for dependency visualization
   };
 
-  // Enhanced task row renderer
+  
+  // Render task list item (left panel)
+  const renderTaskListItem = (task: GanttTask, level: number = 0): React.ReactNode[] => {
+    const isExpanded = expandedTasks.has(task.id);
+    const hasChildren = task.children && task.children.length > 0;
+    const progress = task.progress || 0;
+    const isSelected = selectedTask === task.id;
+    const isOverdue = task.end_date && new Date(task.end_date) < new Date() && progress < 100;
+
+    const rows = [];
+    
+    rows.push(
+      <div 
+        key={task.id} 
+        className={cn(
+          "p-3 border-b border-border/30 hover:bg-muted/50 transition-colors cursor-pointer",
+          isSelected && "bg-primary/10 border-l-4 border-primary"
+        )}
+        onClick={() => setSelectedTask(task.id)}
+      >
+        <div className="flex items-center gap-2" style={{ paddingLeft: `${level * 20}px` }}>
+          {hasChildren && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-4 w-4 p-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpanded(task.id);
+              }}
+            >
+              {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            </Button>
+          )}
+          
+          <div className="flex items-center gap-2 flex-1">
+            {progress === 100 ? (
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+            ) : isOverdue ? (
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+            ) : progress > 0 ? (
+              <Clock className="h-4 w-4 text-blue-600" />
+            ) : (
+              <Circle className="h-4 w-4 text-muted-foreground" />
+            )}
+            
+            <span className="font-medium text-sm truncate">{task.name}</span>
+            
+            {showCriticalPath && task.isCritical && (
+              <Badge variant="destructive" className="text-xs px-1 py-0">
+                Critical
+              </Badge>
+            )}
+          </div>
+        </div>
+        
+        <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground" style={{ paddingLeft: `${level * 20 + 24}px` }}>
+          <span>{task.duration || 0} days</span>
+          <span>{progress}%</span>
+          {task.assigned_to && (
+            <div className="flex items-center gap-1">
+              <Avatar className="h-4 w-4">
+                <AvatarFallback className="text-xs">
+                  {task.assigned_to.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+
+    if (isExpanded && hasChildren) {
+      task.children!.forEach((child: GanttTask) => {
+        rows.push(...renderTaskListItem(child, level + 1));
+      });
+    }
+
+    return rows;
+  };
+
+  // Render timeline bars (right panel)
+  const renderTimelineBars = (tasks: GanttTask[], level: number = 0): React.ReactNode => {
+    return tasks.map((task, taskIndex) => {
+      const geometry = getTaskGeometry(task);
+      const progress = task.progress || 0;
+      const statusColor = getStatusColor(task);
+      const isSelected = selectedTask === task.id;
+      const rowHeight = 64;
+      const barTop = taskIndex * rowHeight + 16;
+
+      return (
+        <React.Fragment key={task.id}>
+          {/* Grid lines for this row */}
+          <div 
+            className="absolute border-b border-border/10"
+            style={{ 
+              top: (taskIndex + 1) * rowHeight,
+              left: 0,
+              right: 0,
+              height: 1
+            }}
+          />
+          
+          {/* Task bar */}
+          {geometry && (
+            <div
+              data-task-id={task.id}
+              className={cn(
+                "absolute h-8 rounded-md group/bar cursor-move transition-all duration-200 hover:shadow-lg",
+                isDragging === task.id && "shadow-2xl z-50"
+              )}
+              style={{
+                left: `${geometry.left}px`,
+                top: `${barTop}px`,
+                width: `${geometry.width}px`,
+                backgroundColor: statusColor,
+                opacity: isDragging === task.id ? 0.8 : 0.9,
+                border: isSelected ? '2px solid hsl(var(--primary))' : 'none'
+              }}
+              onMouseDown={(e) => handleTaskDragStart(e, task.id)}
+              onClick={() => setSelectedTask(task.id)}
+            >
+              {/* Progress bar */}
+              <div 
+                className="h-full bg-white/30 rounded-l-md transition-all"
+                style={{ width: `${progress}%` }}
+              />
+              
+              {/* Task label */}
+              <div className="absolute inset-0 flex items-center px-2">
+                <span className="text-white text-xs font-medium truncate">
+                  {task.name}
+                </span>
+              </div>
+              
+              {/* Progress percentage */}
+              {geometry.width > 60 && (
+                <div className="absolute right-1 top-0 bottom-0 flex items-center">
+                  <span className="text-white text-xs font-bold">
+                    {progress}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </React.Fragment>
+      );
+    });
+  };
+
   const renderTaskRow = (task: GanttTask, level: number = 0): React.ReactNode[] => {
     const isExpanded = expandedTasks.has(task.id);
     const hasChildren = task.children && task.children.length > 0;
@@ -848,92 +1000,115 @@ export const TimelineGanttView = ({
           </div>
         </div>
 
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-background border-b">
-          <div className="flex">
-            {/* Task list header */}
-            <div className="w-80 flex-shrink-0 border-r border-border/30 bg-muted/50">
-              <div className="p-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm">Task Details</span>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Duration</span>
-                    <span>Progress</span>
-                    <span>Assignee</span>
+        {/* Resizable Panel Layout */}
+        <PanelGroup direction="horizontal" className="w-full h-full">
+          {/* Task List Panel */}
+          <Panel defaultSize={30} minSize={20} maxSize={50}>
+            <div className="h-full flex flex-col">
+              {/* Task list header */}
+              <div className="border-b border-border/30 bg-muted/50">
+                <div className="p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm">Task Details</span>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>Duration</span>
+                      <span>Progress</span>
+                      <span>Assignee</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Enhanced timeline header */}
-            <div className="flex-1 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
-              {/* Period headers */}
-              <div className="relative h-8 bg-muted/30 border-b border-border/30">
-                {timeHeaders.map((header, index) => (
-                  <div
-                    key={index}
-                    className="absolute top-0 h-full flex items-center justify-center text-xs font-medium border-r border-border/20"
-                    style={{
-                      left: header.left,
-                      width: header.width
-                    }}
-                  >
-                    {header.period}
+
+              {/* Task rows scrollable area */}
+              <div className="flex-1 overflow-auto">
+                {hierarchicalTasks.length > 0 ? (
+                  hierarchicalTasks.map(task => renderTaskListItem(task))
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <div className="text-lg font-medium">No tasks found</div>
+                    <div className="text-sm mt-1">Create tasks to see your Gantt chart</div>
+                    <Button className="mt-4" onClick={handleCreateTask}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Task
+                    </Button>
                   </div>
-                ))}
+                )}
               </div>
-              
-              {/* Day/Week/Month headers */}
-              <div className="relative h-6 bg-background border-b border-border/30">
-                {timelineDates.map((date, index) => {
-                  const isToday = isSameDay(date, new Date());
-                  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-                  
-                  return (
+            </div>
+          </Panel>
+
+          {/* Resize Handle */}
+          <PanelResizeHandle className="w-2 bg-border/20 hover:bg-border/40 transition-colors duration-200 relative group">
+            <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 w-1 bg-border group-hover:bg-primary/50 transition-colors duration-200" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </PanelResizeHandle>
+
+          {/* Timeline Panel */}
+          <Panel defaultSize={70} minSize={50}>
+            <div className="h-full flex flex-col">
+              {/* Timeline header */}
+              <div className="border-b border-border/30">
+                {/* Period headers */}
+                <div className="relative h-8 bg-muted/30 border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
+                  {timeHeaders.map((header, index) => (
                     <div
-                      key={date.toISOString()}
-                      className={cn(
-                        "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10",
-                        isToday && "bg-primary text-primary-foreground font-bold",
-                        isWeekend && !isToday && "bg-muted/50 text-muted-foreground"
-                      )}
+                      key={index}
+                      className="absolute top-0 h-full flex items-center justify-center text-xs font-medium border-r border-border/20"
                       style={{
-                        left: index * timeConfig.dayWidth,
-                        width: timeConfig.dayWidth
+                        left: header.left,
+                        width: header.width
                       }}
                     >
-                      {format(date, timeConfig.subFormat)}
+                      {header.period}
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+                
+                {/* Day/Week/Month headers */}
+                <div className="relative h-6 bg-background border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
+                  {timelineDates.map((date, index) => {
+                    const isToday = isSameDay(date, new Date());
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                    
+                    return (
+                      <div
+                        key={date.toISOString()}
+                        className={cn(
+                          "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10",
+                          isToday && "bg-primary text-primary-foreground font-bold",
+                          isWeekend && !isToday && "bg-muted/50 text-muted-foreground"
+                        )}
+                        style={{
+                          left: index * timeConfig.dayWidth,
+                          width: timeConfig.dayWidth
+                        }}
+                      >
+                        {format(date, timeConfig.subFormat)}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Task rows with enhanced scrolling */}
-        <div className="overflow-auto max-h-[calc(100vh-250px)]" ref={ganttRef}>
-          <div className="relative">
-            {/* Dependency lines layer */}
-            <div className="absolute inset-0 pointer-events-none z-10">
-              {renderDependencyLines()}
-            </div>
-            
-            {/* Task rows */}
-            {hierarchicalTasks.length > 0 ? (
-              hierarchicalTasks.map(task => renderTaskRow(task))
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <div className="text-lg font-medium">No tasks found</div>
-                <div className="text-sm mt-1">Create tasks to see your Gantt chart</div>
-                <Button className="mt-4" onClick={handleCreateTask}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create First Task
-                </Button>
+              {/* Timeline content with task bars */}
+              <div className="flex-1 overflow-auto" ref={timelineRef}>
+                <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${hierarchicalTasks.length * 64}px` }}>
+                  {/* Dependency lines layer */}
+                  <div className="absolute inset-0 pointer-events-none z-10">
+                    {renderDependencyLines()}
+                  </div>
+                  
+                  {/* Timeline grid and task bars */}
+                  {hierarchicalTasks.length > 0 && (
+                    renderTimelineBars(hierarchicalTasks)
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </Panel>
+        </PanelGroup>
         
         {/* Task editing dialog */}
         <TaskEditDialog />
