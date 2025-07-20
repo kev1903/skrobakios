@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GanttChart, GanttTask, GanttMilestone } from './GanttChart';
+import { ModernGanttChart, ModernGanttTask } from './ModernGanttChart';
 import { TaskHierarchy } from './TaskHierarchy';
 import { TimelineControls } from './TimelineControls';
 import { MilestoneManager } from './MilestoneManager';
@@ -22,6 +23,7 @@ interface TimelineViewProps {
 
 export const TimelineView = ({ projectId, projectName, companyId }: TimelineViewProps) => {
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([]);
+  const [modernGanttTasks, setModernGanttTasks] = useState<ModernGanttTask[]>([]);
   const [milestones, setMilestones] = useState<GanttMilestone[]>([]);
   const [viewMode, setViewMode] = useState<'gantt' | 'hierarchy'>('gantt');
   const [showControls, setShowControls] = useState(false);
@@ -52,11 +54,12 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       // Group central tasks by stage and create hierarchy
       const stageMap = new Map();
       const ganttTasks: GanttTask[] = [];
+      const modernTasks: ModernGanttTask[] = [];
       
       // First, collect all unique stages from activities
       centralTasks.forEach(task => {
         if (task.stage && !stageMap.has(task.stage)) {
-          stageMap.set(task.stage, {
+          const stageData = {
             id: `stage-${task.stage.replace(/\s+/g, '-').toLowerCase()}`,
             name: task.stage,
             startDate: new Date(),
@@ -72,7 +75,8 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
             level: 0,
             expanded: true,
             isStage: true
-          });
+          };
+          stageMap.set(task.stage, stageData);
         }
       });
 
@@ -83,7 +87,7 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       centralTasks.forEach(task => {
         const stageParentId = `stage-${task.stage?.replace(/\s+/g, '-').toLowerCase()}`;
         
-        ganttTasks.push({
+        const ganttTask = {
           id: task.id,
           name: task.name,
           startDate: task.start_date ? new Date(task.start_date) : new Date(),
@@ -99,10 +103,52 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
           level: 1, // All activities are level 1 (children of stages)
           expanded: task.is_expanded !== false,
           isStage: false
-        });
+        };
+
+        ganttTasks.push(ganttTask);
+
+        // Create modern gantt task
+        const duration = task.start_date && task.end_date 
+          ? `${Math.ceil((new Date(task.end_date).getTime() - new Date(task.start_date).getTime()) / (1000 * 60 * 60 * 24))} days`
+          : '1 day';
+
+        const modernTask: ModernGanttTask = {
+          id: task.id,
+          name: task.name,
+          startDate: task.start_date ? new Date(task.start_date) : new Date(),
+          endDate: task.end_date ? new Date(task.end_date) : addDays(new Date(), 1),
+          progress: task.progress || 0,
+          status: mapTaskStatus(task.stage),
+          assignee: task.assigned_to || '',
+          duration: duration,
+          category: task.stage,
+          parentId: stageParentId,
+          isStage: false
+        };
+
+        modernTasks.push(modernTask);
+      });
+
+      // Add stages to modern tasks too
+      stageMap.forEach(stage => {
+        const duration = '30 days'; // Default stage duration
+        const modernStage: ModernGanttTask = {
+          id: stage.id,
+          name: stage.name,
+          startDate: stage.startDate,
+          endDate: stage.endDate,
+          progress: stage.progress,
+          status: stage.status,
+          assignee: '',
+          duration: duration,
+          category: stage.category,
+          isStage: true
+        };
+        modernTasks.push(modernStage);
       });
 
       setGanttTasks(ganttTasks);
+      setModernGanttTasks(modernTasks);
 
       // Load milestones (tasks marked as milestones)
       const milestoneData: GanttMilestone[] = ganttTasks
@@ -176,6 +222,20 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     }
   };
 
+  // Wrapper for modern gantt chart
+  const handleModernTaskUpdate = async (taskId: string, updates: Partial<ModernGanttTask>) => {
+    const ganttUpdates: Partial<GanttTask> = {
+      name: updates.name,
+      startDate: updates.startDate,
+      endDate: updates.endDate,
+      progress: updates.progress,
+      status: updates.status,
+      assignee: updates.assignee
+    };
+    
+    await handleTaskUpdate(taskId, ganttUpdates);
+  };
+
   const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>, parentId?: string) => {
     try {
       // Determine level and parent based on parentId
@@ -219,6 +279,28 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         variant: "destructive"
       });
     }
+  };
+
+  // Wrapper for modern gantt chart
+  const handleModernTaskAdd = async (newTask: Omit<ModernGanttTask, 'id'>) => {
+    const ganttTask: Omit<GanttTask, 'id'> = {
+      name: newTask.name,
+      startDate: newTask.startDate,
+      endDate: newTask.endDate,
+      progress: newTask.progress,
+      status: newTask.status,
+      assignee: newTask.assignee || '',
+      priority: 'Medium', // Default priority
+      description: '',
+      category: newTask.category,
+      parentId: newTask.parentId,
+      level: 1,
+      expanded: true,
+      isStage: newTask.isStage || false,
+      milestone: false
+    };
+    
+    await handleTaskAdd(ganttTask, newTask.parentId);
   };
 
   const handleTaskDelete = async (taskId: string) => {
@@ -425,16 +507,11 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       <Card>
         <CardContent className="p-0">
           {viewMode === 'gantt' ? (
-            <GanttChart
-              tasks={ganttTasks}
-              milestones={milestones}
-              onTaskUpdate={handleTaskUpdate}
-              onTaskAdd={handleTaskAdd}
+            <ModernGanttChart
+              tasks={modernGanttTasks}
+              onTaskUpdate={handleModernTaskUpdate}
+              onTaskAdd={handleModernTaskAdd}
               onTaskDelete={handleTaskDelete}
-              onTaskReorder={handleTaskReorder}
-              editable={true}
-              showGrid={true}
-              showToday={true}
             />
           ) : (
             <TaskHierarchy
