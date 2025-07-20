@@ -596,6 +596,16 @@ export const BusinessMapPage = ({
     const offsetX = (Math.random() - 0.5) * 200;
     const offsetY = (Math.random() - 0.5) * 200;
 
+    // Get project data for insights
+    const projectsData = moduleData.projects || { count: 0, recent: [] };
+    const totalProjects = projectsData.count;
+    const recentProjects = projectsData.recent || [];
+    
+    // Calculate insights
+    const activeProjects = recentProjects.filter((p: any) => p.status === 'active' || p.status === 'in_progress').length;
+    const completedProjects = recentProjects.filter((p: any) => p.status === 'completed').length;
+    const pendingProjects = recentProjects.filter((p: any) => p.status === 'pending' || p.status === 'planning').length;
+
     const newCard: Node = {
       id: newCardId,
       type: 'moduleNode',
@@ -605,14 +615,20 @@ export const BusinessMapPage = ({
       },
       data: {
         id: newCardId,
-        icon: Plus,
-        color: 'bg-gray-500',
-        title: 'Blank Card',
-        subtitle: 'Customize this card',
-        count: 0,
-        recent: [],
-        moduleName: 'blank',
-        table: null,
+        icon: Briefcase,
+        color: 'bg-blue-500',
+        title: 'Project Insights',
+        subtitle: `${totalProjects} Total Projects`,
+        count: totalProjects,
+        recent: [
+          { name: `${activeProjects} Active Projects` },
+          { name: `${completedProjects} Completed` },
+          { name: `${pendingProjects} Pending` },
+          ...recentProjects.slice(0, 2).map((p: any) => ({ name: p.name || p.title || 'Unnamed Project' }))
+        ],
+        status: activeProjects > 0 ? 'Active' : 'Planning',
+        moduleName: 'project-insights',
+        table: 'projects',
         isSelected: false,
         isConnecting: false,
         onClick: handleNodeClick,
@@ -622,8 +638,8 @@ export const BusinessMapPage = ({
     };
 
     setNodes(prev => [...prev, newCard]);
-    toast.success('Blank card added to canvas');
-  }, [isMapLocked, handleNodeClick, handleNodeHover, setNodes]);
+    toast.success('Project insights card added to canvas');
+  }, [isMapLocked, handleNodeClick, handleNodeHover, setNodes, moduleData]);
   const generateBusinessMap = useCallback((modules: CompanyModule[], data: Record<string, ModuleData>) => {
     const enabledModules = modules.filter(m => m.enabled);
 
