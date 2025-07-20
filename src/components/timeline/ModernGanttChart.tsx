@@ -43,7 +43,7 @@ export const ModernGanttChart = ({
   // Calculate view range (2 months)
   const viewEnd = endOfMonth(addDays(viewStart, 60));
   const days = eachDayOfInterval({ start: viewStart, end: viewEnd });
-  const dayWidth = 32; // Fixed day width for clean layout
+  const dayWidth = 16; // Reduced from 32 to zoom out 50%
 
   // Build hierarchical structure
   const hierarchicalTasks = useMemo(() => {
