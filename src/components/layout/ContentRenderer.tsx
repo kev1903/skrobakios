@@ -4,7 +4,6 @@ import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
-import { ProjectsWithSidePanel } from "@/components/projects/ProjectsWithSidePanel";
 
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
@@ -114,7 +113,7 @@ export const ContentRenderer = ({
     case "projects":
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectsWithSidePanel onNavigate={onNavigate} onSelectProject={onSelectProject} />
+          <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />
         </SubscriptionProtectedRoute>
       );
     case "individual-project-dashboard":
