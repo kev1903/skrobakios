@@ -96,6 +96,9 @@ export const TimelineGanttView = ({
   const [editingTask, setEditingTask] = useState<CentralTask | null>(null);
   const [zoom, setZoom] = useState(1);
   const [showCriticalPath, setShowCriticalPath] = useState(false);
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'above' | 'below' | 'inside' | null>(null);
   
   const ganttRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -435,6 +438,98 @@ export const TimelineGanttView = ({
     });
   };
 
+  // Handle row drag and drop for reordering
+  const handleRowDragStart = (e: React.DragEvent, taskId: string) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', taskId);
+    setDraggedTaskId(taskId);
+  };
+
+  const handleRowDragEnd = () => {
+    setDraggedTaskId(null);
+    setDragOverTaskId(null);
+    setDropPosition(null);
+  };
+
+  const handleRowDragOver = (e: React.DragEvent, targetTaskId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+    
+    // Determine drop position based on mouse position
+    if (y < height * 0.25) {
+      setDropPosition('above');
+    } else if (y > height * 0.75) {
+      setDropPosition('below');
+    } else {
+      setDropPosition('inside');
+    }
+    
+    setDragOverTaskId(targetTaskId);
+  };
+
+  const handleRowDragLeave = (e: React.DragEvent) => {
+    // Only clear if leaving the entire row area
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverTaskId(null);
+      setDropPosition(null);
+    }
+  };
+
+  const handleRowDrop = (e: React.DragEvent, targetTaskId: string) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    
+    if (draggedId === targetTaskId) {
+      setDraggedTaskId(null);
+      setDragOverTaskId(null);
+      setDropPosition(null);
+      return;
+    }
+
+    const draggedTask = enhancedTasks.find(t => t.id === draggedId);
+    const targetTask = enhancedTasks.find(t => t.id === targetTaskId);
+    
+    if (!draggedTask || !targetTask) return;
+
+    // Calculate new position and hierarchy based on drop position
+    let newParentId: string | null = null;
+    let newLevel = 0;
+    let newSortOrder = 0;
+
+    if (dropPosition === 'inside') {
+      // Make dragged task a child of target task
+      newParentId = targetTaskId;
+      newLevel = (targetTask.level || 0) + 1;
+      newSortOrder = (targetTask.sort_order || 0) + 1;
+    } else if (dropPosition === 'above') {
+      // Place dragged task above target task at same level
+      newParentId = targetTask.parent_id || null;
+      newLevel = targetTask.level || 0;
+      newSortOrder = (targetTask.sort_order || 0) - 1;
+    } else { // 'below'
+      // Place dragged task below target task at same level
+      newParentId = targetTask.parent_id || null;
+      newLevel = targetTask.level || 0;
+      newSortOrder = (targetTask.sort_order || 0) + 1;
+    }
+
+    // Update the dragged task
+    onTaskUpdate?.(draggedId, {
+      parent_id: newParentId,
+      level: newLevel,
+      sort_order: newSortOrder
+    });
+
+    // Clear drag state
+    setDraggedTaskId(null);
+    setDragOverTaskId(null);
+    setDropPosition(null);
+  };
+
   // Generate WBS numbering for tasks
   const generateWbsNumbers = useCallback(() => {
     const wbsMap = new Map<string, string>();
@@ -485,19 +580,44 @@ export const TimelineGanttView = ({
     const progress = task.progress || 0;
     const isSelected = selectedTask === task.id;
     const isOverdue = task.end_date && new Date(task.end_date) < new Date() && progress < 100;
+    const isDraggedOver = dragOverTaskId === task.id;
+    const isBeingDragged = draggedTaskId === task.id;
 
     const rows = [];
+    
+    // Drop zone indicator above
+    if (isDraggedOver && dropPosition === 'above') {
+      rows.push(
+        <div
+          key={`${task.id}-drop-above`}
+          className="h-1 bg-primary mx-3 rounded-full opacity-80"
+        />
+      );
+    }
     
     rows.push(
       <div 
         key={task.id} 
         className={cn(
-          "p-3 border-b border-border/30 hover:bg-muted/50 transition-colors cursor-pointer",
-          isSelected && "bg-primary/10 border-l-4 border-primary"
+          "p-3 border-b border-border/30 hover:bg-muted/50 transition-colors cursor-pointer relative",
+          isSelected && "bg-primary/10 border-l-4 border-primary",
+          isDraggedOver && dropPosition === 'inside' && "bg-primary/5 border-l-2 border-primary",
+          isBeingDragged && "opacity-50"
         )}
+        draggable
+        onDragStart={(e) => handleRowDragStart(e, task.id)}
+        onDragEnd={handleRowDragEnd}
+        onDragOver={(e) => handleRowDragOver(e, task.id)}
+        onDragLeave={handleRowDragLeave}
+        onDrop={(e) => handleRowDrop(e, task.id)}
         onClick={() => setSelectedTask(task.id)}
       >
         <div className="flex items-center gap-2" style={{ paddingLeft: `${level * 20}px` }}>
+          {/* Drag Handle */}
+          <div className="drag-handle cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded">
+            <GripVertical className="h-3 w-3 text-muted-foreground" />
+          </div>
+          
           {hasChildren && (
             <Button
               variant="ghost"
@@ -547,6 +667,16 @@ export const TimelineGanttView = ({
         </div>
       </div>
     );
+
+    // Drop zone indicator below
+    if (isDraggedOver && dropPosition === 'below') {
+      rows.push(
+        <div
+          key={`${task.id}-drop-below`}
+          className="h-1 bg-primary mx-3 rounded-full opacity-80"
+        />
+      );
+    }
 
     if (isExpanded && hasChildren) {
       task.children!.forEach((child: GanttTask) => {
