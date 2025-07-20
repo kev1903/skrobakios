@@ -49,6 +49,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 interface TimelineGanttViewProps {
   tasks: CentralTask[];
@@ -498,38 +499,43 @@ export const TimelineGanttView = ({
     // Calculate new position and hierarchy based on drop position
     let newParentId: string | null = null;
     let newLevel = 0;
+    let newSortOrder = 0;
 
-    switch (dropPosition) {
-      case 'above':
-        newParentId = targetTask.parent_id || null;
-        newLevel = targetTask.level || 0;
-        break;
-      case 'below':
-        newParentId = targetTask.parent_id || null;
-        newLevel = targetTask.level || 0;
-        break;
-      case 'inside':
-        newParentId = targetTask.id;
-        newLevel = (targetTask.level || 0) + 1;
-        break;
+    if (dropPosition === 'inside') {
+      // Make dragged task a child of target task
+      newParentId = targetTaskId;
+      newLevel = (targetTask.level || 0) + 1;
+      newSortOrder = (targetTask.sort_order || 0) + 1;
+    } else if (dropPosition === 'above') {
+      // Place dragged task above target task at same level
+      newParentId = targetTask.parent_id || null;
+      newLevel = targetTask.level || 0;
+      newSortOrder = (targetTask.sort_order || 0) - 1;
+    } else { // 'below'
+      // Place dragged task below target task at same level
+      newParentId = targetTask.parent_id || null;
+      newLevel = targetTask.level || 0;
+      newSortOrder = (targetTask.sort_order || 0) + 1;
     }
 
     // Update the dragged task
     onTaskUpdate?.(draggedId, {
       parent_id: newParentId,
-      level: newLevel
+      level: newLevel,
+      sort_order: newSortOrder
     });
 
+    // Clear drag state
     setDraggedTaskId(null);
     setDragOverTaskId(null);
     setDropPosition(null);
   };
 
-  // Generate WBS numbers
-  const generateWbsNumbers = useMemo(() => {
+  // Generate WBS numbering for tasks
+  const generateWbsNumbers = useCallback(() => {
     const wbsMap = new Map<string, string>();
-    const counters: number[] = [];
-
+    const counters: number[] = [0]; // Start with level 0 counter
+    
     const processTask = (task: GanttTask, level: number) => {
       // Ensure we have enough counters for this level
       while (counters.length <= level) {
@@ -565,7 +571,7 @@ export const TimelineGanttView = ({
     return wbsMap;
   }, [hierarchicalTasks, expandedTasks]);
 
-  const wbsNumbers = generateWbsNumbers;
+  const wbsNumbers = generateWbsNumbers();
 
   
   // Render task list item (left panel)
@@ -693,17 +699,19 @@ export const TimelineGanttView = ({
                     }
                     setEditingDateCell(null);
                   }}
+                  placeholder="Start date"
+                  formatString="MMM dd, yy"
                 />
               ) : (
-                <button
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1 py-0.5 rounded hover:bg-muted/50"
+                <div 
+                  className="text-xs text-muted-foreground cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition-colors min-h-[24px] flex items-center justify-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     setEditingDateCell({ taskId: task.id, column: 'start' });
                   }}
                 >
-                  {task.start_date ? format(new Date(task.start_date), 'MMM d') : '—'}
-                </button>
+                  {task.start_date ? format(new Date(task.start_date), 'MMM dd, yy') : ''}
+                </div>
               )}
             </div>
 
@@ -717,6 +725,12 @@ export const TimelineGanttView = ({
                       const endDate = date.toISOString().split('T')[0];
                       let updates: Partial<CentralTask> = { end_date: endDate };
                       
+                      // Auto-calculate start date if duration exists but no start date
+                      if (task.duration && !task.start_date) {
+                        const startDate = addDays(date, -(task.duration - 1));
+                        updates.start_date = startDate.toISOString().split('T')[0];
+                      }
+                      
                       // Auto-calculate duration if both start and end dates exist
                       if (task.start_date) {
                         const startDate = new Date(task.start_date);
@@ -728,77 +742,38 @@ export const TimelineGanttView = ({
                     }
                     setEditingDateCell(null);
                   }}
+                  placeholder="End date"
+                  formatString="MMM dd, yy"
                 />
               ) : (
-                <button
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1 py-0.5 rounded hover:bg-muted/50"
+                <div 
+                  className="text-xs text-muted-foreground cursor-pointer hover:bg-muted/50 rounded px-2 py-1 transition-colors min-h-[24px] flex items-center justify-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     setEditingDateCell({ taskId: task.id, column: 'end' });
                   }}
                 >
-                  {task.end_date ? format(new Date(task.end_date), 'MMM d') : '—'}
-                </button>
+                  {task.end_date ? format(new Date(task.end_date), 'MMM dd, yy') : ''}
+                </div>
               )}
             </div>
 
             {/* Duration Column */}
             <div className="col-span-1 text-center">
               <span className="text-xs text-muted-foreground">
-                {task.duration || 0}d
+                {task.duration ? `${task.duration}d` : '-'}
               </span>
             </div>
 
             {/* Dependencies Column */}
-            <div className="col-span-2">
-              <div className="flex flex-wrap gap-1">
-                {task.dependencies && task.dependencies.length > 0 ? (
-                  task.dependencies.slice(0, 2).map((dep, index) => (
-                    <Badge key={index} variant="outline" className="text-xs px-1 py-0">
-                      {dep.predecessorId.slice(0, 4)}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-xs text-muted-foreground">—</span>
-                )}
-                {task.dependencies && task.dependencies.length > 2 && (
-                  <Badge variant="outline" className="text-xs px-1 py-0">
-                    +{task.dependencies.length - 2}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="mt-2 px-1">
-            <div className="flex items-center gap-2">
-              <Progress value={progress} className="h-1 flex-1" />
-              <span className="text-xs text-muted-foreground min-w-8">
-                {progress}%
+            <div className="col-span-2 text-center">
+              <span className="text-xs text-muted-foreground">
+                {task.dependencies && task.dependencies.length > 0 
+                  ? task.dependencies.map(dep => dep.predecessorId).join(', ')
+                  : '-'
+                }
               </span>
-              {task.assigned_to && (
-                <Avatar className="h-4 w-4">
-                  <AvatarFallback className="text-xs">
-                    {task.assigned_to.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              )}
             </div>
-          </div>
-          
-          {/* Status indicators */}
-          <div className="mt-1 flex items-center gap-1">
-            {isOverdue && (
-              <Badge variant="destructive" className="text-xs px-1 py-0">
-                Overdue
-              </Badge>
-            )}
-            {task.stage && (
-              <Badge variant="outline" className="text-xs px-1 py-0">
-                {task.stage}
-              </Badge>
-            )}
           </div>
         </div>
       </div>
@@ -814,7 +789,6 @@ export const TimelineGanttView = ({
       );
     }
 
-    // Add children if expanded
     if (isExpanded && hasChildren) {
       task.children!.forEach((child: GanttTask) => {
         rows.push(...renderTaskListItem(child, level + 1));
@@ -835,7 +809,7 @@ export const TimelineGanttView = ({
       const barTop = taskIndex * rowHeight + 16;
 
       return (
-        <div key={task.id} className="contents">
+        <React.Fragment key={task.id}>
           {/* Grid lines for this row */}
           <div 
             className="absolute border-b border-border/10"
@@ -889,7 +863,7 @@ export const TimelineGanttView = ({
               )}
             </div>
           )}
-        </div>
+        </React.Fragment>
       );
     });
   };
@@ -914,43 +888,65 @@ export const TimelineGanttView = ({
           isSelected && "bg-primary/10 border-l-4 border-primary"
         )}
       >
-        <div className="flex items-center h-16 border-b border-border/30">
-          {/* Task info column */}
-          <div className="w-96 flex-shrink-0 px-4">
-            <div className="flex items-center gap-2" style={{ paddingLeft: `${level * 16}px` }}>
+        <div className="flex border-b border-border/30">
+          {/* Enhanced task details column */}
+          <div className="w-80 flex-shrink-0 border-r border-border/30 p-3">
+            <div className="flex items-center gap-2" style={{ paddingLeft: `${level * 20}px` }}>
+              {/* Expand/collapse button */}
               {hasChildren && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0"
+                  className="h-4 w-4 p-0"
                   onClick={() => toggleExpanded(task.id)}
                 >
-                  {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                 </Button>
               )}
               
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm truncate">{task.name}</span>
-                  {isOverdue && <AlertTriangle className="h-4 w-4 text-destructive" />}
-                  {showCriticalPath && task.isCritical && (
-                    <Badge variant="destructive" className="text-xs">Critical</Badge>
-                  )}
-                </div>
+              {/* Enhanced status indicator */}
+              <div className="flex items-center gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {progress === 100 ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      ) : isOverdue ? (
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                      ) : progress > 0 ? (
+                        <Clock className="h-4 w-4 text-blue-600" />
+                      ) : (
+                        <Circle className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {progress === 100 ? 'Completed' : 
+                       isOverdue ? 'Overdue' :
+                       progress > 0 ? 'In Progress' : 'Not Started'}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 
-                <div className="flex items-center gap-2 mt-1">
-                  <Progress value={progress} className="h-1 flex-1 max-w-24" />
-                  <span className="text-xs text-muted-foreground">{progress}%</span>
-                  {task.assigned_to && (
-                    <Avatar className="h-5 w-5">
-                      <AvatarFallback className="text-xs">
-                        {task.assigned_to.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                {/* Critical path indicator */}
+                {showCriticalPath && task.isCritical && (
+                  <Badge variant="destructive" className="text-xs px-1 py-0">
+                    Critical
+                  </Badge>
+                )}
+                
+                {/* Task name */}
+                <span 
+                  className={cn(
+                    "font-medium text-sm cursor-pointer hover:text-primary",
+                    task.isCritical && showCriticalPath && "text-red-600"
                   )}
-                </div>
+                  onClick={() => setSelectedTask(task.id)}
+                >
+                  {task.name}
+                </span>
               </div>
             </div>
+            
             
             {/* Task description preview */}
             {task.description && (
@@ -1216,7 +1212,6 @@ export const TimelineGanttView = ({
                 id="duration" 
                 type="number" 
                 defaultValue={editingTask?.duration || 1} 
-                min="1"
               />
             </div>
           </div>
@@ -1235,9 +1230,28 @@ export const TimelineGanttView = ({
               <Input 
                 id="progress" 
                 type="number" 
-                defaultValue={editingTask?.progress || 0} 
                 min="0" 
-                max="100"
+                max="100" 
+                defaultValue={editingTask?.progress || 0} 
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="budgeted-cost">Budgeted Cost</Label>
+              <Input 
+                id="budgeted-cost" 
+                type="number" 
+                defaultValue={editingTask?.budgeted_cost || 0} 
+              />
+            </div>
+            <div>
+              <Label htmlFor="actual-cost">Actual Cost</Label>
+              <Input 
+                id="actual-cost" 
+                type="number" 
+                defaultValue={editingTask?.actual_cost || 0} 
               />
             </div>
           </div>
@@ -1275,9 +1289,10 @@ export const TimelineGanttView = ({
                     <Outdent className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Outdent Task</TooltipContent>
+                <TooltipContent>
+                  <p>Decrease Indent</p>
+                </TooltipContent>
               </Tooltip>
-              
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
@@ -1290,15 +1305,16 @@ export const TimelineGanttView = ({
                     <Indent className="h-3 w-3" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Indent Task</TooltipContent>
+                <TooltipContent>
+                  <p>Increase Indent</p>
+                </TooltipContent>
               </Tooltip>
             </div>
 
-            {/* Time Scale Selector */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Label htmlFor="time-scale" className="text-xs">Scale:</Label>
+            {/* View Options */}
+            <div className="flex items-center gap-2 border-r border-border pr-2">
               <Select value={timeScale} onValueChange={(value: TimeScale) => setTimeScale(value)}>
-                <SelectTrigger className="h-8 w-20">
+                <SelectTrigger className="w-20 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1307,6 +1323,28 @@ export const TimelineGanttView = ({
                   <SelectItem value="months">Months</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+                disabled={zoom <= 0.5}
+                className="h-8"
+              >
+                <ZoomOut className="h-3 w-3" />
+              </Button>
+              <span className="text-xs px-2">{Math.round(zoom * 100)}%</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+                disabled={zoom >= 3}
+                className="h-8"
+              >
+                <ZoomIn className="h-3 w-3" />
+              </Button>
             </div>
             
             <div className="flex items-center gap-1 border-r border-border pr-2">
@@ -1344,33 +1382,10 @@ export const TimelineGanttView = ({
           </div>
         </div>
 
-        {/* Fixed Layout - No Resizing */}
-        <div className="w-full h-full flex relative">
-          {/* Zoom Controls Overlay */}
-          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/90 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-              disabled={zoom <= 0.5}
-              className="h-8 w-8 p-0"
-            >
-              <ZoomOut className="h-3 w-3" />
-            </Button>
-            <span className="text-xs px-2 min-w-12 text-center font-medium">{Math.round(zoom * 100)}%</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setZoom(Math.min(3, zoom + 0.25))}
-              disabled={zoom >= 3}
-              className="h-8 w-8 p-0"
-            >
-              <ZoomIn className="h-3 w-3" />
-            </Button>
-          </div>
-          
-          {/* Task List Panel - Fixed Width */}
-          <div className="w-96 flex-shrink-0 border-r border-border/30">
+        {/* Resizable Panel Layout */}
+        <PanelGroup direction="horizontal" className="w-full h-full">
+          {/* Task List Panel */}
+          <Panel defaultSize={30} minSize={20} maxSize={50}>
             <div className="h-full flex flex-col">
               {/* Task list header */}
               <div className="border-b border-border/30 bg-muted/50">
@@ -1402,10 +1417,18 @@ export const TimelineGanttView = ({
                 )}
               </div>
             </div>
-          </div>
-          
-          {/* Timeline Panel - Flexible Width */}
-          <div className="flex-1 min-w-0">
+          </Panel>
+
+          {/* Resize Handle */}
+          <PanelResizeHandle className="w-2 bg-border/20 hover:bg-border/40 transition-colors duration-200 relative group">
+            <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 w-1 bg-border group-hover:bg-primary/50 transition-colors duration-200" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </PanelResizeHandle>
+
+          {/* Timeline Panel */}
+          <Panel defaultSize={70} minSize={50}>
             <div className="h-full flex flex-col">
               {/* Timeline header */}
               <div className="border-b border-border/30">
@@ -1426,18 +1449,18 @@ export const TimelineGanttView = ({
                 </div>
                 
                 {/* Day/Week/Month headers */}
-                <div className="relative h-6 bg-muted/20 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
+                <div className="relative h-6 bg-background border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
                   {timelineDates.map((date, index) => {
-                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
                     const isToday = isSameDay(date, new Date());
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
                     
                     return (
                       <div
                         key={date.toISOString()}
                         className={cn(
                           "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10",
-                          isWeekend && "bg-muted/30",
-                          isToday && "bg-primary/20 font-bold text-primary"
+                          isToday && "bg-primary text-primary-foreground font-bold",
+                          isWeekend && !isToday && "bg-muted/50 text-muted-foreground"
                         )}
                         style={{
                           left: index * timeConfig.dayWidth,
@@ -1451,7 +1474,7 @@ export const TimelineGanttView = ({
                 </div>
               </div>
 
-              {/* Timeline content */}
+              {/* Timeline content with task bars */}
               <div className="flex-1 overflow-auto" ref={timelineRef}>
                 <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${hierarchicalTasks.length * 64}px` }}>
                   {/* Dependency lines layer */}
@@ -1466,8 +1489,8 @@ export const TimelineGanttView = ({
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </Panel>
+        </PanelGroup>
         
         {/* Task editing dialog */}
         <TaskEditDialog />
