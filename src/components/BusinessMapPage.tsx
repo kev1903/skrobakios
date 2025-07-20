@@ -118,14 +118,33 @@ const ModuleNode = ({
               <Badge variant="outline" className="text-xs">{data.status}</Badge>
             </div>}
           
-          {data.recent && data.recent.length > 0 && <div className="mt-3 pt-2 border-t border-border/50">
+          {/* Show all projects if this is the projects module */}
+          {data.moduleName === 'projects' && data.recent && data.recent.length > 0 && (
+            <div className="mt-3 pt-2 border-t border-border/50">
+              <p className="text-xs font-medium mb-2">All Projects</p>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {data.recent.map((project: any, index: number) => (
+                  <div key={index} className="text-xs text-muted-foreground truncate">
+                    • {project.name} ({project.status || 'No status'})
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Show recent activity for non-project modules */}
+          {data.moduleName !== 'projects' && data.recent && data.recent.length > 0 && (
+            <div className="mt-3 pt-2 border-t border-border/50">
               <p className="text-xs font-medium mb-1">Recent Activity</p>
               <div className="space-y-1">
-                {data.recent.slice(0, 2).map((item: any, index: number) => <div key={index} className="text-xs text-muted-foreground truncate">
+                {data.recent.slice(0, 2).map((item: any, index: number) => (
+                  <div key={index} className="text-xs text-muted-foreground truncate">
                     • {item.name || item.title || item.description || 'Item'}
-                  </div>)}
+                  </div>
+                ))}
               </div>
-            </div>}
+            </div>
+          )}
           
           {isSelected && <div className="mt-3 pt-2 border-t border-primary/20">
               <p className="text-xs font-medium text-primary">Click to connect</p>
