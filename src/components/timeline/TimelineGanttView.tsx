@@ -1275,89 +1275,6 @@ export const TimelineGanttView = ({
         {/* Simplified Formatting Toolbar */}
         <div className="border-b border-border/30 p-3 bg-background">
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Text Formatting Group */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Select defaultValue="arial">
-                <SelectTrigger className="w-24 h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="arial">Arial</SelectItem>
-                  <SelectItem value="times">Times</SelectItem>
-                  <SelectItem value="helvetica">Helvetica</SelectItem>
-                  <SelectItem value="courier">Courier</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select defaultValue="10">
-                <SelectTrigger className="w-16 h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="8">8</SelectItem>
-                  <SelectItem value="9">9</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="11">11</SelectItem>
-                  <SelectItem value="12">12</SelectItem>
-                  <SelectItem value="14">14</SelectItem>
-                  <SelectItem value="16">16</SelectItem>
-                  <SelectItem value="18">18</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Style Buttons */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <strong className="text-sm">B</strong>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <em className="text-sm">I</em>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <u className="text-sm">U</u>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <s className="text-sm">S</s>
-              </Button>
-            </div>
-
-            {/* Color Tools */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="w-4 h-4 bg-red-500 border"></div>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="w-4 h-4 bg-yellow-300 border"></div>
-              </Button>
-            </div>
-
-            {/* Alignment */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="text-xs">⫸</div>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="text-xs">≡</div>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="text-xs">⫷</div>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="text-xs">≣</div>
-              </Button>
-            </div>
-
-            {/* Lists */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="text-xs">•</div>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <div className="text-xs">1.</div>
-              </Button>
-            </div>
-
             {/* Indent Controls */}
             <div className="flex items-center gap-1 border-r border-border pr-2">
               <Tooltip>
@@ -1392,16 +1309,6 @@ export const TimelineGanttView = ({
                   <p>Increase Indent</p>
                 </TooltipContent>
               </Tooltip>
-            </div>
-
-            {/* Insert Tools */}
-            <div className="flex items-center gap-1 border-r border-border pr-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Edit className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Link className="h-3 w-3" />
-              </Button>
             </div>
 
             {/* View Options */}
