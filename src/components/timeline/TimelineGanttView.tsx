@@ -811,7 +811,7 @@ export const TimelineGanttView = ({
       const barTop = taskIndex * rowHeight + 16;
 
       return (
-        <React.Fragment key={task.id}>
+        <div key={task.id}>
           {/* Grid lines for this row */}
           <div 
             className="absolute border-b border-border/10"
@@ -865,7 +865,7 @@ export const TimelineGanttView = ({
               )}
             </div>
           )}
-        </React.Fragment>
+        </div>
       );
     });
   };
