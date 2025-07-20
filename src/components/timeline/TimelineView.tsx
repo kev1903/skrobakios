@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GanttChart, GanttTask, GanttMilestone } from './GanttChart';
 import { ModernGanttChart, ModernGanttTask } from './ModernGanttChart';
-import { ProfessionalGanttChart, ProfessionalGanttTask } from './ProfessionalGanttChart';
 import { TaskHierarchy } from './TaskHierarchy';
 import { TimelineControls } from './TimelineControls';
 import { MilestoneManager } from './MilestoneManager';
@@ -10,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Calendar, BarChart3, List, Settings, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
@@ -26,7 +24,6 @@ interface TimelineViewProps {
 export const TimelineView = ({ projectId, projectName, companyId }: TimelineViewProps) => {
   const [ganttTasks, setGanttTasks] = useState<GanttTask[]>([]);
   const [modernGanttTasks, setModernGanttTasks] = useState<ModernGanttTask[]>([]);
-  const [professionalGanttTasks, setProfessionalGanttTasks] = useState<ProfessionalGanttTask[]>([]);
   const [milestones, setMilestones] = useState<GanttMilestone[]>([]);
   const [viewMode, setViewMode] = useState<'gantt' | 'hierarchy'>('gantt');
   const [showControls, setShowControls] = useState(false);
@@ -58,7 +55,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       const stageMap = new Map();
       const ganttTasks: GanttTask[] = [];
       const modernTasks: ModernGanttTask[] = [];
-      const professionalTasks: ProfessionalGanttTask[] = [];
       
       // First, collect all unique stages from activities
       centralTasks.forEach(task => {
@@ -131,30 +127,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         };
 
         modernTasks.push(modernTask);
-
-        // Create professional gantt task
-        const professionalTask: ProfessionalGanttTask = {
-          id: task.id,
-          name: task.name,
-          startDate: task.start_date ? new Date(task.start_date) : new Date(),
-          endDate: task.end_date ? new Date(task.end_date) : addDays(new Date(), 1),
-          progress: task.progress || 0,
-          status: mapProfessionalTaskStatus(task.status || 'pending'),
-          priority: mapProfessionalTaskPriority(task.priority || 'medium'),
-          assignee: task.assigned_to || '',
-          duration: duration,
-          category: task.stage,
-          parentId: stageParentId,
-          isStage: false,
-          isMilestone: false,
-          dependencies: [],
-          description: task.description || '',
-          estimatedHours: 0,
-          actualHours: 0,
-          tags: []
-        };
-
-        professionalTasks.push(professionalTask);
       });
 
       // Add stages to modern tasks too
@@ -173,33 +145,10 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
           isStage: true
         };
         modernTasks.push(modernStage);
-
-        // Add stage to professional tasks too
-        const professionalStage: ProfessionalGanttTask = {
-          id: stage.id,
-          name: stage.name,
-          startDate: stage.startDate,
-          endDate: stage.endDate,
-          progress: stage.progress,
-          status: mapProfessionalTaskStatus(stage.status),
-          priority: 'medium',
-          assignee: '',
-          duration: duration,
-          category: stage.category,
-          isStage: true,
-          isMilestone: false,
-          dependencies: [],
-          description: `Project stage: ${stage.name}`,
-          estimatedHours: 0,
-          actualHours: 0,
-          tags: ['stage']
-        };
-        professionalTasks.push(professionalStage);
       });
 
       setGanttTasks(ganttTasks);
       setModernGanttTasks(modernTasks);
-      setProfessionalGanttTasks(professionalTasks);
 
       // Load milestones (tasks marked as milestones)
       const milestoneData: GanttMilestone[] = ganttTasks
@@ -232,27 +181,6 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       case 'pending': return 'pending';
       case 'not started': return 'pending';
       default: return 'pending';
-    }
-  };
-
-  const mapProfessionalTaskStatus = (status: string): 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'delayed' => {
-    switch (status?.toLowerCase()) {
-      case 'completed': return 'completed';
-      case 'in progress': return 'in-progress';
-      case 'pending': return 'not-started';
-      case 'not started': return 'not-started';
-      case 'delayed': return 'delayed';
-      case 'on hold': return 'on-hold';
-      default: return 'not-started';
-    }
-  };
-
-  const mapProfessionalTaskPriority = (priority: string): 'low' | 'medium' | 'high' | 'critical' => {
-    switch (priority?.toLowerCase()) {
-      case 'low': return 'low';
-      case 'high': return 'high';
-      case 'critical': return 'critical';
-      default: return 'medium';
     }
   };
 
@@ -575,76 +503,24 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
         </Card>
       )}
 
-      {/* Main Timeline View with Resizable Panels */}
+      {/* Main Timeline View */}
       <Card>
         <CardContent className="p-0">
-          <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
-            {/* Task List Panel */}
-            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
-              <div className="h-full p-4 border-r border-border">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">Tasks</h3>
-                  <div className="text-sm text-muted-foreground">
-                    {ganttTasks.filter(t => !t.isStage).length} activities
-                  </div>
-                </div>
-                <TaskHierarchy
-                  tasks={ganttTasks}
-                  onTaskUpdate={handleTaskUpdate}
-                  onTaskAdd={handleTaskAdd}
-                  onTaskDelete={handleTaskDelete}
-                />
-              </div>
-            </ResizablePanel>
-            
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
-            
-            {/* Gantt Chart Panel */}
-            <ResizablePanel defaultSize={70} minSize={50}>
-              <div className="h-full">
-                <div className="p-4 border-b border-border bg-muted/50">
-                  <h3 className="text-lg font-semibold">Timeline</h3>
-                  <div className="text-sm text-muted-foreground">
-                    Gantt chart view
-                  </div>
-                </div>
-                <ProfessionalGanttChart
-                  tasks={professionalGanttTasks}
-                  onTaskUpdate={async (taskId, updates) => {
-                    const ganttUpdates: Partial<GanttTask> = {
-                      name: updates.name,
-                      startDate: updates.startDate,
-                      endDate: updates.endDate,
-                      progress: updates.progress,
-                      assignee: updates.assignee
-                    };
-                    await handleTaskUpdate(taskId, ganttUpdates);
-                  }}
-                  onTaskAdd={async (newTask) => {
-                    const ganttTask: Omit<GanttTask, 'id'> = {
-                      name: newTask.name,
-                      startDate: newTask.startDate,
-                      endDate: newTask.endDate,
-                      progress: newTask.progress,
-                      status: 'pending',
-                      assignee: newTask.assignee || '',
-                      priority: 'Medium',
-                      description: newTask.description || '',
-                      category: newTask.category,
-                      parentId: newTask.parentId,
-                      level: 1,
-                      expanded: true,
-                      isStage: newTask.isStage || false,
-                      milestone: false
-                    };
-                    await handleTaskAdd(ganttTask, newTask.parentId);
-                  }}
-                  onTaskDelete={handleTaskDelete}
-                />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          {viewMode === 'gantt' ? (
+            <ModernGanttChart
+              tasks={modernGanttTasks}
+              onTaskUpdate={handleModernTaskUpdate}
+              onTaskAdd={handleModernTaskAdd}
+              onTaskDelete={handleTaskDelete}
+            />
+          ) : (
+            <TaskHierarchy
+              tasks={ganttTasks}
+              onTaskUpdate={handleTaskUpdate}
+              onTaskAdd={handleTaskAdd}
+              onTaskDelete={handleTaskDelete}
+            />
+          )}
         </CardContent>
       </Card>
 
