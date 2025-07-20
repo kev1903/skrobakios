@@ -418,7 +418,7 @@ export const BusinessMapPage = ({
           const {
             data,
             error
-          } = await supabase.from(config.table).select('*').eq('company_id', currentCompany.id).limit(5).order('created_at', {
+          } = await supabase.from(config.table).select('*').eq('company_id', currentCompany.id).order('created_at', {
             ascending: false
           });
           if (error) {
