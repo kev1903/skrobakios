@@ -12,7 +12,6 @@ export interface Task {
   progress: number;
   description?: string;
   duration?: number;
-  digital_object_id?: string;
   is_milestone?: boolean;
   is_critical_path?: boolean;
   created_at: string;
