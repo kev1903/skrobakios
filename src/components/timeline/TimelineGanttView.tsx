@@ -155,9 +155,23 @@ export const TimelineGanttView = ({
     const earliestTask = taskDates.length > 0 ? new Date(Math.min(...taskDates.map(d => d.getTime()))) : now;
     const latestTask = taskDates.length > 0 ? new Date(Math.max(...taskDates.map(d => d.getTime()))) : now;
     
-    // Add buffer around task dates
-    const start = new Date(Math.min(earliestTask.getTime(), startOfMonth(now).getTime()) - (30 * 24 * 60 * 60 * 1000));
-    const end = new Date(Math.max(latestTask.getTime(), endOfMonth(addDays(now, 90)).getTime()) + (30 * 24 * 60 * 60 * 1000));
+    // Ensure we show full months in the view
+    const currentMonthStart = startOfMonth(now);
+    const currentMonthEnd = endOfMonth(now);
+    
+    // Start from the beginning of the month containing the earliest task or current month
+    const startMonth = earliestTask < currentMonthStart ? 
+      startOfMonth(earliestTask) : 
+      currentMonthStart;
+    
+    // End at the end of the month containing the latest task, but at least show 2 months
+    const endMonth = latestTask > currentMonthEnd ? 
+      endOfMonth(latestTask) : 
+      endOfMonth(addDays(currentMonthEnd, 32)); // Ensure we show at least next month too
+    
+    // Add one month buffer on each side for better navigation
+    const start = startOfMonth(addDays(startMonth, -32));
+    const end = endOfMonth(addDays(endMonth, 32));
     
     switch (timeScale) {
       case 'weeks':
@@ -1159,7 +1173,14 @@ export const TimelineGanttView = ({
     let periodWidth = 0;
     
     timelineDates.forEach((date, index) => {
-      const periodStr = format(date, timeConfig.format);
+      let periodStr;
+      
+      // For days view, group by month for cleaner headers
+      if (timeScale === 'days') {
+        periodStr = format(date, 'MMMM yyyy');
+      } else {
+        periodStr = format(date, timeConfig.format);
+      }
       if (periodStr !== currentPeriod) {
         if (currentPeriod) {
           headers.push({
