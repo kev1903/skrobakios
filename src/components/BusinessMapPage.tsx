@@ -10,8 +10,6 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
 import { ModuleSidePopup } from './ModuleSidePopup';
-import { PersistentAiChat } from './PersistentAiChat';
-import { ChatBox } from './ChatBox';
 interface BusinessMapPageProps {
   onNavigate: (page: string) => void;
 }
@@ -968,10 +966,6 @@ export const BusinessMapPage = ({
         moduleData={sidePopup.moduleData}
         onNavigate={onNavigate}
       />
-      
-      {/* Skai Chat Components - Only on Business Map */}
-      <PersistentAiChat />
-      <ChatBox onNavigate={onNavigate} />
     </div>
   );
 };

@@ -10,7 +10,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
 import { AppContextProvider } from "./contexts/AppContextProvider";
-import { PersistentAiChat } from "./components/PersistentAiChat";
+
 
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
