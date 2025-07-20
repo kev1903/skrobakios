@@ -102,9 +102,12 @@ export const TimelineGanttView = ({
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   const [dropPosition, setDropPosition] = useState<'above' | 'below' | 'inside' | null>(null);
   const [editingDateCell, setEditingDateCell] = useState<{ taskId: string; column: 'start' | 'end' } | null>(null);
+  const [taskListWidth, setTaskListWidth] = useState(320); // Track task list width for synchronization
   
   const ganttRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const taskListRef = useRef<HTMLDivElement>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   // Enhanced time scale configuration
   const getTimeScaleConfig = () => {
@@ -201,6 +204,38 @@ export const TimelineGanttView = ({
   }, []);
 
   const enhancedTasks = useMemo(() => calculateCriticalPath(tasks), [tasks, calculateCriticalPath]);
+
+  // Add resize observer to handle layout changes and maintain synchronization
+  useEffect(() => {
+    const handleResize = () => {
+      // Force a reflow/redraw after window resize to maintain alignment
+      if (ganttRef.current) {
+        const event = new CustomEvent('gantt-reflow');
+        ganttRef.current.dispatchEvent(event);
+      }
+    };
+
+    // Set up ResizeObserver for the task list panel
+    if (taskListRef.current) {
+      resizeObserverRef.current = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const newWidth = entry.contentRect.width;
+          setTaskListWidth(Math.max(320, newWidth)); // Ensure minimum 320px
+        }
+      });
+      resizeObserverRef.current.observe(taskListRef.current);
+    }
+
+    // Add window resize listener
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+    };
+  }, []);
 
   // Task status colors with enhanced palette
   const getStatusColor = (task: GanttTask) => {
@@ -615,19 +650,28 @@ export const TimelineGanttView = ({
         onDrop={(e) => handleRowDrop(e, task.id)}
         onClick={() => setSelectedTask(task.id)}
       >
-        <div className="p-2">
-          <div className="grid grid-cols-12 gap-2 items-center">
+        <div className="p-2 overflow-x-auto" style={{ minWidth: '320px' }}>
+          <div className="grid gap-2 items-center" style={{
+            gridTemplateColumns: `
+              minmax(40px, 1fr) 
+              minmax(120px, 3fr) 
+              minmax(80px, 1.5fr) 
+              minmax(80px, 1.5fr) 
+              minmax(50px, 1fr) 
+              minmax(80px, 1.5fr)
+            `
+          }}>
             {/* WBS Number Column */}
-            <div className="col-span-1 text-center">
+            <div className="text-center">
               <span className="text-xs font-mono text-muted-foreground">
                 {wbsNumbers.get(task.id) || ''}
               </span>
             </div>
 
             {/* Task Name Column */}
-            <div className="col-span-4 flex items-center gap-1" style={{ paddingLeft: `${level * 12}px` }}>
+            <div className="flex items-center gap-1 min-w-0" style={{ paddingLeft: `${level * 12}px` }}>
               {/* Drag Handle */}
-              <div className="drag-handle cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100">
+              <div className="drag-handle cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100 flex-shrink-0">
                 <GripVertical className="h-3 w-3 text-muted-foreground" />
               </div>
               
@@ -675,7 +719,7 @@ export const TimelineGanttView = ({
             </div>
 
             {/* Start Date Column */}
-            <div className="col-span-2 text-center">
+            <div className="text-center min-w-0">
               {editingDateCell?.taskId === task.id && editingDateCell?.column === 'start' ? (
                 <DatePicker
                   date={task.start_date ? new Date(task.start_date) : undefined}
@@ -718,7 +762,7 @@ export const TimelineGanttView = ({
             </div>
 
             {/* End Date Column */}
-            <div className="col-span-2 text-center">
+            <div className="text-center min-w-0">
               {editingDateCell?.taskId === task.id && editingDateCell?.column === 'end' ? (
                 <DatePicker
                   date={task.end_date ? new Date(task.end_date) : undefined}
@@ -761,15 +805,15 @@ export const TimelineGanttView = ({
             </div>
 
             {/* Duration Column */}
-            <div className="col-span-1 text-center">
+            <div className="text-center">
               <span className="text-xs text-muted-foreground">
                 {task.duration ? `${task.duration}d` : '-'}
               </span>
             </div>
 
             {/* Dependencies Column */}
-            <div className="col-span-2 text-center">
-              <span className="text-xs text-muted-foreground">
+            <div className="text-center min-w-0">
+              <span className="text-xs text-muted-foreground truncate block">
                 {task.dependencies && task.dependencies.length > 0 
                   ? task.dependencies.map(dep => dep.predecessorId).join(', ')
                   : '-'
@@ -1273,7 +1317,10 @@ export const TimelineGanttView = ({
 
   return (
     <TooltipProvider>
-      <div className="w-full h-full bg-background border rounded-lg overflow-hidden">
+      <div 
+        ref={ganttRef}
+        className="w-full h-full bg-background border rounded-lg overflow-hidden"
+      >
         {/* Enhanced Gantt Toolbar with all relocated icons */}
         <div className="border-b border-border/30 p-3 bg-background">
           <div className="flex items-center justify-between gap-4">
@@ -1435,17 +1482,30 @@ export const TimelineGanttView = ({
         <PanelGroup direction="horizontal" className="w-full h-full">
           {/* Task List Panel */}
           <Panel defaultSize={30} minSize={20} maxSize={50}>
-            <div className="h-full flex flex-col">
+            <div 
+              ref={taskListRef}
+              className="h-full flex flex-col"
+              style={{ minWidth: '320px' }}
+            >
               {/* Task list header */}
-              <div className="border-b border-border/30 bg-muted/50">
-                <div className="p-3">
-                  <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-muted-foreground">
-                    <div className="col-span-1 text-center">WBS</div>
-                    <div className="col-span-4">Task Name</div>
-                    <div className="col-span-2 text-center">Start Date</div>
-                    <div className="col-span-2 text-center">End Date</div>
-                    <div className="col-span-1 text-center">Duration</div>
-                    <div className="col-span-2 text-center">Dependencies</div>
+              <div className="border-b border-border/30 bg-muted/50 overflow-x-auto">
+                <div className="p-3" style={{ minWidth: '320px' }}>
+                  <div className="grid gap-2 text-xs font-semibold text-muted-foreground" style={{
+                    gridTemplateColumns: `
+                      minmax(40px, 1fr) 
+                      minmax(120px, 3fr) 
+                      minmax(80px, 1.5fr) 
+                      minmax(80px, 1.5fr) 
+                      minmax(50px, 1fr) 
+                      minmax(80px, 1.5fr)
+                    `
+                  }}>
+                    <div className="text-center">WBS</div>
+                    <div>Task Name</div>
+                    <div className="text-center">Start Date</div>
+                    <div className="text-center">End Date</div>
+                    <div className="text-center">Duration</div>
+                    <div className="text-center">Dependencies</div>
                   </div>
                 </div>
               </div>
