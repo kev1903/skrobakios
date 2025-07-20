@@ -435,6 +435,48 @@ export const TimelineGanttView = ({
     });
   };
 
+  // Generate WBS numbering for tasks
+  const generateWbsNumbers = useCallback(() => {
+    const wbsMap = new Map<string, string>();
+    const counters: number[] = [0]; // Start with level 0 counter
+    
+    const processTask = (task: GanttTask, level: number) => {
+      // Ensure we have enough counters for this level
+      while (counters.length <= level) {
+        counters.push(0);
+      }
+      
+      // Reset deeper level counters when moving to a shallower level
+      if (level < counters.length - 1) {
+        counters.splice(level + 1);
+      }
+      
+      // Increment counter for current level
+      counters[level]++;
+      
+      // Generate WBS number
+      const wbsNumber = counters.slice(0, level + 1).join('.');
+      wbsMap.set(task.id, wbsNumber);
+      
+      return wbsNumber;
+    };
+
+    // Process all tasks in their display order (flattened hierarchy)
+    const flattenTasks = (tasks: GanttTask[], level: number = 0): void => {
+      tasks.forEach(task => {
+        processTask(task, level);
+        if (task.children && task.children.length > 0 && expandedTasks.has(task.id)) {
+          flattenTasks(task.children, level + 1);
+        }
+      });
+    };
+
+    flattenTasks(hierarchicalTasks);
+    return wbsMap;
+  }, [hierarchicalTasks, expandedTasks]);
+
+  const wbsNumbers = generateWbsNumbers();
+
   
   // Render task list item (left panel)
   const renderTaskListItem = (task: GanttTask, level: number = 0): React.ReactNode[] => {
@@ -471,7 +513,10 @@ export const TimelineGanttView = ({
           )}
           
           <div className="flex items-center gap-2 flex-1">
-            
+            {/* WBS Number */}
+            <span className="text-xs font-mono text-muted-foreground min-w-[40px]">
+              {wbsNumbers.get(task.id) || ''}
+            </span>
             
             {editingTaskId === task.id ? (
               <Input
