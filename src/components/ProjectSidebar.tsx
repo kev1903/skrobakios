@@ -28,12 +28,6 @@ const ALL_PROJECT_NAV_ITEMS = [{
   icon: CheckSquare,
   page: 'project-tasks'
 }, {
-  id: 'activities',
-  key: 'activities',
-  label: 'Blocks',
-  icon: Boxes,
-  page: 'project-activities'
-}, {
   id: 'timeline',
   key: 'timeline',
   label: 'Timeline',

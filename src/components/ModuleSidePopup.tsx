@@ -67,9 +67,6 @@ export const ModuleSidePopup = ({ isOpen, onClose, moduleData, onNavigate }: Mod
         case 'estimates':
           query = supabase.from('estimates').select('*').eq('company_id', currentCompany.id);
           break;
-        case 'activities':
-          query = supabase.from('activities').select('*').eq('company_id', currentCompany.id);
-          break;
         case 'company_members':
           query = supabase.from('company_members').select('*').eq('company_id', currentCompany.id);
           break;
@@ -121,9 +118,6 @@ export const ModuleSidePopup = ({ isOpen, onClose, moduleData, onNavigate }: Mod
     if (moduleData?.moduleName === 'estimates') {
       return `${item.status || 'Unknown Status'} • $${item.total_amount || '0'}`;
     }
-    if (moduleData?.moduleName === 'activities') {
-      return item.stage || item.description || 'Task item';
-    }
     if (moduleData?.moduleName === 'company_members') {
       return `${item.role || 'Member'} • ${item.status || 'Unknown Status'}`;
     }
@@ -138,8 +132,6 @@ export const ModuleSidePopup = ({ isOpen, onClose, moduleData, onNavigate }: Mod
         return Building2;
       case 'estimates':
         return DollarSign;
-      case 'activities':
-        return Calendar;
       case 'company_members':
         return User;
       case 'model_3d':
