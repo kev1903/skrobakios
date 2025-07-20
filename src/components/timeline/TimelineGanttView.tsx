@@ -1589,6 +1589,30 @@ export const TimelineGanttView = ({
               {/* Timeline content with task bars */}
               <div className="flex-1 overflow-auto" ref={timelineRef}>
                 <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${hierarchicalTasks.length * 64}px` }}>
+                  {/* Today's vertical line */}
+                  {(() => {
+                    const today = new Date();
+                    const todayIndex = timelineDates.findIndex(date => isSameDay(date, today));
+                    if (todayIndex >= 0) {
+                      const leftPosition = todayIndex * timeConfig.dayWidth + (timeConfig.dayWidth / 2);
+                      return (
+                        <div
+                          className="absolute top-0 bottom-0 w-0.5 bg-primary z-20 pointer-events-none"
+                          style={{
+                            left: `${leftPosition}px`,
+                            boxShadow: '0 0 4px rgba(0, 0, 0, 0.3)'
+                          }}
+                        >
+                          {/* Today indicator label */}
+                          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded whitespace-nowrap">
+                            Today
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                  
                   {/* Dependency lines layer */}
                   <div className="absolute inset-0 pointer-events-none z-10">
                     {renderDependencyLines()}
