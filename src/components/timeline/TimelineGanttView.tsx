@@ -614,16 +614,16 @@ export const TimelineGanttView = ({
         onClick={() => setSelectedTask(task.id)}
       >
         <div className="p-2">
-          <div className="flex items-center">
+          <div className="grid grid-cols-12 gap-2 items-center">
             {/* WBS Number Column */}
-            <div className="w-[60px] text-center">
+            <div className="col-span-1 text-center">
               <span className="text-xs font-mono text-muted-foreground">
                 {wbsNumbers.get(task.id) || ''}
               </span>
             </div>
 
             {/* Task Name Column */}
-            <div className="w-[280px] flex items-center gap-1 px-2" style={{ paddingLeft: `${level * 12 + 8}px` }}>
+            <div className="col-span-4 flex items-center gap-1" style={{ paddingLeft: `${level * 12}px` }}>
               {/* Drag Handle */}
               <div className="drag-handle cursor-grab active:cursor-grabbing opacity-50 hover:opacity-100">
                 <GripVertical className="h-3 w-3 text-muted-foreground" />
@@ -673,7 +673,7 @@ export const TimelineGanttView = ({
             </div>
 
             {/* Start Date Column */}
-            <div className="w-[120px] text-center">
+            <div className="col-span-2 text-center">
               {editingDateCell?.taskId === task.id && editingDateCell?.column === 'start' ? (
                 <DatePicker
                   date={task.start_date ? new Date(task.start_date) : undefined}
@@ -716,7 +716,7 @@ export const TimelineGanttView = ({
             </div>
 
             {/* End Date Column */}
-            <div className="w-[120px] text-center">
+            <div className="col-span-2 text-center">
               {editingDateCell?.taskId === task.id && editingDateCell?.column === 'end' ? (
                 <DatePicker
                   date={task.end_date ? new Date(task.end_date) : undefined}
@@ -759,14 +759,14 @@ export const TimelineGanttView = ({
             </div>
 
             {/* Duration Column */}
-            <div className="w-[80px] text-center">
+            <div className="col-span-1 text-center">
               <span className="text-xs text-muted-foreground">
                 {task.duration ? `${task.duration}d` : '-'}
               </span>
             </div>
 
             {/* Dependencies Column */}
-            <div className="w-[140px] text-center">
+            <div className="col-span-2 text-center">
               <span className="text-xs text-muted-foreground">
                 {task.dependencies && task.dependencies.length > 0 
                   ? task.dependencies.map(dep => dep.predecessorId).join(', ')
@@ -1327,6 +1327,28 @@ export const TimelineGanttView = ({
             
             <div className="flex items-center gap-1 border-r border-border pr-2">
               <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+                disabled={zoom <= 0.5}
+                className="h-8"
+              >
+                <ZoomOut className="h-3 w-3" />
+              </Button>
+              <span className="text-xs px-2">{Math.round(zoom * 100)}%</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+                disabled={zoom >= 3}
+                className="h-8"
+              >
+                <ZoomIn className="h-3 w-3" />
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Button
                 variant={showCriticalPath ? "default" : "outline"}
                 size="sm"
                 onClick={() => setShowCriticalPath(!showCriticalPath)}
@@ -1360,128 +1382,115 @@ export const TimelineGanttView = ({
           </div>
         </div>
 
-        {/* Fixed Layout with Overlay Zoom - Positioned over entire area */}
-        <div className="w-full h-full flex relative">
-          {/* Zoom Controls Overlay - Over entire Gantt chart */}
-          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/95 backdrop-blur-sm border border-border rounded-lg p-2 shadow-lg">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-              disabled={zoom <= 0.5}
-              className="h-8 w-8 p-0"
-            >
-              <ZoomOut className="h-3 w-3" />
-            </Button>
-            <span className="text-xs px-2 min-w-[60px] text-center font-medium">
-              {Math.round(zoom * 100)}%
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setZoom(Math.min(3, zoom + 0.25))}
-              disabled={zoom >= 3}
-              className="h-8 w-8 p-0"
-            >
-              <ZoomIn className="h-3 w-3" />
-            </Button>
-          </div>
-
-          {/* Task List Panel - Fixed Width with Fixed Columns */}
-          <div className="w-[800px] h-full flex flex-col border-r border-border/30">
-            {/* Task list header */}
-            <div className="border-b border-border/30 bg-muted/50">
-              <div className="p-3">
-                <div className="flex text-xs font-semibold text-muted-foreground">
-                  <div className="w-[60px] text-center">WBS</div>
-                  <div className="w-[280px] px-2">Task Name</div>
-                  <div className="w-[120px] text-center">Start Date</div>
-                  <div className="w-[120px] text-center">End Date</div>
-                  <div className="w-[80px] text-center">Duration</div>
-                  <div className="w-[140px] text-center">Dependencies</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Task rows scrollable area */}
-            <div className="flex-1 overflow-auto">
-              {hierarchicalTasks.length > 0 ? (
-                hierarchicalTasks.map(task => renderTaskListItem(task))
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <div className="text-lg font-medium">No tasks found</div>
-                  <div className="text-sm mt-1">Create tasks to see your Gantt chart</div>
-                  <Button className="mt-4" onClick={handleCreateTask}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create First Task
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Timeline Panel - Flexible with synchronized scrolling */}
-          <div className="flex-1 h-full flex flex-col">
-            {/* Timeline header */}
-            <div className="border-b border-border/30">
-              {/* Period headers */}
-              <div className="relative h-8 bg-muted/30 border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
-                {timeHeaders.map((header, index) => (
-                  <div
-                    key={index}
-                    className="absolute top-0 h-full flex items-center justify-center text-xs font-medium border-r border-border/20"
-                    style={{
-                      left: header.left,
-                      width: header.width
-                    }}
-                  >
-                    {header.period}
+        {/* Resizable Panel Layout */}
+        <PanelGroup direction="horizontal" className="w-full h-full">
+          {/* Task List Panel */}
+          <Panel defaultSize={30} minSize={20} maxSize={50}>
+            <div className="h-full flex flex-col">
+              {/* Task list header */}
+              <div className="border-b border-border/30 bg-muted/50">
+                <div className="p-3">
+                  <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-muted-foreground">
+                    <div className="col-span-1 text-center">WBS</div>
+                    <div className="col-span-4">Task Name</div>
+                    <div className="col-span-2 text-center">Start Date</div>
+                    <div className="col-span-2 text-center">End Date</div>
+                    <div className="col-span-1 text-center">Duration</div>
+                    <div className="col-span-2 text-center">Dependencies</div>
                   </div>
-                ))}
-              </div>
-              
-              {/* Day/Week/Month headers */}
-              <div className="relative h-6 bg-background border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
-                {timelineDates.map((date, index) => {
-                  const isToday = isSameDay(date, new Date());
-                  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-                  
-                  return (
-                    <div
-                      key={date.toISOString()}
-                      className={cn(
-                        "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10",
-                        isToday && "bg-primary text-primary-foreground font-bold",
-                        isWeekend && !isToday && "bg-muted/50 text-muted-foreground"
-                      )}
-                      style={{
-                        left: index * timeConfig.dayWidth,
-                        width: timeConfig.dayWidth
-                      }}
-                    >
-                      {format(date, timeConfig.subFormat)}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Timeline content with task bars */}
-            <div className="flex-1 overflow-auto" ref={timelineRef}>
-              <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${hierarchicalTasks.length * 64}px` }}>
-                {/* Dependency lines layer */}
-                <div className="absolute inset-0 pointer-events-none z-10">
-                  {renderDependencyLines()}
                 </div>
-                
-                {/* Timeline grid and task bars */}
-                {hierarchicalTasks.length > 0 && (
-                  renderTimelineBars(hierarchicalTasks)
+              </div>
+
+              {/* Task rows scrollable area */}
+              <div className="flex-1 overflow-auto">
+                {hierarchicalTasks.length > 0 ? (
+                  hierarchicalTasks.map(task => renderTaskListItem(task))
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <div className="text-lg font-medium">No tasks found</div>
+                    <div className="text-sm mt-1">Create tasks to see your Gantt chart</div>
+                    <Button className="mt-4" onClick={handleCreateTask}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Task
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
-          </div>
-        </div>
+          </Panel>
+
+          {/* Resize Handle */}
+          <PanelResizeHandle className="w-2 bg-border/20 hover:bg-border/40 transition-colors duration-200 relative group">
+            <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 w-1 bg-border group-hover:bg-primary/50 transition-colors duration-200" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </PanelResizeHandle>
+
+          {/* Timeline Panel */}
+          <Panel defaultSize={70} minSize={50}>
+            <div className="h-full flex flex-col">
+              {/* Timeline header */}
+              <div className="border-b border-border/30">
+                {/* Period headers */}
+                <div className="relative h-8 bg-muted/30 border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
+                  {timeHeaders.map((header, index) => (
+                    <div
+                      key={index}
+                      className="absolute top-0 h-full flex items-center justify-center text-xs font-medium border-r border-border/20"
+                      style={{
+                        left: header.left,
+                        width: header.width
+                      }}
+                    >
+                      {header.period}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Day/Week/Month headers */}
+                <div className="relative h-6 bg-background border-b border-border/30 overflow-x-auto" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px` }}>
+                  {timelineDates.map((date, index) => {
+                    const isToday = isSameDay(date, new Date());
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                    
+                    return (
+                      <div
+                        key={date.toISOString()}
+                        className={cn(
+                          "absolute top-0 h-full flex items-center justify-center text-xs border-r border-border/10",
+                          isToday && "bg-primary text-primary-foreground font-bold",
+                          isWeekend && !isToday && "bg-muted/50 text-muted-foreground"
+                        )}
+                        style={{
+                          left: index * timeConfig.dayWidth,
+                          width: timeConfig.dayWidth
+                        }}
+                      >
+                        {format(date, timeConfig.subFormat)}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Timeline content with task bars */}
+              <div className="flex-1 overflow-auto" ref={timelineRef}>
+                <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${hierarchicalTasks.length * 64}px` }}>
+                  {/* Dependency lines layer */}
+                  <div className="absolute inset-0 pointer-events-none z-10">
+                    {renderDependencyLines()}
+                  </div>
+                  
+                  {/* Timeline grid and task bars */}
+                  {hierarchicalTasks.length > 0 && (
+                    renderTimelineBars(hierarchicalTasks)
+                  )}
+                </div>
+              </div>
+            </div>
+          </Panel>
+        </PanelGroup>
         
         {/* Task editing dialog */}
         <TaskEditDialog />
