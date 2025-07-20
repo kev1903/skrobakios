@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from "@/contexts/UserContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePlatformAuth } from "@/contexts/PlatformAuthContext";
+
 
 interface SidebarFooterProps {
   isCollapsed: boolean;
@@ -16,11 +16,10 @@ interface SidebarFooterProps {
 export const SidebarFooter = ({ isCollapsed, onNavigate }: SidebarFooterProps) => {
   const { userProfile, loading } = useUser();
   const { user, signOut } = useAuth();
-  const { clearPlatformAuth } = usePlatformAuth();
+  
 
   const handleLogout = async () => {
     try {
-      clearPlatformAuth(); // Clear platform authentication before logout
       await signOut();
       onNavigate('auth');
     } catch (error) {

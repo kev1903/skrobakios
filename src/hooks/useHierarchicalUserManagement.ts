@@ -33,11 +33,10 @@ export const useHierarchicalUserManagement = () => {
       // Map old role names to new ones for backward compatibility
       const mapOldRoleToNew = (role: string): UserRole => {
         switch (role) {
-          case 'admin': return 'platform_admin';
+          case 'admin': return 'company_admin';
           case 'user': return 'company_admin';
-          case 'owner': return 'platform_admin';
+          case 'owner': return 'superadmin';
           case 'superadmin': return 'superadmin';
-          case 'platform_admin': return 'platform_admin';
           case 'company_admin': return 'company_admin';
           default: return 'company_admin';
         }

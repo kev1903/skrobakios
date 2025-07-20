@@ -16,7 +16,7 @@ interface HierarchicalRoleManagementProps {
 
 const roleHierarchy = {
   superadmin: { level: 3, label: 'Super Admin', variant: 'destructive' as const },
-  platform_admin: { level: 2, label: 'Platform Admin', variant: 'secondary' as const },
+  
   company_admin: { level: 1, label: 'Company Admin', variant: 'outline' as const }
 };
 

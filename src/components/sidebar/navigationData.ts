@@ -47,6 +47,5 @@ export const businessNavigation: NavigationItem[] = [
 ];
 
 export const supportNavigation: NavigationItem[] = [
-  { id: "platform", label: "Platform", icon: Shield, requiredRole: "superadmin" },
   { id: "support", label: "Help Center", icon: HelpCircle },
 ];

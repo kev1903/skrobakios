@@ -37,11 +37,7 @@ import { TimeManagementPage } from "@/components/TimeManagementPage";
 import { AdminPage } from "@/components/admin/AdminPage";
 import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { BusinessSettingsPage } from "@/components/BusinessSettingsPage";
-import { PlatformAuthPage } from "@/components/platform/PlatformAuthPage";
-import { PlatformDashboard } from "@/components/platform/PlatformDashboard";
-import { ModernPlatformDashboard } from "@/components/platform/ModernPlatformDashboard";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
-import { usePlatformAuth } from "@/contexts/PlatformAuthContext";
 
 import { TaskManagement } from "@/components/projects/TaskManagement";
 import { Project } from "@/hooks/useProjects";
@@ -52,15 +48,13 @@ import { PortfolioViewPage } from "@/components/portfolio/PortfolioViewPage";
 import { ReviewsPage } from "@/components/review/ReviewsPage";
 
 import { MilestonePage } from "@/components/MilestonePage";
-import { BusinessInvitationManager } from "@/components/invitations/BusinessInvitationManager";
 import { PermissionManager } from "@/components/permissions/PermissionManager";
-import { InvitationAcceptancePage } from "@/components/invitations/InvitationAcceptancePage";
 import { PersonalPage } from "@/components/PersonalPage";
 import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
-import { PlatformUserManagement } from "@/components/platform/PlatformUserManagement";
+
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { BusinessMapPage } from "@/components/BusinessMapPage";
 
@@ -78,7 +72,6 @@ export const ContentRenderer = ({
   selectedProject,
   currentProject
 }: ContentRendererProps) => {
-  const { isPlatformAuthenticated } = usePlatformAuth();
   const renderProjectNotFound = () => <div className="flex items-center justify-center h-full">
       <p className="text-slate-500">Project not found</p>
     </div>;
@@ -230,11 +223,15 @@ export const ContentRenderer = ({
     case "system":
       return <BusinessMapPage onNavigate={onNavigate} />;
     case "business-invitations":
-      return <BusinessInvitationManager onNavigate={onNavigate} />;
+      // Business invitations removed - redirect to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "team-management":
       return <PermissionManager onNavigate={onNavigate} />;
     case "invitation-acceptance":
-      return <InvitationAcceptancePage onNavigate={onNavigate} />;
+      // Invitation acceptance removed - redirect to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "project-cost":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
@@ -295,24 +292,13 @@ export const ContentRenderer = ({
     case "create-business":
       return <CreateBusinessPage onNavigate={onNavigate} />;
     case "platform":
-      return <PlatformAuthPage onNavigate={onNavigate} />;
+      // Platform removed - redirect to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "platform-dashboard":
-      // Check for platform authentication first
-      if (!isPlatformAuthenticated) {
-        onNavigate("platform");
-        return null;
-      }
-      
-      return (
-        <RoleProtectedRoute 
-          requiredRoles={['superadmin']} 
-          onNavigate={onNavigate}
-          redirectPage="platform"
-          fallbackMessage="Platform dashboard access is restricted to superadmins only. Please authenticate through the Platform page."
-        >
-          <ModernPlatformDashboard onNavigate={onNavigate} />
-        </RoleProtectedRoute>
-      );
+      // Platform dashboard removed - redirect to home
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "project-dashboard":
       // Redirect to projects list instead
       onNavigate("projects");
@@ -338,16 +324,9 @@ export const ContentRenderer = ({
     case "security":
       return <SecurityPage onNavigate={onNavigate} />;
     case "user-management":
-      return (
-        <RoleProtectedRoute 
-          requiredRoles={['superadmin']} 
-          onNavigate={onNavigate}
-          redirectPage="home"
-          fallbackMessage="User management access is restricted to superadmins only."
-        >
-          <PlatformUserManagement onNavigate={onNavigate} />
-        </RoleProtectedRoute>
-      );
+      // User management removed - redirect to home  
+      onNavigate("home");
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "inbox":
     case "asset":
     case "schedules":

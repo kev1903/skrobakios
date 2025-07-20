@@ -9,7 +9,7 @@ interface FormData {
   password: string;
   companyId: string;
   companyRole: 'owner' | 'admin' | 'member';
-  platformRole: 'superadmin' | 'platform_admin' | 'company_admin';
+  platformRole: 'superadmin' | 'company_admin';
 }
 
 interface UseManualUserCreateProps {

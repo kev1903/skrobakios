@@ -29,8 +29,6 @@ export const NavigationSection = ({ title, items, currentPage, onNavigate, isCol
     switch (item.requiredRole) {
       case 'superadmin':
         return isSuperAdmin();
-      case 'platform_admin':
-        return isPlatformAdmin();
       case 'company_admin':
         return isCompanyAdmin();
       default:

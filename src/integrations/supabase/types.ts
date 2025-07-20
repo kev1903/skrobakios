@@ -900,65 +900,6 @@ export type Database = {
         }
         Relationships: []
       }
-      platform_invitations: {
-        Row: {
-          accepted_at: string | null
-          company_id: string | null
-          created_at: string
-          declined_at: string | null
-          email: string
-          expires_at: string
-          id: string
-          invitation_type: string
-          invited_by: string
-          message: string | null
-          role: Database["public"]["Enums"]["app_role"]
-          status: string | null
-          token: string
-          updated_at: string
-        }
-        Insert: {
-          accepted_at?: string | null
-          company_id?: string | null
-          created_at?: string
-          declined_at?: string | null
-          email: string
-          expires_at?: string
-          id?: string
-          invitation_type: string
-          invited_by: string
-          message?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
-          status?: string | null
-          token?: string
-          updated_at?: string
-        }
-        Update: {
-          accepted_at?: string | null
-          company_id?: string | null
-          created_at?: string
-          declined_at?: string | null
-          email?: string
-          expires_at?: string
-          id?: string
-          invitation_type?: string
-          invited_by?: string
-          message?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
-          status?: string | null
-          token?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "platform_invitations_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       portfolio_items: {
         Row: {
           case_study_url: string | null

@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
-import { PlatformAuthProvider } from "./contexts/PlatformAuthContext";
+
 import { AppContextProvider } from "./contexts/AppContextProvider";
 
 
@@ -132,11 +132,9 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <PlatformAuthProvider>
-              <ImpersonationGuard>
-                <AppContent />
-              </ImpersonationGuard>
-            </PlatformAuthProvider>
+            <ImpersonationGuard>
+              <AppContent />
+            </ImpersonationGuard>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
@@ -154,15 +152,13 @@ const AppContent = () => {
       )}
       <Routes>
         <Route path="/" element={
-          <PlatformAuthProvider>
-            <UserProvider>
-              <CompanyProvider>
-                <AppContextProvider>
-                  <Index />
-                </AppContextProvider>
-              </CompanyProvider>
-            </UserProvider>
-          </PlatformAuthProvider>
+          <UserProvider>
+            <CompanyProvider>
+              <AppContextProvider>
+                <Index />
+              </AppContextProvider>
+            </CompanyProvider>
+          </UserProvider>
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
@@ -170,23 +166,19 @@ const AppContent = () => {
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
         <Route path="/company/:companyId/edit" element={
-          <PlatformAuthProvider>
-            <UserProvider>
-              <CompanyProvider>
-                <CompanyEditPageWrapper />
-              </CompanyProvider>
-            </UserProvider>
-          </PlatformAuthProvider>
+          <UserProvider>
+            <CompanyProvider>
+              <CompanyEditPageWrapper />
+            </CompanyProvider>
+          </UserProvider>
         } />
         {/* Profile edit route removed */}
         <Route path="/impersonate" element={
-          <PlatformAuthProvider>
-            <UserProvider>
-              <CompanyProvider>
-                <Index />
-              </CompanyProvider>
-            </UserProvider>
-          </PlatformAuthProvider>
+          <UserProvider>
+            <CompanyProvider>
+              <Index />
+            </CompanyProvider>
+          </UserProvider>
         } />
         
         {/* Public Routes - No authentication required */}
@@ -198,25 +190,21 @@ const AppContent = () => {
         
         {/* Subscription Management */}
         <Route path="/subscription" element={
-          <PlatformAuthProvider>
-            <UserProvider>
-              <CompanyProvider>
-                <SubscriptionPageWrapper />
-              </CompanyProvider>
-            </UserProvider>
-          </PlatformAuthProvider>
+          <UserProvider>
+            <CompanyProvider>
+              <SubscriptionPageWrapper />
+            </CompanyProvider>
+          </UserProvider>
         } />
         
         
         {/* SK25008 Project Dashboard */}
         <Route path="/sk25008" element={
-          <PlatformAuthProvider>
-            <UserProvider>
-              <CompanyProvider>
-                <SK25008Dashboard />
-              </CompanyProvider>
-            </UserProvider>
-          </PlatformAuthProvider>
+          <UserProvider>
+            <CompanyProvider>
+              <SK25008Dashboard />
+            </CompanyProvider>
+          </UserProvider>
         } />
       </Routes>
     </>

@@ -29,6 +29,6 @@ export const defaultPermissions: Permission[] = [
 
 export const defaultRoles: Role[] = [
   { id: 'superadmin', name: 'Super Admin', color: 'destructive', level: 3 },
-  { id: 'platform_admin', name: 'Platform Admin', color: 'default', level: 2 },
+  
   { id: 'company_admin', name: 'Company Admin', color: 'secondary', level: 1 },
 ];

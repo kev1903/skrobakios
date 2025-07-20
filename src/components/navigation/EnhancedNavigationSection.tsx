@@ -95,9 +95,6 @@ export const EnhancedNavigationSection = ({
       return <Crown className="w-3 h-3 text-yellow-400 ml-auto" />;
     }
     
-    if (item.requiredRole === 'platform_admin') {
-      return <Star className="w-3 h-3 text-blue-400 ml-auto" />;
-    }
 
     if (item.requiredCompanyRole === 'owner') {
       return <Crown className="w-3 h-3 text-purple-400 ml-auto" />;
