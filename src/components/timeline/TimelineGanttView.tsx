@@ -858,15 +858,43 @@ export const TimelineGanttView = ({
     return rows;
   };
 
+  // Helper function to flatten hierarchical tasks and get absolute row positions
+  const flattenTasksWithPositions = (tasks: GanttTask[], level: number = 0): Array<{ task: GanttTask; rowIndex: number }> => {
+    const result: Array<{ task: GanttTask; rowIndex: number }> = [];
+    let currentRowIndex = 0;
+
+    const processTask = (task: GanttTask, currentLevel: number): number => {
+      result.push({ task, rowIndex: currentRowIndex });
+      currentRowIndex++;
+
+      // If task is expanded and has children, process them
+      if (expandedTasks.has(task.id) && task.children && task.children.length > 0) {
+        task.children.forEach(child => {
+          currentRowIndex = processTask(child, currentLevel + 1);
+        });
+      }
+
+      return currentRowIndex;
+    };
+
+    tasks.forEach(task => {
+      currentRowIndex = processTask(task, level);
+    });
+
+    return result;
+  };
+
   // Render timeline bars (right panel)
-  const renderTimelineBars = (tasks: GanttTask[], level: number = 0): React.ReactNode => {
-    return tasks.map((task, taskIndex) => {
+  const renderTimelineBars = (tasks: GanttTask[]): React.ReactNode => {
+    const flattenedTasks = flattenTasksWithPositions(tasks);
+    
+    return flattenedTasks.map(({ task, rowIndex }) => {
       const geometry = getTaskGeometry(task);
       const progress = task.progress || 0;
       const statusColor = getStatusColor(task);
       const isSelected = selectedTask === task.id;
       const rowHeight = 64;
-      const barTop = taskIndex * rowHeight + 16;
+      const barTop = rowIndex * rowHeight + 16;
 
       return (
         <div key={task.id}>
@@ -874,7 +902,7 @@ export const TimelineGanttView = ({
           <div 
             className="absolute border-b border-border/10"
             style={{ 
-              top: (taskIndex + 1) * rowHeight,
+              top: (rowIndex + 1) * rowHeight,
               left: 0,
               right: 0,
               height: 1
@@ -1609,7 +1637,7 @@ export const TimelineGanttView = ({
 
               {/* Timeline content with task bars */}
               <div className="flex-1 overflow-auto" ref={timelineRef}>
-                <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${hierarchicalTasks.length * 64}px` }}>
+                <div className="relative" style={{ minWidth: `${timelineDates.length * timeConfig.dayWidth}px`, minHeight: `${flattenTasksWithPositions(hierarchicalTasks).length * 64}px` }}>
                   {/* Today's vertical line */}
                   {(() => {
                     const today = new Date();
