@@ -84,6 +84,8 @@ export const TimelineGanttView = ({
 }: TimelineGanttViewProps) => {
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set(tasks.filter(t => t.is_expanded).map(t => t.id)));
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskName, setEditingTaskName] = useState<string>('');
   const [timeScale, setTimeScale] = useState<TimeScale>('days');
   const [viewMode, setViewMode] = useState<ViewMode>('standard');
   const [isDragging, setIsDragging] = useState<string | null>(null);
@@ -358,6 +360,34 @@ export const TimelineGanttView = ({
     setEditingTask(null);
   };
 
+  // Handle inline task name editing
+  const handleTaskNameClick = (task: GanttTask, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTaskId(task.id);
+    setEditingTaskName(task.name);
+  };
+
+  const handleTaskNameSave = () => {
+    if (editingTaskId && editingTaskName.trim()) {
+      onTaskUpdate?.(editingTaskId, { name: editingTaskName.trim() });
+    }
+    setEditingTaskId(null);
+    setEditingTaskName('');
+  };
+
+  const handleTaskNameCancel = () => {
+    setEditingTaskId(null);
+    setEditingTaskName('');
+  };
+
+  const handleTaskNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleTaskNameSave();
+    } else if (e.key === 'Escape') {
+      handleTaskNameCancel();
+    }
+  };
+
   // Dependency visualization
   const renderDependencyLines = () => {
     // This would render SVG lines between dependent tasks
@@ -410,7 +440,26 @@ export const TimelineGanttView = ({
               <Circle className="h-4 w-4 text-muted-foreground" />
             )}
             
-            <span className="font-medium text-sm truncate">{task.name}</span>
+            
+            {editingTaskId === task.id ? (
+              <Input
+                value={editingTaskName}
+                onChange={(e) => setEditingTaskName(e.target.value)}
+                onBlur={handleTaskNameSave}
+                onKeyDown={handleTaskNameKeyDown}
+                className="font-medium text-sm h-6 px-1 py-0 border-primary"
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <span 
+                className="font-medium text-sm truncate cursor-pointer hover:text-primary transition-colors"
+                onClick={(e) => handleTaskNameClick(task, e)}
+                title="Click to edit"
+              >
+                {task.name}
+              </span>
+            )}
             
             {showCriticalPath && task.isCritical && (
               <Badge variant="destructive" className="text-xs px-1 py-0">
