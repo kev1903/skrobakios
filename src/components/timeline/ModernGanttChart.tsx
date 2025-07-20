@@ -55,7 +55,8 @@ export const ModernGanttChart = ({
   }, [tasks]);
 
   const days = eachDayOfInterval({ start: viewStart, end: viewEnd });
-  const dayWidth = 16; // Reduced from 32 to zoom out 50%
+  const dayWidth = 24; // Increased from 16 for better readability
+  const rowHeight = 48; // Standardized row height
 
   // Build hierarchical structure
   const hierarchicalTasks = useMemo(() => {
@@ -191,12 +192,19 @@ export const ModernGanttChart = ({
     return startOfMonth(addDays(viewStart, viewOffset));
   }, [viewStart, viewOffset]);
 
-  // Generate days for the current view (3 months)
+  // Generate days for the current view - show full task range instead of limited 3 months
   const currentDays = useMemo(() => {
-    const start = currentViewStart;
-    const end = addDays(start, 90); // Show 3 months
+    if (tasks.length === 0) {
+      const start = currentViewStart;
+      const end = addDays(start, 90); // Show 3 months when no tasks
+      return eachDayOfInterval({ start, end });
+    }
+    
+    // Show all task dates plus buffer for better context
+    const start = addDays(viewStart, viewOffset);
+    const end = addDays(viewEnd, 30); // Add buffer
     return eachDayOfInterval({ start, end });
-  }, [currentViewStart]);
+  }, [currentViewStart, viewStart, viewEnd, viewOffset, tasks]);
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
@@ -267,7 +275,7 @@ export const ModernGanttChart = ({
                   "border-b border-gray-100 hover:bg-gray-50 transition-colors",
                   task.isStage && "bg-blue-50 border-b-blue-200"
                 )}
-                style={{ height: 52 }}
+                style={{ height: rowHeight + 4 }} // Add 4px for border
               >
                 <div className="p-3 h-full flex items-center">
                   <div className="grid grid-cols-12 gap-2 items-center">
@@ -345,39 +353,54 @@ export const ModernGanttChart = ({
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             <div className="flex" style={{ width: currentDays.length * dayWidth }}>
-              {currentDays.map((day, index) => (
-                <div
-                  key={day.toString()}
-                  className={cn(
-                    "flex flex-col items-center justify-center border-r border-gray-200 bg-gray-50",
-                    isToday(day) && "bg-blue-50 border-blue-200"
-                  )}
-                  style={{ width: dayWidth, minWidth: dayWidth }}
-                >
-                  <div className="text-xs font-medium text-gray-600 py-2">
-                    {index === 0 || day.getDate() === 1 ? (
-                      <div className="text-center">
-                        <div className="text-xs font-semibold text-gray-800">
-                          {format(day, 'MMM')}
+              {currentDays.map((day, index) => {
+                const isFirstOfMonth = day.getDate() === 1;
+                const isMonthStart = index === 0 || isFirstOfMonth;
+                const showWeekNumber = day.getDay() === 1; // Monday
+                
+                return (
+                  <div
+                    key={day.toString()}
+                    className={cn(
+                      "flex flex-col items-center justify-center border-r border-gray-200 bg-gray-50 relative",
+                      isToday(day) && "bg-blue-50 border-blue-200",
+                      isFirstOfMonth && "border-l-2 border-l-gray-400"
+                    )}
+                    style={{ width: dayWidth, minWidth: dayWidth }}
+                  >
+                    {/* Month header for first day of month */}
+                    {isMonthStart && (
+                      <div className="absolute -top-6 left-0 text-xs font-bold text-gray-800 bg-gray-100 px-2 py-1 border-b border-gray-300 z-10" 
+                           style={{ width: 'auto', minWidth: '60px' }}>
+                        {format(day, 'MMM yyyy')}
+                      </div>
+                    )}
+                    
+                    <div className="text-xs font-medium text-gray-600 py-2">
+                      {isMonthStart ? (
+                        <div className="text-center">
+                          <div className="text-xs font-semibold text-gray-800">
+                            {format(day, 'MMM')}
+                          </div>
+                          <div className={cn(
+                            "text-xs",
+                            isToday(day) ? "text-blue-600 font-semibold" : "text-gray-600"
+                          )}>
+                            {format(day, 'd')}
+                          </div>
                         </div>
+                      ) : (
                         <div className={cn(
-                          "text-xs",
+                          "text-xs text-center",
                           isToday(day) ? "text-blue-600 font-semibold" : "text-gray-600"
                         )}>
                           {format(day, 'd')}
                         </div>
-                      </div>
-                    ) : (
-                      <div className={cn(
-                        "text-xs text-center",
-                        isToday(day) ? "text-blue-600 font-semibold" : "text-gray-600"
-                      )}>
-                        {format(day, 'd')}
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -386,15 +409,15 @@ export const ModernGanttChart = ({
             ref={ganttScrollBodyRef}
             className="gantt-scroll-body flex-1 overflow-x-auto overflow-y-hidden"
           >
-            <div className="relative" style={{ height: visibleTasks.length * 52, width: currentDays.length * dayWidth }}>
+            <div className="relative" style={{ height: visibleTasks.length * (rowHeight + 4), width: currentDays.length * dayWidth }}>
               {/* Grid lines for visual alignment */}
               {visibleTasks.map((_, index) => (
                 <div
                   key={`grid-${index}`}
                   className="absolute w-full border-b border-gray-100"
                   style={{
-                    top: index * 52,
-                    height: 52
+                    top: index * (rowHeight + 4),
+                    height: rowHeight + 4
                   }}
                 />
               ))}
@@ -405,7 +428,7 @@ export const ModernGanttChart = ({
                   className="absolute top-0 w-0.5 bg-blue-500 z-20"
                   style={{
                     left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
-                    height: visibleTasks.length * 52
+                    height: visibleTasks.length * (rowHeight + 4)
                   }}
                 />
               )}
@@ -418,10 +441,10 @@ export const ModernGanttChart = ({
                     key={`${task.id}-bar`}
                     className="absolute"
                     style={{
-                      top: index * 52,
+                      top: index * (rowHeight + 4),
                       left: position.left,
                       width: position.width,
-                      height: 52
+                      height: rowHeight + 4
                     }}
                   >
                     <div
