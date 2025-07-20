@@ -25,7 +25,9 @@ import {
   PauseCircle,
   AlertTriangle,
   Maximize2,
-  GripVertical
+  GripVertical,
+  Indent,
+  Outdent
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -1029,6 +1031,30 @@ export const TimelineGanttView = ({
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <div className="text-xs">1.</div>
               </Button>
+            </div>
+
+            {/* Indent Controls */}
+            <div className="flex items-center gap-1 border-r border-border pr-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Outdent className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Decrease Indent</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Indent className="h-3 w-3" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Increase Indent</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
             {/* Insert Tools */}
