@@ -22,7 +22,6 @@ interface ModernTimelineViewProps {
 
 export const ModernTimelineView = ({ projectId, projectName, companyId }: ModernTimelineViewProps) => {
   const [viewMode, setViewMode] = useState<'list' | 'gantt'>('list');
-  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'custom'>('week');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -188,20 +187,7 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
       return false;
     }
 
-    // Date range filter
-    const entryDate = new Date(entry.start_time);
-    const now = new Date();
-    
-    switch (dateRange) {
-      case 'today':
-        return isToday(entryDate);
-      case 'week':
-        return entryDate >= startOfWeek(now) && entryDate <= endOfWeek(now);
-      case 'month':
-        return entryDate.getMonth() === now.getMonth() && entryDate.getFullYear() === now.getFullYear();
-      default:
-        return true;
-    }
+    return true;
   });
 
   // Get unique categories and projects for filters
@@ -236,26 +222,7 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
 
         {/* View Toggle and Controls */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            {/* Date Range Filter */}
-            <div className="flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Date Range:</span>
-              <div className="flex items-center bg-muted/30 rounded-md p-1">
-                {['today', 'week', 'month', 'custom'].map((range) => (
-                  <Button
-                    key={range}
-                    variant={dateRange === range ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setDateRange(range as any)}
-                    className="h-7 px-3 text-xs capitalize"
-                  >
-                    {range}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div></div>
 
           {/* Right Controls */}
           <div className="flex items-center gap-3">
