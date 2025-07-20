@@ -1360,8 +1360,33 @@ export const TimelineGanttView = ({
           </div>
         </div>
 
-        {/* Fixed Layout with Overlay Zoom */}
-        <div className="w-full h-full flex">
+        {/* Fixed Layout with Overlay Zoom - Positioned over entire area */}
+        <div className="w-full h-full flex relative">
+          {/* Zoom Controls Overlay - Over entire Gantt chart */}
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/95 backdrop-blur-sm border border-border rounded-lg p-2 shadow-lg">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+              disabled={zoom <= 0.5}
+              className="h-8 w-8 p-0"
+            >
+              <ZoomOut className="h-3 w-3" />
+            </Button>
+            <span className="text-xs px-2 min-w-[60px] text-center font-medium">
+              {Math.round(zoom * 100)}%
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+              disabled={zoom >= 3}
+              className="h-8 w-8 p-0"
+            >
+              <ZoomIn className="h-3 w-3" />
+            </Button>
+          </div>
+
           {/* Task List Panel - Fixed Width with Fixed Columns */}
           <div className="w-[800px] h-full flex flex-col border-r border-border/30">
             {/* Task list header */}
@@ -1395,33 +1420,8 @@ export const TimelineGanttView = ({
             </div>
           </div>
 
-          {/* Timeline Panel - Flexible with Zoom Overlay */}
-          <div className="flex-1 h-full flex flex-col relative">
-            {/* Zoom Controls Overlay */}
-            <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-background/95 backdrop-blur-sm border border-border rounded-lg p-2 shadow-lg">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-                disabled={zoom <= 0.5}
-                className="h-8 w-8 p-0"
-              >
-                <ZoomOut className="h-3 w-3" />
-              </Button>
-              <span className="text-xs px-2 min-w-[60px] text-center font-medium">
-                {Math.round(zoom * 100)}%
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setZoom(Math.min(3, zoom + 0.25))}
-                disabled={zoom >= 3}
-                className="h-8 w-8 p-0"
-              >
-                <ZoomIn className="h-3 w-3" />
-              </Button>
-            </div>
-
+          {/* Timeline Panel - Flexible with synchronized scrolling */}
+          <div className="flex-1 h-full flex flex-col">
             {/* Timeline header */}
             <div className="border-b border-border/30">
               {/* Period headers */}
