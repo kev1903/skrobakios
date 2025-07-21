@@ -126,9 +126,9 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         </div>
 
         {/* Content Section */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto space-y-0">
           {/* Task Type and Priority Row */}
-          <div className="p-6 border-b border-gray-100">
+          <div className="px-6 py-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
               <Badge 
                 variant="secondary" 
@@ -150,7 +150,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           </div>
 
           {/* Enhanced Task Details Form */}
-          <div className="p-6">
+          <div className="px-6 py-6">
             <EnhancedTaskEditForm
               task={editedTask}
               projectId={projectId || ''}
@@ -164,12 +164,12 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           </div>
 
           {/* Attachments Section */}
-          <div className="border-t border-gray-100">
+          <div className="border-t border-gray-100 px-6 py-6">
             <TaskAttachmentsDisplay taskId={editedTask.id} />
           </div>
 
           {/* Subtasks Section */}
-          <div className="border-t border-gray-100">
+          <div className="border-t border-gray-100 px-6 py-6">
             <SubtasksList 
               taskId={editedTask.id}
               projectMembers={[]}
@@ -180,7 +180,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           </div>
 
           {/* Submittal Workflow Section */}
-          <div className="border-t border-gray-100">
+          <div className="border-t border-gray-100 px-6 py-6">
             <SubmittalWorkflow 
               taskId={editedTask.id}
               projectMembers={[]}
@@ -188,7 +188,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
           </div>
 
           {/* Comments and Activity Section */}
-          <div className="border-t border-gray-100">
+          <div className="border-t border-gray-100 px-6 py-6">
             <TaskCommentsActivity taskId={editedTask.id} />
           </div>
         </div>
