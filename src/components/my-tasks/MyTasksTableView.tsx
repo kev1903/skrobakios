@@ -51,6 +51,7 @@ export const MyTasksTableView = ({
               />
             </TableHead>
              <SortableTaskHeader field="taskName" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Task Name</SortableTaskHeader>
+             <TableHead className="py-1">Type</TableHead>
              <SortableTaskHeader field="projectName" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Project</SortableTaskHeader>
              <SortableTaskHeader field="priority" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Priority</SortableTaskHeader>
              <SortableTaskHeader field="assignedTo" sortField={sortField} sortDirection={sortDirection} onSort={onSort}>Assigned To</SortableTaskHeader>
@@ -71,24 +72,32 @@ export const MyTasksTableView = ({
                   className="rounded border-input bg-background text-primary focus:ring-primary/30 scale-90"
                 />
               </TableCell>
-              <TableCell className="font-medium text-foreground py-1">
-                <div className="flex items-center space-x-2">
-                  {task.is_milestone && (
-                    <div title="Milestone">
-                      <Target className="w-4 h-4 text-yellow-600" />
-                    </div>
-                  )}
-                  <button
-                    onClick={() => onTaskClick(task)}
-                    className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
-                  >
-                    {task.taskName}
-                  </button>
-                </div>
-              </TableCell>
-              <TableCell className="text-muted-foreground py-1">
-                {task.projectName}
-              </TableCell>
+               <TableCell className="font-medium text-foreground py-1">
+                 <div className="flex items-center space-x-2">
+                   {task.is_milestone && (
+                     <div title="Milestone">
+                       <Target className="w-4 h-4 text-yellow-600" />
+                     </div>
+                   )}
+                   <button
+                     onClick={() => onTaskClick(task)}
+                     className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left transition-colors duration-200"
+                   >
+                     {task.taskName}
+                   </button>
+                 </div>
+               </TableCell>
+               <TableCell className="py-1">
+                 <Badge 
+                   variant="outline" 
+                   className={task.taskType === 'Issue' ? 'border-destructive/20 bg-destructive/10 text-destructive' : 'border-primary/20 bg-primary/10 text-primary'}
+                 >
+                   {task.taskType}
+                 </Badge>
+               </TableCell>
+               <TableCell className="text-muted-foreground py-1">
+                 {task.projectName}
+               </TableCell>
               <TableCell className="py-1">
                 <Badge 
                   variant="outline" 
