@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth } from 'date-fns';
 import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock } from 'lucide-react';
@@ -210,12 +211,15 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
+  // Calculate total timeline width
+  const timelineWidth = currentDays.length * dayWidth;
+
   // Set up bidirectional scroll synchronization between header and body
   useEffect(() => {
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
-    console.log('Setting up scroll sync:', { ganttHeader, ganttBody });
+    console.log('Setting up scroll sync:', { ganttHeader, ganttBody, timelineWidth });
     
     if (!ganttHeader || !ganttBody) {
       console.log('Missing refs for scroll sync');
@@ -231,7 +235,7 @@ export const ModernGanttChart = ({
         isHeaderScrolling = true;
         ganttBody.scrollLeft = ganttHeader.scrollLeft;
         console.log('Syncing body to header:', ganttBody.scrollLeft);
-        setTimeout(() => { isHeaderScrolling = false; }, 10);
+        requestAnimationFrame(() => { isHeaderScrolling = false; });
       }
     };
 
@@ -241,13 +245,13 @@ export const ModernGanttChart = ({
         isBodyScrolling = true;
         ganttHeader.scrollLeft = ganttBody.scrollLeft;
         console.log('Syncing header to body:', ganttHeader.scrollLeft);
-        setTimeout(() => { isBodyScrolling = false; }, 10);
+        requestAnimationFrame(() => { isBodyScrolling = false; });
       }
     };
 
     // Add scroll listeners to both elements
-    ganttHeader.addEventListener('scroll', handleHeaderScroll);
-    ganttBody.addEventListener('scroll', handleBodyScroll);
+    ganttHeader.addEventListener('scroll', handleHeaderScroll, { passive: true });
+    ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
     
     console.log('Scroll listeners added');
     
@@ -257,7 +261,7 @@ export const ModernGanttChart = ({
       ganttBody.removeEventListener('scroll', handleBodyScroll);
       console.log('Scroll listeners cleaned up');
     };
-  }, []);
+  }, [timelineWidth]);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -374,20 +378,23 @@ export const ModernGanttChart = ({
 
         {/* Timeline */}
         <div className="flex-1 flex flex-col">
-          {/* Timeline Header - Separately scrollable */}
+          {/* Timeline Header - Must match body width exactly */}
           <div 
             ref={ganttHeaderRef}
-            className="gantt-calendar-header border-b border-gray-200 bg-gray-50 overflow-x-auto z-10 [&::-webkit-scrollbar]:hidden"
+            className="border-b border-gray-200 bg-gray-50 overflow-x-auto overflow-y-hidden"
             style={{ 
+              height: '60px',
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none'
             }}
           >
-            <div className="flex" style={{ width: currentDays.length * dayWidth }}>
+            <div 
+              className="flex"
+              style={{ width: timelineWidth, minWidth: timelineWidth }}
+            >
               {currentDays.map((day, index) => {
                 const isFirstOfMonth = day.getDate() === 1;
                 const isMonthStart = index === 0 || isFirstOfMonth;
-                const showWeekNumber = day.getDay() === 1; // Monday
                 
                 return (
                   <div
@@ -397,7 +404,7 @@ export const ModernGanttChart = ({
                       isToday(day) && "bg-blue-50 border-blue-200",
                       isFirstOfMonth && "border-l-2 border-l-gray-400"
                     )}
-                    style={{ width: dayWidth, minWidth: dayWidth }}
+                    style={{ width: dayWidth, minWidth: dayWidth, height: '60px' }}
                   >
                     {/* Month header for first day of month */}
                     {isMonthStart && (
@@ -438,9 +445,16 @@ export const ModernGanttChart = ({
           {/* Timeline Content - Main scrollable area */}
           <div 
             ref={ganttScrollBodyRef}
-            className="gantt-scroll-body flex-1 overflow-x-auto overflow-y-hidden"
+            className="flex-1 overflow-x-auto overflow-y-hidden"
           >
-            <div className="relative" style={{ height: visibleTasks.length * (rowHeight + 4), width: currentDays.length * dayWidth }}>
+            <div 
+              className="relative" 
+              style={{ 
+                height: visibleTasks.length * (rowHeight + 4), 
+                width: timelineWidth, 
+                minWidth: timelineWidth 
+              }}
+            >
               {/* Grid lines for visual alignment */}
               {visibleTasks.map((_, index) => (
                 <div
