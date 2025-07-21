@@ -22,7 +22,11 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("list");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  const { loadTasksForProject } = useTaskContext();
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const { loadTasksForProject, tasks } = useTaskContext();
+
+  // Get selected tasks
+  const selectedTasks = tasks.filter(task => selectedTaskIds.includes(task.id));
 
   // Memoize the task loading to prevent infinite loops
   const loadTasks = useCallback(() => {
@@ -38,7 +42,12 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const renderActiveView = () => {
     switch (activeTab) {
       case "list":
-        return <EnhancedTaskView projectId={project.id} viewMode={viewMode} />;
+        return <EnhancedTaskView 
+          projectId={project.id} 
+          viewMode={viewMode}
+          selectedTaskIds={selectedTaskIds}
+          onTaskSelectionChange={setSelectedTaskIds}
+        />;
       case "board":
         return <TaskBoardView projectId={project.id} />;
       case "timeline":
@@ -50,7 +59,12 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Tasks</h3>
-              <TaskListView projectId={project.id} viewMode={viewMode} />
+              <TaskListView 
+                projectId={project.id} 
+                viewMode={viewMode}
+                selectedTaskIds={selectedTaskIds}
+                onTaskSelectionChange={setSelectedTaskIds}
+              />
             </div>
           </div>
         );
@@ -89,6 +103,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             onSearchChange={setSearchTerm}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            selectedTasks={selectedTasks}
           />
 
           <TaskTabNavigation

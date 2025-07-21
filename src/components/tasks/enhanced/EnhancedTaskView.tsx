@@ -9,9 +9,16 @@ import { Users, List, BarChart3, Calendar } from 'lucide-react';
 interface EnhancedTaskViewProps {
   projectId: string;
   viewMode?: "grid" | "list";
+  selectedTaskIds?: string[];
+  onTaskSelectionChange?: (selectedIds: string[]) => void;
 }
 
-export function EnhancedTaskView({ projectId, viewMode = "list" }: EnhancedTaskViewProps) {
+export function EnhancedTaskView({ 
+  projectId, 
+  viewMode = "list", 
+  selectedTaskIds = [], 
+  onTaskSelectionChange 
+}: EnhancedTaskViewProps) {
   const [activeTab, setActiveTab] = useState('tasks');
   const { tasks } = useTaskContext();
 
@@ -38,7 +45,12 @@ export function EnhancedTaskView({ projectId, viewMode = "list" }: EnhancedTaskV
         </div>
 
         <TabsContent value="tasks" className="space-y-6">
-          <TaskListView projectId={projectId} viewMode={viewMode} />
+          <TaskListView 
+            projectId={projectId} 
+            viewMode={viewMode}
+            selectedTaskIds={selectedTaskIds}
+            onTaskSelectionChange={onTaskSelectionChange}
+          />
         </TabsContent>
 
         <TabsContent value="workload" className="space-y-6">

@@ -29,9 +29,16 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface TaskListViewProps {
   projectId?: string;
   viewMode?: "grid" | "list";
+  selectedTaskIds?: string[];
+  onTaskSelectionChange?: (selectedIds: string[]) => void;
 }
 
-export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps) => {
+export const TaskListView = ({ 
+  projectId, 
+  viewMode = "list", 
+  selectedTaskIds = [], 
+  onTaskSelectionChange 
+}: TaskListViewProps) => {
   const { tasks, deleteTask } = useTaskContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -56,6 +63,26 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
 
   const handleDeleteTask = async (taskId: string) => {
     await deleteTask(taskId);
+  };
+
+  const handleTaskSelection = (taskId: string, checked: boolean) => {
+    if (!onTaskSelectionChange) return;
+    
+    if (checked) {
+      onTaskSelectionChange([...selectedTaskIds, taskId]);
+    } else {
+      onTaskSelectionChange(selectedTaskIds.filter(id => id !== taskId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (!onTaskSelectionChange) return;
+    
+    if (checked) {
+      onTaskSelectionChange(tasks.map(task => task.id));
+    } else {
+      onTaskSelectionChange([]);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -234,7 +261,11 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
             <TableHeader>
               <TableRow className="backdrop-blur-xl bg-white/10 border-b border-white/20 hover:bg-white/15">
                 <TableHead className="w-12 text-foreground">
-                  <Checkbox className="border-border" />
+                  <Checkbox 
+                    className="border-border" 
+                    checked={selectedTaskIds.length === tasks.length && tasks.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
                 </TableHead>
                 <TableHead className="text-foreground">Task Name</TableHead>
                 <TableHead className="text-foreground">Priority</TableHead>
@@ -256,7 +287,11 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
               {tasks.map((task, index) => (
                 <TableRow key={index} className="hover:bg-white/10 border-b border-white/10">
                   <TableCell>
-                    <Checkbox className="border-white/30" />
+                    <Checkbox 
+                      className="border-white/30" 
+                      checked={selectedTaskIds.includes(task.id)}
+                      onCheckedChange={(checked) => handleTaskSelection(task.id, checked === true)}
+                    />
                   </TableCell>
                   <TableCell 
                     className="font-medium cursor-pointer hover:text-foreground text-foreground"
