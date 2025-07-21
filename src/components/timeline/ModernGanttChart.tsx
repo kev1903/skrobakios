@@ -214,53 +214,45 @@ export const ModernGanttChart = ({
   // Calculate total timeline width
   const timelineWidth = currentDays.length * dayWidth;
 
-  // Set up scroll synchronization with detailed debugging
+  // Scroll synchronization effect - keep header and body in sync
   useEffect(() => {
-    console.log('🚀 Gantt chart useEffect is running');
-    
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
-    console.log('🔧 Setting up scroll sync');
-    console.log('📋 Header element:', ganttHeader);
-    console.log('📋 Body element:', ganttBody);
+    console.log('🔧 Setting up scroll listeners', { ganttHeader, ganttBody });
     
-    if (!ganttHeader) {
-      console.log('❌ Header ref is null');
+    if (!ganttHeader || !ganttBody) {
+      console.warn('⚠️ Could not find scroll containers');
       return;
     }
-    
-    if (!ganttBody) {
-      console.log('❌ Body ref is null');
-      return;
-    }
-    
-    console.log('📏 Header scrollWidth:', ganttHeader.scrollWidth);
-    console.log('📏 Header clientWidth:', ganttHeader.clientWidth);
-    console.log('📏 Body scrollWidth:', ganttBody.scrollWidth);
-    console.log('📏 Body clientWidth:', ganttBody.clientWidth);
 
-    const handleBodyScroll = () => {
-      console.log('🔄 Body scroll event - scrollLeft:', ganttBody.scrollLeft);
-      console.log('🎯 Setting header scrollLeft to:', ganttBody.scrollLeft);
-      ganttHeader.scrollLeft = ganttBody.scrollLeft;
-      console.log('✅ Header scrollLeft after sync:', ganttHeader.scrollLeft);
+    const handleHeaderScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      console.log('📜 Header scroll event', target.scrollLeft);
+      if (ganttBody && target.scrollLeft !== ganttBody.scrollLeft) {
+        ganttBody.scrollLeft = target.scrollLeft;
+      }
     };
 
-    ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
-    console.log('👂 Body scroll listener added');
+    const handleBodyScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      console.log('📜 Body scroll event', target.scrollLeft);
+      if (ganttHeader && target.scrollLeft !== ganttHeader.scrollLeft) {
+        ganttHeader.scrollLeft = target.scrollLeft;
+      }
+    };
+
+    ganttHeader.addEventListener('scroll', handleHeaderScroll);
+    ganttBody.addEventListener('scroll', handleBodyScroll);
     
-    // Test initial scroll
-    console.log('🧪 Testing initial scroll capability');
-    ganttBody.scrollLeft = 50;
-    console.log('🧪 After test scroll - Body:', ganttBody.scrollLeft, 'Header:', ganttHeader.scrollLeft);
-    ganttBody.scrollLeft = 0;
-    
+    console.log('✅ Scroll listeners attached');
+
     return () => {
+      ganttHeader.removeEventListener('scroll', handleHeaderScroll);
       ganttBody.removeEventListener('scroll', handleBodyScroll);
       console.log('🧹 Scroll listener cleaned up');
     };
-  }, [timelineWidth]);
+  }, []);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -440,7 +432,7 @@ export const ModernGanttChart = ({
           {/* Timeline Content - Main scrollable area */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-x-auto overflow-y-hidden"
+            className="flex-1 overflow-x-auto overflow-y-hidden gantt-body-scroll"
           >
             <div 
               className="relative" 
