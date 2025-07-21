@@ -351,8 +351,11 @@ export const ModernGanttChart = ({
           {/* Timeline Header - Separately scrollable */}
           <div 
             ref={ganttHeaderRef}
-            className="gantt-calendar-header border-b border-gray-200 bg-gray-50 overflow-x-hidden z-10"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="gantt-calendar-header border-b border-gray-200 bg-gray-50 overflow-x-auto z-10 [&::-webkit-scrollbar]:hidden"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none'
+            }}
           >
             <div className="flex" style={{ width: currentDays.length * dayWidth }}>
               {currentDays.map((day, index) => {
