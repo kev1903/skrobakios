@@ -175,36 +175,38 @@ export const ModernGanttChart = ({
     }
   };
 
-  // Reset offset when tasks change to ensure we always start with task-relevant view
-  const [viewOffset, setViewOffset] = useState(0);
+  // Dynamic calendar navigation
+  const [currentMonthOffset, setCurrentMonthOffset] = useState(0);
   
-  // Reset offset when tasks change
+  // Reset offset when tasks change to ensure we always start with task-relevant view
   useMemo(() => {
-    setViewOffset(0);
+    setCurrentMonthOffset(0);
   }, [tasks]);
 
   const navigateMonth = (direction: 'prev' | 'next') => {
-    setViewOffset(prev => direction === 'next' ? prev + 30 : prev - 30);
+    setCurrentMonthOffset(prev => direction === 'next' ? prev + 1 : prev - 1);
   };
 
   // Calculate the current view start based on tasks + navigation offset
   const currentViewStart = useMemo(() => {
-    return startOfMonth(addDays(viewStart, viewOffset));
-  }, [viewStart, viewOffset]);
-
-  // Generate days for the current view - show full task range instead of limited 3 months
-  const currentDays = useMemo(() => {
     if (tasks.length === 0) {
-      const start = currentViewStart;
-      const end = addDays(start, 90); // Show 3 months when no tasks
-      return eachDayOfInterval({ start, end });
+      const baseDate = new Date();
+      baseDate.setMonth(baseDate.getMonth() + currentMonthOffset);
+      return startOfMonth(baseDate);
     }
     
-    // Show all task dates plus buffer for better context
-    const start = addDays(viewStart, viewOffset);
-    const end = addDays(viewEnd, 30); // Add buffer
+    // Start from the earliest task date and apply month offset
+    const baseDate = new Date(viewStart);
+    baseDate.setMonth(baseDate.getMonth() + currentMonthOffset);
+    return startOfMonth(baseDate);
+  }, [viewStart, currentMonthOffset, tasks]);
+
+  // Generate days for the current view - show 3 months centered around current view
+  const currentDays = useMemo(() => {
+    const start = currentViewStart;
+    const end = endOfMonth(addDays(start, 90)); // Show approximately 3 months
     return eachDayOfInterval({ start, end });
-  }, [currentViewStart, viewStart, viewEnd, viewOffset, tasks]);
+  }, [currentViewStart]);
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
