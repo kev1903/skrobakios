@@ -97,12 +97,12 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
         <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-white truncate text-lg">{task.taskName}</h3>
+              <h3 className="font-medium text-foreground truncate text-lg">{task.taskName}</h3>
             </div>
             <div className="flex items-center space-x-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} className="text-white/70 hover:text-white hover:bg-white/20">
+                  <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -131,22 +131,22 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
           <div className="flex items-center space-x-3 mb-4">
             <Avatar className="w-8 h-8">
               <AvatarImage src={task.assignedTo.avatar} />
-              <AvatarFallback className="bg-white/20 text-white text-xs">
+              <AvatarFallback className="bg-muted text-foreground text-xs">
                 {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm text-white/80">{task.assignedTo.name}</span>
+            <span className="text-sm text-muted-foreground">{task.assignedTo.name}</span>
           </div>
           
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-white/70">Due Date</span>
-              <span className="text-xs text-white/90">{task.dueDate}</span>
+              <span className="text-xs text-muted-foreground">Due Date</span>
+              <span className="text-xs text-foreground">{task.dueDate}</span>
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-white/70">Progress</span>
-                <span className="text-xs text-white/90">{task.progress}%</span>
+                <span className="text-xs text-muted-foreground">Progress</span>
+                <span className="text-xs text-foreground">{task.progress}%</span>
               </div>
               <div className="w-full bg-white/20 rounded-full h-2">
                 <div 
@@ -175,15 +175,15 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
             <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-white truncate">{task.taskName}</h3>
+                  <h3 className="font-medium text-foreground truncate">{task.taskName}</h3>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }} className="text-white/70 hover:text-white hover:bg-white/20">
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }} className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
                     <Edit className="w-4 h-4" />
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} className="text-white/70 hover:text-white hover:bg-white/20">
+                      <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -213,15 +213,15 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
                 <div className="flex items-center space-x-2">
                   <Avatar className="w-6 h-6">
                     <AvatarImage src={task.assignedTo.avatar} />
-                    <AvatarFallback className="bg-white/20 text-white text-xs">
+                    <AvatarFallback className="bg-muted text-foreground text-xs">
                       {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm text-white/80">{task.assignedTo.name}</span>
+                  <span className="text-sm text-muted-foreground">{task.assignedTo.name}</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-white/70">{task.dueDate}</p>
-                  <p className="text-xs text-white/90">{task.progress}%</p>
+                  <p className="text-xs text-muted-foreground">{task.dueDate}</p>
+                  <p className="text-xs text-foreground">{task.progress}%</p>
                 </div>
               </div>
             </div>
@@ -233,16 +233,16 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
           <Table>
             <TableHeader>
               <TableRow className="backdrop-blur-xl bg-white/10 border-b border-white/20 hover:bg-white/15">
-                <TableHead className="w-12 text-white/80">
-                  <Checkbox className="border-white/30" />
+                <TableHead className="w-12 text-foreground">
+                  <Checkbox className="border-border" />
                 </TableHead>
-                <TableHead className="text-white/80">Task Name</TableHead>
-                <TableHead className="text-white/80">Priority</TableHead>
-                <TableHead className="text-white/80">Assigned To</TableHead>
-                <TableHead className="text-white/80">Due Date</TableHead>
-                <TableHead className="text-white/80">Status</TableHead>
-                <TableHead className="text-white/80">Progress</TableHead>
-                <TableHead className="text-white/80">Action</TableHead>
+                <TableHead className="text-foreground">Task Name</TableHead>
+                <TableHead className="text-foreground">Priority</TableHead>
+                <TableHead className="text-foreground">Assigned To</TableHead>
+                <TableHead className="text-foreground">Due Date</TableHead>
+                <TableHead className="text-foreground">Status</TableHead>
+                <TableHead className="text-foreground">Progress</TableHead>
+                <TableHead className="text-foreground">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -259,7 +259,7 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
                     <Checkbox className="border-white/30" />
                   </TableCell>
                   <TableCell 
-                    className="font-medium cursor-pointer hover:text-white text-white/90"
+                    className="font-medium cursor-pointer hover:text-foreground text-foreground"
                     onClick={() => handleTaskClick(task)}
                   >
                     {task.taskName}
@@ -276,14 +276,14 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
                     <div className="flex items-center space-x-2">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src={task.assignedTo.avatar} />
-                        <AvatarFallback className="bg-white/20 text-white">
+                        <AvatarFallback className="bg-muted text-foreground">
                           {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-white/80">{task.assignedTo.name}</span>
+                      <span className="text-sm text-muted-foreground">{task.assignedTo.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-white/80">{task.dueDate}</TableCell>
+                  <TableCell className="text-muted-foreground">{task.dueDate}</TableCell>
                   <TableCell>
                     <Badge 
                       variant="outline" 
@@ -300,7 +300,7 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
                           style={{ width: `${task.progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm text-white/80">{task.progress}%</span>
+                      <span className="text-sm text-muted-foreground">{task.progress}%</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -309,13 +309,13 @@ export const TaskListView = ({ projectId, viewMode = "list" }: TaskListViewProps
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleTaskClick(task)}
-                        className="text-white/70 hover:text-white hover:bg-white/20"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/20">
+                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>

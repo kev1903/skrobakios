@@ -18,8 +18,8 @@ export const TaskTabNavigation = ({ activeTab, onTabChange }: TaskTabNavigationP
           onClick={() => onTabChange(tab)}
           className={`capitalize ${
             activeTab === tab
-              ? "backdrop-blur-xl bg-white/20 border border-white/30 text-white"
-              : "text-white/70 hover:bg-white/10 hover:text-white"
+              ? "backdrop-blur-xl bg-primary text-primary-foreground border border-border"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
         >
           {tab}
