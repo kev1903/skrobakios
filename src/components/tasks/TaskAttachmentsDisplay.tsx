@@ -123,6 +123,12 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
     }
   };
 
+  const isImageFile = (fileName: string, fileType: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    return fileType.startsWith('image/') || (extension && imageExtensions.includes(extension));
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -153,7 +159,20 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
             className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
           >
             <div className="flex items-center space-x-3 flex-1 min-w-0">
-              {getFileIcon(attachment.file_name, attachment.file_type)}
+              {isImageFile(attachment.file_name, attachment.file_type) ? (
+                <div className="w-12 h-12 rounded-md overflow-hidden border bg-muted flex-shrink-0">
+                  <img
+                    src={attachment.file_url}
+                    alt={attachment.file_name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ) : (
+                <div className="w-12 h-12 rounded-md border bg-muted flex items-center justify-center flex-shrink-0">
+                  {getFileIcon(attachment.file_name, attachment.file_type)}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-foreground truncate">
                   {attachment.file_name}
