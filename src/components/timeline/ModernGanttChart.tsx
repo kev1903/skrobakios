@@ -214,54 +214,23 @@ export const ModernGanttChart = ({
   // Calculate total timeline width
   const timelineWidth = currentDays.length * dayWidth;
 
-  // Set up bidirectional scroll synchronization between header and body
+  // Set up scroll synchronization - only use body scroll to drive header
   useEffect(() => {
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
-    console.log('Setting up scroll sync:', { ganttHeader, ganttBody, timelineWidth });
-    
-    if (!ganttHeader || !ganttBody) {
-      console.log('Missing refs for scroll sync');
-      return;
-    }
-
-    let isHeaderScrolling = false;
-    let isBodyScrolling = false;
-
-    const handleHeaderScroll = () => {
-      console.log('Header scroll triggered', ganttHeader.scrollLeft);
-      if (!isBodyScrolling) {
-        isHeaderScrolling = true;
-        ganttBody.scrollLeft = ganttHeader.scrollLeft;
-        console.log('Syncing body to header:', ganttBody.scrollLeft);
-        requestAnimationFrame(() => { isHeaderScrolling = false; });
-      }
-    };
+    if (!ganttHeader || !ganttBody) return;
 
     const handleBodyScroll = () => {
-      console.log('Body scroll triggered', ganttBody.scrollLeft);
-      if (!isHeaderScrolling) {
-        isBodyScrolling = true;
-        ganttHeader.scrollLeft = ganttBody.scrollLeft;
-        console.log('Syncing header to body:', ganttHeader.scrollLeft);
-        requestAnimationFrame(() => { isBodyScrolling = false; });
-      }
+      ganttHeader.scrollLeft = ganttBody.scrollLeft;
     };
 
-    // Add scroll listeners to both elements
-    ganttHeader.addEventListener('scroll', handleHeaderScroll, { passive: true });
     ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
     
-    console.log('Scroll listeners added');
-    
-    // Cleanup
     return () => {
-      ganttHeader.removeEventListener('scroll', handleHeaderScroll);
       ganttBody.removeEventListener('scroll', handleBodyScroll);
-      console.log('Scroll listeners cleaned up');
     };
-  }, [timelineWidth]);
+  }, []);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -378,15 +347,11 @@ export const ModernGanttChart = ({
 
         {/* Timeline */}
         <div className="flex-1 flex flex-col">
-          {/* Timeline Header - Must match body width exactly */}
+          {/* Timeline Header - Non-scrollable, driven by body */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-gray-200 bg-gray-50 overflow-x-auto overflow-y-hidden"
-            style={{ 
-              height: '60px',
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none'
-            }}
+            className="border-b border-gray-200 bg-gray-50 overflow-hidden"
+            style={{ height: '60px' }}
           >
             <div 
               className="flex"
