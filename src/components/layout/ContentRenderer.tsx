@@ -30,6 +30,7 @@ import { RecurringPage } from "@/components/RecurringPage";
 import { WBSPage } from "@/components/WBSPage";
 import { SalesPage } from "@/components/SalesPage";
 import { ProjectTeamPage } from "@/components/projects/ProjectTeamPage";
+import { ProjectTeamManagementPage } from "@/components/ProjectTeamManagementPage";
 import { ProjectCostPage } from "@/components/project-cost/ProjectCostPage";
 
 import { TimeManagementPage } from "@/components/TimeManagementPage";
@@ -137,7 +138,7 @@ export const ContentRenderer = ({
     case "project-team":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectTeamPage project={currentProject} onNavigate={onNavigate} />
+          <ProjectTeamManagementPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-settings":

@@ -320,14 +320,9 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Team Management</h1>
-          <p className="text-muted-foreground">Manage project team members and their roles</p>
-        </div>
-        
+    <div className="p-6 space-y-6">
+      {/* Action Buttons */}
+      <div className="flex justify-end items-center">
         <div className="flex gap-2">
           <Dialog open={isAddMemberDialogOpen} onOpenChange={setIsAddMemberDialogOpen}>
             <DialogTrigger asChild>
