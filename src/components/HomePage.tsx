@@ -3,6 +3,8 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
+import { ModernGanttChart, ModernGanttTask } from '@/components/timeline/ModernGanttChart';
+import { addDays } from 'date-fns';
 
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 
@@ -76,6 +78,46 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
     bearing: 0
   });
   const [showSaveButton, setShowSaveButton] = useState(false);
+  
+  // Add test data for ModernGanttChart
+  const testTasks: ModernGanttTask[] = [
+    {
+      id: '1',
+      name: 'Project Planning',
+      startDate: new Date(),
+      endDate: addDays(new Date(), 5),
+      progress: 80,
+      status: 'in-progress',
+      assignee: 'John Doe',
+      duration: '5 days',
+      category: 'Planning',
+      isStage: false
+    },
+    {
+      id: '2', 
+      name: 'Design Phase',
+      startDate: addDays(new Date(), 5),
+      endDate: addDays(new Date(), 15),
+      progress: 40,
+      status: 'pending',
+      assignee: 'Jane Smith',
+      duration: '10 days',
+      category: 'Design',
+      isStage: false
+    },
+    {
+      id: '3',
+      name: 'Development',
+      startDate: addDays(new Date(), 15),
+      endDate: addDays(new Date(), 35),
+      progress: 0,
+      status: 'pending',
+      assignee: 'Mike Johnson',
+      duration: '20 days',
+      category: 'Development',
+      isStage: false
+    }
+  ];
 
   const saveCurrentMapPosition = async () => {
     if (!map.current) return;
@@ -675,6 +717,19 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
 
   return (
     <div className="relative w-full h-screen">
+      {/* Test Gantt Chart at the top */}
+      <div className="absolute top-4 left-4 right-4 z-50 bg-white rounded-lg shadow-lg" style={{ height: '300px' }}>
+        <div className="p-4">
+          <h3 className="text-lg font-semibold mb-4">🧪 ModernGanttChart Test (Scroll Debug)</h3>
+          <ModernGanttChart
+            tasks={testTasks}
+            onTaskUpdate={() => {}}
+            onTaskAdd={() => {}}
+            onTaskDelete={() => {}}
+          />
+        </div>
+      </div>
+      
       <div ref={mapContainer} className="absolute inset-0" />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
       
@@ -709,9 +764,6 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
       
       {/* Centered Company Name with AI Effects */}
       <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
-      
-      
-      
     </div>
   );
 };
