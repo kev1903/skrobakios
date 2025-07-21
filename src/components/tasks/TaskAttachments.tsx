@@ -158,6 +158,16 @@ export const TaskAttachments = ({ taskId, onSave }: TaskAttachmentsProps) => {
       });
 
       await Promise.all(uploadPromises);
+
+      // Update the task's updated_at timestamp to ensure it gets saved
+      const { error: taskUpdateError } = await supabase
+        .from('tasks')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', taskId);
+
+      if (taskUpdateError) {
+        console.error('Error updating task timestamp:', taskUpdateError);
+      }
       
       toast({
         title: "Success",
