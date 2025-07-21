@@ -49,7 +49,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 text-white">Recent Tasks</h3>
+              <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Tasks</h3>
               <TaskListView projectId={project.id} viewMode={viewMode} />
             </div>
           </div>
@@ -58,8 +58,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-8">
-              <p className="text-white/80 text-lg">Coming Soon</p>
-              <p className="text-white/60 text-sm mt-2">
+              <p className="text-foreground/80 text-lg">Coming Soon</p>
+              <p className="text-muted-foreground text-sm mt-2">
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} view is under development
               </p>
             </div>

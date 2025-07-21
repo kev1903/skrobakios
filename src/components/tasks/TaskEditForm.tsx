@@ -71,7 +71,7 @@ export const TaskEditForm = ({
 
       {/* Assignee Dropdown */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
+        <label className="text-sm font-medium text-foreground flex items-center">
           <User className="w-4 h-4 mr-2" />
           Assignee
         </label>
@@ -106,7 +106,7 @@ export const TaskEditForm = ({
       {/* Task Type and Status side by side */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 flex items-center">
+          <label className="text-sm font-medium text-foreground flex items-center">
             <Flag className="w-4 h-4 mr-2" />
             Task Type
           </label>
@@ -121,7 +121,7 @@ export const TaskEditForm = ({
           </Select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 flex items-center">
+          <label className="text-sm font-medium text-foreground flex items-center">
             <Flag className="w-4 h-4 mr-2" />
             Status
           </label>
@@ -141,7 +141,7 @@ export const TaskEditForm = ({
 
       {/* Priority */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
+        <label className="text-sm font-medium text-foreground flex items-center">
           <Flag className="w-4 h-4 mr-2" />
           Priority
         </label>
@@ -160,14 +160,14 @@ export const TaskEditForm = ({
       {/* Due Date and Duration side by side */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 flex items-center">
+          <label className="text-sm font-medium text-foreground flex items-center">
             <Calendar className="w-4 h-4 mr-2" />
             Due Date
           </label>
           <Input type="date" value={task.dueDate} onChange={e => onFieldChange('dueDate', e.target.value)} />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 flex items-center">
+          <label className="text-sm font-medium text-foreground flex items-center">
             <Clock className="w-4 h-4 mr-2" />
             Expected Time
           </label>
@@ -196,7 +196,7 @@ export const TaskEditForm = ({
 
       {/* Description */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-foreground">
           Description
         </label>
         <Textarea value={task.description || ''} onChange={e => onFieldChange('description', e.target.value)} placeholder="What is this task about?" className="min-h-[100px]" />

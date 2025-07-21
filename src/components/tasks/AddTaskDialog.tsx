@@ -91,7 +91,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
               </SelectContent>
             </Select>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             Status: <span className="font-medium">{status}</span>
           </div>
         </div>

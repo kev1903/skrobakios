@@ -40,8 +40,8 @@ export const TaskBoardColumn = ({
   return (
     <div className="h-full">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900">{column.title}</h3>
-        <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">
+        <h3 className="font-semibold text-foreground">{column.title}</h3>
+        <span className="bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs">
           {tasks.length}
         </span>
       </div>

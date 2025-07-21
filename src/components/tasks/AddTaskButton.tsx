@@ -12,7 +12,7 @@ export const AddTaskButton = ({ onAddTask }: AddTaskButtonProps) => {
     <Button
       variant="ghost"
       onClick={onAddTask}
-      className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-white/50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+      className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted/50 border-2 border-dashed border-border hover:border-muted-foreground transition-colors"
     >
       <Plus className="w-4 h-4 mr-2" />
       Add task

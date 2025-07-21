@@ -46,7 +46,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
           </div>
           
           {task.description && (
-            <p className="text-xs text-gray-600">{task.description}</p>
+            <p className="text-xs text-muted-foreground">{task.description}</p>
           )}
           
           <div className="flex items-center justify-between">
@@ -57,9 +57,9 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
                   {task.assignedTo?.name ? task.assignedTo.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs text-gray-600">{task.assignedTo?.name || 'Unassigned'}</span>
+              <span className="text-xs text-muted-foreground">{task.assignedTo?.name || 'Unassigned'}</span>
             </div>
-            <span className="text-xs text-gray-500">{task.dueDate || ''}</span>
+            <span className="text-xs text-muted-foreground">{task.dueDate || ''}</span>
           </div>
           
           {task.progress > 0 && (
