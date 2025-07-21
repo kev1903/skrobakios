@@ -764,26 +764,14 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
       <Card>
         <CardContent className="p-0">
           {viewMode === 'gantt' ? (
-            <ProfessionalGanttChart
-              tasks={centralTasks}
-              onTaskUpdate={async (taskId: string, updates: Partial<CentralTask>) => {
-                try {
-                  await updateTask(taskId, updates);
-                  toast({
-                    title: "Task Updated",
-                    description: "Task has been successfully updated"
-                  });
-                } catch (error) {
-                  console.error('Error updating task:', error);
-                  toast({
-                    title: "Error",
-                    description: "Failed to update task",
-                    variant: "destructive"
-                  });
-                }
-              }}
-              projectTitle={projectName}
-            />
+            <div>
+              <ModernGanttChart
+                tasks={modernGanttTasks}
+                onTaskUpdate={handleModernTaskUpdate}
+                onTaskAdd={handleModernTaskAdd}
+                onTaskDelete={handleTaskDelete}
+              />
+            </div>
           ) : (
             <TaskHierarchy
               tasks={ganttTasks}
