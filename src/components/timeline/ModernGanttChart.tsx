@@ -347,10 +347,10 @@ export const ModernGanttChart = ({
 
         {/* Timeline */}
         <div className="flex-1 flex flex-col">
-          {/* Timeline Header - Non-scrollable, driven by body */}
+          {/* Timeline Header - Scrollable with hidden scrollbars */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-gray-200 bg-gray-50 overflow-hidden"
+            className="border-b border-gray-200 bg-gray-50 overflow-x-auto gantt-header-scroll"
             style={{ height: '60px' }}
           >
             <div 
