@@ -193,7 +193,8 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
         {attachments.map((attachment) => (
           <div
             key={attachment.id}
-            className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+            className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+            onClick={() => window.open(attachment.file_url, '_blank')}
           >
             <div className="flex items-center space-x-3 flex-1 min-w-0">
               {isImageFile(attachment.file_name, attachment.file_type) ? (
@@ -219,7 +220,7 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-1 flex-shrink-0">
+            <div className="flex items-center space-x-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
               <Button
                 variant="ghost"
                 size="sm"
