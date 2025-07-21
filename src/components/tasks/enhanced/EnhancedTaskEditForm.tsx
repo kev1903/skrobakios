@@ -211,29 +211,33 @@ export function EnhancedTaskEditForm({
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <Label className="text-xs font-medium text-gray-700">Progress</Label>
-              <span className="text-xs text-gray-500">{task.progress}%</span>
+              <span className="text-xs text-gray-500">{task.progress || 0}%</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex-1 relative">
                 <Progress 
-                  value={task.progress} 
-                  className="h-1.5"
+                  value={task.progress || 0} 
+                  className="h-2 w-full"
                 />
                 <input
                   type="range"
                   min="0"
                   max="100"
-                  value={task.progress}
-                  onChange={(e) => onTaskUpdate({ progress: parseInt(e.target.value) || 0 })}
-                  className="absolute top-0 left-0 w-full h-1.5 opacity-0 cursor-pointer"
+                  value={task.progress || 0}
+                  onChange={(e) => onTaskUpdate({ progress: parseInt(e.target.value) })}
+                  className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer appearance-none"
+                  style={{ background: 'transparent' }}
                 />
               </div>
               <Input
                 type="number"
                 min="0"
                 max="100"
-                value={task.progress}
-                onChange={(e) => onTaskUpdate({ progress: parseInt(e.target.value) || 0 })}
+                value={task.progress || 0}
+                onChange={(e) => {
+                  const value = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
+                  onTaskUpdate({ progress: value });
+                }}
                 className="w-12 h-6 text-xs border-gray-200"
               />
             </div>
