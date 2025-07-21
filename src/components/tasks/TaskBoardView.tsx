@@ -89,8 +89,7 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
       dueDate: new Date().toISOString().split('T')[0],
       status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: 0,
-      description: '',
-      category: 'General'
+      description: ''
     };
 
     addTask(finalTask);

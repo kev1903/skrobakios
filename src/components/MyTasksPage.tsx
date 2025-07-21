@@ -71,8 +71,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
           status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
           progress: task.progress,
           description: task.description,
-          
-          digital_object_id: task.digital_object_id,
+          duration: task.estimated_duration,
           is_milestone: task.is_milestone,
           is_critical_path: task.is_critical_path,
           created_at: task.created_at,
