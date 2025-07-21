@@ -98,7 +98,7 @@ export const TaskCalendarView = () => {
           <div className="grid grid-cols-7 gap-1">
             {/* Week day headers */}
             {weekDays.map(day => (
-              <div key={day} className="p-2 text-center font-medium text-gray-500 text-sm">
+              <div key={day} className="p-2 text-center font-medium text-muted-foreground text-sm">
                 {day}
               </div>
             ))}
@@ -118,7 +118,7 @@ export const TaskCalendarView = () => {
                   {day && (
                     <>
                       <div className={`text-sm font-medium mb-1 ${
-                        isToday ? 'text-blue-600' : 'text-gray-900'
+                        isToday ? 'text-blue-600' : 'text-foreground'
                       }`}>
                         {day.getDate()}
                       </div>

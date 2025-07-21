@@ -74,8 +74,8 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
       className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors group"
       onClick={() => setIsEditing(true)}
     >
-      <h1 className="text-2xl font-semibold text-gray-900">{taskName}</h1>
-      <Edit2 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <h1 className="text-2xl font-semibold text-foreground">{taskName}</h1>
+      <Edit2 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   );
 };
