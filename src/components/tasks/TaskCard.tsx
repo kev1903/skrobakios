@@ -41,7 +41,7 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
               <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
                 {task.priority}
               </Badge>
-              <GripVertical className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <GripVertical className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
           
