@@ -78,17 +78,17 @@ export function EnhancedTaskEditForm({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Compact Details Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
           <User className="w-4 h-4 text-gray-500" />
           <h3 className="text-base font-medium text-gray-900">Details</h3>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Description - Full Width */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <Label htmlFor="description" className="text-xs font-medium text-gray-700">
               Description
             </Label>
@@ -97,17 +97,17 @@ export function EnhancedTaskEditForm({
               value={task.description || ''}
               onChange={(e) => onTaskUpdate({ description: e.target.value })}
               placeholder="Add a description..."
-              className="min-h-[60px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-              rows={3}
+              className="min-h-[50px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+              rows={2}
             />
           </div>
 
           {/* First Row: Task Type, Priority, Status */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <div className="space-y-1">
               <Label className="text-xs font-medium text-gray-700">Task Type</Label>
               <Select value={task.taskType} onValueChange={(value: any) => onTaskUpdate({ taskType: value })}>
-                <SelectTrigger className="h-8 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                <SelectTrigger className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -120,7 +120,7 @@ export function EnhancedTaskEditForm({
             <div className="space-y-1">
               <Label className="text-xs font-medium text-gray-700">Priority</Label>
               <Select value={task.priority} onValueChange={(value: any) => onTaskUpdate({ priority: value })}>
-                <SelectTrigger className="h-8 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                <SelectTrigger className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -134,7 +134,7 @@ export function EnhancedTaskEditForm({
             <div className="space-y-1">
               <Label className="text-xs font-medium text-gray-700">Status</Label>
               <Select value={task.status} onValueChange={(value: any) => onTaskUpdate({ status: value })}>
-                <SelectTrigger className="h-8 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                <SelectTrigger className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -148,7 +148,7 @@ export function EnhancedTaskEditForm({
           </div>
 
           {/* Second Row: Due Date, Duration */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <Label className="text-xs font-medium text-gray-700">Due Date</Label>
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -156,11 +156,11 @@ export function EnhancedTaskEditForm({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 h-8 text-sm",
+                      "w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 h-7 text-xs",
                       !dueDate && "text-gray-500"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    <CalendarIcon className="mr-1 h-3 w-3" />
                     {dueDate ? format(dueDate, "MMM dd, yyyy") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
@@ -188,7 +188,7 @@ export function EnhancedTaskEditForm({
                 type="number"
                 value={task.duration || ''}
                 onChange={(e) => onTaskUpdate({ duration: parseFloat(e.target.value) || 0 })}
-                className="h-8 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
+                className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs"
                 placeholder="0"
                 min="0"
                 step="0.5"
@@ -203,7 +203,7 @@ export function EnhancedTaskEditForm({
               projectId={projectId}
               currentAssignee={task.assignedTo}
               onAssigneeChange={handleAssigneeChange}
-              className="w-full h-8"
+              className="w-full h-7"
             />
           </div>
 
@@ -213,10 +213,10 @@ export function EnhancedTaskEditForm({
               <Label className="text-xs font-medium text-gray-700">Progress</Label>
               <span className="text-xs text-gray-500">{task.progress}%</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Progress 
                 value={task.progress} 
-                className="h-2 flex-1"
+                className="h-1.5 flex-1"
               />
               <Input
                 type="number"
@@ -224,7 +224,7 @@ export function EnhancedTaskEditForm({
                 max="100"
                 value={task.progress}
                 onChange={(e) => onTaskUpdate({ progress: parseInt(e.target.value) || 0 })}
-                className="w-16 h-6 text-xs border-gray-200"
+                className="w-12 h-6 text-xs border-gray-200"
               />
             </div>
           </div>
@@ -232,16 +232,16 @@ export function EnhancedTaskEditForm({
       </div>
 
       {/* Compact Timestamps */}
-      <div className="pt-3 border-t border-gray-100">
-        <div className="grid grid-cols-2 gap-4 text-xs">
+      <div className="pt-2 border-t border-gray-100">
+        <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <p className="text-gray-500 mb-1">Created</p>
+            <p className="text-gray-500">Created</p>
             <p className="text-gray-900 font-medium">
               {format(new Date(task.created_at), 'MMM dd, yyyy')}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 mb-1">Last Updated</p>
+            <p className="text-gray-500">Last Updated</p>
             <p className="text-gray-900 font-medium">
               {format(new Date(task.updated_at), 'MMM dd, yyyy')}
             </p>
