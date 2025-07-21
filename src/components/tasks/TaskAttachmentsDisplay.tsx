@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FileText, File, FileImage, FileVideo, FileAudio, FileCode, FileArchive, Download } from 'lucide-react';
+import { FileText, File, FileImage, FileVideo, FileAudio, FileCode, FileArchive, Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface TaskAttachment {
   id: string;
@@ -22,6 +23,7 @@ interface TaskAttachmentsDisplayProps {
 export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) => {
   const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Clear previous attachments when taskId changes
@@ -129,6 +131,41 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
     return fileType.startsWith('image/') || (extension && imageExtensions.includes(extension));
   };
 
+  const deleteAttachment = async (attachment: TaskAttachment) => {
+    try {
+      // Delete from storage
+      const fileName = attachment.file_url.split('/').pop();
+      if (fileName) {
+        await supabase.storage
+          .from('task-attachments')
+          .remove([`${taskId}/${fileName}`]);
+      }
+
+      // Delete from database
+      const { error } = await supabase
+        .from('task_attachments')
+        .delete()
+        .eq('id', attachment.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Attachment deleted successfully",
+      });
+
+      // Reload attachments
+      loadAttachments();
+    } catch (error) {
+      console.error('Error deleting attachment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete attachment",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -182,14 +219,23 @@ export const TaskAttachmentsDisplay = ({ taskId }: TaskAttachmentsDisplayProps) 
                 </div>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => window.open(attachment.file_url, '_blank')}
-              className="flex-shrink-0"
-            >
-              <Download className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center space-x-1 flex-shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open(attachment.file_url, '_blank')}
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteAttachment(attachment)}
+                className="text-destructive hover:text-destructive"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         ))}
       </div>

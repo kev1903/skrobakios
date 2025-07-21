@@ -49,23 +49,14 @@ export const SubtasksList = ({ taskId, projectMembers, onSubtaskClick }: Subtask
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Subtasks</h3>
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setIsAddingSubtask(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add subtask
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Draft subtasks
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setIsAddingSubtask(true)}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add subtask
+        </Button>
       </div>
 
       <div className="space-y-2">
