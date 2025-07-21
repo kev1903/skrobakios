@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTaskContext } from './TaskContext';
 
 interface AddTaskDialogProps {
@@ -17,6 +18,7 @@ interface AddTaskDialogProps {
 export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDialogProps) => {
   const [taskName, setTaskName] = useState('');
   const [description, setDescription] = useState('');
+  const [taskType, setTaskType] = useState('Task');
   const { addTask } = useTaskContext();
 
   const handleSubmit = () => {
@@ -25,7 +27,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
     const newTask = {
       project_id: projectId,
       taskName: taskName.trim(),
-      taskType: 'Task' as const,
+      taskType: taskType as 'Task' | 'Issue',
       priority: 'Medium' as const,
       assignedTo: { name: '', avatar: '' },
       dueDate: new Date().toISOString().split('T')[0],
@@ -40,12 +42,14 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
     // Reset form and close dialog
     setTaskName('');
     setDescription('');
+    setTaskType('Task');
     onClose();
   };
 
   const handleCancel = () => {
     setTaskName('');
     setDescription('');
+    setTaskType('Task');
     onClose();
   };
 
@@ -74,6 +78,18 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
               placeholder="Enter task description (optional)..."
               rows={3}
             />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="task-type">Type</Label>
+            <Select value={taskType} onValueChange={setTaskType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select task type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Task">Task</SelectItem>
+                <SelectItem value="Issue">Issue</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="text-sm text-gray-600">
             Status: <span className="font-medium">{status}</span>
