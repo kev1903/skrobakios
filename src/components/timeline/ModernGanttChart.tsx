@@ -216,21 +216,29 @@ export const ModernGanttChart = ({
 
   // Set up scroll synchronization with detailed debugging
   useEffect(() => {
+    console.log('🚀 Gantt chart useEffect is running');
+    
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
     console.log('🔧 Setting up scroll sync');
     console.log('📋 Header element:', ganttHeader);
     console.log('📋 Body element:', ganttBody);
-    console.log('📏 Header scrollWidth:', ganttHeader?.scrollWidth);
-    console.log('📏 Header clientWidth:', ganttHeader?.clientWidth);
-    console.log('📏 Body scrollWidth:', ganttBody?.scrollWidth);
-    console.log('📏 Body clientWidth:', ganttBody?.clientWidth);
     
-    if (!ganttHeader || !ganttBody) {
-      console.log('❌ Missing refs for scroll sync');
+    if (!ganttHeader) {
+      console.log('❌ Header ref is null');
       return;
     }
+    
+    if (!ganttBody) {
+      console.log('❌ Body ref is null');
+      return;
+    }
+    
+    console.log('📏 Header scrollWidth:', ganttHeader.scrollWidth);
+    console.log('📏 Header clientWidth:', ganttHeader.clientWidth);
+    console.log('📏 Body scrollWidth:', ganttBody.scrollWidth);
+    console.log('📏 Body clientWidth:', ganttBody.clientWidth);
 
     const handleBodyScroll = () => {
       console.log('🔄 Body scroll event - scrollLeft:', ganttBody.scrollLeft);
@@ -252,7 +260,7 @@ export const ModernGanttChart = ({
       ganttBody.removeEventListener('scroll', handleBodyScroll);
       console.log('🧹 Scroll listener cleaned up');
     };
-  }, []);
+  }, [timelineWidth]);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
