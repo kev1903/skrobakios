@@ -71,11 +71,11 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
 
   return (
     <div 
-      className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors group"
       onClick={() => setIsEditing(true)}
     >
-      <h2 className="text-xl font-semibold">{taskName}</h2>
-      <Edit2 className="w-4 h-4 text-gray-400" />
+      <h1 className="text-2xl font-semibold text-gray-900">{taskName}</h1>
+      <Edit2 className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   );
 };
@@ -106,61 +106,56 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
 
   return (
     <>
-      {/* Function Buttons Bar */}
-      <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
-        <div className="flex items-center space-x-2">
+      {/* Action Buttons Bar */}
+      <div className="p-4 border-b border-gray-100">
+        <div className="flex items-center justify-between">
           <Button
             onClick={onMarkComplete}
             variant="outline"
             size="sm"
-            className="flex items-center space-x-2"
+            className="flex items-center gap-2 border-gray-200 hover:bg-gray-50"
+            disabled={task.status === 'Completed'}
           >
             <Check className="w-4 h-4" />
-            <span>Mark complete</span>
+            <span>{task.status === 'Completed' ? 'Completed' : 'Mark complete'}</span>
           </Button>
-        </div>
-        
-        <div className="flex items-center space-x-1">
-          <Button variant="ghost" size="sm">
-            <Timer className="w-4 h-4" />
-          </Button>
-          <TaskAttachments taskId={task.id} onSave={onSave} />
-          <Button variant="ghost" size="sm">
-            <MessageSquare className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Link className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Maximize2 className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleDeleteClick}>
-            <Trash2 className="w-4 h-4" />
-          </Button>
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={onSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Save className="w-4 h-4" />
-          </Button>
+          
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+              <Timer className="w-4 h-4" />
+            </Button>
+            <TaskAttachments taskId={task.id} onSave={onSave} />
+            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+              <MessageSquare className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+              <Link className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+              <Maximize2 className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDeleteClick} className="text-gray-500 hover:text-red-600 hover:bg-red-50">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={onSave}
+              className="bg-blue-600 hover:bg-blue-700 text-white ml-2"
+            >
+              <Save className="w-4 h-4 mr-1" />
+              Save
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Task Title and Priority */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <EditableTaskName 
-            taskName={task.taskName} 
-            onTaskNameChange={(newName) => onTaskNameChange?.(newName)}
-          />
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
-              {task.priority}
-            </Badge>
-          </div>
-        </div>
+      {/* Task Title Section */}
+      <div className="p-6 pb-4">
+        <EditableTaskName 
+          taskName={task.taskName} 
+          onTaskNameChange={(newName) => onTaskNameChange?.(newName)}
+        />
       </div>
 
       {/* Delete Confirmation Dialog */}

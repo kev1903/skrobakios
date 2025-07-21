@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 import { Task, useTaskContext } from './TaskContext';
 import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
@@ -109,56 +110,88 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         className={`${
           isMobile 
             ? '!w-full !max-w-full' 
-            : '!w-[700px] !max-w-[700px] sm:!w-[700px] sm:!max-w-[700px]'
-        } overflow-y-auto`}
+            : '!w-[600px] !max-w-[600px] sm:!w-[600px] sm:!max-w-[600px]'
+        } overflow-y-auto bg-white border-l border-gray-200 p-0`}
         side={isMobile ? "bottom" : "right"}
       >
-        <TaskEditHeader 
-          task={editedTask} 
-          onMarkComplete={handleMarkComplete} 
-          onDelete={handleDelete}
-          onTaskNameChange={(newName) => handleFieldChange('taskName', newName)}
-          onSave={handleSave}
-        />
-
-        <SheetHeader>
-        <EnhancedTaskEditForm
-          task={editedTask}
-          projectId={projectId || ''}
-          onTaskUpdate={(updates) => {
-            setEditedTask(prev => prev ? { ...prev, ...updates } : prev);
-            setHasUnsavedChanges(true);
-          }}
-          onSave={handleSave}
-          onCancel={handleClose}
-        />
-        </SheetHeader>
-
-        {/* Attachments Section */}
-        <TaskAttachmentsDisplay taskId={editedTask.id} />
-
-        {/* Subtasks Section */}
-        <div className="mt-8 pt-6 border-t">
-          <SubtasksList 
-            taskId={editedTask.id}
-            projectMembers={[]}
-            onSubtaskClick={(subtask) => {
-              // Handle opening subtask as new task - for now just log
-              console.log('Opening subtask:', subtask);
-            }}
+        {/* Header Section */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 z-10">
+          <TaskEditHeader 
+            task={editedTask} 
+            onMarkComplete={handleMarkComplete} 
+            onDelete={handleDelete}
+            onTaskNameChange={(newName) => handleFieldChange('taskName', newName)}
+            onSave={handleSave}
           />
         </div>
 
-        {/* Submittal Workflow Section */}
-        <div className="mt-8 pt-6 border-t">
-          <SubmittalWorkflow 
-            taskId={editedTask.id}
-            projectMembers={[]}
-          />
-        </div>
+        {/* Content Section */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Task Type and Priority Row */}
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <Badge 
+                variant="secondary" 
+                className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+              >
+                {editedTask.taskType}
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className={`border ${
+                  editedTask.priority === 'High' ? 'border-red-200 bg-red-50 text-red-700' :
+                  editedTask.priority === 'Medium' ? 'border-yellow-200 bg-yellow-50 text-yellow-700' :
+                  'border-green-200 bg-green-50 text-green-700'
+                }`}
+              >
+                {editedTask.priority}
+              </Badge>
+            </div>
+          </div>
 
-        {/* Comments and Activity Section */}
-        <TaskCommentsActivity taskId={editedTask.id} />
+          {/* Enhanced Task Details Form */}
+          <div className="p-6">
+            <EnhancedTaskEditForm
+              task={editedTask}
+              projectId={projectId || ''}
+              onTaskUpdate={(updates) => {
+                setEditedTask(prev => prev ? { ...prev, ...updates } : prev);
+                setHasUnsavedChanges(true);
+              }}
+              onSave={handleSave}
+              onCancel={handleClose}
+            />
+          </div>
+
+          {/* Attachments Section */}
+          <div className="border-t border-gray-100">
+            <TaskAttachmentsDisplay taskId={editedTask.id} />
+          </div>
+
+          {/* Subtasks Section */}
+          <div className="border-t border-gray-100">
+            <SubtasksList 
+              taskId={editedTask.id}
+              projectMembers={[]}
+              onSubtaskClick={(subtask) => {
+                console.log('Opening subtask:', subtask);
+              }}
+            />
+          </div>
+
+          {/* Submittal Workflow Section */}
+          <div className="border-t border-gray-100">
+            <SubmittalWorkflow 
+              taskId={editedTask.id}
+              projectMembers={[]}
+            />
+          </div>
+
+          {/* Comments and Activity Section */}
+          <div className="border-t border-gray-100">
+            <TaskCommentsActivity taskId={editedTask.id} />
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
   );
