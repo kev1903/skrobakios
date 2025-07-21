@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, Save, Edit2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +83,8 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
 
 export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange, onSave }: TaskEditHeaderProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { toast } = useToast();
+
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case "high":
@@ -92,6 +95,16 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
         return "bg-green-100 text-green-800 border-green-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const handleSaveClick = async () => {
+    if (onSave) {
+      await onSave();
+      toast({
+        title: "Task Saved",
+        description: "All changes have been saved successfully.",
+      });
     }
   };
 
@@ -140,7 +153,7 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
             <Button 
               variant="default" 
               size="sm" 
-              onClick={onSave}
+              onClick={handleSaveClick}
               className="bg-blue-600 hover:bg-blue-700 text-white ml-2"
             >
               <Save className="w-4 h-4 mr-1" />
