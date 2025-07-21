@@ -214,21 +214,43 @@ export const ModernGanttChart = ({
   // Calculate total timeline width
   const timelineWidth = currentDays.length * dayWidth;
 
-  // Set up scroll synchronization - only use body scroll to drive header
+  // Set up scroll synchronization with detailed debugging
   useEffect(() => {
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
-    if (!ganttHeader || !ganttBody) return;
+    console.log('🔧 Setting up scroll sync');
+    console.log('📋 Header element:', ganttHeader);
+    console.log('📋 Body element:', ganttBody);
+    console.log('📏 Header scrollWidth:', ganttHeader?.scrollWidth);
+    console.log('📏 Header clientWidth:', ganttHeader?.clientWidth);
+    console.log('📏 Body scrollWidth:', ganttBody?.scrollWidth);
+    console.log('📏 Body clientWidth:', ganttBody?.clientWidth);
+    
+    if (!ganttHeader || !ganttBody) {
+      console.log('❌ Missing refs for scroll sync');
+      return;
+    }
 
     const handleBodyScroll = () => {
+      console.log('🔄 Body scroll event - scrollLeft:', ganttBody.scrollLeft);
+      console.log('🎯 Setting header scrollLeft to:', ganttBody.scrollLeft);
       ganttHeader.scrollLeft = ganttBody.scrollLeft;
+      console.log('✅ Header scrollLeft after sync:', ganttHeader.scrollLeft);
     };
 
     ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
+    console.log('👂 Body scroll listener added');
+    
+    // Test initial scroll
+    console.log('🧪 Testing initial scroll capability');
+    ganttBody.scrollLeft = 50;
+    console.log('🧪 After test scroll - Body:', ganttBody.scrollLeft, 'Header:', ganttHeader.scrollLeft);
+    ganttBody.scrollLeft = 0;
     
     return () => {
       ganttBody.removeEventListener('scroll', handleBodyScroll);
+      console.log('🧹 Scroll listener cleaned up');
     };
   }, []);
 
