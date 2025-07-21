@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Paperclip, Upload, X, FileText, Download } from 'lucide-react';
+import { Paperclip, Upload, X, FileText, Download, Clipboard } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
@@ -79,6 +79,44 @@ export const TaskAttachments = ({ taskId, onSave }: TaskAttachmentsProps) => {
     e.preventDefault();
     setIsDragOver(false);
     handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handlePaste = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      const files: File[] = [];
+      
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          if (type.startsWith('image/')) {
+            const blob = await clipboardItem.getType(type);
+            const file = new File([blob], `pasted-image-${Date.now()}.png`, { type });
+            files.push(file);
+          }
+        }
+      }
+      
+      if (files.length > 0) {
+        setSelectedFiles(prev => [...prev, ...files]);
+        toast({
+          title: "Success",
+          description: `${files.length} image(s) pasted from clipboard`,
+        });
+      } else {
+        toast({
+          title: "No images found",
+          description: "No images found in clipboard. Copy an image and try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error pasting from clipboard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to paste from clipboard. Make sure you have copied an image.",
+        variant: "destructive",
+      });
+    }
   };
 
   const removeSelectedFile = (index: number) => {
@@ -212,15 +250,25 @@ export const TaskAttachments = ({ taskId, onSave }: TaskAttachmentsProps) => {
               onDrop={handleDrop}
             >
               <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-gray-600 mb-4">
                 Drag and drop files here, or click to select files
               </p>
-              <Button
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Choose Files
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Choose Files
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handlePaste}
+                  className="flex items-center gap-2"
+                >
+                  <Clipboard className="w-4 h-4" />
+                  Paste
+                </Button>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
