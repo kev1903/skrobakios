@@ -215,23 +215,32 @@ export const ModernGanttChart = ({
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
-    if (!ganttHeader || !ganttBody) return;
+    console.log('Setting up scroll sync:', { ganttHeader, ganttBody });
+    
+    if (!ganttHeader || !ganttBody) {
+      console.log('Missing refs for scroll sync');
+      return;
+    }
 
     let isHeaderScrolling = false;
     let isBodyScrolling = false;
 
     const handleHeaderScroll = () => {
+      console.log('Header scroll triggered', ganttHeader.scrollLeft);
       if (!isBodyScrolling) {
         isHeaderScrolling = true;
         ganttBody.scrollLeft = ganttHeader.scrollLeft;
+        console.log('Syncing body to header:', ganttBody.scrollLeft);
         setTimeout(() => { isHeaderScrolling = false; }, 10);
       }
     };
 
     const handleBodyScroll = () => {
+      console.log('Body scroll triggered', ganttBody.scrollLeft);
       if (!isHeaderScrolling) {
         isBodyScrolling = true;
         ganttHeader.scrollLeft = ganttBody.scrollLeft;
+        console.log('Syncing header to body:', ganttHeader.scrollLeft);
         setTimeout(() => { isBodyScrolling = false; }, 10);
       }
     };
@@ -240,10 +249,13 @@ export const ModernGanttChart = ({
     ganttHeader.addEventListener('scroll', handleHeaderScroll);
     ganttBody.addEventListener('scroll', handleBodyScroll);
     
+    console.log('Scroll listeners added');
+    
     // Cleanup
     return () => {
       ganttHeader.removeEventListener('scroll', handleHeaderScroll);
       ganttBody.removeEventListener('scroll', handleBodyScroll);
+      console.log('Scroll listeners cleaned up');
     };
   }, []);
 
