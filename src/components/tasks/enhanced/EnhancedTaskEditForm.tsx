@@ -214,10 +214,20 @@ export function EnhancedTaskEditForm({
               <span className="text-xs text-gray-500">{task.progress}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <Progress 
-                value={task.progress} 
-                className="h-1.5 flex-1"
-              />
+              <div className="flex-1 relative">
+                <Progress 
+                  value={task.progress} 
+                  className="h-1.5"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={task.progress}
+                  onChange={(e) => onTaskUpdate({ progress: parseInt(e.target.value) || 0 })}
+                  className="absolute top-0 left-0 w-full h-1.5 opacity-0 cursor-pointer"
+                />
+              </div>
               <Input
                 type="number"
                 min="0"
