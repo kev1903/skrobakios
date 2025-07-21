@@ -210,26 +210,40 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Set up scroll synchronization between header and body
+  // Set up bidirectional scroll synchronization between header and body
   useEffect(() => {
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
     if (!ganttHeader || !ganttBody) return;
 
-    const handleScroll = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (ganttHeader) {
-        ganttHeader.scrollLeft = target.scrollLeft;
+    let isHeaderScrolling = false;
+    let isBodyScrolling = false;
+
+    const handleHeaderScroll = () => {
+      if (!isBodyScrolling) {
+        isHeaderScrolling = true;
+        ganttBody.scrollLeft = ganttHeader.scrollLeft;
+        setTimeout(() => { isHeaderScrolling = false; }, 10);
       }
     };
 
-    // Add scroll listener to the body
-    ganttBody.addEventListener('scroll', handleScroll);
+    const handleBodyScroll = () => {
+      if (!isHeaderScrolling) {
+        isBodyScrolling = true;
+        ganttHeader.scrollLeft = ganttBody.scrollLeft;
+        setTimeout(() => { isBodyScrolling = false; }, 10);
+      }
+    };
+
+    // Add scroll listeners to both elements
+    ganttHeader.addEventListener('scroll', handleHeaderScroll);
+    ganttBody.addEventListener('scroll', handleBodyScroll);
     
     // Cleanup
     return () => {
-      ganttBody.removeEventListener('scroll', handleScroll);
+      ganttHeader.removeEventListener('scroll', handleHeaderScroll);
+      ganttBody.removeEventListener('scroll', handleBodyScroll);
     };
   }, []);
 
