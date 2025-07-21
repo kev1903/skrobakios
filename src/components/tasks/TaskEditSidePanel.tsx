@@ -127,28 +127,6 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
 
         {/* Content Section */}
         <div className="flex-1 overflow-y-auto space-y-0">
-          {/* Task Type and Priority Row */}
-          <div className="px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <Badge 
-                variant="secondary" 
-                className="bg-gray-100 text-gray-700 hover:bg-gray-200"
-              >
-                {editedTask.taskType}
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className={`border ${
-                  editedTask.priority === 'High' ? 'border-red-200 bg-red-50 text-red-700' :
-                  editedTask.priority === 'Medium' ? 'border-yellow-200 bg-yellow-50 text-yellow-700' :
-                  'border-green-200 bg-green-50 text-green-700'
-                }`}
-              >
-                {editedTask.priority}
-              </Badge>
-            </div>
-          </div>
-
           {/* Enhanced Task Details Form */}
           <div className="px-6 py-6">
             <EnhancedTaskEditForm
