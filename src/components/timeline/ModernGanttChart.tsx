@@ -1076,23 +1076,17 @@ export const ModernGanttChart = ({
                     }}
                   >
                     {task.isStage ? (
-                      // Stage bracket/range container
+                      // Stage bar container - clean design matching reference
                       <div
-                        className="h-full relative flex items-center"
+                        className="h-full relative flex items-center bg-gray-300 rounded-sm"
                         style={{
                           width: position.width,
                           minWidth: dayWidth * 2
                         }}
                       >
-                        {/* Left bracket */}
-                        <div className="absolute left-0 top-0 h-full w-3 border-l-2 border-t-2 border-b-2 border-gray-700 rounded-l"></div>
-                        
-                        {/* Right bracket */}
-                        <div className="absolute right-0 top-0 h-full w-3 border-r-2 border-t-2 border-b-2 border-gray-700 rounded-r"></div>
-                        
-                        {/* Stage name centered */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-xs font-medium text-gray-700 bg-white px-2 py-1 rounded shadow-sm border">
+                        {/* Stage name with left alignment and proper padding */}
+                        <div className="absolute left-0 inset-y-0 flex items-center pl-3">
+                          <span className="text-xs font-medium text-gray-700 whitespace-nowrap">
                             {task.name}
                           </span>
                         </div>
