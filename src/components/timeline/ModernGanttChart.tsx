@@ -134,22 +134,51 @@ export const ModernGanttChart = ({
     return rootTasks;
   }, [tasks]);
 
-  // Flatten tasks for rendering
-  const visibleTasks = useMemo(() => {
-    const flatTasks: (ModernGanttTask & { depth: number; hasChildren: boolean })[] = [];
+  // Create stable row numbering that persists through expand/collapse
+  const allTasksWithRowNumbers = useMemo(() => {
+    const flatTasks: (ModernGanttTask & { depth: number; hasChildren: boolean; rowNumber: number })[] = [];
+    let rowCounter = 1;
     
     const addTask = (task: ModernGanttTask & { children: ModernGanttTask[] }, depth = 0) => {
       const hasChildren = task.children.length > 0;
-      flatTasks.push({ ...task, depth, hasChildren });
+      flatTasks.push({ ...task, depth, hasChildren, rowNumber: rowCounter++ });
       
-      if (hasChildren && expandedSections.has(task.id)) {
+      if (hasChildren) {
         task.children.forEach(child => addTask({ ...child, children: [] }, depth + 1));
       }
     };
 
     hierarchicalTasks.forEach(task => addTask(task));
     return flatTasks;
-  }, [hierarchicalTasks, expandedSections]);
+  }, [hierarchicalTasks]);
+
+  // Flatten tasks for rendering (only visible ones)
+  const visibleTasks = useMemo(() => {
+    const flatTasks: (ModernGanttTask & { depth: number; hasChildren: boolean; rowNumber: number })[] = [];
+    
+    const addTask = (task: ModernGanttTask & { children: ModernGanttTask[]; rowNumber: number }, depth = 0) => {
+      const hasChildren = task.children.length > 0;
+      flatTasks.push({ ...task, depth, hasChildren });
+      
+      if (hasChildren && expandedSections.has(task.id)) {
+        task.children.forEach(child => {
+          // Find the row number for this child from the master list
+          const childWithRowNumber = allTasksWithRowNumbers.find(t => t.id === child.id);
+          if (childWithRowNumber) {
+            addTask({ ...child, children: [], rowNumber: childWithRowNumber.rowNumber }, depth + 1);
+          }
+        });
+      }
+    };
+
+    hierarchicalTasks.forEach(task => {
+      const taskWithRowNumber = allTasksWithRowNumbers.find(t => t.id === task.id);
+      if (taskWithRowNumber) {
+        addTask({ ...task, rowNumber: taskWithRowNumber.rowNumber }, 0);
+      }
+    });
+    return flatTasks;
+  }, [hierarchicalTasks, expandedSections, allTasksWithRowNumbers]);
 
   const toggleSection = (taskId: string) => {
     const newExpanded = new Set(expandedSections);
@@ -586,10 +615,10 @@ export const ModernGanttChart = ({
               >
                  <div className="h-full flex items-center px-4">
                    <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '560px' }}>
-                     {/* Row Number */}
-                     <div className="text-center text-sm text-gray-500 font-mono">
-                       {index + 1}
-                     </div>
+                      {/* Row Number */}
+                      <div className="text-center text-sm text-gray-500 font-mono">
+                        {task.rowNumber}
+                      </div>
                      
                      {/* Task Title with hierarchy */}
                      <div className="flex items-center gap-2 min-w-0">
