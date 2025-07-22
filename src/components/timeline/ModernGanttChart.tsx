@@ -17,7 +17,8 @@ export interface ModernGanttTask {
   status: 'pending' | 'in-progress' | 'completed' | 'delayed';
   assignee?: string;
   duration: string;
-  dependencies?: string[];
+  predecessors?: string[];
+  wbs?: string;
   category?: string;
   parentId?: string;
   isStage?: boolean;
@@ -322,13 +323,15 @@ export const ModernGanttChart = ({
         >
           {/* Task List Header */}
           <div className="border-b border-gray-200 bg-gray-50 p-2">
-            <div className="grid items-center text-xs font-medium text-gray-600 uppercase tracking-wider gap-2" style={{ gridTemplateColumns: 'minmax(160px, 1fr) 80px 80px 60px 100px 80px' }}>
-              <div className="px-1">Task Name</div>
+            <div className="grid items-center text-xs font-medium text-gray-600 uppercase tracking-wider gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
+              <div className="px-1 text-center">WBS</div>
+              <div className="px-1">Task</div>
               <div className="px-1 text-center">Start Date</div>
               <div className="px-1 text-center">End Date</div>
               <div className="px-1 text-center">Duration</div>
-              <div className="px-1 text-center">Dependencies</div>
-              <div className="px-1 text-center">Assignee</div>
+              <div className="px-1 text-center">% Complete</div>
+              <div className="px-1 text-center">Predecessors</div>
+              <div className="px-1 text-center">Assigned To</div>
             </div>
           </div>
 
@@ -344,10 +347,17 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }} // Add 4px for border
               >
                 <div className="p-2 h-full flex items-center">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(160px, 1fr) 80px 80px 60px 100px 80px' }}>
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
+                    {/* WBS */}
+                    <div className="px-1 text-center">
+                      <span className="text-xs text-gray-600 font-mono">
+                        {task.wbs || task.id}
+                      </span>
+                    </div>
+
                     {/* Task Name */}
                     <div className="px-1 flex items-center gap-1 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * 12}px` }} className="flex items-center gap-1 min-w-0 w-full">
+                      <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-1 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
@@ -365,7 +375,8 @@ export const ModernGanttChart = ({
                         </div>
                         <span className={cn(
                           "text-xs truncate min-w-0 flex-1",
-                          task.isStage ? "font-semibold text-gray-900" : "text-gray-700"
+                          task.isStage ? "font-semibold text-blue-700 bg-blue-100 px-2 py-1 rounded" : "text-gray-700",
+                          task.status === 'in-progress' && !task.isStage && "text-orange-600"
                         )} title={task.name}>
                           {task.name}
                         </span>
@@ -374,34 +385,47 @@ export const ModernGanttChart = ({
 
                     {/* Start Date */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-500 truncate block" title={format(task.startDate, 'MMM dd, yyyy')}>
-                        {format(task.startDate, 'MMM dd')}
+                      <span className="text-xs text-gray-600 font-mono" title={format(task.startDate, 'dd/MM/yyyy')}>
+                        {format(task.startDate, 'dd/MM/yy')}
                       </span>
                     </div>
 
                     {/* End Date */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-500 truncate block" title={format(task.endDate, 'MMM dd, yyyy')}>
-                        {format(task.endDate, 'MMM dd')}
+                      <span className="text-xs text-gray-600 font-mono" title={format(task.endDate, 'dd/MM/yyyy')}>
+                        {format(task.endDate, 'dd/MM/yy')}
                       </span>
                     </div>
 
                     {/* Duration */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-500 truncate block" title={task.duration}>{task.duration}</span>
-                    </div>
-
-                    {/* Dependencies */}
-                    <div className="px-1 text-center">
-                      <span className="text-xs text-gray-500 truncate block" title={task.dependencies?.join(', ') || 'None'}>
-                        {task.dependencies?.length ? task.dependencies.join(', ') : '-'}
+                      <span className="text-xs text-gray-600 font-mono" title={task.duration}>
+                        {task.duration}
                       </span>
                     </div>
 
-                    {/* Assignee */}
+                    {/* % Complete */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 truncate block" title={task.assignee || 'Unassigned'}>
-                        {task.assignee || '-'}
+                      <span className={cn(
+                        "text-xs font-semibold",
+                        task.progress === 100 ? "text-green-600" : 
+                        task.progress > 0 ? "text-blue-600" : "text-gray-500"
+                      )}>
+                        {Math.round(task.progress)}%
+                      </span>
+                    </div>
+
+                    {/* Predecessors */}
+                    <div className="px-1 text-center">
+                      <span className="text-xs text-gray-600 font-mono truncate block" title={task.predecessors?.join(', ') || ''}>
+                        {task.predecessors?.length ? task.predecessors.join(', ') : ''}
+                      </span>
+                    </div>
+
+                    {/* Assigned To */}
+                    <div className="px-1 text-center">
+                      <span className="text-xs text-gray-700 truncate block" title={task.assignee || ''}>
+                        {task.assignee || ''}
                       </span>
                     </div>
                   </div>
