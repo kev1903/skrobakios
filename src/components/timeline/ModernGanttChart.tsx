@@ -320,12 +320,13 @@ export const ModernGanttChart = ({
           style={{ width: taskListWidth }}
         >
           {/* Task List Header */}
-          <div className="border-b border-gray-200 bg-gray-50 p-3">
-            <div className="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600 uppercase tracking-wider">
-              <div className="col-span-6">Task</div>
-              <div className="col-span-2">Duration</div>
-              <div className="col-span-2">Status</div>
-              <div className="col-span-2">Progress</div>
+          <div className="border-b border-gray-200 bg-gray-50 p-2">
+            <div className="flex items-center text-xs font-medium text-gray-600 uppercase tracking-wider">
+              <div className="w-4/12 min-w-0 px-2">Task</div>
+              <div className="w-2/12 min-w-0 px-2 text-center">Duration</div>
+              <div className="w-2/12 min-w-0 px-2 text-center">Status</div>
+              <div className="w-2/12 min-w-0 px-2 text-center">Progress</div>
+              <div className="w-2/12 min-w-0 px-2 text-center">Actions</div>
             </div>
           </div>
 
@@ -340,15 +341,15 @@ export const ModernGanttChart = ({
                 )}
                 style={{ height: rowHeight + 4 }} // Add 4px for border
               >
-                <div className="p-3 h-full flex items-center">
-                  <div className="grid grid-cols-12 gap-2 items-center">
-                    {/* Task Name */}
-                    <div className="col-span-6 flex items-center gap-2">
-                      <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-2">
+                <div className="p-2 h-full flex items-center">
+                  <div className="flex items-center w-full">{/* Changed from grid to flex */}
+                    {/* Task Name - Fixed width */}
+                    <div className="w-4/12 min-w-0 px-2 flex items-center gap-1">
+                      <div style={{ paddingLeft: `${task.depth * 12}px` }} className="flex items-center gap-1 min-w-0">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
-                            className="p-0.5 hover:bg-gray-200 rounded"
+                            className="p-0.5 hover:bg-gray-200 rounded flex-shrink-0"
                           >
                             {expandedSections.has(task.id) || task.isStage ? (
                               <ChevronDown className="w-3 h-3 text-gray-500" />
@@ -357,38 +358,46 @@ export const ModernGanttChart = ({
                             )}
                           </button>
                         )}
-                        {getStatusIcon(task.status, task.progress)}
+                        <div className="flex-shrink-0">
+                          {getStatusIcon(task.status, task.progress)}
+                        </div>
                         <span className={cn(
-                          "text-sm",
+                          "text-xs truncate min-w-0",
                           task.isStage ? "font-semibold text-gray-900" : "text-gray-700"
-                        )}>
+                        )} title={task.name}>
                           {task.name}
                         </span>
                       </div>
                     </div>
 
-                    {/* Duration */}
-                    <div className="col-span-2">
-                      <span className="text-xs text-gray-500">{task.duration}</span>
+                    {/* Duration - Fixed width */}
+                    <div className="w-2/12 min-w-0 px-2 text-center">
+                      <span className="text-xs text-gray-500 truncate block" title={task.duration}>{task.duration}</span>
                     </div>
 
-                    {/* Status */}
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-1">
+                    {/* Status - Fixed width */}
+                    <div className="w-2/12 min-w-0 px-2 text-center">
+                      <div className="flex items-center justify-center gap-1">
                         <div className={cn(
-                          "w-2 h-2 rounded-full",
+                          "w-2 h-2 rounded-full flex-shrink-0",
                           getTaskBarColor(task)
                         )} />
-                        <span className="text-xs text-gray-600">{formatProgress(task.progress)}</span>
+                        <span className="text-xs text-gray-600 truncate" title={formatProgress(task.progress)}>
+                          {formatProgress(task.progress)}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Progress & Actions */}
-                    <div className="col-span-2 flex items-center justify-between">
-                      <Progress value={task.progress} className="w-8 h-1" />
+                    {/* Progress - Fixed width */}
+                    <div className="w-2/12 min-w-0 px-2 text-center">
+                      <Progress value={task.progress} className="w-full h-1.5" />
+                    </div>
+
+                    {/* Actions - Fixed width */}
+                    <div className="w-2/12 min-w-0 px-2 text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
+                          <Button variant="ghost" size="sm" className="w-5 h-5 p-0 hover:bg-gray-200">
                             <MoreHorizontal className="w-3 h-3" />
                           </Button>
                         </DropdownMenuTrigger>
