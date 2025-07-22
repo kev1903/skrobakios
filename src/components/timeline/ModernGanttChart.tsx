@@ -109,6 +109,10 @@ export const ModernGanttChart = ({
     // Initialize all tasks
     tasks.forEach(task => {
       taskMap.set(task.id, { ...task, children: [] });
+      // Auto-expand stages by default
+      if (task.isStage && !expandedSections.has(task.id)) {
+        setExpandedSections(prev => new Set([...prev, task.id]));
+      }
     });
 
     // Build hierarchy
@@ -123,7 +127,7 @@ export const ModernGanttChart = ({
     });
 
     return rootTasks;
-  }, [tasks]);
+  }, [tasks, expandedSections]);
 
   // Flatten tasks for rendering
   const visibleTasks = useMemo(() => {
@@ -133,7 +137,7 @@ export const ModernGanttChart = ({
       const hasChildren = task.children.length > 0;
       flatTasks.push({ ...task, depth, hasChildren });
       
-      if (hasChildren && (expandedSections.has(task.id) || task.isStage)) {
+      if (hasChildren && expandedSections.has(task.id)) {
         task.children.forEach(child => addTask({ ...child, children: [] }, depth + 1));
       }
     };
@@ -590,7 +594,7 @@ export const ModernGanttChart = ({
                             onClick={() => toggleSection(task.id)}
                             className="p-1 hover:bg-gray-100 rounded transition-colors duration-200 flex-shrink-0"
                           >
-                            {expandedSections.has(task.id) || task.isStage ? (
+                            {expandedSections.has(task.id) ? (
                               <ChevronDown className="w-3 h-3 text-gray-500" />
                             ) : (
                               <ChevronRight className="w-3 h-3 text-gray-500" />
