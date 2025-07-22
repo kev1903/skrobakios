@@ -348,7 +348,7 @@ export const ModernGanttChart = ({
                 <div className="px-1">EVENT NAME</div>
                 <div className="px-1 text-center">START</div>
                 <div className="px-1 text-center">END</div>
-                <div className="px-1 text-center">DAYS</div>
+                <div className="px-1 text-center">DURATION</div>
                 <div className="px-1 text-center">% Complete</div>
                 <div className="px-1 text-center">Assigned To</div>
               </div>
@@ -459,9 +459,19 @@ export const ModernGanttChart = ({
 
                     {/* Duration */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 font-mono" title={task.duration}>
-                        {task.duration}
-                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        className="w-12 h-6 text-xs text-gray-600 font-mono text-center border border-gray-200 rounded px-1 hover:border-gray-300 focus:border-blue-500 focus:outline-none"
+                        value={parseInt(task.duration.match(/\d+/)?.[0] || '1')}
+                        onChange={(e) => {
+                          const days = parseInt(e.target.value) || 1;
+                          if (onTaskUpdate) {
+                            onTaskUpdate(task.id, { duration: `${days} days` });
+                          }
+                        }}
+                        title="Duration in days"
+                      />
                     </div>
 
                     {/* % Complete */}
