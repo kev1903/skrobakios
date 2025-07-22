@@ -821,7 +821,7 @@ export const ModernGanttChart = ({
                      
                      {/* Task Title with hierarchy */}
                      <div className="flex items-center gap-2 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-2 min-w-0 w-full">
+                      <div style={{ paddingLeft: `${task.depth * 24}px` }} className="flex items-center gap-2 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
