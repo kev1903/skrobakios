@@ -46,6 +46,7 @@ export const ModernGanttChart = ({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [taskListWidth, setTaskListWidth] = useState(384); // 96 * 4 = 384px (w-96)
   const [isResizing, setIsResizing] = useState(false);
+  const [openDatePickers, setOpenDatePickers] = useState<Set<string>>(new Set());
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -145,6 +146,60 @@ export const ModernGanttChart = ({
       newExpanded.add(taskId);
     }
     setExpandedSections(newExpanded);
+  };
+
+  // Helper functions for date and duration management
+  const calculateDuration = (startDate: Date, endDate: Date): string => {
+    const days = differenceInDays(endDate, startDate) + 1;
+    return `${days} day${days !== 1 ? 's' : ''}`;
+  };
+
+  const handleDateChange = (taskId: string, field: 'startDate' | 'endDate', newDate: Date) => {
+    if (!onTaskUpdate) return;
+    
+    const task = visibleTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    let updates: Partial<ModernGanttTask> = { [field]: newDate };
+    
+    // Calculate new duration
+    const startDate = field === 'startDate' ? newDate : task.startDate;
+    const endDate = field === 'endDate' ? newDate : task.endDate;
+    
+    // Ensure end date is not before start date
+    if (endDate < startDate) {
+      if (field === 'startDate') {
+        updates.endDate = newDate;
+      } else {
+        updates.startDate = newDate;
+      }
+    }
+    
+    const finalStartDate = updates.startDate || startDate;
+    const finalEndDate = updates.endDate || endDate;
+    updates.duration = calculateDuration(finalStartDate, finalEndDate);
+    
+    onTaskUpdate(taskId, updates);
+    
+    // Close the date picker
+    setOpenDatePickers(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(`${taskId}-${field}`);
+      return newSet;
+    });
+  };
+
+  const toggleDatePicker = (taskId: string, field: 'startDate' | 'endDate') => {
+    const key = `${taskId}-${field}`;
+    setOpenDatePickers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
   };
 
   const getTaskPosition = (task: ModernGanttTask) => {
@@ -414,13 +469,67 @@ export const ModernGanttChart = ({
                     </div>
 
                     {/* Start Date */}
-                    <div className="text-sm text-gray-600">
-                      {format(task.startDate, 'MMM d')}
+                    <div>
+                      <Popover 
+                        open={openDatePickers.has(`${task.id}-startDate`)} 
+                        onOpenChange={(open) => !open && setOpenDatePickers(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(`${task.id}-startDate`);
+                          return newSet;
+                        })}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
+                            onClick={() => toggleDatePicker(task.id, 'startDate')}
+                          >
+                            <CalendarIcon className="w-3 h-3 mr-1" />
+                            {format(task.startDate, 'MMM d')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={task.startDate}
+                            onSelect={(date) => date && handleDateChange(task.id, 'startDate', date)}
+                            className={cn("p-3 pointer-events-auto")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* End Date */}
-                    <div className="text-sm text-gray-600">
-                      {format(task.endDate, 'MMM d')}
+                    <div>
+                      <Popover 
+                        open={openDatePickers.has(`${task.id}-endDate`)} 
+                        onOpenChange={(open) => !open && setOpenDatePickers(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(`${task.id}-endDate`);
+                          return newSet;
+                        })}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
+                            onClick={() => toggleDatePicker(task.id, 'endDate')}
+                          >
+                            <CalendarIcon className="w-3 h-3 mr-1" />
+                            {format(task.endDate, 'MMM d')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={task.endDate}
+                            onSelect={(date) => date && handleDateChange(task.id, 'endDate', date)}
+                            className={cn("p-3 pointer-events-auto")}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* Duration */}
