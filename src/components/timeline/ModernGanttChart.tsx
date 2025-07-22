@@ -474,7 +474,7 @@ export const ModernGanttChart = ({
               {/* Today Line */}
               {currentDays.some(day => isToday(day)) && (
                 <div
-                  className="absolute top-0 w-0.5 bg-blue-500 z-20"
+                  className="absolute top-0 w-1 bg-red-500 z-20"
                   style={{
                     left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
                     height: visibleTasks.length * (rowHeight + 4)
