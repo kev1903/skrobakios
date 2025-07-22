@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth, isWeekend } from 'date-fns';
 import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -681,13 +681,18 @@ export const ModernGanttChart = ({
                 {currentDays.map((day, index) => {
                   const dayOfWeek = format(day, 'EEE').toUpperCase();
                   const dayNumber = format(day, 'd');
+                  const isWeekendDay = isWeekend(day);
                   
                   return (
                     <div
                       key={day.toString()}
                       className={cn(
                         "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0 relative transition-colors duration-200",
-                        isToday(day) ? "bg-blue-100 text-blue-600" : "text-gray-600 bg-white hover:bg-gray-50"
+                        isToday(day) 
+                          ? "bg-blue-100 text-blue-600" 
+                          : isWeekendDay 
+                            ? "text-gray-600 bg-gray-100 hover:bg-gray-150" 
+                            : "text-gray-600 bg-white hover:bg-gray-50"
                       )}
                       style={{ width: `${dayWidth}px`, minWidth: `${dayWidth}px`, height: '100%' }}
                     >
@@ -785,17 +790,33 @@ export const ModernGanttChart = ({
                 );
               })}
 
-              {/* Vertical dividers to match day columns */}
-              {currentDays.map((_, index) => (
-                <div
-                  key={`divider-${index}`}
-                  className="absolute top-0 w-px bg-gray-200"
-                  style={{
-                    left: index * dayWidth,
-                    height: visibleTasks.length * 44
-                  }}
-                />
-               ))}
+              {/* Vertical dividers and weekend columns */}
+              {currentDays.map((day, index) => {
+                const isWeekendDay = isWeekend(day);
+                return (
+                  <React.Fragment key={`column-${index}`}>
+                    {/* Weekend background column */}
+                    {isWeekendDay && (
+                      <div
+                        className="absolute top-0 bg-gray-50/50"
+                        style={{
+                          left: index * dayWidth,
+                          width: dayWidth,
+                          height: visibleTasks.length * 44
+                        }}
+                      />
+                    )}
+                    {/* Vertical divider */}
+                    <div
+                      className="absolute top-0 w-px bg-gray-200"
+                      style={{
+                        left: index * dayWidth,
+                        height: visibleTasks.length * 44
+                      }}
+                    />
+                  </React.Fragment>
+                );
+               })}
              </div>
            </div>
          </div>
