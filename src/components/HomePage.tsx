@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { HomeFloatingBar } from '@/components/HomeFloatingBar';
 import { ModernGanttChart, ModernGanttTask } from '@/components/timeline/ModernGanttChart';
+import { SimpleScrollTest } from '@/components/timeline/SimpleScrollTest';
 import { addDays } from 'date-fns';
 
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
@@ -718,15 +719,23 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
   return (
     <div className="relative w-full h-screen">
       {/* Test Gantt Chart at the top */}
-      <div className="absolute top-4 left-4 right-4 z-50 bg-white rounded-lg shadow-lg" style={{ height: '300px' }}>
+      <div className="absolute top-4 left-4 right-4 z-50 bg-white rounded-lg shadow-lg" style={{ height: '500px' }}>
         <div className="p-4">
-          <h3 className="text-lg font-semibold mb-4">🧪 ModernGanttChart Test (Scroll Debug)</h3>
-          <ModernGanttChart
-            tasks={testTasks}
-            onTaskUpdate={() => {}}
-            onTaskAdd={() => {}}
-            onTaskDelete={() => {}}
-          />
+          <h3 className="text-lg font-semibold mb-4">🧪 Scroll Debug Test</h3>
+          
+          {/* Simple Scroll Test */}
+          <SimpleScrollTest />
+          
+          {/* ModernGanttChart Test */}
+          <div className="mt-4">
+            <h4 className="text-md font-semibold mb-2">ModernGanttChart:</h4>
+            <ModernGanttChart
+              tasks={testTasks}
+              onTaskUpdate={() => {}}
+              onTaskAdd={() => {}}
+              onTaskDelete={() => {}}
+            />
+          </div>
         </div>
       </div>
       

@@ -207,11 +207,17 @@ export const ModernGanttChart = ({
 
   // Generate days for the current view - show 12 months for guaranteed scrolling
   const currentDays = useMemo(() => {
-    const start = currentViewStart;
-    const end = endOfMonth(addDays(start, 365)); // Show 12 months to force scrolling
-    const days = eachDayOfInterval({ start, end });
-    console.log('📅 Generated', days.length, 'days for timeline');
-    return days;
+    try {
+      console.log('📅 Calculating currentDays with viewStart:', currentViewStart);
+      const start = currentViewStart;
+      const end = endOfMonth(addDays(start, 365)); // Show 12 months to force scrolling
+      const days = eachDayOfInterval({ start, end });
+      console.log('📅 Generated', days.length, 'days for timeline (from', start, 'to', end, ')');
+      return days;
+    } catch (error) {
+      console.error('❌ Error generating currentDays:', error);
+      return [];
+    }
   }, [currentViewStart]);
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
