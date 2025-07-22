@@ -50,24 +50,6 @@ export const Toolbar = ({
             size="sm"
             onClick={() => {}}
             className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            title="Summary"
-          >
-            <span className="text-sm font-medium">Summary</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {}}
-            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            title="Board"
-          >
-            <span className="text-sm font-medium">Board</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {}}
-            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
             title="List"
           >
             <span className="text-sm font-medium">List</span>
@@ -80,34 +62,6 @@ export const Toolbar = ({
             title="Gantt"
           >
             <span className="text-sm font-medium">Gantt</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {}}
-            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            title="Calendar"
-          >
-            <span className="text-sm font-medium">Calendar</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {}}
-            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            title="Table"
-          >
-            <span className="text-sm font-medium">Table</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {}}
-            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-            title="Add View"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            <span className="text-sm font-medium">Add View</span>
           </Button>
         </div>
       </div>
