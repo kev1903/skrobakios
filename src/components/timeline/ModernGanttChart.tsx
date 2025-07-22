@@ -101,6 +101,15 @@ export const ModernGanttChart = ({
   const dayWidth = 32; // Increased for better day name visibility
   const rowHeight = 24; // Minimized row height
 
+  // Initialize expanded stages only once
+  useEffect(() => {
+    tasks.forEach(task => {
+      if (task.isStage && !expandedSections.has(task.id)) {
+        setExpandedSections(prev => new Set([...prev, task.id]));
+      }
+    });
+  }, [tasks.map(t => t.id).join(',')]); // Only run when task IDs change
+
   // Build hierarchical structure
   const hierarchicalTasks = useMemo(() => {
     const taskMap = new Map<string, ModernGanttTask & { children: ModernGanttTask[] }>();
@@ -109,10 +118,6 @@ export const ModernGanttChart = ({
     // Initialize all tasks
     tasks.forEach(task => {
       taskMap.set(task.id, { ...task, children: [] });
-      // Auto-expand stages by default
-      if (task.isStage && !expandedSections.has(task.id)) {
-        setExpandedSections(prev => new Set([...prev, task.id]));
-      }
     });
 
     // Build hierarchy
@@ -127,7 +132,7 @@ export const ModernGanttChart = ({
     });
 
     return rootTasks;
-  }, [tasks, expandedSections]);
+  }, [tasks]);
 
   // Flatten tasks for rendering
   const visibleTasks = useMemo(() => {
