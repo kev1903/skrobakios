@@ -344,13 +344,13 @@ export const ModernGanttChart = ({
             </div>
             {/* Column Headers - Scrollable container */}
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '520px' }}>
+              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '620px' }}>
                 <div className="px-1">EVENT NAME</div>
                 <div className="px-1 text-center">START</div>
                 <div className="px-1 text-center">END</div>
                 <div className="px-1 text-center">DURATION</div>
-                <div className="px-1 text-center">% Complete</div>
-                <div className="px-1 text-center">Assigned To</div>
+                <div className="px-1 text-center">% COMPLETE</div>
+                <div className="px-1 text-center">PREDECESSORS</div>
               </div>
             </div>
           </div>
@@ -370,7 +370,7 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }}
               >
                 <div className="h-full flex items-center px-2">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '520px' }}>
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '620px' }}>
                     {/* Task Name */}
                     <div className="px-1 flex items-center gap-1 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-1 min-w-0 w-full">
@@ -501,11 +501,24 @@ export const ModernGanttChart = ({
                       </span>
                     </div>
 
-                    {/* Assigned To */}
+                    {/* Predecessors */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 truncate block" title={task.assignee || ''}>
-                        {task.assignee || ''}
-                      </span>
+                      <input
+                        type="text"
+                        className="w-20 h-6 text-xs text-gray-600 font-mono text-center border border-gray-200 rounded px-1 hover:border-gray-300 focus:border-blue-500 focus:outline-none"
+                        value={task.predecessors?.join(', ') || ''}
+                        onChange={(e) => {
+                          if (onTaskUpdate) {
+                            const predecessors = e.target.value
+                              .split(',')
+                              .map(id => id.trim())
+                              .filter(id => id.length > 0);
+                            onTaskUpdate(task.id, { predecessors });
+                          }
+                        }}
+                        placeholder="1,2,3"
+                        title="Enter predecessor task IDs separated by commas"
+                      />
                     </div>
                   </div>
                 </div>
