@@ -250,8 +250,8 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Force a very wide timeline - minimum 4000px
-  const timelineWidth = Math.max(currentDays.length * dayWidth, 4000);
+  // Force a very wide timeline but responsive to screen size
+  const timelineWidth = Math.max(currentDays.length * dayWidth, 2000);
   console.log('📏 Timeline width:', timelineWidth, 'px');
 
   // Simplified scroll synchronization - exactly like SimpleScrollTest
@@ -290,7 +290,7 @@ export const ModernGanttChart = ({
   }, [timelineWidth]);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full max-w-full">{/* Ensure no overflow */}
       {/* Header */}
       <div className="border-b border-gray-200 bg-gray-50 p-4">
         <div className="flex items-center justify-between">
@@ -418,12 +418,12 @@ export const ModernGanttChart = ({
         </div>
 
         {/* Timeline */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">{/* min-w-0 allows flexbox to shrink */}
           {/* Timeline Header - Scrollable with hidden scrollbars */}
           <div 
             ref={ganttHeaderRef}
             className="border-b border-gray-200 bg-gray-50 overflow-x-auto gantt-header-scroll"
-            style={{ height: '60px', maxWidth: `calc(100vw - ${taskListWidth + 20}px)` }}
+            style={{ height: '60px' }}
           >
             <div 
               className="flex relative"
@@ -491,7 +491,6 @@ export const ModernGanttChart = ({
           <div 
             ref={ganttScrollBodyRef}
             className="flex-1 overflow-x-auto overflow-y-hidden gantt-body-scroll"
-            style={{ maxWidth: `calc(100vw - ${taskListWidth + 20}px)` }}
           >
             <div 
               className="relative" 
