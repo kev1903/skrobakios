@@ -444,6 +444,29 @@ export const ModernGanttChart = ({
     onTaskAdd(newStage);
   };
 
+  // Add Task functionality
+  const handleAddTask = () => {
+    console.log('Add Task clicked');
+    if (!onTaskAdd) return;
+    
+    const newTask: Omit<ModernGanttTask, 'id'> = {
+      name: 'New Task',
+      startDate: new Date(),
+      endDate: addDays(new Date(), 1),
+      progress: 0,
+      status: 'pending',
+      assignee: 'Unassigned',
+      duration: '1 day',
+      category: 'General',
+      isStage: false,
+      // If a task is selected, make the new task a sibling by using the same parent
+      parentId: selectedTaskId ? visibleTasks.find(t => t.id === selectedTaskId)?.parentId : undefined,
+    };
+    
+    console.log('Creating new task:', newTask);
+    onTaskAdd(newTask);
+  };
+
   const getTaskPosition = (task: ModernGanttTask) => {
     // Normalize dates to remove time component for accurate comparison
     const taskStartDay = new Date(task.startDate.getFullYear(), task.startDate.getMonth(), task.startDate.getDate());
@@ -653,7 +676,7 @@ export const ModernGanttChart = ({
         onMoreClick={() => console.log('More clicked')}
         onIndentClick={handleIndent}
         onOutdentClick={handleOutdent}
-        onAddTaskClick={() => console.log('Add Task clicked')}
+        onAddTaskClick={handleAddTask}
         onAddStageClick={handleAddStage}
       />
       
