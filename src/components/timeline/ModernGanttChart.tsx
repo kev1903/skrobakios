@@ -519,9 +519,6 @@ export const ModernGanttChart = ({
                             )}
                           </button>
                         )}
-                        <div className="flex-shrink-0">
-                          {getStatusIcon(task.status, task.progress)}
-                        </div>
                         <span className={cn(
                           "text-sm font-normal truncate min-w-0 flex-1 text-gray-700",
                           task.isStage ? "font-medium text-gray-900" : ""
@@ -635,7 +632,6 @@ export const ModernGanttChart = ({
 
                     {/* Status */}
                     <div className="flex items-center gap-2">
-                      {getStatusIcon(task.status, task.progress)}
                       <span className="text-sm text-gray-600 capitalize">
                         {task.status.replace('-', ' ')}
                       </span>
