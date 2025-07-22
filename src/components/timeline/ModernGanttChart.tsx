@@ -341,7 +341,7 @@ export const ModernGanttChart = ({
               </div>
             </div>
             {/* Column Headers - Scrollable container */}
-            <div className="h-8 overflow-x-auto overflow-y-hidden" ref={taskListHeaderRef}>
+            <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
               <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px', minWidth: '720px' }}>
                 <div className="px-1 text-center">WBS</div>
                 <div className="px-1">EVENT NAME</div>
