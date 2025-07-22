@@ -346,7 +346,7 @@ export const ModernGanttChart = ({
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
               <div className="grid items-center h-full text-xs font-manrope font-medium text-muted-foreground uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '660px' }}>
                 <div className="px-1 text-center">#</div>
-                <div className="px-1">EVENT NAME</div>
+                <div className="px-1">TASK</div>
                 <div className="px-1 text-center">START</div>
                 <div className="px-1 text-center">END</div>
                 <div className="px-1 text-center">DURATION</div>
