@@ -117,6 +117,8 @@ export const ModernGanttChart = ({
 
   // Build hierarchical structure
   const hierarchicalTasks = useMemo(() => {
+    console.log('🔧 Building hierarchical structure with tasks:', tasks.map(t => ({ id: t.id, name: t.name, parentId: t.parentId })));
+    
     const taskMap = new Map<string, ModernGanttTask & { children: ModernGanttTask[] }>();
     const rootTasks: (ModernGanttTask & { children: ModernGanttTask[] })[] = [];
 
@@ -131,11 +133,16 @@ export const ModernGanttChart = ({
       if (task.parentId && taskMap.has(task.parentId)) {
         const parent = taskMap.get(task.parentId)!;
         parent.children.push(taskNode);
+        console.log('👶 Added child:', task.name, 'to parent:', parent.name);
       } else {
         rootTasks.push(taskNode);
+        console.log('🌳 Added root task:', task.name);
       }
     });
 
+    console.log('🏗️ Final hierarchy - Root tasks:', rootTasks.map(t => t.name));
+    console.log('🏗️ Tasks with children:', rootTasks.filter(t => t.children.length > 0).map(t => ({ name: t.name, children: t.children.map(c => c.name) })));
+    
     return rootTasks;
   }, [tasks]);
 
@@ -159,13 +166,18 @@ export const ModernGanttChart = ({
 
   // Flatten tasks for rendering (only visible ones)
   const visibleTasks = useMemo(() => {
+    console.log('👁️ Building visible tasks...');
+    console.log('👁️ Expanded sections:', Array.from(expandedSections));
+    
     const flatTasks: (ModernGanttTask & { depth: number; hasChildren: boolean; rowNumber: number })[] = [];
     
     const addTask = (task: ModernGanttTask & { children: ModernGanttTask[]; rowNumber: number }, depth = 0) => {
       const hasChildren = task.children.length > 0;
+      console.log(`📋 Adding visible task: ${task.name} (depth: ${depth}, hasChildren: ${hasChildren})`);
       flatTasks.push({ ...task, depth, hasChildren });
       
       if (hasChildren && expandedSections.has(task.id)) {
+        console.log(`🔽 Expanding children of: ${task.name}`);
         task.children.forEach(child => {
           // Find the row number for this child from the master list
           const childWithRowNumber = allTasksWithRowNumbers.find(t => t.id === child.id);
@@ -173,6 +185,8 @@ export const ModernGanttChart = ({
             addTask({ ...child, children: [], rowNumber: childWithRowNumber.rowNumber }, depth + 1);
           }
         });
+      } else if (hasChildren) {
+        console.log(`🔼 NOT expanding ${task.name} - not in expanded sections`);
       }
     };
 
@@ -182,6 +196,8 @@ export const ModernGanttChart = ({
         addTask({ ...task, rowNumber: taskWithRowNumber.rowNumber }, 0);
       }
     });
+    
+    console.log('👁️ Final visible tasks:', flatTasks.map(t => ({ name: t.name, depth: t.depth, parentId: t.parentId })));
     return flatTasks;
   }, [hierarchicalTasks, expandedSections, allTasksWithRowNumbers]);
 
