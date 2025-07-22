@@ -93,7 +93,7 @@ export const ModernGanttChart = ({
 
   const days = eachDayOfInterval({ start: viewStart, end: viewEnd });
   const dayWidth = 32; // Increased for better day name visibility
-  const rowHeight = 48; // Standardized row height
+  const rowHeight = 24; // Minimized row height
 
   // Build hierarchical structure
   const hierarchicalTasks = useMemo(() => {
@@ -649,9 +649,9 @@ export const ModernGanttChart = ({
                   >
                     <div
                       className={cn(
-                        "absolute top-3 h-6 rounded-md shadow-sm flex items-center px-2",
+                        "absolute top-1 h-4 rounded-md shadow-sm flex items-center px-1",
                         getTaskBarColor(task),
-                        task.isStage ? "h-8 top-2" : ""
+                        task.isStage ? "h-5 top-0.5" : ""
                       )}
                       style={{
                         width: position.width,
