@@ -391,6 +391,10 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
     setTasks(prev => prev.filter(task => task.id !== taskId));
   };
 
+  const handleTaskReorder = (reorderedTasks: ModernGanttTask[]) => {
+    setTasks(reorderedTasks);
+  };
+
   const projectStats = useMemo(() => {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(task => task.status === 'completed').length;
@@ -526,12 +530,13 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
           <div className="w-full overflow-hidden">{/* Prevent any overflow */}
             <Card className="shadow-lg w-full">
               <CardContent className="p-0 overflow-hidden">
-                <ModernGanttChart
-                  tasks={tasks}
-                onTaskUpdate={handleTaskUpdate}
-                onTaskAdd={handleTaskAdd}
-                onTaskDelete={handleTaskDelete}
-                />
+          <ModernGanttChart 
+            tasks={tasks} 
+            onTaskUpdate={handleTaskUpdate}
+            onTaskAdd={handleTaskAdd}
+            onTaskDelete={handleTaskDelete}
+            onTaskReorder={handleTaskReorder}
+          />
               </CardContent>
             </Card>
           </div>

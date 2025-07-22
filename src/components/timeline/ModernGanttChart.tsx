@@ -1,7 +1,8 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth, isWeekend } from 'date-fns';
-import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon } from 'lucide-react';
+import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -34,13 +35,15 @@ interface ModernGanttChartProps {
   onTaskUpdate?: (taskId: string, updates: Partial<ModernGanttTask>) => void;
   onTaskAdd?: (task: Omit<ModernGanttTask, 'id'>) => void;
   onTaskDelete?: (taskId: string) => void;
+  onTaskReorder?: (reorderedTasks: ModernGanttTask[]) => void;
 }
 
 export const ModernGanttChart = ({
   tasks,
   onTaskUpdate,
   onTaskAdd,
-  onTaskDelete
+  onTaskDelete,
+  onTaskReorder
 }: ModernGanttChartProps) => {
   console.log('🚀 ModernGanttChart rendering with', tasks.length, 'tasks');
   
@@ -349,6 +352,53 @@ export const ModernGanttChart = ({
     setSelectedTaskId(taskId);
   };
 
+  // Drag and drop functionality
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination || !onTaskReorder) {
+      return;
+    }
+
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+
+    if (sourceIndex === destinationIndex) {
+      return;
+    }
+
+    // Create a new array of visible tasks with the reordered item
+    const reorderedVisibleTasks = Array.from(visibleTasks);
+    const [draggedTask] = reorderedVisibleTasks.splice(sourceIndex, 1);
+    reorderedVisibleTasks.splice(destinationIndex, 0, draggedTask);
+
+    // Find the actual task order based on the flat task structure
+    // This is a simplified approach - we need to rebuild the entire task hierarchy
+    const allTasksArray = Array.from(tasks);
+    const draggedOriginalTask = allTasksArray.find(t => t.id === draggedTask.id);
+    
+    if (!draggedOriginalTask) return;
+
+    // Remove the dragged task from its current position
+    const filteredTasks = allTasksArray.filter(t => t.id !== draggedTask.id);
+    
+    // Find the target position in the original tasks array
+    let insertIndex = 0;
+    if (destinationIndex === 0) {
+      insertIndex = 0;
+    } else if (destinationIndex >= reorderedVisibleTasks.length - 1) {
+      insertIndex = filteredTasks.length;
+    } else {
+      // Find the task that should come after our insertion point
+      const nextTask = reorderedVisibleTasks[destinationIndex + 1];
+      insertIndex = filteredTasks.findIndex(t => t.id === nextTask.id);
+      if (insertIndex === -1) insertIndex = filteredTasks.length;
+    }
+    
+    // Insert the dragged task at the new position
+    filteredTasks.splice(insertIndex, 0, draggedOriginalTask);
+    
+    onTaskReorder(filteredTasks);
+  };
+
   // Add Stage functionality
   const handleAddStage = () => {
     if (!onTaskAdd) return;
@@ -605,7 +655,8 @@ export const ModernGanttChart = ({
               </div>
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '560px' }}>
+                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '580px' }}>
+                  <div></div>
                   <div className="text-center">#</div>
                   <div className="text-left">Task name</div>
                   <div className="text-left">Start</div>
@@ -616,24 +667,46 @@ export const ModernGanttChart = ({
               </div>
             </div>
 
-          {/* Task List Items */}
+            {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
             className="max-h-[600px] overflow-auto"
           >
-            {visibleTasks.map((task, index) => (
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="task-list">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {visibleTasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                        {(provided, snapshot) => (
               <div
-                key={task.id}
+                ref={provided.innerRef}
+                {...provided.draggableProps}
                 className={cn(
                   "hover:bg-gray-50 transition-colors duration-200 cursor-pointer",
                   task.isStage && "bg-blue-50/50",
-                  selectedTaskId === task.id && "bg-blue-100 border-l-4 border-blue-500"
+                  selectedTaskId === task.id && "bg-blue-100 border-l-4 border-blue-500",
+                  snapshot.isDragging && "shadow-lg bg-white border border-gray-300"
                 )}
-                style={{ height: 40 }}
+                style={{ 
+                  height: 40,
+                  ...provided.draggableProps.style
+                }}
                 onClick={() => handleRowClick(task.id)}
               >
                  <div className="h-full flex items-center px-4">
-                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '560px' }}>
+                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '580px' }}>
+                      {/* Drag Handle */}
+                      <div 
+                        {...provided.dragHandleProps}
+                        className="flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-gray-100 rounded p-1"
+                      >
+                        <GripVertical className="w-3 h-3 text-gray-400" />
+                      </div>
+                      
                       {/* Row Number */}
                       <div className="text-center text-sm text-gray-500 font-mono">
                         {task.rowNumber}
@@ -774,7 +847,14 @@ export const ModernGanttChart = ({
                   </div>
                 </div>
               </div>
-            ))}
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
         </div>
 
