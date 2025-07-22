@@ -842,7 +842,6 @@ export const ModernGanttChart = ({
                             className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
                             onClick={() => toggleDatePicker(task.id, 'startDate')}
                           >
-                            <CalendarIcon className="w-3 h-3 mr-1" />
                             {format(task.startDate, 'MMM d')}
                           </Button>
                         </PopoverTrigger>
@@ -874,7 +873,6 @@ export const ModernGanttChart = ({
                             className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
                             onClick={() => toggleDatePicker(task.id, 'endDate')}
                           >
-                            <CalendarIcon className="w-3 h-3 mr-1" />
                             {format(task.endDate, 'MMM d')}
                           </Button>
                         </PopoverTrigger>
