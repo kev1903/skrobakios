@@ -475,7 +475,7 @@ export const ModernGanttChart = ({
                 </div>
               </div>
               {/* Column Headers */}
-              <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
+              <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll border-r border-gray-200" ref={taskListHeaderRef}>
                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
                   <div className="text-left">Task name</div>
                   <div className="text-left">Start</div>
@@ -489,13 +489,13 @@ export const ModernGanttChart = ({
           {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
-            className="max-h-[600px] overflow-auto"
+            className="max-h-[600px] overflow-auto border-r border-gray-200"
           >
             {visibleTasks.map((task, index) => (
               <div
                 key={task.id}
                 className={cn(
-                  "border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200",
+                  "border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200",
                   task.isStage && "bg-blue-50/50"
                 )}
                 style={{ height: 40 }}
@@ -724,11 +724,11 @@ export const ModernGanttChart = ({
                 minWidth: timelineWidth 
               }}
             >
-              {/* Grid lines */}
+              {/* Horizontal grid lines */}
               {visibleTasks.map((_, index) => (
                 <div
                   key={`grid-${index}`}
-                  className="absolute w-full border-b border-gray-100"
+                  className="absolute w-full border-b border-gray-200"
                   style={{
                     top: index * 44,
                     height: 44
@@ -808,15 +808,24 @@ export const ModernGanttChart = ({
                     )}
                     {/* Vertical divider */}
                     <div
-                      className="absolute top-0 w-px bg-gray-200"
+                      className="absolute top-0 w-px bg-gray-200 z-10"
                       style={{
-                        left: index * dayWidth,
+                        left: (index + 1) * dayWidth - 0.5, // Align to right edge of each day
                         height: visibleTasks.length * 44
                       }}
                     />
                   </React.Fragment>
                 );
                })}
+               
+               {/* Left border for first column */}
+               <div
+                 className="absolute top-0 w-px bg-gray-200 z-10"
+                 style={{
+                   left: 0,
+                   height: visibleTasks.length * 44
+                 }}
+               />
              </div>
            </div>
          </div>
