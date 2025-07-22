@@ -454,7 +454,7 @@ export const ModernGanttChart = ({
       />
       
       {/* Gantt Chart */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full max-w-full">
+      <div className="bg-white rounded-lg overflow-hidden w-full max-w-full">
         <div className="flex">
           {/* Task List */}
           <div 
@@ -462,11 +462,11 @@ export const ModernGanttChart = ({
             style={{ width: taskListWidth }}
           >
             {/* Task List Header */}
-            <div className="border-b border-gray-200 bg-white flex flex-col" style={{ height: '60px' }}>
+            <div className="bg-white flex flex-col" style={{ height: '60px' }}>
               {/* Tab Section */}
-              <div className="flex h-8 border-b border-gray-200 flex-shrink-0 bg-gray-50">
+              <div className="flex h-8 flex-shrink-0 bg-gray-50">
                 <div className="flex">
-                  <div className="px-4 py-1 text-sm font-medium text-blue-600 bg-white border-b-2 border-blue-600 cursor-pointer flex items-center gap-2">
+                  <div className="px-4 py-1 text-sm font-medium text-blue-600 bg-white cursor-pointer flex items-center gap-2">
                     Gantt
                   </div>
                   <div className="px-4 py-1 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer transition-colors duration-200 flex items-center gap-2">
@@ -475,7 +475,7 @@ export const ModernGanttChart = ({
                 </div>
               </div>
               {/* Column Headers */}
-              <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll border-r border-gray-200" ref={taskListHeaderRef}>
+              <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
                   <div className="text-left">Task name</div>
                   <div className="text-left">Start</div>
@@ -489,13 +489,13 @@ export const ModernGanttChart = ({
           {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
-            className="max-h-[600px] overflow-auto border-r border-gray-200"
+            className="max-h-[600px] overflow-auto"
           >
             {visibleTasks.map((task, index) => (
               <div
                 key={task.id}
                 className={cn(
-                  "border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200",
+                  "hover:bg-gray-50 transition-colors duration-200",
                   task.isStage && "bg-blue-50/50"
                 )}
                 style={{ height: 40 }}
@@ -662,7 +662,7 @@ export const ModernGanttChart = ({
           {/* Timeline Header */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-gray-200 bg-white overflow-x-auto gantt-header-scroll relative z-10"
+            className="bg-white overflow-x-auto gantt-header-scroll relative z-10"
             style={{ height: '60px' }}
           >
             <div 
@@ -670,7 +670,7 @@ export const ModernGanttChart = ({
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
               {/* Month Header Section */}
-              <div className="flex h-7 border-b border-gray-200 bg-gray-50 relative z-10">
+              <div className="flex h-7 bg-gray-50 relative z-10">
                 <div className="flex items-center px-4 text-xs font-medium text-gray-600">
                   April 2024
                 </div>
@@ -687,7 +687,7 @@ export const ModernGanttChart = ({
                     <div
                       key={day.toString()}
                       className={cn(
-                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0 relative transition-colors duration-200",
+                        "flex flex-col items-center justify-center text-xs font-medium py-0.5 flex-shrink-0 relative transition-colors duration-200",
                         isToday(day) 
                           ? "bg-blue-100 text-blue-600" 
                           : isWeekendDay 
@@ -724,17 +724,6 @@ export const ModernGanttChart = ({
                 minWidth: timelineWidth 
               }}
             >
-              {/* Horizontal grid lines */}
-              {visibleTasks.map((_, index) => (
-                <div
-                  key={`grid-${index}`}
-                  className="absolute w-full border-b border-gray-200"
-                  style={{
-                    top: index * 40,
-                    height: 40
-                  }}
-                />
-              ))}
 
               {/* Today Line */}
               {currentDays.some(day => isToday(day)) && (
@@ -790,42 +779,23 @@ export const ModernGanttChart = ({
                 );
               })}
 
-              {/* Vertical dividers and weekend columns */}
+              {/* Weekend background columns only */}
               {currentDays.map((day, index) => {
                 const isWeekendDay = isWeekend(day);
                 return (
-                  <React.Fragment key={`column-${index}`}>
-                    {/* Weekend background column */}
-                    {isWeekendDay && (
-                      <div
-                        className="absolute top-0 bg-gray-50/50"
-                        style={{
-                          left: index * dayWidth,
-                          width: dayWidth,
-                          height: visibleTasks.length * 40
-                        }}
-                      />
-                    )}
-                    {/* Vertical divider */}
+                  isWeekendDay && (
                     <div
-                      className="absolute top-0 w-px bg-gray-200 z-10"
+                      key={`weekend-${index}`}
+                      className="absolute top-0 bg-gray-50/50"
                       style={{
-                        left: (index + 1) * dayWidth,
+                        left: index * dayWidth,
+                        width: dayWidth,
                         height: visibleTasks.length * 40
                       }}
                     />
-                  </React.Fragment>
+                  )
                 );
                })}
-               
-               {/* Left border for first column */}
-               <div
-                 className="absolute top-0 w-px bg-gray-200 z-10"
-                 style={{
-                   left: 0,
-                   height: visibleTasks.length * 40
-                 }}
-               />
              </div>
            </div>
          </div>
