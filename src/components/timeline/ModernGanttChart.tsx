@@ -50,6 +50,7 @@ export const ModernGanttChart = ({
   const [openDatePickers, setOpenDatePickers] = useState<Set<string>>(new Set());
   const [editingDuration, setEditingDuration] = useState<Set<string>>(new Set());
   const [durationInputs, setDurationInputs] = useState<Record<string, string>>({});
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -263,6 +264,53 @@ export const ModernGanttChart = ({
     });
   };
 
+  // Indent/Outdent functionality
+  const handleIndent = () => {
+    if (!selectedTaskId || !onTaskUpdate) return;
+    
+    const selectedTask = visibleTasks.find(t => t.id === selectedTaskId);
+    if (!selectedTask) return;
+    
+    // Find the task above the selected task to use as potential parent
+    const selectedIndex = visibleTasks.findIndex(t => t.id === selectedTaskId);
+    if (selectedIndex <= 0) return; // Can't indent first task
+    
+    const taskAbove = visibleTasks[selectedIndex - 1];
+    
+    // Check if we can indent (task above should be at same level or higher)
+    if (selectedTask.depth > taskAbove.depth) return;
+    
+    // Update the task to be a child of the task above
+    onTaskUpdate(selectedTaskId, {
+      parentId: taskAbove.id,
+      // Note: depth will be recalculated when hierarchicalTasks is rebuilt
+    });
+  };
+
+  const handleOutdent = () => {
+    if (!selectedTaskId || !onTaskUpdate) return;
+    
+    const selectedTask = visibleTasks.find(t => t.id === selectedTaskId);
+    if (!selectedTask) return;
+    
+    // Can't outdent if already at root level
+    if (selectedTask.depth <= 0) return;
+    
+    // Find the current parent and make this task a sibling of the parent
+    const currentParent = tasks.find(t => t.id === selectedTask.parentId);
+    if (!currentParent) {
+      // If no parent found, move to root level
+      onTaskUpdate(selectedTaskId, { parentId: undefined });
+    } else {
+      // Move to be sibling of current parent
+      onTaskUpdate(selectedTaskId, { parentId: currentParent.parentId });
+    }
+  };
+
+  const handleRowClick = (taskId: string) => {
+    setSelectedTaskId(taskId);
+  };
+
   const getTaskPosition = (task: ModernGanttTask) => {
     // Normalize dates to remove time component for accurate comparison
     const taskStartDay = new Date(task.startDate.getFullYear(), task.startDate.getMonth(), task.startDate.getDate());
@@ -451,8 +499,8 @@ export const ModernGanttChart = ({
         onCalendarClick={() => console.log('Calendar clicked')}
         onUsersClick={() => console.log('Users clicked')}
         onMoreClick={() => console.log('More clicked')}
-        onIndentClick={() => console.log('Indent clicked')}
-        onOutdentClick={() => console.log('Outdent clicked')}
+        onIndentClick={handleIndent}
+        onOutdentClick={handleOutdent}
       />
       
       {/* Gantt Chart */}
@@ -497,10 +545,12 @@ export const ModernGanttChart = ({
               <div
                 key={task.id}
                 className={cn(
-                  "hover:bg-gray-50 transition-colors duration-200",
-                  task.isStage && "bg-blue-50/50"
+                  "hover:bg-gray-50 transition-colors duration-200 cursor-pointer",
+                  task.isStage && "bg-blue-50/50",
+                  selectedTaskId === task.id && "bg-blue-100 border-l-4 border-blue-500"
                 )}
                 style={{ height: 40 }}
+                onClick={() => handleRowClick(task.id)}
               >
                 <div className="h-full flex items-center px-4">
                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
