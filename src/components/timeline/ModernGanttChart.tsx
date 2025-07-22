@@ -171,19 +171,21 @@ export const ModernGanttChart = ({
     
     const flatTasks: (ModernGanttTask & { depth: number; hasChildren: boolean; rowNumber: number })[] = [];
     
-    const addTask = (task: ModernGanttTask & { children: ModernGanttTask[]; rowNumber: number }, depth = 0) => {
-      const hasChildren = task.children.length > 0;
+    const addTask = (task: ModernGanttTask & { children: ModernGanttTask[] }, depth = 0) => {
+      const hasChildren = task.children && task.children.length > 0;
+      
+      // Find the row number for this task from the master list
+      const taskWithRowNumber = allTasksWithRowNumbers.find(t => t.id === task.id);
+      if (!taskWithRowNumber) return;
+      
       console.log(`📋 Adding visible task: ${task.name} (depth: ${depth}, hasChildren: ${hasChildren})`);
-      flatTasks.push({ ...task, depth, hasChildren });
+      flatTasks.push({ ...task, depth, hasChildren, rowNumber: taskWithRowNumber.rowNumber });
       
       if (hasChildren && expandedSections.has(task.id)) {
         console.log(`🔽 Expanding children of: ${task.name}`);
         task.children.forEach(child => {
-          // Find the row number for this child from the master list
-          const childWithRowNumber = allTasksWithRowNumbers.find(t => t.id === child.id);
-          if (childWithRowNumber) {
-            addTask({ ...child, children: [], rowNumber: childWithRowNumber.rowNumber }, depth + 1);
-          }
+          // Pass the child with its own children array intact
+          addTask({ ...child, children: child.children || [] }, depth + 1);
         });
       } else if (hasChildren) {
         console.log(`🔼 NOT expanding ${task.name} - not in expanded sections`);
@@ -191,10 +193,7 @@ export const ModernGanttChart = ({
     };
 
     hierarchicalTasks.forEach(task => {
-      const taskWithRowNumber = allTasksWithRowNumbers.find(t => t.id === task.id);
-      if (taskWithRowNumber) {
-        addTask({ ...task, rowNumber: taskWithRowNumber.rowNumber }, 0);
-      }
+      addTask(task, 0);
     });
     
     console.log('👁️ Final visible tasks:', flatTasks.map(t => ({ name: t.name, depth: t.depth, parentId: t.parentId })));
