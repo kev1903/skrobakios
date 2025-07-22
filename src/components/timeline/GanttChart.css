@@ -1,0 +1,47 @@
+/* Gantt Chart Scroll Styles */
+
+/* Hide scrollbars for header while keeping scrolling functionality */
+.gantt-header-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.gantt-header-scroll::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* Body scroll container - show scrollbars */
+.gantt-body-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #cbd5e0 #f7fafc; /* Firefox */
+}
+
+.gantt-body-scroll::-webkit-scrollbar {
+  height: 8px; /* WebKit */
+}
+
+.gantt-body-scroll::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 4px;
+}
+
+.gantt-body-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.gantt-body-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Ensure both containers have proper box sizing */
+.gantt-header-scroll,
+.gantt-body-scroll {
+  box-sizing: border-box;
+}
+
+/* Prevent text selection during scroll */
+.gantt-header-scroll *,
+.gantt-body-scroll * {
+  user-select: none;
+}

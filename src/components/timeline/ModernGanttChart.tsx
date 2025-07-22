@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import './GanttChart.css';
 
 export interface ModernGanttTask {
   id: string;
@@ -202,10 +203,10 @@ export const ModernGanttChart = ({
     return startOfMonth(baseDate);
   }, [viewStart, currentMonthOffset, tasks]);
 
-  // Generate days for the current view - show 3 months centered around current view
+  // Generate days for the current view - show 6 months for better scrolling
   const currentDays = useMemo(() => {
     const start = currentViewStart;
-    const end = endOfMonth(addDays(start, 90)); // Show approximately 3 months
+    const end = endOfMonth(addDays(start, 180)); // Show 6 months for better scrolling
     return eachDayOfInterval({ start, end });
   }, [currentViewStart]);
 
@@ -219,49 +220,58 @@ export const ModernGanttChart = ({
     const ganttHeader = ganttHeaderRef.current;
     const ganttBody = ganttScrollBodyRef.current;
     
-    console.log('🔧 Setting up scroll listeners', { ganttHeader, ganttBody });
-    console.log('📏 Timeline width:', timelineWidth);
+    console.log('🔧 Setting up scroll listeners');
+    console.log('📏 Timeline width:', timelineWidth, 'px');
     
     if (!ganttHeader || !ganttBody) {
       console.warn('⚠️ Could not find scroll containers');
       return;
     }
 
-    console.log('📏 Header scrollable:', ganttHeader.scrollWidth, '>', ganttHeader.clientWidth);
-    console.log('📏 Body scrollable:', ganttBody.scrollWidth, '>', ganttBody.clientWidth);
-
-    let isHeaderScrolling = false;
-    let isBodyScrolling = false;
-
-    const handleHeaderScroll = () => {
-      if (isBodyScrolling) return;
-      isHeaderScrolling = true;
-      console.log('📜 Header scroll event', ganttHeader.scrollLeft);
-      ganttBody.scrollLeft = ganttHeader.scrollLeft;
-      requestAnimationFrame(() => {
-        isHeaderScrolling = false;
-      });
+    // Wait for layout to complete before checking dimensions
+    const checkDimensions = () => {
+      console.log('📏 Header - scrollWidth:', ganttHeader.scrollWidth, 'clientWidth:', ganttHeader.clientWidth);
+      console.log('📏 Body - scrollWidth:', ganttBody.scrollWidth, 'clientWidth:', ganttBody.clientWidth);
+      console.log('📏 Can scroll - Header:', ganttHeader.scrollWidth > ganttHeader.clientWidth);
+      console.log('📏 Can scroll - Body:', ganttBody.scrollWidth > ganttBody.clientWidth);
     };
 
-    const handleBodyScroll = () => {
-      if (isHeaderScrolling) return;
-      isBodyScrolling = true;
-      console.log('📜 Body scroll event', ganttBody.scrollLeft);
-      ganttHeader.scrollLeft = ganttBody.scrollLeft;
-      requestAnimationFrame(() => {
-        isBodyScrolling = false;
-      });
+    // Check dimensions immediately and after a delay to ensure content is rendered
+    checkDimensions();
+    setTimeout(checkDimensions, 100);
+
+    let isScrolling = false;
+
+    const syncScroll = (source: HTMLElement, target: HTMLElement, sourceType: string) => {
+      if (isScrolling) return;
+      
+      isScrolling = true;
+      const scrollLeft = source.scrollLeft;
+      console.log(`📜 ${sourceType} scroll:`, scrollLeft, 'px');
+      
+      if (target.scrollLeft !== scrollLeft) {
+        target.scrollLeft = scrollLeft;
+        console.log(`✅ Synced ${sourceType === 'Header' ? 'Body' : 'Header'}:`, target.scrollLeft, 'px');
+      }
+      
+      // Use setTimeout instead of requestAnimationFrame for more reliable timing
+      setTimeout(() => {
+        isScrolling = false;
+      }, 10);
     };
+
+    const handleHeaderScroll = () => syncScroll(ganttHeader, ganttBody, 'Header');
+    const handleBodyScroll = () => syncScroll(ganttBody, ganttHeader, 'Body');
 
     ganttHeader.addEventListener('scroll', handleHeaderScroll, { passive: true });
     ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
     
-    console.log('✅ Scroll listeners attached');
+    console.log('✅ Scroll listeners attached successfully');
 
     return () => {
       ganttHeader.removeEventListener('scroll', handleHeaderScroll);
       ganttBody.removeEventListener('scroll', handleBodyScroll);
-      console.log('🧹 Scroll listener cleaned up');
+      console.log('🧹 Scroll listeners cleaned up');
     };
   }, [timelineWidth]);
 
