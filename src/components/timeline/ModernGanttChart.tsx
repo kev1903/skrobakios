@@ -205,84 +205,65 @@ export const ModernGanttChart = ({
     return startOfMonth(baseDate);
   }, [viewStart, currentMonthOffset, tasks]);
 
-  // Generate days for the current view - show 12 months for guaranteed scrolling
+  // Simplified timeline calculation - just create a fixed wide timeline
   const currentDays = useMemo(() => {
     try {
-      console.log('📅 Calculating currentDays with viewStart:', currentViewStart);
-      const start = currentViewStart;
-      const end = endOfMonth(addDays(start, 365)); // Show 12 months to force scrolling
+      console.log('📅 Creating simple timeline...');
+      // Create a simple 30-day timeline starting from today
+      const start = new Date();
+      const end = addDays(start, 30);
       const days = eachDayOfInterval({ start, end });
-      console.log('📅 Generated', days.length, 'days for timeline (from', start, 'to', end, ')');
+      console.log('📅 Created', days.length, 'days');
       return days;
     } catch (error) {
-      console.error('❌ Error generating currentDays:', error);
+      console.error('❌ Error creating timeline:', error);
       return [];
     }
-  }, [currentViewStart]);
+  }, []);
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Calculate total timeline width - force it to be very wide
-  const timelineWidth = Math.max(currentDays.length * dayWidth, 8000); // Minimum 8000px width
-  console.log('📏 Calculated timeline width:', timelineWidth, 'px (', currentDays.length, 'days x', dayWidth, 'px)');
+  // Force a very wide timeline - minimum 4000px
+  const timelineWidth = Math.max(currentDays.length * dayWidth, 4000);
+  console.log('📏 Timeline width:', timelineWidth, 'px');
 
-  // Scroll synchronization effect - keep header and body in sync
+  // Simplified scroll synchronization - exactly like SimpleScrollTest
   useEffect(() => {
-    const ganttHeader = ganttHeaderRef.current;
-    const ganttBody = ganttScrollBodyRef.current;
-    
-    console.log('🔧 Setting up scroll listeners');
-    console.log('📏 Timeline width:', timelineWidth, 'px');
-    
-    if (!ganttHeader || !ganttBody) {
-      console.warn('⚠️ Could not find scroll containers');
+    const header = ganttHeaderRef.current;
+    const body = ganttScrollBodyRef.current;
+
+    console.log('🔧 ModernGantt scroll setup', { header, body });
+
+    if (!header || !body) {
+      console.warn('❌ ModernGantt refs not found');
       return;
     }
 
-    // Wait for layout to complete before checking dimensions
-    const checkDimensions = () => {
-      console.log('📏 Header - scrollWidth:', ganttHeader.scrollWidth, 'clientWidth:', ganttHeader.clientWidth);
-      console.log('📏 Body - scrollWidth:', ganttBody.scrollWidth, 'clientWidth:', ganttBody.clientWidth);
-      console.log('📏 Can scroll - Header:', ganttHeader.scrollWidth > ganttHeader.clientWidth);
-      console.log('📏 Can scroll - Body:', ganttBody.scrollWidth > ganttBody.clientWidth);
-    };
-
-    // Check dimensions immediately and after a delay to ensure content is rendered
-    checkDimensions();
-    setTimeout(checkDimensions, 100);
+    console.log('📏 Header scroll dimensions:', header.scrollWidth, 'x', header.clientWidth);
+    console.log('📏 Body scroll dimensions:', body.scrollWidth, 'x', body.clientWidth);
 
     let isScrolling = false;
 
-    const syncScroll = (source: HTMLElement, target: HTMLElement, sourceType: string) => {
+    const syncScroll = (source: HTMLElement, target: HTMLElement, name: string) => {
       if (isScrolling) return;
-      
       isScrolling = true;
-      const scrollLeft = source.scrollLeft;
-      console.log(`📜 ${sourceType} scroll:`, scrollLeft, 'px');
-      
-      if (target.scrollLeft !== scrollLeft) {
-        target.scrollLeft = scrollLeft;
-        console.log(`✅ Synced ${sourceType === 'Header' ? 'Body' : 'Header'}:`, target.scrollLeft, 'px');
-      }
-      
-      // Use setTimeout instead of requestAnimationFrame for more reliable timing
-      setTimeout(() => {
-        isScrolling = false;
-      }, 10);
+      console.log(`📜 ModernGantt ${name} scrolled to:`, source.scrollLeft);
+      target.scrollLeft = source.scrollLeft;
+      setTimeout(() => { isScrolling = false; }, 10);
     };
 
-    const handleHeaderScroll = () => syncScroll(ganttHeader, ganttBody, 'Header');
-    const handleBodyScroll = () => syncScroll(ganttBody, ganttHeader, 'Body');
+    const handleHeaderScroll = () => syncScroll(header, body, 'Header');
+    const handleBodyScroll = () => syncScroll(body, header, 'Body');
 
-    ganttHeader.addEventListener('scroll', handleHeaderScroll, { passive: true });
-    ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
-    
-    console.log('✅ Scroll listeners attached successfully');
+    header.addEventListener('scroll', handleHeaderScroll, { passive: true });
+    body.addEventListener('scroll', handleBodyScroll, { passive: true });
+
+    console.log('✅ ModernGantt scroll listeners attached');
 
     return () => {
-      ganttHeader.removeEventListener('scroll', handleHeaderScroll);
-      ganttBody.removeEventListener('scroll', handleBodyScroll);
-      console.log('🧹 Scroll listeners cleaned up');
+      header.removeEventListener('scroll', handleHeaderScroll);
+      body.removeEventListener('scroll', handleBodyScroll);
+      console.log('🧹 ModernGantt scroll cleanup');
     };
   }, [timelineWidth]);
 
