@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
@@ -86,12 +87,12 @@ export const TopFloatingBar = ({
           ) : (
             <>
               {/* Task Icon */}
-              <button 
-                onClick={() => onNavigate('tasks')} 
+              <Link 
+                to="/tasks"
                 className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
               >
                 <ClipboardList className="w-5 h-5 text-white" />
-              </button>
+              </Link>
               
               
               {/* Save Map Position Icon */}
