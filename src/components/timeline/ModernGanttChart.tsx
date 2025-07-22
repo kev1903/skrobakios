@@ -572,11 +572,17 @@ export const ModernGanttChart = ({
                     height: visibleTasks.length * 44
                   }}
                 />
-              ))}
-            </div>
-          </div>
+               ))}
+             </div>
+           </div>
+         </div>
+         {/* End Task List section */}
+         
+         {/* End Timeline section */}
         </div>
+      {/* End Gantt Chart container */}
       </div>
+    {/* End space-y-4 container */}
     </div>
   );
 };
