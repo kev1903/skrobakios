@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -183,6 +184,15 @@ export const NavigationRibbon = ({
                   </button>
                 );
               })}
+              
+              {/* Direct link to My Tasks page */}
+              <Link 
+                to="/tasks"
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-white hover:bg-white/30"
+              >
+                <CheckSquare className="w-4 h-4 transition-all duration-200 text-white/80" />
+                {!isCollapsed && <span className="text-sm font-medium">My Tasks</span>}
+              </Link>
             </div>
           </>
         )}
