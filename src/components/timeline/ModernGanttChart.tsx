@@ -335,10 +335,10 @@ export const ModernGanttChart = ({
             <div className="flex h-8 border-b border-border/20 flex-shrink-0">
               <div className="flex">
                 <div className="px-4 py-1 text-xs font-manrope font-medium text-primary bg-primary/10 border-r border-border/20 rounded-t-sm">
-                  GENERAL
+                  LIST
                 </div>
                 <div className="px-4 py-1 text-xs font-manrope font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200">
-                  MORE INFO
+                  GANTT
                 </div>
               </div>
             </div>
