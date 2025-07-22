@@ -307,19 +307,40 @@ export const ModernGanttChart = ({
 
   // Indent/Outdent functionality
   const handleIndent = () => {
-    if (!selectedTaskId || !onTaskUpdate) return;
+    console.log('🏗️ Indent clicked for task:', selectedTaskId);
+    
+    if (!selectedTaskId || !onTaskUpdate) {
+      console.log('❌ No selected task or onTaskUpdate');
+      return;
+    }
     
     const selectedTask = visibleTasks.find(t => t.id === selectedTaskId);
-    if (!selectedTask) return;
+    if (!selectedTask) {
+      console.log('❌ Selected task not found in visible tasks');
+      return;
+    }
     
     // Find the task above the selected task to use as potential parent
     const selectedIndex = visibleTasks.findIndex(t => t.id === selectedTaskId);
-    if (selectedIndex <= 0) return; // Can't indent first task
+    console.log('📍 Selected task index:', selectedIndex);
+    
+    if (selectedIndex <= 0) {
+      console.log('❌ Cannot indent first task');
+      return; // Can't indent first task
+    }
     
     const taskAbove = visibleTasks[selectedIndex - 1];
+    console.log('👆 Task above:', taskAbove.name, 'depth:', taskAbove.depth);
+    console.log('📏 Selected task depth:', selectedTask.depth);
     
-    // Check if we can indent (task above should be at same level or higher)
-    if (selectedTask.depth > taskAbove.depth) return;
+    // Allow indenting if task above is at same level or higher (lower depth number)
+    // This means we can make the selected task a child of the task above
+    if (selectedTask.depth > taskAbove.depth + 1) {
+      console.log('❌ Cannot indent: would create too deep nesting');
+      return;
+    }
+    
+    console.log('✅ Indenting task:', selectedTask.name, 'to be child of:', taskAbove.name);
     
     // Update the task to be a child of the task above
     onTaskUpdate(selectedTaskId, {
