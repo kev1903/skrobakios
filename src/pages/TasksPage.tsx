@@ -45,19 +45,12 @@ const TasksPage = () => {
     }
   ];
 
-  const recentItems = [
-    { name: 'Weekly Challenge', icon: '🏆', color: 'bg-orange-50 text-orange-600' },
-    { name: 'UIF Homework', icon: '📝', color: 'bg-blue-50 text-blue-600' },
-    { name: 'Music', icon: '🎵', color: 'bg-purple-50 text-purple-600' }
-  ];
-
-  const quickSearchCategories = [
-    { name: 'Event', color: 'bg-red-50 text-red-600 border-red-200' },
-    { name: 'Study', color: 'bg-green-50 text-green-600 border-green-200' },
-    { name: 'Reading', color: 'bg-blue-50 text-blue-600 border-blue-200' },
-    { name: 'Books', color: 'bg-purple-50 text-purple-600 border-purple-200' },
-    { name: 'UXFoundation', color: 'bg-pink-50 text-pink-600 border-pink-200' },
-    { name: 'UIF', color: 'bg-cyan-50 text-cyan-600 border-cyan-200' }
+  const taskBacklog = [
+    { id: 1, title: 'Review quarterly goals', priority: 'High', tags: ['Planning'] },
+    { id: 2, title: 'Update portfolio website', priority: 'Medium', tags: ['Development', 'Portfolio'] },
+    { id: 3, title: 'Research competitor analysis', priority: 'Low', tags: ['Research'] },
+    { id: 4, title: 'Schedule team sync meeting', priority: 'High', tags: ['Meeting'] },
+    { id: 5, title: 'Complete certification course', priority: 'Medium', tags: ['Learning'] }
   ];
 
   const getDaysInMonth = (date: Date) => {
@@ -102,33 +95,38 @@ const TasksPage = () => {
           />
         </div>
 
-        {/* Recent */}
+        {/* Task Backlog */}
         <div>
-          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Recent</h3>
-          <div className="space-y-2">
-            {recentItems.map((item, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group">
-                <div className={`w-9 h-9 rounded-lg ${item.color} flex items-center justify-center text-lg group-hover:scale-105 transition-transform`}>
-                  {item.icon}
+          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Task Backlog</h3>
+          <div className="space-y-3">
+            {taskBacklog.map((task) => (
+              <div key={task.id} className="p-3 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">{task.title}</h4>
+                  <span className={cn(
+                    "px-2 py-1 rounded-lg text-xs font-medium ml-2 flex-shrink-0",
+                    task.priority === 'High' ? 'bg-red-50 text-red-600' :
+                    task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                    'bg-green-50 text-green-600'
+                  )}>
+                    {task.priority}
+                  </span>
                 </div>
-                <span className="text-gray-700 text-sm font-medium">{item.name}</span>
+                <div className="flex flex-wrap gap-1">
+                  {task.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-xs"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Quick Search */}
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Quick Search</h3>
-          <div className="flex flex-wrap gap-2">
-            {quickSearchCategories.map((category, index) => (
-              <span
-                key={index}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer hover:scale-105 transition-transform ${category.color}`}
-              >
-                {category.name}
-              </span>
-            ))}
+            <button className="w-full text-left p-3 text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors">
+              + Add to backlog
+            </button>
           </div>
         </div>
 
