@@ -54,6 +54,8 @@ export const ModernGanttChart = ({
   const [editingDuration, setEditingDuration] = useState<Set<string>>(new Set());
   const [durationInputs, setDurationInputs] = useState<Record<string, string>>({});
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [editingTaskName, setEditingTaskName] = useState<string | null>(null);
+  const [taskNameInput, setTaskNameInput] = useState<string>('');
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -303,6 +305,25 @@ export const ModernGanttChart = ({
       delete newInputs[taskId];
       return newInputs;
     });
+  };
+
+  // Task name editing functionality
+  const startTaskNameEdit = (taskId: string, currentName: string) => {
+    setEditingTaskName(taskId);
+    setTaskNameInput(currentName);
+  };
+
+  const finishTaskNameEdit = (taskId: string) => {
+    if (taskNameInput.trim() && onTaskUpdate) {
+      onTaskUpdate(taskId, { name: taskNameInput.trim() });
+    }
+    setEditingTaskName(null);
+    setTaskNameInput('');
+  };
+
+  const cancelTaskNameEdit = () => {
+    setEditingTaskName(null);
+    setTaskNameInput('');
   };
 
   // Indent/Outdent functionality
@@ -775,12 +796,33 @@ export const ModernGanttChart = ({
                             )}
                           </button>
                         )}
-                        <span className={cn(
-                          "text-sm font-normal truncate min-w-0 flex-1 text-gray-700",
-                          task.isStage ? "font-medium text-gray-900" : ""
-                        )} title={task.name}>
-                          {task.name}
-                        </span>
+                         {editingTaskName === task.id ? (
+                           <Input
+                             value={taskNameInput}
+                             onChange={(e) => setTaskNameInput(e.target.value)}
+                             onBlur={() => finishTaskNameEdit(task.id)}
+                             onKeyDown={(e) => {
+                               if (e.key === 'Enter') {
+                                 finishTaskNameEdit(task.id);
+                               } else if (e.key === 'Escape') {
+                                 cancelTaskNameEdit();
+                               }
+                             }}
+                             className="text-sm h-6 px-1 font-normal min-w-0 flex-1"
+                             autoFocus
+                           />
+                         ) : (
+                           <span 
+                             className={cn(
+                               "text-sm font-normal truncate min-w-0 flex-1 text-gray-700 cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded",
+                               task.isStage ? "font-medium text-gray-900" : ""
+                             )} 
+                             title={task.name}
+                             onClick={() => startTaskNameEdit(task.id, task.name)}
+                           >
+                             {task.name}
+                           </span>
+                         )}
                       </div>
                     </div>
 
