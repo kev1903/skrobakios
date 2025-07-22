@@ -381,7 +381,7 @@ export const ModernGanttChart = ({
           <div 
             ref={ganttHeaderRef}
             className="border-b border-gray-200 bg-gray-50 overflow-x-auto gantt-header-scroll"
-            style={{ height: '60px' }}
+            style={{ height: '60px', maxWidth: '800px' }}
           >
             <div 
               className="flex relative"
@@ -449,6 +449,7 @@ export const ModernGanttChart = ({
           <div 
             ref={ganttScrollBodyRef}
             className="flex-1 overflow-x-auto overflow-y-hidden gantt-body-scroll"
+            style={{ maxWidth: '800px' }}
           >
             <div 
               className="relative" 
