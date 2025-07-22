@@ -56,6 +56,8 @@ export const ModernGanttChart = ({
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [editingTaskName, setEditingTaskName] = useState<string | null>(null);
   const [taskNameInput, setTaskNameInput] = useState<string>('');
+  const [editingPredecessors, setEditingPredecessors] = useState<Set<string>>(new Set());
+  const [predecessorInputs, setPredecessorInputs] = useState<Record<string, string>>({});
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -339,6 +341,61 @@ export const ModernGanttChart = ({
   const cancelTaskNameEdit = () => {
     setEditingTaskName(null);
     setTaskNameInput('');
+  };
+
+  // Predecessors editing functionality
+  const startPredecessorEdit = (taskId: string) => {
+    setEditingPredecessors(prev => new Set([...prev, taskId]));
+    const currentPredecessors = visibleTasks.find(t => t.id === taskId)?.predecessors || [];
+    setPredecessorInputs(prev => ({
+      ...prev,
+      [taskId]: currentPredecessors.join(', ')
+    }));
+  };
+
+  const finishPredecessorEdit = (taskId: string) => {
+    const inputValue = predecessorInputs[taskId];
+    if (inputValue !== undefined && onTaskUpdate) {
+      // Parse the input - split by comma and trim whitespace, filter out empty strings
+      const predecessorList = inputValue
+        .split(',')
+        .map(p => p.trim())
+        .filter(p => p !== '')
+        .filter(p => {
+          // Validate that the predecessor is a valid row number that exists
+          const rowNumber = parseInt(p, 10);
+          if (isNaN(rowNumber)) return false;
+          return allTasksWithRowNumbers.some(t => t.rowNumber === rowNumber && t.id !== taskId);
+        });
+      
+      onTaskUpdate(taskId, { predecessors: predecessorList });
+    }
+    
+    setEditingPredecessors(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(taskId);
+      return newSet;
+    });
+    
+    setPredecessorInputs(prev => {
+      const newInputs = { ...prev };
+      delete newInputs[taskId];
+      return newInputs;
+    });
+  };
+
+  const cancelPredecessorEdit = (taskId: string) => {
+    setEditingPredecessors(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(taskId);
+      return newSet;
+    });
+    
+    setPredecessorInputs(prev => {
+      const newInputs = { ...prev };
+      delete newInputs[taskId];
+      return newInputs;
+    });
   };
 
   // Indent/Outdent functionality
@@ -966,12 +1023,34 @@ export const ModernGanttChart = ({
 
                     {/* Predecessors */}
                     <div>
-                      <span className="text-sm text-gray-600">
-                        {task.predecessors && task.predecessors.length > 0 
-                          ? task.predecessors.join(', ') 
-                          : '-'
-                        }
-                      </span>
+                      {editingPredecessors.has(task.id) ? (
+                        <Input
+                          value={predecessorInputs[task.id] || ''}
+                          onChange={(e) => setPredecessorInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                          onBlur={() => finishPredecessorEdit(task.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              finishPredecessorEdit(task.id);
+                            } else if (e.key === 'Escape') {
+                              cancelPredecessorEdit(task.id);
+                            }
+                          }}
+                          className="text-sm h-6 px-1 w-full"
+                          placeholder="e.g. 1, 3"
+                          autoFocus
+                        />
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
+                          onClick={() => startPredecessorEdit(task.id)}
+                        >
+                          {task.predecessors && task.predecessors.length > 0 
+                            ? task.predecessors.join(', ') 
+                            : '-'
+                          }
+                        </Button>
+                      )}
                     </div>
 
                     {/* Status */}
