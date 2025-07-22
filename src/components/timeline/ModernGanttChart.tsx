@@ -350,8 +350,10 @@ export const ModernGanttChart = ({
             </div>
             {/* Column Headers */}
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-medium text-muted-foreground uppercase tracking-wider gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 100px 100px', minWidth: '560px' }}>
+              <div className="grid items-center h-full text-xs font-medium text-muted-foreground uppercase tracking-wider gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px 100px 100px', minWidth: '720px' }}>
                 <div className="text-left">Title</div>
+                <div className="text-center">Start</div>
+                <div className="text-center">End</div>
                 <div className="text-center">Duration</div>
                 <div className="text-center">Status</div>
                 <div className="text-center">% Complete</div>
@@ -375,7 +377,7 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }}
               >
                 <div className="h-full flex items-center px-4">
-                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 100px 100px', minWidth: '560px' }}>
+                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px 100px 100px', minWidth: '720px' }}>
                     {/* Task Title with hierarchy */}
                     <div className="flex items-center gap-2 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 20}px` }} className="flex items-center gap-2 min-w-0 w-full">
@@ -403,11 +405,95 @@ export const ModernGanttChart = ({
                       </div>
                     </div>
 
+                    {/* Start Date */}
+                    <div className="text-center">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-sm text-muted-foreground p-1 hover:bg-accent/30 transition-colors duration-200"
+                            title="Click to change start date"
+                          >
+                            {format(task.startDate, 'dd/MM/yy')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border border-border/50 shadow-lg z-50" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={task.startDate}
+                            onSelect={(date) => {
+                              if (date && onTaskUpdate) {
+                                onTaskUpdate(task.id, { startDate: date });
+                              }
+                            }}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    {/* End Date */}
+                    <div className="text-center">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-sm text-muted-foreground p-1 hover:bg-accent/30 transition-colors duration-200"
+                            title="Click to change end date"
+                          >
+                            {format(task.endDate, 'dd/MM/yy')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 border border-border/50 shadow-lg z-50" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={task.endDate}
+                            onSelect={(date) => {
+                              if (date && onTaskUpdate) {
+                                // Calculate duration when end date changes
+                                const startDate = task.startDate;
+                                const diffTime = date.getTime() - startDate.getTime();
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                const duration = Math.max(1, diffDays); // Ensure at least 1 day
+                                
+                                onTaskUpdate(task.id, { 
+                                  endDate: date,
+                                  duration: `${duration} days`
+                                });
+                              }
+                            }}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
                     {/* Duration */}
                     <div className="text-center">
-                      <span className="text-sm text-muted-foreground font-medium">
-                        {task.duration}
-                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        className="w-12 h-7 text-sm text-muted-foreground text-center border border-border/30 rounded px-1 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                        value={parseInt(task.duration.match(/\d+/)?.[0] || '1')}
+                        onChange={(e) => {
+                          const days = parseInt(e.target.value) || 1;
+                          if (onTaskUpdate) {
+                            // Calculate end date when duration changes
+                            const startDate = task.startDate;
+                            const newEndDate = addDays(startDate, days - 1); // Subtract 1 because start day counts as day 1
+                            
+                            onTaskUpdate(task.id, { 
+                              duration: `${days} days`,
+                              endDate: newEndDate
+                            });
+                          }
+                        }}
+                        title="Duration in days"
+                      />
                     </div>
 
                     {/* Status with Progress Bar */}
