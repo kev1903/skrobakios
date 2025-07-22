@@ -322,29 +322,29 @@ export const ModernGanttChart = ({
   }, [timelineWidth]);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full max-w-full">{/* Ensure no overflow */}
+    <div className="glass-card rounded-2xl border border-border/50 overflow-hidden w-full max-w-full backdrop-blur-sm">{/* Glassmorphism container */}
       <div className="flex">
         {/* Task List */}
         <div 
-          className="border-r border-gray-200 bg-white relative flex flex-col"
+          className="border-r border-border/30 glass-light relative flex flex-col backdrop-blur-sm"
           style={{ width: taskListWidth }}
         >
           {/* Task List Header - Fixed tabs, scrollable columns */}
-          <div className="border-b border-gray-200 bg-white flex flex-col" style={{ height: '60px' }}>
+          <div className="border-b border-border/30 glass flex flex-col backdrop-blur-sm" style={{ height: '60px' }}>
             {/* Tab Section - Fixed */}
-            <div className="flex h-8 border-b border-gray-200 flex-shrink-0">
+            <div className="flex h-8 border-b border-border/20 flex-shrink-0">
               <div className="flex">
-                <div className="px-4 py-1 text-xs font-medium text-gray-900 bg-gray-100 border-r border-gray-200">
+                <div className="px-4 py-1 text-xs font-manrope font-medium text-primary bg-primary/10 border-r border-border/20 rounded-t-sm">
                   GENERAL
                 </div>
-                <div className="px-4 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 cursor-pointer">
+                <div className="px-4 py-1 text-xs font-manrope font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200">
                   MORE INFO
                 </div>
               </div>
             </div>
             {/* Column Headers - Scrollable container */}
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '660px' }}>
+              <div className="grid items-center h-full text-xs font-manrope font-medium text-muted-foreground uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '660px' }}>
                 <div className="px-1 text-center">#</div>
                 <div className="px-1">EVENT NAME</div>
                 <div className="px-1 text-center">START</div>
@@ -365,8 +365,8 @@ export const ModernGanttChart = ({
               <div
                 key={task.id}
                 className={cn(
-                  "border-b border-gray-100 hover:bg-gray-50 transition-colors",
-                  task.isStage && "bg-blue-50 border-b-blue-200"
+                  "border-b border-border/20 hover:bg-accent/20 transition-colors duration-200 glass-hover",
+                  task.isStage && "bg-primary/5 border-b-primary/30"
                 )}
                 style={{ height: rowHeight + 4 }}
               >
@@ -374,7 +374,7 @@ export const ModernGanttChart = ({
                   <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '660px' }}>
                     {/* Row Number */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 font-mono font-medium">
+                      <span className="text-xs text-muted-foreground font-inter font-medium">
                         {index + 1}
                       </span>
                     </div>
@@ -385,12 +385,12 @@ export const ModernGanttChart = ({
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
-                            className="p-0.5 hover:bg-gray-200 rounded flex-shrink-0"
+                            className="p-0.5 hover:bg-accent/30 rounded transition-colors duration-200 flex-shrink-0"
                           >
                             {expandedSections.has(task.id) || task.isStage ? (
-                              <ChevronDown className="w-3 h-3 text-gray-500" />
+                              <ChevronDown className="w-3 h-3 text-muted-foreground" />
                             ) : (
-                              <ChevronRight className="w-3 h-3 text-gray-500" />
+                              <ChevronRight className="w-3 h-3 text-muted-foreground" />
                             )}
                           </button>
                         )}
@@ -398,8 +398,8 @@ export const ModernGanttChart = ({
                           {getStatusIcon(task.status, task.progress)}
                         </div>
                         <span className={cn(
-                          "text-xs truncate min-w-0 flex-1",
-                          task.isStage ? "font-semibold text-blue-700 bg-blue-100 px-2 py-1 rounded" : "text-gray-700",
+                          "text-xs truncate min-w-0 flex-1 font-inter",
+                          task.isStage ? "font-semibold text-primary bg-primary/10 px-2 py-1 rounded-md" : "text-foreground",
                           task.status === 'in-progress' && !task.isStage && "text-orange-600"
                         )} title={task.name}>
                           {task.name}
@@ -414,13 +414,13 @@ export const ModernGanttChart = ({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 text-xs text-gray-600 font-mono p-1 hover:bg-gray-100"
+                            className="h-6 text-xs text-muted-foreground font-inter p-1 hover:bg-accent/30 transition-colors duration-200"
                             title="Click to change start date"
                           >
                             {format(task.startDate, 'dd/MM/yy')}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-white shadow-lg border z-50" align="start">
+                        <PopoverContent className="w-auto p-0 glass-light border border-border/50 shadow-lg z-50" align="start">
                           <Calendar
                             mode="single"
                             selected={task.startDate}
@@ -443,13 +443,13 @@ export const ModernGanttChart = ({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 text-xs text-gray-600 font-mono p-1 hover:bg-gray-100"
+                            className="h-6 text-xs text-muted-foreground font-inter p-1 hover:bg-accent/30 transition-colors duration-200"
                             title="Click to change end date"
                           >
                             {format(task.endDate, 'dd/MM/yy')}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-white shadow-lg border z-50" align="start">
+                        <PopoverContent className="w-auto p-0 glass-light border border-border/50 shadow-lg z-50" align="start">
                           <Calendar
                             mode="single"
                             selected={task.endDate}
@@ -479,7 +479,7 @@ export const ModernGanttChart = ({
                       <input
                         type="number"
                         min="1"
-                        className="w-12 h-6 text-xs text-gray-600 font-mono text-center border border-gray-200 rounded px-1 hover:border-gray-300 focus:border-blue-500 focus:outline-none"
+                        className="w-12 h-6 text-xs text-muted-foreground font-inter text-center input-glass border border-border/30 rounded px-1 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                         value={parseInt(task.duration.match(/\d+/)?.[0] || '1')}
                         onChange={(e) => {
                           const days = parseInt(e.target.value) || 1;
@@ -501,9 +501,9 @@ export const ModernGanttChart = ({
                     {/* % Complete */}
                     <div className="px-1 text-center">
                       <span className={cn(
-                        "text-xs font-medium",
+                        "text-xs font-manrope font-medium",
                         task.progress === 100 ? "text-green-600" : 
-                        task.progress > 0 ? "text-blue-600" : "text-gray-500"
+                        task.progress > 0 ? "text-blue-600" : "text-muted-foreground"
                       )}>
                         {Math.round(task.progress)}%
                       </span>
@@ -513,7 +513,7 @@ export const ModernGanttChart = ({
                     <div className="px-1 text-center">
                       <input
                         type="text"
-                        className="w-20 h-6 text-xs text-gray-600 font-mono text-center border border-gray-200 rounded px-1 hover:border-gray-300 focus:border-blue-500 focus:outline-none"
+                        className="w-20 h-6 text-xs text-muted-foreground font-inter text-center input-glass border border-border/30 rounded px-1 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                         value={task.predecessors?.join(', ') || ''}
                         onChange={(e) => {
                           if (onTaskUpdate) {
@@ -538,13 +538,13 @@ export const ModernGanttChart = ({
         {/* Resizable Divider */}
         <div
           ref={resizerRef}
-          className={`w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize relative transition-colors duration-200 ${
-            isResizing ? 'bg-blue-500' : ''
+          className={`w-1 bg-border/50 hover:bg-primary cursor-col-resize relative transition-colors duration-200 ${
+            isResizing ? 'bg-primary' : ''
           }`}
           onMouseDown={handleMouseDown}
         >
           {/* Visual indicator */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-gray-400 rounded opacity-60" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-border rounded opacity-60" />
         </div>
 
         {/* Timeline */}
@@ -552,22 +552,22 @@ export const ModernGanttChart = ({
           {/* Timeline Header - Scrollable with hidden scrollbars */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-gray-200 bg-white overflow-x-auto gantt-header-scroll relative z-10"
+            className="border-b border-border/30 glass overflow-x-auto gantt-header-scroll relative z-10 backdrop-blur-sm"
             style={{ height: '60px' }}
           >
             <div 
-              className="flex flex-col relative bg-white"
+              className="flex flex-col relative glass-light backdrop-blur-sm"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
               {/* Month Header Section */}
-              <div className="flex h-7 border-b border-gray-200 bg-gray-50 relative z-10">
-                <div className="flex items-center px-4 text-xs font-medium text-gray-900 bg-gray-50">
-                  MARC - 2023
+              <div className="flex h-7 border-b border-border/20 bg-card/50 relative z-10">
+                <div className="flex items-center px-4 text-xs font-manrope font-medium text-primary">
+                  MARC - 2025
                 </div>
               </div>
               
               {/* Days Header Section */}
-              <div className="flex h-8 bg-white relative z-10">
+              <div className="flex h-8 bg-card/30 relative z-10 backdrop-blur-sm">
                 {currentDays.map((day, index) => {
                   const dayOfWeek = format(day, 'EEE').toUpperCase();
                   const dayNumber = format(day, 'd');
@@ -576,8 +576,8 @@ export const ModernGanttChart = ({
                     <div
                       key={day.toString()}
                       className={cn(
-                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0 relative",
-                        isToday(day) ? "bg-blue-50 text-blue-600" : "text-gray-600 bg-white"
+                        "flex flex-col items-center justify-center border-r border-border/20 text-xs font-manrope font-medium py-0.5 flex-shrink-0 relative transition-colors duration-200",
+                        isToday(day) ? "bg-primary/10 text-primary" : "text-muted-foreground bg-card/20 hover:bg-accent/10"
                       )}
                       style={{ width: `${dayWidth}px`, minWidth: `${dayWidth}px`, height: '100%' }}
                     >
@@ -598,7 +598,7 @@ export const ModernGanttChart = ({
           {/* Timeline Content - Main scrollable area */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-auto gantt-body-scroll"
+            className="flex-1 overflow-auto gantt-body-scroll glass-light backdrop-blur-sm"
             style={{ maxHeight: '600px' }}
           >
             <div 
@@ -613,7 +613,7 @@ export const ModernGanttChart = ({
               {visibleTasks.map((_, index) => (
                 <div
                   key={`grid-${index}`}
-                  className="absolute w-full border-b border-gray-100"
+                  className="absolute w-full border-b border-border/10"
                   style={{
                     top: index * (rowHeight + 4),
                     height: rowHeight + 4
@@ -624,7 +624,7 @@ export const ModernGanttChart = ({
               {/* Today Line */}
               {currentDays.some(day => isToday(day)) && (
                 <div
-                  className="absolute top-0 w-0.5 bg-blue-500 z-20 border-l-2 border-dotted border-blue-500"
+                  className="absolute top-0 w-0.5 bg-primary z-20 border-l-2 border-dotted border-primary shadow-md"
                   style={{
                     left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
                     height: visibleTasks.length * (rowHeight + 4),
@@ -649,9 +649,10 @@ export const ModernGanttChart = ({
                   >
                     <div
                       className={cn(
-                        "absolute top-1 h-4 rounded-md shadow-sm flex items-center px-1",
+                        "absolute top-1 h-4 rounded-md shadow-sm flex items-center px-1 backdrop-blur-sm border border-white/20",
                         getTaskBarColor(task),
-                        task.isStage ? "h-5 top-0.5" : ""
+                        task.isStage ? "h-5 top-0.5 shadow-md" : "",
+                        "transition-all duration-200 hover:shadow-md hover:scale-105"
                       )}
                       style={{
                         width: position.width,
@@ -659,11 +660,11 @@ export const ModernGanttChart = ({
                       }}
                     >
                       {task.assignee && (
-                        <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-medium text-gray-700 mr-2">
+                        <div className="w-4 h-4 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-[10px] font-manrope font-medium text-foreground mr-1 shadow-sm">
                           {task.assignee.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span className="text-xs font-medium text-white truncate">
+                      <span className="text-[10px] font-inter font-medium text-white truncate">
                         {task.name}
                       </span>
                     </div>
