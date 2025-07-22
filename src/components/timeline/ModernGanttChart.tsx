@@ -311,6 +311,26 @@ export const ModernGanttChart = ({
     setSelectedTaskId(taskId);
   };
 
+  // Add Stage functionality
+  const handleAddStage = () => {
+    if (!onTaskAdd) return;
+    
+    const newStage: Omit<ModernGanttTask, 'id'> = {
+      name: `NEW STAGE ${Math.floor(Math.random() * 1000)}`,
+      startDate: new Date(),
+      endDate: addDays(new Date(), 30),
+      progress: 0,
+      status: 'pending',
+      assignee: 'PM',
+      duration: '30 days',
+      category: 'Planning',
+      isStage: true,
+      // No parentId - this makes it a top-level stage
+    };
+    
+    onTaskAdd(newStage);
+  };
+
   const getTaskPosition = (task: ModernGanttTask) => {
     // Normalize dates to remove time component for accurate comparison
     const taskStartDay = new Date(task.startDate.getFullYear(), task.startDate.getMonth(), task.startDate.getDate());
@@ -502,7 +522,7 @@ export const ModernGanttChart = ({
         onIndentClick={handleIndent}
         onOutdentClick={handleOutdent}
         onAddTaskClick={() => console.log('Add Task clicked')}
-        onAddStageClick={() => console.log('Add Stage clicked')}
+        onAddStageClick={handleAddStage}
       />
       
       {/* Gantt Chart */}
