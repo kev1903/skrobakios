@@ -322,36 +322,40 @@ export const ModernGanttChart = ({
   }, [timelineWidth]);
 
   return (
-    <div className="glass-card rounded-2xl border border-border/50 overflow-hidden w-full max-w-full backdrop-blur-sm">{/* Glassmorphism container */}
+    <div className="bg-background rounded-lg border border-border overflow-hidden w-full max-w-full">
       <div className="flex">
         {/* Task List */}
         <div 
-          className="border-r border-border/30 glass-light relative flex flex-col backdrop-blur-sm"
+          className="border-r border-border bg-background relative flex flex-col"
           style={{ width: taskListWidth }}
         >
-          {/* Task List Header - Fixed tabs, scrollable columns */}
-          <div className="border-b border-border/30 glass flex flex-col backdrop-blur-sm" style={{ height: '60px' }}>
-            {/* Tab Section - Fixed */}
-            <div className="flex h-8 border-b border-border/20 flex-shrink-0">
+          {/* Task List Header - Updated to match reference */}
+          <div className="border-b border-border bg-background flex flex-col" style={{ height: '60px' }}>
+            {/* Tab Section - Updated styling */}
+            <div className="flex h-8 border-b border-border flex-shrink-0 bg-muted/30">
               <div className="flex">
-                <div className="px-4 py-1 text-xs font-manrope font-medium text-primary bg-primary/10 border-r border-border/20 rounded-t-sm">
-                  LIST
+                <div className="px-4 py-1 text-sm font-medium text-foreground bg-background border-r border-border cursor-pointer flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Gantt
                 </div>
-                <div className="px-4 py-1 text-xs font-manrope font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200">
-                  GANTT
+                <div className="px-4 py-1 text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  List
                 </div>
               </div>
             </div>
-            {/* Column Headers - Scrollable container */}
+            {/* Column Headers */}
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-manrope font-medium text-muted-foreground uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '660px' }}>
-                <div className="px-1 text-center">#</div>
-                <div className="px-1">TASK</div>
-                <div className="px-1 text-center">START</div>
-                <div className="px-1 text-center">END</div>
-                <div className="px-1 text-center">DURATION</div>
-                <div className="px-1 text-center">% COMPLETE</div>
-                <div className="px-1 text-center">PREDECESSORS</div>
+              <div className="grid items-center h-full text-xs font-medium text-muted-foreground uppercase tracking-wider gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 100px 100px', minWidth: '560px' }}>
+                <div className="text-left">Title</div>
+                <div className="text-center">Duration</div>
+                <div className="text-center">Status</div>
+                <div className="text-center">% Complete</div>
+                <div className="text-center">Predecessors</div>
               </div>
             </div>
           </div>
@@ -370,27 +374,20 @@ export const ModernGanttChart = ({
                 )}
                 style={{ height: rowHeight + 4 }}
               >
-                <div className="h-full flex items-center px-2">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 60px 80px 100px 100px', minWidth: '660px' }}>
-                    {/* Row Number */}
-                    <div className="px-1 text-center">
-                      <span className="text-xs text-muted-foreground font-inter font-medium">
-                        {index + 1}
-                      </span>
-                    </div>
-
-                    {/* Task Name */}
-                    <div className="px-1 flex items-center gap-1 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-1 min-w-0 w-full">
+                <div className="h-full flex items-center px-4">
+                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 100px 100px', minWidth: '560px' }}>
+                    {/* Task Title with hierarchy */}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div style={{ paddingLeft: `${task.depth * 20}px` }} className="flex items-center gap-2 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
-                            className="p-0.5 hover:bg-accent/30 rounded transition-colors duration-200 flex-shrink-0"
+                            className="p-1 hover:bg-accent/30 rounded transition-colors duration-200 flex-shrink-0"
                           >
                             {expandedSections.has(task.id) || task.isStage ? (
-                              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
                             ) : (
-                              <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
                             )}
                           </button>
                         )}
@@ -398,110 +395,40 @@ export const ModernGanttChart = ({
                           {getStatusIcon(task.status, task.progress)}
                         </div>
                         <span className={cn(
-                          "text-xs truncate min-w-0 flex-1 font-inter",
-                          task.isStage ? "font-semibold text-primary bg-primary/10 px-2 py-1 rounded-md" : "text-foreground",
-                          task.status === 'in-progress' && !task.isStage && "text-orange-600"
+                          "text-sm font-medium truncate min-w-0 flex-1",
+                          task.isStage ? "font-semibold text-foreground" : "text-foreground"
                         )} title={task.name}>
                           {task.name}
                         </span>
                       </div>
                     </div>
 
-                    {/* Start Date */}
-                    <div className="px-1 text-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-xs text-muted-foreground font-inter p-1 hover:bg-accent/30 transition-colors duration-200"
-                            title="Click to change start date"
-                          >
-                            {format(task.startDate, 'dd/MM/yy')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 glass-light border border-border/50 shadow-lg z-50" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.startDate}
-                            onSelect={(date) => {
-                              if (date && onTaskUpdate) {
-                                onTaskUpdate(task.id, { startDate: date });
-                              }
-                            }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    {/* End Date */}
-                    <div className="px-1 text-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-xs text-muted-foreground font-inter p-1 hover:bg-accent/30 transition-colors duration-200"
-                            title="Click to change end date"
-                          >
-                            {format(task.endDate, 'dd/MM/yy')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 glass-light border border-border/50 shadow-lg z-50" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.endDate}
-                            onSelect={(date) => {
-                              if (date && onTaskUpdate) {
-                                // Calculate duration when end date changes
-                                const startDate = task.startDate;
-                                const diffTime = date.getTime() - startDate.getTime();
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                const duration = Math.max(1, diffDays); // Ensure at least 1 day
-                                
-                                onTaskUpdate(task.id, { 
-                                  endDate: date,
-                                  duration: `${duration} days`
-                                });
-                              }
-                            }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
                     {/* Duration */}
-                    <div className="px-1 text-center">
-                      <input
-                        type="number"
-                        min="1"
-                        className="w-12 h-6 text-xs text-muted-foreground font-inter text-center input-glass border border-border/30 rounded px-1 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
-                        value={parseInt(task.duration.match(/\d+/)?.[0] || '1')}
-                        onChange={(e) => {
-                          const days = parseInt(e.target.value) || 1;
-                          if (onTaskUpdate) {
-                            // Calculate end date when duration changes
-                            const startDate = task.startDate;
-                            const newEndDate = addDays(startDate, days - 1); // Subtract 1 because start day counts as day 1
-                            
-                            onTaskUpdate(task.id, { 
-                              duration: `${days} days`,
-                              endDate: newEndDate
-                            });
-                          }
-                        }}
-                        title="Duration in days"
-                      />
+                    <div className="text-center">
+                      <span className="text-sm text-muted-foreground font-medium">
+                        {task.duration}
+                      </span>
+                    </div>
+
+                    {/* Status with Progress Bar */}
+                    <div className="flex flex-col gap-1">
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className={cn(
+                            "h-2 rounded-full transition-all duration-300",
+                            task.progress === 100 ? "bg-green-500" :
+                            task.progress > 50 ? "bg-blue-500" :
+                            task.progress > 0 ? "bg-yellow-500" : "bg-muted"
+                          )}
+                          style={{ width: `${task.progress}%` }}
+                        />
+                      </div>
                     </div>
 
                     {/* % Complete */}
-                    <div className="px-1 text-center">
+                    <div className="text-center">
                       <span className={cn(
-                        "text-xs font-manrope font-medium",
+                        "text-sm font-medium",
                         task.progress === 100 ? "text-green-600" : 
                         task.progress > 0 ? "text-blue-600" : "text-muted-foreground"
                       )}>
@@ -510,10 +437,10 @@ export const ModernGanttChart = ({
                     </div>
 
                     {/* Predecessors */}
-                    <div className="px-1 text-center">
+                    <div className="text-center">
                       <input
                         type="text"
-                        className="w-20 h-6 text-xs text-muted-foreground font-inter text-center input-glass border border-border/30 rounded px-1 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
+                        className="w-20 h-7 text-sm text-muted-foreground text-center border border-border/30 rounded px-2 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
                         value={task.predecessors?.join(', ') || ''}
                         onChange={(e) => {
                           if (onTaskUpdate) {
