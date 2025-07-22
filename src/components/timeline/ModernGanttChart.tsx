@@ -232,15 +232,16 @@ export const ModernGanttChart = ({
     return startOfMonth(baseDate);
   }, [viewStart, currentMonthOffset, tasks]);
 
-  // Simplified timeline calculation - just create a fixed wide timeline
+  // Create timeline with today in the center
   const currentDays = useMemo(() => {
     try {
-      console.log('📅 Creating simple timeline...');
-      // Create a simple 30-day timeline starting from today
-      const start = new Date();
-      const end = addDays(start, 30);
+      console.log('📅 Creating centered timeline...');
+      // Create a 60-day timeline with today in the center (30 days before, 30 days after)
+      const today = new Date();
+      const start = addDays(today, -30); // 30 days before today
+      const end = addDays(today, 30);    // 30 days after today
       const days = eachDayOfInterval({ start, end });
-      console.log('📅 Created', days.length, 'days');
+      console.log('📅 Created', days.length, 'days with today centered');
       return days;
     } catch (error) {
       console.error('❌ Error creating timeline:', error);
