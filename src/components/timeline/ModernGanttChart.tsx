@@ -350,33 +350,34 @@ export const ModernGanttChart = ({
       return;
     }
     
-    const selectedTask = visibleTasks.find(t => t.id === selectedTaskId);
+    const selectedTask = tasks.find(t => t.id === selectedTaskId);
     if (!selectedTask) {
-      console.log('❌ Selected task not found in visible tasks');
+      console.log('❌ Selected task not found');
       return;
     }
     
-    // Find the task above the selected task to use as potential parent
-    const selectedIndex = visibleTasks.findIndex(t => t.id === selectedTaskId);
-    console.log('📍 Selected task index:', selectedIndex);
+    // Find the task above the selected task in the ALL tasks list (to maintain proper ordering)
+    const allFlattened = allTasksWithRowNumbers;
+    const selectedIndex = allFlattened.findIndex(t => t.id === selectedTaskId);
+    console.log('📍 Selected task index in all tasks:', selectedIndex);
     
     if (selectedIndex <= 0) {
       console.log('❌ Cannot indent first task');
       return; // Can't indent first task
     }
     
-    const taskAbove = visibleTasks[selectedIndex - 1];
+    const taskAbove = allFlattened[selectedIndex - 1];
     console.log('👆 Task above:', taskAbove.name, 'depth:', taskAbove.depth);
-    console.log('📏 Selected task depth:', selectedTask.depth);
     
-    // Allow indenting if task above is at same level or higher (lower depth number)
-    // This means we can make the selected task a child of the task above
-    if (selectedTask.depth > taskAbove.depth + 1) {
-      console.log('❌ Cannot indent: would create too deep nesting');
-      return;
-    }
+    // Find the selected task in the flattened list to get its depth
+    const selectedTaskWithDepth = allFlattened.find(t => t.id === selectedTaskId);
+    const currentDepth = selectedTaskWithDepth?.depth || 0;
+    console.log('📏 Selected task depth:', currentDepth);
     
-    console.log('✅ Indenting task:', selectedTask.name, 'to be child of:', taskAbove.name);
+    // Can only indent if it would be at most one level deeper than the task above
+    const newDepth = (taskAbove.depth || 0) + 1;
+    
+    console.log('✅ Indenting task:', selectedTask.name, 'to be child of:', taskAbove.name, 'new depth:', newDepth);
     
     // Ensure the parent is expanded so the indented task remains visible
     setExpandedSections(prev => new Set([...prev, taskAbove.id]));
@@ -384,28 +385,46 @@ export const ModernGanttChart = ({
     // Update the task to be a child of the task above
     onTaskUpdate(selectedTaskId, {
       parentId: taskAbove.id,
-      // Note: depth will be recalculated when hierarchicalTasks is rebuilt
     });
   };
 
   const handleOutdent = () => {
-    if (!selectedTaskId || !onTaskUpdate) return;
+    console.log('🏗️ Outdent clicked for task:', selectedTaskId);
     
-    const selectedTask = visibleTasks.find(t => t.id === selectedTaskId);
-    if (!selectedTask) return;
+    if (!selectedTaskId || !onTaskUpdate) {
+      console.log('❌ No selected task or onTaskUpdate');
+      return;
+    }
     
-    // Can't outdent if already at root level
-    if (selectedTask.depth <= 0) return;
+    const selectedTask = tasks.find(t => t.id === selectedTaskId);
+    if (!selectedTask) {
+      console.log('❌ Selected task not found');
+      return;
+    }
+    
+    // Can't outdent if already at root level (no parent)
+    if (!selectedTask.parentId) {
+      console.log('❌ Cannot outdent: already at root level');
+      return;
+    }
+    
+    console.log('📍 Current parent ID:', selectedTask.parentId);
     
     // Find the current parent and make this task a sibling of the parent
     const currentParent = tasks.find(t => t.id === selectedTask.parentId);
+    
     if (!currentParent) {
+      console.log('❌ Current parent not found, moving to root level');
       // If no parent found, move to root level
       onTaskUpdate(selectedTaskId, { parentId: undefined });
     } else {
-      // Move to be sibling of current parent
+      console.log('✅ Outdenting task:', selectedTask.name, 'from parent:', currentParent.name, 'to grandparent:', currentParent.parentId || 'root');
+      // Move to be sibling of current parent (same parent as current parent)
       onTaskUpdate(selectedTaskId, { parentId: currentParent.parentId });
     }
+    
+    // Handle child tasks - they should remain children of the outdented task
+    // No additional handling needed here as the hierarchical structure will be rebuilt
   };
 
   const handleRowClick = (taskId: string) => {
