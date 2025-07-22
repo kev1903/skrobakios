@@ -1,10 +1,12 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth } from 'date-fns';
-import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock } from 'lucide-react';
+import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import './GanttChart.css';
 
@@ -342,10 +344,9 @@ export const ModernGanttChart = ({
             </div>
             {/* Column Headers - Scrollable container */}
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px', minWidth: '720px' }}>
+              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '570px' }}>
                 <div className="px-1 text-center">WBS</div>
                 <div className="px-1">EVENT NAME</div>
-                <div className="px-1 text-center">WORKER</div>
                 <div className="px-1 text-center">START</div>
                 <div className="px-1 text-center">END</div>
                 <div className="px-1 text-center">DAYS</div>
@@ -370,7 +371,7 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }}
               >
                 <div className="h-full flex items-center px-2">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px', minWidth: '720px' }}>
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '570px' }}>
                     {/* WBS */}
                     <div className="px-1 text-center">
                       <span className="text-xs text-gray-600 font-mono">
@@ -408,16 +409,60 @@ export const ModernGanttChart = ({
 
                     {/* Start Date */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 font-mono" title={format(task.startDate, 'dd/MM/yyyy')}>
-                        {format(task.startDate, 'dd/MM/yy')}
-                      </span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 text-xs text-gray-600 font-mono p-1 hover:bg-gray-100"
+                            title="Click to change start date"
+                          >
+                            {format(task.startDate, 'dd/MM/yy')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-white shadow-lg border z-50" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={task.startDate}
+                            onSelect={(date) => {
+                              if (date && onTaskUpdate) {
+                                onTaskUpdate(task.id, { startDate: date });
+                              }
+                            }}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* End Date */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 font-mono" title={format(task.endDate, 'dd/MM/yyyy')}>
-                        {format(task.endDate, 'dd/MM/yy')}
-                      </span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 text-xs text-gray-600 font-mono p-1 hover:bg-gray-100"
+                            title="Click to change end date"
+                          >
+                            {format(task.endDate, 'dd/MM/yy')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-white shadow-lg border z-50" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={task.endDate}
+                            onSelect={(date) => {
+                              if (date && onTaskUpdate) {
+                                onTaskUpdate(task.id, { endDate: date });
+                              }
+                            }}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* Duration */}
@@ -435,13 +480,6 @@ export const ModernGanttChart = ({
                         task.progress > 0 ? "text-blue-600" : "text-gray-500"
                       )}>
                         {Math.round(task.progress)}%
-                      </span>
-                    </div>
-
-                    {/* Predecessors */}
-                    <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 font-mono truncate block" title={task.predecessors?.join(', ') || ''}>
-                        {task.predecessors?.length ? task.predecessors.join(', ') : ''}
                       </span>
                     </div>
 
