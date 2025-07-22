@@ -58,7 +58,7 @@ import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { BusinessMapPage } from "@/components/BusinessMapPage";
-import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
+
 
 interface ContentRendererProps {
   currentPage: string;
@@ -329,12 +329,6 @@ export const ContentRenderer = ({
       // User management removed - redirect to home  
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
-    case "project-schedule":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectSchedulePage onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
     case "inbox":
     case "asset":
     case "schedules":
