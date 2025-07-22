@@ -48,6 +48,7 @@ export const ModernGanttChart = ({
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
   const ganttScrollBodyRef = useRef<HTMLDivElement>(null);
   const taskListBodyRef = useRef<HTMLDivElement>(null);
+  const taskListHeaderRef = useRef<HTMLDivElement>(null);
   const resizerRef = useRef<HTMLDivElement>(null);
 
   // Handle column resizing
@@ -264,10 +265,11 @@ export const ModernGanttChart = ({
     const header = ganttHeaderRef.current;
     const body = ganttScrollBodyRef.current;
     const taskList = taskListBodyRef.current;
+    const taskListHeader = taskListHeaderRef.current;
 
-    console.log('🔧 ModernGantt scroll setup', { header, body, taskList });
+    console.log('🔧 ModernGantt scroll setup', { header, body, taskList, taskListHeader });
 
-    if (!header || !body || !taskList) {
+    if (!header || !body || !taskList || !taskListHeader) {
       console.warn('❌ ModernGantt refs not found');
       return;
     }
@@ -293,11 +295,18 @@ export const ModernGanttChart = ({
       syncHorizontalScroll(bodyEl, header, 'Body');
       syncVerticalScroll(bodyEl, taskList, 'Body→TaskList');
     };
-    const handleTaskListScroll = () => syncVerticalScroll(taskList, body, 'TaskList→Body');
+    const handleTaskListScroll = (e: Event) => {
+      const listEl = e.target as HTMLElement;
+      syncVerticalScroll(listEl, body, 'TaskList→Body');
+      // Sync horizontal scroll with task list header
+      syncHorizontalScroll(listEl, taskListHeader, 'TaskList→Header');
+    };
+    const handleTaskListHeaderScroll = () => syncHorizontalScroll(taskListHeader, taskList, 'TaskListHeader→Body');
 
     header.addEventListener('scroll', handleHeaderScroll);
     body.addEventListener('scroll', handleBodyScroll);
     taskList.addEventListener('scroll', handleTaskListScroll);
+    taskListHeader.addEventListener('scroll', handleTaskListHeaderScroll);
 
     console.log('✅ ModernGantt scroll listeners attached');
 
@@ -305,6 +314,7 @@ export const ModernGanttChart = ({
       header.removeEventListener('scroll', handleHeaderScroll);
       body.removeEventListener('scroll', handleBodyScroll);
       taskList.removeEventListener('scroll', handleTaskListScroll);
+      taskListHeader.removeEventListener('scroll', handleTaskListHeaderScroll);
       console.log('🧹 ModernGantt scroll cleanup');
     };
   }, [timelineWidth]);
@@ -314,13 +324,13 @@ export const ModernGanttChart = ({
       <div className="flex">
         {/* Task List */}
         <div 
-          className="border-r border-gray-200 bg-white relative"
+          className="border-r border-gray-200 bg-white relative flex flex-col"
           style={{ width: taskListWidth }}
         >
-          {/* Task List Header */}
-          <div className="border-b border-gray-200 bg-white" style={{ height: '60px' }}>
-            {/* Tab Section */}
-            <div className="flex h-8 border-b border-gray-200">
+          {/* Task List Header - Fixed tabs, scrollable columns */}
+          <div className="border-b border-gray-200 bg-white flex flex-col" style={{ height: '60px' }}>
+            {/* Tab Section - Fixed */}
+            <div className="flex h-8 border-b border-gray-200 flex-shrink-0">
               <div className="flex">
                 <div className="px-4 py-1 text-xs font-medium text-gray-900 bg-gray-100 border-r border-gray-200">
                   GENERAL
@@ -330,23 +340,25 @@ export const ModernGanttChart = ({
                 </div>
               </div>
             </div>
-            {/* Column Headers */}
-            <div className="grid items-center h-8 text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
-              <div className="px-1 text-center">WBS</div>
-              <div className="px-1">EVENT NAME</div>
-              <div className="px-1 text-center">WORKER</div>
-              <div className="px-1 text-center">START</div>
-              <div className="px-1 text-center">END</div>
-              <div className="px-1 text-center">DAYS</div>
-              <div className="px-1 text-center">% Complete</div>
-              <div className="px-1 text-center">Assigned To</div>
+            {/* Column Headers - Scrollable container */}
+            <div className="h-8 overflow-x-auto overflow-y-hidden" ref={taskListHeaderRef}>
+              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px', minWidth: '720px' }}>
+                <div className="px-1 text-center">WBS</div>
+                <div className="px-1">EVENT NAME</div>
+                <div className="px-1 text-center">WORKER</div>
+                <div className="px-1 text-center">START</div>
+                <div className="px-1 text-center">END</div>
+                <div className="px-1 text-center">DAYS</div>
+                <div className="px-1 text-center">% Complete</div>
+                <div className="px-1 text-center">Assigned To</div>
+              </div>
             </div>
           </div>
 
           {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
-            className="max-h-[600px] overflow-y-auto"
+            className="max-h-[600px] overflow-auto"
           >
             {visibleTasks.map((task, index) => (
               <div
@@ -358,7 +370,7 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }}
               >
                 <div className="h-full flex items-center px-2">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px', minWidth: '720px' }}>
                     {/* WBS */}
                     <div className="px-1 text-center">
                       <span className="text-xs text-gray-600 font-mono">
