@@ -648,6 +648,8 @@ export const ModernGanttChart = ({
     }
   };
 
+
+
   // Dynamic calendar navigation
   const [currentMonthOffset, setCurrentMonthOffset] = useState(0);
   
@@ -697,6 +699,84 @@ export const ModernGanttChart = ({
   const maxAvailableWidth = typeof window !== 'undefined' ? window.innerWidth - taskListWidth - 100 : 1200;
   const timelineWidth = Math.min(Math.max(currentDays.length * dayWidth, 1000), maxAvailableWidth);
   console.log('📏 Timeline width:', timelineWidth, 'px');
+
+  // Calculate task positions for dependency arrows
+  const getTaskPositionForArrow = (taskId: string) => {
+    const task = visibleTasks.find(t => t.id === taskId);
+    if (!task) return null;
+    
+    const taskIndex = visibleTasks.findIndex(t => t.id === taskId);
+    const startDayIndex = currentDays.findIndex(day => 
+      day.toDateString() === task.startDate.toDateString()
+    );
+    const endDayIndex = currentDays.findIndex(day => 
+      day.toDateString() === task.endDate.toDateString()
+    );
+    
+    if (startDayIndex === -1 || endDayIndex === -1) return null;
+    
+    return {
+      x: startDayIndex * dayWidth,
+      endX: (endDayIndex + 1) * dayWidth,
+      y: taskIndex * 40 + 20, // Center of task row
+      taskIndex
+    };
+  };
+
+  // Generate dependency arrows data
+  const dependencyArrows = useMemo(() => {
+    const arrows: Array<{
+      id: string;
+      startX: number;
+      startY: number;
+      endX: number;
+      endY: number;
+      path: string;
+    }> = [];
+
+    visibleTasks.forEach(task => {
+      if (task.predecessors && task.predecessors.length > 0) {
+        const successorPos = getTaskPositionForArrow(task.id);
+        if (!successorPos) return;
+
+        task.predecessors.forEach(predecessorRowNumber => {
+          // Find the predecessor task by row number
+          const predecessorTask = allTasksWithRowNumbers.find(t => 
+            t.rowNumber.toString() === predecessorRowNumber
+          );
+          
+          if (predecessorTask) {
+            const predecessorPos = getTaskPositionForArrow(predecessorTask.id);
+            if (!predecessorPos) return;
+
+            // Calculate arrow path (curved line from end of predecessor to start of successor)
+            const startX = predecessorPos.endX;
+            const startY = predecessorPos.y;
+            const endX = successorPos.x;
+            const endY = successorPos.y;
+            
+            // Create a smooth curved path
+            const controlPoint1X = startX + 30;
+            const controlPoint2X = endX - 30;
+            
+            const path = `M ${startX} ${startY} 
+                         C ${controlPoint1X} ${startY}, ${controlPoint2X} ${endY}, ${endX} ${endY}`;
+
+            arrows.push({
+              id: `${predecessorTask.id}-${task.id}`,
+              startX,
+              startY,
+              endX,
+              endY,
+              path
+            });
+          }
+        });
+      }
+    });
+
+    return arrows;
+  }, [visibleTasks, allTasksWithRowNumbers, currentDays, dayWidth]);
 
   // Enhanced scroll synchronization with auto-centering on today
   useEffect(() => {
@@ -1152,6 +1232,47 @@ export const ModernGanttChart = ({
                 minWidth: timelineWidth 
               }}
             >
+
+              {/* Dependency Arrows Overlay */}
+              {dependencyArrows.length > 0 && (
+                <svg
+                  className="absolute top-0 left-0 pointer-events-none z-10"
+                  style={{ 
+                    width: timelineWidth, 
+                    height: visibleTasks.length * 40,
+                    minWidth: timelineWidth 
+                  }}
+                >
+                  <defs>
+                    <marker
+                      id="arrowhead"
+                      markerWidth="10"
+                      markerHeight="7"
+                      refX="9"
+                      refY="3.5"
+                      orient="auto"
+                    >
+                      <polygon
+                        points="0 0, 10 3.5, 0 7"
+                        fill="hsl(var(--primary))"
+                        opacity="0.7"
+                      />
+                    </marker>
+                  </defs>
+                  {dependencyArrows.map(arrow => (
+                    <path
+                      key={arrow.id}
+                      d={arrow.path}
+                      stroke="hsl(var(--primary))"
+                      strokeWidth="2"
+                      fill="none"
+                      opacity="0.7"
+                      markerEnd="url(#arrowhead)"
+                      className="drop-shadow-sm"
+                    />
+                  ))}
+                </svg>
+              )}
 
               {/* Today Line */}
               {currentDays.some(day => isToday(day)) && (
