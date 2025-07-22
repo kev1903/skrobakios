@@ -430,8 +430,10 @@ export const ModernGanttChart = ({
 
                     {/* Status */}
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <span className="text-sm text-gray-600">To-do</span>
+                      {getStatusIcon(task.status, task.progress)}
+                      <span className="text-sm text-gray-600 capitalize">
+                        {task.status.replace('-', ' ')}
+                      </span>
                     </div>
                   </div>
                 </div>
