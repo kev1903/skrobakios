@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { Toolbar } from '@/components/ui/toolbar';
 import './GanttChart.css';
 
 export interface ModernGanttTask {
@@ -322,7 +323,22 @@ export const ModernGanttChart = ({
   }, [timelineWidth]);
 
   return (
-    <div className="bg-background rounded-lg border border-border overflow-hidden w-full max-w-full">
+    <div className="space-y-4">
+      {/* Toolbar */}
+      <Toolbar 
+        className="w-fit"
+        onBaselineClick={() => console.log('Baselines clicked')}
+        onFilterClick={() => console.log('Filter clicked')}
+        onSettingsClick={() => console.log('Settings clicked')}
+        onExpandClick={() => console.log('Expand clicked')}
+        onChartClick={() => console.log('Chart clicked')}
+        onCalendarClick={() => console.log('Calendar clicked')}
+        onUsersClick={() => console.log('Users clicked')}
+        onMoreClick={() => console.log('More clicked')}
+      />
+      
+      {/* Gantt Chart */}
+      <div className="bg-background rounded-lg border border-border overflow-hidden w-full max-w-full">
       <div className="flex">
         {/* Task List */}
         <div 
@@ -687,6 +703,7 @@ export const ModernGanttChart = ({
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
