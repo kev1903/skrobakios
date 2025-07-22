@@ -250,8 +250,9 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Force a very wide timeline but responsive to screen size
-  const timelineWidth = Math.max(currentDays.length * dayWidth, 2000);
+  // Calculate responsive timeline width based on available space
+  const maxAvailableWidth = typeof window !== 'undefined' ? window.innerWidth - taskListWidth - 100 : 1200;
+  const timelineWidth = Math.min(Math.max(currentDays.length * dayWidth, 1000), maxAvailableWidth);
   console.log('📏 Timeline width:', timelineWidth, 'px');
 
   // Simplified scroll synchronization - exactly like SimpleScrollTest

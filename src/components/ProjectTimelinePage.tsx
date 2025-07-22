@@ -348,18 +348,20 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
     <div className="flex-1 bg-white">
       {renderHeaderControls()}
       
-      <div className="p-4">
+      <div className="p-4 overflow-x-hidden w-full">
         {selectedView === 'gantt' ? (
-          <Card className="shadow-lg">
-            <CardContent className="p-0">
-              <ModernGanttChart
-                tasks={tasks}
+          <div className="w-full overflow-hidden">{/* Prevent any overflow */}
+            <Card className="shadow-lg w-full">
+              <CardContent className="p-0 overflow-hidden">
+                <ModernGanttChart
+                  tasks={tasks}
                 onTaskUpdate={handleTaskUpdate}
                 onTaskAdd={handleTaskAdd}
                 onTaskDelete={handleTaskDelete}
-              />
-            </CardContent>
-          </Card>
+                />
+              </CardContent>
+            </Card>
+          </div>
         ) : (
           <Card className="shadow-lg">
             <CardHeader>
@@ -384,7 +386,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
   // Mobile layout with drawer
   if (screenSize === 'mobile') {
     return (
-      <div className="h-screen flex flex-col backdrop-blur-xl bg-black/20">
+      <div className="h-screen flex flex-col backdrop-blur-xl bg-black/20 overflow-x-hidden">
         {/* Mobile Header */}
         <div className="flex-shrink-0 h-16 px-4 flex items-center justify-between backdrop-blur-xl bg-white/10 border-b border-white/10">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
