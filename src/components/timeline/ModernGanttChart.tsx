@@ -375,7 +375,7 @@ export const ModernGanttChart = ({
                     {/* WBS */}
                     <div className="px-1 text-center">
                       <span className="text-xs text-gray-600 font-mono">
-                        {task.wbs ? task.wbs.replace(/[^0-9]/g, '') : task.id.replace(/[^0-9]/g, '')}
+                        {index + 1}
                       </span>
                     </div>
 
