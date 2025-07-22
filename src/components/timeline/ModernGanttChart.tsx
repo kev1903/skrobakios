@@ -354,49 +354,53 @@ export const ModernGanttChart = ({
 
   // Drag and drop functionality
   const handleDragEnd = (result: DropResult) => {
+    console.log('🔄 Drag end:', result);
+    
     if (!result.destination || !onTaskReorder) {
+      console.log('❌ No destination or onTaskReorder');
       return;
     }
 
     const sourceIndex = result.source.index;
     const destinationIndex = result.destination.index;
 
+    console.log('📊 Moving from index', sourceIndex, 'to', destinationIndex);
+
     if (sourceIndex === destinationIndex) {
+      console.log('⏹️ Same position, no change');
       return;
     }
 
-    // Create a new array of visible tasks with the reordered item
+    // Work with visible tasks and create a simple flat reordering
     const reorderedVisibleTasks = Array.from(visibleTasks);
     const [draggedTask] = reorderedVisibleTasks.splice(sourceIndex, 1);
     reorderedVisibleTasks.splice(destinationIndex, 0, draggedTask);
 
-    // Find the actual task order based on the flat task structure
-    // This is a simplified approach - we need to rebuild the entire task hierarchy
-    const allTasksArray = Array.from(tasks);
-    const draggedOriginalTask = allTasksArray.find(t => t.id === draggedTask.id);
-    
-    if (!draggedOriginalTask) return;
+    console.log('🎯 Dragged task:', draggedTask.name);
+    console.log('📋 New order:', reorderedVisibleTasks.map(t => t.name));
 
-    // Remove the dragged task from its current position
-    const filteredTasks = allTasksArray.filter(t => t.id !== draggedTask.id);
+    // For now, let's create a simple flat reordering by taking the visible tasks order
+    // and rebuilding the original tasks array to match this order
+    const taskMap = new Map(tasks.map(task => [task.id, task]));
+    const reorderedTasks: ModernGanttTask[] = [];
     
-    // Find the target position in the original tasks array
-    let insertIndex = 0;
-    if (destinationIndex === 0) {
-      insertIndex = 0;
-    } else if (destinationIndex >= reorderedVisibleTasks.length - 1) {
-      insertIndex = filteredTasks.length;
-    } else {
-      // Find the task that should come after our insertion point
-      const nextTask = reorderedVisibleTasks[destinationIndex + 1];
-      insertIndex = filteredTasks.findIndex(t => t.id === nextTask.id);
-      if (insertIndex === -1) insertIndex = filteredTasks.length;
-    }
+    // Add tasks in the new visual order
+    reorderedVisibleTasks.forEach(visibleTask => {
+      const originalTask = taskMap.get(visibleTask.id);
+      if (originalTask && !reorderedTasks.find(t => t.id === originalTask.id)) {
+        reorderedTasks.push(originalTask);
+      }
+    });
     
-    // Insert the dragged task at the new position
-    filteredTasks.splice(insertIndex, 0, draggedOriginalTask);
-    
-    onTaskReorder(filteredTasks);
+    // Add any remaining tasks that weren't visible (shouldn't happen in most cases)
+    tasks.forEach(task => {
+      if (!reorderedTasks.find(t => t.id === task.id)) {
+        reorderedTasks.push(task);
+      }
+    });
+
+    console.log('🔄 Final reordered tasks:', reorderedTasks.map(t => t.name));
+    onTaskReorder(reorderedTasks);
   };
 
   // Add Stage functionality
