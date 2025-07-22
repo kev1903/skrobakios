@@ -311,26 +311,6 @@ export const ModernGanttChart = ({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full max-w-full">{/* Ensure no overflow */}
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-gray-50 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h3 className="text-lg font-semibold text-gray-900">Project Timeline</h3>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigateMonth('prev')}>
-                ←
-              </Button>
-              <span className="text-sm font-medium text-gray-600 min-w-[120px] text-center">
-                {format(currentViewStart, 'MMM yyyy')}
-              </span>
-              <Button variant="outline" size="sm" onClick={() => navigateMonth('next')}>
-                →
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="flex">
         {/* Task List */}
         <div 
