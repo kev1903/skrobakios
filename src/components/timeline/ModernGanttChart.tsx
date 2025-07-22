@@ -321,12 +321,12 @@ export const ModernGanttChart = ({
         >
           {/* Task List Header */}
           <div className="border-b border-gray-200 bg-gray-50 p-2">
-            <div className="flex items-center text-xs font-medium text-gray-600 uppercase tracking-wider">
-              <div className="w-4/12 min-w-0 px-2">Task</div>
-              <div className="w-2/12 min-w-0 px-2 text-center">Duration</div>
-              <div className="w-2/12 min-w-0 px-2 text-center">Status</div>
-              <div className="w-2/12 min-w-0 px-2 text-center">Progress</div>
-              <div className="w-2/12 min-w-0 px-2 text-center">Actions</div>
+            <div className="grid items-center text-xs font-medium text-gray-600 uppercase tracking-wider gap-2" style={{ gridTemplateColumns: 'minmax(140px, 1fr) 60px 60px 60px 40px' }}>
+              <div className="px-1">Task</div>
+              <div className="px-1 text-center">Duration</div>
+              <div className="px-1 text-center">Status</div>
+              <div className="px-1 text-center">Progress</div>
+              <div className="px-1 text-center">Actions</div>
             </div>
           </div>
 
@@ -342,10 +342,10 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }} // Add 4px for border
               >
                 <div className="p-2 h-full flex items-center">
-                  <div className="flex items-center w-full">{/* Changed from grid to flex */}
-                    {/* Task Name - Fixed width */}
-                    <div className="w-4/12 min-w-0 px-2 flex items-center gap-1">
-                      <div style={{ paddingLeft: `${task.depth * 12}px` }} className="flex items-center gap-1 min-w-0">
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(140px, 1fr) 60px 60px 60px 40px' }}>
+                    {/* Task Name */}
+                    <div className="px-1 flex items-center gap-1 min-w-0">
+                      <div style={{ paddingLeft: `${task.depth * 12}px` }} className="flex items-center gap-1 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
@@ -362,7 +362,7 @@ export const ModernGanttChart = ({
                           {getStatusIcon(task.status, task.progress)}
                         </div>
                         <span className={cn(
-                          "text-xs truncate min-w-0",
+                          "text-xs truncate min-w-0 flex-1",
                           task.isStage ? "font-semibold text-gray-900" : "text-gray-700"
                         )} title={task.name}>
                           {task.name}
@@ -370,13 +370,13 @@ export const ModernGanttChart = ({
                       </div>
                     </div>
 
-                    {/* Duration - Fixed width */}
-                    <div className="w-2/12 min-w-0 px-2 text-center">
+                    {/* Duration */}
+                    <div className="px-1 text-center">
                       <span className="text-xs text-gray-500 truncate block" title={task.duration}>{task.duration}</span>
                     </div>
 
-                    {/* Status - Fixed width */}
-                    <div className="w-2/12 min-w-0 px-2 text-center">
+                    {/* Status */}
+                    <div className="px-1 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <div className={cn(
                           "w-2 h-2 rounded-full flex-shrink-0",
@@ -388,13 +388,13 @@ export const ModernGanttChart = ({
                       </div>
                     </div>
 
-                    {/* Progress - Fixed width */}
-                    <div className="w-2/12 min-w-0 px-2 text-center">
-                      <Progress value={task.progress} className="w-full h-1.5" />
+                    {/* Progress */}
+                    <div className="px-1 text-center flex justify-center">
+                      <Progress value={task.progress} className="w-8 h-1.5" />
                     </div>
 
-                    {/* Actions - Fixed width */}
-                    <div className="w-2/12 min-w-0 px-2 text-center">
+                    {/* Actions */}
+                    <div className="px-1 text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm" className="w-5 h-5 p-0 hover:bg-gray-200">
