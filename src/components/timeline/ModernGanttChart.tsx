@@ -17,6 +17,7 @@ export interface ModernGanttTask {
   status: 'pending' | 'in-progress' | 'completed' | 'delayed';
   assignee?: string;
   duration: string;
+  dependencies?: string[];
   category?: string;
   parentId?: string;
   isStage?: boolean;
@@ -321,12 +322,13 @@ export const ModernGanttChart = ({
         >
           {/* Task List Header */}
           <div className="border-b border-gray-200 bg-gray-50 p-2">
-            <div className="grid items-center text-xs font-medium text-gray-600 uppercase tracking-wider gap-2" style={{ gridTemplateColumns: 'minmax(140px, 1fr) 60px 60px 60px 40px' }}>
-              <div className="px-1">Task</div>
+            <div className="grid items-center text-xs font-medium text-gray-600 uppercase tracking-wider gap-2" style={{ gridTemplateColumns: 'minmax(160px, 1fr) 80px 80px 60px 100px 80px' }}>
+              <div className="px-1">Task Name</div>
+              <div className="px-1 text-center">Start Date</div>
+              <div className="px-1 text-center">End Date</div>
               <div className="px-1 text-center">Duration</div>
-              <div className="px-1 text-center">Status</div>
-              <div className="px-1 text-center">Progress</div>
-              <div className="px-1 text-center">Actions</div>
+              <div className="px-1 text-center">Dependencies</div>
+              <div className="px-1 text-center">Assignee</div>
             </div>
           </div>
 
@@ -342,7 +344,7 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }} // Add 4px for border
               >
                 <div className="p-2 h-full flex items-center">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(140px, 1fr) 60px 60px 60px 40px' }}>
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(160px, 1fr) 80px 80px 60px 100px 80px' }}>
                     {/* Task Name */}
                     <div className="px-1 flex items-center gap-1 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 12}px` }} className="flex items-center gap-1 min-w-0 w-full">
@@ -370,44 +372,37 @@ export const ModernGanttChart = ({
                       </div>
                     </div>
 
+                    {/* Start Date */}
+                    <div className="px-1 text-center">
+                      <span className="text-xs text-gray-500 truncate block" title={format(task.startDate, 'MMM dd, yyyy')}>
+                        {format(task.startDate, 'MMM dd')}
+                      </span>
+                    </div>
+
+                    {/* End Date */}
+                    <div className="px-1 text-center">
+                      <span className="text-xs text-gray-500 truncate block" title={format(task.endDate, 'MMM dd, yyyy')}>
+                        {format(task.endDate, 'MMM dd')}
+                      </span>
+                    </div>
+
                     {/* Duration */}
                     <div className="px-1 text-center">
                       <span className="text-xs text-gray-500 truncate block" title={task.duration}>{task.duration}</span>
                     </div>
 
-                    {/* Status */}
+                    {/* Dependencies */}
                     <div className="px-1 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <div className={cn(
-                          "w-2 h-2 rounded-full flex-shrink-0",
-                          getTaskBarColor(task)
-                        )} />
-                        <span className="text-xs text-gray-600 truncate" title={formatProgress(task.progress)}>
-                          {formatProgress(task.progress)}
-                        </span>
-                      </div>
+                      <span className="text-xs text-gray-500 truncate block" title={task.dependencies?.join(', ') || 'None'}>
+                        {task.dependencies?.length ? task.dependencies.join(', ') : '-'}
+                      </span>
                     </div>
 
-                    {/* Progress */}
-                    <div className="px-1 text-center flex justify-center">
-                      <Progress value={task.progress} className="w-8 h-1.5" />
-                    </div>
-
-                    {/* Actions */}
+                    {/* Assignee */}
                     <div className="px-1 text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="w-5 h-5 p-0 hover:bg-gray-200">
-                            <MoreHorizontal className="w-3 h-3" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Mark as done</DropdownMenuItem>
-                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <span className="text-xs text-gray-600 truncate block" title={task.assignee || 'Unassigned'}>
+                        {task.assignee || '-'}
+                      </span>
                     </div>
                   </div>
                 </div>
