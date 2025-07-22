@@ -89,7 +89,7 @@ export const ModernGanttChart = ({
   }, [tasks]);
 
   const days = eachDayOfInterval({ start: viewStart, end: viewEnd });
-  const dayWidth = 24; // Increased from 16 for better readability
+  const dayWidth = 32; // Increased for better day name visibility
   const rowHeight = 48; // Standardized row height
 
   // Build hierarchical structure
@@ -487,14 +487,14 @@ export const ModernGanttChart = ({
                     <div
                       key={day.toString()}
                       className={cn(
-                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-1",
+                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0",
                         isToday(day) ? "bg-blue-50 text-blue-600" : "text-gray-600"
                       )}
-                      style={{ width: dayWidth, minWidth: dayWidth, height: '100%' }}
+                      style={{ width: `${dayWidth}px`, minWidth: `${dayWidth}px`, height: '100%' }}
                     >
-                      <div className="text-[10px] leading-tight">{dayOfWeek}</div>
+                      <div className="text-[9px] leading-none font-medium">{dayOfWeek}</div>
                       <div className={cn(
-                        "text-[10px] leading-tight",
+                        "text-[10px] leading-none mt-0.5",
                         isToday(day) ? "font-semibold" : ""
                       )}>
                         {dayNumber}
