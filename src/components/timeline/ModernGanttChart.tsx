@@ -322,8 +322,8 @@ export const ModernGanttChart = ({
           style={{ width: taskListWidth }}
         >
           {/* Task List Header */}
-          <div className="border-b border-gray-200 bg-gray-50 p-2">
-            <div className="grid items-center text-xs font-medium text-gray-600 uppercase tracking-wider gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
+          <div className="border-b border-gray-200 bg-gray-50 p-0" style={{ height: '60px' }}>
+            <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
               <div className="px-1 text-center">WBS</div>
               <div className="px-1">Task</div>
               <div className="px-1 text-center">Start Date</div>
@@ -344,9 +344,9 @@ export const ModernGanttChart = ({
                   "border-b border-gray-100 hover:bg-gray-50 transition-colors",
                   task.isStage && "bg-blue-50 border-b-blue-200"
                 )}
-                style={{ height: rowHeight + 4 }} // Add 4px for border
+                style={{ height: rowHeight + 4 }}
               >
-                <div className="p-2 h-full flex items-center">
+                <div className="h-full flex items-center px-2">
                   <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
                     {/* WBS */}
                     <div className="px-1 text-center">
