@@ -742,13 +742,14 @@ export const ModernGanttChart = ({
               </div>
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '580px' }}>
+                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
                   <div></div>
                   <div className="text-center">#</div>
                   <div className="text-left">Task name</div>
                   <div className="text-left">Start</div>
                   <div className="text-left">End</div>
                   <div className="text-left">Duration</div>
+                  <div className="text-left">Predecessors</div>
                   <div className="text-left">Status</div>
                 </div>
               </div>
@@ -785,7 +786,7 @@ export const ModernGanttChart = ({
                 onClick={() => handleRowClick(task.id)}
               >
                  <div className="h-full flex items-center px-4">
-                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '580px' }}>
+                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
                       {/* Drag Handle */}
                       <div 
                         {...provided.dragHandleProps}
@@ -942,6 +943,16 @@ export const ModernGanttChart = ({
                           {task.duration}
                         </Button>
                       )}
+                    </div>
+
+                    {/* Predecessors */}
+                    <div>
+                      <span className="text-sm text-gray-600">
+                        {task.predecessors && task.predecessors.length > 0 
+                          ? task.predecessors.join(', ') 
+                          : '-'
+                        }
+                      </span>
                     </div>
 
                     {/* Status */}
