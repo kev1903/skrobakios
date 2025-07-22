@@ -46,11 +46,11 @@ const TasksPage = () => {
   ];
 
   const taskBacklog = [
-    { id: 1, title: 'Review quarterly goals', priority: 'High', tags: ['Planning'] },
-    { id: 2, title: 'Update portfolio website', priority: 'Medium', tags: ['Development', 'Portfolio'] },
-    { id: 3, title: 'Research competitor analysis', priority: 'Low', tags: ['Research'] },
-    { id: 4, title: 'Schedule team sync meeting', priority: 'High', tags: ['Meeting'] },
-    { id: 5, title: 'Complete certification course', priority: 'Medium', tags: ['Learning'] }
+    { id: 1, title: 'Review quarterly goals', project: 'Q2 Strategic Planning', priority: 'High', tags: ['Planning'] },
+    { id: 2, title: 'Update portfolio website', project: 'Personal Branding', priority: 'Medium', tags: ['Development', 'Portfolio'] },
+    { id: 3, title: 'Research competitor analysis', project: 'Market Research', priority: 'Low', tags: ['Research'] },
+    { id: 4, title: 'Schedule team sync meeting', project: 'Team Management', priority: 'High', tags: ['Meeting'] },
+    { id: 5, title: 'Complete certification course', project: 'Professional Development', priority: 'Medium', tags: ['Learning'] }
   ];
 
   const getDaysInMonth = (date: Date) => {
@@ -102,7 +102,10 @@ const TasksPage = () => {
             {taskBacklog.map((task) => (
               <div key={task.id} className="p-3 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
                 <div className="flex items-start justify-between mb-2">
-                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">{task.title}</h4>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium text-gray-800 line-clamp-2 mb-1">{task.title}</h4>
+                    <p className="text-xs text-gray-500">{task.project}</p>
+                  </div>
                   <span className={cn(
                     "px-2 py-1 rounded-lg text-xs font-medium ml-2 flex-shrink-0",
                     task.priority === 'High' ? 'bg-red-50 text-red-600' :
