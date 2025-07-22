@@ -430,7 +430,7 @@ export const ModernGanttChart = ({
                     {/* % Complete */}
                     <div className="px-1 text-center">
                       <span className={cn(
-                        "text-xs font-semibold",
+                        "text-xs font-medium",
                         task.progress === 100 ? "text-green-600" : 
                         task.progress > 0 ? "text-blue-600" : "text-gray-500"
                       )}>
@@ -447,7 +447,7 @@ export const ModernGanttChart = ({
 
                     {/* Assigned To */}
                     <div className="px-1 text-center">
-                      <span className="text-xs text-gray-700 truncate block" title={task.assignee || ''}>
+                      <span className="text-xs text-gray-600 truncate block" title={task.assignee || ''}>
                         {task.assignee || ''}
                       </span>
                     </div>
