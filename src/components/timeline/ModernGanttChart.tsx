@@ -547,8 +547,9 @@ export const ModernGanttChart = ({
                 </div>
               </div>
               {/* Column Headers */}
-              <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
+               <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
+                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '560px' }}>
+                  <div className="text-center">#</div>
                   <div className="text-left">Task name</div>
                   <div className="text-left">Start</div>
                   <div className="text-left">End</div>
@@ -574,10 +575,15 @@ export const ModernGanttChart = ({
                 style={{ height: 40 }}
                 onClick={() => handleRowClick(task.id)}
               >
-                <div className="h-full flex items-center px-4">
-                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
-                    {/* Task Title with hierarchy */}
-                    <div className="flex items-center gap-2 min-w-0">
+                 <div className="h-full flex items-center px-4">
+                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '40px minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '560px' }}>
+                     {/* Row Number */}
+                     <div className="text-center text-sm text-gray-500 font-mono">
+                       {index + 1}
+                     </div>
+                     
+                     {/* Task Title with hierarchy */}
+                     <div className="flex items-center gap-2 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-2 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
