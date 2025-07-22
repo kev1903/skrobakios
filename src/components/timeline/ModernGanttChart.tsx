@@ -375,7 +375,10 @@ export const ModernGanttChart = ({
                     {/* WBS */}
                     <div className="px-1 text-center">
                       <span className="text-xs text-gray-600 font-mono">
-                        {index + 1}
+                        {(() => {
+                          console.log('WBS Column - Row:', index + 1, 'Task:', task.name);
+                          return index + 1;
+                        })()}
                       </span>
                     </div>
 
