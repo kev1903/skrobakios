@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth, isWeekend } from 'date-fns';
-import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon, GripVertical, Scissors, Copy, Clipboard, History, Plus, Trash2, MessageSquare, Settings, Indent, Outdent, Image, Link, Network, ExternalLink, Calculator } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Toolbar } from '@/components/ui/toolbar';
+import { useRowContextMenu } from '@/components/ui/row-context-menu';
 import './GanttChart.css';
 
 export interface ModernGanttTask {
@@ -58,6 +59,35 @@ export const ModernGanttChart = ({
   const [taskNameInput, setTaskNameInput] = useState<string>('');
   const [editingPredecessors, setEditingPredecessors] = useState<Set<string>>(new Set());
   const [predecessorInputs, setPredecessorInputs] = useState<Record<string, string>>({});
+  
+  // Context menu items
+  const contextMenuItems = [
+    { label: 'Cut', shortcut: 'Ctrl + X', icon: <Scissors className="w-4 h-4" />, action: () => console.log('Cut') },
+    { label: 'Copy', shortcut: 'Ctrl + C', icon: <Copy className="w-4 h-4" />, action: () => console.log('Copy') },
+    { label: 'Paste', shortcut: 'Ctrl + V', icon: <Clipboard className="w-4 h-4" />, action: () => console.log('Paste') },
+    { label: 'Paste Special...', shortcut: 'Ctrl + Shift + V', icon: <Clipboard className="w-4 h-4" />, action: () => console.log('Paste Special') },
+    { label: 'Clear Contents', action: () => console.log('Clear Contents') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'View Cell History...', icon: <History className="w-4 h-4" />, action: () => console.log('View Cell History') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Insert Row', shortcut: 'Insert Key', icon: <Plus className="w-4 h-4" />, action: () => console.log('Insert Row') },
+    { label: 'Delete Row', icon: <Trash2 className="w-4 h-4" />, action: () => console.log('Delete Row') },
+    { label: 'Add a Row Comment', icon: <MessageSquare className="w-4 h-4" />, action: () => console.log('Add Row Comment') },
+    { label: 'Row Actions...', icon: <Settings className="w-4 h-4" />, action: () => console.log('Row Actions') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Indent', shortcut: 'Ctrl + ]', icon: <Indent className="w-4 h-4" />, action: () => console.log('Indent') },
+    { label: 'Outdent', shortcut: 'Ctrl + [', icon: <Outdent className="w-4 h-4" />, action: () => console.log('Outdent') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Insert Image', icon: <Image className="w-4 h-4" />, submenu: true, action: () => console.log('Insert Image') },
+    { label: 'Link from Cell in Other Sheet...', icon: <Link className="w-4 h-4" />, action: () => console.log('Link from Cell') },
+    { label: 'Manage References...', icon: <Network className="w-4 h-4" />, action: () => console.log('Manage References') },
+    { label: 'Hyperlink...', shortcut: 'Ctrl + K', icon: <ExternalLink className="w-4 h-4" />, action: () => console.log('Hyperlink') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Convert to Column Formula', icon: <Calculator className="w-4 h-4" />, action: () => console.log('Convert to Column Formula') },
+  ];
+
+  // Context menu hook
+  const { handleContextMenu, contextMenu } = useRowContextMenu({ items: contextMenuItems });
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -857,6 +887,7 @@ export const ModernGanttChart = ({
   }, [timelineWidth, currentDays, dayWidth]);
 
   return (
+    <>
     <div className="space-y-4">
       {/* Toolbar */}
       <Toolbar 
@@ -940,6 +971,7 @@ export const ModernGanttChart = ({
                   ...provided.draggableProps.style
                 }}
                 onClick={() => handleRowClick(task.id)}
+                onContextMenu={handleContextMenu}
               >
                  <div className="h-full flex items-center px-4">
                    <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
@@ -1375,5 +1407,9 @@ export const ModernGanttChart = ({
       </div>
     {/* End space-y-4 container */}
     </div>
+    
+    {/* Context Menu */}
+    {contextMenu}
+    </>
   );
 };

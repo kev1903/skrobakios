@@ -8,6 +8,7 @@ interface ContextMenuItem {
   separator?: boolean;
   disabled?: boolean;
   icon?: React.ReactNode;
+  submenu?: boolean;
 }
 
 interface RowContextMenuProps {
@@ -102,11 +103,16 @@ export const RowContextMenu: React.FC<RowContextMenuProps> = ({
               {item.icon && <span className="w-4 h-4">{item.icon}</span>}
               <span>{item.label}</span>
             </div>
-            {item.shortcut && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {item.shortcut}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {item.shortcut && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {item.shortcut}
+                </span>
+              )}
+              {item.submenu && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">▶</span>
+              )}
+            </div>
           </button>
         </React.Fragment>
       ))}
