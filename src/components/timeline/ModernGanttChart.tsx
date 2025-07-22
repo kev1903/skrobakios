@@ -36,6 +36,8 @@ export const ModernGanttChart = ({
   onTaskAdd,
   onTaskDelete
 }: ModernGanttChartProps) => {
+  console.log('🚀 ModernGanttChart rendering with', tasks.length, 'tasks');
+  
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   
   // Refs for scroll synchronization
@@ -203,17 +205,20 @@ export const ModernGanttChart = ({
     return startOfMonth(baseDate);
   }, [viewStart, currentMonthOffset, tasks]);
 
-  // Generate days for the current view - show 6 months for better scrolling
+  // Generate days for the current view - show 12 months for guaranteed scrolling
   const currentDays = useMemo(() => {
     const start = currentViewStart;
-    const end = endOfMonth(addDays(start, 180)); // Show 6 months for better scrolling
-    return eachDayOfInterval({ start, end });
+    const end = endOfMonth(addDays(start, 365)); // Show 12 months to force scrolling
+    const days = eachDayOfInterval({ start, end });
+    console.log('📅 Generated', days.length, 'days for timeline');
+    return days;
   }, [currentViewStart]);
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Calculate total timeline width
-  const timelineWidth = currentDays.length * dayWidth;
+  // Calculate total timeline width - force it to be very wide
+  const timelineWidth = Math.max(currentDays.length * dayWidth, 8000); // Minimum 8000px width
+  console.log('📏 Calculated timeline width:', timelineWidth, 'px (', currentDays.length, 'days x', dayWidth, 'px)');
 
   // Scroll synchronization effect - keep header and body in sync
   useEffect(() => {
@@ -397,9 +402,17 @@ export const ModernGanttChart = ({
             style={{ height: '60px' }}
           >
             <div 
-              className="flex"
+              className="flex relative"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
+              {/* Visual scroll test - colored background */}
+              <div 
+                className="absolute top-0 left-0 h-full opacity-20"
+                style={{ 
+                  width: timelineWidth,
+                  background: 'linear-gradient(90deg, red 0%, orange 25%, yellow 50%, green 75%, blue 100%)'
+                }}
+              />
               {currentDays.map((day, index) => {
                 const isFirstOfMonth = day.getDate() === 1;
                 const isMonthStart = index === 0 || isFirstOfMonth;
