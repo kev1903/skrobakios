@@ -1057,25 +1057,50 @@ export const ModernGanttChart = ({
                       height: 24
                     }}
                   >
-                    <div
-                      className={cn(
-                        "h-full rounded-md flex items-center px-2 text-white text-xs font-medium",
-                        getBarColor(index)
-                      )}
-                      style={{
-                        width: position.width,
-                        minWidth: dayWidth * 2
-                      }}
-                    >
-                      {task.assignee && (
-                        <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-[10px] font-medium mr-2">
-                          {task.assignee.charAt(0).toUpperCase()}
+                    {task.isStage ? (
+                      // Stage bracket/range container
+                      <div
+                        className="h-full relative flex items-center"
+                        style={{
+                          width: position.width,
+                          minWidth: dayWidth * 2
+                        }}
+                      >
+                        {/* Left bracket */}
+                        <div className="absolute left-0 top-0 h-full w-3 border-l-2 border-t-2 border-b-2 border-gray-700 rounded-l"></div>
+                        
+                        {/* Right bracket */}
+                        <div className="absolute right-0 top-0 h-full w-3 border-r-2 border-t-2 border-b-2 border-gray-700 rounded-r"></div>
+                        
+                        {/* Stage name centered */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-xs font-medium text-gray-700 bg-white px-2 py-1 rounded shadow-sm border">
+                            {task.name}
+                          </span>
                         </div>
-                      )}
-                      <span className="truncate">
-                        {task.name}
-                      </span>
-                    </div>
+                      </div>
+                    ) : (
+                      // Regular task bar
+                      <div
+                        className={cn(
+                          "h-full rounded-md flex items-center px-2 text-white text-xs font-medium",
+                          getBarColor(index)
+                        )}
+                        style={{
+                          width: position.width,
+                          minWidth: dayWidth * 2
+                        }}
+                      >
+                        {task.assignee && (
+                          <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-[10px] font-medium mr-2">
+                            {task.assignee.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <span className="truncate">
+                          {task.name}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 );
               })}
