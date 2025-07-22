@@ -463,22 +463,22 @@ export const ModernGanttChart = ({
           {/* Timeline Header - Scrollable with hidden scrollbars */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-gray-200 bg-white overflow-x-auto gantt-header-scroll"
+            className="border-b border-gray-200 bg-white overflow-x-auto gantt-header-scroll relative z-10"
             style={{ height: '60px' }}
           >
             <div 
-              className="flex flex-col relative"
+              className="flex flex-col relative bg-white"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
               {/* Month Header Section */}
-              <div className="flex h-7 border-b border-gray-200 bg-gray-50">
-                <div className="flex items-center px-4 text-xs font-medium text-gray-900">
+              <div className="flex h-7 border-b border-gray-200 bg-gray-50 relative z-10">
+                <div className="flex items-center px-4 text-xs font-medium text-gray-900 bg-gray-50">
                   MARC - 2023
                 </div>
               </div>
               
               {/* Days Header Section */}
-              <div className="flex h-8">
+              <div className="flex h-8 bg-white relative z-10">
                 {currentDays.map((day, index) => {
                   const dayOfWeek = format(day, 'EEE').toUpperCase();
                   const dayNumber = format(day, 'd');
@@ -487,8 +487,8 @@ export const ModernGanttChart = ({
                     <div
                       key={day.toString()}
                       className={cn(
-                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0",
-                        isToday(day) ? "bg-blue-50 text-blue-600" : "text-gray-600"
+                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0 relative",
+                        isToday(day) ? "bg-blue-50 text-blue-600" : "text-gray-600 bg-white"
                       )}
                       style={{ width: `${dayWidth}px`, minWidth: `${dayWidth}px`, height: '100%' }}
                     >
