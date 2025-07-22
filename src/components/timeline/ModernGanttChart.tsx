@@ -451,6 +451,8 @@ export const ModernGanttChart = ({
         onCalendarClick={() => console.log('Calendar clicked')}
         onUsersClick={() => console.log('Users clicked')}
         onMoreClick={() => console.log('More clicked')}
+        onIndentClick={() => console.log('Indent clicked')}
+        onOutdentClick={() => console.log('Outdent clicked')}
       />
       
       {/* Gantt Chart */}

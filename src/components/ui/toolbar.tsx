@@ -10,7 +10,9 @@ import {
   Users,
   MoreHorizontal,
   CheckSquare,
-  Plus
+  Plus,
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +26,8 @@ interface ToolbarProps {
   onCalendarClick?: () => void;
   onUsersClick?: () => void;
   onMoreClick?: () => void;
+  onIndentClick?: () => void;
+  onOutdentClick?: () => void;
 }
 
 export const Toolbar = ({
@@ -35,7 +39,9 @@ export const Toolbar = ({
   onChartClick,
   onCalendarClick,
   onUsersClick,
-  onMoreClick
+  onMoreClick,
+  onIndentClick,
+  onOutdentClick
 }: ToolbarProps) => {
   return (
     <div className={cn(
@@ -62,6 +68,28 @@ export const Toolbar = ({
             title="Gantt"
           >
             <span className="text-sm font-medium">Gantt</span>
+          </Button>
+        </div>
+        
+        {/* Indent/Outdent Controls */}
+        <div className="flex items-center gap-1 border-l border-gray-200 pl-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOutdentClick}
+            className="h-8 px-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Outdent"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onIndentClick}
+            className="h-8 px-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Indent"
+          >
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       </div>
