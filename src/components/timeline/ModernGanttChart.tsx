@@ -47,6 +47,7 @@ export const ModernGanttChart = ({
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
   const ganttScrollBodyRef = useRef<HTMLDivElement>(null);
+  const taskListBodyRef = useRef<HTMLDivElement>(null);
   const resizerRef = useRef<HTMLDivElement>(null);
 
   // Handle column resizing
@@ -258,14 +259,15 @@ export const ModernGanttChart = ({
   const timelineWidth = Math.min(Math.max(currentDays.length * dayWidth, 1000), maxAvailableWidth);
   console.log('📏 Timeline width:', timelineWidth, 'px');
 
-  // Simplified scroll synchronization - exactly like SimpleScrollTest
+  // Enhanced scroll synchronization
   useEffect(() => {
     const header = ganttHeaderRef.current;
     const body = ganttScrollBodyRef.current;
+    const taskList = taskListBodyRef.current;
 
-    console.log('🔧 ModernGantt scroll setup', { header, body });
+    console.log('🔧 ModernGantt scroll setup', { header, body, taskList });
 
-    if (!header || !body) {
+    if (!header || !body || !taskList) {
       console.warn('❌ ModernGantt refs not found');
       return;
     }
@@ -273,22 +275,36 @@ export const ModernGanttChart = ({
     console.log('📏 Header scroll dimensions:', header.scrollWidth, 'x', header.clientWidth);
     console.log('📏 Body scroll dimensions:', body.scrollWidth, 'x', body.clientWidth);
 
-    const syncScroll = (source: HTMLElement, target: HTMLElement, name: string) => {
-      console.log(`📜 ModernGantt ${name} scrolled to:`, source.scrollLeft);
+    // Horizontal scroll sync (header ↔ body)
+    const syncHorizontalScroll = (source: HTMLElement, target: HTMLElement, name: string) => {
+      console.log(`📜 ModernGantt ${name} horizontal scrolled to:`, source.scrollLeft);
       target.scrollLeft = source.scrollLeft;
     };
 
-    const handleHeaderScroll = () => syncScroll(header, body, 'Header');
-    const handleBodyScroll = () => syncScroll(body, header, 'Body');
+    // Vertical scroll sync (task list ↔ gantt body)
+    const syncVerticalScroll = (source: HTMLElement, target: HTMLElement, name: string) => {
+      console.log(`📜 ModernGantt ${name} vertical scrolled to:`, source.scrollTop);
+      target.scrollTop = source.scrollTop;
+    };
+
+    const handleHeaderScroll = () => syncHorizontalScroll(header, body, 'Header');
+    const handleBodyScroll = (e: Event) => {
+      const bodyEl = e.target as HTMLElement;
+      syncHorizontalScroll(bodyEl, header, 'Body');
+      syncVerticalScroll(bodyEl, taskList, 'Body→TaskList');
+    };
+    const handleTaskListScroll = () => syncVerticalScroll(taskList, body, 'TaskList→Body');
 
     header.addEventListener('scroll', handleHeaderScroll);
     body.addEventListener('scroll', handleBodyScroll);
+    taskList.addEventListener('scroll', handleTaskListScroll);
 
     console.log('✅ ModernGantt scroll listeners attached');
 
     return () => {
       header.removeEventListener('scroll', handleHeaderScroll);
       body.removeEventListener('scroll', handleBodyScroll);
+      taskList.removeEventListener('scroll', handleTaskListScroll);
       console.log('🧹 ModernGantt scroll cleanup');
     };
   }, [timelineWidth]);
@@ -336,7 +352,10 @@ export const ModernGanttChart = ({
           </div>
 
           {/* Task List Items */}
-          <div className="max-h-[600px] overflow-y-auto">
+          <div 
+            ref={taskListBodyRef}
+            className="max-h-[600px] overflow-y-auto"
+          >
             {visibleTasks.map((task, index) => (
               <div
                 key={task.id}
@@ -520,7 +539,8 @@ export const ModernGanttChart = ({
           {/* Timeline Content - Main scrollable area */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-x-auto overflow-y-hidden gantt-body-scroll"
+            className="flex-1 overflow-auto gantt-body-scroll"
+            style={{ maxHeight: '600px' }}
           >
             <div 
               className="relative" 
