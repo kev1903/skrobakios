@@ -318,15 +318,27 @@ export const ModernGanttChart = ({
           style={{ width: taskListWidth }}
         >
           {/* Task List Header */}
-          <div className="border-b border-gray-200 bg-gray-50 p-0" style={{ height: '60px' }}>
-            <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
+          <div className="border-b border-gray-200 bg-white" style={{ height: '60px' }}>
+            {/* Tab Section */}
+            <div className="flex h-8 border-b border-gray-200">
+              <div className="flex">
+                <div className="px-4 py-1 text-xs font-medium text-gray-900 bg-gray-100 border-r border-gray-200">
+                  GENERAL
+                </div>
+                <div className="px-4 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 cursor-pointer">
+                  MORE INFO
+                </div>
+              </div>
+            </div>
+            {/* Column Headers */}
+            <div className="grid items-center h-8 text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 80px 60px 80px 100px 100px' }}>
               <div className="px-1 text-center">WBS</div>
-              <div className="px-1">Task</div>
-              <div className="px-1 text-center">Start Date</div>
-              <div className="px-1 text-center">End Date</div>
-              <div className="px-1 text-center">Duration</div>
+              <div className="px-1">EVENT NAME</div>
+              <div className="px-1 text-center">WORKER</div>
+              <div className="px-1 text-center">START</div>
+              <div className="px-1 text-center">END</div>
+              <div className="px-1 text-center">DAYS</div>
               <div className="px-1 text-center">% Complete</div>
-              <div className="px-1 text-center">Predecessors</div>
               <div className="px-1 text-center">Assigned To</div>
             </div>
           </div>
@@ -451,68 +463,48 @@ export const ModernGanttChart = ({
           {/* Timeline Header - Scrollable with hidden scrollbars */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-gray-200 bg-gray-50 overflow-x-auto gantt-header-scroll"
+            className="border-b border-gray-200 bg-white overflow-x-auto gantt-header-scroll"
             style={{ height: '60px' }}
           >
             <div 
-              className="flex relative"
+              className="flex flex-col relative"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
-              {/* Visual scroll test - colored background */}
-              <div 
-                className="absolute top-0 left-0 h-full opacity-20"
-                style={{ 
-                  width: timelineWidth,
-                  background: 'linear-gradient(90deg, red 0%, orange 25%, yellow 50%, green 75%, blue 100%)'
-                }}
-              />
-              {currentDays.map((day, index) => {
-                const isFirstOfMonth = day.getDate() === 1;
-                const isMonthStart = index === 0 || isFirstOfMonth;
-                
-                return (
-                  <div
-                    key={day.toString()}
-                    className={cn(
-                      "flex flex-col items-center justify-center border-r border-gray-200 bg-gray-50 relative",
-                      isToday(day) && "bg-blue-50 border-blue-200",
-                      isFirstOfMonth && "border-l-2 border-l-gray-400"
-                    )}
-                    style={{ width: dayWidth, minWidth: dayWidth, height: '60px' }}
-                  >
-                    {/* Month header for first day of month */}
-                    {isMonthStart && (
-                      <div className="absolute -top-6 left-0 text-xs font-bold text-gray-800 bg-gray-100 px-2 py-1 border-b border-gray-300 z-10" 
-                           style={{ width: 'auto', minWidth: '60px' }}>
-                        {format(day, 'MMM yyyy')}
-                      </div>
-                    )}
-                    
-                    <div className="text-xs font-medium text-gray-600 py-2">
-                      {isMonthStart ? (
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-800">
-                            {format(day, 'MMM')}
-                          </div>
-                          <div className={cn(
-                            "text-xs",
-                            isToday(day) ? "text-blue-600 font-semibold" : "text-gray-600"
-                          )}>
-                            {format(day, 'd')}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className={cn(
-                          "text-xs text-center",
-                          isToday(day) ? "text-blue-600 font-semibold" : "text-gray-600"
-                        )}>
-                          {format(day, 'd')}
-                        </div>
+              {/* Month Header Section */}
+              <div className="flex h-8 border-b border-gray-200">
+                <div className="flex items-center px-4 text-xs font-medium text-gray-900 bg-gray-100">
+                  MARC - 2023
+                </div>
+              </div>
+              
+              {/* Days Header Section */}
+              <div className="flex h-8">
+                {currentDays.map((day, index) => {
+                  const dayOfWeek = format(day, 'EEE').toUpperCase();
+                  const dayNumber = format(day, 'd');
+                  
+                  return (
+                    <div
+                      key={day.toString()}
+                      className={cn(
+                        "flex items-center justify-center border-r border-gray-200 text-xs font-medium",
+                        isToday(day) ? "bg-blue-50 text-blue-600" : "text-gray-600"
                       )}
+                      style={{ width: dayWidth, minWidth: dayWidth }}
+                    >
+                      <div className="text-center">
+                        <div className="text-xs">{dayOfWeek}</div>
+                        <div className={cn(
+                          "text-xs",
+                          isToday(day) ? "font-semibold" : ""
+                        )}>
+                          {dayNumber}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
 
