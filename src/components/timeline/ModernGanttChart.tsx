@@ -363,6 +363,9 @@ export const ModernGanttChart = ({
     
     console.log('✅ Indenting task:', selectedTask.name, 'to be child of:', taskAbove.name);
     
+    // Ensure the parent is expanded so the indented task remains visible
+    setExpandedSections(prev => new Set([...prev, taskAbove.id]));
+    
     // Update the task to be a child of the task above
     onTaskUpdate(selectedTaskId, {
       parentId: taskAbove.id,
