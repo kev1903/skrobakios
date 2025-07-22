@@ -3,6 +3,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth } from 'date-fns';
 import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,6 +48,8 @@ export const ModernGanttChart = ({
   const [taskListWidth, setTaskListWidth] = useState(384); // 96 * 4 = 384px (w-96)
   const [isResizing, setIsResizing] = useState(false);
   const [openDatePickers, setOpenDatePickers] = useState<Set<string>>(new Set());
+  const [editingDuration, setEditingDuration] = useState<Set<string>>(new Set());
+  const [durationInputs, setDurationInputs] = useState<Record<string, string>>({});
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -199,6 +202,64 @@ export const ModernGanttChart = ({
         newSet.add(key);
       }
       return newSet;
+    });
+  };
+
+  // Duration editing functions
+  const parseDuration = (durationText: string): number => {
+    // Remove extra spaces and convert to lowercase
+    const text = durationText.trim().toLowerCase();
+    
+    // Match patterns like "5 days", "3", "1 day", "10d", etc.
+    const match = text.match(/(\d+)\s*(day|days|d)?/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    
+    // Default to 1 if can't parse
+    return 1;
+  };
+
+  const handleDurationChange = (taskId: string, durationText: string) => {
+    if (!onTaskUpdate) return;
+    
+    const task = visibleTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const days = parseDuration(durationText);
+    const newEndDate = addDays(task.startDate, days - 1);
+    const newDurationString = `${days} day${days !== 1 ? 's' : ''}`;
+
+    onTaskUpdate(taskId, {
+      endDate: newEndDate,
+      duration: newDurationString
+    });
+  };
+
+  const startDurationEdit = (taskId: string) => {
+    setEditingDuration(prev => new Set([...prev, taskId]));
+    setDurationInputs(prev => ({
+      ...prev,
+      [taskId]: visibleTasks.find(t => t.id === taskId)?.duration || ''
+    }));
+  };
+
+  const finishDurationEdit = (taskId: string) => {
+    const inputValue = durationInputs[taskId];
+    if (inputValue && inputValue.trim()) {
+      handleDurationChange(taskId, inputValue);
+    }
+    
+    setEditingDuration(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(taskId);
+      return newSet;
+    });
+    
+    setDurationInputs(prev => {
+      const newInputs = { ...prev };
+      delete newInputs[taskId];
+      return newInputs;
     });
   };
 
@@ -533,8 +594,41 @@ export const ModernGanttChart = ({
                     </div>
 
                     {/* Duration */}
-                    <div className="text-sm text-gray-600">
-                      {task.duration}
+                    <div>
+                      {editingDuration.has(task.id) ? (
+                        <Input
+                          value={durationInputs[task.id] || ''}
+                          onChange={(e) => setDurationInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                          onBlur={() => finishDurationEdit(task.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              finishDurationEdit(task.id);
+                            } else if (e.key === 'Escape') {
+                              setEditingDuration(prev => {
+                                const newSet = new Set(prev);
+                                newSet.delete(task.id);
+                                return newSet;
+                              });
+                              setDurationInputs(prev => {
+                                const newInputs = { ...prev };
+                                delete newInputs[task.id];
+                                return newInputs;
+                              });
+                            }
+                          }}
+                          className="text-sm h-6 px-1 w-full"
+                          placeholder="e.g. 5 days"
+                          autoFocus
+                        />
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
+                          onClick={() => startDurationEdit(task.id)}
+                        >
+                          {task.duration}
+                        </Button>
+                      )}
                     </div>
 
                     {/* Status */}
