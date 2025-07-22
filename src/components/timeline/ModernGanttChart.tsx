@@ -719,7 +719,7 @@ export const ModernGanttChart = ({
             <div 
               className="relative" 
               style={{ 
-                height: visibleTasks.length * 44, 
+                height: visibleTasks.length * 40, 
                 width: timelineWidth, 
                 minWidth: timelineWidth 
               }}
@@ -730,8 +730,8 @@ export const ModernGanttChart = ({
                   key={`grid-${index}`}
                   className="absolute w-full border-b border-gray-200"
                   style={{
-                    top: index * 44,
-                    height: 44
+                    top: index * 40,
+                    height: 40
                   }}
                 />
               ))}
@@ -742,7 +742,7 @@ export const ModernGanttChart = ({
                   className="absolute top-0 w-0.5 bg-blue-500 z-20"
                   style={{
                     left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
-                    height: visibleTasks.length * 44
+                    height: visibleTasks.length * 40
                   }}
                 />
               )}
@@ -761,10 +761,10 @@ export const ModernGanttChart = ({
                     key={`${task.id}-bar`}
                     className="absolute"
                     style={{
-                      top: index * 44 + 12,
+                      top: index * 40 + 8,
                       left: position.left,
                       width: position.width,
-                      height: 20
+                      height: 24
                     }}
                   >
                     <div
@@ -802,7 +802,7 @@ export const ModernGanttChart = ({
                         style={{
                           left: index * dayWidth,
                           width: dayWidth,
-                          height: visibleTasks.length * 44
+                          height: visibleTasks.length * 40
                         }}
                       />
                     )}
@@ -810,8 +810,8 @@ export const ModernGanttChart = ({
                     <div
                       className="absolute top-0 w-px bg-gray-200 z-10"
                       style={{
-                        left: (index + 1) * dayWidth - 0.5, // Align to right edge of each day
-                        height: visibleTasks.length * 44
+                        left: (index + 1) * dayWidth,
+                        height: visibleTasks.length * 40
                       }}
                     />
                   </React.Fragment>
@@ -823,7 +823,7 @@ export const ModernGanttChart = ({
                  className="absolute top-0 w-px bg-gray-200 z-10"
                  style={{
                    left: 0,
-                   height: visibleTasks.length * 44
+                   height: visibleTasks.length * 40
                  }}
                />
              </div>
