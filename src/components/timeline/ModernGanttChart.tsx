@@ -63,7 +63,7 @@ export const ModernGanttChart = ({
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - startX;
-      const newWidth = Math.max(200, Math.min(600, startWidth + deltaX)); // Min 200px, max 600px
+      const newWidth = Math.max(200, Math.min(Math.min(window.innerWidth * 0.8, 1200), startWidth + deltaX)); // Min 200px, max 80% of screen or 1200px
       setTaskListWidth(newWidth);
     };
 
