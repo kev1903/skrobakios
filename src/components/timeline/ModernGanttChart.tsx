@@ -471,8 +471,8 @@ export const ModernGanttChart = ({
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
               {/* Month Header Section */}
-              <div className="flex h-8 border-b border-gray-200">
-                <div className="flex items-center px-4 text-xs font-medium text-gray-900 bg-gray-100">
+              <div className="flex h-7 border-b border-gray-200 bg-gray-50">
+                <div className="flex items-center px-4 text-xs font-medium text-gray-900">
                   MARC - 2023
                 </div>
               </div>
@@ -487,19 +487,17 @@ export const ModernGanttChart = ({
                     <div
                       key={day.toString()}
                       className={cn(
-                        "flex items-center justify-center border-r border-gray-200 text-xs font-medium",
+                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-1",
                         isToday(day) ? "bg-blue-50 text-blue-600" : "text-gray-600"
                       )}
-                      style={{ width: dayWidth, minWidth: dayWidth }}
+                      style={{ width: dayWidth, minWidth: dayWidth, height: '100%' }}
                     >
-                      <div className="text-center">
-                        <div className="text-xs">{dayOfWeek}</div>
-                        <div className={cn(
-                          "text-xs",
-                          isToday(day) ? "font-semibold" : ""
-                        )}>
-                          {dayNumber}
-                        </div>
+                      <div className="text-[10px] leading-tight">{dayOfWeek}</div>
+                      <div className={cn(
+                        "text-[10px] leading-tight",
+                        isToday(day) ? "font-semibold" : ""
+                      )}>
+                        {dayNumber}
                       </div>
                     </div>
                   );
