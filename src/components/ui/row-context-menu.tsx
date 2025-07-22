@@ -9,6 +9,7 @@ interface ContextMenuItem {
   disabled?: boolean;
   icon?: React.ReactNode;
   submenu?: boolean;
+  variant?: 'default' | 'destructive';
 }
 
 interface RowContextMenuProps {
@@ -88,8 +89,12 @@ export const RowContextMenu: React.FC<RowContextMenuProps> = ({
         <React.Fragment key={index}>
           {item.separator && <div className="h-px bg-gray-200 dark:bg-gray-600 my-1" />}
           <button
-            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between ${
-              item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between ${
+              item.disabled 
+                ? 'opacity-50 cursor-not-allowed' 
+                : item.variant === 'destructive'
+                  ? 'cursor-pointer hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400'
+                  : 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
             }`}
             onClick={() => {
               if (!item.disabled) {

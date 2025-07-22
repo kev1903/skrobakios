@@ -59,35 +59,53 @@ export const ModernGanttChart = ({
   const [taskNameInput, setTaskNameInput] = useState<string>('');
   const [editingPredecessors, setEditingPredecessors] = useState<Set<string>>(new Set());
   const [predecessorInputs, setPredecessorInputs] = useState<Record<string, string>>({});
+  const [contextMenuTaskId, setContextMenuTaskId] = useState<string | null>(null);
   
   // Context menu items
-  const contextMenuItems = [
-    { label: 'Cut', shortcut: 'Ctrl + X', icon: <Scissors className="w-4 h-4" />, action: () => console.log('Cut') },
-    { label: 'Copy', shortcut: 'Ctrl + C', icon: <Copy className="w-4 h-4" />, action: () => console.log('Copy') },
-    { label: 'Paste', shortcut: 'Ctrl + V', icon: <Clipboard className="w-4 h-4" />, action: () => console.log('Paste') },
-    { label: 'Paste Special...', shortcut: 'Ctrl + Shift + V', icon: <Clipboard className="w-4 h-4" />, action: () => console.log('Paste Special') },
-    { label: 'Clear Contents', action: () => console.log('Clear Contents') },
+  const getContextMenuItems = (taskId: string) => [
+    { label: 'Cut', shortcut: 'Ctrl + X', icon: <Scissors className="w-4 h-4" />, action: () => console.log('Cut', taskId) },
+    { label: 'Copy', shortcut: 'Ctrl + C', icon: <Copy className="w-4 h-4" />, action: () => console.log('Copy', taskId) },
+    { label: 'Paste', shortcut: 'Ctrl + V', icon: <Clipboard className="w-4 h-4" />, action: () => console.log('Paste', taskId) },
+    { label: 'Paste Special...', shortcut: 'Ctrl + Shift + V', icon: <Clipboard className="w-4 h-4" />, action: () => console.log('Paste Special', taskId) },
+    { label: 'Clear Contents', action: () => console.log('Clear Contents', taskId) },
     { separator: true, label: '', action: () => {} },
-    { label: 'View Cell History...', icon: <History className="w-4 h-4" />, action: () => console.log('View Cell History') },
+    { label: 'View Cell History...', icon: <History className="w-4 h-4" />, action: () => console.log('View Cell History', taskId) },
     { separator: true, label: '', action: () => {} },
-    { label: 'Insert Row', shortcut: 'Insert Key', icon: <Plus className="w-4 h-4" />, action: () => console.log('Insert Row') },
-    { label: 'Delete Row', icon: <Trash2 className="w-4 h-4" />, action: () => console.log('Delete Row') },
-    { label: 'Add a Row Comment', icon: <MessageSquare className="w-4 h-4" />, action: () => console.log('Add Row Comment') },
-    { label: 'Row Actions...', icon: <Settings className="w-4 h-4" />, action: () => console.log('Row Actions') },
+    { label: 'Insert Row', shortcut: 'Insert Key', icon: <Plus className="w-4 h-4" />, action: () => console.log('Insert Row', taskId) },
+    { 
+      label: 'Delete Row', 
+      icon: <Trash2 className="w-4 h-4" />, 
+      variant: 'destructive' as const, 
+      action: () => {
+        if (onTaskDelete && taskId) {
+          onTaskDelete(taskId);
+        }
+      }
+    },
+    { label: 'Add a Row Comment', icon: <MessageSquare className="w-4 h-4" />, action: () => console.log('Add Row Comment', taskId) },
+    { label: 'Row Actions...', icon: <Settings className="w-4 h-4" />, action: () => console.log('Row Actions', taskId) },
     { separator: true, label: '', action: () => {} },
-    { label: 'Indent', shortcut: 'Ctrl + ]', icon: <Indent className="w-4 h-4" />, action: () => console.log('Indent') },
-    { label: 'Outdent', shortcut: 'Ctrl + [', icon: <Outdent className="w-4 h-4" />, action: () => console.log('Outdent') },
+    { label: 'Indent', shortcut: 'Ctrl + ]', icon: <Indent className="w-4 h-4" />, action: () => console.log('Indent', taskId) },
+    { label: 'Outdent', shortcut: 'Ctrl + [', icon: <Outdent className="w-4 h-4" />, action: () => console.log('Outdent', taskId) },
     { separator: true, label: '', action: () => {} },
-    { label: 'Insert Image', icon: <Image className="w-4 h-4" />, submenu: true, action: () => console.log('Insert Image') },
-    { label: 'Link from Cell in Other Sheet...', icon: <Link className="w-4 h-4" />, action: () => console.log('Link from Cell') },
-    { label: 'Manage References...', icon: <Network className="w-4 h-4" />, action: () => console.log('Manage References') },
-    { label: 'Hyperlink...', shortcut: 'Ctrl + K', icon: <ExternalLink className="w-4 h-4" />, action: () => console.log('Hyperlink') },
+    { label: 'Insert Image', icon: <Image className="w-4 h-4" />, submenu: true, action: () => console.log('Insert Image', taskId) },
+    { label: 'Link from Cell in Other Sheet...', icon: <Link className="w-4 h-4" />, action: () => console.log('Link from Cell', taskId) },
+    { label: 'Manage References...', icon: <Network className="w-4 h-4" />, action: () => console.log('Manage References', taskId) },
+    { label: 'Hyperlink...', shortcut: 'Ctrl + K', icon: <ExternalLink className="w-4 h-4" />, action: () => console.log('Hyperlink', taskId) },
     { separator: true, label: '', action: () => {} },
-    { label: 'Convert to Column Formula', icon: <Calculator className="w-4 h-4" />, action: () => console.log('Convert to Column Formula') },
+    { label: 'Convert to Column Formula', icon: <Calculator className="w-4 h-4" />, action: () => console.log('Convert to Column Formula', taskId) },
   ];
 
   // Context menu hook
-  const { handleContextMenu, contextMenu } = useRowContextMenu({ items: contextMenuItems });
+  const { handleContextMenu, contextMenu } = useRowContextMenu({ 
+    items: contextMenuTaskId ? getContextMenuItems(contextMenuTaskId) : [] 
+  });
+
+  // Modified context menu handler that captures task ID
+  const handleRowContextMenu = (event: React.MouseEvent, taskId: string) => {
+    setContextMenuTaskId(taskId);
+    handleContextMenu(event);
+  };
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -971,7 +989,7 @@ export const ModernGanttChart = ({
                   ...provided.draggableProps.style
                 }}
                 onClick={() => handleRowClick(task.id)}
-                onContextMenu={handleContextMenu}
+                onContextMenu={(e) => handleRowContextMenu(e, task.id)}
               >
                  <div className="h-full flex items-center px-4">
                    <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
