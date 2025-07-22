@@ -338,45 +338,34 @@ export const ModernGanttChart = ({
       />
       
       {/* Gantt Chart */}
-      <div className="bg-background rounded-lg border border-border overflow-hidden w-full max-w-full">
-      <div className="flex">
-        {/* Task List */}
-        <div 
-          className="border-r border-border bg-background relative flex flex-col"
-          style={{ width: taskListWidth }}
-        >
-          {/* Task List Header - Updated to match reference */}
-          <div className="border-b border-border bg-background flex flex-col" style={{ height: '60px' }}>
-            {/* Tab Section - Updated styling */}
-            <div className="flex h-8 border-b border-border flex-shrink-0 bg-muted/30">
-              <div className="flex">
-                <div className="px-4 py-1 text-sm font-medium text-foreground bg-background border-r border-border cursor-pointer flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Gantt
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full max-w-full">
+        <div className="flex">
+          {/* Task List */}
+          <div 
+            className="border-r border-gray-200 bg-white relative flex flex-col"
+            style={{ width: taskListWidth }}
+          >
+            {/* Task List Header */}
+            <div className="border-b border-gray-200 bg-white flex flex-col" style={{ height: '60px' }}>
+              {/* Tab Section */}
+              <div className="flex h-8 border-b border-gray-200 flex-shrink-0 bg-gray-50">
+                <div className="flex">
+                  <div className="px-4 py-1 text-sm font-medium text-blue-600 bg-white border-b-2 border-blue-600 cursor-pointer flex items-center gap-2">
+                    Gantt
+                  </div>
+                  <div className="px-4 py-1 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer transition-colors duration-200 flex items-center gap-2">
+                    List
+                  </div>
                 </div>
-                <div className="px-4 py-1 text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200 flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                  List
+              </div>
+              {/* Column Headers */}
+              <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
+                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: 'minmax(240px, 1fr) 100px', minWidth: '340px' }}>
+                  <div className="text-left">Task name</div>
+                  <div className="text-left">Status</div>
                 </div>
               </div>
             </div>
-            {/* Column Headers */}
-            <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-medium text-muted-foreground uppercase tracking-wider gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px 100px 100px', minWidth: '720px' }}>
-                <div className="text-left">Title</div>
-                <div className="text-center">Start</div>
-                <div className="text-center">End</div>
-                <div className="text-center">Duration</div>
-                <div className="text-center">Status</div>
-                <div className="text-center">% Complete</div>
-                <div className="text-center">Predecessors</div>
-              </div>
-            </div>
-          </div>
 
           {/* Task List Items */}
           <div 
@@ -387,25 +376,25 @@ export const ModernGanttChart = ({
               <div
                 key={task.id}
                 className={cn(
-                  "border-b border-border/20 hover:bg-accent/20 transition-colors duration-200 glass-hover",
-                  task.isStage && "bg-primary/5 border-b-primary/30"
+                  "border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200",
+                  task.isStage && "bg-blue-50/50"
                 )}
-                style={{ height: rowHeight + 4 }}
+                style={{ height: 40 }}
               >
                 <div className="h-full flex items-center px-4">
-                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px 100px 100px', minWidth: '720px' }}>
+                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(240px, 1fr) 100px', minWidth: '340px' }}>
                     {/* Task Title with hierarchy */}
                     <div className="flex items-center gap-2 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * 20}px` }} className="flex items-center gap-2 min-w-0 w-full">
+                      <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-2 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
-                            className="p-1 hover:bg-accent/30 rounded transition-colors duration-200 flex-shrink-0"
+                            className="p-1 hover:bg-gray-100 rounded transition-colors duration-200 flex-shrink-0"
                           >
                             {expandedSections.has(task.id) || task.isStage ? (
-                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              <ChevronDown className="w-3 h-3 text-gray-500" />
                             ) : (
-                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              <ChevronRight className="w-3 h-3 text-gray-500" />
                             )}
                           </button>
                         )}
@@ -413,149 +402,18 @@ export const ModernGanttChart = ({
                           {getStatusIcon(task.status, task.progress)}
                         </div>
                         <span className={cn(
-                          "text-sm font-medium truncate min-w-0 flex-1",
-                          task.isStage ? "font-semibold text-foreground" : "text-foreground"
+                          "text-sm font-normal truncate min-w-0 flex-1 text-gray-700",
+                          task.isStage ? "font-medium text-gray-900" : ""
                         )} title={task.name}>
                           {task.name}
                         </span>
                       </div>
                     </div>
 
-                    {/* Start Date */}
-                    <div className="text-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-sm text-muted-foreground p-1 hover:bg-accent/30 transition-colors duration-200"
-                            title="Click to change start date"
-                          >
-                            {format(task.startDate, 'dd/MM/yy')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border border-border/50 shadow-lg z-50" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.startDate}
-                            onSelect={(date) => {
-                              if (date && onTaskUpdate) {
-                                onTaskUpdate(task.id, { startDate: date });
-                              }
-                            }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    {/* End Date */}
-                    <div className="text-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-sm text-muted-foreground p-1 hover:bg-accent/30 transition-colors duration-200"
-                            title="Click to change end date"
-                          >
-                            {format(task.endDate, 'dd/MM/yy')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 border border-border/50 shadow-lg z-50" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.endDate}
-                            onSelect={(date) => {
-                              if (date && onTaskUpdate) {
-                                // Calculate duration when end date changes
-                                const startDate = task.startDate;
-                                const diffTime = date.getTime() - startDate.getTime();
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                const duration = Math.max(1, diffDays); // Ensure at least 1 day
-                                
-                                onTaskUpdate(task.id, { 
-                                  endDate: date,
-                                  duration: `${duration} days`
-                                });
-                              }
-                            }}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    {/* Duration */}
-                    <div className="text-center">
-                      <input
-                        type="number"
-                        min="1"
-                        className="w-12 h-7 text-sm text-muted-foreground text-center border border-border/30 rounded px-1 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
-                        value={parseInt(task.duration.match(/\d+/)?.[0] || '1')}
-                        onChange={(e) => {
-                          const days = parseInt(e.target.value) || 1;
-                          if (onTaskUpdate) {
-                            // Calculate end date when duration changes
-                            const startDate = task.startDate;
-                            const newEndDate = addDays(startDate, days - 1); // Subtract 1 because start day counts as day 1
-                            
-                            onTaskUpdate(task.id, { 
-                              duration: `${days} days`,
-                              endDate: newEndDate
-                            });
-                          }
-                        }}
-                        title="Duration in days"
-                      />
-                    </div>
-
-                    {/* Status with Progress Bar */}
-                    <div className="flex flex-col gap-1">
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className={cn(
-                            "h-2 rounded-full transition-all duration-300",
-                            task.progress === 100 ? "bg-green-500" :
-                            task.progress > 50 ? "bg-blue-500" :
-                            task.progress > 0 ? "bg-yellow-500" : "bg-muted"
-                          )}
-                          style={{ width: `${task.progress}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* % Complete */}
-                    <div className="text-center">
-                      <span className={cn(
-                        "text-sm font-medium",
-                        task.progress === 100 ? "text-green-600" : 
-                        task.progress > 0 ? "text-blue-600" : "text-muted-foreground"
-                      )}>
-                        {Math.round(task.progress)}%
-                      </span>
-                    </div>
-
-                    {/* Predecessors */}
-                    <div className="text-center">
-                      <input
-                        type="text"
-                        className="w-20 h-7 text-sm text-muted-foreground text-center border border-border/30 rounded px-2 hover:border-border/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all duration-200"
-                        value={task.predecessors?.join(', ') || ''}
-                        onChange={(e) => {
-                          if (onTaskUpdate) {
-                            const predecessors = e.target.value
-                              .split(',')
-                              .map(id => id.trim())
-                              .filter(id => id.length > 0);
-                            onTaskUpdate(task.id, { predecessors });
-                          }
-                        }}
-                        placeholder="1,2,3"
-                        title="Enter predecessor task IDs separated by commas"
-                      />
+                    {/* Status */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                      <span className="text-sm text-gray-600">To-do</span>
                     </div>
                   </div>
                 </div>
@@ -567,36 +425,36 @@ export const ModernGanttChart = ({
         {/* Resizable Divider */}
         <div
           ref={resizerRef}
-          className={`w-1 bg-border/50 hover:bg-primary cursor-col-resize relative transition-colors duration-200 ${
-            isResizing ? 'bg-primary' : ''
+          className={`w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize relative transition-colors duration-200 ${
+            isResizing ? 'bg-blue-500' : ''
           }`}
           onMouseDown={handleMouseDown}
         >
           {/* Visual indicator */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-border rounded opacity-60" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-gray-400 rounded opacity-60" />
         </div>
 
         {/* Timeline */}
-        <div className="flex-1 flex flex-col min-w-0">{/* min-w-0 allows flexbox to shrink */}
-          {/* Timeline Header - Scrollable with hidden scrollbars */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Timeline Header */}
           <div 
             ref={ganttHeaderRef}
-            className="border-b border-border/30 glass overflow-x-auto gantt-header-scroll relative z-10 backdrop-blur-sm"
+            className="border-b border-gray-200 bg-white overflow-x-auto gantt-header-scroll relative z-10"
             style={{ height: '60px' }}
           >
             <div 
-              className="flex flex-col relative glass-light backdrop-blur-sm"
+              className="flex flex-col relative bg-white"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
               {/* Month Header Section */}
-              <div className="flex h-7 border-b border-border/20 bg-card/50 relative z-10">
-                <div className="flex items-center px-4 text-xs font-manrope font-medium text-primary">
-                  MARC - 2025
+              <div className="flex h-7 border-b border-gray-200 bg-gray-50 relative z-10">
+                <div className="flex items-center px-4 text-xs font-medium text-gray-600">
+                  April 2024
                 </div>
               </div>
               
               {/* Days Header Section */}
-              <div className="flex h-8 bg-card/30 relative z-10 backdrop-blur-sm">
+              <div className="flex h-8 bg-white relative z-10">
                 {currentDays.map((day, index) => {
                   const dayOfWeek = format(day, 'EEE').toUpperCase();
                   const dayNumber = format(day, 'd');
@@ -605,17 +463,17 @@ export const ModernGanttChart = ({
                     <div
                       key={day.toString()}
                       className={cn(
-                        "flex flex-col items-center justify-center border-r border-border/20 text-xs font-manrope font-medium py-0.5 flex-shrink-0 relative transition-colors duration-200",
-                        isToday(day) ? "bg-primary/10 text-primary" : "text-muted-foreground bg-card/20 hover:bg-accent/10"
+                        "flex flex-col items-center justify-center border-r border-gray-200 text-xs font-medium py-0.5 flex-shrink-0 relative transition-colors duration-200",
+                        isToday(day) ? "bg-blue-100 text-blue-600" : "text-gray-600 bg-white hover:bg-gray-50"
                       )}
                       style={{ width: `${dayWidth}px`, minWidth: `${dayWidth}px`, height: '100%' }}
                     >
-                      <div className="text-[9px] leading-none font-medium">{dayOfWeek}</div>
+                      <div className="text-[9px] leading-none font-medium">{dayOfWeek.charAt(0)}</div>
                       <div className={cn(
                         "text-[10px] leading-none mt-0.5",
                         isToday(day) ? "font-semibold" : ""
                       )}>
-                        {dayNumber}
+                        {dayNumber.padStart(2, '0')}
                       </div>
                     </div>
                   );
@@ -624,28 +482,28 @@ export const ModernGanttChart = ({
             </div>
           </div>
 
-          {/* Timeline Content - Main scrollable area */}
+          {/* Timeline Content */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-auto gantt-body-scroll glass-light backdrop-blur-sm"
+            className="flex-1 overflow-auto gantt-body-scroll bg-white"
             style={{ maxHeight: '600px' }}
           >
             <div 
               className="relative" 
               style={{ 
-                height: visibleTasks.length * (rowHeight + 4), 
+                height: visibleTasks.length * 44, 
                 width: timelineWidth, 
                 minWidth: timelineWidth 
               }}
             >
-              {/* Grid lines for visual alignment */}
+              {/* Grid lines */}
               {visibleTasks.map((_, index) => (
                 <div
                   key={`grid-${index}`}
-                  className="absolute w-full border-b border-border/10"
+                  className="absolute w-full border-b border-gray-100"
                   style={{
-                    top: index * (rowHeight + 4),
-                    height: rowHeight + 4
+                    top: index * 44,
+                    height: 44
                   }}
                 />
               ))}
@@ -653,11 +511,10 @@ export const ModernGanttChart = ({
               {/* Today Line */}
               {currentDays.some(day => isToday(day)) && (
                 <div
-                  className="absolute top-0 w-0.5 bg-primary z-20 border-l-2 border-dotted border-primary shadow-md"
+                  className="absolute top-0 w-0.5 bg-blue-500 z-20"
                   style={{
                     left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
-                    height: visibleTasks.length * (rowHeight + 4),
-                    background: 'none'
+                    height: visibleTasks.length * 44
                   }}
                 />
               )}
@@ -665,45 +522,60 @@ export const ModernGanttChart = ({
               {/* Task Bars */}
               {visibleTasks.map((task, index) => {
                 const position = getTaskPosition(task);
+                // Different colors for different tasks to match reference
+                const getBarColor = (taskIndex: number) => {
+                  const colors = ['bg-blue-500', 'bg-cyan-400', 'bg-green-500'];
+                  return colors[taskIndex % colors.length];
+                };
+                
                 return (
                   <div
                     key={`${task.id}-bar`}
                     className="absolute"
                     style={{
-                      top: index * (rowHeight + 4),
+                      top: index * 44 + 12,
                       left: position.left,
                       width: position.width,
-                      height: rowHeight + 4
+                      height: 20
                     }}
                   >
                     <div
                       className={cn(
-                        "absolute top-1 h-4 rounded-md shadow-sm flex items-center px-1 backdrop-blur-sm border border-white/20",
-                        getTaskBarColor(task),
-                        task.isStage ? "h-5 top-0.5 shadow-md" : "",
-                        "transition-all duration-200 hover:shadow-md hover:scale-105"
+                        "h-full rounded-md flex items-center px-2 text-white text-xs font-medium",
+                        getBarColor(index)
                       )}
                       style={{
                         width: position.width,
-                        minWidth: dayWidth
+                        minWidth: dayWidth * 2
                       }}
                     >
                       {task.assignee && (
-                        <div className="w-4 h-4 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-[10px] font-manrope font-medium text-foreground mr-1 shadow-sm">
+                        <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center text-[10px] font-medium mr-2">
                           {task.assignee.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span className="text-[10px] font-inter font-medium text-white truncate">
+                      <span className="truncate">
                         {task.name}
                       </span>
                     </div>
                   </div>
                 );
               })}
+
+              {/* Vertical dividers to match day columns */}
+              {currentDays.map((_, index) => (
+                <div
+                  key={`divider-${index}`}
+                  className="absolute top-0 w-px bg-gray-200"
+                  style={{
+                    left: index * dayWidth,
+                    height: visibleTasks.length * 44
+                  }}
+                />
+              ))}
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );

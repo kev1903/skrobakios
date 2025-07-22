@@ -8,7 +8,9 @@ import {
   BarChart3,
   Calendar,
   Users,
-  MoreHorizontal
+  MoreHorizontal,
+  CheckSquare,
+  Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,103 +39,89 @@ export const Toolbar = ({
 }: ToolbarProps) => {
   return (
     <div className={cn(
-      "flex items-center gap-1 p-2 bg-background border border-border rounded-lg glass-light backdrop-blur-sm",
+      "flex items-center justify-between p-4 bg-white border-b border-gray-200",
       className
     )}>
-      {/* Baselines */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onBaselineClick}
-        className="h-8 px-3 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Baselines"
-      >
-        <List className="w-4 h-4 mr-2" />
-        <span className="text-sm font-medium">Baselines</span>
-      </Button>
+      {/* Left side - Navigation tabs */}
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Summary"
+          >
+            <span className="text-sm font-medium">Summary</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Board"
+          >
+            <span className="text-sm font-medium">Board</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="List"
+          >
+            <span className="text-sm font-medium">List</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-blue-600 border-b-2 border-blue-600 rounded-none bg-transparent hover:bg-transparent"
+            title="Gantt"
+          >
+            <span className="text-sm font-medium">Gantt</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Calendar"
+          >
+            <span className="text-sm font-medium">Calendar</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Table"
+          >
+            <span className="text-sm font-medium">Table</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {}}
+            className="h-8 px-3 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            title="Add View"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            <span className="text-sm font-medium">Add View</span>
+          </Button>
+        </div>
+      </div>
 
-      {/* Separator */}
-      <div className="w-px h-6 bg-border/50 mx-1" />
-
-      {/* Chart View */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onChartClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Chart View"
-      >
-        <BarChart3 className="w-4 h-4" />
-      </Button>
-
-      {/* Calendar */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onCalendarClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Calendar"
-      >
-        <Calendar className="w-4 h-4" />
-      </Button>
-
-      {/* Users */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onUsersClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Users"
-      >
-        <Users className="w-4 h-4" />
-      </Button>
-
-      {/* Separator */}
-      <div className="w-px h-6 bg-border/50 mx-1" />
-
-      {/* Filter */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onFilterClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Filter"
-      >
-        <Filter className="w-4 h-4" />
-      </Button>
-
-      {/* Settings */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onSettingsClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Settings"
-      >
-        <Settings className="w-4 h-4" />
-      </Button>
-
-      {/* Expand */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onExpandClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="Expand"
-      >
-        <Maximize2 className="w-4 h-4" />
-      </Button>
-
-      {/* More */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onMoreClick}
-        className="h-8 px-2 text-muted-foreground hover:text-foreground hover:bg-accent/30 transition-colors duration-200"
-        title="More options"
-      >
-        <MoreHorizontal className="w-4 h-4" />
-      </Button>
+      {/* Right side - Actions */}
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          className="h-8 bg-blue-600 hover:bg-blue-700 text-white"
+          title="Add Task"
+        >
+          Add Task
+        </Button>
+      </div>
     </div>
   );
 };
