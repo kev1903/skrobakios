@@ -33,6 +33,7 @@ export const NavigationRibbon = ({
   const coreBusinessModules = [
     { id: "system", label: "Business Map", icon: Database },
     { id: "projects", label: "Projects", icon: Briefcase },
+    { id: "project-schedule", label: "Project Schedule", icon: Calendar },
     { id: "sales", label: "Sales", icon: TrendingUp },
     { id: "finance", label: "Finance", icon: DollarSign },
   ];
