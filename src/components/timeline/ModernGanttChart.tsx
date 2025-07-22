@@ -242,21 +242,16 @@ export const ModernGanttChart = ({
     console.log('📏 Header scroll dimensions:', header.scrollWidth, 'x', header.clientWidth);
     console.log('📏 Body scroll dimensions:', body.scrollWidth, 'x', body.clientWidth);
 
-    let isScrolling = false;
-
     const syncScroll = (source: HTMLElement, target: HTMLElement, name: string) => {
-      if (isScrolling) return;
-      isScrolling = true;
       console.log(`📜 ModernGantt ${name} scrolled to:`, source.scrollLeft);
       target.scrollLeft = source.scrollLeft;
-      setTimeout(() => { isScrolling = false; }, 10);
     };
 
     const handleHeaderScroll = () => syncScroll(header, body, 'Header');
     const handleBodyScroll = () => syncScroll(body, header, 'Body');
 
-    header.addEventListener('scroll', handleHeaderScroll, { passive: true });
-    body.addEventListener('scroll', handleBodyScroll, { passive: true });
+    header.addEventListener('scroll', handleHeaderScroll);
+    body.addEventListener('scroll', handleBodyScroll);
 
     console.log('✅ ModernGantt scroll listeners attached');
 
