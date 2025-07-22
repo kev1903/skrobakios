@@ -97,7 +97,12 @@ const TasksPage = () => {
 
         {/* Task Backlog */}
         <div>
-          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Task Backlog</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-gray-900 text-sm">Task Backlog</h3>
+            <button className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors">
+              + Add to backlog
+            </button>
+          </div>
           <div className="space-y-3">
             {taskBacklog.map((task) => (
               <div key={task.id} className="p-3 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
@@ -127,9 +132,6 @@ const TasksPage = () => {
                 </div>
               </div>
             ))}
-            <button className="w-full text-left p-3 text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors">
-              + Add to backlog
-            </button>
           </div>
         </div>
 
