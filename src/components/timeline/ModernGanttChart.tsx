@@ -485,7 +485,7 @@ export const ModernGanttChart = ({
   const timelineWidth = Math.min(Math.max(currentDays.length * dayWidth, 1000), maxAvailableWidth);
   console.log('📏 Timeline width:', timelineWidth, 'px');
 
-  // Enhanced scroll synchronization
+  // Enhanced scroll synchronization with auto-centering on today
   useEffect(() => {
     const header = ganttHeaderRef.current;
     const body = ganttScrollBodyRef.current;
@@ -501,6 +501,25 @@ export const ModernGanttChart = ({
 
     console.log('📏 Header scroll dimensions:', header.scrollWidth, 'x', header.clientWidth);
     console.log('📏 Body scroll dimensions:', body.scrollWidth, 'x', body.clientWidth);
+
+    // Auto-scroll to center today's date
+    const centerTodayInView = () => {
+      const todayIndex = currentDays.findIndex(day => isToday(day));
+      if (todayIndex !== -1) {
+        const todayPosition = todayIndex * dayWidth + dayWidth / 2;
+        const containerWidth = header.clientWidth;
+        const scrollPosition = Math.max(0, todayPosition - containerWidth / 2);
+        
+        console.log('📍 Centering today at index:', todayIndex, 'position:', todayPosition, 'scroll to:', scrollPosition);
+        
+        // Set both header and body scroll positions
+        header.scrollLeft = scrollPosition;
+        body.scrollLeft = scrollPosition;
+      }
+    };
+
+    // Center today on initial load
+    setTimeout(centerTodayInView, 100); // Small delay to ensure layout is ready
 
     // Horizontal scroll sync (header ↔ body)
     const syncHorizontalScroll = (source: HTMLElement, target: HTMLElement, name: string) => {
@@ -542,7 +561,7 @@ export const ModernGanttChart = ({
       taskListHeader.removeEventListener('scroll', handleTaskListHeaderScroll);
       console.log('🧹 ModernGantt scroll cleanup');
     };
-  }, [timelineWidth]);
+  }, [timelineWidth, currentDays, dayWidth]);
 
   return (
     <div className="space-y-4">
