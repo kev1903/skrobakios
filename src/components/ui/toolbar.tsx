@@ -28,6 +28,8 @@ interface ToolbarProps {
   onMoreClick?: () => void;
   onIndentClick?: () => void;
   onOutdentClick?: () => void;
+  onAddTaskClick?: () => void;
+  onAddStageClick?: () => void;
 }
 
 export const Toolbar = ({
@@ -41,7 +43,9 @@ export const Toolbar = ({
   onUsersClick,
   onMoreClick,
   onIndentClick,
-  onOutdentClick
+  onOutdentClick,
+  onAddTaskClick,
+  onAddStageClick
 }: ToolbarProps) => {
   return (
     <div className={cn(
@@ -98,7 +102,17 @@ export const Toolbar = ({
       <div className="flex items-center gap-2">
         <Button
           size="sm"
+          variant="outline"
+          className="h-8 border-gray-300 text-gray-700 hover:bg-gray-50"
+          onClick={onAddStageClick}
+          title="Add Stage"
+        >
+          Add Stage
+        </Button>
+        <Button
+          size="sm"
           className="h-8 bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={onAddTaskClick}
           title="Add Task"
         >
           Add Task

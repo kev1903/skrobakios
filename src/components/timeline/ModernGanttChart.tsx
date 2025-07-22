@@ -501,6 +501,8 @@ export const ModernGanttChart = ({
         onMoreClick={() => console.log('More clicked')}
         onIndentClick={handleIndent}
         onOutdentClick={handleOutdent}
+        onAddTaskClick={() => console.log('Add Task clicked')}
+        onAddStageClick={() => console.log('Add Stage clicked')}
       />
       
       {/* Gantt Chart */}
