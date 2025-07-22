@@ -344,8 +344,7 @@ export const ModernGanttChart = ({
             </div>
             {/* Column Headers - Scrollable container */}
             <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '570px' }}>
-                <div className="px-1 text-center">WBS</div>
+              <div className="grid items-center h-full text-xs font-medium text-gray-600 uppercase tracking-wider gap-2 px-2" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '520px' }}>
                 <div className="px-1">EVENT NAME</div>
                 <div className="px-1 text-center">START</div>
                 <div className="px-1 text-center">END</div>
@@ -371,17 +370,7 @@ export const ModernGanttChart = ({
                 style={{ height: rowHeight + 4 }}
               >
                 <div className="h-full flex items-center px-2">
-                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: '50px minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '570px' }}>
-                    {/* WBS */}
-                    <div className="px-1 text-center">
-                      <span className="text-xs text-gray-600 font-mono">
-                        {(() => {
-                          console.log('WBS Column - Row:', index + 1, 'Task:', task.name);
-                          return index + 1;
-                        })()}
-                      </span>
-                    </div>
-
+                  <div className="grid items-center w-full gap-2" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 60px 80px 100px', minWidth: '520px' }}>
                     {/* Task Name */}
                     <div className="px-1 flex items-center gap-1 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-1 min-w-0 w-full">
