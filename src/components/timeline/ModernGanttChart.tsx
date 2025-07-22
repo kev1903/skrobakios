@@ -447,7 +447,16 @@ export const ModernGanttChart = ({
                             selected={task.endDate}
                             onSelect={(date) => {
                               if (date && onTaskUpdate) {
-                                onTaskUpdate(task.id, { endDate: date });
+                                // Calculate duration when end date changes
+                                const startDate = task.startDate;
+                                const diffTime = date.getTime() - startDate.getTime();
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                const duration = Math.max(1, diffDays); // Ensure at least 1 day
+                                
+                                onTaskUpdate(task.id, { 
+                                  endDate: date,
+                                  duration: `${duration} days`
+                                });
                               }
                             }}
                             initialFocus
@@ -467,7 +476,14 @@ export const ModernGanttChart = ({
                         onChange={(e) => {
                           const days = parseInt(e.target.value) || 1;
                           if (onTaskUpdate) {
-                            onTaskUpdate(task.id, { duration: `${days} days` });
+                            // Calculate end date when duration changes
+                            const startDate = task.startDate;
+                            const newEndDate = addDays(startDate, days - 1); // Subtract 1 because start day counts as day 1
+                            
+                            onTaskUpdate(task.id, { 
+                              duration: `${days} days`,
+                              endDate: newEndDate
+                            });
                           }
                         }}
                         title="Duration in days"
