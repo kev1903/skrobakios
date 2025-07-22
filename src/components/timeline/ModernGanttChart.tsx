@@ -360,8 +360,11 @@ export const ModernGanttChart = ({
               </div>
               {/* Column Headers */}
               <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: 'minmax(240px, 1fr) 100px', minWidth: '340px' }}>
+                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
                   <div className="text-left">Task name</div>
+                  <div className="text-left">Start</div>
+                  <div className="text-left">End</div>
+                  <div className="text-left">Duration</div>
                   <div className="text-left">Status</div>
                 </div>
               </div>
@@ -382,7 +385,7 @@ export const ModernGanttChart = ({
                 style={{ height: 40 }}
               >
                 <div className="h-full flex items-center px-4">
-                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(240px, 1fr) 100px', minWidth: '340px' }}>
+                  <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: 'minmax(200px, 1fr) 80px 80px 80px 80px', minWidth: '520px' }}>
                     {/* Task Title with hierarchy */}
                     <div className="flex items-center gap-2 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 16}px` }} className="flex items-center gap-2 min-w-0 w-full">
@@ -408,6 +411,21 @@ export const ModernGanttChart = ({
                           {task.name}
                         </span>
                       </div>
+                    </div>
+
+                    {/* Start Date */}
+                    <div className="text-sm text-gray-600">
+                      {format(task.startDate, 'MMM d')}
+                    </div>
+
+                    {/* End Date */}
+                    <div className="text-sm text-gray-600">
+                      {format(task.endDate, 'MMM d')}
+                    </div>
+
+                    {/* Duration */}
+                    <div className="text-sm text-gray-600">
+                      {task.duration}
                     </div>
 
                     {/* Status */}
