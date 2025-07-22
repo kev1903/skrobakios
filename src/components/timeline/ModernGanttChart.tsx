@@ -156,7 +156,7 @@ export const ModernGanttChart = ({
       flatTasks.push({ ...task, depth, hasChildren, rowNumber: rowCounter++ });
       
       if (hasChildren) {
-        task.children.forEach(child => addTask({ ...child, children: [] }, depth + 1));
+        task.children.forEach(child => addTask({ ...child, children: child.children || [] }, depth + 1));
       }
     };
 
