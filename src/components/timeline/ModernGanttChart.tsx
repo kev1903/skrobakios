@@ -220,30 +220,41 @@ export const ModernGanttChart = ({
     const ganttBody = ganttScrollBodyRef.current;
     
     console.log('🔧 Setting up scroll listeners', { ganttHeader, ganttBody });
+    console.log('📏 Timeline width:', timelineWidth);
     
     if (!ganttHeader || !ganttBody) {
       console.warn('⚠️ Could not find scroll containers');
       return;
     }
 
-    const handleHeaderScroll = (e: Event) => {
-      const target = e.target as HTMLElement;
-      console.log('📜 Header scroll event', target.scrollLeft);
-      if (ganttBody && target.scrollLeft !== ganttBody.scrollLeft) {
-        ganttBody.scrollLeft = target.scrollLeft;
-      }
+    console.log('📏 Header scrollable:', ganttHeader.scrollWidth, '>', ganttHeader.clientWidth);
+    console.log('📏 Body scrollable:', ganttBody.scrollWidth, '>', ganttBody.clientWidth);
+
+    let isHeaderScrolling = false;
+    let isBodyScrolling = false;
+
+    const handleHeaderScroll = () => {
+      if (isBodyScrolling) return;
+      isHeaderScrolling = true;
+      console.log('📜 Header scroll event', ganttHeader.scrollLeft);
+      ganttBody.scrollLeft = ganttHeader.scrollLeft;
+      requestAnimationFrame(() => {
+        isHeaderScrolling = false;
+      });
     };
 
-    const handleBodyScroll = (e: Event) => {
-      const target = e.target as HTMLElement;
-      console.log('📜 Body scroll event', target.scrollLeft);
-      if (ganttHeader && target.scrollLeft !== ganttHeader.scrollLeft) {
-        ganttHeader.scrollLeft = target.scrollLeft;
-      }
+    const handleBodyScroll = () => {
+      if (isHeaderScrolling) return;
+      isBodyScrolling = true;
+      console.log('📜 Body scroll event', ganttBody.scrollLeft);
+      ganttHeader.scrollLeft = ganttBody.scrollLeft;
+      requestAnimationFrame(() => {
+        isBodyScrolling = false;
+      });
     };
 
-    ganttHeader.addEventListener('scroll', handleHeaderScroll);
-    ganttBody.addEventListener('scroll', handleBodyScroll);
+    ganttHeader.addEventListener('scroll', handleHeaderScroll, { passive: true });
+    ganttBody.addEventListener('scroll', handleBodyScroll, { passive: true });
     
     console.log('✅ Scroll listeners attached');
 
@@ -252,7 +263,7 @@ export const ModernGanttChart = ({
       ganttBody.removeEventListener('scroll', handleBodyScroll);
       console.log('🧹 Scroll listener cleaned up');
     };
-  }, []);
+  }, [timelineWidth]);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
