@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, differenceInDays, isToday, isSameMonth } from 'date-fns';
 import { ChevronDown, ChevronRight, MoreHorizontal, CheckCircle2, Circle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,10 +39,37 @@ export const ModernGanttChart = ({
   console.log('🚀 ModernGanttChart rendering with', tasks.length, 'tasks');
   
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [taskListWidth, setTaskListWidth] = useState(384); // 96 * 4 = 384px (w-96)
+  const [isResizing, setIsResizing] = useState(false);
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
   const ganttScrollBodyRef = useRef<HTMLDivElement>(null);
+  const resizerRef = useRef<HTMLDivElement>(null);
+
+  // Handle column resizing
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    
+    const startX = e.clientX;
+    const startWidth = taskListWidth;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - startX;
+      const newWidth = Math.max(200, Math.min(600, startWidth + deltaX)); // Min 200px, max 600px
+      setTaskListWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [taskListWidth]);
   
   // Calculate view range dynamically based on all tasks
   const viewStart = useMemo(() => {
@@ -286,7 +313,10 @@ export const ModernGanttChart = ({
 
       <div className="flex">
         {/* Task List */}
-        <div className="w-96 border-r border-gray-200 bg-white">
+        <div 
+          className="border-r border-gray-200 bg-white relative"
+          style={{ width: taskListWidth }}
+        >
           {/* Task List Header */}
           <div className="border-b border-gray-200 bg-gray-50 p-3">
             <div className="grid grid-cols-12 gap-2 text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -375,13 +405,25 @@ export const ModernGanttChart = ({
           </div>
         </div>
 
+        {/* Resizable Divider */}
+        <div
+          ref={resizerRef}
+          className={`w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize relative transition-colors duration-200 ${
+            isResizing ? 'bg-blue-500' : ''
+          }`}
+          onMouseDown={handleMouseDown}
+        >
+          {/* Visual indicator */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-gray-400 rounded opacity-60" />
+        </div>
+
         {/* Timeline */}
         <div className="flex-1 flex flex-col">
           {/* Timeline Header - Scrollable with hidden scrollbars */}
           <div 
             ref={ganttHeaderRef}
             className="border-b border-gray-200 bg-gray-50 overflow-x-auto gantt-header-scroll"
-            style={{ height: '60px', maxWidth: '800px' }}
+            style={{ height: '60px', maxWidth: `calc(100vw - ${taskListWidth + 20}px)` }}
           >
             <div 
               className="flex relative"
@@ -449,7 +491,7 @@ export const ModernGanttChart = ({
           <div 
             ref={ganttScrollBodyRef}
             className="flex-1 overflow-x-auto overflow-y-hidden gantt-body-scroll"
-            style={{ maxWidth: '800px' }}
+            style={{ maxWidth: `calc(100vw - ${taskListWidth + 20}px)` }}
           >
             <div 
               className="relative" 
