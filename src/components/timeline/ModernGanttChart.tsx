@@ -115,7 +115,7 @@ export const ModernGanttChart = ({
     });
   }, [tasks.map(t => t.id).join(',')]); // Only run when task IDs change
 
-  // Build hierarchical structure
+  // Build hierarchical structure and calculate stage durations
   const hierarchicalTasks = useMemo(() => {
     console.log('🔧 Building hierarchical structure with tasks:', tasks.map(t => ({ id: t.id, name: t.name, parentId: t.parentId })));
     
@@ -140,10 +140,50 @@ export const ModernGanttChart = ({
       }
     });
 
-    console.log('🏗️ Final hierarchy - Root tasks:', rootTasks.map(t => t.name));
-    console.log('🏗️ Tasks with children:', rootTasks.filter(t => t.children.length > 0).map(t => ({ name: t.name, children: t.children.map(c => c.name) })));
+    // Calculate stage durations recursively
+    const calculateStageDuration = (task: ModernGanttTask & { children: ModernGanttTask[] }) => {
+      if (task.children.length === 0) {
+        // No children, keep original dates
+        return task;
+      }
+
+      // Recursively calculate children first
+      const updatedChildren = task.children.map(calculateStageDuration);
+      
+      // Find the earliest start and latest end among all children
+      let earliestStart = updatedChildren[0].startDate;
+      let latestEnd = updatedChildren[0].endDate;
+      
+      updatedChildren.forEach(child => {
+        if (child.startDate < earliestStart) {
+          earliestStart = child.startDate;
+        }
+        if (child.endDate > latestEnd) {
+          latestEnd = child.endDate;
+        }
+      });
+
+      // Update the task with calculated dates and mark as stage
+      const updatedTask = {
+        ...task,
+        children: updatedChildren,
+        startDate: earliestStart,
+        endDate: latestEnd,
+        isStage: true,
+        duration: `${differenceInDays(latestEnd, earliestStart) + 1} days`
+      };
+
+      console.log(`📊 Calculated stage duration for ${task.name}: ${earliestStart.toLocaleDateString()} - ${latestEnd.toLocaleDateString()}`);
+      
+      return updatedTask;
+    };
+
+    const processedRootTasks = rootTasks.map(calculateStageDuration);
+
+    console.log('🏗️ Final hierarchy - Root tasks:', processedRootTasks.map(t => t.name));
+    console.log('🏗️ Tasks with children:', processedRootTasks.filter(t => t.children.length > 0).map(t => ({ name: t.name, children: t.children.map(c => c.name) })));
     
-    return rootTasks;
+    return processedRootTasks;
   }, [tasks]);
 
   // Create stable row numbering that persists through expand/collapse
