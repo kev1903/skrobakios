@@ -56,8 +56,6 @@ export const ModernGanttChart = ({
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [editingTaskName, setEditingTaskName] = useState<string | null>(null);
   const [taskNameInput, setTaskNameInput] = useState<string>('');
-  const [editingPredecessors, setEditingPredecessors] = useState<string | null>(null);
-  const [predecessorInput, setPredecessorInput] = useState<string>('');
   
   // Refs for scroll synchronization
   const ganttHeaderRef = useRef<HTMLDivElement>(null);
@@ -341,41 +339,6 @@ export const ModernGanttChart = ({
   const cancelTaskNameEdit = () => {
     setEditingTaskName(null);
     setTaskNameInput('');
-  };
-
-  // Predecessor editing functionality
-  const startPredecessorEdit = (taskId: string) => {
-    const task = visibleTasks.find(t => t.id === taskId);
-    setEditingPredecessors(taskId);
-    setPredecessorInput(task?.predecessors?.join(', ') || '');
-  };
-
-  const finishPredecessorEdit = (taskId: string) => {
-    if (onTaskUpdate) {
-      // Parse the input string into row numbers and validate them
-      const inputPredecessors = predecessorInput
-        .split(',')
-        .map(p => p.trim())
-        .filter(p => p !== '')
-        .filter(p => /^\d+$/.test(p)); // Only accept valid row numbers
-
-      // Convert row numbers to task IDs by finding tasks with matching row numbers
-      const predecessorIds = inputPredecessors
-        .map(rowNum => {
-          const foundTask = allTasksWithRowNumbers.find(t => t.rowNumber === parseInt(rowNum));
-          return foundTask?.id;
-        })
-        .filter(id => id !== undefined) as string[];
-
-      onTaskUpdate(taskId, { predecessors: predecessorIds });
-    }
-    setEditingPredecessors(null);
-    setPredecessorInput('');
-  };
-
-  const cancelPredecessorEdit = () => {
-    setEditingPredecessors(null);
-    setPredecessorInput('');
   };
 
   // Indent/Outdent functionality
@@ -984,36 +947,12 @@ export const ModernGanttChart = ({
 
                     {/* Predecessors */}
                     <div>
-                      {editingPredecessors === task.id ? (
-                        <Input
-                          value={predecessorInput}
-                          onChange={(e) => setPredecessorInput(e.target.value)}
-                          onBlur={() => finishPredecessorEdit(task.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              finishPredecessorEdit(task.id);
-                            } else if (e.key === 'Escape') {
-                              cancelPredecessorEdit();
-                            }
-                          }}
-                          className="text-sm h-6 px-1 w-full"
-                          placeholder="e.g. 1, 3"
-                          autoFocus
-                        />
-                      ) : (
-                        <span 
-                          className="text-sm text-gray-600 cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded w-full block"
-                          onClick={() => startPredecessorEdit(task.id)}
-                        >
-                          {task.predecessors && task.predecessors.length > 0 
-                            ? task.predecessors.map(predId => {
-                                const predTask = allTasksWithRowNumbers.find(t => t.id === predId);
-                                return predTask?.rowNumber || predId;
-                              }).join(', ')
-                            : '-'
-                          }
-                        </span>
-                      )}
+                      <span className="text-sm text-gray-600">
+                        {task.predecessors && task.predecessors.length > 0 
+                          ? task.predecessors.join(', ') 
+                          : '-'
+                        }
+                      </span>
                     </div>
 
                     {/* Status */}
@@ -1188,54 +1127,6 @@ export const ModernGanttChart = ({
                   </div>
                 );
               })}
-
-              {/* Predecessor Connections */}
-              {visibleTasks.map((task, index) => {
-                if (!task.predecessors || task.predecessors.length === 0) return null;
-                
-                return task.predecessors.map(predId => {
-                  const predTask = visibleTasks.find(t => t.id === predId);
-                  if (!predTask) return null;
-                  
-                  const predIndex = visibleTasks.findIndex(t => t.id === predId);
-                  const taskPosition = getTaskPosition(task);
-                  const predPosition = getTaskPosition(predTask);
-                  
-                  // Calculate connection points
-                  const predEndX = predPosition.left + predPosition.width;
-                  const predY = predIndex * 40 + 20; // Center of predecessor task bar
-                  const taskStartX = taskPosition.left;
-                  const taskY = index * 40 + 20; // Center of current task bar
-                  
-                  // Create SVG path for the connection
-                  const pathData = `M ${predEndX} ${predY} L ${taskStartX - 8} ${predY} L ${taskStartX - 8} ${taskY} L ${taskStartX} ${taskY}`;
-                  
-                  return (
-                    <svg
-                      key={`connection-${predId}-${task.id}`}
-                      className="absolute top-0 left-0 pointer-events-none z-10"
-                      style={{
-                        width: timelineWidth,
-                        height: visibleTasks.length * 40
-                      }}
-                    >
-                      {/* Connection line */}
-                      <path
-                        d={pathData}
-                        stroke="#6b7280"
-                        strokeWidth="1.5"
-                        fill="none"
-                        strokeDasharray="3,3"
-                      />
-                      {/* Arrow head */}
-                      <polygon
-                        points={`${taskStartX-4},${taskY-3} ${taskStartX},${taskY} ${taskStartX-4},${taskY+3}`}
-                        fill="#6b7280"
-                      />
-                    </svg>
-                  );
-                });
-              }).flat().filter(Boolean)}
 
               {/* Weekend background columns only */}
               {currentDays.map((day, index) => {
