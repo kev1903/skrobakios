@@ -74,22 +74,33 @@ export const TeamMembersList: React.FC = () => {
   }, []);
 
   const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone and will revoke all their access.')) {
+      return;
+    }
+
     try {
-      const { data, error } = await supabase.rpc('delete_user_completely', {
-        target_user_id: userId
+      // Call the edge function to completely delete user and revoke auth
+      const { data, error } = await supabase.functions.invoke('delete-user-admin', {
+        body: { targetUserId: userId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error calling delete-user-admin function:', error);
+        throw new Error('Failed to connect to deletion service');
+      }
 
-      if (data && typeof data === 'object' && 'success' in data && data.success) {
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.success) {
         toast({
           title: "User Deleted",
-          description: "User has been permanently deleted",
+          description: "User has been permanently deleted and their authentication revoked",
         });
         fetchTeamMembers(); // Refresh the list
       } else {
-        const errorMsg = data && typeof data === 'object' && 'error' in data ? String(data.error) : 'Failed to delete user';
-        throw new Error(errorMsg);
+        throw new Error('Unexpected response from deletion service');
       }
     } catch (error: any) {
       toast({
