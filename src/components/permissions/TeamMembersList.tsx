@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Search, UserPlus, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Search, UserPlus, Trash2, Edit, Mail } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -186,6 +186,77 @@ export const TeamMembersList: React.FC = () => {
     }
   };
 
+  const handleResendInvitation = async (member: TeamMember) => {
+    if (!confirm('Are you sure you want to resend the invitation to this user?')) {
+      return;
+    }
+
+    try {
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Get current user info for inviter name
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Get inviter's profile info
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('user_id', user.id)
+        .single();
+
+      const inviterName = profile ? `${profile.first_name} ${profile.last_name}`.trim() : user.email;
+
+      // Convert app_role back to display name
+      const roleDisplayName = member.app_role === 'superadmin' ? 'Super Admin' : 
+                             member.app_role === 'business_admin' ? 'Business Admin' :
+                             member.app_role === 'project_admin' ? 'Project Admin' :
+                             member.app_role === 'user' ? 'User' :
+                             member.app_role === 'client' ? 'Client' : 'User';
+
+      // Call the edge function to resend invitation
+      const { data, error } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
+          email: member.email,
+          name: `${member.first_name} ${member.last_name}`.trim(),
+          role: roleDisplayName,
+          invitedBy: inviterName,
+          isResend: true
+        },
+      });
+
+      if (error) {
+        console.error('Error calling send-user-invitation function:', error);
+        throw new Error('Failed to connect to invitation service');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Invitation Resent",
+          description: `Invitation has been resent to ${member.email}`,
+        });
+        fetchTeamMembers(); // Refresh the list
+      } else {
+        throw new Error('Unexpected response from invitation service');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend invitation",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'superadmin':
@@ -334,13 +405,22 @@ export const TeamMembersList: React.FC = () => {
                           </DropdownMenuItem>
                         )}
                         {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
-                          <DropdownMenuItem 
-                            onClick={() => handleRevokeInvitation(member.email)}
-                            className="text-orange-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Revoke Invitation
-                          </DropdownMenuItem>
+                          <>
+                            <DropdownMenuItem 
+                              onClick={() => handleResendInvitation(member)}
+                              className="text-blue-600"
+                            >
+                              <Mail className="h-4 w-4 mr-2" />
+                              Resend Invitation
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleRevokeInvitation(member.email)}
+                              className="text-orange-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Revoke Invitation
+                            </DropdownMenuItem>
+                          </>
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
