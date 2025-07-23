@@ -74,6 +74,19 @@ export const TeamMembersList: React.FC = () => {
   }, []);
 
   const handleDeleteUser = async (userId: string) => {
+    console.log('handleDeleteUser called with userId:', userId);
+    console.log('typeof userId:', typeof userId);
+    
+    // Check if userId is null or undefined (invited users who haven't signed up)
+    if (!userId || userId === 'null' || userId === 'undefined') {
+      toast({
+        title: "Cannot Delete User",
+        description: "This user hasn't completed their signup yet. You can revoke their invitation instead.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!confirm('Are you sure you want to permanently delete this user? This action cannot be undone and will revoke all their access.')) {
       return;
     }
@@ -86,6 +99,8 @@ export const TeamMembersList: React.FC = () => {
         throw new Error('No active session');
       }
 
+      console.log('About to send request with body:', { targetUserId: userId });
+
       // Call the edge function to completely delete user and revoke auth
       const { data, error } = await supabase.functions.invoke('delete-user-admin', {
         body: { targetUserId: userId },
@@ -93,6 +108,8 @@ export const TeamMembersList: React.FC = () => {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
+
+      console.log('Response from edge function:', { data, error });
 
       if (error) {
         console.error('Error calling delete-user-admin function:', error);
@@ -256,13 +273,29 @@ export const TeamMembersList: React.FC = () => {
                             Edit Roles
                           </DropdownMenuItem>
                         )}
-                        {member.app_role !== 'superadmin' && (
+                        {member.app_role !== 'superadmin' && member.user_id && (
                           <DropdownMenuItem 
                             onClick={() => handleDeleteUser(member.user_id)}
                             className="text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete User
+                          </DropdownMenuItem>
+                        )}
+                        {!member.user_id && member.status === 'invited' && (
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              // Handle invitation revocation instead
+                              toast({
+                                title: "Feature Not Implemented",
+                                description: "Invitation revocation will be implemented soon.",
+                                variant: "default",
+                              });
+                            }}
+                            className="text-orange-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Revoke Invitation
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>

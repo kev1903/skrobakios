@@ -196,6 +196,11 @@ export const useHierarchicalUserManagement = () => {
 
   const deleteUser = async (userId: string) => {
     try {
+      // Check if userId is null or undefined (invited users who haven't signed up)
+      if (!userId || userId === 'null' || userId === 'undefined') {
+        throw new Error('Cannot delete invited users who haven\'t completed signup. Revoke their invitation instead.');
+      }
+
       // Get current session for auth header
       const { data: { session } } = await supabase.auth.getSession();
       

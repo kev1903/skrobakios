@@ -133,10 +133,14 @@ Deno.serve(async (req) => {
     console.log('Extracted targetUserId:', targetUserId);
     console.log('Delete request for user:', targetUserId);
     
-    if (!targetUserId) {
-      console.error('Missing targetUserId in request body:', requestBody);
+    if (!targetUserId || targetUserId === 'null' || targetUserId === 'undefined') {
+      console.error('Missing or invalid targetUserId in request body:', requestBody);
       return new Response(
-        JSON.stringify({ error: 'Target user ID is required', receivedBody: requestBody }),
+        JSON.stringify({ 
+          success: false,
+          error: 'Target user ID is required and cannot be null. This might be an invited user who hasn\'t completed signup.', 
+          receivedBody: requestBody 
+        }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
