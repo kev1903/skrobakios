@@ -300,7 +300,10 @@ export const TeamMembersList: React.FC = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
+                    <Badge variant={
+                      member.status === 'active' ? 'default' : 
+                      member.status === 'revoked' ? 'destructive' : 'secondary'
+                    }>
                       {member.status}
                     </Badge>
                   </TableCell>
