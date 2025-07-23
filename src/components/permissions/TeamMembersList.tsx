@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { InviteUserDialog } from "./InviteUserDialog";
 
 interface TeamMember {
   user_id: string;
@@ -32,12 +33,23 @@ export const TeamMembersList: React.FC = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { toast } = useToast();
 
   const fetchTeamMembers = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
+
+      // Check if user is superadmin
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+      
+      const hasSuperAdminRole = roles?.some(r => r.role === 'superadmin') || false;
+      setIsSuperAdmin(hasSuperAdminRole);
 
       const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
         requesting_user_id: user.id
@@ -136,10 +148,12 @@ export const TeamMembersList: React.FC = () => {
                 className="pl-8 w-64"
               />
             </div>
-            <Button onClick={() => window.history.back()}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Invite User
-            </Button>
+            {isSuperAdmin && (
+              <Button onClick={() => setShowInviteDialog(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Invite User
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -237,6 +251,12 @@ export const TeamMembersList: React.FC = () => {
           </Table>
         )}
       </CardContent>
+      
+      <InviteUserDialog
+        open={showInviteDialog}
+        onOpenChange={setShowInviteDialog}
+        onInviteSent={fetchTeamMembers}
+      />
     </Card>
   );
 };
