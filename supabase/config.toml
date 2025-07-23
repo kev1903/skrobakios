@@ -32,3 +32,12 @@ verify_jwt = false
 
 [functions.optimize-schedule]
 verify_jwt = false
+
+[functions.send-user-invitation]
+verify_jwt = true
+
+[functions.revoke-user-invitation]
+verify_jwt = true
+
+[functions.delete-user-admin]
+verify_jwt = true

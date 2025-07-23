@@ -16,11 +16,19 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log('Revoke invitation function called');
+
   try {
     // Environment variables
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+
+    console.log('Environment check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      hasAnonKey: !!supabaseAnonKey
+    });
 
     if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
       console.error('Missing environment variables');
@@ -50,6 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the requesting user from the authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('No authorization header');
       return new Response(
         JSON.stringify({ error: 'Authorization required' }),
         { 
@@ -82,6 +91,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    console.log('Authenticated user:', user.id);
+
     // Check if user has superadmin role
     const { data: roles, error: roleError } = await supabaseAdmin
       .from('user_roles')
@@ -91,6 +102,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('User roles check:', { roles, roleError, userId: user.id });
 
     if (roleError || !roles?.some(r => r.role === 'superadmin')) {
+      console.error('Permission denied - not superadmin');
       return new Response(
         JSON.stringify({ error: 'Insufficient permissions. Only superadmins can revoke invitations.' }),
         { 
@@ -107,6 +119,8 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('email', email)
       .single();
 
+    console.log('Profile lookup result:', { profile, profileError });
+
     if (profileError) {
       console.error('Profile lookup failed:', profileError);
       return new Response(
@@ -120,8 +134,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Check if user is in invited status
     if (profile.status !== 'invited') {
+      console.log('User status is not invited:', profile.status);
       return new Response(
-        JSON.stringify({ error: 'User is not in invited status' }),
+        JSON.stringify({ error: `User is not in invited status. Current status: ${profile.status}` }),
         { 
           status: 400, 
           headers: { 'Content-Type': 'application/json', ...corsHeaders } 
@@ -148,6 +163,8 @@ const handler = async (req: Request): Promise<Response> => {
         }
       );
     }
+
+    console.log('Profile status updated to revoked');
 
     // Mark all invitation tokens for this user as used (effectively revoking them)
     const { error: tokenError } = await supabaseAdmin
