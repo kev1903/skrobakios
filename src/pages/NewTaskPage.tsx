@@ -267,7 +267,10 @@ const NewTaskPage = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <Label className="text-xs font-medium text-gray-600">Status</Label>
+                  <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                    <Flag className="w-3 h-3" />
+                    Status
+                  </Label>
                   <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
                     <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm">
                       <SelectValue />
