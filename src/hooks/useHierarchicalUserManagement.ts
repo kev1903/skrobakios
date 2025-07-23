@@ -196,13 +196,28 @@ export const useHierarchicalUserManagement = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      const { data, error } = await supabase.rpc('delete_user_completely', {
-        target_user_id: userId
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Call the edge function to completely delete user and revoke auth
+      const { data, error } = await supabase.functions.invoke('delete-user-admin', {
+        body: { targetUserId: userId },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       if (error) {
-        console.error('Error deleting user:', error);
-        return { success: false, error };
+        console.error('Error calling delete-user-admin function:', error);
+        throw error;
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to delete user');
       }
 
       await fetchUsers(); // Refresh the list

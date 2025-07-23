@@ -112,13 +112,31 @@ Deno.serve(async (req) => {
     }
 
     // Get target user ID from request
-    const { targetUserId } = await req.json()
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
     
+    console.log('Raw request body:', requestBody);
+    
+    const { targetUserId } = requestBody;
+    
+    console.log('Extracted targetUserId:', targetUserId);
     console.log('Delete request for user:', targetUserId);
     
     if (!targetUserId) {
+      console.error('Missing targetUserId in request body:', requestBody);
       return new Response(
-        JSON.stringify({ error: 'Target user ID is required' }),
+        JSON.stringify({ error: 'Target user ID is required', receivedBody: requestBody }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -128,6 +146,7 @@ Deno.serve(async (req) => {
 
     // Prevent self-deletion
     if (targetUserId === user.id) {
+      console.log('Attempted self-deletion blocked');
       return new Response(
         JSON.stringify({ error: 'Cannot delete your own account' }),
         { 
@@ -137,7 +156,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log('Starting user deletion process...');
+    console.log('Starting user deletion process for:', targetUserId);
 
     // First, delete all user data from database using our function
     const { data: deleteResult, error: deleteError } = await supabaseAdmin
@@ -156,8 +175,12 @@ Deno.serve(async (req) => {
       )
     }
 
+    console.log('User data deleted successfully, now deleting auth user...');
+
     // Then delete the user from auth.users (this also revokes all sessions)
     const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(targetUserId)
+
+    console.log('Auth deletion result:', { authDeleteError });
 
     if (authDeleteError) {
       console.error('Error deleting auth user:', authDeleteError)
