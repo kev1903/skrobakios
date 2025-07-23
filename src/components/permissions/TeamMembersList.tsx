@@ -271,11 +271,15 @@ export const TeamMembersList: React.FC = () => {
     }
   };
 
-  const generateInvitationLink = (member: TeamMember) => {
-    // Generate a unique token for the invitation link
-    const token = crypto.randomUUID();
-    const dbRole = member.app_role;
-    return `${window.location.origin}/auth?token=${token}&email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(dbRole)}`;
+  const generateInvitationLink = (member: TeamMember): string => {
+    // For existing users who haven't completed signup (invited status), 
+    // we'll generate a link to the auth page with their role information
+    if (member.status === 'invited') {
+      return `${window.location.origin}/auth?email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}&invited=true`;
+    }
+    
+    // For active users, we can generate a signup link with their role as reference
+    return `${window.location.origin}/auth?referral=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}`;
   };
 
   const handleCopyInvitationLink = async (member: TeamMember) => {
@@ -286,7 +290,7 @@ export const TeamMembersList: React.FC = () => {
         title: "Link Copied",
         description: "Invitation link has been copied to clipboard",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to copy link to clipboard",
