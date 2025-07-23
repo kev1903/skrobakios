@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Find the user profile by email
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('user_id, status')
+      .select('id, status')
       .eq('email', email)
       .single();
 
@@ -151,7 +151,7 @@ const handler = async (req: Request): Promise<Response> => {
         status: 'revoked',
         updated_at: new Date().toISOString()
       })
-      .eq('user_id', profile.user_id);
+      .eq('id', profile.id); // Use profile.id instead of user_id
 
     if (updateProfileError) {
       console.error('Failed to update profile status:', updateProfileError);
@@ -164,26 +164,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log('Profile status updated to revoked');
-
-    // Mark all invitation tokens for this user as used (effectively revoking them)
-    const { error: tokenError } = await supabaseAdmin
-      .from('user_access_tokens')
-      .update({ 
-        used_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', profile.user_id)
-      .eq('token_type', 'invitation')
-      .is('used_at', null);
-
-    if (tokenError) {
-      console.error('Failed to revoke tokens:', tokenError);
-      // Don't fail the request since profile was already updated
-      console.log('Profile status updated but token revocation failed');
-    }
-
-    console.log('Invitation successfully revoked for user:', profile.user_id);
+    console.log('Invitation successfully revoked for profile:', profile.id);
 
     return new Response(
       JSON.stringify({ 

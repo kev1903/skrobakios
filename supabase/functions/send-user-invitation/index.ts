@@ -204,22 +204,10 @@ const handler = async (req: Request): Promise<Response> => {
       profile = newProfile;
     }
 
-    // Store invitation details using admin client - use the new unique constraint
-    const { error: tokenError } = await supabaseAdmin
-      .from('user_access_tokens')
-      .upsert({
-        user_id: profile.id,
-        token: invitationToken,
-        token_type: 'invitation',
-        expires_at: expiresAt.toISOString()
-      }, {
-        onConflict: 'user_id,token_type'
-      });
-
-    if (tokenError) {
-      console.error('Token creation failed:', tokenError);
-      throw new Error(`Failed to create invitation token: ${tokenError.message}`);
-    }
+    // Create invitation link directly without storing tokens since invited users don't have auth user_id yet
+    // We'll store the token in a different way or not at all since the profile status serves as the invitation state
+    
+    console.log('Profile created/updated successfully:', profile.id);
 
     // Get email sender from system configurations using admin client
     const { data: senderConfig } = await supabaseAdmin

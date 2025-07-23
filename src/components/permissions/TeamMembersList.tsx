@@ -263,7 +263,7 @@ export const TeamMembersList: React.FC = () => {
             </TableHeader>
             <TableBody>
               {filteredMembers.map((member) => (
-                <TableRow key={member.user_id}>
+                <TableRow key={member.user_id || member.email}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
@@ -324,7 +324,7 @@ export const TeamMembersList: React.FC = () => {
                             Edit Roles
                           </DropdownMenuItem>
                         )}
-                        {member.app_role !== 'superadmin' && member.user_id && (
+                        {member.app_role !== 'superadmin' && member.user_id && member.user_id !== 'null' && (
                           <DropdownMenuItem 
                             onClick={() => handleDeleteUser(member.user_id)}
                             className="text-destructive"
@@ -333,7 +333,7 @@ export const TeamMembersList: React.FC = () => {
                             Delete User
                           </DropdownMenuItem>
                         )}
-                        {!member.user_id && member.status === 'invited' && (
+                        {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
                           <DropdownMenuItem 
                             onClick={() => handleRevokeInvitation(member.email)}
                             className="text-orange-600"
