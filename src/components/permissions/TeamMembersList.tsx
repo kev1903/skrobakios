@@ -90,12 +90,12 @@ export const TeamMembersList: React.FC = () => {
       return;
     }
 
-    // Get current user to prevent self-deletion
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    if (currentUser?.id === userId) {
+    // Find the user to check their role
+    const userToDelete = members.find(m => m.user_id === userId);
+    if (userToDelete?.app_role === 'superadmin') {
       toast({
-        title: "Cannot Delete Self",
-        description: "You cannot delete your own account.",
+        title: "Cannot Delete Super Admin",
+        description: "Super Admins cannot be deleted for security reasons. You can change their role first if needed.",
         variant: "destructive",
       });
       return;
@@ -463,57 +463,53 @@ export const TeamMembersList: React.FC = () => {
                     </Button>
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
-                          <DropdownMenuItem onClick={() => handleEditRole(member)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Roles
-                          </DropdownMenuItem>
-                        )}
-                        {/* Allow superadmins to delete any user, but prevent deleting themselves */}
-                        {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              console.log('Delete button clicked for:', {
-                                memberEmail: member.email,
-                                isSuperAdmin,
-                                memberUserId: member.user_id,
-                                memberStatus: member.status
-                              });
-                              handleDeleteUser(member.user_id);
-                            }}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
-                          </DropdownMenuItem>
-                        )}
-                        {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
-                          <>
-                            <DropdownMenuItem 
-                              onClick={() => handleResendInvitation(member)}
-                              className="text-blue-600"
-                            >
-                              <Mail className="h-4 w-4 mr-2" />
-                              Resend Invitation
+                    {/* Hide the actions dropdown for Super Admin users */}
+                    {member.app_role !== 'superadmin' ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
+                            <DropdownMenuItem onClick={() => handleEditRole(member)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Roles
                             </DropdownMenuItem>
+                          )}
+                          {member.app_role !== 'superadmin' && member.user_id && member.user_id !== 'null' && (
                             <DropdownMenuItem 
-                              onClick={() => handleRevokeInvitation(member.email)}
-                              className="text-orange-600"
+                              onClick={() => handleDeleteUser(member.user_id)}
+                              className="text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Revoke Invitation
+                              Delete User
                             </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          )}
+                          {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
+                            <>
+                              <DropdownMenuItem 
+                                onClick={() => handleResendInvitation(member)}
+                                className="text-blue-600"
+                              >
+                                <Mail className="h-4 w-4 mr-2" />
+                                Resend Invitation
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleRevokeInvitation(member.email)}
+                                className="text-orange-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Revoke Invitation
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Protected</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
