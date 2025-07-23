@@ -204,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
       profile = newProfile;
     }
 
-    // Store invitation details using admin client
+    // Store invitation details using admin client - use token as unique key
     const { error: tokenError } = await supabaseAdmin
       .from('user_access_tokens')
       .upsert({
@@ -213,11 +213,12 @@ const handler = async (req: Request): Promise<Response> => {
         token_type: 'invitation',
         expires_at: expiresAt.toISOString()
       }, {
-        onConflict: 'user_id,token_type'
+        onConflict: 'token'
       });
 
     if (tokenError) {
-      console.warn('Token creation failed:', tokenError);
+      console.error('Token creation failed:', tokenError);
+      throw new Error(`Failed to create invitation token: ${tokenError.message}`);
     }
 
     // Get email sender from system configurations using admin client
