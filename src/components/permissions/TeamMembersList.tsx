@@ -479,7 +479,15 @@ export const TeamMembersList: React.FC = () => {
                         {/* Allow superadmins to delete any user, but prevent deleting themselves */}
                         {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
                           <DropdownMenuItem
-                            onClick={() => handleDeleteUser(member.user_id)}
+                            onClick={() => {
+                              console.log('Delete button clicked for:', {
+                                memberEmail: member.email,
+                                isSuperAdmin,
+                                memberUserId: member.user_id,
+                                memberStatus: member.status
+                              });
+                              handleDeleteUser(member.user_id);
+                            }}
                             className="text-destructive"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
