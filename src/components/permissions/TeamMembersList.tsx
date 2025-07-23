@@ -235,13 +235,15 @@ export const TeamMembersList: React.FC = () => {
                             Edit Roles
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem 
-                          onClick={() => handleDeleteUser(member.user_id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete User
-                        </DropdownMenuItem>
+                        {member.app_role !== 'superadmin' && (
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteUser(member.user_id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete User
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
