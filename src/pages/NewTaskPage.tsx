@@ -90,12 +90,8 @@ const NewTaskPage = () => {
         description: "Your new task has been added to the backlog.",
       });
       
-      // Navigate to project view if task belongs to a project, otherwise to tasks
-      if (formData.projectId && formData.projectId !== 'no-project') {
-        navigate(`/projects/${formData.projectId}`);
-      } else {
-        navigate('/tasks');
-      }
+      // Always navigate to My Task Page regardless of project assignment
+      navigate('/tasks');
     } catch (error) {
       console.error('Error creating task:', error);
       toast({
