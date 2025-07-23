@@ -478,7 +478,7 @@ export const TeamMembersList: React.FC = () => {
                               Edit Roles
                             </DropdownMenuItem>
                           )}
-                          {member.app_role !== 'superadmin' && member.user_id && member.user_id !== 'null' && (
+                          {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
                             <DropdownMenuItem 
                               onClick={() => handleDeleteUser(member.user_id)}
                               className="text-destructive"
