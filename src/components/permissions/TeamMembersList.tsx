@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Search, UserPlus, Trash2, Edit, Mail } from "lucide-react";
+import { MoreHorizontal, Search, UserPlus, Trash2, Edit, Mail, Copy } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -271,6 +271,30 @@ export const TeamMembersList: React.FC = () => {
     }
   };
 
+  const generateInvitationLink = (member: TeamMember) => {
+    // Generate a unique token for the invitation link
+    const token = crypto.randomUUID();
+    const dbRole = member.app_role;
+    return `${window.location.origin}/auth?token=${token}&email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(dbRole)}`;
+  };
+
+  const handleCopyInvitationLink = async (member: TeamMember) => {
+    try {
+      const invitationLink = generateInvitationLink(member);
+      await navigator.clipboard.writeText(invitationLink);
+      toast({
+        title: "Link Copied",
+        description: "Invitation link has been copied to clipboard",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy link to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditRole = (member: TeamMember) => {
     setSelectedUser(member);
     setShowEditRoleDialog(true);
@@ -369,6 +393,7 @@ export const TeamMembersList: React.FC = () => {
                 <TableHead>Company Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Joined</TableHead>
+                <TableHead>Copy Link</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -420,6 +445,16 @@ export const TeamMembersList: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     {format(new Date(member.created_at), 'MMM dd, yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleCopyInvitationLink(member)}
+                      title="Copy invitation link"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                   <TableCell>
                     {/* Hide the actions dropdown for Super Admin users */}
