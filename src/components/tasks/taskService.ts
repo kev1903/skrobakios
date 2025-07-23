@@ -20,14 +20,7 @@ export const taskService = {
   async loadTasksAssignedToUser(): Promise<Task[]> {
     const { data, error } = await supabase
       .from('tasks')
-      .select(`
-        *,
-        profiles:assigned_to (
-          first_name,
-          last_name,
-          avatar_url
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -40,8 +33,8 @@ export const taskService = {
       taskType: 'Task' as const,
       priority: task.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {
-        name: task.profiles ? `${task.profiles.first_name || ''} ${task.profiles.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned',
-        avatar: task.profiles?.avatar_url || '',
+        name: task.assigned_to_name || '',
+        avatar: task.assigned_to_avatar || '',
         userId: task.assigned_to
       },
       dueDate: task.due_date || '',
