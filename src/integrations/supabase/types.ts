@@ -2148,7 +2148,7 @@ export type Database = {
           is_milestone: boolean | null
           priority: string
           progress: number
-          project_id: string
+          project_id: string | null
           status: string
           task_name: string
           task_type: string
@@ -2169,7 +2169,7 @@ export type Database = {
           is_milestone?: boolean | null
           priority?: string
           progress?: number
-          project_id: string
+          project_id?: string | null
           status?: string
           task_name: string
           task_type?: string
@@ -2190,7 +2190,7 @@ export type Database = {
           is_milestone?: boolean | null
           priority?: string
           progress?: number
-          project_id?: string
+          project_id?: string | null
           status?: string
           task_name?: string
           task_type?: string
