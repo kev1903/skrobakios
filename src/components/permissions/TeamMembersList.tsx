@@ -79,9 +79,19 @@ export const TeamMembersList: React.FC = () => {
     }
 
     try {
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
       // Call the edge function to completely delete user and revoke auth
       const { data, error } = await supabase.functions.invoke('delete-user-admin', {
-        body: { targetUserId: userId }
+        body: { targetUserId: userId },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       if (error) {
