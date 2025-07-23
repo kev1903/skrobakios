@@ -105,14 +105,12 @@ const TasksPage = () => {
           </div>
           <div className="space-y-3">
             {taskBacklog.map((task) => (
-              <div key={task.id} className="p-3 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-gray-800 line-clamp-2 mb-1">{task.title}</h4>
-                    <p className="text-xs text-gray-500">{task.project}</p>
-                  </div>
+              <div key={task.id} className="p-4 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-gray-800">{task.title}</h4>
+                  <p className="text-xs text-gray-600 font-medium">{task.project}</p>
                   <span className={cn(
-                    "px-2 py-1 rounded-lg text-xs font-medium ml-2 flex-shrink-0",
+                    "inline-block px-2 py-1 rounded-lg text-xs font-medium",
                     task.priority === 'High' ? 'bg-red-50 text-red-600' :
                     task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
                     'bg-green-50 text-green-600'
@@ -120,71 +118,11 @@ const TasksPage = () => {
                     {task.priority}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {task.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-xs"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Music Player */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-5 border border-gray-200/50">
-          <div className="text-center mb-4">
-            <p className="text-sm text-gray-800 font-semibold">this is what sadness feels like</p>
-            <p className="text-xs text-gray-500 mt-1">JVKE</p>
-          </div>
-          
-          <div className="mb-4">
-            <div className="flex justify-between text-xs text-gray-500 mb-2">
-              <span>1:15</span>
-              <span>3:11</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style={{ width: '38%' }}></div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center gap-4">
-            <Shuffle className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors" />
-            <SkipBack className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors" />
-            <Button 
-              size="sm" 
-              className="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 shadow-lg"
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-            </Button>
-            <SkipForward className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors" />
-            <Volume2 className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors" />
-          </div>
-        </div>
-
-        {/* Focus Timer */}
-        <div className="text-center bg-white/50 rounded-2xl p-5 border border-gray-200/50">
-          <Button className="w-full mb-4 bg-blue-500 hover:bg-blue-600 rounded-xl font-medium">
-            🎯 Focus
-          </Button>
-          <div className="text-3xl font-mono font-bold text-gray-900 mb-2">
-            00:30:00
-          </div>
-          <span className="text-sm text-gray-500">min</span>
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600">
-              <span className="text-lg">−</span>
-            </Button>
-            <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600">
-              <span className="text-lg">+</span>
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Main Content - Calendar View */}
@@ -334,6 +272,24 @@ const TasksPage = () => {
 
       {/* Right Sidebar */}
       <div className="w-80 bg-white/70 backdrop-blur-xl border-l border-gray-200/50 p-6 space-y-6 shadow-sm">
+        {/* Focus Timer */}
+        <div className="text-center bg-white/50 rounded-2xl p-5 border border-gray-200/50">
+          <Button className="w-full mb-4 bg-blue-500 hover:bg-blue-600 rounded-xl font-medium">
+            🎯 Focus
+          </Button>
+          <div className="text-3xl font-mono font-bold text-gray-900 mb-2">
+            00:30:00
+          </div>
+          <span className="text-sm text-gray-500">min</span>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600">
+              <span className="text-lg">−</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600">
+              <span className="text-lg">+</span>
+            </Button>
+          </div>
+        </div>
         {/* Calendar */}
         <div>
           <div className="flex items-center justify-between mb-4">
