@@ -103,14 +103,16 @@ const TasksPage = () => {
               + Add to backlog
             </button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {taskBacklog.map((task) => (
-              <div key={task.id} className="p-4 rounded-xl hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-gray-800">{task.title}</h4>
-                  <p className="text-xs text-gray-600 font-medium">{task.project}</p>
+              <div key={task.id} className="px-3 py-2 rounded-lg hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-gray-800 truncate">{task.title}</h4>
+                    <p className="text-xs text-gray-600 font-medium truncate">{task.project}</p>
+                  </div>
                   <span className={cn(
-                    "inline-block px-2 py-1 rounded-lg text-xs font-medium",
+                    "ml-2 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
                     task.priority === 'High' ? 'bg-red-50 text-red-600' :
                     task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
                     'bg-green-50 text-green-600'
