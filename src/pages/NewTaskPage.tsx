@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Flag, FileText, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Flag, FileText, Clock, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,19 +9,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { taskService } from '@/components/tasks/taskService';
 import { useToast } from '@/hooks/use-toast';
+import { useProjects } from '@/hooks/useProjects';
 
 const NewTaskPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { getProjects } = useProjects();
   const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   const [formData, setFormData] = useState({
     taskName: '',
     description: '',
     priority: 'medium',
     status: 'pending',
     dueDate: '',
-    assignedTo: ''
+    assignedTo: '',
+    projectId: ''
   });
+
+  // Load projects on component mount
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const projectsData = await getProjects();
+        setProjects(projectsData);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        toast({
+          title: "Error loading projects",
+          description: "Could not load projects. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    loadProjects();
+  }, [getProjects, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +63,7 @@ const NewTaskPage = () => {
     setLoading(true);
     try {
       await taskService.addTask({
-        project_id: '', // You might want to select a project
+        project_id: formData.projectId,
         taskName: formData.taskName,
         taskType: 'Task',
         priority: formData.priority as 'High' | 'Medium' | 'Low',
@@ -116,6 +142,27 @@ const NewTaskPage = () => {
                   className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11"
                   required
                 />
+              </div>
+
+              {/* Project Selection */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Building className="w-4 h-4" />
+                  Project
+                </Label>
+                <Select value={formData.projectId} onValueChange={(value) => handleInputChange('projectId', value)}>
+                  <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11">
+                    <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Select a project"} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-gray-200/50 rounded-xl shadow-lg">
+                    <SelectItem value="">No Project</SelectItem>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Description */}
