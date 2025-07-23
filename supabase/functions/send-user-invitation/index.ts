@@ -191,14 +191,20 @@ const handler = async (req: Request): Promise<Response> => {
       
       let uniqueSlug = baseSlug;
       let counter = 1;
+      let maxAttempts = 10;
       
       // Check for slug uniqueness and append number if needed
-      while (true) {
-        const { data: existingSlugProfile } = await supabaseAdmin
+      while (counter <= maxAttempts) {
+        const { data: existingSlugProfile, error: slugCheckError } = await supabaseAdmin
           .from('profiles')
           .select('id')
           .eq('slug', uniqueSlug)
           .maybeSingle();
+          
+        if (slugCheckError) {
+          console.error('Slug check error:', slugCheckError);
+          throw new Error(`Failed to check slug uniqueness: ${slugCheckError.message}`);
+        }
           
         if (!existingSlugProfile) {
           break;
@@ -207,6 +213,13 @@ const handler = async (req: Request): Promise<Response> => {
         uniqueSlug = `${baseSlug}-${counter}`;
         counter++;
       }
+
+      if (counter > maxAttempts) {
+        // Fallback to timestamp-based slug
+        uniqueSlug = `${baseSlug}-${Date.now()}`;
+      }
+
+      console.log('Generated unique slug:', uniqueSlug);
 
       // Create new profile using admin client
       const { data: newProfile, error: insertError } = await supabaseAdmin
@@ -225,9 +238,37 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (insertError) {
         console.error('Profile insert error:', insertError);
-        throw new Error(`Failed to create profile: ${insertError.message}`);
+        
+        // If it's still a slug constraint error, try with timestamp
+        if (insertError.code === '23505' && insertError.message.includes('profiles_slug_key')) {
+          const timestampSlug = `${baseSlug}-${Date.now()}`;
+          console.log('Retrying with timestamp slug:', timestampSlug);
+          
+          const { data: retryProfile, error: retryError } = await supabaseAdmin
+            .from('profiles')
+            .insert({
+              email,
+              first_name: name.split(' ')[0] || name,
+              last_name: name.split(' ').slice(1).join(' ') || '',
+              slug: timestampSlug,
+              status: 'invited',
+              account_activated: false,
+              password_change_required: true
+            })
+            .select('id')
+            .single();
+            
+          if (retryError) {
+            console.error('Retry profile insert error:', retryError);
+            throw new Error(`Failed to create profile after retry: ${retryError.message}`);
+          }
+          profile = retryProfile;
+        } else {
+          throw new Error(`Failed to create profile: ${insertError.message}`);
+        }
+      } else {
+        profile = newProfile;
       }
-      profile = newProfile;
     }
 
     // Create invitation link directly without storing tokens since invited users don't have auth user_id yet
