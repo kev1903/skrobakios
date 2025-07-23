@@ -419,7 +419,13 @@ export const TeamMembersList: React.FC = () => {
                    app_role: member.app_role,
                    user_id: member.user_id,
                    isSuperAdmin,
-                   showDropdown: member.app_role !== 'superadmin'
+                   can_manage_roles: member.can_manage_roles,
+                   status: member.status,
+                   showDropdown: member.app_role !== 'superadmin',
+                   showEditRoles: member.can_manage_roles && member.user_id && member.user_id !== 'null',
+                   showEditProjects: isSuperAdmin && member.user_id && member.user_id !== 'null',
+                   showDeleteUser: isSuperAdmin && member.user_id && member.user_id !== 'null',
+                   showInvitationOptions: (!member.user_id || member.user_id === 'null') && member.status === 'invited'
                  });
                  
                  return (
@@ -489,8 +495,14 @@ export const TeamMembersList: React.FC = () => {
                              <MoreHorizontal className="h-4 w-4" />
                            </Button>
                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
-                             {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
+                           <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                             {(() => {
+                               console.log(`Dropdown for ${member.email}: can_manage_roles=${member.can_manage_roles}, isSuperAdmin=${isSuperAdmin}, user_id=${member.user_id}, status=${member.status}`);
+                               return null;
+                             })()}
+                             
+                             {/* Show Edit Roles if user can manage roles OR if current user is superadmin */}
+                             {(member.can_manage_roles || isSuperAdmin) && member.user_id && member.user_id !== 'null' && (
                               <DropdownMenuItem onClick={() => handleEditRole(member)}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Roles
@@ -528,6 +540,14 @@ export const TeamMembersList: React.FC = () => {
                                 Revoke Invitation
                               </DropdownMenuItem>
                             </>
+                          )}
+                          
+                          {/* Always show at least the copy link option for active users */}
+                          {member.user_id && member.user_id !== 'null' && member.status !== 'invited' && (
+                            <DropdownMenuItem onClick={() => handleCopyInvitationLink(member)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy Profile Link
+                            </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
