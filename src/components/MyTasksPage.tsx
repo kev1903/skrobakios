@@ -40,6 +40,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
       try {
         setLoading(true);
         // Get all tasks from all projects and filter by assigned user
+        const fullName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
         const { data: allTasks, error } = await supabase
           .from('tasks')
           .select(`
@@ -50,7 +51,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
               project_id
             )
           `)
-          .or(`assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
+          .or(`assigned_to_name.ilike.%${fullName}%,assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
