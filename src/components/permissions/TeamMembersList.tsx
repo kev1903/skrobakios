@@ -489,8 +489,13 @@ export const TeamMembersList: React.FC = () => {
                              <MoreHorizontal className="h-4 w-4" />
                            </Button>
                          </DropdownMenuTrigger>
-                         <DropdownMenuContent align="end">
-                            {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
+                          <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                             {/* Always show at least one option for debugging */}
+                             <DropdownMenuItem onClick={() => console.log('Test menu item clicked')}>
+                               Test Option
+                             </DropdownMenuItem>
+                             
+                             {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
                               <DropdownMenuItem onClick={() => handleEditRole(member)}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Roles
