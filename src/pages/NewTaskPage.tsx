@@ -63,7 +63,7 @@ const NewTaskPage = () => {
     setLoading(true);
     try {
       await taskService.addTask({
-        project_id: formData.projectId,
+        project_id: formData.projectId === 'no-project' ? '' : formData.projectId,
         taskName: formData.taskName,
         taskType: 'Task',
         priority: formData.priority as 'High' | 'Medium' | 'Low',
@@ -155,7 +155,7 @@ const NewTaskPage = () => {
                     <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Select a project"} />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-gray-200/50 rounded-xl shadow-lg">
-                    <SelectItem value="">No Project</SelectItem>
+                    <SelectItem value="no-project">No Project</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.name}
