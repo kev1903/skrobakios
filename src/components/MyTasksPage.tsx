@@ -45,7 +45,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
           .from('tasks')
           .select(`
             *,
-            projects!inner (
+            projects (
               id,
               name,
               project_id
