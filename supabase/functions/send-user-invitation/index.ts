@@ -183,6 +183,31 @@ const handler = async (req: Request): Promise<Response> => {
       }
       profile = updatedProfile;
     } else {
+      // Generate a unique slug
+      const baseSlug = name.toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .trim();
+      
+      let uniqueSlug = baseSlug;
+      let counter = 1;
+      
+      // Check for slug uniqueness and append number if needed
+      while (true) {
+        const { data: existingSlugProfile } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('slug', uniqueSlug)
+          .maybeSingle();
+          
+        if (!existingSlugProfile) {
+          break;
+        }
+        
+        uniqueSlug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
       // Create new profile using admin client
       const { data: newProfile, error: insertError } = await supabaseAdmin
         .from('profiles')
@@ -190,6 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
           email,
           first_name: name.split(' ')[0] || name,
           last_name: name.split(' ').slice(1).join(' ') || '',
+          slug: uniqueSlug,
           status: 'invited',
           account_activated: false,
           password_change_required: true
