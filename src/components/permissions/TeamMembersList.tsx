@@ -422,48 +422,53 @@ export const TeamMembersList: React.FC = () => {
                     {format(new Date(member.created_at), 'MMM dd, yyyy')}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
-                          <DropdownMenuItem onClick={() => handleEditRole(member)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Roles
-                          </DropdownMenuItem>
-                        )}
-                        {member.app_role !== 'superadmin' && member.user_id && member.user_id !== 'null' && (
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteUser(member.user_id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
-                          </DropdownMenuItem>
-                        )}
-                        {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
-                          <>
-                            <DropdownMenuItem 
-                              onClick={() => handleResendInvitation(member)}
-                              className="text-blue-600"
-                            >
-                              <Mail className="h-4 w-4 mr-2" />
-                              Resend Invitation
+                    {/* Hide the actions dropdown for Super Admin users */}
+                    {member.app_role !== 'superadmin' ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
+                            <DropdownMenuItem onClick={() => handleEditRole(member)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Roles
                             </DropdownMenuItem>
+                          )}
+                          {member.app_role !== 'superadmin' && member.user_id && member.user_id !== 'null' && (
                             <DropdownMenuItem 
-                              onClick={() => handleRevokeInvitation(member.email)}
-                              className="text-orange-600"
+                              onClick={() => handleDeleteUser(member.user_id)}
+                              className="text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Revoke Invitation
+                              Delete User
                             </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          )}
+                          {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
+                            <>
+                              <DropdownMenuItem 
+                                onClick={() => handleResendInvitation(member)}
+                                className="text-blue-600"
+                              >
+                                <Mail className="h-4 w-4 mr-2" />
+                                Resend Invitation
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleRevokeInvitation(member.email)}
+                                className="text-orange-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Revoke Invitation
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Protected</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
