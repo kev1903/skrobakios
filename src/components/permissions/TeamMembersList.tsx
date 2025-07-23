@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { InviteUserDialog } from "./InviteUserDialog";
+import { EditUserRoleDialog } from "./EditUserRoleDialog";
 
 interface TeamMember {
   user_id: string;
@@ -35,6 +36,8 @@ export const TeamMembersList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [showEditRoleDialog, setShowEditRoleDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null);
   const { toast } = useToast();
 
   const fetchTeamMembers = async () => {
@@ -82,6 +85,17 @@ export const TeamMembersList: React.FC = () => {
       toast({
         title: "Cannot Delete User",
         description: "This user hasn't completed their signup yet. You can revoke their invitation instead.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Find the user to check their role
+    const userToDelete = members.find(m => m.user_id === userId);
+    if (userToDelete?.app_role === 'superadmin') {
+      toast({
+        title: "Cannot Delete Super Admin",
+        description: "Super Admins cannot be deleted for security reasons. You can change their role first if needed.",
         variant: "destructive",
       });
       return;
@@ -257,20 +271,46 @@ export const TeamMembersList: React.FC = () => {
     }
   };
 
+  const handleEditRole = (member: TeamMember) => {
+    setSelectedUser(member);
+    setShowEditRoleDialog(true);
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'superadmin':
         return 'bg-red-500/20 text-red-300 border-red-500/30';
-      case 'platform_admin':
+      case 'business_admin':
         return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+      case 'project_admin':
+        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
       case 'company_admin':
         return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+      case 'user':
+        return 'bg-green-500/20 text-green-300 border-green-500/30';
+      case 'client':
+        return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
       case 'owner':
         return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
       case 'admin':
         return 'bg-green-500/20 text-green-300 border-green-500/30';
       default:
         return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+    }
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'superadmin':
+        return 'Super Admin';
+      case 'business_admin':
+        return 'Business Admin';
+      case 'project_admin':
+        return 'Project Admin';
+      case 'company_admin':
+        return 'Company Admin';
+      default:
+        return role.replace('_', ' ');
     }
   };
 
@@ -358,7 +398,7 @@ export const TeamMembersList: React.FC = () => {
                   <TableCell className="font-mono text-sm">{member.email}</TableCell>
                   <TableCell>
                     <Badge className={getRoleBadgeColor(member.app_role)}>
-                      {member.app_role.replace('_', ' ')}
+                      {getRoleDisplayName(member.app_role)}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -389,8 +429,8 @@ export const TeamMembersList: React.FC = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {member.can_manage_roles && (
-                          <DropdownMenuItem>
+                        {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
+                          <DropdownMenuItem onClick={() => handleEditRole(member)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Roles
                           </DropdownMenuItem>
@@ -437,6 +477,15 @@ export const TeamMembersList: React.FC = () => {
         onOpenChange={setShowInviteDialog}
         onInviteSent={fetchTeamMembers}
       />
+      
+      {selectedUser && (
+        <EditUserRoleDialog
+          open={showEditRoleDialog}
+          onOpenChange={setShowEditRoleDialog}
+          onRoleUpdated={fetchTeamMembers}
+          user={selectedUser}
+        />
+      )}
     </Card>
   );
 };
