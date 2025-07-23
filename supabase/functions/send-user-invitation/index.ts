@@ -93,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Check if user already exists in profiles
     const { data: existingProfile, error: profileCheckError } = await supabase
       .from('profiles')
-      .select('user_id, status')
+      .select('id, user_id, status')
       .eq('email', email)
       .maybeSingle();
 
@@ -107,24 +107,46 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Create or update profile with invited status
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        email,
-        first_name: name.split(' ')[0] || name,
-        last_name: name.split(' ').slice(1).join(' ') || '',
-        status: 'invited',
-        account_activated: false,
-        password_change_required: true
-      }, {
-        onConflict: 'email'
-      })
-      .select('id')
-      .single();
+    let profile;
+    if (existingProfile) {
+      // Update existing profile
+      const { data: updatedProfile, error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          first_name: name.split(' ')[0] || name,
+          last_name: name.split(' ').slice(1).join(' ') || '',
+          status: 'invited',
+          account_activated: false,
+          password_change_required: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingProfile.id)
+        .select('id')
+        .single();
 
-    if (profileError) {
-      throw new Error(`Failed to create/update profile: ${profileError.message}`);
+      if (updateError) {
+        throw new Error(`Failed to update profile: ${updateError.message}`);
+      }
+      profile = updatedProfile;
+    } else {
+      // Create new profile
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          email,
+          first_name: name.split(' ')[0] || name,
+          last_name: name.split(' ').slice(1).join(' ') || '',
+          status: 'invited',
+          account_activated: false,
+          password_change_required: true
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        throw new Error(`Failed to create profile: ${insertError.message}`);
+      }
+      profile = newProfile;
     }
 
     // Store invitation details in a simple way using user access tokens table
