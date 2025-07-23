@@ -52,6 +52,7 @@ export const TeamMembersList: React.FC = () => {
         .eq('user_id', user.id);
       
       const hasSuperAdminRole = roles?.some(r => r.role === 'superadmin') || false;
+      console.log('DEBUG: Current user roles:', roles, 'isSuperAdmin:', hasSuperAdminRole);
       setIsSuperAdmin(hasSuperAdminRole);
 
       const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
@@ -404,80 +405,90 @@ export const TeamMembersList: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredMembers.map((member) => (
-                <TableRow key={member.user_id || member.email}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={member.avatar_url} />
-                        <AvatarFallback>
-                          {member.first_name?.[0]}{member.last_name?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">
-                          {member.first_name} {member.last_name}
-                        </div>
-                        {member.company && (
-                          <div className="text-sm text-muted-foreground">
-                            {member.company}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">{member.email}</TableCell>
-                  <TableCell>
-                    <Badge className={getRoleBadgeColor(member.app_role)}>
-                      {getRoleDisplayName(member.app_role)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {member.company_role !== 'none' ? (
-                      <Badge variant="outline" className={getRoleBadgeColor(member.company_role)}>
-                        {member.company_role}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={
-                      member.status === 'active' ? 'default' : 
-                      member.status === 'revoked' ? 'destructive' : 'secondary'
-                    }>
-                      {member.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(member.created_at), 'MMM dd, yyyy')}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCopyInvitationLink(member)}
-                      title="Copy invitation link"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                  <TableCell>
-                    {/* Hide the actions dropdown for Super Admin users */}
-                    {member.app_role !== 'superadmin' ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
-                            <DropdownMenuItem onClick={() => handleEditRole(member)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit Roles
-                            </DropdownMenuItem>
-                          )}
+               {filteredMembers.map((member) => {
+                 // Debug logging for dropdown menu rendering
+                 console.log('Rendering member:', member.email, {
+                   app_role: member.app_role,
+                   user_id: member.user_id,
+                   isSuperAdmin,
+                   showEditRoles: member.can_manage_roles && member.user_id && member.user_id !== 'null',
+                   showDelete: isSuperAdmin && member.user_id && member.user_id !== 'null'
+                 });
+                 
+                 return (
+                 <TableRow key={member.user_id || member.email}>
+                   <TableCell>
+                     <div className="flex items-center gap-3">
+                       <Avatar className="h-8 w-8">
+                         <AvatarImage src={member.avatar_url} />
+                         <AvatarFallback>
+                           {member.first_name?.[0]}{member.last_name?.[0]}
+                         </AvatarFallback>
+                       </Avatar>
+                       <div>
+                         <div className="font-medium">
+                           {member.first_name} {member.last_name}
+                         </div>
+                         {member.company && (
+                           <div className="text-sm text-muted-foreground">
+                             {member.company}
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </TableCell>
+                   <TableCell className="font-mono text-sm">{member.email}</TableCell>
+                   <TableCell>
+                     <Badge className={getRoleBadgeColor(member.app_role)}>
+                       {getRoleDisplayName(member.app_role)}
+                     </Badge>
+                   </TableCell>
+                   <TableCell>
+                     {member.company_role !== 'none' ? (
+                       <Badge variant="outline" className={getRoleBadgeColor(member.company_role)}>
+                         {member.company_role}
+                       </Badge>
+                     ) : (
+                       <span className="text-muted-foreground">-</span>
+                     )}
+                   </TableCell>
+                   <TableCell>
+                     <Badge variant={
+                       member.status === 'active' ? 'default' : 
+                       member.status === 'revoked' ? 'destructive' : 'secondary'
+                     }>
+                       {member.status}
+                     </Badge>
+                   </TableCell>
+                   <TableCell>
+                     {format(new Date(member.created_at), 'MMM dd, yyyy')}
+                   </TableCell>
+                   <TableCell>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       onClick={() => handleCopyInvitationLink(member)}
+                       title="Copy invitation link"
+                     >
+                       <Copy className="h-4 w-4" />
+                     </Button>
+                   </TableCell>
+                   <TableCell>
+                     {/* Hide the actions dropdown for Super Admin users */}
+                     {member.app_role !== 'superadmin' ? (
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                           <Button variant="ghost" size="sm">
+                             <MoreHorizontal className="h-4 w-4" />
+                           </Button>
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent align="end">
+                            {member.can_manage_roles && member.user_id && member.user_id !== 'null' && (
+                              <DropdownMenuItem onClick={() => handleEditRole(member)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit Roles
+                              </DropdownMenuItem>
+                            )}
                           {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
                             <DropdownMenuItem 
                               onClick={() => handleDeleteUser(member.user_id)}
@@ -511,10 +522,11 @@ export const TeamMembersList: React.FC = () => {
                       <span className="text-muted-foreground text-sm">Protected</span>
                     )}
                   </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </TableRow>
+                 );
+               })}
+             </TableBody>
+           </Table>
         )}
       </CardContent>
       
