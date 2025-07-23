@@ -46,7 +46,16 @@ const handler = async (req: Request): Promise<Response> => {
     // Parse request body
     const { email, name, role, invitedBy, isResend = false }: InvitationRequest = await req.json();
 
+    console.log('Request received:', {
+      email: email?.substring(0, 3) + '***', // Partial email for privacy
+      name,
+      role,
+      invitedBy,
+      isResend
+    });
+
     if (!email || !name || !role || !invitedBy) {
+      console.error('Missing required fields:', { email: !!email, name: !!name, role: !!role, invitedBy: !!invitedBy });
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
