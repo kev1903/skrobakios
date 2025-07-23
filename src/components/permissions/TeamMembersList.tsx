@@ -5,13 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, Search, UserPlus, Trash2, Edit, Mail, Copy } from "lucide-react";
+import { MoreHorizontal, Search, UserPlus, Trash2, Edit, Mail, Copy, FolderEdit } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { InviteUserDialog } from "./InviteUserDialog";
 import { EditUserRoleDialog } from "./EditUserRoleDialog";
+import { UserProjectManager } from "./UserProjectManager";
 
 interface TeamMember {
   user_id: string;
@@ -37,6 +38,7 @@ export const TeamMembersList: React.FC = () => {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [showEditRoleDialog, setShowEditRoleDialog] = useState(false);
+  const [showProjectManager, setShowProjectManager] = useState(false);
   const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null);
   const { toast } = useToast();
 
@@ -52,7 +54,6 @@ export const TeamMembersList: React.FC = () => {
         .eq('user_id', user.id);
       
       const hasSuperAdminRole = roles?.some(r => r.role === 'superadmin') || false;
-      console.log('DEBUG: Current user roles:', roles, 'isSuperAdmin:', hasSuperAdminRole);
       setIsSuperAdmin(hasSuperAdminRole);
 
       const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
@@ -307,6 +308,11 @@ export const TeamMembersList: React.FC = () => {
     setShowEditRoleDialog(true);
   };
 
+  const handleEditProjects = (member: TeamMember) => {
+    setSelectedUser(member);
+    setShowProjectManager(true);
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'superadmin':
@@ -405,17 +411,7 @@ export const TeamMembersList: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-               {filteredMembers.map((member) => {
-                 // Debug logging for dropdown menu rendering
-                 console.log('Rendering member:', member.email, {
-                   app_role: member.app_role,
-                   user_id: member.user_id,
-                   isSuperAdmin,
-                   showEditRoles: member.can_manage_roles && member.user_id && member.user_id !== 'null',
-                   showDelete: isSuperAdmin && member.user_id && member.user_id !== 'null'
-                 });
-                 
-                 return (
+               {filteredMembers.map((member) => (
                  <TableRow key={member.user_id || member.email}>
                    <TableCell>
                      <div className="flex items-center gap-3">
@@ -489,7 +485,13 @@ export const TeamMembersList: React.FC = () => {
                                 Edit Roles
                               </DropdownMenuItem>
                             )}
-                          {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
+                            {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
+                              <DropdownMenuItem onClick={() => handleEditProjects(member)}>
+                                <FolderEdit className="h-4 w-4 mr-2" />
+                                Edit Projects
+                              </DropdownMenuItem>
+                            )}
+                            {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
                             <DropdownMenuItem 
                               onClick={() => handleDeleteUser(member.user_id)}
                               className="text-destructive"
@@ -523,26 +525,44 @@ export const TeamMembersList: React.FC = () => {
                     )}
                   </TableCell>
                   </TableRow>
-                 );
-               })}
+                ))}
              </TableBody>
            </Table>
         )}
       </CardContent>
       
-      <InviteUserDialog
-        open={showInviteDialog}
-        onOpenChange={setShowInviteDialog}
-        onInviteSent={fetchTeamMembers}
-      />
-      
-      {selectedUser && (
-        <EditUserRoleDialog
-          open={showEditRoleDialog}
-          onOpenChange={setShowEditRoleDialog}
-          onRoleUpdated={fetchTeamMembers}
-          user={selectedUser}
+      {/* Conditional rendering - show project manager or team list */}
+      {showProjectManager && selectedUser ? (
+        <UserProjectManager
+          userId={selectedUser.user_id}
+          userInfo={{
+            user_id: selectedUser.user_id,
+            email: selectedUser.email,
+            first_name: selectedUser.first_name,
+            last_name: selectedUser.last_name,
+            avatar_url: selectedUser.avatar_url,
+            app_role: selectedUser.app_role,
+            status: selectedUser.status
+          }}
+          onBack={() => setShowProjectManager(false)}
         />
+      ) : (
+        <>
+          <InviteUserDialog
+            open={showInviteDialog}
+            onOpenChange={setShowInviteDialog}
+            onInviteSent={fetchTeamMembers}
+          />
+          
+          {selectedUser && (
+            <EditUserRoleDialog
+              open={showEditRoleDialog}
+              onOpenChange={setShowEditRoleDialog}
+              onRoleUpdated={fetchTeamMembers}
+              user={selectedUser}
+            />
+          )}
+        </>
       )}
     </Card>
   );
