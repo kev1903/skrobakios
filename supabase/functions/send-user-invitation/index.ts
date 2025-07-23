@@ -216,7 +216,7 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('config_key', 'email_sender')
       .maybeSingle();
 
-    const fromEmail = senderConfig?.config_value || 'onboarding@resend.dev';
+    const fromEmail = senderConfig?.config_value || 'noreply@skrobaki.com';
 
     // Initialize Resend
     const resend = new Resend(resendApiKey);
