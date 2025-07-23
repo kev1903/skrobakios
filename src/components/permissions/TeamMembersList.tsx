@@ -272,17 +272,16 @@ export const TeamMembersList: React.FC = () => {
   };
 
   const generateInvitationLink = (member: TeamMember): string => {
-    // For invited users, generate a simple signup link with pre-filled email
-    // This directs them to the main app where they can sign up
+    // Generate proper invitation signup link pointing to the dedicated signup page
     const baseUrl = window.location.origin;
     
     if (member.status === 'invited') {
-      // For invited users, create a link that pre-fills their email in the signup process
-      return `${baseUrl}/?signup=true&email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}`;
+      // For invited users, create a link to the invitation signup page with pre-filled data
+      return `${baseUrl}/invitation-signup?email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}`;
     }
     
-    // For active users, just provide a link to the main app
-    return `${baseUrl}/?ref=team-invite&email=${encodeURIComponent(member.email)}`;
+    // For active users, provide a link to the signup page without email pre-fill
+    return `${baseUrl}/invitation-signup?role=${encodeURIComponent(member.app_role)}`;
   };
 
   const handleCopyInvitationLink = async (member: TeamMember) => {

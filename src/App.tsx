@@ -27,6 +27,7 @@ import { PublicCompanyProfile } from "./components/public/PublicCompanyProfile";
 import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
+import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
@@ -189,6 +190,7 @@ const AppContent = () => {
         <Route path="/company/:slug" element={<PublicCompanyProfile />} />
         <Route path="/reviews" element={<ReviewsPageWrapper />} />
         <Route path="/invite/:token" element={<InvitePage />} />
+        <Route path="/invitation-signup" element={<InvitationSignupPage />} />
         
         {/* Subscription Management */}
         <Route path="/subscription" element={
