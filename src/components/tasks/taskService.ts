@@ -1,52 +1,79 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Task } from './types';
 
-// Database task interface to match the actual database structure
-interface DatabaseTask {
-  id: string;
-  task_name: string;
-  description?: string;
-  priority: string;
-  status: string;
-  assigned_to?: string;
-  created_by: string;
-  due_date?: string;
-  progress: number;
-  created_at: string;
-  updated_at: string;
-}
-
 export const taskService = {
   async loadTasksAssignedToUser(): Promise<Task[]> {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      // Get current user's profile to match against assigned_to_name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .single();
 
-    if (error) throw error;
-    
-    // Map database fields to component interface, matching database structure
-    return (data || []).map((task: any) => ({
-      id: task.id,
-      project_id: task.project_id || '',
-      taskName: task.task_name,
-      taskType: 'Task' as const,
-      priority: task.priority as 'High' | 'Medium' | 'Low',
-      assignedTo: {
-        name: task.assigned_to_name || '',
-        avatar: task.assigned_to_avatar || '',
-        userId: task.assigned_to
-      },
-      dueDate: task.due_date || '',
-      status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
-      progress: task.progress || 0,
-      description: task.description,
-      duration: 0,
-      is_milestone: false,
-      is_critical_path: false,
-      created_at: task.created_at,
-      updated_at: task.updated_at
-    }));
+      if (!profile) return [];
+
+      const userName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+      if (!userName) return [];
+
+      // Get tasks assigned to the current user by name
+      const { data: tasksData, error: tasksError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('assigned_to_name', userName)
+        .order('created_at', { ascending: false });
+
+      if (tasksError) throw tasksError;
+      if (!tasksData || tasksData.length === 0) return [];
+
+      // Get unique project IDs
+      const projectIds = Array.from(new Set(
+        tasksData
+          .map(task => task.project_id)
+          .filter(id => id)
+      ));
+      
+      // Fetch project names if we have project IDs
+      let projectMap = new Map<string, string>();
+      if (projectIds.length > 0) {
+        const { data: projectsData } = await supabase
+          .from('projects')
+          .select('id, name')
+          .in('id', projectIds);
+
+        if (projectsData) {
+          projectsData.forEach(project => {
+            projectMap.set(project.id, project.name);
+          });
+        }
+      }
+      
+      // Map database fields to component interface
+      return tasksData.map(task => ({
+        id: task.id,
+        project_id: task.project_id || '',
+        projectName: projectMap.get(task.project_id) || 'No Project',
+        taskName: task.task_name,
+        taskType: 'Task' as const,
+        priority: task.priority as 'High' | 'Medium' | 'Low',
+        assignedTo: {
+          name: task.assigned_to_name || '',
+          avatar: task.assigned_to_avatar || '',
+          userId: undefined
+        },
+        dueDate: task.due_date || '',
+        status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+        progress: task.progress || 0,
+        description: task.description,
+        duration: task.estimated_duration || 0,
+        is_milestone: task.is_milestone || false,
+        is_critical_path: task.is_critical_path || false,
+        created_at: task.created_at,
+        updated_at: task.updated_at
+      }));
+    } catch (error) {
+      console.error('Error loading tasks for user:', error);
+      return [];
+    }
   },
 
   async loadTasksForProject(projectId: string): Promise<Task[]> {
