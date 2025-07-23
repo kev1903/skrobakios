@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const InvitationSignupPage = () => {
   const [searchParams] = useSearchParams();
@@ -28,7 +29,7 @@ export const InvitationSignupPage = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | React.ReactNode | null>(null);
 
   // Get invitation details from URL parameters
   const invitedEmail = searchParams.get('email') || '';
@@ -144,7 +145,8 @@ export const InvitationSignupPage = () => {
 
       if (authError) {
         if (authError.message.includes("User already registered")) {
-          setError("An account with this email already exists. Please sign in instead.");
+          // For invited users who already have an account, provide a helpful message
+          setError("An account with this email already exists. Please sign in instead to access your invitation.");
         } else {
           setError(authError.message);
         }
@@ -153,13 +155,14 @@ export const InvitationSignupPage = () => {
 
       toast({
         title: "Account Created Successfully!",
-        description: "Please check your email to verify your account before signing in.",
+        description: "Welcome to SKROBAKI! You can now access your account.",
       });
 
-      // Redirect to login page
-      navigate("/auth");
+      // Redirect to the main app
+      navigate("/");
 
     } catch (err) {
+      console.error('Signup error:', err);
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -204,7 +207,20 @@ export const InvitationSignupPage = () => {
             {error && (
               <Alert className="mb-4 border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
+                <AlertDescription className="text-red-800">
+                  {error}
+                  {typeof error === 'string' && error.includes("already exists") && (
+                    <div className="mt-2">
+                      <Button
+                        variant="link" 
+                        className="p-0 h-auto text-sm font-medium text-red-700 underline"
+                        onClick={() => navigate('/auth')}
+                      >
+                        Click here to sign in instead
+                      </Button>
+                    </div>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 
