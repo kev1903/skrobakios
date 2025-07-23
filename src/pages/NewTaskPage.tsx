@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Flag, FileText, Clock, Building, Check, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Flag, FileText, Clock, Building, Check, ChevronsUpDown, Paperclip, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,7 @@ const NewTaskPage = () => {
   const [projects, setProjects] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     taskName: '',
     description: '',
@@ -104,6 +105,17 @@ const NewTaskPage = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setAttachments(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -235,16 +247,16 @@ const NewTaskPage = () => {
                 />
               </div>
 
-              {/* Priority and Status Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Flag className="w-4 h-4" />
+              {/* Compact 4-section row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                    <Flag className="w-3 h-3" />
                     Priority
                   </Label>
                   <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                    <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11">
-                      <SelectValue placeholder="Select priority" />
+                    <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm">
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="high">High</SelectItem>
@@ -254,13 +266,11 @@ const NewTaskPage = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Status
-                  </Label>
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-gray-600">Status</Label>
                   <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                    <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11">
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm">
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
@@ -270,37 +280,84 @@ const NewTaskPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              {/* Due Date and Assigned To Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="dueDate" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
                     Due Date
                   </Label>
                   <Input
-                    id="dueDate"
                     type="date"
                     value={formData.dueDate}
                     onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                    className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11"
+                    className="bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="assignedTo" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <User className="w-4 h-4" />
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                    <User className="w-3 h-3" />
                     Assigned To
                   </Label>
                   <Input
-                    id="assignedTo"
-                    placeholder="Enter assignee name..."
+                    placeholder="Assignee..."
                     value={formData.assignedTo}
                     onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                    className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11"
+                    className="bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm"
                   />
                 </div>
+              </div>
+
+              {/* Document Attachments */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Paperclip className="w-4 h-4" />
+                  Attachments
+                </Label>
+                
+                <div className="border-2 border-dashed border-gray-200/50 rounded-xl p-4 bg-gray-50/30">
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="file-upload"
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+                  />
+                  <label 
+                    htmlFor="file-upload" 
+                    className="flex flex-col items-center justify-center cursor-pointer py-2"
+                  >
+                    <Paperclip className="w-6 h-6 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600">Click to attach files</span>
+                    <span className="text-xs text-gray-400 mt-1">PDF, DOC, images up to 10MB</span>
+                  </label>
+                </div>
+
+                {attachments.length > 0 && (
+                  <div className="space-y-2">
+                    {attachments.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-white/50 border border-gray-200/50 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                          <span className="text-xs text-gray-400">
+                            ({(file.size / 1024).toFixed(1)} KB)
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAttachment(index)}
+                          className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
