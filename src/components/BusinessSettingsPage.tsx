@@ -3,6 +3,7 @@ import { ArrowLeft, User, CreditCard, Shield, Settings, Users, Bell, FileText, P
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { PermissionManager } from '@/components/permissions/PermissionManager';
 
 interface BusinessSettingsPageProps {
   onNavigate: (page: string) => void;
@@ -90,6 +91,9 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
             </CardContent>
           </Card>
         );
+
+      case 'members-permissions':
+        return <PermissionManager onNavigate={onNavigate} />;
 
       default:
         return (
