@@ -27,20 +27,26 @@ const handler = async (req: Request): Promise<Response> => {
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
 
     console.log('Environment check:', {
       hasResendKey: !!resendApiKey,
       hasSupabaseUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey
+      hasServiceKey: !!supabaseServiceKey,
+      hasAnonKey: !!supabaseAnonKey
     });
 
-    if (!resendApiKey || !supabaseUrl || !supabaseServiceKey) {
+    if (!resendApiKey || !supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
       console.error('Missing environment variables:', {
         resendApiKey: !!resendApiKey,
         supabaseUrl: !!supabaseUrl,
-        supabaseServiceKey: !!supabaseServiceKey
+        supabaseServiceKey: !!supabaseServiceKey,
+        supabaseAnonKey: !!supabaseAnonKey
       });
-      throw new Error('Missing required environment variables');
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
     }
 
     // Parse request body
@@ -71,15 +77,31 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Initialize Supabase client
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Verify the requesting user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
+    // Create regular client to verify current user permissions
+    const supabase = createClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        },
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
     );
 
+    // Initialize Supabase admin client
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify the requesting user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Invalid authorization' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -92,7 +114,18 @@ const handler = async (req: Request): Promise<Response> => {
       .select('role')
       .eq('user_id', user.id);
 
-    if (roleError || !roles?.some(r => r.role === 'superadmin')) {
+    console.log('User roles check:', { roles, roleError, userId: user.id });
+
+    if (roleError) {
+      console.error('Role check error:', roleError);
+      return new Response(JSON.stringify({ error: 'Failed to verify permissions' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    const hasSuperadminRole = roles?.some(r => r.role === 'superadmin');
+    if (!hasSuperadminRole) {
       return new Response(JSON.stringify({ error: 'Insufficient permissions' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -110,8 +143,8 @@ const handler = async (req: Request): Promise<Response> => {
     const invitationToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    // Check if user already exists in profiles
-    const { data: existingProfile, error: profileCheckError } = await supabase
+    // Check if user already exists in profiles using admin client
+    const { data: existingProfile, error: profileCheckError } = await supabaseAdmin
       .from('profiles')
       .select('id, user_id, status')
       .eq('email', email)
@@ -129,8 +162,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     let profile;
     if (existingProfile) {
-      // Update existing profile
-      const { data: updatedProfile, error: updateError } = await supabase
+      // Update existing profile using admin client
+      const { data: updatedProfile, error: updateError } = await supabaseAdmin
         .from('profiles')
         .update({
           first_name: name.split(' ')[0] || name,
@@ -145,12 +178,13 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (updateError) {
+        console.error('Profile update error:', updateError);
         throw new Error(`Failed to update profile: ${updateError.message}`);
       }
       profile = updatedProfile;
     } else {
-      // Create new profile
-      const { data: newProfile, error: insertError } = await supabase
+      // Create new profile using admin client
+      const { data: newProfile, error: insertError } = await supabaseAdmin
         .from('profiles')
         .insert({
           email,
@@ -164,13 +198,14 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (insertError) {
+        console.error('Profile insert error:', insertError);
         throw new Error(`Failed to create profile: ${insertError.message}`);
       }
       profile = newProfile;
     }
 
-    // Store invitation details in a simple way using user access tokens table
-    const { error: tokenError } = await supabase
+    // Store invitation details using admin client
+    const { error: tokenError } = await supabaseAdmin
       .from('user_access_tokens')
       .upsert({
         user_id: profile.id,
@@ -185,12 +220,12 @@ const handler = async (req: Request): Promise<Response> => {
       console.warn('Token creation failed:', tokenError);
     }
 
-    // Get email sender from system configurations
-    const { data: senderConfig } = await supabase
+    // Get email sender from system configurations using admin client
+    const { data: senderConfig } = await supabaseAdmin
       .from('system_configurations')
       .select('config_value')
       .eq('config_key', 'email_sender')
-      .single();
+      .maybeSingle();
 
     const fromEmail = senderConfig?.config_value || 'onboarding@resend.dev';
 
