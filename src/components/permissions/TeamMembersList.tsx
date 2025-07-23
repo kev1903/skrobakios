@@ -62,6 +62,8 @@ export const TeamMembersList: React.FC = () => {
 
       if (error) throw error;
       setMembers(data || []);
+      console.log('Team members data:', data);
+      console.log('isSuperAdmin status:', hasSuperAdminRole);
     } catch (error: any) {
       console.error('Error fetching team members:', error);
       toast({
@@ -411,7 +413,16 @@ export const TeamMembersList: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-               {filteredMembers.map((member) => (
+               {filteredMembers.map((member) => {
+                 // Debug info
+                 console.log(`Debug for ${member.email}:`, {
+                   app_role: member.app_role,
+                   user_id: member.user_id,
+                   isSuperAdmin,
+                   showDropdown: member.app_role !== 'superadmin'
+                 });
+                 
+                 return (
                  <TableRow key={member.user_id || member.email}>
                    <TableCell>
                      <div className="flex items-center gap-3">
@@ -469,10 +480,10 @@ export const TeamMembersList: React.FC = () => {
                        <Copy className="h-4 w-4" />
                      </Button>
                    </TableCell>
-                   <TableCell>
-                     {/* Hide the actions dropdown for Super Admin users */}
-                     {member.app_role !== 'superadmin' ? (
-                       <DropdownMenu>
+                    <TableCell>
+                      {/* Hide the actions dropdown for Super Admin users */}
+                      {member.app_role !== 'superadmin' ? (
+                        <DropdownMenu>
                          <DropdownMenuTrigger asChild>
                            <Button variant="ghost" size="sm">
                              <MoreHorizontal className="h-4 w-4" />
@@ -523,9 +534,10 @@ export const TeamMembersList: React.FC = () => {
                     ) : (
                       <span className="text-muted-foreground text-sm">Protected</span>
                     )}
-                  </TableCell>
-                  </TableRow>
-                ))}
+                   </TableCell>
+                 </TableRow>
+                 );
+               })}
              </TableBody>
            </Table>
         )}
