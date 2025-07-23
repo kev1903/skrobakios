@@ -1,7 +1,61 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Task } from './types';
 
+// Database task interface to match the actual database structure
+interface DatabaseTask {
+  id: string;
+  task_name: string;
+  description?: string;
+  priority: string;
+  status: string;
+  assigned_to?: string;
+  created_by: string;
+  due_date?: string;
+  progress: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export const taskService = {
+  async loadTasksAssignedToUser(): Promise<Task[]> {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select(`
+        *,
+        profiles:assigned_to (
+          first_name,
+          last_name,
+          avatar_url
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Map database fields to component interface, matching database structure
+    return (data || []).map((task: any) => ({
+      id: task.id,
+      project_id: task.project_id || '',
+      taskName: task.task_name,
+      taskType: 'Task' as const,
+      priority: task.priority as 'High' | 'Medium' | 'Low',
+      assignedTo: {
+        name: task.profiles ? `${task.profiles.first_name || ''} ${task.profiles.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned',
+        avatar: task.profiles?.avatar_url || '',
+        userId: task.assigned_to
+      },
+      dueDate: task.due_date || '',
+      status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+      progress: task.progress || 0,
+      description: task.description,
+      duration: 0,
+      is_milestone: false,
+      is_critical_path: false,
+      created_at: task.created_at,
+      updated_at: task.updated_at
+    }));
+  },
+
   async loadTasksForProject(projectId: string): Promise<Task[]> {
     const { data, error } = await supabase
       .from('tasks')

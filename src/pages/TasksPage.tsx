@@ -1,14 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { taskService } from '@/components/tasks/taskService';
+import { TaskCard } from '@/components/tasks/TaskCard';
+import { Task } from '@/components/tasks/types';
 
 const TasksPage = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date(2024, 4)); // May 2024
+  const [userTasks, setUserTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load tasks assigned to the current user
+  useEffect(() => {
+    const loadUserTasks = async () => {
+      try {
+        setLoading(true);
+        const tasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(tasks);
+      } catch (error) {
+        console.error('Error loading user tasks:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserTasks();
+  }, []);
 
   const tasks = [
     {
@@ -43,14 +65,6 @@ const TasksPage = () => {
       title: 'MindSpace Meeting',
       description: 'The meeting will explore the JTBD framework and discuss potential solutions for user groups and the pain points the team wants to tackle.'
     }
-  ];
-
-  const taskBacklog = [
-    { id: 1, title: 'Review quarterly goals', project: 'Q2 Strategic Planning', priority: 'High', tags: ['Planning'] },
-    { id: 2, title: 'Update portfolio website', project: 'Personal Branding', priority: 'Medium', tags: ['Development', 'Portfolio'] },
-    { id: 3, title: 'Research competitor analysis', project: 'Market Research', priority: 'Low', tags: ['Research'] },
-    { id: 4, title: 'Schedule team sync meeting', project: 'Team Management', priority: 'High', tags: ['Meeting'] },
-    { id: 5, title: 'Complete certification course', project: 'Professional Development', priority: 'Medium', tags: ['Learning'] }
   ];
 
   const getDaysInMonth = (date: Date) => {
@@ -104,24 +118,34 @@ const TasksPage = () => {
             </button>
           </div>
           <div className="space-y-2">
-            {taskBacklog.map((task) => (
-              <div key={task.id} className="px-3 py-2 rounded-lg hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-gray-800 truncate">{task.title}</h4>
-                    <p className="text-xs text-gray-600 font-medium truncate">{task.project}</p>
-                  </div>
-                  <span className={cn(
-                    "ml-2 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
-                    task.priority === 'High' ? 'bg-red-50 text-red-600' :
-                    task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
-                    'bg-green-50 text-green-600'
-                  )}>
-                    {task.priority}
-                  </span>
-                </div>
+            {loading ? (
+              <div className="text-center py-4">
+                <div className="text-sm text-gray-500">Loading tasks...</div>
               </div>
-            ))}
+            ) : userTasks.length === 0 ? (
+              <div className="text-center py-4">
+                <div className="text-sm text-gray-500">No tasks assigned to you</div>
+              </div>
+            ) : (
+              userTasks.map((task) => (
+                <div key={task.id} className="px-3 py-2 rounded-lg hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-800 truncate">{task.taskName}</h4>
+                      <p className="text-xs text-gray-600 font-medium truncate">{task.description || 'No description'}</p>
+                    </div>
+                    <span className={cn(
+                      "ml-2 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
+                      task.priority === 'High' ? 'bg-red-50 text-red-600' :
+                      task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                      'bg-green-50 text-green-600'
+                    )}>
+                      {task.priority}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
