@@ -21,7 +21,7 @@ export const InviteUserDialog: React.FC<InviteUserDialogProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('company_admin');
+  const [role, setRole] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -79,7 +79,7 @@ export const InviteUserDialog: React.FC<InviteUserDialogProps> = ({
         // Reset form
         setEmail('');
         setName('');
-        setRole('company_admin');
+        setRole('user');
         onOpenChange(false);
         onInviteSent();
       } else {
@@ -141,9 +141,11 @@ export const InviteUserDialog: React.FC<InviteUserDialogProps> = ({
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="client">Client</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="project_admin">Project Admin</SelectItem>
+                <SelectItem value="business_admin">Business Admin</SelectItem>
                 <SelectItem value="superadmin">Super Admin</SelectItem>
-                <SelectItem value="platform_admin">Platform Admin</SelectItem>
-                <SelectItem value="company_admin">Company Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
