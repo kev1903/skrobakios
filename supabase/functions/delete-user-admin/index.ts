@@ -12,10 +12,26 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Check environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
+      console.error('Missing environment variables');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     // Create Supabase admin client
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      supabaseUrl,
+      supabaseServiceKey,
       {
         auth: {
           autoRefreshToken: false,
@@ -25,10 +41,20 @@ Deno.serve(async (req) => {
     )
 
     // Create regular client to verify current user permissions
-    const authHeader = req.headers.get('Authorization')!
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      supabaseUrl,
+      supabaseAnonKey,
       {
         auth: {
           autoRefreshToken: false,
@@ -45,6 +71,7 @@ Deno.serve(async (req) => {
     // Verify the requesting user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { 
@@ -54,14 +81,27 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Check if user has superadmin role
-    const { data: userRole, error: roleError } = await supabase
+    // Check if user has superadmin role - use maybeSingle instead of single
+    const { data: userRoles, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', user.id)
-      .single()
+      .eq('user_id', user.id);
 
-    if (roleError || userRole?.role !== 'superadmin') {
+    console.log('User roles check:', { userRoles, roleError, userId: user.id });
+
+    if (roleError) {
+      console.error('Role check error:', roleError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to verify permissions' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const hasSuperadminRole = userRoles?.some(role => role.role === 'superadmin');
+    if (!hasSuperadminRole) {
       return new Response(
         JSON.stringify({ error: 'Insufficient permissions. Only superadmins can delete users.' }),
         { 
