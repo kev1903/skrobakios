@@ -204,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
       profile = newProfile;
     }
 
-    // Store invitation details using admin client - use token as unique key
+    // Store invitation details using admin client - use the new unique constraint
     const { error: tokenError } = await supabaseAdmin
       .from('user_access_tokens')
       .upsert({
@@ -213,7 +213,7 @@ const handler = async (req: Request): Promise<Response> => {
         token_type: 'invitation',
         expires_at: expiresAt.toISOString()
       }, {
-        onConflict: 'token'
+        onConflict: 'user_id,token_type'
       });
 
     if (tokenError) {

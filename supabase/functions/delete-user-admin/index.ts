@@ -114,6 +114,8 @@ Deno.serve(async (req) => {
     // Get target user ID from request
     const { targetUserId } = await req.json()
     
+    console.log('Delete request for user:', targetUserId);
+    
     if (!targetUserId) {
       return new Response(
         JSON.stringify({ error: 'Target user ID is required' }),
@@ -135,9 +137,13 @@ Deno.serve(async (req) => {
       )
     }
 
+    console.log('Starting user deletion process...');
+
     // First, delete all user data from database using our function
     const { data: deleteResult, error: deleteError } = await supabaseAdmin
       .rpc('delete_user_completely', { target_user_id: targetUserId })
+
+    console.log('Database deletion result:', { deleteResult, deleteError });
 
     if (deleteError) {
       console.error('Error deleting user data:', deleteError)
