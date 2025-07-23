@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Flag, FileText, Clock, Building } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Flag, FileText, Clock, Building, Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 import { taskService } from '@/components/tasks/taskService';
 import { useToast } from '@/hooks/use-toast';
 import { useProjects } from '@/hooks/useProjects';
@@ -18,6 +21,7 @@ const NewTaskPage = () => {
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
   const [formData, setFormData] = useState({
     taskName: '',
     description: '',
@@ -150,19 +154,71 @@ const NewTaskPage = () => {
                   <Building className="w-4 h-4" />
                   Project
                 </Label>
-                <Select value={formData.projectId} onValueChange={(value) => handleInputChange('projectId', value)}>
-                  <SelectTrigger className="bg-gray-50/50 border-gray-200/50 rounded-xl h-11">
-                    <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Select a project"} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-200/50 rounded-xl shadow-lg">
-                    <SelectItem value="no-project">No Project</SelectItem>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={projectComboboxOpen} onOpenChange={setProjectComboboxOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={projectComboboxOpen}
+                      className="w-full justify-between bg-gray-50/50 border-gray-200/50 rounded-xl h-11 text-left font-normal"
+                    >
+                      {formData.projectId
+                        ? formData.projectId === 'no-project'
+                          ? 'No Project'
+                          : projects.find((project) => project.id === formData.projectId)?.name
+                        : loadingProjects
+                        ? "Loading projects..."
+                        : "Search and select a project..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-white border-gray-200/50 rounded-xl shadow-lg">
+                    <Command>
+                      <CommandInput 
+                        placeholder="Search projects..." 
+                        className="h-11 border-0 rounded-t-xl bg-gray-50/50"
+                      />
+                      <CommandList>
+                        <CommandEmpty>No project found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="no-project"
+                            onSelect={() => {
+                              handleInputChange('projectId', 'no-project');
+                              setProjectComboboxOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                formData.projectId === 'no-project' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            No Project
+                          </CommandItem>
+                          {projects.map((project) => (
+                            <CommandItem
+                              key={project.id}
+                              value={project.name}
+                              onSelect={() => {
+                                handleInputChange('projectId', project.id);
+                                setProjectComboboxOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  formData.projectId === project.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {project.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Description */}
