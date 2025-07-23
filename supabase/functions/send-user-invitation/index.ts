@@ -28,7 +28,18 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+    console.log('Environment check:', {
+      hasResendKey: !!resendApiKey,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey
+    });
+
     if (!resendApiKey || !supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing environment variables:', {
+        resendApiKey: !!resendApiKey,
+        supabaseUrl: !!supabaseUrl,
+        supabaseServiceKey: !!supabaseServiceKey
+      });
       throw new Error('Missing required environment variables');
     }
 
@@ -180,31 +191,50 @@ const handler = async (req: Request): Promise<Response> => {
     // Create invitation URL - point to signup page with token
     const inviteUrl = `${req.headers.get('origin') || 'https://your-domain.com'}/auth?token=${invitationToken}&email=${encodeURIComponent(email)}&role=${encodeURIComponent(dbRole)}`;
 
-    // Send invitation email
-    const emailData = await resend.emails.send({
+    console.log('Preparing to send email:', {
+      to: email,
       from: `Platform <${fromEmail}>`,
-      to: [email],
-      subject: `You've been invited to join the Platform`,
-      react: UserInvitationEmail({
-        name,
-        email,
-        role,
-        invitedBy,
-        inviteUrl,
-      }),
+      inviteUrl,
+      name,
+      role,
+      invitedBy
     });
 
-    console.log('Email sent successfully:', emailData);
+    // Send invitation email
+    try {
+      const emailData = await resend.emails.send({
+        from: `Platform <${fromEmail}>`,
+        to: [email],
+        subject: `You've been invited to join the Platform`,
+        react: UserInvitationEmail({
+          name,
+          email,
+          role,
+          invitedBy,
+          inviteUrl,
+        }),
+      });
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Invitation sent successfully',
-      profileId: profile.id,
-      emailId: emailData.data?.id
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-    });
+      console.log('Email sent successfully:', emailData);
+      
+      if (emailData.error) {
+        console.error('Resend returned an error:', emailData.error);
+        throw new Error(`Email sending failed: ${emailData.error.message}`);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Invitation sent successfully',
+        profileId: profile.id,
+        emailId: emailData.data?.id
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    } catch (emailError: any) {
+      console.error('Email sending error:', emailError);
+      throw new Error(`Failed to send invitation email: ${emailError.message}`);
+    }
 
   } catch (error: any) {
     console.error('Error in send-user-invitation function:', error);
