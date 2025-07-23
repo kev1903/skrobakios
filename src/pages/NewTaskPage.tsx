@@ -68,7 +68,7 @@ const NewTaskPage = () => {
     setLoading(true);
     try {
       await taskService.addTask({
-        project_id: formData.projectId === 'no-project' ? '' : formData.projectId,
+        project_id: formData.projectId === 'no-project' || !formData.projectId ? null : formData.projectId,
         taskName: formData.taskName,
         taskType: 'Task',
         priority: formData.priority as 'High' | 'Medium' | 'Low',
@@ -90,7 +90,12 @@ const NewTaskPage = () => {
         description: "Your new task has been added to the backlog.",
       });
       
-      navigate('/tasks');
+      // Navigate to project view if task belongs to a project, otherwise to tasks
+      if (formData.projectId && formData.projectId !== 'no-project') {
+        navigate(`/projects/${formData.projectId}`);
+      } else {
+        navigate('/tasks');
+      }
     } catch (error) {
       console.error('Error creating task:', error);
       toast({
