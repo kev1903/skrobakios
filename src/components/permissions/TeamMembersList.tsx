@@ -272,14 +272,17 @@ export const TeamMembersList: React.FC = () => {
   };
 
   const generateInvitationLink = (member: TeamMember): string => {
-    // For existing users who haven't completed signup (invited status), 
-    // we'll generate a link to the auth page with their role information
+    // For invited users, generate a simple signup link with pre-filled email
+    // This directs them to the main app where they can sign up
+    const baseUrl = window.location.origin;
+    
     if (member.status === 'invited') {
-      return `${window.location.origin}/auth?email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}&invited=true`;
+      // For invited users, create a link that pre-fills their email in the signup process
+      return `${baseUrl}/?signup=true&email=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}`;
     }
     
-    // For active users, we can generate a signup link with their role as reference
-    return `${window.location.origin}/auth?referral=${encodeURIComponent(member.email)}&role=${encodeURIComponent(member.app_role)}`;
+    // For active users, just provide a link to the main app
+    return `${baseUrl}/?ref=team-invite&email=${encodeURIComponent(member.email)}`;
   };
 
   const handleCopyInvitationLink = async (member: TeamMember) => {
