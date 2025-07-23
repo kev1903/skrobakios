@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { taskService } from '@/components/tasks/taskService';
 import { useToast } from '@/hooks/use-toast';
 import { useProjects } from '@/hooks/useProjects';
+import { supabase } from '@/integrations/supabase/client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const NewTaskPage = () => {
   const navigate = useNavigate();
@@ -20,8 +22,11 @@ const NewTaskPage = () => {
   const { getProjects } = useProjects();
   const [loading, setLoading] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
+  const [userComboboxOpen, setUserComboboxOpen] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     taskName: '',
@@ -30,10 +35,11 @@ const NewTaskPage = () => {
     status: 'pending',
     dueDate: '',
     assignedTo: '',
+    assignedToUserId: '',
     projectId: ''
   });
 
-  // Load projects on component mount
+  // Load projects and users on component mount
   useEffect(() => {
     const loadProjects = async () => {
       try {
@@ -51,7 +57,30 @@ const NewTaskPage = () => {
       }
     };
 
+    const loadUsers = async () => {
+      try {
+        const { data: usersData, error } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name, email, avatar_url')
+          .eq('status', 'active')
+          .order('first_name');
+        
+        if (error) throw error;
+        setUsers(usersData || []);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        toast({
+          title: "Error loading users",
+          description: "Could not load users. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
     loadProjects();
+    loadUsers();
   }, [getProjects, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,14 +96,17 @@ const NewTaskPage = () => {
 
     setLoading(true);
     try {
+      // Find selected user data
+      const selectedUser = users.find(user => user.user_id === formData.assignedToUserId);
+      
       await taskService.addTask({
         project_id: formData.projectId === 'no-project' || !formData.projectId ? null : formData.projectId,
         taskName: formData.taskName,
         taskType: 'Task',
         priority: formData.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
-          name: formData.assignedTo || 'Unassigned',
-          avatar: ''
+          name: selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}`.trim() : formData.assignedTo || 'Unassigned',
+          avatar: selectedUser?.avatar_url || ''
         },
         dueDate: formData.dueDate,
         status: formData.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
@@ -298,18 +330,112 @@ const NewTaskPage = () => {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                    Assigned To
-                  </Label>
-                  <Input
-                    placeholder="Assignee..."
-                    value={formData.assignedTo}
-                    onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                    className="bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm"
-                  />
-                </div>
+                 <div className="space-y-1">
+                   <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                     <User className="w-3 h-3" />
+                     Assigned To
+                   </Label>
+                   <Popover open={userComboboxOpen} onOpenChange={setUserComboboxOpen}>
+                     <PopoverTrigger asChild>
+                       <Button
+                         variant="outline"
+                         role="combobox"
+                         aria-expanded={userComboboxOpen}
+                         className="w-full justify-between bg-gray-50/50 border-gray-200/50 rounded-lg h-9 text-sm font-normal"
+                       >
+                         {formData.assignedToUserId ? (
+                           <div className="flex items-center gap-2">
+                             {(() => {
+                               const selectedUser = users.find(user => user.user_id === formData.assignedToUserId);
+                               return selectedUser ? (
+                                 <>
+                                   <Avatar className="h-5 w-5">
+                                     <AvatarImage src={selectedUser.avatar_url} />
+                                     <AvatarFallback className="text-xs">
+                                       {selectedUser.first_name?.[0]}{selectedUser.last_name?.[0]}
+                                     </AvatarFallback>
+                                   </Avatar>
+                                   <span className="truncate">
+                                     {`${selectedUser.first_name} ${selectedUser.last_name}`.trim()}
+                                   </span>
+                                 </>
+                               ) : 'Unassigned';
+                             })()}
+                           </div>
+                         ) : loadingUsers ? (
+                           "Loading..."
+                         ) : (
+                           "Assignee..."
+                         )}
+                         <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                       </Button>
+                     </PopoverTrigger>
+                     <PopoverContent className="w-full p-0 bg-white border-gray-200/50 rounded-xl shadow-lg">
+                       <Command>
+                         <CommandInput 
+                           placeholder="Search users..." 
+                           className="h-9 border-0 rounded-t-xl bg-gray-50/50"
+                         />
+                         <CommandList>
+                           <CommandEmpty>No user found.</CommandEmpty>
+                           <CommandGroup>
+                             <CommandItem
+                               value="unassigned"
+                               onSelect={() => {
+                                 handleInputChange('assignedToUserId', '');
+                                 handleInputChange('assignedTo', '');
+                                 setUserComboboxOpen(false);
+                               }}
+                             >
+                               <Check
+                                 className={cn(
+                                   "mr-2 h-3 w-3",
+                                   !formData.assignedToUserId ? "opacity-100" : "opacity-0"
+                                 )}
+                               />
+                               <div className="flex items-center gap-2">
+                                 <User className="h-4 w-4 text-gray-400" />
+                                 <span>Unassigned</span>
+                               </div>
+                             </CommandItem>
+                             {users.map((user) => (
+                               <CommandItem
+                                 key={user.user_id}
+                                 value={`${user.first_name} ${user.last_name} ${user.email}`}
+                                 onSelect={() => {
+                                   handleInputChange('assignedToUserId', user.user_id);
+                                   handleInputChange('assignedTo', `${user.first_name} ${user.last_name}`.trim());
+                                   setUserComboboxOpen(false);
+                                 }}
+                               >
+                                 <Check
+                                   className={cn(
+                                     "mr-2 h-3 w-3",
+                                     formData.assignedToUserId === user.user_id ? "opacity-100" : "opacity-0"
+                                   )}
+                                 />
+                                 <div className="flex items-center gap-2">
+                                   <Avatar className="h-5 w-5">
+                                     <AvatarImage src={user.avatar_url} />
+                                     <AvatarFallback className="text-xs">
+                                       {user.first_name?.[0]}{user.last_name?.[0]}
+                                     </AvatarFallback>
+                                   </Avatar>
+                                   <div className="flex flex-col">
+                                     <span className="text-sm">
+                                       {`${user.first_name} ${user.last_name}`.trim()}
+                                     </span>
+                                     <span className="text-xs text-gray-500">{user.email}</span>
+                                   </div>
+                                 </div>
+                               </CommandItem>
+                             ))}
+                           </CommandGroup>
+                         </CommandList>
+                       </Command>
+                     </PopoverContent>
+                   </Popover>
+                 </div>
               </div>
 
               {/* Document Attachments */}
