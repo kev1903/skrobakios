@@ -81,73 +81,66 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Map role to database role
     const dbRole = role === 'Super Admin' ? 'superadmin' : 
-                   role === 'Platform Admin' ? 'platform_admin' : 'company_admin';
+                   role === 'Business Admin' ? 'business_admin' :
+                   role === 'Project Admin' ? 'project_admin' :
+                   role === 'User' ? 'user' :
+                   role === 'Client' ? 'client' : 'user';
 
     // Generate invitation token
     const invitationToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    let invitationId;
+    // Check if user already exists in profiles
+    const { data: existingProfile, error: profileCheckError } = await supabase
+      .from('profiles')
+      .select('user_id, status')
+      .eq('email', email)
+      .maybeSingle();
 
-    if (isResend) {
-      // Update existing invitation
-      const { data: existingInvitation, error: updateError } = await supabase
-        .from('platform_invitations')
-        .update({
-          token: invitationToken,
-          expires_at: expiresAt.toISOString(),
-          status: 'pending',
-          updated_at: new Date().toISOString()
-        })
-        .eq('email', email)
-        .eq('status', 'pending')
-        .select('id')
-        .single();
-
-      if (updateError) {
-        throw new Error(`Failed to update invitation: ${updateError.message}`);
-      }
-
-      invitationId = existingInvitation.id;
-    } else {
-      // Create new invitation
-      const { data: invitation, error: invitationError } = await supabase
-        .from('platform_invitations')
-        .insert({
-          email,
-          role: dbRole,
-          invited_by: user.id,
-          token: invitationToken,
-          expires_at: expiresAt.toISOString(),
-          status: 'pending',
-          invitation_type: 'platform_access'
-        })
-        .select('id')
-        .single();
-
-      if (invitationError) {
-        throw new Error(`Failed to create invitation: ${invitationError.message}`);
-      }
-
-      invitationId = invitation.id;
+    if (existingProfile?.status === 'active') {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'User already has an active account' 
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
     }
 
-    // Create or update profile
-    const { error: profileError } = await supabase
+    // Create or update profile with invited status
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .upsert({
         email,
         first_name: name.split(' ')[0] || name,
         last_name: name.split(' ').slice(1).join(' ') || '',
-        status: 'pending',
+        status: 'invited',
         account_activated: false,
         password_change_required: true
       }, {
         onConflict: 'email'
-      });
+      })
+      .select('id')
+      .single();
 
     if (profileError) {
-      console.warn('Profile creation failed:', profileError);
+      throw new Error(`Failed to create/update profile: ${profileError.message}`);
+    }
+
+    // Store invitation details in a simple way using user access tokens table
+    const { error: tokenError } = await supabase
+      .from('user_access_tokens')
+      .upsert({
+        user_id: profile.id,
+        token: invitationToken,
+        token_type: 'invitation',
+        expires_at: expiresAt.toISOString()
+      }, {
+        onConflict: 'user_id,token_type'
+      });
+
+    if (tokenError) {
+      console.warn('Token creation failed:', tokenError);
     }
 
     // Get email sender from system configurations
@@ -162,14 +155,14 @@ const handler = async (req: Request): Promise<Response> => {
     // Initialize Resend
     const resend = new Resend(resendApiKey);
 
-    // Create invitation URL
-    const inviteUrl = `${req.headers.get('origin') || 'https://your-domain.com'}/invitation-acceptance?token=${invitationToken}`;
+    // Create invitation URL - point to signup page with token
+    const inviteUrl = `${req.headers.get('origin') || 'https://your-domain.com'}/auth?token=${invitationToken}&email=${encodeURIComponent(email)}&role=${encodeURIComponent(dbRole)}`;
 
     // Send invitation email
     const emailData = await resend.emails.send({
-      from: `KAKSIK Platform <${fromEmail}>`,
+      from: `Platform <${fromEmail}>`,
       to: [email],
-      subject: `You've been invited to join KAKSIK - Modern Task Management`,
+      subject: `You've been invited to join the Platform`,
       react: UserInvitationEmail({
         name,
         email,
@@ -183,8 +176,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({
       success: true,
-      message: isResend ? 'Invitation resent successfully' : 'Invitation sent successfully',
-      invitationId,
+      message: 'Invitation sent successfully',
+      profileId: profile.id,
       emailId: emailData.data?.id
     }), {
       status: 200,

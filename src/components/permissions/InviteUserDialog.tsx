@@ -55,8 +55,10 @@ export const InviteUserDialog: React.FC<InviteUserDialogProps> = ({
 
       // Convert role for display
       const roleDisplayName = role === 'superadmin' ? 'Super Admin' : 
-                             role === 'platform_admin' ? 'Platform Admin' : 
-                             'Company Admin';
+                             role === 'business_admin' ? 'Business Admin' :
+                             role === 'project_admin' ? 'Project Admin' :
+                             role === 'user' ? 'User' :
+                             role === 'client' ? 'Client' : 'User';
 
       // Send invitation via edge function
       const { data, error } = await supabase.functions.invoke('send-user-invitation', {
