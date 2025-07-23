@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type UserRole = 'superadmin' | 'company_admin';
+export type UserRole = 'superadmin' | 'business_admin' | 'project_admin' | 'user' | 'client';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -32,31 +32,31 @@ export const useUserRole = () => {
         console.log('User roles query result (fixed - should only see this once per user):', { rolesData, error });
 
         if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching user roles:', error);
-          setRole('company_admin'); 
-          setRoles(['company_admin']);
+        console.error('Error fetching user roles:', error);
+        setRole('user');
+        setRoles(['user']);
         } else if (rolesData && rolesData.length > 0) {
           const userRoles = rolesData.map(r => r.role as UserRole);
           console.log('User roles found:', userRoles);
           setRoles(userRoles);
           
           // Set primary role (highest priority)
-          const roleHierarchy = { superadmin: 3, company_admin: 1 };
+          const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
           const primaryRole = userRoles.reduce((highest, current) => 
             roleHierarchy[current] > roleHierarchy[highest] ? current : highest
           );
           console.log('Primary role set to:', primaryRole);
           setRole(primaryRole);
         } else {
-          // No roles found, default to company_admin
-          console.log('No roles found, defaulting to company_admin');
-          setRole('company_admin');
-          setRoles(['company_admin']);
+          // No roles found, default to user
+          console.log('No roles found, defaulting to user');
+          setRole('user');
+          setRoles(['user']);
         }
       } catch (error) {
         console.error('Error fetching user roles:', error);
-        setRole('company_admin');
-        setRoles(['company_admin']);
+        setRole('user');
+        setRoles(['user']);
       } finally {
         setLoading(false);
       }
@@ -68,7 +68,7 @@ export const useUserRole = () => {
   const hasRole = (requiredRole: UserRole): boolean => {
     if (!role) return false;
     
-    const roleHierarchy = { superadmin: 3, company_admin: 1 };
+    const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
     return roleHierarchy[role] >= roleHierarchy[requiredRole];
   };
 
@@ -91,7 +91,7 @@ export const useUserRole = () => {
       if (!error) {
         setRoles(prev => [...prev, newRole]);
         // Update primary role if the new role has higher priority
-        const roleHierarchy = { superadmin: 3, company_admin: 1 };
+        const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
         if (!role || roleHierarchy[newRole] > roleHierarchy[role]) {
           setRole(newRole);
         }
@@ -119,12 +119,12 @@ export const useUserRole = () => {
         
         // Update primary role if we removed the current primary
         if (role === roleToRemove) {
-          const roleHierarchy = { superadmin: 3, company_admin: 1 };
+          const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
           const newPrimaryRole = newRoles.length > 0 
             ? newRoles.reduce((highest, current) => 
                 roleHierarchy[current] > roleHierarchy[highest] ? current : highest
               )
-            : 'company_admin';
+            : 'user';
           setRole(newPrimaryRole);
         }
         return true;
@@ -136,8 +136,14 @@ export const useUserRole = () => {
   };
 
   const isSuperAdmin = () => roles.includes('superadmin');
-  const isPlatformAdmin = () => roles.includes('superadmin'); // Only superadmin now
-  const isCompanyAdmin = () => roles.includes('company_admin') || roles.includes('superadmin');
+  const isBusinessAdmin = () => roles.includes('business_admin') || roles.includes('superadmin');
+  const isProjectAdmin = () => roles.includes('project_admin') || roles.includes('business_admin') || roles.includes('superadmin');
+  const isUser = () => roles.includes('user') || roles.includes('project_admin') || roles.includes('business_admin') || roles.includes('superadmin');
+  const isClient = () => roles.includes('client') || roles.length > 0;
+  
+  // Legacy methods for backwards compatibility
+  const isPlatformAdmin = () => roles.includes('superadmin');
+  const isCompanyAdmin = () => roles.includes('business_admin') || roles.includes('superadmin');
 
   return {
     role,
@@ -149,6 +155,10 @@ export const useUserRole = () => {
     addRole,
     removeRole,
     isSuperAdmin,
+    isBusinessAdmin,
+    isProjectAdmin,
+    isUser,
+    isClient,
     isPlatformAdmin,
     isCompanyAdmin
   };

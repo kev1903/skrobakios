@@ -6,7 +6,7 @@ export interface NavigationItem {
   label: string;
   icon: LucideIcon;
   active?: boolean;
-  requiredRole?: 'superadmin' | 'company_admin';
+  requiredRole?: 'superadmin' | 'business_admin' | 'project_admin' | 'user' | 'client';
   requiredCompanyRole?: 'owner' | 'admin' | 'member';
   requiresCompany?: boolean;
   isPremium?: boolean;

@@ -157,13 +157,17 @@ export const ContextAwareBreadcrumb = ({
             className={cn(
               "text-xs",
               role === 'superadmin' && "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
-              
-              role === 'company_admin' && "bg-green-500/20 text-green-700 border-green-500/30"
+              role === 'business_admin' && "bg-blue-500/20 text-blue-700 border-blue-500/30",
+              role === 'project_admin' && "bg-green-500/20 text-green-700 border-green-500/30",
+              role === 'user' && "bg-gray-500/20 text-gray-700 border-gray-500/30",
+              role === 'client' && "bg-orange-500/20 text-orange-700 border-orange-500/30"
             )}
           >
             {role === 'superadmin' && '👑 '}
-            
-            {role === 'company_admin' && '🏢 '}
+            {role === 'business_admin' && '🏢 '}
+            {role === 'project_admin' && '📋 '}
+            {role === 'user' && '👤 '}
+            {role === 'client' && '🤝 '}
             {role.replace('_', ' ')}
           </Badge>
         </div>

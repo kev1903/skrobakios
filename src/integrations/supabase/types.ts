@@ -2941,9 +2941,10 @@ export type Database = {
       access_level: "private_to_members" | "public" | "restricted"
       app_role:
         | "superadmin"
-        | "platform_admin"
-        | "company_admin"
-        | "service_provider"
+        | "business_admin"
+        | "project_admin"
+        | "user"
+        | "client"
       business_type: "sole_trader" | "partnership" | "company" | "trust"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
@@ -3076,9 +3077,10 @@ export const Constants = {
       access_level: ["private_to_members", "public", "restricted"],
       app_role: [
         "superadmin",
-        "platform_admin",
-        "company_admin",
-        "service_provider",
+        "business_admin",
+        "project_admin",
+        "user",
+        "client",
       ],
       business_type: ["sole_trader", "partnership", "company", "trust"],
       member_role: ["project_admin", "editor", "viewer", "guest"],

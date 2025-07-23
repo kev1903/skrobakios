@@ -43,9 +43,11 @@ export const RoleSelectionFields = ({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="company_admin">Company Admin</SelectItem>
-            
-            <SelectItem value="superadmin">Superadmin</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="client">Client</SelectItem>
+            <SelectItem value="project_admin">Project Admin</SelectItem>
+            <SelectItem value="business_admin">Business Admin</SelectItem>
+            <SelectItem value="superadmin">Super Admin</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -15,9 +15,11 @@ interface HierarchicalRoleManagementProps {
 }
 
 const roleHierarchy = {
-  superadmin: { level: 3, label: 'Super Admin', variant: 'destructive' as const },
-  
-  company_admin: { level: 1, label: 'Company Admin', variant: 'outline' as const }
+  superadmin: { level: 5, label: 'Super Admin', variant: 'destructive' as const },
+  business_admin: { level: 4, label: 'Business Admin', variant: 'default' as const },
+  project_admin: { level: 3, label: 'Project Admin', variant: 'secondary' as const },
+  user: { level: 2, label: 'User', variant: 'outline' as const },
+  client: { level: 1, label: 'Client', variant: 'outline' as const }
 };
 
 export const HierarchicalRoleManagement: React.FC<HierarchicalRoleManagementProps> = ({
@@ -25,7 +27,7 @@ export const HierarchicalRoleManagement: React.FC<HierarchicalRoleManagementProp
   onAddRole,
   onRemoveRole
 }) => {
-  const [selectedRole, setSelectedRole] = useState<UserRole>('company_admin');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('user');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -48,7 +50,7 @@ export const HierarchicalRoleManagement: React.FC<HierarchicalRoleManagementProp
           description: `Successfully added ${roleHierarchy[selectedRole].label} role to ${user.first_name} ${user.last_name}.`
         });
         setIsAddDialogOpen(false);
-        setSelectedRole('company_admin');
+        setSelectedRole('user');
       } else {
         toast({
           title: 'Failed to Add Role',

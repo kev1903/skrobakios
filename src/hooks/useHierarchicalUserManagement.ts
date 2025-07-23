@@ -33,12 +33,16 @@ export const useHierarchicalUserManagement = () => {
       // Map old role names to new ones for backward compatibility
       const mapOldRoleToNew = (role: string): UserRole => {
         switch (role) {
-          case 'admin': return 'company_admin';
-          case 'user': return 'company_admin';
+          case 'admin': return 'business_admin';
+          case 'company_admin': return 'business_admin';
+          case 'platform_admin': return 'business_admin';
           case 'owner': return 'superadmin';
           case 'superadmin': return 'superadmin';
-          case 'company_admin': return 'company_admin';
-          default: return 'company_admin';
+          case 'business_admin': return 'business_admin';
+          case 'project_admin': return 'project_admin';
+          case 'user': return 'user';
+          case 'client': return 'client';
+          default: return 'user';
         }
       };
 
@@ -46,10 +50,10 @@ export const useHierarchicalUserManagement = () => {
       const dataArray = Array.isArray(data) ? data : [];
       const mappedUsers = dataArray.map((user: any) => ({
         ...user,
-        app_role: mapOldRoleToNew(user.app_role || 'company_admin'),
+        app_role: mapOldRoleToNew(user.app_role || 'user'),
         app_roles: Array.isArray(user.app_roles) 
           ? user.app_roles.map((role: string) => mapOldRoleToNew(role)) 
-          : [mapOldRoleToNew(user.app_role || 'company_admin')]
+          : [mapOldRoleToNew(user.app_role || 'user')]
       }));
 
       setUsers(mappedUsers);

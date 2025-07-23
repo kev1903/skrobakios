@@ -35,12 +35,16 @@ export const useUserManagement = () => {
       // Map old role names to new ones for backward compatibility
       const mapOldRoleToNew = (role: string): UserRole => {
         switch (role) {
-          case 'admin': return 'company_admin';
-          case 'user': return 'company_admin';
-          case 'owner': return 'superadmin'; // Map owner to superadmin
+          case 'admin': return 'business_admin';
+          case 'company_admin': return 'business_admin';
+          case 'platform_admin': return 'business_admin';
+          case 'owner': return 'superadmin';
           case 'superadmin': return 'superadmin';
-          case 'company_admin': return 'company_admin';
-          default: return 'company_admin';
+          case 'business_admin': return 'business_admin';
+          case 'project_admin': return 'project_admin';
+          case 'user': return 'user';
+          case 'client': return 'client';
+          default: return 'user';
         }
       };
 
@@ -53,8 +57,8 @@ export const useUserManagement = () => {
       });
 
       const formattedUsers: AccessUser[] = profilesData?.map(profile => {
-        const userRoles = rolesMap.get(profile.user_id) || ['company_admin'];
-        const roleHierarchy = { superadmin: 3, company_admin: 1 };
+        const userRoles = rolesMap.get(profile.user_id) || ['user'];
+        const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
         const primaryRole = userRoles.reduce((highest, current) => 
           roleHierarchy[current] > roleHierarchy[highest] ? current : highest
         );

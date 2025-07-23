@@ -193,10 +193,14 @@ export const UserTableRow = ({
     switch (role) {
       case 'superadmin':
         return 'destructive';
-      case 'superadmin':
+      case 'business_admin':
         return 'default';
-      case 'company_admin':
+      case 'project_admin':
         return 'secondary';
+      case 'user':
+        return 'outline';
+      case 'client':
+        return 'outline';
       default:
         return 'secondary';
     }
@@ -235,15 +239,19 @@ export const UserTableRow = ({
           <SelectTrigger className="w-40">
             <SelectValue>
               <Badge variant={getRoleBadgeVariant(user.role)}>
-                {user.role === 'company_admin' ? 'Company Admin' : 
-                 user.role === 'superadmin' ? 'Super Admin' : 
-                 user.role === 'superadmin' ? 'Super Admin' : user.role}
+                {user.role === 'superadmin' ? 'Super Admin' : 
+                 user.role === 'business_admin' ? 'Business Admin' :
+                 user.role === 'project_admin' ? 'Project Admin' :
+                 user.role === 'user' ? 'User' :
+                 user.role === 'client' ? 'Client' : user.role}
               </Badge>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="company_admin">Company Admin</SelectItem>
-            
+            <SelectItem value="client">Client</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="project_admin">Project Admin</SelectItem>
+            <SelectItem value="business_admin">Business Admin</SelectItem>
             <SelectItem value="superadmin">Super Admin</SelectItem>
           </SelectContent>
         </Select>

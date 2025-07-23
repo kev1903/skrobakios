@@ -20,7 +20,7 @@ interface NavigationSectionProps {
 }
 
 export const NavigationSection = ({ title, items, currentPage, onNavigate, isCollapsed }: NavigationSectionProps) => {
-  const { isSuperAdmin, isPlatformAdmin, isCompanyAdmin } = useUserRole();
+  const { isSuperAdmin, isBusinessAdmin, isProjectAdmin, isUser, isClient } = useUserRole();
 
   // Filter items based on user role
   const filteredItems = items.filter((item) => {
@@ -29,8 +29,14 @@ export const NavigationSection = ({ title, items, currentPage, onNavigate, isCol
     switch (item.requiredRole) {
       case 'superadmin':
         return isSuperAdmin();
-      case 'company_admin':
-        return isCompanyAdmin();
+      case 'business_admin':
+        return isBusinessAdmin();
+      case 'project_admin':
+        return isProjectAdmin();
+      case 'user':
+        return isUser();
+      case 'client':
+        return isClient();
       default:
         return true;
     }

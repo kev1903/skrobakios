@@ -170,8 +170,8 @@ export const PlatformSignupPage = ({ onNavigate }: PlatformSignupPageProps) => {
       // Set user role
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const roleToSet = formData.userRole === 'both' ? 'service_provider' : 
-                        formData.userRole === 'client' ? 'company_admin' : 'service_provider';
+        const roleToSet = formData.userRole === 'both' ? 'business_admin' : 
+                        formData.userRole === 'client' ? 'client' : 'business_admin';
         
         await supabase
           .from('user_roles')
