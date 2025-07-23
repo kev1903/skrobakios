@@ -138,6 +138,54 @@ export const TeamMembersList: React.FC = () => {
     }
   };
 
+  const handleRevokeInvitation = async (email: string) => {
+    if (!confirm('Are you sure you want to revoke this invitation? The user will no longer be able to join using this invitation.')) {
+      return;
+    }
+
+    try {
+      // Get current session for auth header
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Call the edge function to revoke invitation
+      const { data, error } = await supabase.functions.invoke('revoke-user-invitation', {
+        body: { email },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error calling revoke-user-invitation function:', error);
+        throw new Error('Failed to connect to revocation service');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Invitation Revoked",
+          description: "The invitation has been successfully revoked",
+        });
+        fetchTeamMembers(); // Refresh the list
+      } else {
+        throw new Error('Unexpected response from revocation service');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to revoke invitation",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'superadmin':
@@ -284,14 +332,7 @@ export const TeamMembersList: React.FC = () => {
                         )}
                         {!member.user_id && member.status === 'invited' && (
                           <DropdownMenuItem 
-                            onClick={() => {
-                              // Handle invitation revocation instead
-                              toast({
-                                title: "Feature Not Implemented",
-                                description: "Invitation revocation will be implemented soon.",
-                                variant: "default",
-                              });
-                            }}
+                            onClick={() => handleRevokeInvitation(member.email)}
                             className="text-orange-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
