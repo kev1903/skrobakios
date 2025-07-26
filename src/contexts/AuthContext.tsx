@@ -25,6 +25,8 @@ interface AuthContextType {
   impersonationMode: ImpersonationMode;
   setImpersonationMode: (mode: ImpersonationMode) => void;
   exitImpersonation: () => void;
+  acceptInvitation: (token: string, password: string, firstName: string, lastName: string) => Promise<{ error: any }>;
+  inviteUser: (email: string, name: string, role: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -127,6 +129,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.location.href = '/';
   };
 
+  const acceptInvitation = async (token: string, password: string, firstName: string, lastName: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('accept-invitation', {
+        body: {
+          token,
+          password,
+          firstName,
+          lastName
+        }
+      });
+
+      if (error) {
+        console.error('Error accepting invitation:', error);
+        return { error };
+      }
+
+      // If successful, sign in the user
+      if (data?.success) {
+        // Use the session URL to authenticate the user
+        if (data.session_url) {
+          window.location.href = data.session_url;
+          return { error: null };
+        }
+        
+        // Fallback: try to sign in with the credentials
+        return await signIn(data.user.email, password);
+      }
+
+      return { error: new Error(data?.error || 'Failed to accept invitation') };
+    } catch (error) {
+      console.error('Accept invitation error:', error);
+      return { error };
+    }
+  };
+
+  const inviteUser = async (email: string, name: string, role: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
+          email,
+          name,
+          role,
+          invitedBy: user?.email || 'Unknown'
+        }
+      });
+
+      if (error) {
+        console.error('Error sending invitation:', error);
+        return { error };
+      }
+
+      if (!data?.success) {
+        return { error: new Error(data?.error || 'Failed to send invitation') };
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Invite user error:', error);
+      return { error };
+    }
+  };
+
   const isAuthenticated = !!session;
 
   return (
@@ -142,7 +206,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated,
       impersonationMode,
       setImpersonationMode,
-      exitImpersonation
+      exitImpersonation,
+      acceptInvitation,
+      inviteUser
     }}>
       {children}
     </AuthContext.Provider>
