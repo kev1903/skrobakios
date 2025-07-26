@@ -135,7 +135,8 @@ const TasksPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-semibold text-gray-800 truncate">{task.taskName}</h4>
-                      <p className="text-xs text-gray-600 font-medium truncate">{task.description || 'No description'}</p>
+                      <p className="text-xs text-gray-500 font-medium truncate">{task.projectName || 'No Project'}</p>
+                      <p className="text-xs text-gray-600 truncate">{task.description || 'No description'}</p>
                     </div>
                     <span className={cn(
                       "ml-2 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
