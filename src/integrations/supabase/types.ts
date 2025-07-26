@@ -2346,6 +2346,39 @@ export type Database = {
           },
         ]
       }
+      user_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          target_user_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          target_user_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          target_user_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_contexts: {
         Row: {
           context_id: string | null
@@ -2370,6 +2403,54 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_invitations: {
+        Row: {
+          accepted_at: string | null
+          company_id: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          metadata: Json | null
+          revoked_at: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          company_id?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          metadata?: Json | null
+          revoked_at?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          company_id?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          metadata?: Json | null
+          revoked_at?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string
+          token?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2797,6 +2878,10 @@ export type Database = {
         Args: { company_id: string; user_id: string }
         Returns: boolean
       }
+      can_manage_user: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       delete_company_completely: {
         Args: { target_company_id: string }
         Returns: Json
@@ -2922,6 +3007,10 @@ export type Database = {
       }
       is_platform_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_superadmin: {
+        Args: { target_user_id?: string }
         Returns: boolean
       }
       set_active_context: {
