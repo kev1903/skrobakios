@@ -22,16 +22,20 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
     address: company.address || '',
     phone: company.phone || '',
     slogan: company.slogan || '',
-    logo_url: company.logo_url || '',
-    abn: company.abn || ''
+    abn: company.abn || '',
+    business_type: company.business_type || 'company',
+    industry: company.industry || '',
+    company_size: company.company_size || '',
+    year_established: company.year_established || undefined
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting company form data:', formData);
     await onSave(formData);
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | number | undefined) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -156,6 +160,66 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
               />
             </div>
 
+            {/* Business Type */}
+            <div className="space-y-2">
+              <Label htmlFor="business_type" className="text-slate-700 font-medium">Business Type</Label>
+              <select
+                id="business_type"
+                value={formData.business_type}
+                onChange={(e) => handleChange('business_type', e.target.value)}
+                className="w-full px-3 py-2 bg-white/60 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="sole_trader">Sole Trader</option>
+                <option value="partnership">Partnership</option>
+                <option value="company">Company</option>
+                <option value="trust">Trust</option>
+              </select>
+            </div>
+
+            {/* Industry */}
+            <div className="space-y-2">
+              <Label htmlFor="industry" className="text-slate-700 font-medium">Industry</Label>
+              <Input
+                id="industry"
+                value={formData.industry}
+                onChange={(e) => handleChange('industry', e.target.value)}
+                placeholder="Construction, Technology, etc."
+                className="bg-white/60 border-slate-200"
+              />
+            </div>
+
+            {/* Company Size */}
+            <div className="space-y-2">
+              <Label htmlFor="company_size" className="text-slate-700 font-medium">Company Size</Label>
+              <select
+                id="company_size"
+                value={formData.company_size}
+                onChange={(e) => handleChange('company_size', e.target.value)}
+                className="w-full px-3 py-2 bg-white/60 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select size</option>
+                <option value="1-10">1-10 employees</option>
+                <option value="11-50">11-50 employees</option>
+                <option value="51-200">51-200 employees</option>
+                <option value="201-500">201-500 employees</option>
+                <option value="500+">500+ employees</option>
+              </select>
+            </div>
+
+            {/* Year Established */}
+            <div className="space-y-2">
+              <Label htmlFor="year_established" className="text-slate-700 font-medium">Year Established</Label>
+              <Input
+                id="year_established"
+                type="number"
+                value={formData.year_established || ''}
+                onChange={(e) => handleChange('year_established', e.target.value ? parseInt(e.target.value) : undefined)}
+                placeholder="2020"
+                min="1800"
+                max={new Date().getFullYear()}
+                className="bg-white/60 border-slate-200"
+              />
+            </div>
 
             <div className="flex justify-end pt-4">
               <Button
