@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Grid, List, Trash2, Archive } from 'lucide-react';
+import { Search, Grid, List, Trash2, Archive, Plus } from 'lucide-react';
 
 interface TaskSearchAndActionsProps {
   searchTerm: string;
@@ -11,6 +11,7 @@ interface TaskSearchAndActionsProps {
   viewMode: "grid" | "list";
   onViewModeChange: (mode: "grid" | "list") => void;
   selectedTasks: any[];
+  onAddTask?: () => void;
 }
 
 export const TaskSearchAndActions = ({
@@ -18,7 +19,8 @@ export const TaskSearchAndActions = ({
   onSearchChange,
   viewMode,
   onViewModeChange,
-  selectedTasks
+  selectedTasks,
+  onAddTask
 }: TaskSearchAndActionsProps) => {
   return (
     <div className="mb-6">
@@ -44,6 +46,18 @@ export const TaskSearchAndActions = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Add Task Button */}
+          {onAddTask && (
+            <Button 
+              onClick={onAddTask}
+              className="bg-slate-800 text-white hover:bg-slate-700"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Task
+            </Button>
+          )}
+
           {/* Bulk Actions */}
           {selectedTasks.length > 0 && (
             <>

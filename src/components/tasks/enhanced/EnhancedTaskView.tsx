@@ -11,13 +11,17 @@ interface EnhancedTaskViewProps {
   viewMode?: "grid" | "list";
   selectedTaskIds?: string[];
   onTaskSelectionChange?: (selectedIds: string[]) => void;
+  isAddTaskDialogOpen?: boolean;
+  onCloseAddTaskDialog?: () => void;
 }
 
 export function EnhancedTaskView({ 
   projectId, 
   viewMode = "list", 
   selectedTaskIds = [], 
-  onTaskSelectionChange 
+  onTaskSelectionChange,
+  isAddTaskDialogOpen = false,
+  onCloseAddTaskDialog
 }: EnhancedTaskViewProps) {
   const [activeTab, setActiveTab] = useState('tasks');
   const { tasks } = useTaskContext();
@@ -34,6 +38,8 @@ export function EnhancedTaskView({
             viewMode={viewMode}
             selectedTaskIds={selectedTaskIds}
             onTaskSelectionChange={onTaskSelectionChange}
+            isAddTaskDialogOpen={isAddTaskDialogOpen}
+            onCloseAddTaskDialog={onCloseAddTaskDialog}
           />
         </TabsContent>
 

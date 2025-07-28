@@ -23,6 +23,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const [activeTab, setActiveTab] = useState("list");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const { loadTasksForProject, tasks } = useTaskContext();
 
   // Get selected tasks
@@ -39,6 +40,10 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
     loadTasks();
   }, [loadTasks]);
 
+  const handleAddTask = () => {
+    setIsAddTaskDialogOpen(true);
+  };
+
   const renderActiveView = () => {
     switch (activeTab) {
       case "list":
@@ -47,6 +52,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           viewMode={viewMode}
           selectedTaskIds={selectedTaskIds}
           onTaskSelectionChange={setSelectedTaskIds}
+          isAddTaskDialogOpen={isAddTaskDialogOpen}
+          onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
         />;
       case "board":
         return <TaskBoardView projectId={project.id} />;
@@ -118,6 +125,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             selectedTasks={selectedTasks}
+            onAddTask={handleAddTask}
           />
 
           <TaskTabNavigation

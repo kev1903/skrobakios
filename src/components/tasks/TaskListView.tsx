@@ -31,18 +31,22 @@ interface TaskListViewProps {
   viewMode?: "grid" | "list";
   selectedTaskIds?: string[];
   onTaskSelectionChange?: (selectedIds: string[]) => void;
+  isAddTaskDialogOpen?: boolean;
+  onCloseAddTaskDialog?: () => void;
 }
 
 export const TaskListView = ({ 
   projectId, 
   viewMode = "list", 
-  selectedTaskIds = [], 
-  onTaskSelectionChange 
+  selectedTaskIds = [],
+  onTaskSelectionChange,
+  isAddTaskDialogOpen = false,
+  onCloseAddTaskDialog
 }: TaskListViewProps) => {
   const { tasks, deleteTask } = useTaskContext();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
-  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
+  const [localAddTaskDialogOpen, setLocalAddTaskDialogOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const handleTaskClick = (task: Task) => {
@@ -58,7 +62,8 @@ export const TaskListView = ({
   };
 
   const handleAddTask = () => {
-    setIsAddTaskDialogOpen(true);
+    // This functionality is now handled by the parent component
+    // We keep this function for compatibility but it's not used anymore
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -115,10 +120,6 @@ export const TaskListView = ({
 
   const renderGridView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {/* Add Task Card */}
-      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6 cursor-pointer hover:bg-white/15 transition-all duration-200 min-h-[200px] flex items-center justify-center" onClick={handleAddTask}>
-        <AddTaskButton onAddTask={handleAddTask} />
-      </div>
       
       {tasks.map((task, index) => (
         <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
@@ -193,10 +194,6 @@ export const TaskListView = ({
       {isMobile ? (
         // Mobile Card View
         <div className="space-y-3 p-4">
-          {/* Add Task Button for Mobile */}
-          <div className="mb-4 backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-4">
-            <AddTaskButton onAddTask={handleAddTask} />
-          </div>
           
           {tasks.map((task, index) => (
             <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
@@ -277,12 +274,6 @@ export const TaskListView = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {/* Add Task Row */}
-               <TableRow className="hover:bg-white/10 cursor-pointer border-b border-white/10" onClick={handleAddTask}>
-                <TableCell colSpan={8} className="p-4">
-                  <AddTaskButton onAddTask={handleAddTask} />
-                </TableCell>
-              </TableRow>
               
               {tasks.map((task, index) => (
                 <TableRow key={index} className="hover:bg-white/10 border-b border-white/10 h-12">
@@ -387,8 +378,11 @@ export const TaskListView = ({
       />
 
       <AddTaskDialog
-        isOpen={isAddTaskDialogOpen}
-        onClose={() => setIsAddTaskDialogOpen(false)}
+        isOpen={isAddTaskDialogOpen || localAddTaskDialogOpen}
+        onClose={() => {
+          if (onCloseAddTaskDialog) onCloseAddTaskDialog();
+          setLocalAddTaskDialogOpen(false);
+        }}
         status="Not Started"
         projectId={projectId || ''}
       />
