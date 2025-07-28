@@ -46,7 +46,13 @@ export function EnhancedTaskEditForm({
   }, [dueDate, onTaskUpdate]);
 
   const handleAssigneeChange = (assignee: { name: string; avatar: string; userId: string }) => {
-    onTaskUpdate({ assignedTo: assignee });
+    onTaskUpdate({ 
+      assignedTo: { 
+        name: assignee.name, 
+        avatar: assignee.avatar, 
+        userId: assignee.userId 
+      } 
+    });
   };
 
   const getPriorityColor = (priority: string) => {
