@@ -260,20 +260,20 @@ export const TaskListView = ({
           <Table>
             <TableHeader>
               <TableRow className="backdrop-blur-xl bg-white/10 border-b border-white/20 hover:bg-white/15">
-                <TableHead className="w-12 text-foreground">
+                <TableHead className="w-12 text-foreground p-2">
                   <Checkbox 
-                    className="border-border" 
+                    className="border-slate-400 data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-700" 
                     checked={selectedTaskIds.length === tasks.length && tasks.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="text-foreground">Task Name</TableHead>
-                <TableHead className="text-foreground">Priority</TableHead>
-                <TableHead className="text-foreground">Assigned To</TableHead>
-                <TableHead className="text-foreground">Due Date</TableHead>
-                <TableHead className="text-foreground">Status</TableHead>
-                <TableHead className="text-foreground">Progress</TableHead>
-                <TableHead className="text-foreground">Action</TableHead>
+                <TableHead className="text-foreground p-2">Task Name</TableHead>
+                <TableHead className="text-foreground p-2">Priority</TableHead>
+                <TableHead className="text-foreground p-2">Assigned To</TableHead>
+                <TableHead className="text-foreground p-2">Due Date</TableHead>
+                <TableHead className="text-foreground p-2">Status</TableHead>
+                <TableHead className="text-foreground p-2">Progress</TableHead>
+                <TableHead className="text-foreground p-2">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -285,21 +285,21 @@ export const TaskListView = ({
               </TableRow>
               
               {tasks.map((task, index) => (
-                <TableRow key={index} className="hover:bg-white/10 border-b border-white/10">
-                  <TableCell>
+                <TableRow key={index} className="hover:bg-white/10 border-b border-white/10 h-12">
+                  <TableCell className="p-2 w-12">
                     <Checkbox 
-                      className="border-white/30" 
+                      className="border-slate-400 data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-700" 
                       checked={selectedTaskIds.includes(task.id)}
                       onCheckedChange={(checked) => handleTaskSelection(task.id, checked === true)}
                     />
                   </TableCell>
                   <TableCell 
-                    className="font-medium cursor-pointer hover:text-foreground text-foreground"
+                    className="font-medium cursor-pointer hover:text-foreground text-foreground p-2"
                     onClick={() => handleTaskClick(task)}
                   >
                     {task.taskName}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <Badge 
                       variant="outline" 
                       className={getPriorityColor(task.priority)}
@@ -307,19 +307,19 @@ export const TaskListView = ({
                       {task.priority}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <div className="flex items-center space-x-2">
-                      <Avatar className="w-8 h-8">
+                      <Avatar className="w-6 h-6">
                         <AvatarImage src={task.assignedTo.avatar} />
-                        <AvatarFallback className="bg-muted text-foreground">
+                        <AvatarFallback className="bg-muted text-foreground text-xs">
                           {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-muted-foreground">{task.assignedTo.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{task.dueDate}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-muted-foreground p-2">{task.dueDate}</TableCell>
+                  <TableCell className="p-2">
                     <Badge 
                       variant="outline" 
                       className={getStatusColor(task.status)}
@@ -327,31 +327,31 @@ export const TaskListView = ({
                       {task.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="p-2">
                     <div className="flex items-center space-x-2">
-                      <div className="w-16 bg-white/20 rounded-full h-2">
+                      <div className="w-12 bg-white/20 rounded-full h-1.5">
                         <div 
-                          className="bg-white/60 h-2 rounded-full transition-all duration-300" 
+                          className="bg-white/60 h-1.5 rounded-full transition-all duration-300" 
                           style={{ width: `${task.progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm text-muted-foreground">{task.progress}%</span>
+                      <span className="text-xs text-muted-foreground">{task.progress}%</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
+                  <TableCell className="p-2">
+                    <div className="flex items-center space-x-1">
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleTaskClick(task)}
-                        className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7 p-0"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-3 h-3" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                            <MoreHorizontal className="w-4 h-4" />
+                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7 p-0">
+                            <MoreHorizontal className="w-3 h-3" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="backdrop-blur-xl bg-white/90 border border-white/20 shadow-xl">
