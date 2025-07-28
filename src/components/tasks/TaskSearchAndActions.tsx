@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Grid, List, Trash2, Archive, Plus } from 'lucide-react';
+import { Search, Grid, List, Trash2, Archive, Plus, Download } from 'lucide-react';
 
 interface TaskSearchAndActionsProps {
   searchTerm: string;
@@ -12,6 +12,7 @@ interface TaskSearchAndActionsProps {
   onViewModeChange: (mode: "grid" | "list") => void;
   selectedTasks: any[];
   onAddTask?: () => void;
+  onExport?: () => void;
 }
 
 export const TaskSearchAndActions = ({
@@ -20,7 +21,8 @@ export const TaskSearchAndActions = ({
   viewMode,
   onViewModeChange,
   selectedTasks,
-  onAddTask
+  onAddTask,
+  onExport
 }: TaskSearchAndActionsProps) => {
   return (
     <div className="mb-6">
@@ -55,6 +57,19 @@ export const TaskSearchAndActions = ({
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Task
+            </Button>
+          )}
+
+          {/* Export Button */}
+          {onExport && (
+            <Button 
+              onClick={onExport}
+              variant="outline"
+              size="sm"
+              className="text-slate-700 hover:text-slate-800"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
             </Button>
           )}
 

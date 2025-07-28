@@ -44,6 +44,31 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
     setIsAddTaskDialogOpen(true);
   };
 
+  const handleExport = () => {
+    // Export tasks functionality
+    const csvContent = tasks.map(task => ({
+      taskName: task.taskName,
+      priority: task.priority,
+      assignedTo: task.assignedTo.name,
+      dueDate: task.dueDate,
+      status: task.status,
+      progress: task.progress
+    }));
+    
+    const csvString = [
+      Object.keys(csvContent[0] || {}).join(','),
+      ...csvContent.map(row => Object.values(row).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${project.name}_tasks.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const renderActiveView = () => {
     switch (activeTab) {
       case "list":
@@ -126,6 +151,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             onViewModeChange={setViewMode}
             selectedTasks={selectedTasks}
             onAddTask={handleAddTask}
+            onExport={handleExport}
           />
 
           <TaskTabNavigation
