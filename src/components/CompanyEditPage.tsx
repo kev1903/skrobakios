@@ -72,11 +72,24 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
           description: "Company updated successfully"
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating company:', error);
+      
+      // Provide specific error messages based on the error type
+      let errorMessage = "Failed to update company";
+      if (error.message?.includes('companies_company_size_check')) {
+        errorMessage = "Invalid company size selected. Please choose a valid option.";
+      } else if (error.message?.includes('companies_certification_status_check')) {
+        errorMessage = "Invalid certification status.";
+      } else if (error.message?.includes('companies_subscription_tier_check')) {
+        errorMessage = "Invalid subscription tier.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to update company",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

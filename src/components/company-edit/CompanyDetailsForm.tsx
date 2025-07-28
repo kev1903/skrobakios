@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Globe, MapPin, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,10 +29,33 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
     year_established: company.year_established || undefined
   });
 
+  // Update form data when company prop changes (after successful save)
+  useEffect(() => {
+    setFormData({
+      name: company.name || '',
+      slug: company.slug || '',
+      website: company.website || '',
+      address: company.address || '',
+      phone: company.phone || '',
+      slogan: company.slogan || '',
+      abn: company.abn || '',
+      business_type: company.business_type || 'company',
+      industry: company.industry || '',
+      company_size: company.company_size || '',
+      year_established: company.year_established || undefined
+    });
+  }, [company]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting company form data:', formData);
-    await onSave(formData);
+    
+    // Clean up the form data to remove empty strings and undefined values
+    const cleanedData = Object.fromEntries(
+      Object.entries(formData).filter(([_, value]) => value !== '' && value !== undefined)
+    );
+    
+    console.log('Submitting company form data:', cleanedData);
+    await onSave(cleanedData);
   };
 
   const handleChange = (field: string, value: string | number | undefined) => {
@@ -201,8 +224,8 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
                 <option value="1-10">1-10 employees</option>
                 <option value="11-50">11-50 employees</option>
                 <option value="51-200">51-200 employees</option>
-                <option value="201-500">201-500 employees</option>
-                <option value="500+">500+ employees</option>
+                <option value="201-1000">201-1000 employees</option>
+                <option value="1000+">1000+ employees</option>
               </select>
             </div>
 
