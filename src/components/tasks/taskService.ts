@@ -53,6 +53,7 @@ export const taskService = {
         project_id: task.project_id || '',
         projectName: projectMap.get(task.project_id) || 'No Project',
         taskName: task.task_name,
+        task_number: task.task_number,
         taskType: 'Task' as const,
         priority: task.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
@@ -90,6 +91,7 @@ export const taskService = {
       id: task.id,
       project_id: task.project_id,
       taskName: task.task_name,
+      task_number: task.task_number,
       taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
       priority: task.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {
@@ -168,6 +170,7 @@ export const taskService = {
       id: data.id,
       project_id: data.project_id,
       taskName: data.task_name,
+      task_number: data.task_number,
       taskType: (data.task_type as 'Task' | 'Issue') || 'Task',
       priority: data.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {

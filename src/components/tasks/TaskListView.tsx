@@ -125,6 +125,7 @@ export const TaskListView = ({
         <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1 min-w-0">
+              <div className="text-xs font-mono text-slate-500 mb-1">{task.task_number || 'N/A'}</div>
               <h3 className="font-medium text-foreground truncate text-lg">{task.taskName}</h3>
             </div>
             <div className="flex items-center space-x-1">
@@ -199,6 +200,7 @@ export const TaskListView = ({
             <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
+                  <div className="text-xs font-mono text-slate-500 mb-1">{task.task_number || 'N/A'}</div>
                   <h3 className="font-medium text-foreground truncate">{task.taskName}</h3>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -264,6 +266,7 @@ export const TaskListView = ({
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
+                <TableHead className="text-foreground p-2">Task #</TableHead>
                 <TableHead className="text-foreground p-2">Task Name</TableHead>
                 <TableHead className="text-foreground p-2">Priority</TableHead>
                 <TableHead className="text-foreground p-2">Assigned To</TableHead>
@@ -283,6 +286,9 @@ export const TaskListView = ({
                       checked={selectedTaskIds.includes(task.id)}
                       onCheckedChange={(checked) => handleTaskSelection(task.id, checked === true)}
                     />
+                  </TableCell>
+                  <TableCell className="p-2 text-xs font-mono text-slate-600">
+                    {task.task_number || 'N/A'}
                   </TableCell>
                   <TableCell 
                     className="font-medium cursor-pointer hover:text-foreground text-foreground p-2"

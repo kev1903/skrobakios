@@ -165,6 +165,9 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
 
       {/* Task Title Section */}
       <div className="p-6 pb-4">
+        <div className="text-xs font-mono text-gray-500 mb-2">
+          {task.task_number || 'No task number assigned'}
+        </div>
         <EditableTaskName 
           taskName={task.taskName} 
           onTaskNameChange={(newName) => onTaskNameChange?.(newName)}

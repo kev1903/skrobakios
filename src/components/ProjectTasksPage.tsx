@@ -61,10 +61,11 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         }
         isFirstPage = false;
         
-        // Add task header
+        // Add task header with task number
         pdf.setFontSize(20);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(task.taskName, 20, 30);
+        const taskHeader = task.task_number ? `${task.task_number}: ${task.taskName}` : task.taskName;
+        pdf.text(taskHeader, 20, 30);
         
         // Add task details
         let yPosition = 50;
@@ -72,6 +73,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         pdf.setFont('helvetica', 'normal');
         
         const details = [
+          { label: 'Task Number:', value: task.task_number || 'N/A' },
           { label: 'Priority:', value: task.priority },
           { label: 'Assigned To:', value: task.assignedTo.name },
           { label: 'Due Date:', value: task.dueDate },
