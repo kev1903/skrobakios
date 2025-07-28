@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import jsPDF from 'jspdf';
 import { Project } from '@/hooks/useProjects';
-import { TaskProvider, useTaskContext } from './tasks/TaskContext';
+import { TaskProvider } from './tasks/TaskContext';
+import { useTaskContext } from './tasks/useTaskContext';
 import { TaskListView } from './tasks/TaskListView';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
