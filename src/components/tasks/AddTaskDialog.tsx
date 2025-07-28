@@ -11,6 +11,8 @@ import { useTaskContext } from './TaskContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
+import { TeamTaskAssignment } from './enhanced/TeamTaskAssignment';
+import { useCurrentUserForAssignment } from '@/hooks/useProjectUsers';
 
 interface AddTaskDialogProps {
   isOpen: boolean;
@@ -26,10 +28,19 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [assignedTo, setAssignedTo] = useState<{ name: string; avatar: string; userId: string } | undefined>();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addTask } = useTaskContext();
   const { userProfile } = useUser();
+  const currentUserForAssignment = useCurrentUserForAssignment(projectId);
+
+  // Auto-assign to current user when dialog opens
+  React.useEffect(() => {
+    if (isOpen && currentUserForAssignment && !assignedTo) {
+      setAssignedTo(currentUserForAssignment);
+    }
+  }, [isOpen, currentUserForAssignment, assignedTo]);
 
   const handleFileSelect = (files: FileList | null) => {
     if (files) {
@@ -149,7 +160,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
         taskName: taskName.trim(),
         taskType: taskType as 'Task' | 'Issue',
         priority: 'Medium' as const,
-        assignedTo: { name: '', avatar: '' },
+        assignedTo: assignedTo || { name: '', avatar: '', userId: '' },
         dueDate: new Date().toISOString().split('T')[0],
         status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: 0,
@@ -176,6 +187,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
       setDescription('');
       setTaskType('Task');
       setSelectedFiles([]);
+      setAssignedTo(undefined);
       onClose();
     } catch (error) {
       console.error('Error creating task:', error);
@@ -194,6 +206,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
     setDescription('');
     setTaskType('Task');
     setSelectedFiles([]);
+    setAssignedTo(undefined);
     onClose();
   };
 
@@ -234,6 +247,17 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
                 <SelectItem value="Issue">Issue</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          
+          {/* Assignment Section */}
+          <div className="grid gap-2">
+            <Label>Assigned To</Label>
+            <TeamTaskAssignment
+              projectId={projectId}
+              currentAssignee={assignedTo}
+              onAssigneeChange={setAssignedTo}
+              className="w-full"
+            />
           </div>
           
           {/* Attachments Section */}

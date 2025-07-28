@@ -7,6 +7,7 @@ export interface ProjectUser {
   email: string | null;
   role: string;
   status: string;
+  isCurrentUser?: boolean;
   profile?: {
     first_name?: string;
     last_name?: string;
@@ -22,6 +23,10 @@ export const useProjectUsers = (projectId: string) => {
     queryKey: ["project-users", projectId],
     queryFn: async () => {
       if (!projectId) return [];
+
+      // Get current user to mark them in the list
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      const currentUserId = currentUser?.id;
 
       // First get project members
       const { data: members, error: membersError } = await supabase
@@ -45,9 +50,19 @@ export const useProjectUsers = (projectId: string) => {
         console.error("Error fetching project members:", membersError);
       }
 
-      // If we have project members, return them
+      // If we have project members, return them with current user marked
       if (members && members.length > 0) {
-        return members as ProjectUser[];
+        const projectUsers = members.map(member => ({
+          ...member,
+          isCurrentUser: member.user_id === currentUserId
+        })) as ProjectUser[];
+        
+        // Sort to put current user first
+        return projectUsers.sort((a, b) => {
+          if (a.isCurrentUser && !b.isCurrentUser) return -1;
+          if (!a.isCurrentUser && b.isCurrentUser) return 1;
+          return 0;
+        });
       }
 
       // If no project members, fall back to company members for this project
@@ -107,7 +122,7 @@ export const useProjectUsers = (projectId: string) => {
         });
 
         // Transform company members to match ProjectUser interface
-        return companyMembers.map(member => {
+        const companyUsers = companyMembers.map(member => {
           const profile = profileMap.get(member.user_id);
           return {
             id: member.id,
@@ -115,6 +130,7 @@ export const useProjectUsers = (projectId: string) => {
             email: profile?.email || null,
             role: member.role,
             status: member.status,
+            isCurrentUser: member.user_id === currentUserId,
             profile: profile ? {
               first_name: profile.first_name,
               last_name: profile.last_name,
@@ -125,6 +141,13 @@ export const useProjectUsers = (projectId: string) => {
             } : undefined
           };
         }) as ProjectUser[];
+
+        // Sort to put current user first
+        return companyUsers.sort((a, b) => {
+          if (a.isCurrentUser && !b.isCurrentUser) return -1;
+          if (!a.isCurrentUser && b.isCurrentUser) return 1;
+          return 0;
+        });
 
       } catch (error) {
         console.error("Error in fallback to company members:", error);
@@ -162,4 +185,19 @@ export const getUserInitials = (user: ProjectUser) => {
 
 export const getUserAvatar = (user: ProjectUser) => {
   return user.profile?.avatar_url || '';
+};
+
+// Hook to get current user data for task assignment
+export const useCurrentUserForAssignment = (projectId: string) => {
+  const { data: users } = useProjectUsers(projectId);
+  
+  const currentUser = users?.find(user => user.isCurrentUser);
+  
+  if (!currentUser) return null;
+  
+  return {
+    name: formatUserName(currentUser),
+    avatar: getUserAvatar(currentUser),
+    userId: currentUser.user_id || currentUser.id
+  };
 };

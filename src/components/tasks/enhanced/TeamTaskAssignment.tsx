@@ -5,9 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Check, ChevronDown, User, Users } from 'lucide-react';
+import { Check, ChevronDown, User, Users, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
+import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser, useCurrentUserForAssignment } from '@/hooks/useProjectUsers';
 
 interface TeamTaskAssignmentProps {
   projectId: string;
@@ -81,40 +81,51 @@ export function TeamTaskAssignment({
           <CommandList>
             <CommandEmpty>No team members found.</CommandEmpty>
             <CommandGroup>
-              {teamMembers?.map((member) => (
-                <CommandItem
-                  key={member.id}
-                  value={formatUserName(member)}
-                  onSelect={() => handleMemberSelect(member)}
-                  className="flex items-center space-x-3 p-3"
-                >
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={getUserAvatar(member)} />
-                    <AvatarFallback className="bg-primary/20 text-primary">
-                      {getUserInitials(member)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">
-                      {formatUserName(member)}
-                    </div>
-                    <div className="text-sm text-muted-foreground truncate">
-                      {member.profile?.professional_title || member.role}
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {member.role}
-                  </Badge>
-                  <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      currentAssignee?.userId === (member.user_id || member.id)
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
+               {teamMembers?.map((member) => (
+                 <CommandItem
+                   key={member.id}
+                   value={formatUserName(member)}
+                   onSelect={() => handleMemberSelect(member)}
+                   className={cn(
+                     "flex items-center space-x-3 p-3",
+                     member.isCurrentUser && "bg-blue-50 border-l-4 border-blue-500"
+                   )}
+                 >
+                   <Avatar className="w-8 h-8">
+                     <AvatarImage src={getUserAvatar(member)} />
+                     <AvatarFallback className="bg-primary/20 text-primary">
+                       {getUserInitials(member)}
+                     </AvatarFallback>
+                   </Avatar>
+                   <div className="flex-1 min-w-0">
+                     <div className={cn(
+                       "font-medium truncate flex items-center gap-2",
+                       member.isCurrentUser && "text-blue-700"
+                     )}>
+                       {formatUserName(member)}
+                       {member.isCurrentUser && (
+                         <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                           Me
+                         </Badge>
+                       )}
+                     </div>
+                     <div className="text-sm text-muted-foreground truncate">
+                       {member.isCurrentUser ? "You" : (member.profile?.professional_title || member.role)}
+                     </div>
+                   </div>
+                   <Badge variant="outline" className="text-xs">
+                     {member.role}
+                   </Badge>
+                   <Check
+                     className={cn(
+                       "ml-auto h-4 w-4",
+                       currentAssignee?.userId === (member.user_id || member.id)
+                         ? "opacity-100"
+                         : "opacity-0"
+                     )}
+                   />
+                 </CommandItem>
+               ))}
             </CommandGroup>
           </CommandList>
         </Command>
