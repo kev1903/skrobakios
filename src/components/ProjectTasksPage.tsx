@@ -6,7 +6,6 @@ import { TaskProvider, useTaskContext } from './tasks/TaskContext';
 import { TaskListView } from './tasks/TaskListView';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
-
 import { TaskCalendarView } from './tasks/TaskCalendarView';
 import { ProjectSidebar } from './ProjectSidebar';
 import { TaskPageHeader } from './tasks/TaskPageHeader';
@@ -15,6 +14,9 @@ import { TaskTabNavigation } from './tasks/TaskTabNavigation';
 import { getStatusColor, getStatusText } from './tasks/utils/taskUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { TaskAttachment } from './tasks/types';
+import { useCompany } from '@/contexts/CompanyContext';
+import { useCompanies } from '@/hooks/useCompanies';
+import { Company } from '@/types/company';
 
 interface ProjectTasksPageProps {
   project: Project;
@@ -27,7 +29,10 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
+  const [fullCompanyData, setFullCompanyData] = useState<Company | null>(null);
   const { loadTasksForProject, tasks } = useTaskContext();
+  const { currentCompany } = useCompany();
+  const { getCompany } = useCompanies();
 
   // Get selected tasks
   const selectedTasks = tasks.filter(task => selectedTaskIds.includes(task.id));
@@ -38,6 +43,22 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       loadTasksForProject(project.id);
     }
   }, [project?.id, loadTasksForProject]);
+
+  // Load full company data for PDF export
+  useEffect(() => {
+    const loadCompanyData = async () => {
+      if (currentCompany?.id) {
+        try {
+          const companyData = await getCompany(currentCompany.id);
+          setFullCompanyData(companyData);
+        } catch (error) {
+          console.error('Error loading company data:', error);
+        }
+      }
+    };
+    
+    loadCompanyData();
+  }, [currentCompany?.id, getCompany]);
 
   useEffect(() => {
     loadTasks();
@@ -57,15 +78,42 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       
       // Header and footer helper function
       const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
-        // Header with logo and title
+        // Header with company logo and info
         try {
-          // Try to add company logo (assumes logo exists in public folder)
-          pdf.addImage('/logo.png', 'PNG', 20, 10, 30, 15);
+          // Try to add company logo from database
+          if (fullCompanyData?.logo_url) {
+            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, 30, 15);
+          } else {
+            // Fallback with company name or initials
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            const companyInitials = fullCompanyData?.name 
+              ? fullCompanyData.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3)
+              : 'COMP';
+            pdf.text(companyInitials, 20, 20);
+          }
         } catch (logoError) {
-          // Fallback text if logo not found
+          // Fallback text if logo fails to load
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
-          pdf.text('Company Logo', 20, 20);
+          pdf.text(fullCompanyData?.name || 'Company', 20, 20);
+        }
+        
+        // Company name and contact info in header
+        if (fullCompanyData) {
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(fullCompanyData.name, 55, 15);
+          
+          if (fullCompanyData.website) {
+            pdf.setFontSize(8);
+            pdf.text(fullCompanyData.website, 55, 20);
+          }
+          
+          if (fullCompanyData.phone) {
+            pdf.setFontSize(8);
+            pdf.text(fullCompanyData.phone, 55, 25);
+          }
         }
         
         if (!isFirstPage) {
@@ -74,12 +122,18 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           pdf.text('Task Export Report', pageWidth / 2, 20, { align: 'center' });
         }
         
-        // Footer with logo, page number and export date
+        // Footer with company info, page number and export date
         try {
-          pdf.addImage('/logo.png', 'PNG', 20, pageHeight - 25, 20, 10);
+          if (fullCompanyData?.logo_url) {
+            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, pageHeight - 25, 20, 10);
+          } else {
+            pdf.setFontSize(8);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(fullCompanyData?.name || 'Company', 20, pageHeight - 15);
+          }
         } catch (logoError) {
           pdf.setFontSize(8);
-          pdf.text('Company', 20, pageHeight - 15);
+          pdf.text(fullCompanyData?.name || 'Company', 20, pageHeight - 15);
         }
         
         pdf.setFontSize(8);
@@ -91,24 +145,54 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       // Cover Page
       addHeaderFooter(pdf, pageNumber, true);
       
-      // Cover page title
+      // Cover page title with company branding
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
       pdf.text(`${project.name}`, pageWidth / 2, 50, { align: 'center' });
       pdf.text('Task Export Report', pageWidth / 2, 65, { align: 'center' });
       
+      // Company information section
+      if (fullCompanyData) {
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        let yPos = 85;
+        
+        pdf.text(`Company: ${fullCompanyData.name}`, pageWidth / 2, yPos, { align: 'center' });
+        yPos += 8;
+        
+        if (fullCompanyData.address) {
+          pdf.text(`Address: ${fullCompanyData.address}`, pageWidth / 2, yPos, { align: 'center' });
+          yPos += 8;
+        }
+        
+        if (fullCompanyData.phone) {
+          pdf.text(`Phone: ${fullCompanyData.phone}`, pageWidth / 2, yPos, { align: 'center' });
+          yPos += 8;
+        }
+        
+        if (fullCompanyData.website) {
+          pdf.text(`Website: ${fullCompanyData.website}`, pageWidth / 2, yPos, { align: 'center' });
+          yPos += 8;
+        }
+        
+        if (fullCompanyData.abn) {
+          pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth / 2, yPos, { align: 'center' });
+          yPos += 15;
+        }
+      }
+      
       // Export metadata
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, 85, { align: 'center' });
-      pdf.text(`Export Date: ${exportDate}`, pageWidth / 2, 100, { align: 'center' });
+      pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, 130, { align: 'center' });
+      pdf.text(`Export Date: ${exportDate}`, pageWidth / 2, 145, { align: 'center' });
       
       // Task list summary
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Task Summary', 20, 130);
+      pdf.text('Task Summary', 20, 160);
       
-      let yPosition = 145;
+      let yPosition = 175;
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
       
