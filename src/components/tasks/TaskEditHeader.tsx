@@ -72,11 +72,11 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
 
   return (
     <div 
-      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors group"
+      className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors group"
       onClick={() => setIsEditing(true)}
     >
-      <h1 className="text-2xl font-semibold text-foreground">{taskName}</h1>
-      <Edit2 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+      <h1 className="text-xl font-semibold text-foreground line-clamp-2">{taskName}</h1>
+      <Edit2 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
     </div>
   );
 };
@@ -85,18 +85,6 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "high":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "low":
-        return "bg-green-100 text-green-800 border-green-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
 
   const handleSaveClick = async () => {
     if (onSave) {
@@ -119,55 +107,54 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
 
   return (
     <>
-      {/* Action Buttons Bar */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center justify-between">
-          <Button
-            onClick={onMarkComplete}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 border-gray-200 hover:bg-gray-50"
-            disabled={task.status === 'Completed'}
-          >
-            <Check className="w-4 h-4" />
-            <span>{task.status === 'Completed' ? 'Completed' : 'Mark complete'}</span>
-          </Button>
+      {/* Streamlined Header */}
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={onMarkComplete}
+              variant={task.status === 'Completed' ? 'default' : 'outline'}
+              size="sm"
+              className="flex items-center gap-2"
+              disabled={task.status === 'Completed'}
+            >
+              <Check className="w-4 h-4" />
+              <span>{task.status === 'Completed' ? 'Completed' : 'Mark Complete'}</span>
+            </Button>
+            
+            <div className="text-xs text-muted-foreground font-mono">
+              #{task.task_number || 'NO-ID'}
+            </div>
+          </div>
           
+          {/* Action Buttons */}
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+            <TaskAttachments taskId={task.id} onSave={onSave} />
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Timer className="w-4 h-4" />
             </Button>
-            <TaskAttachments taskId={task.id} onSave={onSave} />
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <MessageSquare className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               <Link className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
-              <Maximize2 className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDeleteClick} className="text-gray-500 hover:text-red-600 hover:bg-red-50">
+            <Button variant="ghost" size="sm" onClick={handleDeleteClick} className="text-muted-foreground hover:text-destructive">
               <Trash2 className="w-4 h-4" />
             </Button>
             <Button 
               variant="default" 
               size="sm" 
               onClick={handleSaveClick}
-              className="bg-blue-600 hover:bg-blue-700 text-white ml-2"
+              className="ml-2"
             >
               <Save className="w-4 h-4 mr-1" />
               Save
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Task Title Section */}
-      <div className="p-6 pb-4">
-        <div className="text-xs font-mono text-gray-500 mb-2">
-          {task.task_number || 'No task number assigned'}
-        </div>
+        {/* Task Title */}
         <EditableTaskName 
           taskName={task.taskName} 
           onTaskNameChange={(newName) => onTaskNameChange?.(newName)}

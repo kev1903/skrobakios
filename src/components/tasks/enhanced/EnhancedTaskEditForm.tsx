@@ -78,146 +78,142 @@ export function EnhancedTaskEditForm({
   };
 
   return (
-    <div className="space-y-2">
-      {/* Compact Details Section */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
-          <User className="w-4 h-4 text-gray-500" />
-          <h3 className="text-base font-medium text-gray-900">Details</h3>
-        </div>
+    <div className="space-y-4">
+      {/* Task Details Section */}
+      <div className="space-y-4">
         
+        {/* Description - Full Width */}
         <div className="space-y-2">
-          {/* Description - Full Width */}
-          <div className="space-y-1">
-            <Label htmlFor="description" className="text-xs font-medium text-gray-700">
-              Description
+          <Label htmlFor="description" className="text-sm font-medium">
+            Description
+          </Label>
+          <Textarea
+            id="description"
+            value={task.description || ''}
+            onChange={(e) => onTaskUpdate({ description: e.target.value })}
+            placeholder="Add a detailed description of this task..."
+            className="min-h-[80px] resize-none"
+            rows={3}
+          />
+        </div>
+
+        {/* First Row: Task Type, Priority, Status */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Task Type</Label>
+            <Select value={task.taskType} onValueChange={(value: any) => onTaskUpdate({ taskType: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Task">Task</SelectItem>
+                <SelectItem value="Issue">Issue</SelectItem>
+                <SelectItem value="Bug">Bug</SelectItem>
+                <SelectItem value="Feature">Feature</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Priority</Label>
+            <Select value={task.priority} onValueChange={(value: any) => onTaskUpdate({ priority: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="High">🔴 High</SelectItem>
+                <SelectItem value="Medium">🟡 Medium</SelectItem>
+                <SelectItem value="Low">🟢 Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Status</Label>
+            <Select value={task.status} onValueChange={(value: any) => onTaskUpdate({ status: value })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Not Started">Not Started</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Second Row: Due Date, Duration */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Due Date</Label>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !dueDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dueDate ? format(dueDate, "PPP") : <span>Select due date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dueDate}
+                  onSelect={(date) => {
+                    setDueDate(date);
+                    setIsCalendarOpen(false);
+                  }}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="duration" className="text-sm font-medium">
+              Estimated Duration (hours)
             </Label>
-            <Textarea
-              id="description"
-              value={task.description || ''}
-              onChange={(e) => onTaskUpdate({ description: e.target.value })}
-              placeholder="Add a description..."
-              className="min-h-[50px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm"
-              rows={2}
+            <Input
+              id="duration"
+              type="number"
+              value={task.duration || ''}
+              onChange={(e) => onTaskUpdate({ duration: parseFloat(e.target.value) || 0 })}
+              placeholder="0.5"
+              min="0"
+              step="0.5"
             />
           </div>
+        </div>
 
-          {/* First Row: Task Type, Priority, Status */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs font-medium text-gray-700">Task Type</Label>
-              <Select value={task.taskType} onValueChange={(value: any) => onTaskUpdate({ taskType: value })}>
-                <SelectTrigger className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Task">Task</SelectItem>
-                  <SelectItem value="Issue">Issue</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs font-medium text-gray-700">Priority</Label>
-              <Select value={task.priority} onValueChange={(value: any) => onTaskUpdate({ priority: value })}>
-                <SelectTrigger className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs font-medium text-gray-700">Status</Label>
-              <Select value={task.status} onValueChange={(value: any) => onTaskUpdate({ status: value })}>
-                <SelectTrigger className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Not Started">Not Started</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Second Row: Due Date, Duration */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs font-medium text-gray-700">Due Date</Label>
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 h-7 text-xs",
-                      !dueDate && "text-gray-500"
-                    )}
-                  >
-                    <CalendarIcon className="mr-1 h-3 w-3" />
-                    {dueDate ? format(dueDate, "MMM dd, yyyy") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dueDate}
-                    onSelect={(date) => {
-                      setDueDate(date);
-                      setIsCalendarOpen(false);
-                    }}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="duration" className="text-xs font-medium text-gray-700">
-                Duration (hours)
-              </Label>
-              <Input
-                id="duration"
-                type="number"
-                value={task.duration || ''}
-                onChange={(e) => onTaskUpdate({ duration: parseFloat(e.target.value) || 0 })}
-                className="h-7 border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-xs"
-                placeholder="0"
-                min="0"
-                step="0.5"
-              />
-            </div>
-          </div>
-
-          {/* Assigned To - Full Width */}
-          <div className="space-y-1">
-            <Label className="text-xs font-medium text-gray-700">Assigned To</Label>
+        {/* Third Row: Assignment and Progress */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Assigned To</Label>
             <TeamTaskAssignment
               projectId={projectId}
               currentAssignee={task.assignedTo}
               onAssigneeChange={handleAssigneeChange}
-              className="w-full h-7"
+              className="w-full"
             />
           </div>
 
-          {/* Progress - Compact */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-medium text-gray-700">Progress</Label>
-              <span className="text-xs text-gray-500">{task.progress || 0}%</span>
+              <Label className="text-sm font-medium">Progress</Label>
+              <span className="text-sm font-medium text-muted-foreground">{task.progress || 0}%</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="flex-1 relative">
                 <Progress 
                   value={task.progress || 0} 
-                  className="h-2 w-full"
+                  className="h-3 w-full"
                 />
                 <input
                   type="range"
@@ -225,7 +221,7 @@ export function EnhancedTaskEditForm({
                   max="100"
                   value={task.progress || 0}
                   onChange={(e) => onTaskUpdate({ progress: parseInt(e.target.value) })}
-                  className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer appearance-none"
+                  className="absolute top-0 left-0 w-full h-3 opacity-0 cursor-pointer appearance-none"
                   style={{ background: 'transparent' }}
                 />
               </div>
@@ -238,25 +234,25 @@ export function EnhancedTaskEditForm({
                   const value = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
                   onTaskUpdate({ progress: value });
                 }}
-                className="w-12 h-6 text-xs border-gray-200"
+                className="w-16 text-center"
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Compact Timestamps */}
-      <div className="pt-2 border-t border-gray-100">
-        <div className="grid grid-cols-2 gap-2 text-xs">
+      {/* Timestamps Footer */}
+      <div className="pt-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-gray-500">Created</p>
-            <p className="text-gray-900 font-medium">
+            <p className="text-muted-foreground mb-1">Created</p>
+            <p className="font-medium">
               {format(new Date(task.created_at), 'MMM dd, yyyy')}
             </p>
           </div>
           <div>
-            <p className="text-gray-500">Last Updated</p>
-            <p className="text-gray-900 font-medium">
+            <p className="text-muted-foreground mb-1">Last Updated</p>
+            <p className="font-medium">
               {format(new Date(task.updated_at), 'MMM dd, yyyy')}
             </p>
           </div>
