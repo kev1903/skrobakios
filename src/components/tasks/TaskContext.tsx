@@ -2,13 +2,11 @@ import React, { createContext, useState, ReactNode } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { taskService } from './taskService';
 import { Task, TaskContextType } from './types';
-import { useTaskContext } from './useTaskContext';
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
-// Re-export types and hooks for convenience
+// Re-export types for convenience
 export type { Task, TaskContextType };
-export { useTaskContext };
 
 interface TaskProviderProps {
   children: ReactNode;

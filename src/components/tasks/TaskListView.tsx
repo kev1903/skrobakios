@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useTaskContext } from './TaskContext';
+import { useTaskContext } from './useTaskContext';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
 import { AddTaskButton } from './AddTaskButton';
 import { AddTaskDialog } from './AddTaskDialog';

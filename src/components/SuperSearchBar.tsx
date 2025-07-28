@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useProjects } from '@/hooks/useProjects';
-import { useTaskContext } from '@/components/tasks/TaskContext';
+import { useTaskContext } from '@/components/tasks/useTaskContext';
 
 interface SearchResult {
   id: string;

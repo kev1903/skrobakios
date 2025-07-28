@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Task, useTaskContext } from './TaskContext';
+import { Task } from './TaskContext';
+import { useTaskContext } from './useTaskContext';
 import { TaskEditHeader } from './TaskEditHeader';
 import { TaskEditForm } from './TaskEditForm';
 import { EnhancedTaskEditForm } from './enhanced/EnhancedTaskEditForm';

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
-import { useTaskContext } from './TaskContext';
+import { useTaskContext } from './useTaskContext';
 
 export const TaskCalendarView = () => {
   const { tasks } = useTaskContext();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { useTaskContext } from './TaskContext';
+import { useTaskContext } from './useTaskContext';
 import { TaskBoardColumn } from './TaskBoardColumn';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
 import { Task } from './TaskContext';
