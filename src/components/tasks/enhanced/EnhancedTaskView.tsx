@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TaskListView } from '../TaskListView';
 import { TeamWorkloadView } from './TeamWorkloadView';
-import { useTaskContext } from '../TaskContext';
+import { useTaskContext } from '../useTaskContext';
 import { Users, List, BarChart3, Calendar } from 'lucide-react';
 
 interface EnhancedTaskViewProps {
