@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Edit, MoreHorizontal, Trash2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,7 +47,19 @@ export const TaskListView = ({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [localAddTaskDialogOpen, setLocalAddTaskDialogOpen] = useState(false);
+  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Issue'>('All');
   const isMobile = useIsMobile();
+
+  // Filter tasks based on project and task type
+  const filteredTasks = useMemo(() => {
+    let filtered = projectId ? tasks.filter(task => task.project_id === projectId) : tasks;
+    
+    if (taskTypeFilter !== 'All') {
+      filtered = filtered.filter(task => task.taskType === taskTypeFilter);
+    }
+    
+    return filtered;
+  }, [tasks, projectId, taskTypeFilter]);
 
   const handleTaskClick = (task: Task) => {
     console.log('Task clicked:', task);
@@ -84,7 +96,7 @@ export const TaskListView = ({
     if (!onTaskSelectionChange) return;
     
     if (checked) {
-      onTaskSelectionChange(tasks.map(task => task.id));
+      onTaskSelectionChange(filteredTasks.map(task => task.id));
     } else {
       onTaskSelectionChange([]);
     }
@@ -121,7 +133,7 @@ export const TaskListView = ({
   const renderGridView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       
-      {tasks.map((task, index) => (
+      {filteredTasks.map((task, index) => (
         <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1 min-w-0">
@@ -196,7 +208,7 @@ export const TaskListView = ({
         // Mobile Card View
         <div className="space-y-3 p-4">
           
-          {tasks.map((task, index) => (
+          {filteredTasks.map((task, index) => (
             <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
@@ -262,9 +274,9 @@ export const TaskListView = ({
                 <TableHead className="w-12 text-foreground p-2">
                   <Checkbox 
                     className="border-slate-400 data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-700" 
-                    checked={selectedTaskIds.length === tasks.length && tasks.length > 0}
-                    onCheckedChange={handleSelectAll}
-                  />
+                     checked={selectedTaskIds.length === filteredTasks.length && filteredTasks.length > 0}
+                     onCheckedChange={handleSelectAll}
+                   />
                 </TableHead>
                 <TableHead className="text-foreground p-2">Task #</TableHead>
                 <TableHead className="text-foreground p-2">Task Name</TableHead>
@@ -278,7 +290,7 @@ export const TaskListView = ({
             </TableHeader>
             <TableBody>
               
-              {tasks.map((task, index) => (
+              {filteredTasks.map((task, index) => (
                 <TableRow key={index} className="hover:bg-white/10 border-b border-white/10 h-12">
                   <TableCell className="p-2 w-12">
                     <Checkbox 
@@ -374,6 +386,45 @@ export const TaskListView = ({
 
   return (
     <div className="space-y-6">
+      {/* Task Type Filter */}
+      <div className="flex items-center gap-2 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4">
+        <Filter className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-foreground">Filter by Type:</span>
+        <div className="flex gap-1">
+          {(['All', 'Task', 'Issue'] as const).map((type) => (
+            <Button
+              key={type}
+              variant={taskTypeFilter === type ? "default" : "outline"}
+              size="sm"
+              onClick={() => setTaskTypeFilter(type)}
+              className={`transition-all duration-200 ${
+                taskTypeFilter === type 
+                  ? 'bg-white/20 text-white border-white/30 hover:bg-white/25' 
+                  : 'backdrop-blur-xl bg-white/5 border-white/20 text-muted-foreground hover:bg-white/10 hover:text-foreground'
+              }`}
+            >
+              {type}
+              {type !== 'All' && (
+                <Badge 
+                  variant="secondary" 
+                  className="ml-2 bg-white/20 text-white/80 border-white/20"
+                >
+                  {type === 'Task' 
+                    ? tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Task').length
+                    : tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Issue').length
+                  }
+                </Badge>
+              )}
+            </Button>
+          ))}
+        </div>
+        {taskTypeFilter !== 'All' && (
+          <span className="text-xs text-muted-foreground">
+            Showing {filteredTasks.length} {taskTypeFilter.toLowerCase()}{filteredTasks.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
       {viewMode === "grid" ? renderGridView() : renderListView()}
 
       <TaskEditSidePanel
