@@ -27,22 +27,20 @@ export function EnhancedTaskView({
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4">
-          <TabsList className="grid w-full grid-cols-3 bg-white/10">
-            <TabsTrigger value="tasks" className="data-[state=active]:bg-white/20 text-white">
-              <List className="w-4 h-4 mr-2" />
-              Task List
-            </TabsTrigger>
-            <TabsTrigger value="workload" className="data-[state=active]:bg-white/20 text-white">
-              <Users className="w-4 h-4 mr-2" />
-              Team Workload
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="data-[state=active]:bg-white/20 text-white">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Insights
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        <TabsList className="grid w-full grid-cols-3 bg-white/10">
+          <TabsTrigger value="tasks" className="data-[state=active]:bg-white/20 text-white">
+            <List className="w-4 h-4 mr-2" />
+            Task List
+          </TabsTrigger>
+          <TabsTrigger value="workload" className="data-[state=active]:bg-white/20 text-white">
+            <Users className="w-4 h-4 mr-2" />
+            Team Workload
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="data-[state=active]:bg-white/20 text-white">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Insights
+          </TabsTrigger>
+        </TabsList>
 
         <TabsContent value="tasks" className="space-y-6">
           <TaskListView 
