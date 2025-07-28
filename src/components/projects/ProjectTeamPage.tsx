@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
 import { useCompany } from "@/contexts/CompanyContext";
@@ -14,35 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2, UserPlus, Mail, Settings, Shield, Users, Clock, UserX, Edit3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
 
 interface ProjectTeamPageProps {
   project: Project;
   onNavigate: (page: string) => void;
 }
 
-interface TeamMember {
-  id: string;
-  user_id: string | null;
-  email: string | null;
-  role: string;
-  status: string;
-  invited_at: string | null;
-  joined_at: string | null;
-  created_at: string;
-  updated_at: string;
-  project_id: string;
-  permissions: any;
-  invited_by: string;
-  // Additional profile information we'll fetch separately
-  profile?: {
-    first_name?: string;
-    last_name?: string;
-    avatar_url?: string;
-    professional_title?: string;
-    phone?: string;
-    skills?: string[];
-  };
-}
 
 interface ManualMember {
   id: string;
@@ -88,42 +66,8 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     notes: ""
   });
 
-  // Fetch team members with profile information
-  const { data: teamMembers, isLoading } = useQuery({
-    queryKey: ["project-team-members", project.id],
-    queryFn: async () => {
-      // First get project members
-      const { data: members, error: membersError } = await supabase
-        .from("project_members")
-        .select("*")
-        .eq("project_id", project.id)
-        .order("joined_at", { ascending: false });
-
-      if (membersError) {
-        console.error("Error fetching team members:", membersError);
-        throw membersError;
-      }
-
-      // Then get profile information for each member
-      const membersWithProfiles = await Promise.all(
-        (members || []).map(async (member) => {
-          if (member.user_id) {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("first_name, last_name, avatar_url, professional_title, phone, skills")
-              .eq("user_id", member.user_id)
-              .single();
-            
-            return { ...member, profile };
-          }
-          return member;
-        })
-      );
-
-      return membersWithProfiles as TeamMember[];
-    },
-    enabled: !!project.id
-  });
+  // Fetch team members with profile information using the new hook
+  const { data: teamMembers, isLoading } = useProjectUsers(project.id);
 
   // Invite member mutation
   const inviteMemberMutation = useMutation({
@@ -150,7 +94,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       setIsInviteDialogOpen(false);
       setInviteEmail("");
       setInviteRole("member");
-      queryClient.invalidateQueries({ queryKey: ["project-team-members", project.id] });
+      queryClient.invalidateQueries({ queryKey: ["project-users", project.id] });
     },
     onError: (error) => {
       console.error("Error inviting member:", error);
@@ -177,7 +121,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
         title: "Success",
         description: "Team member removed successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["project-team-members", project.id] });
+      queryClient.invalidateQueries({ queryKey: ["project-users", project.id] });
     },
     onError: (error) => {
       console.error("Error removing member:", error);
@@ -275,7 +219,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     });
   };
 
-  const getStatusBadge = (member: TeamMember) => {
+  const getStatusBadge = (member: ProjectUser) => {
     switch (member.status) {
       case 'active':
         return <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>;
@@ -297,18 +241,6 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       default:
         return <Users className="w-4 h-4" />;
     }
-  };
-
-  const getMemberDisplayName = (member: TeamMember) => {
-    if (member.profile?.first_name || member.profile?.last_name) {
-      return `${member.profile.first_name || ''} ${member.profile.last_name || ''}`.trim();
-    }
-    return member.email || 'Unknown User';
-  };
-
-  const getInitials = (member: TeamMember) => {
-    const name = getMemberDisplayName(member);
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   if (isLoading) {
@@ -673,12 +605,12 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                   <div className="flex items-center gap-4">
                     <Avatar>
                       <AvatarImage src={member.profile?.avatar_url || undefined} />
-                      <AvatarFallback>{getInitials(member)}</AvatarFallback>
+                      <AvatarFallback>{getUserInitials(member)}</AvatarFallback>
                     </Avatar>
                     
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{getMemberDisplayName(member)}</h4>
+                        <h4 className="font-medium">{formatUserName(member)}</h4>
                         {getStatusBadge(member)}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">

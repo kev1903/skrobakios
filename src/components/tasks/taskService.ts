@@ -5,9 +5,13 @@ export const taskService = {
   async loadTasksAssignedToUser(): Promise<Task[]> {
     try {
       // Get current user's profile to match against assigned_to_name
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
       const { data: profile } = await supabase
         .from('profiles')
-        .select('first_name, last_name')
+        .select('first_name, last_name, user_id, avatar_url')
+        .eq('user_id', user.id)
         .single();
 
       if (!profile) return [];
@@ -47,7 +51,7 @@ export const taskService = {
         }
       }
       
-      // Map database fields to component interface
+      // Map database fields to component interface with current user profile data
       return tasksData.map(task => ({
         id: task.id,
         project_id: task.project_id || '',
@@ -58,8 +62,8 @@ export const taskService = {
         priority: task.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
           name: task.assigned_to_name || '',
-          avatar: task.assigned_to_avatar || '',
-          userId: undefined
+          avatar: profile.avatar_url || task.assigned_to_avatar || '',
+          userId: profile.user_id
         },
         dueDate: task.due_date || '',
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
@@ -86,28 +90,60 @@ export const taskService = {
 
     if (error) throw error;
     
-    // Map database fields to component interface
-    return (data || []).map(task => ({
-      id: task.id,
-      project_id: task.project_id,
-      taskName: task.task_name,
-      task_number: task.task_number,
-      taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
-      priority: task.priority as 'High' | 'Medium' | 'Low',
-      assignedTo: {
-        name: task.assigned_to_name || '',
-        avatar: task.assigned_to_avatar || ''
-      },
-      dueDate: task.due_date || '',
-      status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
-      progress: task.progress,
-      description: task.description,
-      duration: task.estimated_duration,
-      is_milestone: task.is_milestone,
-      is_critical_path: task.is_critical_path,
-      created_at: task.created_at,
-      updated_at: task.updated_at
-    }));
+    // Get unique assigned user names to fetch their profiles
+    const assignedUserNames = Array.from(new Set(
+      (data || [])
+        .map(task => task.assigned_to_name)
+        .filter(name => name && name.trim())
+    ));
+
+    // Fetch user profiles for assigned users
+    let userProfileMap = new Map<string, any>();
+    if (assignedUserNames.length > 0) {
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, avatar_url, professional_title, email')
+        .or(
+          assignedUserNames
+            .map(name => `first_name.ilike.%${name.split(' ')[0]}%,last_name.ilike.%${name.split(' ').slice(1).join(' ')}%`)
+            .join(',')
+        );
+
+      if (profilesData) {
+        profilesData.forEach(profile => {
+          const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+          userProfileMap.set(fullName, profile);
+        });
+      }
+    }
+    
+    // Map database fields to component interface with enhanced user data
+    return (data || []).map(task => {
+      const assignedUserProfile = userProfileMap.get(task.assigned_to_name || '');
+      
+      return {
+        id: task.id,
+        project_id: task.project_id,
+        taskName: task.task_name,
+        task_number: task.task_number,
+        taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
+        priority: task.priority as 'High' | 'Medium' | 'Low',
+        assignedTo: {
+          name: task.assigned_to_name || '',
+          avatar: assignedUserProfile?.avatar_url || task.assigned_to_avatar || '',
+          userId: assignedUserProfile?.user_id || undefined
+        },
+        dueDate: task.due_date || '',
+        status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+        progress: task.progress,
+        description: task.description,
+        duration: task.estimated_duration,
+        is_milestone: task.is_milestone,
+        is_critical_path: task.is_critical_path,
+        created_at: task.created_at,
+        updated_at: task.updated_at
+      };
+    });
   },
 
   async updateTask(taskId: string, updates: Partial<Task>, userProfile: any): Promise<void> {
@@ -118,6 +154,25 @@ export const taskService = {
     if (updates.assignedTo !== undefined) {
       dbUpdates.assigned_to_name = updates.assignedTo.name;
       dbUpdates.assigned_to_avatar = updates.assignedTo.avatar;
+      
+      // If we have a userId, also store that for better data consistency
+      if (updates.assignedTo.userId) {
+        // Fetch the user's current profile data to ensure we have the latest info
+        const { data: assigneeProfile } = await supabase
+          .from('profiles')
+          .select('avatar_url, first_name, last_name')
+          .eq('user_id', updates.assignedTo.userId)
+          .single();
+        
+        if (assigneeProfile) {
+          dbUpdates.assigned_to_avatar = assigneeProfile.avatar_url || updates.assignedTo.avatar;
+          // Ensure name consistency with database profile
+          const profileName = `${assigneeProfile.first_name || ''} ${assigneeProfile.last_name || ''}`.trim();
+          if (profileName) {
+            dbUpdates.assigned_to_name = profileName;
+          }
+        }
+      }
     }
     if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate;
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,21 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Check, ChevronDown, User, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface TeamMember {
-  id: string;
-  user_id: string | null;
-  email: string | null;
-  role: string;
-  status: string;
-  profiles: {
-    first_name: string | null;
-    last_name: string | null;
-    email: string | null;
-    avatar_url: string | null;
-    professional_title: string | null;
-  } | null;
-}
+import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
 
 interface TeamTaskAssignmentProps {
   projectId: string;
@@ -40,50 +24,12 @@ export function TeamTaskAssignment({
 }: TeamTaskAssignmentProps) {
   const [open, setOpen] = useState(false);
 
-  const { data: teamMembers, isLoading } = useQuery({
-    queryKey: ["project-team-members", projectId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_members")
-        .select(`
-          *,
-          profiles!project_members_user_id_fkey (
-            first_name,
-            last_name,
-            email,
-            avatar_url,
-            professional_title
-          )
-        `)
-        .eq("project_id", projectId)
-        .eq("status", "active");
-      
-      if (error) throw error;
-      return (data || []) as any;
-    },
-    enabled: !!projectId,
-  });
+  const { data: teamMembers, isLoading } = useProjectUsers(projectId);
 
-  const formatMemberName = (member: TeamMember) => {
-    if (member.profiles?.first_name || member.profiles?.last_name) {
-      return `${member.profiles.first_name || ''} ${member.profiles.last_name || ''}`.trim();
-    }
-    return member.email || 'Unknown User';
-  };
-
-  const getMemberAvatar = (member: TeamMember) => {
-    return member.profiles?.avatar_url || '';
-  };
-
-  const getMemberInitials = (member: TeamMember) => {
-    const name = formatMemberName(member);
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
-
-  const handleMemberSelect = (member: TeamMember) => {
+  const handleMemberSelect = (member: ProjectUser) => {
     onAssigneeChange({
-      name: formatMemberName(member),
-      avatar: getMemberAvatar(member),
+      name: formatUserName(member),
+      avatar: getUserAvatar(member),
       userId: member.user_id || member.id
     });
     setOpen(false);
@@ -138,22 +84,22 @@ export function TeamTaskAssignment({
               {teamMembers?.map((member) => (
                 <CommandItem
                   key={member.id}
-                  value={formatMemberName(member)}
+                  value={formatUserName(member)}
                   onSelect={() => handleMemberSelect(member)}
                   className="flex items-center space-x-3 p-3"
                 >
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={getMemberAvatar(member)} />
+                    <AvatarImage src={getUserAvatar(member)} />
                     <AvatarFallback className="bg-primary/20 text-primary">
-                      {getMemberInitials(member)}
+                      {getUserInitials(member)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">
-                      {formatMemberName(member)}
+                      {formatUserName(member)}
                     </div>
                     <div className="text-sm text-muted-foreground truncate">
-                      {member.profiles?.professional_title || member.role}
+                      {member.profile?.professional_title || member.role}
                     </div>
                   </div>
                   <Badge variant="outline" className="text-xs">
