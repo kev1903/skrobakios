@@ -72,14 +72,14 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         return (
           <div className="glass-card p-8">
             <h3 className="text-lg font-semibold mb-4 text-slate-800">Team Workload</h3>
-            <p className="text-slate-600">Team workload analytics and capacity planning will be displayed here.</p>
+            <p className="text-slate-700">Team workload analytics and capacity planning will be displayed here.</p>
           </div>
         );
       case "insights":
         return (
           <div className="glass-card p-8">
             <h3 className="text-lg font-semibold mb-4 text-slate-800">Project Insights</h3>
-            <p className="text-slate-600">Project insights and performance metrics will be displayed here.</p>
+            <p className="text-slate-700">Project insights and performance metrics will be displayed here.</p>
           </div>
         );
       default:
