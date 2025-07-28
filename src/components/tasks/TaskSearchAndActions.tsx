@@ -127,13 +127,26 @@ export const TaskSearchAndActions = ({
             try {
               const imageData = await loadImageAsBase64(attachment.file_url);
               
-              // Calculate image dimensions to fit on page
-              const maxWidth = 170; // Leave margins
-              const maxHeight = 100; // Reasonable height for preview
+              // Create a temporary image to get original dimensions
+              const tempImg = new Image();
+              tempImg.src = imageData;
+              await new Promise((resolve) => {
+                tempImg.onload = resolve;
+              });
               
-              // Add image with proper sizing
-              doc.addImage(imageData, 'JPEG', 20, yPosition, maxWidth, maxHeight);
-              yPosition += maxHeight + 10;
+              // Calculate dimensions to fit page width while maintaining aspect ratio
+              const pageWidth = 170; // Maximum width (leaving margins)
+              const originalWidth = tempImg.width;
+              const originalHeight = tempImg.height;
+              
+              // Calculate height based on aspect ratio
+              const aspectRatio = originalHeight / originalWidth;
+              const displayWidth = Math.min(pageWidth, originalWidth);
+              const displayHeight = displayWidth * aspectRatio;
+              
+              // Add image with original scale maintained
+              doc.addImage(imageData, 'JPEG', 20, yPosition, displayWidth, displayHeight);
+              yPosition += displayHeight + 10;
               
               // Add filename below image
               doc.setFontSize(10);
