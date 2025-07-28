@@ -120,6 +120,66 @@ const TasksPage = () => {
               + Add to backlog
             </Link>
           </div>
+
+          {/* Task Type Filter */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setActiveTab('All')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                activeTab === 'All' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              )}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setActiveTab('Task')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                activeTab === 'Task' 
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              )}
+            >
+              Tasks
+            </button>
+            <button
+              onClick={() => setActiveTab('Issue')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                activeTab === 'Issue' 
+                  ? 'bg-orange-500 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              )}
+            >
+              Issues
+            </button>
+            <button
+              onClick={() => setActiveTab('Bug')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                activeTab === 'Bug' 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              )}
+            >
+              Bugs
+            </button>
+            <button
+              onClick={() => setActiveTab('Feature')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                activeTab === 'Feature' 
+                  ? 'bg-purple-500 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              )}
+            >
+              Features
+            </button>
+          </div>
+
           <div className="space-y-2">
             {loading ? (
               <div className="text-center py-4">
@@ -130,11 +190,25 @@ const TasksPage = () => {
                 <div className="text-sm text-gray-500">No tasks assigned to you</div>
               </div>
             ) : (
-              userTasks.map((task) => (
+              userTasks
+                .filter(task => activeTab === 'All' || task.taskType === activeTab)
+                .map((task) => (
                 <div key={task.id} className="px-3 py-2 rounded-lg hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold text-gray-800 truncate">{task.taskName}</h4>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-sm font-semibold text-gray-800 truncate">{task.taskName}</h4>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
+                          task.taskType === 'Task' ? 'bg-green-50 text-green-600' :
+                          task.taskType === 'Issue' ? 'bg-orange-50 text-orange-600' :
+                          task.taskType === 'Bug' ? 'bg-red-50 text-red-600' :
+                          task.taskType === 'Feature' ? 'bg-purple-50 text-purple-600' :
+                          'bg-gray-50 text-gray-600'
+                        )}>
+                          {task.taskType}
+                        </span>
+                      </div>
                       <p className="text-xs text-gray-500 font-medium truncate">{task.projectName || 'No Project'}</p>
                       <p className="text-xs text-gray-600 truncate">{task.description || 'No description'}</p>
                     </div>
