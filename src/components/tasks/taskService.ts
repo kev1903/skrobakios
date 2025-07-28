@@ -58,7 +58,7 @@ export const taskService = {
         projectName: projectMap.get(task.project_id) || 'No Project',
         taskName: task.task_name,
         task_number: task.task_number,
-        taskType: 'Task' as const,
+        taskType: (task.task_type as 'Task' | 'Issue' | 'Bug' | 'Feature') || 'Task',
         priority: task.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
           name: task.assigned_to_name || '',
@@ -126,7 +126,7 @@ export const taskService = {
         project_id: task.project_id,
         taskName: task.task_name,
         task_number: task.task_number,
-        taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
+        taskType: (task.task_type as 'Task' | 'Issue' | 'Bug' | 'Feature') || 'Task',
         priority: task.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
           name: task.assigned_to_name || '',
@@ -232,7 +232,7 @@ export const taskService = {
       project_id: data.project_id,
       taskName: data.task_name,
       task_number: data.task_number,
-      taskType: (data.task_type as 'Task' | 'Issue') || 'Task',
+      taskType: (data.task_type as 'Task' | 'Issue' | 'Bug' | 'Feature') || 'Task',
       priority: data.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {
         name: data.assigned_to_name || '',
@@ -328,6 +328,17 @@ export const taskService = {
           user_avatar: userAvatar,
           action_type: 'task_updated',
           action_description: 'updated due date'
+        })
+      );
+    }
+    if (updates.taskType !== undefined) {
+      activityPromises.push(
+        supabase.from('task_activity_log').insert({
+          task_id: taskId,
+          user_name: userName,
+          user_avatar: userAvatar,
+          action_type: 'task_updated',
+          action_description: `changed task type to ${updates.taskType}`
         })
       );
     }
