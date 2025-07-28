@@ -187,6 +187,12 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
               onSave={handleSaveCompany}
               saving={saving}
             />
+
+            <CompanyLogoUpload 
+              currentLogoUrl={company?.logo_url}
+              onLogoUpdate={(logoUrl) => handleSaveCompany({ logo_url: logoUrl })}
+              companyName={company?.name}
+            />
             
             {/* General Settings */}
             <Card className="backdrop-blur-sm bg-white/60 border-white/30">
