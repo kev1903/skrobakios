@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { List, Kanban, Calendar, BarChart3 } from 'lucide-react';
+import { List, Kanban, Calendar, BarChart3, Users, TrendingUp } from 'lucide-react';
 
 interface TaskTabNavigationProps {
   activeTab: string;
@@ -14,6 +14,8 @@ export const TaskTabNavigation = ({ activeTab, onTabChange }: TaskTabNavigationP
     { id: 'board', label: 'Board', icon: Kanban },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'team', label: 'Team workload', icon: Users },
+    { id: 'insights', label: 'Insights', icon: TrendingUp },
   ];
 
   return (
