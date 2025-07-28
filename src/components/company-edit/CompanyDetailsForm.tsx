@@ -156,17 +156,6 @@ export const CompanyDetailsForm = ({ company, onSave, saving }: CompanyDetailsFo
               />
             </div>
 
-            {/* Logo URL */}
-            <div className="space-y-2">
-              <Label htmlFor="logo_url" className="text-slate-700 font-medium">Logo URL</Label>
-              <Input
-                id="logo_url"
-                value={formData.logo_url}
-                onChange={(e) => handleChange('logo_url', e.target.value)}
-                placeholder="https://example.com/logo.png"
-                className="bg-white/60 border-slate-200"
-              />
-            </div>
 
             <div className="flex justify-end pt-4">
               <Button
