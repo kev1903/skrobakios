@@ -255,6 +255,16 @@
     to { transform: translateX(0); opacity: 1; }
   }
 
+  /* Hide scrollbars while maintaining scrollability */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Hide scrollbars while maintaining scrollability for Gantt chart */
   .gantt-header-scroll::-webkit-scrollbar {
     display: none;

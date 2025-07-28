@@ -19,15 +19,15 @@ export const TaskTabNavigation = ({ activeTab, onTabChange }: TaskTabNavigationP
   ];
 
   return (
-    <div className="mb-6 border-b border-slate-200 bg-white/40 backdrop-blur-sm rounded-t-lg">
-      <div className="flex space-x-0">
+    <div className="mb-6 border-b border-slate-200 bg-white/40 backdrop-blur-sm rounded-t-lg overflow-hidden">
+      <div className="flex overflow-x-auto scrollbar-hide">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200 whitespace-nowrap flex-shrink-0 ${
                 activeTab === tab.id
                   ? 'border-slate-800 text-slate-800 bg-white/60'
                   : 'border-transparent text-slate-600 hover:text-slate-800 hover:bg-white/30'
