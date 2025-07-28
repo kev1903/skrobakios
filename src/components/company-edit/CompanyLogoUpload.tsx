@@ -131,7 +131,7 @@ export const CompanyLogoUpload = ({
                 <img
                   src={currentLogoUrl}
                   alt={`${companyName} logo`}
-                  className="w-16 h-16 rounded-lg object-cover border-2 border-white/50 shadow-sm"
+                  className="w-16 h-16 rounded-lg object-contain border-2 border-white/50 shadow-sm bg-white"
                 />
               ) : (
                 <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center border-2 border-white/50 shadow-sm">
@@ -158,7 +158,7 @@ export const CompanyLogoUpload = ({
                 <img
                   src={selectedImage}
                   alt="Logo preview"
-                  className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow-sm"
+                  className="w-16 h-16 rounded-lg object-contain border-2 border-white shadow-sm bg-white"
                 />
                 <div className="flex-1">
                   <p className="text-sm text-slate-600">
