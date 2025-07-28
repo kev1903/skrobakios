@@ -60,10 +60,12 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
   const handleSaveCompany = async (updatedData: Partial<Company>) => {
     if (!company) return;
 
+    console.log('Updating company with data:', updatedData);
     setSaving(true);
     try {
       const result = await updateCompany(company.id, updatedData);
       if (result) {
+        console.log('Company updated successfully:', result);
         setCompany(result);
         toast({
           title: "Success",
@@ -268,12 +270,6 @@ export const CompanyEditPage = ({ companyId, onNavigateBack }: CompanyEditPagePr
           </TabsContent>
 
           <TabsContent value="appearance" className="space-y-4 md:space-y-6">
-            <CompanyLogoUpload 
-              currentLogoUrl={company?.logo_url}
-              onLogoUpdate={(logoUrl) => handleSaveCompany({ logo_url: logoUrl })}
-              companyName={company?.name}
-            />
-            
             <Card className="backdrop-blur-sm bg-white/60 border-white/30">
               <CardHeader className="pb-4 md:pb-6">
                 <CardTitle className="text-lg md:text-xl">Company Appearance Settings</CardTitle>

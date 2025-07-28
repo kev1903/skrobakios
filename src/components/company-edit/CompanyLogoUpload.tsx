@@ -55,13 +55,19 @@ export const CompanyLogoUpload = ({
   }, [toast]);
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.log('No file selected');
+      return;
+    }
 
+    console.log('Starting upload for file:', selectedFile.name);
     setIsUploading(true);
     try {
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `company-logo-${Date.now()}.${fileExt}`;
       const filePath = `company-logos/${fileName}`;
+
+      console.log('Uploading to path:', filePath);
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -71,14 +77,20 @@ export const CompanyLogoUpload = ({
         });
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         throw uploadError;
       }
+
+      console.log('Upload successful, getting public URL');
 
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      onLogoUpdate(publicUrl);
+      console.log('Public URL:', publicUrl);
+
+      console.log('Calling onLogoUpdate with URL:', publicUrl);
+      await onLogoUpdate(publicUrl);
       setSelectedImage(null);
       setSelectedFile(null);
 
