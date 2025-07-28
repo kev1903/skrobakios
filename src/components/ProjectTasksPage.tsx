@@ -57,7 +57,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       case "overview":
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-card border border-border rounded-xl p-6">
+            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Tasks</h3>
               <TaskListView 
                 projectId={project.id} 
@@ -71,7 +71,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       default:
         return (
           <div className="flex items-center justify-center h-64">
-            <div className="text-center bg-card border border-border rounded-xl p-8">
+            <div className="text-center backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-8">
               <p className="text-foreground/80 text-lg">Coming Soon</p>
               <p className="text-muted-foreground text-sm mt-2">
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} view is under development
@@ -83,7 +83,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   };
 
   return (
-    <div className="h-screen flex bg-white">
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -94,7 +94,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 bg-white border-l border-border">
+      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         <div className="p-8">
           <TaskPageHeader project={project} />
           
