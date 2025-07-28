@@ -2137,6 +2137,7 @@ export type Database = {
           actual_duration: number | null
           assigned_to_avatar: string | null
           assigned_to_name: string | null
+          assigned_to_user_id: string | null
           category: string | null
           created_at: string
           description: string | null
@@ -2159,6 +2160,7 @@ export type Database = {
           actual_duration?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
+          assigned_to_user_id?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -2181,6 +2183,7 @@ export type Database = {
           actual_duration?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
+          assigned_to_user_id?: string | null
           category?: string | null
           created_at?: string
           description?: string | null

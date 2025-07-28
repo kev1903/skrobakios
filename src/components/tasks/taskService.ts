@@ -22,7 +22,7 @@ export const taskService = {
       // Get tasks assigned to the current user by name
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
-        .select('*')
+        .select('*, assigned_to_user_id')
         .eq('assigned_to_name', userName)
         .order('created_at', { ascending: false });
 
@@ -84,7 +84,7 @@ export const taskService = {
   async loadTasksForProject(projectId: string): Promise<Task[]> {
     const { data, error } = await supabase
       .from('tasks')
-      .select('*')
+      .select('*, assigned_to_user_id')
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
 
@@ -131,7 +131,7 @@ export const taskService = {
         assignedTo: {
           name: task.assigned_to_name || '',
           avatar: assignedUserProfile?.avatar_url || task.assigned_to_avatar || '',
-          userId: assignedUserProfile?.user_id || undefined
+          userId: task.assigned_to_user_id || assignedUserProfile?.user_id || undefined
         },
         dueDate: task.due_date || '',
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
@@ -157,6 +157,8 @@ export const taskService = {
       
       // If we have a userId, also store that for better data consistency
       if (updates.assignedTo.userId) {
+        dbUpdates.assigned_to_user_id = updates.assignedTo.userId;
+        
         // Fetch the user's current profile data to ensure we have the latest info
         const { data: assigneeProfile } = await supabase
           .from('profiles')
@@ -172,6 +174,9 @@ export const taskService = {
             dbUpdates.assigned_to_name = profileName;
           }
         }
+      } else {
+        // Clear the user_id if no userId is provided
+        dbUpdates.assigned_to_user_id = null;
       }
     }
     if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate;
@@ -203,6 +208,7 @@ export const taskService = {
       priority: taskData.priority,
       assigned_to_name: taskData.assignedTo?.name || null,
       assigned_to_avatar: taskData.assignedTo?.avatar || null,
+      assigned_to_user_id: taskData.assignedTo?.userId || null,
       due_date: taskData.dueDate || null,
       status: taskData.status,
       progress: taskData.progress,
@@ -230,7 +236,8 @@ export const taskService = {
       priority: data.priority as 'High' | 'Medium' | 'Low',
       assignedTo: {
         name: data.assigned_to_name || '',
-        avatar: data.assigned_to_avatar || ''
+        avatar: data.assigned_to_avatar || '',
+        userId: data.assigned_to_user_id || undefined
       },
       dueDate: data.due_date || '',
       status: data.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
