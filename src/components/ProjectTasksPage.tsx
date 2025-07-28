@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import jsPDF from 'jspdf';
 import { Project } from '@/hooks/useProjects';
 import { TaskProvider, useTaskContext } from './tasks/TaskContext';
 import { TaskListView } from './tasks/TaskListView';
@@ -12,6 +13,8 @@ import { TaskPageHeader } from './tasks/TaskPageHeader';
 import { TaskSearchAndActions } from './tasks/TaskSearchAndActions';
 import { TaskTabNavigation } from './tasks/TaskTabNavigation';
 import { getStatusColor, getStatusText } from './tasks/utils/taskUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { TaskAttachment } from './tasks/types';
 
 interface ProjectTasksPageProps {
   project: Project;
@@ -44,29 +47,111 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
     setIsAddTaskDialogOpen(true);
   };
 
-  const handleExport = () => {
-    // Export tasks functionality
-    const csvContent = tasks.map(task => ({
-      taskName: task.taskName,
-      priority: task.priority,
-      assignedTo: task.assignedTo.name,
-      dueDate: task.dueDate,
-      status: task.status,
-      progress: task.progress
-    }));
-    
-    const csvString = [
-      Object.keys(csvContent[0] || {}).join(','),
-      ...csvContent.map(row => Object.values(row).join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvString], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${project.name}_tasks.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  const handleExport = async () => {
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      let isFirstPage = true;
+      
+      for (const task of tasks) {
+        if (!isFirstPage) {
+          pdf.addPage();
+        }
+        isFirstPage = false;
+        
+        // Add task header
+        pdf.setFontSize(20);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(task.taskName, 20, 30);
+        
+        // Add task details
+        let yPosition = 50;
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        
+        const details = [
+          { label: 'Priority:', value: task.priority },
+          { label: 'Assigned To:', value: task.assignedTo.name },
+          { label: 'Due Date:', value: task.dueDate },
+          { label: 'Status:', value: task.status },
+          { label: 'Progress:', value: `${task.progress}%` },
+        ];
+        
+        if (task.description) {
+          details.push({ label: 'Description:', value: task.description });
+        }
+        
+        details.forEach(detail => {
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(detail.label, 20, yPosition);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(detail.value, 60, yPosition);
+          yPosition += 10;
+        });
+        
+        // Load and add attachments
+        try {
+          const { data: attachments } = await supabase
+            .from('task_attachments')
+            .select('*')
+            .eq('task_id', task.id);
+            
+          if (attachments && attachments.length > 0) {
+            yPosition += 10;
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Attachments:', 20, yPosition);
+            yPosition += 15;
+            
+            for (const attachment of attachments) {
+              // Add attachment info
+              pdf.setFont('helvetica', 'normal');
+              pdf.text(`File: ${attachment.file_name}`, 25, yPosition);
+              yPosition += 8;
+              
+              // Try to add image preview if it's an image file
+              if (attachment.file_type?.startsWith('image/')) {
+                try {
+                  const imageWidth = pageWidth - 40;
+                  const maxImageHeight = 100;
+                  
+                  // Add image if there's space, otherwise add on next page
+                  if (yPosition + maxImageHeight > pageHeight - 20) {
+                    pdf.addPage();
+                    yPosition = 30;
+                  }
+                  
+                  pdf.addImage(attachment.file_url, 'JPEG', 20, yPosition, imageWidth, maxImageHeight);
+                  yPosition += maxImageHeight + 10;
+                } catch (imageError) {
+                  console.warn('Could not add image to PDF:', imageError);
+                  pdf.text(`[Image: ${attachment.file_name}]`, 25, yPosition);
+                  yPosition += 8;
+                }
+              } else {
+                pdf.text(`[File: ${attachment.file_name}]`, 25, yPosition);
+                yPosition += 8;
+              }
+              
+              yPosition += 5;
+            }
+          }
+        } catch (attachmentError) {
+          console.error('Error loading attachments for task:', task.taskName, attachmentError);
+        }
+      }
+      
+      // Save the PDF
+      pdf.save(`${project.name}_tasks_export.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Fallback to simple PDF without images
+      const pdf = new jsPDF();
+      pdf.text('Task Export Error', 20, 20);
+      pdf.text('Could not generate full PDF with attachments.', 20, 30);
+      pdf.save(`${project.name}_tasks_export.pdf`);
+    }
   };
 
   const renderActiveView = () => {
