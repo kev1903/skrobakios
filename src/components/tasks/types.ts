@@ -1,5 +1,18 @@
 import { WBSItem } from '@/types/wbs';
 
+export interface TaskAttachment {
+  id: string;
+  task_id: string;
+  file_name: string;
+  file_size: number;
+  file_type: string;
+  file_url: string;
+  uploaded_by_name: string;
+  uploaded_by_avatar: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Task {
   id: string;
   project_id: string;
@@ -17,6 +30,7 @@ export interface Task {
   is_critical_path?: boolean;
   created_at: string;
   updated_at: string;
+  attachments?: TaskAttachment[];
 }
 
 // New interface for Project Timeline View with updated field specifications

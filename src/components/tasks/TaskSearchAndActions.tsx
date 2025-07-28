@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TaskViewToggle } from './TaskViewToggle';
 import { Task } from './TaskContext';
+import { TaskAttachment } from './types';
 import jsPDF from 'jspdf';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TaskSearchAndActionsProps {
   searchTerm: string;
@@ -24,7 +26,40 @@ export const TaskSearchAndActions = ({
 }: TaskSearchAndActionsProps) => {
   const { toast } = useToast();
 
-  const handleExportTasks = () => {
+  const fetchTaskAttachments = async (taskId: string): Promise<TaskAttachment[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('task_attachments')
+        .select('*')
+        .eq('task_id', taskId);
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching attachments:', error);
+      return [];
+    }
+  };
+
+  const loadImageAsBase64 = (url: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL('image/jpeg');
+        resolve(dataURL);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  };
+
+  const handleExportTasks = async () => {
     if (selectedTasks.length === 0) {
       toast({
         title: "No tasks selected",
@@ -36,52 +71,93 @@ export const TaskSearchAndActions = ({
 
     try {
       const doc = new jsPDF();
+      let isFirstPage = true;
       
-      // Add title
-      doc.setFontSize(20);
-      doc.text('Selected Tasks Export', 20, 30);
-      
-      // Add export date
-      doc.setFontSize(12);
-      doc.text(`Export Date: ${new Date().toLocaleDateString()}`, 20, 45);
-      doc.text(`Total Tasks: ${selectedTasks.length}`, 20, 55);
-      
-      // Add tasks list
-      let yPosition = 75;
-      
-      selectedTasks.forEach((task, index) => {
-        if (yPosition > 280) { // Start new page if needed
+      for (let i = 0; i < selectedTasks.length; i++) {
+        const task = selectedTasks[i];
+        
+        // Add new page for each task (except the first one)
+        if (!isFirstPage) {
           doc.addPage();
-          yPosition = 20;
         }
+        isFirstPage = false;
+        
+        let yPosition = 20;
         
         // Task header
-        doc.setFontSize(14);
+        doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
-        doc.text(`${index + 1}. ${task.taskName}`, 20, yPosition);
-        yPosition += 10;
+        doc.text(`Task ${i + 1}: ${task.taskName}`, 20, yPosition);
+        yPosition += 15;
         
         // Task details
-        doc.setFontSize(10);
+        doc.setFontSize(12);
         doc.setFont(undefined, 'normal');
-        doc.text(`Priority: ${task.priority}`, 25, yPosition);
-        yPosition += 6;
-        doc.text(`Status: ${task.status}`, 25, yPosition);
-        yPosition += 6;
-        doc.text(`Due Date: ${task.dueDate || 'Not set'}`, 25, yPosition);
-        yPosition += 6;
-        doc.text(`Progress: ${task.progress}%`, 25, yPosition);
-        yPosition += 6;
-        doc.text(`Assigned To: ${task.assignedTo?.name || 'Unassigned'}`, 25, yPosition);
-        yPosition += 6;
+        doc.text(`Priority: ${task.priority}`, 20, yPosition);
+        yPosition += 8;
+        doc.text(`Status: ${task.status}`, 20, yPosition);
+        yPosition += 8;
+        doc.text(`Due Date: ${task.dueDate || 'Not set'}`, 20, yPosition);
+        yPosition += 8;
+        doc.text(`Progress: ${task.progress}%`, 20, yPosition);
+        yPosition += 8;
+        doc.text(`Assigned To: ${task.assignedTo?.name || 'Unassigned'}`, 20, yPosition);
+        yPosition += 8;
         
         if (task.description) {
-          doc.text(`Description: ${task.description}`, 25, yPosition);
-          yPosition += 6;
+          doc.text(`Description: ${task.description}`, 20, yPosition);
+          yPosition += 10;
         }
         
-        yPosition += 8; // Space between tasks
-      });
+        // Fetch and display attachments
+        const attachments = await fetchTaskAttachments(task.id);
+        const jpgAttachments = attachments.filter(att => 
+          att.file_type.toLowerCase().includes('jpeg') || 
+          att.file_type.toLowerCase().includes('jpg')
+        );
+        
+        if (jpgAttachments.length > 0) {
+          yPosition += 5;
+          doc.setFont(undefined, 'bold');
+          doc.text('Attachments:', 20, yPosition);
+          yPosition += 8;
+          doc.setFont(undefined, 'normal');
+          
+          for (const attachment of jpgAttachments) {
+            try {
+              const imageData = await loadImageAsBase64(attachment.file_url);
+              
+              // Calculate image dimensions to fit on page
+              const maxWidth = 170; // Leave margins
+              const maxHeight = 100; // Reasonable height for preview
+              
+              // Add image with proper sizing
+              doc.addImage(imageData, 'JPEG', 20, yPosition, maxWidth, maxHeight);
+              yPosition += maxHeight + 10;
+              
+              // Add filename below image
+              doc.setFontSize(10);
+              doc.text(attachment.file_name, 20, yPosition);
+              yPosition += 10;
+              doc.setFontSize(12);
+              
+              // Check if we need more space for additional attachments
+              if (yPosition > 250) break;
+            } catch (imageError) {
+              console.error('Error loading image:', imageError);
+              // Still show filename even if image fails to load
+              doc.text(`📷 ${attachment.file_name} (Preview not available)`, 20, yPosition);
+              yPosition += 8;
+            }
+          }
+        }
+        
+        // Add page footer with task number and total
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Task ${i + 1} of ${selectedTasks.length}`, 20, 280);
+        doc.text(`Export Date: ${new Date().toLocaleDateString()}`, 150, 280);
+      }
       
       // Save the PDF
       doc.save(`selected-tasks-${new Date().toISOString().split('T')[0]}.pdf`);
