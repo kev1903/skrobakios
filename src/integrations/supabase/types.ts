@@ -2151,6 +2151,7 @@ export type Database = {
           project_id: string | null
           status: string
           task_name: string
+          task_number: string | null
           task_type: string
           updated_at: string
         }
@@ -2172,6 +2173,7 @@ export type Database = {
           project_id?: string | null
           status?: string
           task_name: string
+          task_number?: string | null
           task_type?: string
           updated_at?: string
         }
@@ -2193,6 +2195,7 @@ export type Database = {
           project_id?: string | null
           status?: string
           task_name?: string
+          task_number?: string | null
           task_type?: string
           updated_at?: string
         }
@@ -2904,6 +2907,10 @@ export type Database = {
       }
       generate_slug: {
         Args: { input_text: string }
+        Returns: string
+      }
+      generate_task_number: {
+        Args: { project_id_param: string }
         Returns: string
       }
       get_current_context: {
