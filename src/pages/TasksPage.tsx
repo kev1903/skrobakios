@@ -196,8 +196,9 @@ const TasksPage = () => {
                 <div key={task.id} className="px-3 py-2 rounded-lg hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-sm font-semibold text-gray-800 truncate">{task.taskName}</h4>
+                      <h4 className="text-sm font-semibold text-gray-800 truncate mb-1">{task.taskName}</h4>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-gray-500 font-medium truncate">{task.projectName || 'No Project'}</p>
                         <span className={cn(
                           "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
                           task.taskType === 'Task' ? 'bg-green-50 text-green-600' :
@@ -208,18 +209,16 @@ const TasksPage = () => {
                         )}>
                           {task.taskType}
                         </span>
+                        <span className={cn(
+                          "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
+                          task.priority === 'High' ? 'bg-red-50 text-red-600' :
+                          task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                          'bg-green-50 text-green-600'
+                        )}>
+                          {task.priority}
+                        </span>
                       </div>
-                      <p className="text-xs text-gray-500 font-medium truncate">{task.projectName || 'No Project'}</p>
-                      <p className="text-xs text-gray-600 truncate">{task.description || 'No description'}</p>
                     </div>
-                    <span className={cn(
-                      "ml-2 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
-                      task.priority === 'High' ? 'bg-red-50 text-red-600' :
-                      task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
-                      'bg-green-50 text-green-600'
-                    )}>
-                      {task.priority}
-                    </span>
                   </div>
                 </div>
               ))
