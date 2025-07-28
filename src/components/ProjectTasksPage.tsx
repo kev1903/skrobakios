@@ -52,23 +52,124 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+      const exportDate = new Date().toLocaleString();
+      let pageNumber = 1;
       
-      let isFirstPage = true;
-      
-      for (const task of tasks) {
-        if (!isFirstPage) {
-          pdf.addPage();
+      // Header and footer helper function
+      const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
+        // Header with logo and title
+        try {
+          // Try to add company logo (assumes logo exists in public folder)
+          pdf.addImage('/logo.png', 'PNG', 20, 10, 30, 15);
+        } catch (logoError) {
+          // Fallback text if logo not found
+          pdf.setFontSize(12);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Company Logo', 20, 20);
         }
-        isFirstPage = false;
+        
+        if (!isFirstPage) {
+          pdf.setFontSize(14);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Task Export Report', pageWidth / 2, 20, { align: 'center' });
+        }
+        
+        // Footer with logo, page number and export date
+        try {
+          pdf.addImage('/logo.png', 'PNG', 20, pageHeight - 25, 20, 10);
+        } catch (logoError) {
+          pdf.setFontSize(8);
+          pdf.text('Company', 20, pageHeight - 15);
+        }
+        
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Page ${pageNum}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
+        pdf.text(`Exported: ${exportDate}`, pageWidth - 20, pageHeight - 15, { align: 'right' });
+      };
+      
+      // Cover Page
+      addHeaderFooter(pdf, pageNumber, true);
+      
+      // Cover page title
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${project.name}`, pageWidth / 2, 50, { align: 'center' });
+      pdf.text('Task Export Report', pageWidth / 2, 65, { align: 'center' });
+      
+      // Export metadata
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, 85, { align: 'center' });
+      pdf.text(`Export Date: ${exportDate}`, pageWidth / 2, 100, { align: 'center' });
+      
+      // Task list summary
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Task Summary', 20, 130);
+      
+      let yPosition = 145;
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      
+      // Table headers
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Task #', 20, yPosition);
+      pdf.text('Task Name', 45, yPosition);
+      pdf.text('Status', 120, yPosition);
+      pdf.text('Priority', 150, yPosition);
+      pdf.text('Progress', 175, yPosition);
+      yPosition += 8;
+      
+      // Underline headers
+      pdf.line(20, yPosition - 2, 190, yPosition - 2);
+      
+      pdf.setFont('helvetica', 'normal');
+      tasks.forEach((task, index) => {
+        if (yPosition > pageHeight - 40) {
+          // Start new page if needed
+          pdf.addPage();
+          pageNumber++;
+          addHeaderFooter(pdf, pageNumber);
+          yPosition = 40;
+          
+          // Re-add headers on new page
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Task #', 20, yPosition);
+          pdf.text('Task Name', 45, yPosition);
+          pdf.text('Status', 120, yPosition);
+          pdf.text('Priority', 150, yPosition);
+          pdf.text('Progress', 175, yPosition);
+          yPosition += 8;
+          pdf.line(20, yPosition - 2, 190, yPosition - 2);
+          pdf.setFont('helvetica', 'normal');
+        }
+        
+        const taskNumber = task.task_number || `T${index + 1}`;
+        const taskName = task.taskName.length > 25 ? task.taskName.substring(0, 25) + '...' : task.taskName;
+        
+        pdf.text(taskNumber, 20, yPosition);
+        pdf.text(taskName, 45, yPosition);
+        pdf.text(task.status, 120, yPosition);
+        pdf.text(task.priority, 150, yPosition);
+        pdf.text(`${task.progress}%`, 175, yPosition);
+        yPosition += 6;
+      });
+      
+      // Start detailed task pages
+      for (const task of tasks) {
+        pdf.addPage();
+        pageNumber++;
+        addHeaderFooter(pdf, pageNumber);
         
         // Add task header with task number
         pdf.setFontSize(20);
         pdf.setFont('helvetica', 'bold');
         const taskHeader = task.task_number ? `${task.task_number}: ${task.taskName}` : task.taskName;
-        pdf.text(taskHeader, 20, 30);
+        pdf.text(taskHeader, 20, 45);
         
         // Add task details
-        let yPosition = 50;
+        yPosition = 65;
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
         
@@ -119,9 +220,11 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
                   const maxImageHeight = 100;
                   
                   // Add image if there's space, otherwise add on next page
-                  if (yPosition + maxImageHeight > pageHeight - 20) {
+                  if (yPosition + maxImageHeight > pageHeight - 40) {
                     pdf.addPage();
-                    yPosition = 30;
+                    pageNumber++;
+                    addHeaderFooter(pdf, pageNumber);
+                    yPosition = 40;
                   }
                   
                   pdf.addImage(attachment.file_url, 'JPEG', 20, yPosition, imageWidth, maxImageHeight);
@@ -145,7 +248,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       }
       
       // Save the PDF
-      pdf.save(`${project.name}_tasks_export.pdf`);
+      pdf.save(`${project.name}_tasks_export_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       // Fallback to simple PDF without images
