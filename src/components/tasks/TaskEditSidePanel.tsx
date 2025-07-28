@@ -110,7 +110,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEdit
         className={`${
           isMobile 
             ? '!w-full !max-w-full' 
-            : '!w-[600px] !max-w-[600px] sm:!w-[600px] sm:!max-w-[600px]'
+            : '!w-[750px] !max-w-[750px] sm:!w-[750px] sm:!max-w-[750px]'
         } overflow-y-auto bg-white border-l border-gray-200 p-0`}
         side={isMobile ? "bottom" : "right"}
       >
