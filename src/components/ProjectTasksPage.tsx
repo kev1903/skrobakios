@@ -51,14 +51,14 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       case "board":
         return <TaskBoardView projectId={project.id} />;
       case "timeline":
-        return <div className="p-8 text-center text-muted-foreground">Timeline view has been removed</div>;
+        return <div className="p-8 text-center text-slate-600">Timeline view has been removed</div>;
       case "calendar":
         return <TaskCalendarView />;
       case "overview":
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Tasks</h3>
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Recent Tasks</h3>
               <TaskListView 
                 projectId={project.id} 
                 viewMode={viewMode}
@@ -71,9 +71,9 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       default:
         return (
           <div className="flex items-center justify-center h-64">
-            <div className="text-center bg-card border border-border rounded-xl p-8 shadow-sm">
-              <p className="text-foreground/80 text-lg">Coming Soon</p>
-              <p className="text-muted-foreground text-sm mt-2">
+            <div className="text-center glass-card p-8">
+              <p className="text-slate-800 text-lg">Coming Soon</p>
+              <p className="text-slate-600 text-sm mt-2">
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} view is under development
               </p>
             </div>
@@ -110,7 +110,6 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             activeTab={activeTab}
             onTabChange={setActiveTab}
           />
-
 
           <div>
             {renderActiveView()}

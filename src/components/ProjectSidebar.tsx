@@ -76,9 +76,9 @@ export const ProjectSidebar = ({
 
   // Responsive classes based on screen size
   const sidebarClasses = {
-    mobile: "w-full h-full bg-white/10 backdrop-blur-md shadow-2xl",
-    tablet: "w-full h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl",
-    desktop: "fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-50"
+    mobile: "w-full h-full glass-sidebar",
+    tablet: "w-full h-full glass-sidebar",
+    desktop: "fixed left-0 top-0 w-48 h-full glass-sidebar z-50"
   };
 
   const contentClasses = {
@@ -92,7 +92,7 @@ export const ProjectSidebar = ({
       <div className={contentClasses[screenSize]}>
         {/* Project Info */}
         <div className={`flex-shrink-0 ${screenSize === 'mobile' ? 'mb-6' : 'px-3 py-4'} ${screenSize !== 'mobile' ? 'border-b border-white/20' : ''}`}>
-          <div className="text-white text-sm font-medium mb-2 truncate">{project.name}</div>
+          <div className="text-pure-white text-sm font-medium mb-2 truncate">{project.name}</div>
           <div className="text-white/70 text-xs mb-2">#{project.project_id}</div>
           <Badge variant="outline" className={`${getStatusColor(project.status)} text-xs`}>
             {getStatusText(project.status)}
@@ -105,7 +105,7 @@ export const ProjectSidebar = ({
             variant="ghost"
             size="sm"
             onClick={() => onNavigate('projects')}
-            className={`${screenSize === 'mobile' ? 'w-full' : 'w-full'} flex items-center gap-2 px-3 py-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left justify-start`}
+            className={`${screenSize === 'mobile' ? 'w-full' : 'w-full'} flex items-center gap-2 px-3 py-2 rounded-lg text-pure-white hover:bg-white/10 transition-all duration-200 text-left justify-start`}
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Projects</span>
@@ -136,8 +136,8 @@ export const ProjectSidebar = ({
               onClick={() => handleNavigate(item.page)} 
               className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg transition-all duration-200 text-left animate-fade-in ${
                 activeSection === item.id 
-                  ? 'bg-white/20 text-white border border-white/30' 
-                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  ? 'bg-white/20 text-pure-white border border-white/30' 
+                  : 'text-white/80 hover:bg-white/10 hover:text-pure-white'
               }`}
             >
               <item.icon className="w-4 h-4" />
@@ -153,14 +153,14 @@ export const ProjectSidebar = ({
           </div>
           <button 
             onClick={() => handleNavigate('project-settings')} 
-            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left`}
+            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-white/80 hover:bg-white/10 hover:text-pure-white transition-all duration-200 text-left`}
           >
             <Settings className="w-4 h-4" />
             <span className={`${screenSize === 'mobile' ? 'text-base' : 'text-sm'} font-medium`}>Settings</span>
           </button>
           <button 
             onClick={() => handleNavigate('support')} 
-            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200 text-left`}
+            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-white/80 hover:bg-white/10 hover:text-pure-white transition-all duration-200 text-left`}
           >
             <HelpCircle className="w-4 h-4" />
             <span className={`${screenSize === 'mobile' ? 'text-base' : 'text-sm'} font-medium`}>Help</span>
