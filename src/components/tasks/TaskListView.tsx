@@ -105,28 +105,28 @@ export const TaskListView = ({
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case "high":
-        return "bg-red-500/30 text-red-100 border-red-400/50 font-medium";
+        return "bg-red-100 text-red-800 border-red-300 font-medium";
       case "medium":
-        return "bg-yellow-500/30 text-yellow-100 border-yellow-400/50 font-medium";
+        return "bg-yellow-100 text-yellow-800 border-yellow-300 font-medium";
       case "low":
-        return "bg-green-500/30 text-green-100 border-green-400/50 font-medium";
+        return "bg-green-100 text-green-800 border-green-300 font-medium";
       default:
-        return "bg-slate-500/30 text-slate-100 border-slate-400/50 font-medium";
+        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
-        return "bg-green-500/20 text-green-200 border-green-400/30";
+        return "bg-green-100 text-green-800 border-green-300 font-medium";
       case "in progress":
-        return "bg-blue-500/20 text-blue-200 border-blue-400/30";
+        return "bg-blue-100 text-blue-800 border-blue-300 font-medium";
       case "pending":
-        return "bg-yellow-500/20 text-yellow-200 border-yellow-400/30";
+        return "bg-yellow-100 text-yellow-800 border-yellow-300 font-medium";
       case "not started":
-        return "bg-white/20 text-white/80 border-white/30";
+        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
       default:
-        return "bg-white/20 text-white/80 border-white/30";
+        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
     }
   };
 
@@ -161,7 +161,7 @@ export const TaskListView = ({
           </div>
           
           <div className="flex items-center space-x-2 mb-4">
-            <Badge variant="outline" className="bg-purple-500/20 text-purple-200 border-purple-400/30">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300 font-medium">
               {task.taskType}
             </Badge>
             <Badge variant="outline" className={getPriorityColor(task.priority)}>
@@ -242,7 +242,7 @@ export const TaskListView = ({
               </div>
               
               <div className="flex items-center space-x-2 mb-2">
-                <Badge variant="outline" className="bg-purple-500/20 text-purple-200 border-purple-400/30">
+                <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300 font-medium">
                   {task.taskType}
                 </Badge>
                 <Badge variant="outline" className={getPriorityColor(task.priority)}>
@@ -318,7 +318,7 @@ export const TaskListView = ({
                   <TableCell className="p-2">
                     <Badge 
                       variant="outline" 
-                      className="bg-purple-500/20 text-purple-200 border-purple-400/30"
+                      className="bg-purple-100 text-purple-800 border-purple-300 font-medium"
                     >
                       {task.taskType}
                     </Badge>
