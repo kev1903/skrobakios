@@ -444,7 +444,6 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
 };
 
 export const ProjectTasksPage = ({ project, onNavigate }: ProjectTasksPageProps) => {
-
   return (
     <TaskProvider>
       <ProjectTasksContent project={project} onNavigate={onNavigate} />
