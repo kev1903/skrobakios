@@ -151,11 +151,25 @@ const TasksPage = () => {
       const slotIndex = parseInt(destination.droppableId.replace('timeline-', ''));
       const hour = Math.floor(slotIndex / 2);
       const minutes = (slotIndex % 2) * 30;
-      const taskId = draggableId.replace('backlog-', ''); // Remove prefix to get actual task ID
+      
+      // Handle both backlog-to-timeline and timeline-to-timeline moves
+      let taskId;
+      if (draggableId.startsWith('backlog-')) {
+        taskId = draggableId.replace('backlog-', '');
+        console.log('📋 Moving task from backlog to timeline slot');
+      } else if (draggableId.startsWith('timeline-')) {
+        taskId = draggableId.replace('timeline-', '');
+        console.log('🔄 Moving task from timeline slot to another timeline slot');
+      } else {
+        console.error('❌ Unknown draggable ID format:', draggableId);
+        return;
+      }
+      
       const task = userTasks.find(t => t.id === taskId);
       
       if (task) {
         console.log('📋 Found task to update:', task.taskName);
+        console.log('🎯 Source:', source.droppableId, '→ Destination:', destination.droppableId);
         
         // Create datetime with the selected 30-minute slot for the current date (using UTC to match timeline display)
         const newDateTime = new Date(currentDate);
