@@ -256,7 +256,17 @@ const TasksPage = () => {
     // Handle drop back to task backlog (remove time assignment)
     if (destination.droppableId === 'task-backlog') {
       console.log('🔙 Task dropped back to backlog!');
-      const taskId = draggableId.replace('timeline-', ''); // Remove timeline prefix to get actual task ID
+      
+      let taskId;
+      if (draggableId.startsWith('timeline-')) {
+        taskId = draggableId.replace('timeline-', '');
+      } else if (draggableId.startsWith('week-timeline-')) {
+        taskId = draggableId.replace('week-timeline-', '');
+      } else {
+        console.error('❌ Unknown draggable ID format for backlog drop:', draggableId);
+        return;
+      }
+      
       console.log('🎯 Task ID extracted:', taskId);
       const task = userTasks.find(t => t.id === taskId);
       

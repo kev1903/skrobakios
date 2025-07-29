@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable, DragStart } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ interface WeekTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  onDragStart?: (start: DragStart) => void;
 }
 
 interface TimeSlot {
@@ -22,8 +23,10 @@ interface TimeSlot {
 export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({ 
   currentDate, 
   tasks = [], 
-  onTaskUpdate 
+  onTaskUpdate,
+  onDragStart 
 }) => {
+  const [isDragging, setIsDragging] = useState(false);
   
   // Get the week days starting from Sunday
   const getWeekDays = useCallback(() => {
@@ -82,6 +85,15 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   }, [tasks, weekDays]);
 
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateTimeSlots());
+
+  const handleDragStart = useCallback((start: DragStart) => {
+    setIsDragging(true);
+    onDragStart?.(start);
+  }, [onDragStart]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -171,10 +183,23 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                             : 'bg-background hover:bg-muted/20'
                         }`}
                       >
-                        <div className="flex gap-1 overflow-x-auto scrollbar-thin py-1 px-1 w-full">
+                        <div className={`flex gap-1 py-1 px-1 w-full ${
+                          isDragging ? 'drag-no-scroll' : 'scrollbar-thin overflow-x-auto'
+                        }`}>
                           {(slot.dayTasks[dayIndex] || []).map((task, index) => (
                             <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={index}>
-                              {(provided, snapshot) => (
+                              {(provided, snapshot) => {
+                                // Update drag state when this specific task is being dragged
+                                React.useEffect(() => {
+                                  if (snapshot.isDragging && !isDragging) {
+                                    setIsDragging(true);
+                                  } else if (!snapshot.isDragging && isDragging) {
+                                    // Small delay to prevent flicker
+                                    setTimeout(() => setIsDragging(false), 100);
+                                  }
+                                }, [snapshot.isDragging]);
+
+                                return (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
@@ -203,7 +228,8 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     </CardContent>
                                   </Card>
                                 </div>
-                              )}
+                                );
+                              }}
                             </Draggable>
                           ))}
                           {provided.placeholder}
