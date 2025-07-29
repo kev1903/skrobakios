@@ -11,13 +11,15 @@ import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
 import { DayTimelineView } from '@/components/tasks/DayTimelineView';
+import { useUser } from '@/contexts/UserContext';
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
+  const { userProfile } = useUser();
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [userTasks, setUserTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -148,7 +150,7 @@ const TasksPage = () => {
         try {
           await taskService.updateTask(task.id, {
             dueDate: newDateTime.toISOString().split('T')[0]
-          }, null);
+          }, userProfile);
           
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
@@ -166,7 +168,7 @@ const TasksPage = () => {
       tasks={userTasks}
       onTaskUpdate={async (taskId, updates) => {
         try {
-          await taskService.updateTask(taskId, updates, null);
+          await taskService.updateTask(taskId, updates, userProfile);
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
           setUserTasks(updatedTasks);
