@@ -30,10 +30,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // Filter tasks for current date and extract hour from datetime
+    // Filter tasks for current date that have specific times (not midnight)
     const dayTasks = tasks.filter(task => {
       const taskDate = new Date(task.dueDate);
-      return isSameDay(taskDate, currentDate);
+      if (!isSameDay(taskDate, currentDate)) return false;
+      
+      // Only show tasks with specific times (not at midnight/00:00) in timeline
+      return !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
     });
     
     console.log('📅 Tasks for current date:', dayTasks.length, dayTasks.map(t => ({ name: t.taskName, dueDate: t.dueDate })));
@@ -46,7 +49,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         try {
           const taskDateTime = new Date(task.dueDate);
           if (isNaN(taskDateTime.getTime())) return false; // Invalid date
-          return taskDateTime.getHours() === hour;
+          
+          // Use UTC hours to avoid timezone conversion issues
+          return taskDateTime.getUTCHours() === hour;
         } catch (error) {
           console.error('Error parsing task date:', task.dueDate, error);
           return false;

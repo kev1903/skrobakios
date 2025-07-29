@@ -65,7 +65,12 @@ const TasksPage = () => {
   const getTasksForDate = (date: Date | null) => {
     if (!date) return [];
     const dateString = date.toISOString().split('T')[0];
-    return userTasks.filter(task => task.dueDate === dateString);
+    return userTasks.filter(task => {
+      if (!task.dueDate) return false;
+      // Handle both old date format (YYYY-MM-DD) and new datetime format (ISO string)
+      const taskDate = task.dueDate.split('T')[0]; // Extract date part from datetime
+      return taskDate === dateString;
+    });
   };
 
   const getWeekDays = (date: Date) => {
@@ -177,7 +182,9 @@ const TasksPage = () => {
     
     // Handle drop back to task backlog (remove time assignment)
     if (destination.droppableId === 'task-backlog') {
+      console.log('🔙 Task dropped back to backlog!');
       const taskId = draggableId.replace('timeline-', ''); // Remove timeline prefix to get actual task ID
+      console.log('🎯 Task ID extracted:', taskId);
       const task = userTasks.find(t => t.id === taskId);
       
       if (task) {
@@ -408,7 +415,23 @@ const TasksPage = () => {
                   </div>
                 ) : (
                   userTasks
-                    .filter(task => activeTab === 'All' || task.taskType === activeTab)
+                    .filter(task => {
+                      // First filter by task type
+                      const matchesType = activeTab === 'All' || task.taskType === activeTab;
+                      if (!matchesType) return false;
+                      
+                      // Then filter to show only unscheduled tasks (no specific time) in backlog
+                      if (!task.dueDate) return true; // Tasks without due date go to backlog
+                      
+                      try {
+                        const taskDateTime = new Date(task.dueDate);
+                        // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
+                        return taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0;
+                      } catch (error) {
+                        console.error('Error parsing task date for backlog filter:', task.dueDate, error);
+                        return true; // If we can't parse the date, show it in backlog as fallback
+                      }
+                    })
                     .map((task, index) => (
                       <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
                         {(provided, snapshot) => (
