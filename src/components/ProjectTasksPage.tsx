@@ -240,18 +240,18 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       
       let yPosition = 55;
       
-      // Table setup with better dimensions
+      // Table setup with professional dimensions and alignment
       const rowHeight = 30;
-      const previewSize = 22;
+      const previewSize = 20;
       
-      // Column positions and widths - properly aligned
+      // Column positions and widths - professionally aligned
       const columns = [
-        { header: 'Preview', x: 25, width: 30, align: 'center' as const },
-        { header: '#', x: 60, width: 25, align: 'left' as const },
-        { header: 'Task Name', x: 90, width: 50, align: 'left' as const },
-        { header: 'Assigned to', x: 145, width: 30, align: 'left' as const },
-        { header: 'Priority', x: 180, width: 20, align: 'center' as const },
-        { header: 'Status', x: 205, width: 25, align: 'center' as const }
+        { header: 'Preview', x: 20, width: 35, align: 'center' as const },
+        { header: '#', x: 55, width: 20, align: 'left' as const },
+        { header: 'Task Name', x: 75, width: 60, align: 'left' as const },
+        { header: 'Assigned to', x: 135, width: 35, align: 'left' as const },
+        { header: 'Priority', x: 170, width: 25, align: 'center' as const },
+        { header: 'Status', x: 195, width: 25, align: 'center' as const }
       ];
       
       // Draw table headers with background
@@ -375,26 +375,27 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         pdf.setTextColor(40, 40, 40);
         
         const taskNumber = task.task_number || `${i + 1}`;
-        const taskName = task.taskName.length > 22 ? task.taskName.substring(0, 22) + '...' : task.taskName;
-        const assignedTo = task.assignedTo.name.length > 15 ? task.assignedTo.name.substring(0, 15) + '...' : task.assignedTo.name;
+        const taskName = task.taskName.length > 30 ? task.taskName.substring(0, 30) + '...' : task.taskName;
+        const assignedTo = task.assignedTo.name.length > 18 ? task.assignedTo.name.substring(0, 18) + '...' : task.assignedTo.name;
         
-        // Task data
-        pdf.text(taskNumber, columns[1].x, yPosition + 12);
-        pdf.text(taskName, columns[2].x, yPosition + 12);
-        pdf.text(assignedTo, columns[3].x, yPosition + 12);
+        // Task data with proper vertical alignment
+        const textY = yPosition + 15; // Center text vertically in row
+        pdf.text(taskNumber, columns[1].x, textY);
+        pdf.text(taskName, columns[2].x, textY);
+        pdf.text(assignedTo, columns[3].x, textY);
         
         // Priority with color coding
         const priorityColor = task.priority === 'High' ? [220, 38, 38] : 
                              task.priority === 'Medium' ? [180, 83, 9] : [22, 163, 74];
         pdf.setTextColor(priorityColor[0], priorityColor[1], priorityColor[2]);
-        pdf.text(task.priority, columns[4].x + columns[4].width/2, yPosition + 12, { align: 'center' });
+        pdf.text(task.priority, columns[4].x + columns[4].width/2, textY, { align: 'center' });
         
         // Status with color coding
         const statusColor = task.status === 'Completed' ? [22, 163, 74] :
                            task.status === 'In Progress' ? [59, 130, 246] :
                            task.status === 'Not Started' ? [107, 114, 128] : [220, 38, 38];
         pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-        pdf.text(task.status, columns[5].x + columns[5].width/2, yPosition + 12, { align: 'center' });
+        pdf.text(task.status, columns[5].x + columns[5].width/2, textY, { align: 'center' });
         
         // Reset text color
         pdf.setTextColor(0, 0, 0);
