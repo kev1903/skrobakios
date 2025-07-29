@@ -134,6 +134,8 @@ const TasksPage = () => {
   // Handle drag and drop from backlog to timeline
   const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
+    
+    console.log('🔄 Drag end result:', { destination, source, draggableId });
 
     if (!destination) return;
 
@@ -144,22 +146,32 @@ const TasksPage = () => {
       const task = userTasks.find(t => t.id === taskId);
       
       if (task) {
-        // Create new date with the selected hour
+        console.log('📋 Found task to update:', task.taskName);
+        
+        // Create datetime with the selected hour for the current date
         const newDateTime = new Date(currentDate);
         newDateTime.setHours(hour, 0, 0, 0);
         
+        console.log('⏰ Setting task datetime to:', newDateTime.toISOString());
+        
         try {
+          // Since there's no due_time column, we'll store the full datetime in due_date  
+          // The database due_date column can handle timestamp with timezone
           await taskService.updateTask(task.id, {
-            dueDate: newDateTime.toISOString().split('T')[0],
-            dueTime: `${hour.toString().padStart(2, '0')}:00` // Store the hour as dueTime
+            dueDate: newDateTime.toISOString() // Store full datetime instead of just date
           }, userProfile);
+          
+          console.log('✅ Task update successful');
           
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
+          console.log('🔄 Reloaded tasks count:', updatedTasks.length);
           setUserTasks(updatedTasks);
         } catch (error) {
-          console.error('Failed to update task:', error);
+          console.error('❌ Failed to update task:', error);
         }
+      } else {
+        console.error('❌ Task not found for ID:', taskId);
       }
     }
   };

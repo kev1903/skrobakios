@@ -30,23 +30,30 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // Filter tasks for current date
+    // Filter tasks for current date and extract hour from datetime
     const dayTasks = tasks.filter(task => {
       const taskDate = new Date(task.dueDate);
       return isSameDay(taskDate, currentDate);
     });
     
+    console.log('📅 Tasks for current date:', dayTasks.length, dayTasks.map(t => ({ name: t.taskName, dueDate: t.dueDate })));
+    
     for (let hour = 0; hour < 24; hour++) {
       const timeLabel = format(setHours(setMinutes(new Date(), 0), hour), 'HH:mm');
       
-      // Filter tasks for this specific hour
+      // Filter tasks for this specific hour using the datetime stored in dueDate
       const hourTasks = dayTasks.filter(task => {
-        if (task.dueTime) {
-          const taskHour = parseInt(task.dueTime.split(':')[0]);
-          return taskHour === hour;
+        try {
+          const taskDateTime = new Date(task.dueDate);
+          if (isNaN(taskDateTime.getTime())) return false; // Invalid date
+          return taskDateTime.getHours() === hour;
+        } catch (error) {
+          console.error('Error parsing task date:', task.dueDate, error);
+          return false;
         }
-        return false; // If no dueTime, don't show in any slot
       });
+      
+      console.log(`🕐 Hour ${hour} (${timeLabel}):`, hourTasks.length, 'tasks');
       
       slots.push({
         hour,
