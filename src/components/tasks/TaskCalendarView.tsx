@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useTaskContext } from './useTaskContext';
+import { DayTimelineView } from './DayTimelineView';
 import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 
 type ViewMode = 'day' | 'week' | 'month';
@@ -100,36 +101,7 @@ export const TaskCalendarView = () => {
   };
 
   const renderDayView = () => {
-    const dayTasks = getTasksForDate(currentDate);
-    const isToday = isSameDay(currentDate, new Date());
-
-    return (
-      <div className="space-y-4">
-        <div className={`p-6 border rounded-lg ${isToday ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
-          <div className={`text-lg font-semibold mb-4 ${isToday ? 'text-blue-600' : 'text-foreground'}`}>
-            {format(currentDate, 'EEEE, MMMM d')}
-          </div>
-          <div className="space-y-2">
-            {dayTasks.length > 0 ? (
-              dayTasks.map(task => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-sm font-medium">{task.taskName}</div>
-                    <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                      {task.priority}
-                    </Badge>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center text-muted-foreground py-8">
-                No tasks scheduled for this day
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+    return <DayTimelineView currentDate={currentDate} />;
   };
 
   const renderWeekView = () => {
