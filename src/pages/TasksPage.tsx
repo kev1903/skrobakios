@@ -146,16 +146,7 @@ const TasksPage = () => {
       <div className="flex-1 p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-gray-700">
-              <span className="font-semibold">Calendar</span>
-              <ChevronDown className="w-4 h-4" />
-            </div>
-            <div className="flex items-center gap-3 bg-white/70 backdrop-blur-xl px-4 py-2.5 rounded-xl border border-gray-200/50 shadow-sm">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <span className="font-medium text-gray-700">May 2024</span>
-            </div>
-          </div>
+          
           <Button className="bg-blue-500 hover:bg-blue-600 rounded-xl px-6 py-2.5 font-medium shadow-lg shadow-blue-500/25">
             <Plus className="w-4 h-4 mr-2" />
             New Event
