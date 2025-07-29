@@ -123,13 +123,6 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(40, 40, 40);
             pdf.text(fullCompanyData.name, 25 + logoWidth, 22);
-            
-            if (fullCompanyData.phone) {
-              pdf.setFontSize(10);
-              pdf.setFont('helvetica', 'normal');
-              pdf.setTextColor(80, 80, 80);
-              pdf.text(fullCompanyData.phone, 25 + logoWidth, 28);
-            }
           } else {
             // Fallback with company name
             pdf.setFontSize(14);
@@ -150,13 +143,6 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(40, 40, 40);
           pdf.text('Task Export Report', pageWidth - 20, 22, { align: 'right' });
-          
-          if (fullCompanyData?.phone) {
-            pdf.setFontSize(10);
-            pdf.setFont('helvetica', 'normal');
-            pdf.setTextColor(80, 80, 80);
-            pdf.text(fullCompanyData.phone, pageWidth - 20, 28, { align: 'right' });
-          }
         } else {
           pdf.setFontSize(14);
           pdf.setFont('helvetica', 'bold');
