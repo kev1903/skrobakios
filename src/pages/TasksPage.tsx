@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle } from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
+type ViewMode = 'day' | 'week' | 'month';
+
 const TasksPage = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 4)); // May 2024
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [userTasks, setUserTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +58,21 @@ const TasksPage = () => {
     title: 'MindSpace Meeting',
     description: 'The meeting will explore the JTBD framework and discuss potential solutions for user groups and the pain points the team wants to tackle.'
   }];
+  const getTasksForDate = (date: Date | null) => {
+    if (!date) return [];
+    const dateString = date.toISOString().split('T')[0];
+    return userTasks.filter(task => task.dueDate === dateString);
+  };
+
+  const getWeekDays = (date: Date) => {
+    const weekStart = startOfWeek(date);
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+      weekDays.push(addDays(weekStart, i));
+    }
+    return weekDays;
+  };
+
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -69,9 +89,196 @@ const TasksPage = () => {
 
     // Add all days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push(day);
+      days.push(new Date(year, month, day));
     }
     return days;
+  };
+
+  const formatDate = (date: Date) => {
+    switch (viewMode) {
+      case 'day':
+        return format(date, 'EEEE, MMMM d, yyyy');
+      case 'week':
+        const weekStart = startOfWeek(date);
+        const weekEnd = endOfWeek(date);
+        return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
+      case 'month':
+      default:
+        return format(date, 'MMMM yyyy');
+    }
+  };
+
+  const navigate = (direction: 'prev' | 'next') => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      switch (viewMode) {
+        case 'day':
+          newDate.setDate(prev.getDate() + (direction === 'next' ? 1 : -1));
+          break;
+        case 'week':
+          newDate.setDate(prev.getDate() + (direction === 'next' ? 7 : -7));
+          break;
+        case 'month':
+        default:
+          newDate.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
+          break;
+      }
+      return newDate;
+    });
+  };
+
+  const renderDayView = () => {
+    const dayTasks = getTasksForDate(currentDate);
+    const isToday = isSameDay(currentDate, new Date());
+
+    return (
+      <div className="space-y-4">
+        <div className={`p-6 border rounded-lg ${isToday ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
+          <div className={`text-lg font-semibold mb-4 ${isToday ? 'text-blue-600' : 'text-foreground'}`}>
+            {format(currentDate, 'EEEE, MMMM d')}
+          </div>
+          <div className="space-y-2">
+            {dayTasks.length > 0 ? (
+              dayTasks.map(task => (
+                <div key={task.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm font-medium">{task.taskName}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                No tasks scheduled for this day
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderWeekView = () => {
+    const weekDays = getWeekDays(currentDate);
+    const weekHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    return (
+      <div className="grid grid-cols-7 gap-1">
+        {weekHeaders.map(day => (
+          <div key={day} className="p-2 text-center font-medium text-muted-foreground text-sm">
+            {day}
+          </div>
+        ))}
+        
+        {weekDays.map((day, index) => {
+          const dayTasks = getTasksForDate(day);
+          const isToday = isSameDay(day, new Date());
+          
+          return (
+            <div
+              key={index}
+              className={`min-h-[120px] p-2 border border-gray-100 bg-white hover:bg-gray-50 ${
+                isToday ? 'bg-blue-50 border-blue-200' : ''
+              }`}
+            >
+              <div className={`text-sm font-medium mb-2 ${
+                isToday ? 'text-blue-600' : 'text-foreground'
+              }`}>
+                {day.getDate()}
+              </div>
+              <div className="space-y-1">
+                {dayTasks.slice(0, 3).map(task => (
+                  <div
+                    key={task.id}
+                    className="text-xs p-1 rounded truncate bg-blue-100 text-blue-800"
+                    title={task.taskName}
+                  >
+                    {task.taskName}
+                  </div>
+                ))}
+                {dayTasks.length > 3 && (
+                  <div className="text-xs text-gray-500">
+                    +{dayTasks.length - 3} more
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderMonthView = () => {
+    const days = getDaysInMonth(currentDate);
+    const weekHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    return (
+      <>
+        {/* Week Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-4">
+          {weekHeaders.map(day => (
+            <div key={day} className="text-center py-3 text-sm font-semibold text-gray-600">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Days */}
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, index) => {
+            const dayTasks = getTasksForDate(day);
+            const isToday = day && isSameDay(day, new Date());
+            
+            return (
+              <div key={index} className="aspect-square">
+                {day && (
+                  <div className={cn(
+                    "h-full min-h-[120px] p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-all cursor-pointer",
+                    isToday ? "bg-blue-50 border-blue-200 shadow-sm" : "bg-gray-50/50 hover:bg-gray-50"
+                  )}>
+                    <div className={cn(
+                      "text-sm font-semibold mb-2",
+                      isToday ? "text-blue-600" : "text-gray-700"
+                    )}>
+                      {day.getDate()}
+                    </div>
+                    
+                    <div className="space-y-1">
+                      {dayTasks.slice(0, 2).map(task => (
+                        <div
+                          key={task.id}
+                          className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-medium truncate"
+                          title={task.taskName}
+                        >
+                          {task.taskName}
+                        </div>
+                      ))}
+                      {dayTasks.length > 2 && (
+                        <div className="text-xs text-gray-500">
+                          +{dayTasks.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  };
+
+  const renderCalendarView = () => {
+    switch (viewMode) {
+      case 'day':
+        return renderDayView();
+      case 'week':
+        return renderWeekView();
+      case 'month':
+      default:
+        return renderMonthView();
+    }
   };
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
       {/* Left Sidebar */}
@@ -156,66 +363,31 @@ const TasksPage = () => {
         {/* Calendar Navigation */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            {currentMonth.toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric'
-          })}
+            {formatDate(currentDate)}
           </h2>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full" onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center space-x-4">
+            {/* View Mode Toggle */}
+            <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as ViewMode)}>
+              <ToggleGroupItem value="day" size="sm">Day</ToggleGroupItem>
+              <ToggleGroupItem value="week" size="sm">Week</ToggleGroupItem>
+              <ToggleGroupItem value="month" size="sm">Month</ToggleGroupItem>
+            </ToggleGroup>
+            
+            {/* Navigation */}
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full" onClick={() => navigate('prev')}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full" onClick={() => navigate('next')}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Large Calendar Grid */}
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 shadow-sm">
-          {/* Week Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-4">
-            {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => <div key={day} className="text-center py-3 text-sm font-semibold text-gray-600">
-                {day}
-              </div>)}
-          </div>
-
-          {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-1">
-            {getDaysInMonth(currentMonth).map((day, index) => <div key={index} className="aspect-square">
-                {day && <div className={cn("h-full min-h-[120px] p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-all cursor-pointer", day === 3 ? "bg-blue-50 border-blue-200 shadow-sm" : "bg-gray-50/50 hover:bg-gray-50")}>
-                    <div className={cn("text-sm font-semibold mb-2", day === 3 ? "text-blue-600" : "text-gray-700")}>
-                      {day}
-                    </div>
-                    
-                    {/* Sample events for May 3rd */}
-                    {day === 3 && <div className="space-y-1">
-                        <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-medium">
-                          UI Design
-                        </div>
-                        <div className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-md font-medium">
-                          Live Band
-                        </div>
-                        <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-medium">
-                          Meeting
-                        </div>
-                      </div>}
-                    
-                    {/* Sample events for other days */}
-                    {day === 15 && <div className="space-y-1">
-                        <div className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md font-medium">
-                          Team Sync
-                        </div>
-                      </div>}
-                    
-                    {day === 22 && <div className="space-y-1">
-                        <div className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md font-medium">
-                          Review
-                        </div>
-                      </div>}
-                  </div>}
-              </div>)}
-          </div>
+          {renderCalendarView()}
         </div>
 
         {/* Today's Tasks Summary */}
