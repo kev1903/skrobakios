@@ -162,8 +162,8 @@ const TasksPage = () => {
     }
   };
 
-  const renderDayView = () => {
-    return <DayTimelineView 
+  const renderDayView = () => (
+    <DayTimelineView 
       currentDate={currentDate} 
       tasks={userTasks}
       onTaskUpdate={async (taskId, updates) => {
@@ -176,8 +176,8 @@ const TasksPage = () => {
           console.error('Failed to update task:', error);
         }
       }}
-    />;
-  };
+    />
+  );
 
   const renderWeekView = () => {
     const weekDays = getWeekDays(currentDate);
@@ -303,8 +303,8 @@ const TasksPage = () => {
     }
   };
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
+      <DragDropContext onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
       <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm">
         {/* Return to Home Button */}
@@ -487,8 +487,8 @@ const TasksPage = () => {
         {/* Gallery */}
         
       </div>
+      </DragDropContext>
     </div>
-    </DragDropContext>
   );
 };
 export default TasksPage;
