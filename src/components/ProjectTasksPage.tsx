@@ -442,63 +442,15 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         // Main content area
         let yPos = 60;
         
-        // Load and display task attachment/image
-        try {
-          const { data: attachments } = await supabase
-            .from('task_attachments')
-            .select('*')
-            .eq('task_id', task.id);
-            
-          if (attachments && attachments.length > 0) {
-            const firstAttachment = attachments[0];
-            if (firstAttachment.file_type?.startsWith('image/')) {
-              try {
-                const imageWidth = 120;
-                const imageHeight = 90;
-                pdf.addImage(
-                  firstAttachment.file_url, 
-                  'JPEG', 
-                  20, 
-                  yPos, 
-                  imageWidth, 
-                  imageHeight
-                );
-              } catch (imageError) {
-                // Fallback placeholder
-                pdf.setFillColor(240, 240, 240);
-                pdf.rect(20, yPos, 120, 90, 'F');
-                pdf.setDrawColor(200, 200, 200);
-                pdf.rect(20, yPos, 120, 90);
-                pdf.setFontSize(12);
-                pdf.setTextColor(120, 120, 120);
-                pdf.text('Image Preview', 80, yPos + 50, { align: 'center' });
-                pdf.setTextColor(0, 0, 0);
-              }
-            } else {
-              // File placeholder
-              pdf.setFillColor(245, 245, 245);
-              pdf.rect(20, yPos, 120, 90, 'F');
-              pdf.setDrawColor(200, 200, 200);
-              pdf.rect(20, yPos, 120, 90);
-              pdf.setFontSize(12);
-              pdf.setTextColor(100, 100, 100);
-              pdf.text('File Attachment', 80, yPos + 50, { align: 'center' });
-              pdf.setTextColor(0, 0, 0);
-            }
-          } else {
-            // No attachment placeholder
-            pdf.setFillColor(250, 250, 250);
-            pdf.rect(20, yPos, 120, 90, 'F');
-            pdf.setDrawColor(220, 220, 220);
-            pdf.rect(20, yPos, 120, 90);
-            pdf.setFontSize(10);
-            pdf.setTextColor(150, 150, 150);
-            pdf.text('No Preview Available', 80, yPos + 50, { align: 'center' });
-            pdf.setTextColor(0, 0, 0);
-          }
-        } catch (error) {
-          console.warn('Could not load attachments for task:', task.taskName);
-        }
+        // Display task attachment/image placeholder (synchronous for PDF stability)
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(20, yPos, 120, 90, 'F');
+        pdf.setDrawColor(220, 220, 220);
+        pdf.rect(20, yPos, 120, 90);
+        pdf.setFontSize(10);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text('Task Preview', 80, yPos + 50, { align: 'center' });
+        pdf.setTextColor(0, 0, 0);
         
         // Task details panel
         const detailsX = 150;
@@ -562,47 +514,11 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         pdf.setLineWidth(0.5);
         pdf.line(20, 175, pageWidth - 20, 175);
         
-        // Load and display comments
-        try {
-          const { data: comments } = await supabase
-            .from('task_comments')
-            .select('*')
-            .eq('task_id', task.id)
-            .order('created_at', { ascending: false })
-            .limit(3);
-            
-          let commentY = 185;
-          
-          if (comments && comments.length > 0) {
-            pdf.setFontSize(9);
-            pdf.setFont('helvetica', 'normal');
-            
-            comments.forEach((comment, index) => {
-              if (commentY > pageHeight - 60) return; // Stop if near page bottom
-              
-              const userName = comment.user_name || 'Unknown User';
-              const commentDate = new Date(comment.created_at).toLocaleDateString();
-              
-              pdf.setTextColor(100, 100, 100);
-              pdf.text(`${userName} - ${commentDate}`, 20, commentY);
-              commentY += 6;
-              
-              pdf.setTextColor(60, 60, 60);
-              const wrappedComment = pdf.splitTextToSize(comment.comment, pageWidth - 60);
-              pdf.text(wrappedComment, 20, commentY);
-              commentY += wrappedComment.length * 4 + 8;
-            });
-          } else {
-            pdf.setFontSize(9);
-            pdf.setTextColor(120, 120, 120);
-            pdf.text('No comments available', 20, commentY);
-          }
-        } catch (error) {
-          console.warn('Could not load comments for task:', task.taskName);
-          pdf.setFontSize(9);
-          pdf.setTextColor(120, 120, 120);
-          pdf.text('Comments could not be loaded', 20, 185);
-        }
+        // Static comments placeholder for now (to avoid async issues)
+        pdf.setFontSize(9);
+        pdf.setTextColor(120, 120, 120);
+        pdf.text('Comments section - check task details in app', 20, 185);
+        pdf.setTextColor(0, 0, 0);
       }
       
       // Save the PDF
