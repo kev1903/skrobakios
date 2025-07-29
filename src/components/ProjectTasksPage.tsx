@@ -190,10 +190,23 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       
       if (projectBanner) {
         try {
-          // Calculate banner dimensions to fit page width
+          // Get banner image dimensions to maintain aspect ratio
+          const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+              img.onerror = reject;
+              img.src = url;
+            });
+          };
+          
+          const bannerDimensions = await getBannerDimensions(projectBanner);
+          const bannerAspectRatio = bannerDimensions.width / bannerDimensions.height;
+          
+          // Calculate banner dimensions to fit page width while maintaining aspect ratio
           const bannerMargin = 20;
           const bannerWidth = pageWidth - (2 * bannerMargin);
-          const bannerHeight = 60; // Fixed height for consistent layout
+          const bannerHeight = bannerWidth / bannerAspectRatio;
           
           pdf.addImage(
             projectBanner, 
