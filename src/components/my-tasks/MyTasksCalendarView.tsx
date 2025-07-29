@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { format, isSameDay, addDays } from 'date-fns';
 import { Search, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Task } from '../tasks/types';
+import { DayTimelineView } from '../tasks/DayTimelineView';
 
 interface MyTasksCalendarViewProps {
   tasks: Task[];
@@ -279,75 +280,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               </h2>
             </div>
 
-            {/* Day Content */}
-            <Card className="min-h-[400px]">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">
-                  {format(currentDate, 'EEEE, MMMM d')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Droppable droppableId="day-area">
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`min-h-[300px] rounded-lg border-2 border-dashed transition-colors p-4 ${
-                        snapshot.isDraggingOver
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border bg-muted/20'
-                      }`}
-                    >
-                      {dayTasks.length > 0 ? (
-                        <div className="space-y-3">
-                          {dayTasks.map((task, index) => (
-                            <div
-                              key={task.id}
-                              className="p-4 rounded-lg bg-card border hover:shadow-md transition-shadow cursor-pointer"
-                              onClick={() => onTaskClick(task)}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="space-y-2">
-                                  <h4 className="font-medium">{task.taskName}</h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    {task.projectName}
-                                  </p>
-                                  <div className="flex gap-2">
-                                    <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                                      {task.taskType}
-                                    </Badge>
-                                    <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                      {task.priority}
-                                    </Badge>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <div className="text-sm text-muted-foreground">
-                                    Progress: {task.progress}%
-                                  </div>
-                                  <div className="w-20 bg-muted rounded-full h-2 mt-1">
-                                    <div 
-                                      className="h-2 bg-primary rounded-full transition-all"
-                                      style={{ width: `${task.progress}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                          <p className="text-lg font-medium mb-2">No tasks scheduled</p>
-                          <p className="text-sm">Drag tasks from the backlog to schedule them for this day</p>
-                        </div>
-                      )}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </CardContent>
-            </Card>
+            {/* Day Timeline Content */}
+            <DayTimelineView currentDate={currentDate} />
           </div>
         </div>
       </div>
