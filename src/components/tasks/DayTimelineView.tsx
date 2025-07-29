@@ -161,39 +161,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                >
                                 <Card className={`w-48 ${getStatusColor(task.status)} border-2 cursor-grab active:cursor-grabbing select-none`}>
                                   <CardContent className="p-3">
-                                    <div className="space-y-2">
-                                      <div className="flex items-start justify-between">
-                                        <h4 className="text-sm font-medium line-clamp-2">
-                                          {task.taskName}
-                                        </h4>
-                                        <Badge variant="outline" className={`ml-2 ${getPriorityColor(task.priority)} text-xs`}>
-                                          {task.priority}
-                                        </Badge>
-                                      </div>
-                                      
-                                      <div className="flex items-center justify-between text-xs">
-                                        <span className="text-muted-foreground">
-                                          {task.assignedTo.name}
-                                        </span>
-                                        <div className="flex items-center gap-1">
-                                          <div className="w-12 bg-muted rounded-full h-2">
-                                            <div 
-                                              className="h-2 bg-primary rounded-full transition-all"
-                                              style={{ width: `${task.progress}%` }}
-                                            />
-                                          </div>
-                                          <span className="text-muted-foreground">
-                                            {task.progress}%
-                                          </span>
-                                        </div>
-                                      </div>
-                                      
-                                      {task.description && (
-                                        <p className="text-xs text-muted-foreground line-clamp-2">
-                                          {task.description}
-                                        </p>
-                                      )}
-                                    </div>
+                                     <div className="space-y-2">
+                                       {/* Task Name */}
+                                       <h4 className="text-sm font-medium line-clamp-2 text-foreground">
+                                         {task.taskName}
+                                       </h4>
+                                       
+                                       {/* Project Name */}
+                                       <p className="text-xs text-muted-foreground truncate">
+                                         {task.projectName || 'No Project'}
+                                       </p>
+                                       
+                                       {/* Due Date */}
+                                       <p className="text-xs text-muted-foreground">
+                                         {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy HH:mm') : 'No due date'}
+                                       </p>
+                                     </div>
                                   </CardContent>
                                 </Card>
                               </div>
