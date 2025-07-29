@@ -141,6 +141,8 @@ const TasksPage = () => {
     const { destination, source, draggableId } = result;
     
     console.log('🔄 Drag end result:', { destination, source, draggableId });
+    console.log('🎯 Source droppableId:', source.droppableId);
+    console.log('🎯 Destination droppableId:', destination?.droppableId);
 
     if (!destination) return;
 
@@ -190,14 +192,16 @@ const TasksPage = () => {
       if (task) {
         console.log('🔙 Moving task back to backlog:', task.taskName);
         
-        try {
-          // Set due date to just the current date without specific time (midnight)
-          const dateOnly = new Date(currentDate);
-          dateOnly.setHours(0, 0, 0, 0);
-          
-          await taskService.updateTask(task.id, {
-            dueDate: dateOnly.toISOString()
-          }, userProfile);
+         try {
+           // Set due date to just the current date without specific time (midnight UTC)
+           const dateOnly = new Date(currentDate);
+           dateOnly.setUTCHours(0, 0, 0, 0); // Explicitly set UTC midnight
+           
+           console.log('⏰ Setting backlog task datetime to:', dateOnly.toISOString());
+           
+           await taskService.updateTask(task.id, {
+             dueDate: dateOnly.toISOString()
+           }, userProfile);
           
           console.log('✅ Task moved back to backlog successfully');
           
@@ -399,11 +403,16 @@ const TasksPage = () => {
           </div>
 
           <Droppable droppableId="task-backlog">
-            {(provided) => (
+            {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className="space-y-2"
+                className={cn(
+                  "space-y-2 min-h-[100px] p-2 rounded-lg transition-colors",
+                  snapshot.isDraggingOver 
+                    ? "bg-green-50 border-2 border-dashed border-green-300" 
+                    : "border-2 border-transparent"
+                )}
               >
                 {loading ? (
                   <div className="text-center py-4">
@@ -423,10 +432,11 @@ const TasksPage = () => {
                       // Then filter to show only unscheduled tasks (no specific time) in backlog
                       if (!task.dueDate) return true; // Tasks without due date go to backlog
                       
-                      try {
-                        const taskDateTime = new Date(task.dueDate);
-                        // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
-                        return taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0;
+                       try {
+                         const taskDateTime = new Date(task.dueDate);
+                         console.log('🕐 Backlog filter - Task:', task.taskName, 'Date:', task.dueDate, 'Parsed Hours:', taskDateTime.getUTCHours(), 'Minutes:', taskDateTime.getUTCMinutes());
+                         // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
+                         return taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0;
                       } catch (error) {
                         console.error('Error parsing task date for backlog filter:', task.dueDate, error);
                         return true; // If we can't parse the date, show it in backlog as fallback
