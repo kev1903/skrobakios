@@ -184,8 +184,33 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       // Cover Page
       addHeaderFooter(pdf, pageNumber, true);
       
-      // Cover page content with better spacing
+      // Add project banner if available
+      const projectBanner = localStorage.getItem(`project_banner_${project.id}`);
       let yPos = 70;
+      
+      if (projectBanner) {
+        try {
+          // Calculate banner dimensions to fit page width
+          const bannerMargin = 20;
+          const bannerWidth = pageWidth - (2 * bannerMargin);
+          const bannerHeight = 60; // Fixed height for consistent layout
+          
+          pdf.addImage(
+            projectBanner, 
+            'JPEG', 
+            bannerMargin, 
+            yPos, 
+            bannerWidth, 
+            bannerHeight
+          );
+          
+          yPos += bannerHeight + 20; // Add spacing after banner
+        } catch (bannerError) {
+          console.warn('Could not add project banner to PDF:', bannerError);
+        }
+      }
+      
+      // Cover page content with better spacing
       
       if (fullCompanyData?.address) {
         pdf.setFontSize(11);
