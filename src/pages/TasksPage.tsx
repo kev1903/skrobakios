@@ -174,6 +174,36 @@ const TasksPage = () => {
         console.error('❌ Task not found for ID:', taskId);
       }
     }
+    
+    // Handle drop back to task backlog (remove time assignment)
+    if (destination.droppableId === 'task-backlog') {
+      const taskId = draggableId.replace('timeline-', ''); // Remove timeline prefix to get actual task ID
+      const task = userTasks.find(t => t.id === taskId);
+      
+      if (task) {
+        console.log('🔙 Moving task back to backlog:', task.taskName);
+        
+        try {
+          // Set due date to just the current date without specific time (midnight)
+          const dateOnly = new Date(currentDate);
+          dateOnly.setHours(0, 0, 0, 0);
+          
+          await taskService.updateTask(task.id, {
+            dueDate: dateOnly.toISOString()
+          }, userProfile);
+          
+          console.log('✅ Task moved back to backlog successfully');
+          
+          // Reload tasks to reflect changes
+          const updatedTasks = await taskService.loadTasksAssignedToUser();
+          setUserTasks(updatedTasks);
+        } catch (error) {
+          console.error('❌ Failed to move task back to backlog:', error);
+        }
+      } else {
+        console.error('❌ Task not found for backlog drop:', taskId);
+      }
+    }
   };
 
   const renderDayView = () => (
@@ -361,7 +391,7 @@ const TasksPage = () => {
             </button>
           </div>
 
-          <Droppable droppableId="task-backlog" isDropDisabled={true}>
+          <Droppable droppableId="task-backlog">
             {(provided) => (
               <div
                 ref={provided.innerRef}
