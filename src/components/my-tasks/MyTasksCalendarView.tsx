@@ -281,7 +281,11 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
             </div>
 
             {/* Day Timeline Content */}
-            <DayTimelineView currentDate={currentDate} />
+            <DayTimelineView 
+              currentDate={currentDate} 
+              tasks={tasks}
+              onTaskUpdate={onTaskUpdate}
+            />
           </div>
         </div>
       </div>

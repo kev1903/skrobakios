@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes } from 'date-fns';
 import { Clock, Plus } from 'lucide-react';
-import { useTaskContext } from './useTaskContext';
 import { Task } from './types';
 
 interface DayTimelineViewProps {
   currentDate: Date;
+  tasks?: Task[];
+  onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
 }
 
 interface TimeSlot {
@@ -18,8 +19,11 @@ interface TimeSlot {
   tasks: Task[];
 }
 
-export const DayTimelineView: React.FC<DayTimelineViewProps> = ({ currentDate }) => {
-  const { tasks, updateTask } = useTaskContext();
+export const DayTimelineView: React.FC<DayTimelineViewProps> = ({ 
+  currentDate, 
+  tasks = [], 
+  onTaskUpdate 
+}) => {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
 
   // Generate 24-hour time slots
@@ -103,16 +107,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({ currentDate })
     if (task) {
       const newDateTime = setHours(setMinutes(new Date(currentDate), 0), destinationHour);
       try {
-        await updateTask(task.id, {
-          dueDate: newDateTime.toISOString().split('T')[0]
-        });
+        if (onTaskUpdate) {
+          await onTaskUpdate(task.id, {
+            dueDate: newDateTime.toISOString().split('T')[0]
+          });
+        }
       } catch (error) {
         console.error('Failed to update task:', error);
         // Revert the local state on error
         setTimeSlots(generateTimeSlots());
       }
     }
-  }, [currentDate, tasks, updateTask, generateTimeSlots]);
+  }, [currentDate, tasks, onTaskUpdate, generateTimeSlots]);
 
   React.useEffect(() => {
     setTimeSlots(generateTimeSlots());

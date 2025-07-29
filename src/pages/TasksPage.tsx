@@ -129,7 +129,20 @@ const TasksPage = () => {
   };
 
   const renderDayView = () => {
-    return <DayTimelineView currentDate={currentDate} />;
+    return <DayTimelineView 
+      currentDate={currentDate} 
+      tasks={userTasks}
+      onTaskUpdate={async (taskId, updates) => {
+        try {
+          await taskService.updateTask(taskId, updates, null);
+          // Reload tasks to reflect changes
+          const updatedTasks = await taskService.loadTasksAssignedToUser();
+          setUserTasks(updatedTasks);
+        } catch (error) {
+          console.error('Failed to update task:', error);
+        }
+      }}
+    />;
   };
 
   const renderWeekView = () => {
