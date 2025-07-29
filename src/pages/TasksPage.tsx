@@ -269,9 +269,10 @@ const TasksPage = () => {
           return (
             <div
               key={index}
-              className={`min-h-[120px] p-2 border border-gray-100 bg-white hover:bg-gray-50 ${
+              className={`min-h-[120px] p-2 border border-gray-100 bg-white hover:bg-gray-50 cursor-pointer transition-colors ${
                 isToday ? 'bg-blue-50 border-blue-200' : ''
               }`}
+              onClick={() => setCurrentDate(day)}
             >
               <div className={`text-sm font-medium mb-2 ${
                 isToday ? 'text-blue-600' : 'text-foreground'
@@ -279,17 +280,34 @@ const TasksPage = () => {
                 {day.getDate()}
               </div>
               <div className="space-y-1">
-                {dayTasks.slice(0, 3).map(task => (
-                  <div
-                    key={task.id}
-                    className="text-xs p-1 rounded truncate bg-blue-100 text-blue-800"
-                    title={task.taskName}
-                  >
-                    {task.taskName}
-                  </div>
-                ))}
+                {dayTasks.slice(0, 3).map(task => {
+                  const taskTime = new Date(task.dueDate);
+                  const hasSpecificTime = !(taskTime.getUTCHours() === 0 && taskTime.getUTCMinutes() === 0);
+                  
+                  return (
+                    <div
+                      key={task.id}
+                      className="text-xs p-1.5 rounded border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                      title={`${task.taskName} - ${task.projectName || 'No Project'}${hasSpecificTime ? ` at ${format(taskTime, 'HH:mm')}` : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Could add task click handler here
+                      }}
+                    >
+                      <div className="font-medium truncate">{task.taskName}</div>
+                      {hasSpecificTime && (
+                        <div className="text-muted-foreground">
+                          {format(taskTime, 'HH:mm')}
+                        </div>
+                      )}
+                      <div className="text-muted-foreground truncate">
+                        {task.projectName || 'No Project'}
+                      </div>
+                    </div>
+                  );
+                })}
                 {dayTasks.length > 3 && (
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
                     +{dayTasks.length - 3} more
                   </div>
                 )}
@@ -310,7 +328,7 @@ const TasksPage = () => {
         {/* Week Headers */}
         <div className="grid grid-cols-7 gap-1 mb-4">
           {weekHeaders.map(day => (
-            <div key={day} className="text-center py-3 text-sm font-semibold text-gray-600">
+            <div key={day} className="text-center py-3 text-sm font-semibold text-muted-foreground">
               {day}
             </div>
           ))}
@@ -325,29 +343,49 @@ const TasksPage = () => {
             return (
               <div key={index} className="aspect-square">
                 {day && (
-                  <div className={cn(
-                    "h-full min-h-[120px] p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-all cursor-pointer",
-                    isToday ? "bg-blue-50 border-blue-200 shadow-sm" : "bg-gray-50/50 hover:bg-gray-50"
-                  )}>
+                  <div 
+                    className={cn(
+                      "h-full min-h-[120px] p-3 rounded-xl border hover:border-gray-200 transition-all cursor-pointer",
+                      isToday ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-card hover:bg-muted/30 border-border"
+                    )}
+                    onClick={() => {
+                      setCurrentDate(day);
+                      setViewMode('day'); // Switch to day view when clicking a day
+                    }}
+                  >
                     <div className={cn(
                       "text-sm font-semibold mb-2",
-                      isToday ? "text-blue-600" : "text-gray-700"
+                      isToday ? "text-primary" : "text-foreground"
                     )}>
                       {day.getDate()}
                     </div>
                     
                     <div className="space-y-1">
-                      {dayTasks.slice(0, 2).map(task => (
-                        <div
-                          key={task.id}
-                          className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-medium truncate"
-                          title={task.taskName}
-                        >
-                          {task.taskName}
-                        </div>
-                      ))}
+                      {dayTasks.slice(0, 2).map(task => {
+                        const taskTime = new Date(task.dueDate);
+                        const hasSpecificTime = !(taskTime.getUTCHours() === 0 && taskTime.getUTCMinutes() === 0);
+                        
+                        return (
+                          <div
+                            key={task.id}
+                            className="text-xs p-1.5 rounded border bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                            title={`${task.taskName} - ${task.projectName || 'No Project'}${hasSpecificTime ? ` at ${format(taskTime, 'HH:mm')}` : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Could add task click handler here
+                            }}
+                          >
+                            <div className="font-medium truncate">{task.taskName}</div>
+                            {hasSpecificTime && (
+                              <div className="text-xs opacity-75">
+                                {format(taskTime, 'HH:mm')}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                       {dayTasks.length > 2 && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
                           +{dayTasks.length - 2} more
                         </div>
                       )}
