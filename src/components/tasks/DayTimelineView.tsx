@@ -141,17 +141,25 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         {slot.tasks.map((task, index) => (
                           <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
                             {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`transition-all duration-200 ${
-                                  snapshot.isDragging 
-                                    ? 'rotate-2 scale-105 shadow-lg z-50' 
-                                    : 'hover:scale-105'
-                                }`}
-                              >
-                                <Card className={`w-48 ${getStatusColor(task.status)} border-2 cursor-grab active:cursor-grabbing`}>
+                               <div
+                                 ref={provided.innerRef}
+                                 {...provided.draggableProps}
+                                 {...provided.dragHandleProps}
+                                 data-dragging={snapshot.isDragging}
+                                 className={`transition-all duration-200 ${
+                                   snapshot.isDragging 
+                                     ? 'shadow-xl opacity-90' 
+                                     : 'hover:shadow-md'
+                                 }`}
+                                 style={{
+                                   ...provided.draggableProps.style,
+                                   // Ensure proper cursor tracking during drag
+                                   transform: snapshot.isDragging 
+                                     ? provided.draggableProps.style?.transform 
+                                     : provided.draggableProps.style?.transform
+                                 }}
+                               >
+                                <Card className={`w-48 ${getStatusColor(task.status)} border-2 cursor-grab active:cursor-grabbing select-none`}>
                                   <CardContent className="p-3">
                                     <div className="space-y-2">
                                       <div className="flex items-start justify-between">

@@ -287,3 +287,47 @@
     -ms-overflow-style: none;
   }
 }
+
+/* React Beautiful DnD optimizations for precise cursor tracking */
+.dragging-optimized {
+  pointer-events: none !important;
+  transform-origin: center center !important;
+}
+
+/* Ensure drag elements follow cursor precisely */
+[data-rbd-drag-handle-draggable-id] {
+  cursor: grab !important;
+  user-select: none !important;
+}
+
+[data-rbd-drag-handle-draggable-id]:active {
+  cursor: grabbing !important;
+}
+
+/* Fix for drag portal positioning */
+[data-rbd-draggable-context-id] {
+  position: relative !important;
+}
+
+/* Prevent text selection during drag */
+[data-rbd-draggable-id] {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Optimize drag performance */
+[data-rbd-draggable-id][data-rbd-draggable-context-id] {
+  will-change: transform !important;
+}
+
+/* Fix offset issues during drag */
+body[data-rbd-drag-occurring="true"] {
+  cursor: grabbing !important;
+}
+
+/* Ensure proper layering during drag */
+[data-rbd-draggable-id][style*="transform"] {
+  z-index: 9999 !important;
+}

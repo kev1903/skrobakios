@@ -438,13 +438,21 @@ const TasksPage = () => {
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={cn(
-                              "px-3 py-2 rounded-lg cursor-pointer transition-colors group border border-gray-100/50",
-                              snapshot.isDragging 
-                                ? "bg-blue-50 border-blue-200 shadow-lg rotate-2 scale-105" 
-                                : "hover:bg-gray-50/50"
-                            )}
+                             {...provided.dragHandleProps}
+                             data-dragging={snapshot.isDragging}
+                             className={cn(
+                               "px-3 py-2 rounded-lg cursor-grab transition-colors group border border-gray-100/50",
+                               snapshot.isDragging 
+                                 ? "bg-blue-50 border-blue-200 shadow-xl opacity-90" 
+                                 : "hover:bg-gray-50/50 active:cursor-grabbing"
+                             )}
+                             style={{
+                               ...provided.draggableProps.style,
+                               // Remove transform offset issues during drag
+                               transform: snapshot.isDragging 
+                                 ? provided.draggableProps.style?.transform 
+                                 : provided.draggableProps.style?.transform
+                             }}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
