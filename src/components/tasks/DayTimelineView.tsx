@@ -115,7 +115,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     >
                       <div className="flex flex-wrap gap-2 p-1">
                         {slot.tasks.map((task, index) => (
-                          <Draggable key={task.id} draggableId={task.id} index={index}>
+                          <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
                             {(provided, snapshot) => (
                               <div
                                 ref={provided.innerRef}

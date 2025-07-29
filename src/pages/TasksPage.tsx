@@ -140,7 +140,8 @@ const TasksPage = () => {
     // Handle drop on timeline slots (format: "timeline-HOUR")
     if (destination.droppableId.startsWith('timeline-')) {
       const hour = parseInt(destination.droppableId.replace('timeline-', ''));
-      const task = userTasks.find(t => t.id === draggableId);
+      const taskId = draggableId.replace('backlog-', ''); // Remove prefix to get actual task ID
+      const task = userTasks.find(t => t.id === taskId);
       
       if (task) {
         // Create new date with the selected hour
@@ -366,7 +367,7 @@ const TasksPage = () => {
                   userTasks
                     .filter(task => activeTab === 'All' || task.taskType === activeTab)
                     .map((task, index) => (
-                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                      <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
                         {(provided, snapshot) => (
                           <div
                             ref={provided.innerRef}
