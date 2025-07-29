@@ -167,17 +167,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                      : provided.draggableProps.style?.transform
                                  }}
                                >
-                                <Card className={`w-32 h-8 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
-                                  <CardContent className="p-1 h-full flex flex-col justify-center">
-                                     <div className="space-y-1">
-                                       {/* Task Name */}
-                                       <h4 className="text-xs font-medium line-clamp-1 text-foreground">
+                                <Card className={`w-36 h-10 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
+                                  <CardContent className="px-2 py-1 h-full flex flex-col justify-center gap-0.5">
+                                     <div className="flex flex-col">
+                                       {/* Task Name - Primary, more prominent */}
+                                       <h4 className="text-xs font-semibold line-clamp-1 text-foreground leading-tight">
                                          {task.taskName}
                                        </h4>
                                        
-                                       {/* Project Name */}
-                                       <p className="text-xs text-muted-foreground truncate">
-                                         {task.projectName || 'No Project'}
+                                       {/* Project Name - Secondary, subtle */}
+                                       <p className="text-xs text-muted-foreground/80 truncate leading-tight font-normal">
+                                         {task.projectName || "No Project"}
                                        </p>
                                      </div>
                                   </CardContent>
