@@ -244,12 +244,12 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       const rowHeight = 30;
       const previewSize = 20;
       
-      // Column positions and widths - professionally aligned
+      // Column positions and widths - professionally aligned with better spacing
       const columns = [
-        { header: 'Preview', x: 20, width: 35, align: 'center' as const },
-        { header: '#', x: 55, width: 20, align: 'left' as const },
-        { header: 'Task Name', x: 75, width: 60, align: 'left' as const },
-        { header: 'Assigned to', x: 135, width: 35, align: 'left' as const },
+        { header: 'Preview', x: 20, width: 30, align: 'center' as const },
+        { header: '#', x: 50, width: 25, align: 'left' as const },
+        { header: 'Task Name', x: 75, width: 65, align: 'left' as const },
+        { header: 'Assigned to', x: 140, width: 30, align: 'left' as const },
         { header: 'Priority', x: 170, width: 25, align: 'center' as const },
         { header: 'Status', x: 195, width: 25, align: 'center' as const }
       ];
@@ -375,8 +375,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         pdf.setTextColor(40, 40, 40);
         
         const taskNumber = task.task_number || `${i + 1}`;
-        const taskName = task.taskName.length > 30 ? task.taskName.substring(0, 30) + '...' : task.taskName;
-        const assignedTo = task.assignedTo.name.length > 18 ? task.assignedTo.name.substring(0, 18) + '...' : task.assignedTo.name;
+        const taskName = task.taskName.length > 35 ? task.taskName.substring(0, 35) + '...' : task.taskName;
+        const assignedTo = task.assignedTo.name.length > 15 ? task.assignedTo.name.substring(0, 15) + '...' : task.assignedTo.name;
         
         // Task data with proper vertical alignment
         const textY = yPosition + 15; // Center text vertically in row
