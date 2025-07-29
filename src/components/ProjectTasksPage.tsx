@@ -412,6 +412,199 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         yPosition += rowHeight;
       }
       
+      // Add individual task pages
+      for (let i = 0; i < selectedTasks.length; i++) {
+        const task = selectedTasks[i];
+        
+        pdf.addPage();
+        pageNumber++;
+        addHeaderFooter(pdf, pageNumber);
+        
+        // Task header
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(30, 30, 30);
+        const taskNumber = task.task_number || `${i + 1}`;
+        pdf.text(`${taskNumber}. ${task.taskName}`, 20, 45);
+        
+        // Task status badge
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        const statusColor = task.status === 'Completed' ? [22, 163, 74] :
+                           task.status === 'In Progress' ? [59, 130, 246] :
+                           task.status === 'Not Started' ? [107, 114, 128] : [220, 38, 38];
+        pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
+        pdf.text(task.status, pageWidth - 20, 45, { align: 'right' });
+        
+        // Reset text color
+        pdf.setTextColor(0, 0, 0);
+        
+        // Main content area
+        let yPos = 60;
+        
+        // Load and display task attachment/image
+        try {
+          const { data: attachments } = await supabase
+            .from('task_attachments')
+            .select('*')
+            .eq('task_id', task.id);
+            
+          if (attachments && attachments.length > 0) {
+            const firstAttachment = attachments[0];
+            if (firstAttachment.file_type?.startsWith('image/')) {
+              try {
+                const imageWidth = 120;
+                const imageHeight = 90;
+                pdf.addImage(
+                  firstAttachment.file_url, 
+                  'JPEG', 
+                  20, 
+                  yPos, 
+                  imageWidth, 
+                  imageHeight
+                );
+              } catch (imageError) {
+                // Fallback placeholder
+                pdf.setFillColor(240, 240, 240);
+                pdf.rect(20, yPos, 120, 90, 'F');
+                pdf.setDrawColor(200, 200, 200);
+                pdf.rect(20, yPos, 120, 90);
+                pdf.setFontSize(12);
+                pdf.setTextColor(120, 120, 120);
+                pdf.text('Image Preview', 80, yPos + 50, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
+              }
+            } else {
+              // File placeholder
+              pdf.setFillColor(245, 245, 245);
+              pdf.rect(20, yPos, 120, 90, 'F');
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(20, yPos, 120, 90);
+              pdf.setFontSize(12);
+              pdf.setTextColor(100, 100, 100);
+              pdf.text('File Attachment', 80, yPos + 50, { align: 'center' });
+              pdf.setTextColor(0, 0, 0);
+            }
+          } else {
+            // No attachment placeholder
+            pdf.setFillColor(250, 250, 250);
+            pdf.rect(20, yPos, 120, 90, 'F');
+            pdf.setDrawColor(220, 220, 220);
+            pdf.rect(20, yPos, 120, 90);
+            pdf.setFontSize(10);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text('No Preview Available', 80, yPos + 50, { align: 'center' });
+            pdf.setTextColor(0, 0, 0);
+          }
+        } catch (error) {
+          console.warn('Could not load attachments for task:', task.taskName);
+        }
+        
+        // Task details panel
+        const detailsX = 150;
+        let detailsY = yPos;
+        
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        
+        // Task details
+        pdf.text('Description:', detailsX, detailsY);
+        detailsY += 8;
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(80, 80, 80);
+        const description = task.description || 'No description provided';
+        const wrappedDescription = pdf.splitTextToSize(description, 45);
+        pdf.text(wrappedDescription, detailsX, detailsY);
+        detailsY += wrappedDescription.length * 5 + 10;
+        
+        // Assigned to
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text('Assigned to:', detailsX, detailsY);
+        detailsY += 8;
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(80, 80, 80);
+        pdf.text(task.assignedTo.name, detailsX, detailsY);
+        detailsY += 15;
+        
+        // Priority
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text('Priority:', detailsX, detailsY);
+        detailsY += 8;
+        pdf.setFont('helvetica', 'normal');
+        const priorityColor = task.priority === 'High' ? [220, 38, 38] : 
+                             task.priority === 'Medium' ? [180, 83, 9] : [22, 163, 74];
+        pdf.setTextColor(priorityColor[0], priorityColor[1], priorityColor[2]);
+        pdf.text(task.priority, detailsX, detailsY);
+        detailsY += 15;
+        
+        // Due date
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text('Due Date:', detailsX, detailsY);
+        detailsY += 8;
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(80, 80, 80);
+        const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'Not set';
+        pdf.text(dueDate, detailsX, detailsY);
+        detailsY += 15;
+        
+        // Comments section
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(30, 30, 30);
+        pdf.text('Comments', 20, 170);
+        
+        // Comments separator line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 175, pageWidth - 20, 175);
+        
+        // Load and display comments
+        try {
+          const { data: comments } = await supabase
+            .from('task_comments')
+            .select('*')
+            .eq('task_id', task.id)
+            .order('created_at', { ascending: false })
+            .limit(3);
+            
+          let commentY = 185;
+          
+          if (comments && comments.length > 0) {
+            pdf.setFontSize(9);
+            pdf.setFont('helvetica', 'normal');
+            
+            comments.forEach((comment, index) => {
+              if (commentY > pageHeight - 60) return; // Stop if near page bottom
+              
+              const userName = comment.user_name || 'Unknown User';
+              const commentDate = new Date(comment.created_at).toLocaleDateString();
+              
+              pdf.setTextColor(100, 100, 100);
+              pdf.text(`${userName} - ${commentDate}`, 20, commentY);
+              commentY += 6;
+              
+              pdf.setTextColor(60, 60, 60);
+              const wrappedComment = pdf.splitTextToSize(comment.comment, pageWidth - 60);
+              pdf.text(wrappedComment, 20, commentY);
+              commentY += wrappedComment.length * 4 + 8;
+            });
+          } else {
+            pdf.setFontSize(9);
+            pdf.setTextColor(120, 120, 120);
+            pdf.text('No comments available', 20, commentY);
+          }
+        } catch (error) {
+          console.warn('Could not load comments for task:', task.taskName);
+          pdf.setFontSize(9);
+          pdf.setTextColor(120, 120, 120);
+          pdf.text('Comments could not be loaded', 20, 185);
+        }
+      }
+      
       // Save the PDF
       pdf.save(`${project.name}_tasks_export_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
