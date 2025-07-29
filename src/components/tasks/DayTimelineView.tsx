@@ -41,29 +41,37 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     
     console.log('📅 Tasks for current date:', dayTasks.length, dayTasks.map(t => ({ name: t.taskName, dueDate: t.dueDate })));
     
-    for (let hour = 0; hour < 24; hour++) {
-      const timeLabel = format(setHours(setMinutes(new Date(), 0), hour), 'HH:mm');
+    // Generate 48 30-minute slots (24 hours × 2)
+    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
+      const hour = Math.floor(slotIndex / 2);
+      const minutes = (slotIndex % 2) * 30;
+      const timeLabel = format(setHours(setMinutes(new Date(), minutes), hour), 'HH:mm');
       
-      // Filter tasks for this specific hour using the datetime stored in dueDate
-      const hourTasks = dayTasks.filter(task => {
+      // Filter tasks for this specific 30-minute slot using the datetime stored in dueDate
+      const slotTasks = dayTasks.filter(task => {
         try {
           const taskDateTime = new Date(task.dueDate);
           if (isNaN(taskDateTime.getTime())) return false; // Invalid date
           
-          // Use UTC hours to avoid timezone conversion issues
-          return taskDateTime.getUTCHours() === hour;
+          // Check if task falls within this 30-minute slot
+          const taskHour = taskDateTime.getUTCHours();
+          const taskMinutes = taskDateTime.getUTCMinutes();
+          
+          return taskHour === hour && 
+                 ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
+                  (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
         } catch (error) {
           console.error('Error parsing task date:', task.dueDate, error);
           return false;
         }
       });
       
-      console.log(`🕐 Hour ${hour} (${timeLabel}):`, hourTasks.length, 'tasks');
+      console.log(`🕐 Slot ${slotIndex} (${timeLabel}):`, slotTasks.length, 'tasks');
       
       slots.push({
-        hour,
+        hour: slotIndex, // Now represents 30-minute slot index instead of hour
         label: timeLabel,
-        tasks: hourTasks
+        tasks: slotTasks
       });
     }
     return slots;
@@ -116,7 +124,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
         <div className="grid grid-cols-1 gap-1 max-h-[600px] overflow-y-auto border border-border rounded-lg bg-card">
           {timeSlots.map((slot) => (
-            <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 h-[70px]">
+            <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 h-[50px]">
               {/* Time Label */}
               <div className="col-span-2 flex items-center justify-center p-2 bg-muted/30 border-r border-border/50">
                 <span className="text-sm font-medium text-muted-foreground">
@@ -131,7 +139,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`h-[54px] rounded-md transition-colors flex items-center ${
+                      className={`h-[34px] rounded-md transition-colors flex items-center ${
                         snapshot.isDraggingOver
                           ? 'bg-primary/10 border-2 border-dashed border-primary/30'
                           : 'bg-background hover:bg-muted/20'
@@ -159,8 +167,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                      : provided.draggableProps.style?.transform
                                  }}
                                >
-                                <Card className={`w-40 h-12 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
-                                  <CardContent className="p-2 h-full flex flex-col justify-center">
+                                <Card className={`w-32 h-8 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
+                                  <CardContent className="p-1 h-full flex flex-col justify-center">
                                      <div className="space-y-1">
                                        {/* Task Name */}
                                        <h4 className="text-xs font-medium line-clamp-1 text-foreground">

@@ -146,20 +146,22 @@ const TasksPage = () => {
 
     if (!destination) return;
 
-    // Handle drop on timeline slots (format: "timeline-HOUR")
+    // Handle drop on timeline slots (format: "timeline-SLOTINDEX") where slotIndex is 30-minute slots
     if (destination.droppableId.startsWith('timeline-')) {
-      const hour = parseInt(destination.droppableId.replace('timeline-', ''));
+      const slotIndex = parseInt(destination.droppableId.replace('timeline-', ''));
+      const hour = Math.floor(slotIndex / 2);
+      const minutes = (slotIndex % 2) * 30;
       const taskId = draggableId.replace('backlog-', ''); // Remove prefix to get actual task ID
       const task = userTasks.find(t => t.id === taskId);
       
       if (task) {
         console.log('📋 Found task to update:', task.taskName);
         
-        // Create datetime with the selected hour for the current date (using UTC to match timeline display)
+        // Create datetime with the selected 30-minute slot for the current date (using UTC to match timeline display)
         const newDateTime = new Date(currentDate);
-        newDateTime.setUTCHours(hour, 0, 0, 0); // Use UTC to match timeline filtering
+        newDateTime.setUTCHours(hour, minutes, 0, 0); // Use UTC with specific minutes
         
-        console.log('⏰ Setting task datetime to:', newDateTime.toISOString(), `(UTC hour: ${hour})`);
+        console.log('⏰ Setting task datetime to:', newDateTime.toISOString(), `(UTC slot: ${hour}:${minutes.toString().padStart(2, '0')})`);
         
         try {
           // Since there's no due_time column, we'll store the full datetime in due_date  
