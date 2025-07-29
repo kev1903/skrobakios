@@ -2,9 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { format, isSameDay, setHours, setMinutes } from 'date-fns';
-import { Clock, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { format, isSameDay, addDays } from 'date-fns';
+import { Search, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Task } from '../tasks/types';
 
 interface MyTasksCalendarViewProps {
@@ -13,71 +14,15 @@ interface MyTasksCalendarViewProps {
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
 }
 
-interface TimeSlot {
-  hour: number;
-  label: string;
-  tasks: Task[];
-}
-
 export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({ 
   tasks, 
   onTaskClick,
   onTaskUpdate 
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
-
-  // Generate 24-hour time slots with tasks distributed by hour
-  const generateTimeSlots = useCallback((): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    const todayTasks = tasks.filter(task => {
-      const taskDate = new Date(task.dueDate);
-      return isSameDay(taskDate, currentDate);
-    });
-
-    for (let hour = 0; hour < 24; hour++) {
-      const timeLabel = format(setHours(setMinutes(new Date(), 0), hour), 'HH:mm');
-      
-      // For now, put all tasks in 9 AM slot as default, in real implementation
-      // this would parse task times or allow user to assign them
-      const hourTasks = hour === 9 ? todayTasks : [];
-      
-      slots.push({
-        hour,
-        label: timeLabel,
-        tasks: hourTasks
-      });
-    }
-    return slots;
-  }, [tasks, currentDate]);
-
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateTimeSlots());
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "high":
-        return "bg-destructive/20 text-destructive border-destructive/30";
-      case "medium":
-        return "bg-warning/20 text-warning border-warning/30";
-      case "low":
-        return "bg-success/20 text-success border-success/30";
-      default:
-        return "bg-muted text-muted-foreground border-border";
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "completed":
-        return "bg-success/10 border-success/20 text-success";
-      case "in progress":
-        return "bg-primary/10 border-primary/20 text-primary";
-      case "pending":
-        return "bg-warning/10 border-warning/20 text-warning";
-      default:
-        return "bg-muted border-border text-muted-foreground";
-    }
-  };
 
   const navigateDate = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {
@@ -85,6 +30,61 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       newDate.setDate(prev.getDate() + (direction === 'next' ? 1 : -1));
       return newDate;
     });
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  // Filter tasks for backlog (all tasks)
+  const getBacklogTasks = () => {
+    return tasks.filter(task => {
+      const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           task.projectName?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (selectedFilter === 'all') return matchesSearch;
+      if (selectedFilter === 'tasks') return matchesSearch && task.taskType === 'Task';
+      if (selectedFilter === 'issues') return matchesSearch && task.taskType === 'Issue';
+      if (selectedFilter === 'bugs') return matchesSearch && task.taskType === 'Bug';
+      if (selectedFilter === 'features') return matchesSearch && task.taskType === 'Feature';
+      return matchesSearch;
+    });
+  };
+
+  // Filter tasks for the selected day
+  const getDayTasks = () => {
+    return tasks.filter(task => {
+      const taskDate = new Date(task.dueDate);
+      return isSameDay(taskDate, currentDate);
+    });
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority.toLowerCase()) {
+      case "high":
+        return "bg-destructive/10 text-destructive border-destructive/20";
+      case "medium":
+        return "bg-warning/10 text-warning border-warning/20";
+      case "low":
+        return "bg-success/10 text-success border-success/20";
+      default:
+        return "bg-muted text-muted-foreground border-border";
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "issue":
+        return "bg-destructive/10 text-destructive";
+      case "task":
+        return "bg-primary/10 text-primary";
+      case "bug":
+        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300";
+      case "feature":
+        return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
   };
 
   const handleDragStart = useCallback((start: any) => {
@@ -99,210 +99,260 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
     if (!destination) return;
 
-    const sourceHour = parseInt(source.droppableId.replace('hour-', ''));
-    const destinationHour = parseInt(destination.droppableId.replace('hour-', ''));
-
-    if (sourceHour === destinationHour) return;
-
-    // Update local state immediately for better UX
-    setTimeSlots(prevSlots => {
-      const newSlots = [...prevSlots];
-      const sourceSlot = newSlots[sourceHour];
-      const destinationSlot = newSlots[destinationHour];
-      
-      const [movedTask] = sourceSlot.tasks.splice(source.index, 1);
-      destinationSlot.tasks.splice(destination.index, 0, movedTask);
-      
-      return newSlots;
-    });
-
-    // Update the task if update function is provided
-    if (onTaskUpdate) {
+    // If dropped on day area, update task date
+    if (destination.droppableId === 'day-area' && onTaskUpdate) {
       const task = tasks.find(t => t.id === draggableId);
       if (task) {
-        const newDateTime = setHours(setMinutes(new Date(currentDate), 0), destinationHour);
         try {
           await onTaskUpdate(task.id, {
-            dueDate: newDateTime.toISOString().split('T')[0]
+            dueDate: currentDate.toISOString().split('T')[0]
           });
         } catch (error) {
           console.error('Failed to update task:', error);
-          // Revert the local state on error
-          setTimeSlots(generateTimeSlots());
         }
       }
     }
-  }, [currentDate, tasks, onTaskUpdate, generateTimeSlots]);
+  }, [currentDate, tasks, onTaskUpdate]);
 
-  React.useEffect(() => {
-    setTimeSlots(generateTimeSlots());
-  }, [generateTimeSlots]);
-
-  const todayTasks = tasks.filter(task => {
-    const taskDate = new Date(task.dueDate);
-    return isSameDay(taskDate, currentDate);
-  });
+  const backlogTasks = getBacklogTasks();
+  const dayTasks = getDayTasks();
 
   return (
-    <div className="space-y-6">
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Daily Schedule
-          </h3>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigateDate('prev')}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="font-medium px-4 min-w-[180px] text-center">
-              {format(currentDate, 'EEEE, MMMM d, yyyy')}
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigateDate('next')}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setCurrentDate(new Date())}
-          >
-            Today
-          </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-1" />
-            Add Task
-          </Button>
-        </div>
-      </div>
+    <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="flex h-[calc(100vh-200px)] gap-6">
+        {/* Left Sidebar - Task Backlog */}
+        <div className="w-80 flex-shrink-0">
+          <Card className="h-full">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Task Backlog</CardTitle>
+              <Button 
+                size="sm" 
+                className="w-full justify-start"
+                onClick={() => {/* Add new task */}}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add to backlog
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Type here to search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
 
-      {/* Task Summary */}
-      <div className="text-sm text-muted-foreground">
-        {todayTasks.length === 0 
-          ? 'No tasks scheduled for this day' 
-          : `${todayTasks.length} ${todayTasks.length === 1 ? 'task' : 'tasks'} scheduled`
-        }
-      </div>
+              {/* Filter Tabs */}
+              <div className="flex gap-1">
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'tasks', label: 'Tasks' },
+                  { key: 'issues', label: 'Issues' },
+                  { key: 'bugs', label: 'Bugs' },
+                  { key: 'features', label: 'Features' }
+                ].map((filter) => (
+                  <Button
+                    key={filter.key}
+                    variant={selectedFilter === filter.key ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setSelectedFilter(filter.key as any)}
+                    className="text-xs"
+                  >
+                    {filter.label}
+                  </Button>
+                ))}
+              </div>
 
-      {/* Timeline */}
-      <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <Card>
-          <CardContent className="p-0">
-            <div className="max-h-[600px] overflow-y-auto">
-              {timeSlots.map((slot) => (
-                <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 min-h-[60px] last:border-b-0">
-                  {/* Time Label */}
-                  <div className="col-span-2 flex items-center justify-center p-3 bg-muted/30 border-r border-border/50">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {slot.label}
-                    </span>
-                  </div>
-
-                  {/* Task Drop Zone */}
-                  <div className="col-span-10 p-3">
-                    <Droppable droppableId={`hour-${slot.hour}`} direction="horizontal">
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`min-h-[44px] rounded-md transition-colors ${
-                            snapshot.isDraggingOver
-                              ? 'bg-primary/10 border-2 border-dashed border-primary/30'
-                              : 'bg-background hover:bg-muted/20'
-                          }`}
-                        >
-                          <div className="flex flex-wrap gap-2 p-1">
-                            {slot.tasks.map((task, index) => (
-                              <Draggable key={task.id} draggableId={task.id} index={index}>
-                                {(provided, snapshot) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={`transition-all duration-200 ${
-                                      snapshot.isDragging 
-                                        ? 'rotate-2 scale-105 shadow-lg z-50' 
-                                        : 'hover:scale-105'
-                                    }`}
-                                  >
-                                    <Card 
-                                      className={`w-64 ${getStatusColor(task.status)} border-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow`}
-                                      onClick={() => onTaskClick(task)}
-                                    >
-                                      <CardContent className="p-3">
-                                        <div className="space-y-2">
-                                          <div className="flex items-start justify-between">
-                                            <h4 className="text-sm font-medium line-clamp-2 pr-2">
-                                              {task.taskName}
-                                            </h4>
-                                            <Badge variant="outline" className={`ml-2 ${getPriorityColor(task.priority)} text-xs flex-shrink-0`}>
-                                              {task.priority}
-                                            </Badge>
-                                          </div>
-                                          
-                                          <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">
-                                              {task.assignedTo.name}
-                                            </span>
-                                            <div className="flex items-center gap-1">
-                                              <div className="w-12 bg-muted rounded-full h-2">
-                                                <div 
-                                                  className="h-2 bg-primary rounded-full transition-all"
-                                                  style={{ width: `${task.progress}%` }}
-                                                />
-                                              </div>
-                                              <span className="text-muted-foreground">
-                                                {task.progress}%
-                                              </span>
-                                            </div>
-                                          </div>
-                                          
-                                          <div className="flex items-center justify-between text-xs">
-                                            <span className="text-muted-foreground">
-                                              {task.projectName}
-                                            </span>
-                                            <Badge variant="outline" className="text-xs">
-                                              {task.status}
-                                            </Badge>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                          
-                          {slot.tasks.length === 0 && !snapshot.isDraggingOver && (
-                            <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
-                              Drop tasks here for {slot.label}
+              {/* Task List */}
+              <Droppable droppableId="backlog">
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="space-y-3 overflow-y-auto max-h-[400px]"
+                  >
+                    {backlogTasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
+                              snapshot.isDragging ? 'shadow-lg rotate-2 scale-105' : ''
+                            }`}
+                            onClick={() => onTaskClick(task)}
+                          >
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-sm">{task.taskName}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {task.projectName}
+                              </p>
+                              <div className="flex gap-2">
+                                <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                                  {task.taskType}
+                                </Badge>
+                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                                  {task.priority}
+                                </Badge>
+                              </div>
                             </div>
-                          )}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+
+              {backlogTasks.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p className="text-sm">No tasks found</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Calendar Area */}
+        <div className="flex-1 min-w-0">
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button size="sm" variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Event
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Type here to search"
+                    className="pl-10 w-64"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-muted rounded-lg p-1">
+                  <Button variant="default" size="sm" className="px-3 py-1.5 h-auto">
+                    Day
+                  </Button>
+                  <Button variant="ghost" size="sm" className="px-3 py-1.5 h-auto">
+                    Week
+                  </Button>
+                  <Button variant="ghost" size="sm" className="px-3 py-1.5 h-auto">
+                    Month
+                  </Button>
+                </div>
+
+                {/* Date Navigation */}
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigateDate('prev')}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigateDate('next')}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Date Display */}
+            <div className="text-center">
+              <h2 className="text-2xl font-bold">
+                {format(currentDate, 'EEEE, MMMM d, yyyy')}
+              </h2>
+            </div>
+
+            {/* Day Content */}
+            <Card className="min-h-[400px]">
+              <CardHeader>
+                <CardTitle className="text-lg text-primary">
+                  {format(currentDate, 'EEEE, MMMM d')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Droppable droppableId="day-area">
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`min-h-[300px] rounded-lg border-2 border-dashed transition-colors p-4 ${
+                        snapshot.isDraggingOver
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border bg-muted/20'
+                      }`}
+                    >
+                      {dayTasks.length > 0 ? (
+                        <div className="space-y-3">
+                          {dayTasks.map((task, index) => (
+                            <div
+                              key={task.id}
+                              className="p-4 rounded-lg bg-card border hover:shadow-md transition-shadow cursor-pointer"
+                              onClick={() => onTaskClick(task)}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-2">
+                                  <h4 className="font-medium">{task.taskName}</h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    {task.projectName}
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                                      {task.taskType}
+                                    </Badge>
+                                    <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                                      {task.priority}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-sm text-muted-foreground">
+                                    Progress: {task.progress}%
+                                  </div>
+                                  <div className="w-20 bg-muted rounded-full h-2 mt-1">
+                                    <div 
+                                      className="h-2 bg-primary rounded-full transition-all"
+                                      style={{ width: `${task.progress}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                          <p className="text-lg font-medium mb-2">No tasks scheduled</p>
+                          <p className="text-sm">Drag tasks from the backlog to schedule them for this day</p>
                         </div>
                       )}
-                    </Droppable>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </DragDropContext>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
 
+      {/* Drag Feedback */}
       {draggedTask && (
         <div className="fixed bottom-4 right-4 z-50">
           <Card className="bg-primary text-primary-foreground">
@@ -314,6 +364,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
           </Card>
         </div>
       )}
-    </div>
+    </DragDropContext>
   );
 };
