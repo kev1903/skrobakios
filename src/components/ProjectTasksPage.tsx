@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import jsPDF from 'jspdf';
 import { Project } from '@/hooks/useProjects';
@@ -117,125 +116,151 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         // Header with company logo and info
         try {
           if (fullCompanyData?.logo_url) {
-            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, logoWidth, logoHeight);
+            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 15, logoWidth, logoHeight);
             
-            // Company details next to logo (positioned based on actual logo width)
-            pdf.setFontSize(12);
+            // Company details next to logo with better alignment
+            pdf.setFontSize(14);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(fullCompanyData.name, 25 + logoWidth, 18);
+            pdf.setTextColor(40, 40, 40);
+            pdf.text(fullCompanyData.name, 25 + logoWidth, 22);
             
             if (fullCompanyData.phone) {
-              pdf.setFontSize(9);
+              pdf.setFontSize(10);
               pdf.setFont('helvetica', 'normal');
-              pdf.text(fullCompanyData.phone, 25 + logoWidth, 24);
+              pdf.setTextColor(80, 80, 80);
+              pdf.text(fullCompanyData.phone, 25 + logoWidth, 28);
             }
           } else {
             // Fallback with company name
-            pdf.setFontSize(12);
+            pdf.setFontSize(14);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(fullCompanyData?.name || 'Company', 20, 20);
+            pdf.setTextColor(40, 40, 40);
+            pdf.text(fullCompanyData?.name || 'Company', 20, 22);
           }
         } catch (logoError) {
-          // Fallback text if logo fails to load
-          pdf.setFontSize(12);
-          pdf.setFont('helvetica', 'bold');
-          pdf.text(fullCompanyData?.name || 'Company', 20, 20);
-        }
-        
-        if (!isFirstPage) {
           pdf.setFontSize(14);
           pdf.setFont('helvetica', 'bold');
-          pdf.text('Task Export Report', pageWidth / 2, 20, { align: 'center' });
+          pdf.setTextColor(40, 40, 40);
+          pdf.text(fullCompanyData?.name || 'Company', 20, 22);
         }
         
-        // Footer with company info, page number and export date
+        // Header title on right side
+        if (isFirstPage) {
+          pdf.setFontSize(16);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(40, 40, 40);
+          pdf.text('Task Export Report', pageWidth - 20, 22, { align: 'right' });
+          
+          if (fullCompanyData?.phone) {
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(80, 80, 80);
+            pdf.text(fullCompanyData.phone, pageWidth - 20, 28, { align: 'right' });
+          }
+        } else {
+          pdf.setFontSize(14);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(40, 40, 40);
+          pdf.text('Task Export Report', pageWidth / 2, 25, { align: 'center' });
+        }
+        
+        // Reset text color
+        pdf.setTextColor(0, 0, 0);
+        
+        // Header separator line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 40, pageWidth - 20, 40);
+        
+        // Footer
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100, 100, 100);
         pdf.text(`Page ${pageNum}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
         pdf.text(`Export Date: ${exportDate}`, pageWidth - 20, pageHeight - 15, { align: 'right' });
+        pdf.setTextColor(0, 0, 0);
       };
       
       // Cover Page
       addHeaderFooter(pdf, pageNumber, true);
       
-      // Cover page title with project info
+      // Cover page content with better spacing
+      let yPos = 70;
+      
       if (fullCompanyData?.address) {
-        pdf.setFontSize(12);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(fullCompanyData.address, pageWidth / 2, 50, { align: 'center' });
+        pdf.setTextColor(80, 80, 80);
+        pdf.text(fullCompanyData.address, pageWidth / 2, yPos, { align: 'center' });
+        yPos += 15;
       }
       
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Task Export Report', pageWidth / 2, 65, { align: 'center' });
-      
-      // Project and company information
-      if (fullCompanyData) {
-        pdf.setFontSize(12);
+      // Project information section
+      if (fullCompanyData?.abn) {
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'normal');
-        let yPos = 85;
-        
-        pdf.text(`Company: ${fullCompanyData.name}`, pageWidth / 2, yPos, { align: 'center' });
-        yPos += 8;
-        
-        if (fullCompanyData.phone) {
-          pdf.text(`Phone: ${fullCompanyData.phone}`, pageWidth / 2, yPos, { align: 'center' });
-          yPos += 8;
-        }
-        
-        if (fullCompanyData.abn) {
-          pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth / 2, yPos, { align: 'center' });
-          yPos += 15;
-        }
+        pdf.setTextColor(60, 60, 60);
+        pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth / 2, yPos, { align: 'center' });
+        yPos += 20;
       }
       
       // Export metadata
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, 130, { align: 'center' });
-      pdf.text(`Export Date: ${exportDate}`, pageWidth / 2, 145, { align: 'center' });
+      pdf.setTextColor(40, 40, 40);
+      pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, yPos + 20, { align: 'center' });
       
       // Start new page for task table
       pdf.addPage();
       pageNumber++;
       addHeaderFooter(pdf, pageNumber);
       
-      // Task table header
-      pdf.setFontSize(16);
+      // Task table header with better styling
+      pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Task Summary', 20, 45);
+      pdf.setTextColor(30, 30, 30);
+      pdf.text('Task Summary', 20, 55);
       
-      let yPosition = 60;
+      let yPosition = 75;
       
-      // Table setup
-      const tableStartY = yPosition;
-      const rowHeight = 25;
-      const previewSize = 20;
+      // Table setup with better dimensions
+      const rowHeight = 30;
+      const previewSize = 22;
       
-      // Column positions and widths
+      // Column positions and widths - properly aligned
       const columns = [
-        { header: 'Preview', x: 20, width: 25 },
-        { header: '#', x: 50, width: 20 },
-        { header: 'Task Name', x: 75, width: 45 },
-        { header: 'Assigned to', x: 125, width: 25 },
-        { header: 'Priority', x: 155, width: 20 },
-        { header: 'Status', x: 180, width: 20 }
+        { header: 'Preview', x: 25, width: 30, align: 'center' as const },
+        { header: '#', x: 60, width: 25, align: 'left' as const },
+        { header: 'Task Name', x: 90, width: 50, align: 'left' as const },
+        { header: 'Assigned to', x: 145, width: 30, align: 'left' as const },
+        { header: 'Priority', x: 180, width: 20, align: 'center' as const },
+        { header: 'Status', x: 205, width: 25, align: 'center' as const }
       ];
       
-      // Draw table headers
+      // Draw table headers with background
+      pdf.setFillColor(248, 250, 252);
+      pdf.rect(20, yPosition - 8, pageWidth - 40, 12, 'F');
+      
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      
       columns.forEach(col => {
-        pdf.text(col.header, col.x, yPosition);
+        const textX = col.align === 'center' ? col.x + col.width / 2 : col.x;
+        pdf.text(col.header, textX, yPosition, { align: col.align });
       });
       
-      // Draw header underline
-      pdf.line(20, yPosition + 3, 200, yPosition + 3);
-      yPosition += 10;
+      // Draw header border
+      pdf.setDrawColor(220, 220, 220);
+      pdf.setLineWidth(0.5);
+      pdf.line(20, yPosition + 5, pageWidth - 20, yPosition + 5);
+      yPosition += 15;
       
-      // Draw task rows
+      // Reset text properties for table content
+      pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'normal');
       
+      // Draw task rows with improved formatting
       for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         
@@ -244,23 +269,33 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           pdf.addPage();
           pageNumber++;
           addHeaderFooter(pdf, pageNumber);
-          yPosition = 45;
+          yPosition = 55;
           
-          // Re-draw headers
+          // Re-draw table headers
+          pdf.setFillColor(248, 250, 252);
+          pdf.rect(20, yPosition - 8, pageWidth - 40, 12, 'F');
+          
           pdf.setFontSize(10);
           pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(60, 60, 60);
+          
           columns.forEach(col => {
-            pdf.text(col.header, col.x, yPosition);
+            const textX = col.align === 'center' ? col.x + col.width / 2 : col.x;
+            pdf.text(col.header, textX, yPosition, { align: col.align });
           });
-          pdf.line(20, yPosition + 3, 200, yPosition + 3);
-          yPosition += 10;
+          
+          pdf.setDrawColor(220, 220, 220);
+          pdf.line(20, yPosition + 5, pageWidth - 20, yPosition + 5);
+          yPosition += 15;
+          
+          pdf.setTextColor(0, 0, 0);
           pdf.setFont('helvetica', 'normal');
         }
         
-        // Draw row background (alternating)
+        // Draw alternating row background
         if (i % 2 === 0) {
-          pdf.setFillColor(248, 250, 252); // Light gray
-          pdf.rect(20, yPosition - 5, 180, rowHeight, 'F');
+          pdf.setFillColor(252, 253, 254);
+          pdf.rect(20, yPosition - 5, pageWidth - 40, rowHeight, 'F');
         }
         
         // Load and draw attachment preview
@@ -270,6 +305,9 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             .select('*')
             .eq('task_id', task.id);
             
+          const previewX = columns[0].x + (columns[0].width - previewSize) / 2;
+          const previewY = yPosition - 2;
+            
           if (attachments && attachments.length > 0) {
             const firstAttachment = attachments[0];
             if (firstAttachment.file_type?.startsWith('image/')) {
@@ -277,55 +315,77 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
                 pdf.addImage(
                   firstAttachment.file_url, 
                   'JPEG', 
-                  22, 
-                  yPosition - 3, 
+                  previewX, 
+                  previewY, 
                   previewSize, 
                   previewSize * 0.75
                 );
               } catch (imageError) {
-                // Fallback icon for images that can't be loaded
-                pdf.setFillColor(200, 200, 200);
-                pdf.rect(22, yPosition - 3, previewSize, previewSize * 0.75, 'F');
-                pdf.setFontSize(8);
-                pdf.text('IMG', 25, yPosition + 8);
+                // Fallback icon for images
+                pdf.setFillColor(230, 230, 230);
+                pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
+                pdf.setFontSize(7);
+                pdf.setTextColor(120, 120, 120);
+                pdf.text('IMG', previewX + previewSize/2, previewY + 12, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
               }
             } else {
               // File icon placeholder
-              pdf.setFillColor(220, 220, 220);
-              pdf.rect(22, yPosition - 3, previewSize, previewSize * 0.75, 'F');
-              pdf.setFontSize(8);
-              pdf.setTextColor(80, 80, 80);
-              pdf.text('FILE', 24, yPosition + 8);
+              pdf.setFillColor(240, 240, 240);
+              pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(previewX, previewY, previewSize, previewSize * 0.75);
+              pdf.setFontSize(7);
+              pdf.setTextColor(100, 100, 100);
+              pdf.text('FILE', previewX + previewSize/2, previewY + 12, { align: 'center' });
               pdf.setTextColor(0, 0, 0);
             }
           } else {
             // No attachment placeholder
-            pdf.setDrawColor(200, 200, 200);
-            pdf.rect(22, yPosition - 3, previewSize, previewSize * 0.75);
+            pdf.setDrawColor(220, 220, 220);
+            pdf.rect(previewX, previewY, previewSize, previewSize * 0.75);
             pdf.setFontSize(6);
-            pdf.setTextColor(150, 150, 150);
-            pdf.text('No preview', 23, yPosition + 8);
+            pdf.setTextColor(180, 180, 180);
+            pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
             pdf.setTextColor(0, 0, 0);
           }
         } catch (error) {
           console.warn('Could not load attachments for task:', task.taskName);
         }
         
-        // Draw task data
+        // Draw task data with proper alignment
         pdf.setFontSize(9);
+        pdf.setTextColor(40, 40, 40);
+        
         const taskNumber = task.task_number || `${i + 1}`;
-        const taskName = task.taskName.length > 20 ? task.taskName.substring(0, 20) + '...' : task.taskName;
-        const assignedTo = task.assignedTo.name.length > 12 ? task.assignedTo.name.substring(0, 12) + '...' : task.assignedTo.name;
+        const taskName = task.taskName.length > 22 ? task.taskName.substring(0, 22) + '...' : task.taskName;
+        const assignedTo = task.assignedTo.name.length > 15 ? task.assignedTo.name.substring(0, 15) + '...' : task.assignedTo.name;
         
-        pdf.text(taskNumber, columns[1].x, yPosition + 10);
-        pdf.text(taskName, columns[2].x, yPosition + 10);
-        pdf.text(assignedTo, columns[3].x, yPosition + 10);
-        pdf.text(task.priority, columns[4].x, yPosition + 10);
-        pdf.text(task.status, columns[5].x, yPosition + 10);
+        // Task data
+        pdf.text(taskNumber, columns[1].x, yPosition + 12);
+        pdf.text(taskName, columns[2].x, yPosition + 12);
+        pdf.text(assignedTo, columns[3].x, yPosition + 12);
         
-        // Draw row separator
-        pdf.setDrawColor(230, 230, 230);
-        pdf.line(20, yPosition + rowHeight - 5, 200, yPosition + rowHeight - 5);
+        // Priority with color coding
+        const priorityColor = task.priority === 'High' ? [220, 38, 38] : 
+                             task.priority === 'Medium' ? [180, 83, 9] : [22, 163, 74];
+        pdf.setTextColor(priorityColor[0], priorityColor[1], priorityColor[2]);
+        pdf.text(task.priority, columns[4].x + columns[4].width/2, yPosition + 12, { align: 'center' });
+        
+        // Status with color coding
+        const statusColor = task.status === 'Completed' ? [22, 163, 74] :
+                           task.status === 'In Progress' ? [59, 130, 246] :
+                           task.status === 'Not Started' ? [107, 114, 128] : [220, 38, 38];
+        pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
+        pdf.text(task.status, columns[5].x + columns[5].width/2, yPosition + 12, { align: 'center' });
+        
+        // Reset text color
+        pdf.setTextColor(0, 0, 0);
+        
+        // Draw subtle row separator
+        pdf.setDrawColor(240, 240, 240);
+        pdf.setLineWidth(0.3);
+        pdf.line(20, yPosition + rowHeight - 5, pageWidth - 20, yPosition + rowHeight - 5);
         
         yPosition += rowHeight;
       }
