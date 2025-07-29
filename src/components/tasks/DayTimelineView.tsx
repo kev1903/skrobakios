@@ -116,7 +116,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
         <div className="grid grid-cols-1 gap-1 max-h-[600px] overflow-y-auto border border-border rounded-lg bg-card">
           {timeSlots.map((slot) => (
-            <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 min-h-[60px]">
+            <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 h-[70px]">
               {/* Time Label */}
               <div className="col-span-2 flex items-center justify-center p-2 bg-muted/30 border-r border-border/50">
                 <span className="text-sm font-medium text-muted-foreground">
@@ -131,13 +131,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`min-h-[44px] rounded-md transition-colors ${
+                      className={`h-[54px] rounded-md transition-colors flex items-center ${
                         snapshot.isDraggingOver
                           ? 'bg-primary/10 border-2 border-dashed border-primary/30'
                           : 'bg-background hover:bg-muted/20'
                       }`}
                     >
-                      <div className="flex flex-wrap gap-2 p-1">
+                      <div className="flex gap-2 overflow-x-auto scrollbar-thin py-1 px-1 w-full">
                         {slot.tasks.map((task, index) => (
                           <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
                             {(provided, snapshot) => (
@@ -159,22 +159,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                      : provided.draggableProps.style?.transform
                                  }}
                                >
-                                <Card className={`w-48 ${getStatusColor(task.status)} border-2 cursor-grab active:cursor-grabbing select-none`}>
-                                  <CardContent className="p-3">
-                                     <div className="space-y-2">
+                                <Card className={`w-40 h-12 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
+                                  <CardContent className="p-2 h-full flex flex-col justify-center">
+                                     <div className="space-y-1">
                                        {/* Task Name */}
-                                       <h4 className="text-sm font-medium line-clamp-2 text-foreground">
+                                       <h4 className="text-xs font-medium line-clamp-1 text-foreground">
                                          {task.taskName}
                                        </h4>
                                        
                                        {/* Project Name */}
                                        <p className="text-xs text-muted-foreground truncate">
                                          {task.projectName || 'No Project'}
-                                       </p>
-                                       
-                                       {/* Due Date */}
-                                       <p className="text-xs text-muted-foreground">
-                                         {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy HH:mm') : 'No due date'}
                                        </p>
                                      </div>
                                   </CardContent>
