@@ -412,14 +412,9 @@ const TasksPage = () => {
                                   )}>
                                     {task.taskType}
                                   </span>
-                                  <span className={cn(
-                                    "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
-                                    task.priority === 'High' ? 'bg-red-50 text-red-600' :
-                                    task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
-                                    'bg-green-50 text-green-600'
-                                  )}>
-                                    {task.priority}
-                                  </span>
+                                   <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-50 text-blue-600">
+                                     {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'No due date'}
+                                   </span>
                                 </div>
                               </div>
                             </div>
