@@ -116,47 +116,40 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         // Header with company logo and info
         try {
           if (fullCompanyData?.logo_url) {
-            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 15, logoWidth, logoHeight);
+            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, logoWidth, logoHeight);
             
             // Company details next to logo with better alignment
-            pdf.setFontSize(14);
+            pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(40, 40, 40);
-            pdf.text(fullCompanyData.name, 25 + logoWidth, 22);
+            pdf.text(fullCompanyData.name, 25 + logoWidth, 17);
           } else {
             // Fallback with company name
-            pdf.setFontSize(14);
+            pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(40, 40, 40);
-            pdf.text(fullCompanyData?.name || 'Company', 20, 22);
+            pdf.text(fullCompanyData?.name || 'Company', 20, 17);
           }
         } catch (logoError) {
-          pdf.setFontSize(14);
+          pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData?.name || 'Company', 20, 22);
+          pdf.text(fullCompanyData?.name || 'Company', 20, 17);
         }
         
-        // Header title on right side
-        if (isFirstPage) {
-          pdf.setFontSize(16);
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(40, 40, 40);
-          pdf.text('Task Export Report', pageWidth - 20, 22, { align: 'right' });
-        } else {
-          pdf.setFontSize(14);
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(40, 40, 40);
-          pdf.text('Task Export Report', pageWidth / 2, 25, { align: 'center' });
-        }
+        // Header title on right side - consistent across all pages
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(40, 40, 40);
+        pdf.text('Task Export Report', pageWidth - 20, 17, { align: 'right' });
         
         // Reset text color
         pdf.setTextColor(0, 0, 0);
         
-        // Header separator line
+        // Header separator line - moved up for thinner header
         pdf.setDrawColor(200, 200, 200);
         pdf.setLineWidth(0.5);
-        pdf.line(20, 40, pageWidth - 20, 40);
+        pdf.line(20, 28, pageWidth - 20, 28);
         
         // Footer
         pdf.setFontSize(8);
@@ -172,7 +165,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       
       // Add project banner if available
       const projectBanner = localStorage.getItem(`project_banner_${project.id}`);
-      let yPos = 70;
+      let yPos = 50;
       
       if (projectBanner) {
         try {
@@ -243,9 +236,9 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(30, 30, 30);
-      pdf.text('Task Summary', 20, 55);
+      pdf.text('Task Summary', 20, 40);
       
-      let yPosition = 75;
+      let yPosition = 55;
       
       // Table setup with better dimensions
       const rowHeight = 30;
@@ -293,7 +286,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           pdf.addPage();
           pageNumber++;
           addHeaderFooter(pdf, pageNumber);
-          yPosition = 55;
+          yPosition = 40;
           
           // Re-draw table headers
           pdf.setFillColor(248, 250, 252);
