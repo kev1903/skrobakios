@@ -442,15 +442,72 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         // Main content area
         let yPos = 60;
         
-        // Display task attachment/image placeholder (synchronous for PDF stability)
-        pdf.setFillColor(250, 250, 250);
-        pdf.rect(20, yPos, 120, 90, 'F');
-        pdf.setDrawColor(220, 220, 220);
-        pdf.rect(20, yPos, 120, 90);
-        pdf.setFontSize(10);
-        pdf.setTextColor(150, 150, 150);
-        pdf.text('Task Preview', 80, yPos + 50, { align: 'center' });
-        pdf.setTextColor(0, 0, 0);
+        // Load and display task attachment/image
+        try {
+          const { data: attachments } = await supabase
+            .from('task_attachments')
+            .select('*')
+            .eq('task_id', task.id);
+            
+          if (attachments && attachments.length > 0) {
+            const firstAttachment = attachments[0];
+            if (firstAttachment.file_type?.startsWith('image/')) {
+              try {
+                const imageWidth = 120;
+                const imageHeight = 90;
+                pdf.addImage(
+                  firstAttachment.file_url, 
+                  'JPEG', 
+                  20, 
+                  yPos, 
+                  imageWidth, 
+                  imageHeight
+                );
+              } catch (imageError) {
+                // Fallback placeholder for failed image load
+                pdf.setFillColor(240, 240, 240);
+                pdf.rect(20, yPos, 120, 90, 'F');
+                pdf.setDrawColor(200, 200, 200);
+                pdf.rect(20, yPos, 120, 90);
+                pdf.setFontSize(12);
+                pdf.setTextColor(120, 120, 120);
+                pdf.text('Image Preview', 80, yPos + 50, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
+              }
+            } else {
+              // File attachment indicator
+              pdf.setFillColor(245, 245, 245);
+              pdf.rect(20, yPos, 120, 90, 'F');
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(20, yPos, 120, 90);
+              pdf.setFontSize(12);
+              pdf.setTextColor(100, 100, 100);
+              pdf.text('File Attachment', 80, yPos + 50, { align: 'center' });
+              pdf.setTextColor(0, 0, 0);
+            }
+          } else {
+            // No attachment placeholder
+            pdf.setFillColor(250, 250, 250);
+            pdf.rect(20, yPos, 120, 90, 'F');
+            pdf.setDrawColor(220, 220, 220);
+            pdf.rect(20, yPos, 120, 90);
+            pdf.setFontSize(10);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text('Task Preview', 80, yPos + 50, { align: 'center' });
+            pdf.setTextColor(0, 0, 0);
+          }
+        } catch (error) {
+          console.warn('Could not load attachments for task:', task.taskName);
+          // Fallback placeholder for error case
+          pdf.setFillColor(250, 250, 250);
+          pdf.rect(20, yPos, 120, 90, 'F');
+          pdf.setDrawColor(220, 220, 220);
+          pdf.rect(20, yPos, 120, 90);
+          pdf.setFontSize(10);
+          pdf.setTextColor(150, 150, 150);
+          pdf.text('Task Preview', 80, yPos + 50, { align: 'center' });
+          pdf.setTextColor(0, 0, 0);
+        }
         
         // Task details panel
         const detailsX = 150;
