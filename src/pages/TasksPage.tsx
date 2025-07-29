@@ -614,8 +614,10 @@ const TasksPage = () => {
         
       </div>
 
-      {/* Right Sidebar */}
-      <div className="w-80 bg-white/70 backdrop-blur-xl border-l border-gray-200/50 p-6 space-y-6 shadow-sm">
+      {/* Right Sidebar - Only show in Day view */}
+      <div className={`w-80 bg-white/70 backdrop-blur-xl border-l border-gray-200/50 p-6 space-y-6 shadow-sm ${
+        viewMode !== 'day' ? 'hidden' : ''
+      }`}>
         {/* Focus Timer */}
         
         {/* Calendar */}
