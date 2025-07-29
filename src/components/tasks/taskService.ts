@@ -65,7 +65,7 @@ export const taskService = {
           avatar: profile.avatar_url || task.assigned_to_avatar || '',
           userId: profile.user_id
         },
-        dueDate: task.due_date || '',
+        dueDate: task.due_date || '', // Now contains full datetime
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: task.progress || 0,
         description: task.description,
@@ -133,7 +133,7 @@ export const taskService = {
           avatar: assignedUserProfile?.avatar_url || task.assigned_to_avatar || '',
           userId: task.assigned_to_user_id || assignedUserProfile?.user_id || undefined
         },
-        dueDate: task.due_date || '',
+        dueDate: task.due_date || '', // Now contains full datetime
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: task.progress,
         description: task.description,
@@ -239,7 +239,7 @@ export const taskService = {
         avatar: data.assigned_to_avatar || '',
         userId: data.assigned_to_user_id || undefined
       },
-      dueDate: data.due_date || '',
+      dueDate: data.due_date || '', // Now contains full datetime
       status: data.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: data.progress,
       description: data.description,
