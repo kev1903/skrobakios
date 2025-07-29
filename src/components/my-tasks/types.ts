@@ -3,7 +3,7 @@ import { SortDirection } from "@/hooks/useSortPreferences";
 
 export type SortField = 'taskName' | 'priority' | 'assignedTo' | 'dueDate' | 'status' | 'projectName';
 export type { SortDirection };
-export type ViewMode = 'list' | 'grid';
+export type ViewMode = 'list' | 'grid' | 'calendar';
 
 export interface MyTasksHeaderProps {
   tasksCount: number;

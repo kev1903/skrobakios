@@ -11,6 +11,7 @@ import { MyTasksGridView } from './my-tasks/MyTasksGridView';
 import { MyTasksTableView } from './my-tasks/MyTasksTableView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
 import { MyTasksEmptyState } from './my-tasks/MyTasksEmptyState';
+import { MyTasksCalendarView } from './my-tasks/MyTasksCalendarView';
 import { TaskEditSidePanel } from './tasks/TaskEditSidePanel';
 import { SortField, SortDirection, ViewMode } from './my-tasks/types';
 
@@ -184,66 +185,79 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
             onNavigate={onNavigate}
           />
 
-          {/* Two Column Layout */}
-          <div className="mt-6 flex gap-6">
-            {/* Left Column - Tasks Content */}
-            <div className="flex-1 min-w-0">
+          {/* Content Layout - Full width for calendar, two-column for others */}
+          {viewMode === 'calendar' ? (
+            <div className="mt-6">
               {tasks.length === 0 ? (
                 <MyTasksEmptyState onNavigate={onNavigate} />
-              ) : viewMode === 'grid' ? (
-                <MyTasksGridView
-                  tasks={getSortedTasks()}
-                  selectedTasks={selectedTasks}
-                  onSelectTask={handleSelectTask}
-                  onTaskClick={handleTaskClick}
-                />
               ) : (
-                <MyTasksTableView
+                <MyTasksCalendarView
                   tasks={getSortedTasks()}
-                  selectedTasks={selectedTasks}
-                  sortField={sortField}
-                  sortDirection={sortDirection}
-                  onSort={handleSort}
-                  onSelectAll={handleSelectAll}
-                  onSelectTask={handleSelectTask}
                   onTaskClick={handleTaskClick}
                 />
               )}
             </div>
+          ) : (
+            <div className="mt-6 flex gap-6">
+              {/* Left Column - Tasks Content */}
+              <div className="flex-1 min-w-0">
+                {tasks.length === 0 ? (
+                  <MyTasksEmptyState onNavigate={onNavigate} />
+                ) : viewMode === 'grid' ? (
+                  <MyTasksGridView
+                    tasks={getSortedTasks()}
+                    selectedTasks={selectedTasks}
+                    onSelectTask={handleSelectTask}
+                    onTaskClick={handleTaskClick}
+                  />
+                ) : (
+                  <MyTasksTableView
+                    tasks={getSortedTasks()}
+                    selectedTasks={selectedTasks}
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    onSelectAll={handleSelectAll}
+                    onSelectTask={handleSelectTask}
+                    onTaskClick={handleTaskClick}
+                  />
+                )}
+              </div>
 
-            {/* Right Column - Today's Schedule */}
-            <div className="w-80 flex-shrink-0">
-              <div className="bg-card/50 backdrop-blur-xl rounded-2xl p-6 border border-border/50 shadow-sm sticky top-6">
-                <h3 className="font-semibold text-foreground mb-4">Today's Schedule</h3>
-                <div className="space-y-3">
-                  {tasks.length > 0 ? (
-                    tasks.slice(0, 5).map((task) => (
-                      <div key={task.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task)}>
-                        <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xs font-semibold">
-                          {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
+              {/* Right Column - Today's Schedule */}
+              <div className="w-80 flex-shrink-0">
+                <div className="bg-card/50 backdrop-blur-xl rounded-2xl p-6 border border-border/50 shadow-sm sticky top-6">
+                  <h3 className="font-semibold text-foreground mb-4">Today's Schedule</h3>
+                  <div className="space-y-3">
+                    {tasks.length > 0 ? (
+                      tasks.slice(0, 5).map((task) => (
+                        <div key={task.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task)}>
+                          <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xs font-semibold">
+                            {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="font-medium text-foreground truncate block">{task.taskName}</span>
+                            <span className="text-xs text-muted-foreground">{task.projectName}</span>
+                          </div>
+                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                            task.priority === 'High' ? 'bg-destructive/10 text-destructive' :
+                            task.priority === 'Medium' ? 'bg-warning/10 text-warning' :
+                            'bg-success/10 text-success'
+                          }`}>
+                            {task.priority}
+                          </span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="font-medium text-foreground truncate block">{task.taskName}</span>
-                          <span className="text-xs text-muted-foreground">{task.projectName}</span>
-                        </div>
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                          task.priority === 'High' ? 'bg-destructive/10 text-destructive' :
-                          task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
-                          'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                        }`}>
-                          {task.priority}
-                        </span>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p>No tasks scheduled for today</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p>No tasks scheduled for today</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

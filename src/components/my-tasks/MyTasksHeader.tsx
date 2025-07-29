@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3, List, Target } from "lucide-react";
+import { Plus, Grid3X3, List, Target, Calendar } from "lucide-react";
 import { MyTasksHeaderProps } from './types';
 
 export const MyTasksHeader = ({ 
@@ -60,6 +60,15 @@ export const MyTasksHeader = ({
             >
               <Grid3X3 className="w-4 h-4 mr-1" />
               Grid
+            </Button>
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => onViewModeChange('calendar')}
+              className="px-3 py-1.5 h-auto"
+            >
+              <Calendar className="w-4 h-4 mr-1" />
+              Calendar
             </Button>
           </div>
         </div>
