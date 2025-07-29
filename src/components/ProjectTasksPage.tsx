@@ -225,7 +225,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(40, 40, 40);
-      pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, yPos + 20, { align: 'center' });
+      pdf.text(`Selected Tasks: ${selectedTasks.length}`, pageWidth / 2, yPos + 20, { align: 'center' });
       
       // Start new page for task table
       pdf.addPage();
@@ -278,8 +278,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       pdf.setFont('helvetica', 'normal');
       
       // Draw task rows with improved formatting
-      for (let i = 0; i < tasks.length; i++) {
-        const task = tasks[i];
+      for (let i = 0; i < selectedTasks.length; i++) {
+        const task = selectedTasks[i];
         
         // Check for page break
         if (yPosition + rowHeight > pageHeight - 40) {
