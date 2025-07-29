@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
+import { DayTimelineView } from '@/components/tasks/DayTimelineView';
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
@@ -128,33 +129,7 @@ const TasksPage = () => {
   };
 
   const renderDayView = () => {
-    const dayTasks = getTasksForDate(currentDate);
-    const isToday = isSameDay(currentDate, new Date());
-
-    return (
-      <div className="space-y-4">
-        <div className={`p-6 border rounded-lg ${isToday ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
-          <div className={`text-lg font-semibold mb-4 ${isToday ? 'text-blue-600' : 'text-foreground'}`}>
-            {format(currentDate, 'EEEE, MMMM d')}
-          </div>
-          <div className="space-y-2">
-            {dayTasks.length > 0 ? (
-              dayTasks.map(task => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-sm font-medium">{task.taskName}</div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center text-muted-foreground py-8">
-                No tasks scheduled for this day
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+    return <DayTimelineView currentDate={currentDate} />;
   };
 
   const renderWeekView = () => {
