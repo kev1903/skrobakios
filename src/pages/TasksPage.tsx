@@ -150,7 +150,8 @@ const TasksPage = () => {
         
         try {
           await taskService.updateTask(task.id, {
-            dueDate: newDateTime.toISOString().split('T')[0]
+            dueDate: newDateTime.toISOString().split('T')[0],
+            dueTime: `${hour.toString().padStart(2, '0')}:00` // Store the hour as dueTime
           }, userProfile);
           
           // Reload tasks to reflect changes

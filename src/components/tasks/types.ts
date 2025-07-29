@@ -23,6 +23,7 @@ export interface Task {
   priority: 'High' | 'Medium' | 'Low';
   assignedTo: { name: string; avatar: string; userId?: string };
   dueDate: string;
+  dueTime?: string; // Optional time field for scheduling (HH:mm format)
   status: 'Completed' | 'In Progress' | 'Pending' | 'Not Started';
   progress: number;
   description?: string;

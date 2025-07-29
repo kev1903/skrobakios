@@ -29,17 +29,29 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Generate 24-hour time slots
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
+    
+    // Filter tasks for current date
+    const dayTasks = tasks.filter(task => {
+      const taskDate = new Date(task.dueDate);
+      return isSameDay(taskDate, currentDate);
+    });
+    
     for (let hour = 0; hour < 24; hour++) {
       const timeLabel = format(setHours(setMinutes(new Date(), 0), hour), 'HH:mm');
-      const dayTasks = tasks.filter(task => {
-        const taskDate = new Date(task.dueDate);
-        return isSameDay(taskDate, currentDate);
+      
+      // Filter tasks for this specific hour
+      const hourTasks = dayTasks.filter(task => {
+        if (task.dueTime) {
+          const taskHour = parseInt(task.dueTime.split(':')[0]);
+          return taskHour === hour;
+        }
+        return false; // If no dueTime, don't show in any slot
       });
       
       slots.push({
         hour,
         label: timeLabel,
-        tasks: hour === 9 ? dayTasks : [] // Default tasks to 9 AM for now
+        tasks: hourTasks
       });
     }
     return slots;
