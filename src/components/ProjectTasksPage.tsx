@@ -81,40 +81,34 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
         // Header with company logo and info
         try {
-          // Try to add company logo from database
+          // Try to add company logo from database with proper scaling
           if (fullCompanyData?.logo_url) {
-            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, 30, 15);
-          } else {
-            // Fallback with company name or initials
+            // Calculate proper logo dimensions (maintaining aspect ratio)
+            const logoWidth = 40;
+            const logoHeight = 20;
+            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, logoWidth, logoHeight);
+            
+            // Company details next to logo
             pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
-            const companyInitials = fullCompanyData?.name 
-              ? fullCompanyData.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 3)
-              : 'COMP';
-            pdf.text(companyInitials, 20, 20);
+            pdf.text(fullCompanyData.name, 70, 18);
+            
+            if (fullCompanyData.phone) {
+              pdf.setFontSize(9);
+              pdf.setFont('helvetica', 'normal');
+              pdf.text(fullCompanyData.phone, 70, 24);
+            }
+          } else {
+            // Fallback with company name
+            pdf.setFontSize(12);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(fullCompanyData?.name || 'Company', 20, 20);
           }
         } catch (logoError) {
           // Fallback text if logo fails to load
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
           pdf.text(fullCompanyData?.name || 'Company', 20, 20);
-        }
-        
-        // Company name and contact info in header
-        if (fullCompanyData) {
-          pdf.setFontSize(10);
-          pdf.setFont('helvetica', 'normal');
-          pdf.text(fullCompanyData.name, 55, 15);
-          
-          if (fullCompanyData.website) {
-            pdf.setFontSize(8);
-            pdf.text(fullCompanyData.website, 55, 20);
-          }
-          
-          if (fullCompanyData.phone) {
-            pdf.setFontSize(8);
-            pdf.text(fullCompanyData.phone, 55, 25);
-          }
         }
         
         if (!isFirstPage) {
@@ -124,35 +118,27 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         }
         
         // Footer with company info, page number and export date
-        try {
-          if (fullCompanyData?.logo_url) {
-            pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, pageHeight - 25, 20, 10);
-          } else {
-            pdf.setFontSize(8);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(fullCompanyData?.name || 'Company', 20, pageHeight - 15);
-          }
-        } catch (logoError) {
-          pdf.setFontSize(8);
-          pdf.text(fullCompanyData?.name || 'Company', 20, pageHeight - 15);
-        }
-        
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
         pdf.text(`Page ${pageNum}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
-        pdf.text(`Exported: ${exportDate}`, pageWidth - 20, pageHeight - 15, { align: 'right' });
+        pdf.text(`Export Date: ${exportDate}`, pageWidth - 20, pageHeight - 15, { align: 'right' });
       };
       
       // Cover Page
       addHeaderFooter(pdf, pageNumber, true);
       
-      // Cover page title with company branding
-      pdf.setFontSize(24);
+      // Cover page title with project info
+      if (fullCompanyData?.address) {
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(fullCompanyData.address, pageWidth / 2, 50, { align: 'center' });
+      }
+      
+      pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(`${project.name}`, pageWidth / 2, 50, { align: 'center' });
       pdf.text('Task Export Report', pageWidth / 2, 65, { align: 'center' });
       
-      // Company information section
+      // Project and company information
       if (fullCompanyData) {
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
@@ -161,18 +147,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         pdf.text(`Company: ${fullCompanyData.name}`, pageWidth / 2, yPos, { align: 'center' });
         yPos += 8;
         
-        if (fullCompanyData.address) {
-          pdf.text(`Address: ${fullCompanyData.address}`, pageWidth / 2, yPos, { align: 'center' });
-          yPos += 8;
-        }
-        
         if (fullCompanyData.phone) {
           pdf.text(`Phone: ${fullCompanyData.phone}`, pageWidth / 2, yPos, { align: 'center' });
-          yPos += 8;
-        }
-        
-        if (fullCompanyData.website) {
-          pdf.text(`Website: ${fullCompanyData.website}`, pageWidth / 2, yPos, { align: 'center' });
           yPos += 8;
         }
         
@@ -188,98 +164,75 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       pdf.text(`Total Tasks: ${tasks.length}`, pageWidth / 2, 130, { align: 'center' });
       pdf.text(`Export Date: ${exportDate}`, pageWidth / 2, 145, { align: 'center' });
       
-      // Task list summary
+      // Start new page for task table
+      pdf.addPage();
+      pageNumber++;
+      addHeaderFooter(pdf, pageNumber);
+      
+      // Task table header
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Task Summary', 20, 160);
+      pdf.text('Task Summary', 20, 45);
       
-      let yPosition = 175;
+      let yPosition = 60;
+      
+      // Table setup
+      const tableStartY = yPosition;
+      const rowHeight = 25;
+      const previewSize = 20;
+      
+      // Column positions and widths
+      const columns = [
+        { header: 'Preview', x: 20, width: 25 },
+        { header: '#', x: 50, width: 20 },
+        { header: 'Task Name', x: 75, width: 45 },
+        { header: 'Assigned to', x: 125, width: 25 },
+        { header: 'Priority', x: 155, width: 20 },
+        { header: 'Status', x: 180, width: 20 }
+      ];
+      
+      // Draw table headers
       pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      
-      // Table headers
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Task #', 20, yPosition);
-      pdf.text('Task Name', 45, yPosition);
-      pdf.text('Status', 120, yPosition);
-      pdf.text('Priority', 150, yPosition);
-      pdf.text('Progress', 175, yPosition);
-      yPosition += 8;
+      columns.forEach(col => {
+        pdf.text(col.header, col.x, yPosition);
+      });
       
-      // Underline headers
-      pdf.line(20, yPosition - 2, 190, yPosition - 2);
+      // Draw header underline
+      pdf.line(20, yPosition + 3, 200, yPosition + 3);
+      yPosition += 10;
       
+      // Draw task rows
       pdf.setFont('helvetica', 'normal');
-      tasks.forEach((task, index) => {
-        if (yPosition > pageHeight - 40) {
-          // Start new page if needed
+      
+      for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i];
+        
+        // Check for page break
+        if (yPosition + rowHeight > pageHeight - 40) {
           pdf.addPage();
           pageNumber++;
           addHeaderFooter(pdf, pageNumber);
-          yPosition = 40;
+          yPosition = 45;
           
-          // Re-add headers on new page
+          // Re-draw headers
+          pdf.setFontSize(10);
           pdf.setFont('helvetica', 'bold');
-          pdf.text('Task #', 20, yPosition);
-          pdf.text('Task Name', 45, yPosition);
-          pdf.text('Status', 120, yPosition);
-          pdf.text('Priority', 150, yPosition);
-          pdf.text('Progress', 175, yPosition);
-          yPosition += 8;
-          pdf.line(20, yPosition - 2, 190, yPosition - 2);
-          pdf.setFont('helvetica', 'normal');
-        }
-        
-        const taskNumber = task.task_number || `T${index + 1}`;
-        const taskName = task.taskName.length > 25 ? task.taskName.substring(0, 25) + '...' : task.taskName;
-        
-        pdf.text(taskNumber, 20, yPosition);
-        pdf.text(taskName, 45, yPosition);
-        pdf.text(task.status, 120, yPosition);
-        pdf.text(task.priority, 150, yPosition);
-        pdf.text(`${task.progress}%`, 175, yPosition);
-        yPosition += 6;
-      });
-      
-      // Start detailed task pages
-      for (const task of tasks) {
-        pdf.addPage();
-        pageNumber++;
-        addHeaderFooter(pdf, pageNumber);
-        
-        // Add task header with task number
-        pdf.setFontSize(20);
-        pdf.setFont('helvetica', 'bold');
-        const taskHeader = task.task_number ? `${task.task_number}: ${task.taskName}` : task.taskName;
-        pdf.text(taskHeader, 20, 45);
-        
-        // Add task details
-        yPosition = 65;
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'normal');
-        
-        const details = [
-          { label: 'Task Number:', value: task.task_number || 'N/A' },
-          { label: 'Priority:', value: task.priority },
-          { label: 'Assigned To:', value: task.assignedTo.name },
-          { label: 'Due Date:', value: task.dueDate },
-          { label: 'Status:', value: task.status },
-          { label: 'Progress:', value: `${task.progress}%` },
-        ];
-        
-        if (task.description) {
-          details.push({ label: 'Description:', value: task.description });
-        }
-        
-        details.forEach(detail => {
-          pdf.setFont('helvetica', 'bold');
-          pdf.text(detail.label, 20, yPosition);
-          pdf.setFont('helvetica', 'normal');
-          pdf.text(detail.value, 60, yPosition);
+          columns.forEach(col => {
+            pdf.text(col.header, col.x, yPosition);
+          });
+          pdf.line(20, yPosition + 3, 200, yPosition + 3);
           yPosition += 10;
-        });
+          pdf.setFont('helvetica', 'normal');
+        }
         
-        // Load and add attachments
+        // Draw row background (alternating)
+        if (i % 2 === 0) {
+          pdf.setFillColor(248, 250, 252); // Light gray
+          pdf.rect(20, yPosition - 5, 180, rowHeight, 'F');
+        }
+        
+        // Load and draw attachment preview
         try {
           const { data: attachments } = await supabase
             .from('task_attachments')
@@ -287,49 +240,63 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             .eq('task_id', task.id);
             
           if (attachments && attachments.length > 0) {
-            yPosition += 10;
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Attachments:', 20, yPosition);
-            yPosition += 15;
-            
-            for (const attachment of attachments) {
-              // Add attachment info
-              pdf.setFont('helvetica', 'normal');
-              pdf.text(`File: ${attachment.file_name}`, 25, yPosition);
-              yPosition += 8;
-              
-              // Try to add image preview if it's an image file
-              if (attachment.file_type?.startsWith('image/')) {
-                try {
-                  const imageWidth = pageWidth - 40;
-                  const maxImageHeight = 100;
-                  
-                  // Add image if there's space, otherwise add on next page
-                  if (yPosition + maxImageHeight > pageHeight - 40) {
-                    pdf.addPage();
-                    pageNumber++;
-                    addHeaderFooter(pdf, pageNumber);
-                    yPosition = 40;
-                  }
-                  
-                  pdf.addImage(attachment.file_url, 'JPEG', 20, yPosition, imageWidth, maxImageHeight);
-                  yPosition += maxImageHeight + 10;
-                } catch (imageError) {
-                  console.warn('Could not add image to PDF:', imageError);
-                  pdf.text(`[Image: ${attachment.file_name}]`, 25, yPosition);
-                  yPosition += 8;
-                }
-              } else {
-                pdf.text(`[File: ${attachment.file_name}]`, 25, yPosition);
-                yPosition += 8;
+            const firstAttachment = attachments[0];
+            if (firstAttachment.file_type?.startsWith('image/')) {
+              try {
+                pdf.addImage(
+                  firstAttachment.file_url, 
+                  'JPEG', 
+                  22, 
+                  yPosition - 3, 
+                  previewSize, 
+                  previewSize * 0.75
+                );
+              } catch (imageError) {
+                // Fallback icon for images that can't be loaded
+                pdf.setFillColor(200, 200, 200);
+                pdf.rect(22, yPosition - 3, previewSize, previewSize * 0.75, 'F');
+                pdf.setFontSize(8);
+                pdf.text('IMG', 25, yPosition + 8);
               }
-              
-              yPosition += 5;
+            } else {
+              // File icon placeholder
+              pdf.setFillColor(220, 220, 220);
+              pdf.rect(22, yPosition - 3, previewSize, previewSize * 0.75, 'F');
+              pdf.setFontSize(8);
+              pdf.setTextColor(80, 80, 80);
+              pdf.text('FILE', 24, yPosition + 8);
+              pdf.setTextColor(0, 0, 0);
             }
+          } else {
+            // No attachment placeholder
+            pdf.setDrawColor(200, 200, 200);
+            pdf.rect(22, yPosition - 3, previewSize, previewSize * 0.75);
+            pdf.setFontSize(6);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text('No preview', 23, yPosition + 8);
+            pdf.setTextColor(0, 0, 0);
           }
-        } catch (attachmentError) {
-          console.error('Error loading attachments for task:', task.taskName, attachmentError);
+        } catch (error) {
+          console.warn('Could not load attachments for task:', task.taskName);
         }
+        
+        // Draw task data
+        pdf.setFontSize(9);
+        const taskNumber = task.task_number || `${i + 1}`;
+        const taskName = task.taskName.length > 20 ? task.taskName.substring(0, 20) + '...' : task.taskName;
+        const assignedTo = task.assignedTo.name.length > 12 ? task.assignedTo.name.substring(0, 12) + '...' : task.assignedTo.name;
+        
+        pdf.text(taskNumber, columns[1].x, yPosition + 10);
+        pdf.text(taskName, columns[2].x, yPosition + 10);
+        pdf.text(assignedTo, columns[3].x, yPosition + 10);
+        pdf.text(task.priority, columns[4].x, yPosition + 10);
+        pdf.text(task.status, columns[5].x, yPosition + 10);
+        
+        // Draw row separator
+        pdf.setDrawColor(230, 230, 230);
+        pdf.line(20, yPosition + rowHeight - 5, 200, yPosition + rowHeight - 5);
+        
+        yPosition += rowHeight;
       }
       
       // Save the PDF
