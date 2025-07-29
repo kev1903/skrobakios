@@ -155,7 +155,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
     
     setUploading(true);
     try {
-      const newTask = {
+      const newTaskData = {
         project_id: projectId,
         taskName: taskName.trim(),
         taskType: taskType as 'Task' | 'Issue',
@@ -167,16 +167,20 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
         description: description.trim() || undefined
       };
 
-      await addTask(newTask);
+      // Add the task and get the created task with ID
+      const createdTask = await addTask(newTaskData);
       
-      // If we have files to upload, we need to get the task ID first
-      // For now, we'll need to modify the addTask function to return the created task
-      // This is a limitation of the current implementation
-      
-      if (selectedFiles.length > 0) {
+      // Upload attachments if any files are selected
+      if (selectedFiles.length > 0 && createdTask?.id) {
+        await uploadAttachments(createdTask.id);
         toast({
-          title: "Note",
-          description: "Task created. Please edit the task to add attachments.",
+          title: "Success",
+          description: `Task created with ${selectedFiles.length} attachment(s)`,
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Task created successfully",
         });
       }
       

@@ -51,6 +51,7 @@ export const TaskProvider = ({ children }: TaskProviderProps) => {
     try {
       const newTask = await taskService.addTask(taskData);
       setTasks(prev => [newTask, ...prev]);
+      return newTask;
     } catch (error) {
       console.error('Error adding task:', error);
       throw error;

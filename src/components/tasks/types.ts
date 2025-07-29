@@ -189,6 +189,6 @@ export interface TaskContextType {
   loading: boolean;
   loadTasksForProject: (projectId: string) => Promise<void>;
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
-  addTask: (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  addTask: (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => Promise<Task>;
   deleteTask: (taskId: string) => Promise<void>;
 }
