@@ -11,6 +11,7 @@ import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
 import { DayTimelineView } from '@/components/tasks/DayTimelineView';
+import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
 import { useUser } from '@/contexts/UserContext';
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -146,7 +147,7 @@ const TasksPage = () => {
 
     if (!destination) return;
 
-    // Handle drop on timeline slots (format: "timeline-SLOTINDEX") where slotIndex is 30-minute slots
+    // Handle drop on day timeline slots (format: "timeline-SLOTINDEX")
     if (destination.droppableId.startsWith('timeline-')) {
       const slotIndex = parseInt(destination.droppableId.replace('timeline-', ''));
       const hour = Math.floor(slotIndex / 2);
@@ -160,6 +161,9 @@ const TasksPage = () => {
       } else if (draggableId.startsWith('timeline-')) {
         taskId = draggableId.replace('timeline-', '');
         console.log('🔄 Moving task from timeline slot to another timeline slot');
+      } else if (draggableId.startsWith('week-timeline-')) {
+        taskId = draggableId.replace('week-timeline-', '');
+        console.log('🔄 Moving task from week timeline slot to day timeline slot');
       } else {
         console.error('❌ Unknown draggable ID format:', draggableId);
         return;
@@ -178,10 +182,8 @@ const TasksPage = () => {
         console.log('⏰ Setting task datetime to:', newDateTime.toISOString(), `(UTC slot: ${hour}:${minutes.toString().padStart(2, '0')})`);
         
         try {
-          // Since there's no due_time column, we'll store the full datetime in due_date  
-          // The database due_date column can handle timestamp with timezone
           await taskService.updateTask(task.id, {
-            dueDate: newDateTime.toISOString() // Store full datetime instead of just date
+            dueDate: newDateTime.toISOString()
           }, userProfile);
           
           console.log('✅ Task update successful');
@@ -195,6 +197,59 @@ const TasksPage = () => {
         }
       } else {
         console.error('❌ Task not found for ID:', taskId);
+      }
+    }
+
+    // Handle drop on week timeline slots (format: "week-timeline-SLOTINDEX-DAYINDEX")
+    if (destination.droppableId.startsWith('week-timeline-')) {
+      const parts = destination.droppableId.replace('week-timeline-', '').split('-');
+      const slotIndex = parseInt(parts[0]);
+      const dayIndex = parseInt(parts[1]);
+      const hour = Math.floor(slotIndex / 2);
+      const minutes = (slotIndex % 2) * 30;
+      
+      // Calculate target date based on day index
+      const weekStart = startOfWeek(currentDate);
+      const targetDate = addDays(weekStart, dayIndex);
+      
+      let taskId;
+      if (draggableId.startsWith('backlog-')) {
+        taskId = draggableId.replace('backlog-', '');
+        console.log('📋 Moving task from backlog to week timeline slot');
+      } else if (draggableId.startsWith('timeline-')) {
+        taskId = draggableId.replace('timeline-', '');
+        console.log('🔄 Moving task from day timeline to week timeline slot');
+      } else if (draggableId.startsWith('week-timeline-')) {
+        taskId = draggableId.replace('week-timeline-', '');
+        console.log('🔄 Moving task within week timeline');
+      } else {
+        console.error('❌ Unknown draggable ID format:', draggableId);
+        return;
+      }
+      
+      const task = userTasks.find(t => t.id === taskId);
+      
+      if (task) {
+        console.log('📋 Found task to update:', task.taskName);
+        console.log('🎯 Target date:', targetDate, 'Time:', `${hour}:${minutes.toString().padStart(2, '0')}`);
+        
+        // Create datetime with the selected 30-minute slot for the target date
+        const newDateTime = new Date(targetDate);
+        newDateTime.setUTCHours(hour, minutes, 0, 0);
+        
+        try {
+          await taskService.updateTask(task.id, {
+            dueDate: newDateTime.toISOString()
+          }, userProfile);
+          
+          console.log('✅ Week task update successful');
+          
+          // Reload tasks to reflect changes
+          const updatedTasks = await taskService.loadTasksAssignedToUser();
+          setUserTasks(updatedTasks);
+        } catch (error) {
+          console.error('❌ Failed to update week task:', error);
+        }
       }
     }
     
@@ -250,74 +305,22 @@ const TasksPage = () => {
     />
   );
 
-  const renderWeekView = () => {
-    const weekDays = getWeekDays(currentDate);
-    const weekHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    return (
-      <div className="grid grid-cols-7 gap-1">
-        {weekHeaders.map(day => (
-          <div key={day} className="p-2 text-center font-medium text-muted-foreground text-sm">
-            {day}
-          </div>
-        ))}
-        
-        {weekDays.map((day, index) => {
-          const dayTasks = getTasksForDate(day);
-          const isToday = isSameDay(day, new Date());
-          
-          return (
-            <div
-              key={index}
-              className={`min-h-[120px] p-2 border border-gray-100 bg-white hover:bg-gray-50 cursor-pointer transition-colors ${
-                isToday ? 'bg-blue-50 border-blue-200' : ''
-              }`}
-              onClick={() => setCurrentDate(day)}
-            >
-              <div className={`text-sm font-medium mb-2 ${
-                isToday ? 'text-blue-600' : 'text-foreground'
-              }`}>
-                {day.getDate()}
-              </div>
-              <div className="space-y-1">
-                {dayTasks.slice(0, 3).map(task => {
-                  const taskTime = new Date(task.dueDate);
-                  const hasSpecificTime = !(taskTime.getUTCHours() === 0 && taskTime.getUTCMinutes() === 0);
-                  
-                  return (
-                    <div
-                      key={task.id}
-                      className="text-xs p-1.5 rounded border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
-                      title={`${task.taskName} - ${task.projectName || 'No Project'}${hasSpecificTime ? ` at ${format(taskTime, 'HH:mm')}` : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Could add task click handler here
-                      }}
-                    >
-                      <div className="font-medium truncate">{task.taskName}</div>
-                      {hasSpecificTime && (
-                        <div className="text-muted-foreground">
-                          {format(taskTime, 'HH:mm')}
-                        </div>
-                      )}
-                      <div className="text-muted-foreground truncate">
-                        {task.projectName || 'No Project'}
-                      </div>
-                    </div>
-                  );
-                })}
-                {dayTasks.length > 3 && (
-                  <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
-                    +{dayTasks.length - 3} more
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  const renderWeekView = () => (
+    <WeekTimelineView 
+      currentDate={currentDate} 
+      tasks={userTasks}
+      onTaskUpdate={async (taskId, updates) => {
+        try {
+          await taskService.updateTask(taskId, updates, userProfile);
+          // Reload tasks to reflect changes
+          const updatedTasks = await taskService.loadTasksAssignedToUser();
+          setUserTasks(updatedTasks);
+        } catch (error) {
+          console.error('Failed to update task:', error);
+        }
+      }}
+    />
+  );
 
   const renderMonthView = () => {
     const days = getDaysInMonth(currentDate);

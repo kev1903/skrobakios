@@ -1,0 +1,228 @@
+import React, { useState, useCallback } from 'react';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { format, isSameDay, setHours, setMinutes, addDays, startOfWeek } from 'date-fns';
+import { Clock, Plus } from 'lucide-react';
+import { Task } from './types';
+
+interface WeekTimelineViewProps {
+  currentDate: Date;
+  tasks?: Task[];
+  onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
+}
+
+interface TimeSlot {
+  hour: number;
+  label: string;
+  dayTasks: { [dayIndex: number]: Task[] };
+}
+
+export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({ 
+  currentDate, 
+  tasks = [], 
+  onTaskUpdate 
+}) => {
+  
+  // Get the week days starting from Sunday
+  const getWeekDays = useCallback(() => {
+    const weekStart = startOfWeek(currentDate);
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+      weekDays.push(addDays(weekStart, i));
+    }
+    return weekDays;
+  }, [currentDate]);
+
+  const weekDays = getWeekDays();
+  const weekHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Generate 24-hour time slots for the week
+  const generateTimeSlots = useCallback((): TimeSlot[] => {
+    const slots: TimeSlot[] = [];
+    
+    // Generate 48 30-minute slots (24 hours × 2)
+    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
+      const hour = Math.floor(slotIndex / 2);
+      const minutes = (slotIndex % 2) * 30;
+      const timeLabel = format(setHours(setMinutes(new Date(), minutes), hour), 'HH:mm');
+      
+      // Create dayTasks object to hold tasks for each day of the week
+      const dayTasks: { [dayIndex: number]: Task[] } = {};
+      
+      // For each day of the week, find tasks for this time slot
+      weekDays.forEach((day, dayIndex) => {
+        const dayTasksForSlot = tasks.filter(task => {
+          const taskDate = new Date(task.dueDate);
+          if (!isSameDay(taskDate, day)) return false;
+          
+          // Only show tasks with specific times (not at midnight/00:00) in timeline
+          if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
+          
+          // Check if task falls within this 30-minute slot
+          const taskHour = taskDate.getUTCHours();
+          const taskMinutes = taskDate.getUTCMinutes();
+          
+          return taskHour === hour && 
+                 ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
+                  (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
+        });
+        
+        dayTasks[dayIndex] = dayTasksForSlot;
+      });
+      
+      slots.push({
+        hour: slotIndex, // 30-minute slot index
+        label: timeLabel,
+        dayTasks
+      });
+    }
+    return slots;
+  }, [tasks, weekDays]);
+
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateTimeSlots());
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+        return "bg-success/10 border-success/20 text-success";
+      case "in progress":
+        return "bg-primary/10 border-primary/20 text-primary";
+      case "pending":
+        return "bg-warning/10 border-warning/20 text-warning";
+      default:
+        return "bg-muted border-border text-muted-foreground";
+    }
+  };
+
+  React.useEffect(() => {
+    setTimeSlots(generateTimeSlots());
+  }, [generateTimeSlots]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Clock className="w-5 h-5" />
+          Week of {format(weekDays[0], 'MMM d')} - {format(weekDays[6], 'MMM d, yyyy')}
+        </h3>
+        <Button size="sm" variant="outline">
+          <Plus className="w-4 h-4 mr-1" />
+          Add Task
+        </Button>
+      </div>
+
+      <div className="border border-border rounded-lg bg-card overflow-hidden">
+        {/* Week Headers */}
+        <div className="grid grid-cols-8 bg-muted/30 border-b border-border">
+          {/* Empty cell for time column */}
+          <div className="p-3 border-r border-border/50"></div>
+          
+          {/* Day headers */}
+          {weekHeaders.map((dayName, index) => {
+            const day = weekDays[index];
+            const isToday = isSameDay(day, new Date());
+            
+            return (
+              <div 
+                key={dayName} 
+                className={`p-3 text-center border-r border-border/50 last:border-r-0 ${
+                  isToday ? 'bg-primary/5' : ''
+                }`}
+              >
+                <div className={`font-medium text-sm ${
+                  isToday ? 'text-primary' : 'text-muted-foreground'
+                }`}>
+                  {dayName}
+                </div>
+                <div className={`text-lg font-semibold ${
+                  isToday ? 'text-primary' : 'text-foreground'
+                }`}>
+                  {day.getDate()}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Time slots grid */}
+        <div className="max-h-[600px] overflow-y-auto">
+          {timeSlots.map((slot) => (
+            <div key={slot.hour} className="grid grid-cols-8 border-b border-border/50 h-[50px]">
+              {/* Time Label */}
+              <div className="flex items-center justify-center p-2 bg-muted/30 border-r border-border/50">
+                <span className="text-sm font-medium text-muted-foreground">
+                  {slot.label}
+                </span>
+              </div>
+
+              {/* Day columns */}
+              {weekDays.map((day, dayIndex) => (
+                <div key={dayIndex} className="p-1 border-r border-border/50 last:border-r-0">
+                  <Droppable droppableId={`week-timeline-${slot.hour}-${dayIndex}`} direction="horizontal">
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`h-[42px] rounded-md transition-colors flex items-center ${
+                          snapshot.isDraggingOver
+                            ? 'bg-primary/10 border-2 border-dashed border-primary/30'
+                            : 'bg-background hover:bg-muted/20'
+                        }`}
+                      >
+                        <div className="flex gap-1 overflow-x-auto scrollbar-thin py-1 px-1 w-full">
+                          {(slot.dayTasks[dayIndex] || []).map((task, index) => (
+                            <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  data-dragging={snapshot.isDragging}
+                                  className={`transition-all duration-200 ${
+                                    snapshot.isDragging 
+                                      ? 'shadow-xl opacity-90' 
+                                      : 'hover:shadow-md'
+                                  }`}
+                                  style={{
+                                    ...provided.draggableProps.style,
+                                    transform: snapshot.isDragging 
+                                      ? provided.draggableProps.style?.transform 
+                                      : provided.draggableProps.style?.transform
+                                  }}
+                                >
+                                  <Card className={`w-24 h-8 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
+                                    <CardContent className="px-1 py-0.5 h-full flex flex-col justify-center">
+                                      <div className="text-xs font-medium line-clamp-1 text-foreground leading-tight">
+                                        {task.taskName}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground/80 truncate leading-tight font-normal">
+                                        {task.projectName ? task.projectName.substring(0, 8) + '...' : 'No Project'}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                        
+                        {(slot.dayTasks[dayIndex] || []).length === 0 && !snapshot.isDraggingOver && (
+                          <div className="flex items-center justify-center h-full text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">
+                            Drop
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
