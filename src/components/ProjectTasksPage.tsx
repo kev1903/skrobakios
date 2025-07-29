@@ -77,26 +77,57 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       const exportDate = new Date().toLocaleString();
       let pageNumber = 1;
       
+      // Pre-calculate logo dimensions if logo exists
+      let logoWidth = 40;
+      let logoHeight = 20;
+      
+      if (fullCompanyData?.logo_url) {
+        try {
+          // Create a promise to get image dimensions
+          const getImageDimensions = (url: string): Promise<{width: number, height: number}> => {
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+              img.onerror = reject;
+              img.src = url;
+            });
+          };
+          
+          const dimensions = await getImageDimensions(fullCompanyData.logo_url);
+          const aspectRatio = dimensions.width / dimensions.height;
+          
+          // Set desired height and calculate width to maintain aspect ratio
+          logoHeight = 20;
+          logoWidth = logoHeight * aspectRatio;
+          
+          // Limit max width to prevent overflow
+          if (logoWidth > 60) {
+            logoWidth = 60;
+            logoHeight = logoWidth / aspectRatio;
+          }
+        } catch (error) {
+          console.warn('Could not get logo dimensions, using default:', error);
+          logoWidth = 40;
+          logoHeight = 20;
+        }
+      }
+      
       // Header and footer helper function
       const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
         // Header with company logo and info
         try {
-          // Try to add company logo from database with proper scaling
           if (fullCompanyData?.logo_url) {
-            // Calculate proper logo dimensions (maintaining aspect ratio)
-            const logoWidth = 40;
-            const logoHeight = 20;
             pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, logoWidth, logoHeight);
             
-            // Company details next to logo
+            // Company details next to logo (positioned based on actual logo width)
             pdf.setFontSize(12);
             pdf.setFont('helvetica', 'bold');
-            pdf.text(fullCompanyData.name, 70, 18);
+            pdf.text(fullCompanyData.name, 25 + logoWidth, 18);
             
             if (fullCompanyData.phone) {
               pdf.setFontSize(9);
               pdf.setFont('helvetica', 'normal');
-              pdf.text(fullCompanyData.phone, 70, 24);
+              pdf.text(fullCompanyData.phone, 25 + logoWidth, 24);
             }
           } else {
             // Fallback with company name
