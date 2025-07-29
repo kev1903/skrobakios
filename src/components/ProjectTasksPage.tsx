@@ -6,7 +6,6 @@ import { useTaskContext } from './tasks/useTaskContext';
 import { TaskListView } from './tasks/TaskListView';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
-import { TaskCalendarView } from './tasks/TaskCalendarView';
 import { ProjectSidebar } from './ProjectSidebar';
 import { TaskPageHeader } from './tasks/TaskPageHeader';
 import { TaskSearchAndActions } from './tasks/TaskSearchAndActions';
@@ -605,8 +604,6 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         return <TaskBoardView projectId={project.id} />;
       case "timeline":
         return <div className="p-8 text-center text-slate-600">Timeline view has been removed</div>;
-      case "calendar":
-        return <TaskCalendarView />;
       case "overview":
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
