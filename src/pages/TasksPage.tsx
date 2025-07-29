@@ -228,22 +228,7 @@ const TasksPage = () => {
         </div>
 
         {/* Today's Tasks Summary */}
-        <div className="mt-6 bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 shadow-sm">
-          <h3 className="font-semibold text-gray-900 mb-4">Today's Schedule</h3>
-          <div className="space-y-3">
-            {tasks.map(task => <div key={task.id} className="flex items-center gap-4 p-3 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className="bg-slate-800 text-white px-3 py-1 rounded-lg text-xs font-semibold">
-                  {task.time}
-                </div>
-                <span className="font-medium text-gray-800">{task.title}</span>
-                {task.tags && <div className="flex gap-2 ml-auto">
-                    {task.tags.map((tag, index) => <span key={index} className={cn("px-2 py-1 rounded-md text-xs font-medium", tag === 'Creative' ? 'bg-green-100 text-green-600' : tag === 'UIF' ? 'bg-cyan-100 text-cyan-600' : 'bg-red-100 text-red-600')}>
-                        {tag}
-                      </span>)}
-                  </div>}
-              </div>)}
-          </div>
-        </div>
+        
       </div>
 
       {/* Right Sidebar */}
