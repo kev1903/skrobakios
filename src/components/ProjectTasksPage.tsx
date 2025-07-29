@@ -7,7 +7,7 @@ import { TaskListView } from './tasks/TaskListView';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
 import { TaskCalendarView } from './tasks/TaskCalendarView';
-import { ProjectSidebar } from './ProjectSidebar';
+import { TaskLayout } from './tasks/TaskLayout';
 import { TaskPageHeader } from './tasks/TaskPageHeader';
 import { TaskSearchAndActions } from './tasks/TaskSearchAndActions';
 import { TaskTabNavigation } from './tasks/TaskTabNavigation';
@@ -480,42 +480,19 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   };
 
   return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
-      {/* Project Sidebar */}
-      <ProjectSidebar
-        project={project}
-        onNavigate={onNavigate}
-        getStatusColor={getStatusColor}
-        getStatusText={getStatusText}
-        activeSection="tasks"
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10">
-        <div className="p-8">
-          <TaskPageHeader project={project} />
-          
-          <TaskSearchAndActions
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            selectedTasks={selectedTasks}
-            onAddTask={handleAddTask}
-            onExport={handleExport}
-          />
-
-          <TaskTabNavigation
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-
-          <div>
-            {renderActiveView()}
-          </div>
+    <TaskLayout project={project} onNavigate={onNavigate}>
+      {/* Main content area cleared as requested - only essential minimal content remains */}
+      <div className="p-8">
+        <div className="text-center py-20">
+          <h2 className="text-2xl font-semibold text-slate-800 mb-4">
+            Task Management
+          </h2>
+          <p className="text-slate-600">
+            Content cleared as requested. Today's Schedule is now available in the right sidebar.
+          </p>
         </div>
       </div>
-    </div>
+    </TaskLayout>
   );
 };
 
