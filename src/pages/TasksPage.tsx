@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
@@ -126,6 +127,37 @@ const TasksPage = () => {
       }
       return newDate;
     });
+  };
+
+  // Handle drag and drop from backlog to timeline
+  const handleDragEnd = async (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+
+    // Handle drop on timeline slots (format: "timeline-HOUR")
+    if (destination.droppableId.startsWith('timeline-')) {
+      const hour = parseInt(destination.droppableId.replace('timeline-', ''));
+      const task = userTasks.find(t => t.id === draggableId);
+      
+      if (task) {
+        // Create new date with the selected hour
+        const newDateTime = new Date(currentDate);
+        newDateTime.setHours(hour, 0, 0, 0);
+        
+        try {
+          await taskService.updateTask(task.id, {
+            dueDate: newDateTime.toISOString().split('T')[0]
+          }, null);
+          
+          // Reload tasks to reflect changes
+          const updatedTasks = await taskService.loadTasksAssignedToUser();
+          setUserTasks(updatedTasks);
+        } catch (error) {
+          console.error('Failed to update task:', error);
+        }
+      }
+    }
   };
 
   const renderDayView = () => {
@@ -268,7 +300,9 @@ const TasksPage = () => {
         return renderMonthView();
     }
   };
-  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
+  return (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
       {/* Left Sidebar */}
       <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm">
         {/* Return to Home Button */}
@@ -311,28 +345,77 @@ const TasksPage = () => {
             </button>
           </div>
 
-          <div className="space-y-2">
-            {loading ? <div className="text-center py-4">
-                <div className="text-sm text-gray-500">Loading tasks...</div>
-              </div> : userTasks.length === 0 ? <div className="text-center py-4">
-                <div className="text-sm text-gray-500">No tasks assigned to you</div>
-              </div> : userTasks.filter(task => activeTab === 'All' || task.taskType === activeTab).map(task => <div key={task.id} className="px-3 py-2 rounded-lg hover:bg-gray-50/50 cursor-pointer transition-colors group border border-gray-100/50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-semibold text-gray-800 truncate mb-1">{task.taskName}</h4>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-gray-500 font-medium truncate">{task.projectName || 'No Project'}</p>
-                        <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0", task.taskType === 'Task' ? 'bg-green-50 text-green-600' : task.taskType === 'Issue' ? 'bg-orange-50 text-orange-600' : task.taskType === 'Bug' ? 'bg-red-50 text-red-600' : task.taskType === 'Feature' ? 'bg-purple-50 text-purple-600' : 'bg-gray-50 text-gray-600')}>
-                          {task.taskType}
-                        </span>
-                        <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0", task.priority === 'High' ? 'bg-red-50 text-red-600' : task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' : 'bg-green-50 text-green-600')}>
-                          {task.priority}
-                        </span>
-                      </div>
-                    </div>
+          <Droppable droppableId="task-backlog" isDropDisabled={true}>
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-2"
+              >
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-gray-500">Loading tasks...</div>
                   </div>
-                </div>)}
-          </div>
+                ) : userTasks.length === 0 ? (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-gray-500">No tasks assigned to you</div>
+                  </div>
+                ) : (
+                  userTasks
+                    .filter(task => activeTab === 'All' || task.taskType === activeTab)
+                    .map((task, index) => (
+                      <Draggable key={task.id} draggableId={task.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={cn(
+                              "px-3 py-2 rounded-lg cursor-pointer transition-colors group border border-gray-100/50",
+                              snapshot.isDragging 
+                                ? "bg-blue-50 border-blue-200 shadow-lg rotate-2 scale-105" 
+                                : "hover:bg-gray-50/50"
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-semibold text-gray-800 truncate mb-1">
+                                  {task.taskName}
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs text-gray-500 font-medium truncate">
+                                    {task.projectName || 'No Project'}
+                                  </p>
+                                  <span className={cn(
+                                    "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
+                                    task.taskType === 'Task' ? 'bg-green-50 text-green-600' :
+                                    task.taskType === 'Issue' ? 'bg-orange-50 text-orange-600' :
+                                    task.taskType === 'Bug' ? 'bg-red-50 text-red-600' :
+                                    task.taskType === 'Feature' ? 'bg-purple-50 text-purple-600' :
+                                    'bg-gray-50 text-gray-600'
+                                  )}>
+                                    {task.taskType}
+                                  </span>
+                                  <span className={cn(
+                                    "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
+                                    task.priority === 'High' ? 'bg-red-50 text-red-600' :
+                                    task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' :
+                                    'bg-green-50 text-green-600'
+                                  )}>
+                                    {task.priority}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))
+                )}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
         </div>
 
       </div>
@@ -402,6 +485,8 @@ const TasksPage = () => {
         {/* Gallery */}
         
       </div>
-    </div>;
+    </div>
+    </DragDropContext>
+  );
 };
 export default TasksPage;

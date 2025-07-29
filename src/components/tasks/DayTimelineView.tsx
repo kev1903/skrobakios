@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,7 +24,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   tasks = [], 
   onTaskUpdate 
 }) => {
-  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  
 
   // Generate 24-hour time slots
   const generateTimeSlots = useCallback((): TimeSlot[] => {
@@ -73,53 +73,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   };
 
-  const handleDragStart = useCallback((start: any) => {
-    const taskId = start.draggableId;
-    const task = tasks.find(t => t.id === taskId);
-    setDraggedTask(task || null);
-  }, [tasks]);
-
-  const handleDragEnd = useCallback(async (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    setDraggedTask(null);
-
-    if (!destination) return;
-
-    const sourceHour = parseInt(source.droppableId.replace('hour-', ''));
-    const destinationHour = parseInt(destination.droppableId.replace('hour-', ''));
-
-    if (sourceHour === destinationHour) return;
-
-    // Update local state immediately for better UX
-    setTimeSlots(prevSlots => {
-      const newSlots = [...prevSlots];
-      const sourceSlot = newSlots[sourceHour];
-      const destinationSlot = newSlots[destinationHour];
-      
-      const [movedTask] = sourceSlot.tasks.splice(source.index, 1);
-      destinationSlot.tasks.splice(destination.index, 0, movedTask);
-      
-      return newSlots;
-    });
-
-    // Update the task's due date/time
-    const task = tasks.find(t => t.id === draggableId);
-    if (task) {
-      const newDateTime = setHours(setMinutes(new Date(currentDate), 0), destinationHour);
-      try {
-        if (onTaskUpdate) {
-          await onTaskUpdate(task.id, {
-            dueDate: newDateTime.toISOString().split('T')[0]
-          });
-        }
-      } catch (error) {
-        console.error('Failed to update task:', error);
-        // Revert the local state on error
-        setTimeSlots(generateTimeSlots());
-      }
-    }
-  }, [currentDate, tasks, onTaskUpdate, generateTimeSlots]);
-
   React.useEffect(() => {
     setTimeSlots(generateTimeSlots());
   }, [generateTimeSlots]);
@@ -137,7 +90,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         </Button>
       </div>
 
-      <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 gap-1 max-h-[600px] overflow-y-auto border border-border rounded-lg bg-card">
           {timeSlots.map((slot) => (
             <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 min-h-[60px]">
@@ -150,7 +102,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
               {/* Task Drop Zone */}
               <div className="col-span-10 p-2">
-                <Droppable droppableId={`hour-${slot.hour}`} direction="horizontal">
+                <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
@@ -231,19 +183,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             </div>
           ))}
         </div>
-      </DragDropContext>
 
-      {draggedTask && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Card className="bg-primary text-primary-foreground">
-            <CardContent className="p-3">
-              <div className="text-sm font-medium">
-                Moving: {draggedTask.taskName}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };
