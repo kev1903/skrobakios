@@ -244,14 +244,18 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       const rowHeight = 30;
       const previewSize = 20;
       
-      // Column positions and widths - professionally aligned with better spacing
+      // Calculate table width to span full page width
+      const tableMargin = 20;
+      const tableWidth = pageWidth - (2 * tableMargin);
+      
+      // Column positions and widths - distributed across full page width
       const columns = [
-        { header: 'Preview', x: 20, width: 30, align: 'center' as const },
-        { header: '#', x: 50, width: 25, align: 'left' as const },
-        { header: 'Task Name', x: 75, width: 65, align: 'left' as const },
-        { header: 'Assigned to', x: 140, width: 30, align: 'left' as const },
-        { header: 'Priority', x: 170, width: 25, align: 'center' as const },
-        { header: 'Status', x: 195, width: 25, align: 'center' as const }
+        { header: 'Preview', x: tableMargin, width: tableWidth * 0.15, align: 'center' as const },
+        { header: '#', x: tableMargin + (tableWidth * 0.15), width: tableWidth * 0.12, align: 'left' as const },
+        { header: 'Task Name', x: tableMargin + (tableWidth * 0.27), width: tableWidth * 0.33, align: 'left' as const },
+        { header: 'Assigned to', x: tableMargin + (tableWidth * 0.6), width: tableWidth * 0.2, align: 'left' as const },
+        { header: 'Priority', x: tableMargin + (tableWidth * 0.8), width: tableWidth * 0.1, align: 'center' as const },
+        { header: 'Status', x: tableMargin + (tableWidth * 0.9), width: tableWidth * 0.1, align: 'center' as const }
       ];
       
       // Draw table headers with background
@@ -375,8 +379,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         pdf.setTextColor(40, 40, 40);
         
         const taskNumber = task.task_number || `${i + 1}`;
-        const taskName = task.taskName.length > 35 ? task.taskName.substring(0, 35) + '...' : task.taskName;
-        const assignedTo = task.assignedTo.name.length > 15 ? task.assignedTo.name.substring(0, 15) + '...' : task.assignedTo.name;
+        const taskName = task.taskName.length > 50 ? task.taskName.substring(0, 50) + '...' : task.taskName;
+        const assignedTo = task.assignedTo.name.length > 25 ? task.assignedTo.name.substring(0, 25) + '...' : task.assignedTo.name;
         
         // Task data with proper vertical alignment
         const textY = yPosition + 15; // Center text vertically in row
