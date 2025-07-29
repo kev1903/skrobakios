@@ -155,11 +155,11 @@ const TasksPage = () => {
       if (task) {
         console.log('📋 Found task to update:', task.taskName);
         
-        // Create datetime with the selected hour for the current date
+        // Create datetime with the selected hour for the current date (using UTC to match timeline display)
         const newDateTime = new Date(currentDate);
-        newDateTime.setHours(hour, 0, 0, 0);
+        newDateTime.setUTCHours(hour, 0, 0, 0); // Use UTC to match timeline filtering
         
-        console.log('⏰ Setting task datetime to:', newDateTime.toISOString());
+        console.log('⏰ Setting task datetime to:', newDateTime.toISOString(), `(UTC hour: ${hour})`);
         
         try {
           // Since there's no due_time column, we'll store the full datetime in due_date  
