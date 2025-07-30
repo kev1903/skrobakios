@@ -263,7 +263,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                    <div
                                      ref={provided.innerRef}
                                      {...provided.draggableProps}
-                                     {...provided.dragHandleProps}
                                      data-dragging={snapshot.isDragging}
                                      className={`absolute transition-all duration-200 ${
                                        snapshot.isDragging 
@@ -282,7 +281,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                      }}
                                    >
                                      <Card 
-                                       className={`h-full w-full ${getStatusColor(task.status)} border-l-4 cursor-grab active:cursor-grabbing select-none group shadow-sm`}
+                                       className={`h-full w-full ${getStatusColor(task.status)} border-l-4 select-none group shadow-sm relative`}
                                        style={{ borderLeftColor: task.priority === 'High' ? 'hsl(var(--destructive))' : task.priority === 'Medium' ? 'hsl(var(--warning))' : 'hsl(var(--success))' }}
                                      >
                                         {/* Top resize handle */}
@@ -305,6 +304,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                           </div>
                                         </div>
                                        
+                                       {/* Drag handle area - separate from resize handles */}
+                                       <div
+                                         {...provided.dragHandleProps}
+                                         className="cursor-grab active:cursor-grabbing absolute inset-2 z-10"
+                                       />
+
                                        <CardContent className="p-3 h-full flex flex-col justify-start gap-1">
                                           <h4 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
                                             {task.taskName}
