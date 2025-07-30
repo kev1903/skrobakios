@@ -178,10 +178,10 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
   return (
     <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex h-full">
-        {/* Left Sidebar - Task Backlog - Completely Fixed */}
-        <div className="w-80 flex-shrink-0 h-full flex flex-col">
-          <Card className="h-full flex flex-col overflow-hidden">
+      <div className="relative h-full w-full overflow-hidden">
+        {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
+        <div className="absolute left-0 top-0 w-80 h-full z-10 bg-background">
+          <Card className="h-full flex flex-col border-r shadow-sm">{/* Main Calendar Area - Scrollable with left margin */}
             <CardHeader className="pb-4 flex-shrink-0">
               <CardTitle className="text-lg">Task Backlog</CardTitle>
               <Button 
@@ -280,8 +280,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
           </Card>
         </div>
 
-        {/* Main Calendar Area - Scrollable */}
-        <div className="flex-1 min-w-0 overflow-y-auto ml-6">
+        {/* Main Calendar Area - Scrollable with left margin for sidebar */}
+        <div className="ml-80 h-full overflow-y-auto pl-6">
           <div className="space-y-6 pb-6">
             {/* Header */}
             <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-4">
