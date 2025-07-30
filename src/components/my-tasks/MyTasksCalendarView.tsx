@@ -23,11 +23,21 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   onTaskUpdate 
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
+
+  // Update current time every second
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const navigateDate = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {
@@ -345,8 +355,11 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
             {/* Date Display */}
             <div className="text-center">
-              <h2 className="text-2xl font-bold">
-                {format(currentDate, 'EEEE, MMMM d, yyyy')}
+              <h2 className="text-2xl font-bold flex items-center justify-center gap-3">
+                {format(currentDate, 'EEEE, d MMMM')} 
+                <span className="flex items-center gap-1 text-lg">
+                  🕒 {format(currentTime, 'HH:mm:ss')}
+                </span>
               </h2>
             </div>
 
