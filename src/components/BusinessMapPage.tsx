@@ -1,14 +1,17 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, BackgroundVariant, MarkerType, NodeTypes, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter, Lock, Unlock } from 'lucide-react';
+import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter, Lock, Unlock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
+import { useUser } from '@/contexts/UserContext';
 import { ModuleSidePopup } from './ModuleSidePopup';
 interface BusinessMapPageProps {
   onNavigate: (page: string) => void;
@@ -322,9 +325,74 @@ const nodeTypes: NodeTypes = {
   moduleNode: ModuleNode,
   companyCenter: CompanyCenterNode
 };
+
+// User Profile Dropdown Component
+const UserProfileDropdown = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
+  const { userProfile } = useUser();
+  
+  const getUserInitials = () => {
+    if (userProfile.firstName && userProfile.lastName) {
+      return `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase();
+    } else if (userProfile.firstName) {
+      return userProfile.firstName.charAt(0).toUpperCase();
+    } else if (userProfile.email) {
+      return userProfile.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+
+  const getUserDisplayName = () => {
+    if (userProfile.firstName && userProfile.lastName) {
+      return `${userProfile.firstName} ${userProfile.lastName}`;
+    } else if (userProfile.firstName) {
+      return userProfile.firstName;
+    } else if (userProfile.lastName) {
+      return userProfile.lastName;
+    }
+    return userProfile.email || 'User';
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={userProfile.avatarUrl} alt={getUserDisplayName()} />
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+              {getUserInitials()}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <div className="flex items-center justify-start gap-2 p-2">
+          <div className="flex flex-col space-y-1 leading-none">
+            <p className="font-medium">{getUserDisplayName()}</p>
+            {userProfile.email && (
+              <p className="w-[200px] truncate text-sm text-muted-foreground">
+                {userProfile.email}
+              </p>
+            )}
+          </div>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => onNavigate('personal')}>
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onNavigate('settings')}>
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 export const BusinessMapPage = ({
   onNavigate
 }: BusinessMapPageProps) => {
+  const { userProfile } = useUser();
   const {
     currentCompany
   } = useCompany();
@@ -897,6 +965,9 @@ export const BusinessMapPage = ({
                 <Unlock className="w-4 h-4" />
               )}
             </Button>
+
+            {/* User Profile Icon */}
+            <UserProfileDropdown onNavigate={onNavigate} />
           </div>
         </div>
       </div>
