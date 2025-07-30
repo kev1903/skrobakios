@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { format, isSameDay, addDays } from 'date-fns';
-import { Search, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { Task } from '../tasks/types';
 import { DayTimelineView } from '../tasks/DayTimelineView';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 
 interface MyTasksCalendarViewProps {
   tasks: Task[];
@@ -24,6 +26,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
+  const { toast } = useToast();
 
   const navigateDate = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {
@@ -114,6 +118,60 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       }
     }
   }, [currentDate, tasks, onTaskUpdate]);
+
+  // Reset tasks from current day back to backlog
+  const handleResetDay = useCallback(async () => {
+    if (isResetting) return;
+    
+    const tasksToReset = getDayTasks();
+    
+    if (tasksToReset.length === 0) {
+      toast({
+        title: "No tasks to reset",
+        description: "There are no tasks scheduled for this day.",
+        variant: "default",
+      });
+      return;
+    }
+
+    setIsResetting(true);
+    
+    try {
+      // Reset all tasks for the current day to midnight (moves them back to backlog)
+      const updates = tasksToReset.map(task => {
+        const resetDate = new Date(task.dueDate);
+        resetDate.setHours(0, 0, 0, 0); // Set to midnight
+        return supabase
+          .from('tasks')
+          .update({ due_date: resetDate.toISOString() })
+          .eq('id', task.id);
+      });
+
+      await Promise.all(updates);
+
+      toast({
+        title: "Day reset successfully",
+        description: `${tasksToReset.length} task${tasksToReset.length > 1 ? 's' : ''} moved back to backlog.`,
+        variant: "default",
+      });
+      
+      // Refresh the tasks if onTaskUpdate is available
+      if (onTaskUpdate) {
+        // Trigger a refresh by updating the first task (this will cause parent to refetch)
+        await onTaskUpdate(tasksToReset[0].id, {});
+      }
+      
+    } catch (error) {
+      console.error('Failed to reset day:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset tasks. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  }, [currentDate, tasks, isResetting, toast, onTaskUpdate]);
 
   const backlogTasks = getBacklogTasks();
   const dayTasks = getDayTasks();
@@ -231,6 +289,16 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                 <Button size="sm" variant="outline">
                   <Plus className="w-4 h-4 mr-2" />
                   New Event
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={handleResetDay}
+                  disabled={isResetting || dayTasks.length === 0}
+                  className="text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  {isResetting ? 'Resetting...' : 'RESET'}
                 </Button>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
