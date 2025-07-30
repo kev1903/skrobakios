@@ -111,12 +111,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Clock className="w-5 h-5" />
-        <h3 className="text-lg font-semibold">
-          {format(currentDate, 'EEEE, MMMM d, yyyy')}
-        </h3>
-      </div>
 
         <div className="grid grid-cols-1 gap-1 max-h-[600px] overflow-y-auto border border-border rounded-lg bg-card">
           {timeSlots.map((slot) => (
