@@ -129,12 +129,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     let newTop: number = 0;
     
     if (dragState.handle === 'top') {
-      // Moving top handle - preview extending upward
-      const newDuration = currentDuration + (slotsChanged * 30);
+      // Moving top handle - preview extending upward (dragging UP should extend duration backward)
+      const newDuration = currentDuration + (-slotsChanged * 30); // Inverse the slotsChanged for top handle
       if (newDuration < 30) return; // Minimum 30 minutes
       
       newHeight = Math.ceil(newDuration / 30) * 64 - 8;
-      newTop = -slotsChanged * 64; // Move top position up
+      newTop = slotsChanged * 64; // When dragging up (negative slotsChanged), this creates negative newTop
     } else {
       // Moving bottom handle - preview extending downward  
       const newDuration = currentDuration + (slotsChanged * 30);
@@ -177,9 +177,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     
     if (dragState.handle === 'top') {
       // Calculate new start time and duration
-      const slotsChanged = Math.round((dragState.previewTop || 0) / -64);
+      const slotsChanged = Math.round((dragState.previewTop || 0) / 64); // Note: no negative here since previewTop already has correct sign
       const newStartTime = subMinutes(dragState.startTime, slotsChanged * 30);
-      const newDuration = currentDuration + (slotsChanged * 30);
+      const newDuration = currentDuration + (-slotsChanged * 30); // Inverse for top handle
       
       if (newDuration >= 30) {
         await onTaskUpdate(dragState.taskId, {
