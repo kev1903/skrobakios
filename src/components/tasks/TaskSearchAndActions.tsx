@@ -48,17 +48,6 @@ export const TaskSearchAndActions = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Add Task Button */}
-          {onAddTask && (
-            <Button 
-              onClick={onAddTask}
-              className="bg-slate-800 text-white hover:bg-slate-700"
-              size="sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Task
-            </Button>
-          )}
 
           {/* Export Button */}
           {onExport && (
