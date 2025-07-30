@@ -488,8 +488,8 @@ const TasksPage = () => {
           <h2 className="text-2xl font-bold text-gray-900">
             {formatDate(currentDate)}
           </h2>
-          <div className="flex items-center gap-2 text-lg font-semibold text-gray-700">
-            <Clock className="w-5 h-5" />
+          <div className="flex items-center gap-2 text-2xl font-bold text-gray-900">
+            <Clock className="w-6 h-6" />
             <span>{format(currentTime, 'HH:mm:ss')}</span>
           </div>
         </div>
