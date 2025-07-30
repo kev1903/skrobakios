@@ -49,30 +49,6 @@ const TasksPage = () => {
     };
     loadUserTasks();
   }, []);
-  const tasks = [{
-    id: 1,
-    time: '12:00 AM',
-    title: 'W7 Challenge - UI Design',
-    tags: ['Creative', 'UIF'],
-    subtasks: ['Analyze the topic, search for ideas, brainstorm, outline the design.', 'Create styles: Color, Typo, Grid, Icons', 'Moodboard', 'Design', 'Showcase; Update Dribbble'],
-    completed: [true, false, false, false, false]
-  }, {
-    id: 2,
-    time: '14:00 PM',
-    title: 'Polygon Event - Live Band',
-    tags: ['Event'],
-    details: {
-      time: '16:00 PM',
-      location: 'COMPLEX 01, Google Map',
-      checklist: 'Ticket, Wallet, Camera',
-      call: 'Call Na'
-    }
-  }, {
-    id: 3,
-    time: '21:00 PM',
-    title: 'MindSpace Meeting',
-    description: 'The meeting will explore the JTBD framework and discuss potential solutions for user groups and the pain points the team wants to tackle.'
-  }];
   const getTasksForDate = (date: Date | null) => {
     if (!date) return [];
     const dateString = date.toISOString().split('T')[0];
