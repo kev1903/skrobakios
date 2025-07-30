@@ -14,9 +14,10 @@ import { DayTimelineView } from '@/components/tasks/DayTimelineView';
 import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
 import { useUser } from '@/contexts/UserContext';
 type ViewMode = 'day' | 'week' | 'month';
-
 const TasksPage = () => {
-  const { userProfile } = useUser();
+  const {
+    userProfile
+  } = useUser();
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -73,7 +74,6 @@ const TasksPage = () => {
       return taskDate === dateString;
     });
   };
-
   const getWeekDays = (date: Date) => {
     const weekStart = startOfWeek(date);
     const weekDays = [];
@@ -82,7 +82,6 @@ const TasksPage = () => {
     }
     return weekDays;
   };
-
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -103,7 +102,6 @@ const TasksPage = () => {
     }
     return days;
   };
-
   const formatDate = (date: Date) => {
     switch (viewMode) {
       case 'day':
@@ -117,7 +115,6 @@ const TasksPage = () => {
         return format(date, 'MMMM yyyy');
     }
   };
-
   const navigate = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {
       const newDate = new Date(prev);
@@ -139,20 +136,26 @@ const TasksPage = () => {
 
   // Handle drag and drop from backlog to timeline
   const handleDragEnd = async (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    
-    console.log('🔄 Drag end result:', { destination, source, draggableId });
+    const {
+      destination,
+      source,
+      draggableId
+    } = result;
+    console.log('🔄 Drag end result:', {
+      destination,
+      source,
+      draggableId
+    });
     console.log('🎯 Source droppableId:', source.droppableId);
     console.log('🎯 Destination droppableId:', destination?.droppableId);
-
     if (!destination) return;
 
     // Handle drop on day timeline slots (format: "timeline-SLOTINDEX")
     if (destination.droppableId.startsWith('timeline-')) {
       const slotIndex = parseInt(destination.droppableId.replace('timeline-', ''));
       const hour = Math.floor(slotIndex / 2);
-      const minutes = (slotIndex % 2) * 30;
-      
+      const minutes = slotIndex % 2 * 30;
+
       // Handle both backlog-to-timeline and timeline-to-timeline moves
       let taskId;
       if (draggableId.startsWith('backlog-')) {
@@ -168,26 +171,22 @@ const TasksPage = () => {
         console.error('❌ Unknown draggable ID format:', draggableId);
         return;
       }
-      
       const task = userTasks.find(t => t.id === taskId);
-      
       if (task) {
         console.log('📋 Found task to update:', task.taskName);
         console.log('🎯 Source:', source.droppableId, '→ Destination:', destination.droppableId);
-        
+
         // Create datetime with the selected 30-minute slot for the current date (using UTC to match timeline display)
         const newDateTime = new Date(currentDate);
         newDateTime.setUTCHours(hour, minutes, 0, 0); // Use UTC with specific minutes
-        
+
         console.log('⏰ Setting task datetime to:', newDateTime.toISOString(), `(UTC slot: ${hour}:${minutes.toString().padStart(2, '0')})`);
-        
         try {
           await taskService.updateTask(task.id, {
             dueDate: newDateTime.toISOString()
           }, userProfile);
-          
           console.log('✅ Task update successful');
-          
+
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
           console.log('🔄 Reloaded tasks count:', updatedTasks.length);
@@ -206,12 +205,11 @@ const TasksPage = () => {
       const slotIndex = parseInt(parts[0]);
       const dayIndex = parseInt(parts[1]);
       const hour = Math.floor(slotIndex / 2);
-      const minutes = (slotIndex % 2) * 30;
-      
+      const minutes = slotIndex % 2 * 30;
+
       // Calculate target date based on day index
       const weekStart = startOfWeek(currentDate);
       const targetDate = addDays(weekStart, dayIndex);
-      
       let taskId;
       if (draggableId.startsWith('backlog-')) {
         taskId = draggableId.replace('backlog-', '');
@@ -226,24 +224,20 @@ const TasksPage = () => {
         console.error('❌ Unknown draggable ID format:', draggableId);
         return;
       }
-      
       const task = userTasks.find(t => t.id === taskId);
-      
       if (task) {
         console.log('📋 Found task to update:', task.taskName);
         console.log('🎯 Target date:', targetDate, 'Time:', `${hour}:${minutes.toString().padStart(2, '0')}`);
-        
+
         // Create datetime with the selected 30-minute slot for the target date
         const newDateTime = new Date(targetDate);
         newDateTime.setUTCHours(hour, minutes, 0, 0);
-        
         try {
           await taskService.updateTask(task.id, {
             dueDate: newDateTime.toISOString()
           }, userProfile);
-          
           console.log('✅ Week task update successful');
-          
+
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
           setUserTasks(updatedTasks);
@@ -252,11 +246,10 @@ const TasksPage = () => {
         }
       }
     }
-    
+
     // Handle drop back to task backlog (remove time assignment)
     if (destination.droppableId === 'task-backlog') {
       console.log('🔙 Task dropped back to backlog!');
-      
       let taskId;
       if (draggableId.startsWith('timeline-')) {
         taskId = draggableId.replace('timeline-', '');
@@ -266,26 +259,21 @@ const TasksPage = () => {
         console.error('❌ Unknown draggable ID format for backlog drop:', draggableId);
         return;
       }
-      
       console.log('🎯 Task ID extracted:', taskId);
       const task = userTasks.find(t => t.id === taskId);
-      
       if (task) {
         console.log('🔙 Moving task back to backlog:', task.taskName);
-        
-         try {
-           // Set due date to just the current date without specific time (midnight UTC)
-           const dateOnly = new Date(currentDate);
-           dateOnly.setUTCHours(0, 0, 0, 0); // Explicitly set UTC midnight
-           
-           console.log('⏰ Setting backlog task datetime to:', dateOnly.toISOString());
-           
-           await taskService.updateTask(task.id, {
-             dueDate: dateOnly.toISOString()
-           }, userProfile);
-          
+        try {
+          // Set due date to just the current date without specific time (midnight UTC)
+          const dateOnly = new Date(currentDate);
+          dateOnly.setUTCHours(0, 0, 0, 0); // Explicitly set UTC midnight
+
+          console.log('⏰ Setting backlog task datetime to:', dateOnly.toISOString());
+          await taskService.updateTask(task.id, {
+            dueDate: dateOnly.toISOString()
+          }, userProfile);
           console.log('✅ Task moved back to backlog successfully');
-          
+
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
           setUserTasks(updatedTasks);
@@ -297,122 +285,75 @@ const TasksPage = () => {
       }
     }
   };
-
-  const renderDayView = () => (
-    <DayTimelineView 
-      currentDate={currentDate} 
-      tasks={userTasks}
-      onTaskUpdate={async (taskId, updates) => {
-        try {
-          await taskService.updateTask(taskId, updates, userProfile);
-          // Reload tasks to reflect changes
-          const updatedTasks = await taskService.loadTasksAssignedToUser();
-          setUserTasks(updatedTasks);
-        } catch (error) {
-          console.error('Failed to update task:', error);
-        }
-      }}
-    />
-  );
-
-  const renderWeekView = () => (
-    <WeekTimelineView 
-      currentDate={currentDate} 
-      tasks={userTasks}
-      onTaskUpdate={async (taskId, updates) => {
-        try {
-          await taskService.updateTask(taskId, updates, userProfile);
-          // Reload tasks to reflect changes
-          const updatedTasks = await taskService.loadTasksAssignedToUser();
-          setUserTasks(updatedTasks);
-        } catch (error) {
-          console.error('Failed to update task:', error);
-        }
-      }}
-    />
-  );
-
+  const renderDayView = () => <DayTimelineView currentDate={currentDate} tasks={userTasks} onTaskUpdate={async (taskId, updates) => {
+    try {
+      await taskService.updateTask(taskId, updates, userProfile);
+      // Reload tasks to reflect changes
+      const updatedTasks = await taskService.loadTasksAssignedToUser();
+      setUserTasks(updatedTasks);
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  }} />;
+  const renderWeekView = () => <WeekTimelineView currentDate={currentDate} tasks={userTasks} onTaskUpdate={async (taskId, updates) => {
+    try {
+      await taskService.updateTask(taskId, updates, userProfile);
+      // Reload tasks to reflect changes
+      const updatedTasks = await taskService.loadTasksAssignedToUser();
+      setUserTasks(updatedTasks);
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  }} />;
   const renderMonthView = () => {
     const days = getDaysInMonth(currentDate);
     const weekHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-    return (
-      <>
+    return <>
         {/* Week Headers */}
         <div className="grid grid-cols-7 gap-1 mb-4">
-          {weekHeaders.map(day => (
-            <div key={day} className="text-center py-3 text-sm font-semibold text-muted-foreground">
+          {weekHeaders.map(day => <div key={day} className="text-center py-3 text-sm font-semibold text-muted-foreground">
               {day}
-            </div>
-          ))}
+            </div>)}
         </div>
 
         {/* Calendar Days */}
         <div className="grid grid-cols-7 gap-1">
           {days.map((day, index) => {
-            const dayTasks = getTasksForDate(day);
-            const isToday = day && isSameDay(day, new Date());
-            
-            return (
-              <div key={index} className="aspect-square">
-                {day && (
-                  <div 
-                    className={cn(
-                      "h-full min-h-[120px] p-3 rounded-xl border hover:border-gray-200 transition-all cursor-pointer",
-                      isToday ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-card hover:bg-muted/30 border-border"
-                    )}
-                    onClick={() => {
-                      setCurrentDate(day);
-                      setViewMode('day'); // Switch to day view when clicking a day
-                    }}
-                  >
-                    <div className={cn(
-                      "text-sm font-semibold mb-2",
-                      isToday ? "text-primary" : "text-foreground"
-                    )}>
+          const dayTasks = getTasksForDate(day);
+          const isToday = day && isSameDay(day, new Date());
+          return <div key={index} className="aspect-square">
+                {day && <div className={cn("h-full min-h-[120px] p-3 rounded-xl border hover:border-gray-200 transition-all cursor-pointer", isToday ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-card hover:bg-muted/30 border-border")} onClick={() => {
+              setCurrentDate(day);
+              setViewMode('day'); // Switch to day view when clicking a day
+            }}>
+                    <div className={cn("text-sm font-semibold mb-2", isToday ? "text-primary" : "text-foreground")}>
                       {day.getDate()}
                     </div>
                     
                     <div className="space-y-1">
                       {dayTasks.slice(0, 2).map(task => {
-                        const taskTime = new Date(task.dueDate);
-                        const hasSpecificTime = !(taskTime.getUTCHours() === 0 && taskTime.getUTCMinutes() === 0);
-                        
-                        return (
-                          <div
-                            key={task.id}
-                            className="text-xs p-1.5 rounded border bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
-                            title={`${task.taskName} - ${task.projectName || 'No Project'}${hasSpecificTime ? ` at ${format(taskTime, 'HH:mm')}` : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Could add task click handler here
-                            }}
-                          >
+                  const taskTime = new Date(task.dueDate);
+                  const hasSpecificTime = !(taskTime.getUTCHours() === 0 && taskTime.getUTCMinutes() === 0);
+                  return <div key={task.id} className="text-xs p-1.5 rounded border bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer" title={`${task.taskName} - ${task.projectName || 'No Project'}${hasSpecificTime ? ` at ${format(taskTime, 'HH:mm')}` : ''}`} onClick={e => {
+                    e.stopPropagation();
+                    // Could add task click handler here
+                  }}>
                             <div className="font-medium truncate">{task.taskName}</div>
-                            {hasSpecificTime && (
-                              <div className="text-xs opacity-75">
+                            {hasSpecificTime && <div className="text-xs opacity-75">
                                 {format(taskTime, 'HH:mm')}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {dayTasks.length > 2 && (
-                        <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
+                              </div>}
+                          </div>;
+                })}
+                      {dayTasks.length > 2 && <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
                           +{dayTasks.length - 2} more
-                        </div>
-                      )}
+                        </div>}
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  </div>}
+              </div>;
+        })}
         </div>
-      </>
-    );
+      </>;
   };
-
   const renderCalendarView = () => {
     switch (viewMode) {
       case 'day':
@@ -424,8 +365,7 @@ const TasksPage = () => {
         return renderMonthView();
     }
   };
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
       <DragDropContext onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
       <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm">
@@ -470,67 +410,34 @@ const TasksPage = () => {
           </div>
 
           <Droppable droppableId="task-backlog">
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className={cn(
-                  "space-y-2 min-h-[100px] p-2 rounded-lg transition-colors",
-                  snapshot.isDraggingOver 
-                    ? "bg-green-50 border-2 border-dashed border-green-300" 
-                    : "border-2 border-transparent"
-                )}
-              >
-                {loading ? (
-                  <div className="text-center py-4">
+            {(provided, snapshot) => <div ref={provided.innerRef} {...provided.droppableProps} className={cn("space-y-2 min-h-[100px] p-2 rounded-lg transition-colors", snapshot.isDraggingOver ? "bg-green-50 border-2 border-dashed border-green-300" : "border-2 border-transparent")}>
+                {loading ? <div className="text-center py-4">
                     <div className="text-sm text-gray-500">Loading tasks...</div>
-                  </div>
-                ) : userTasks.length === 0 ? (
-                  <div className="text-center py-4">
+                  </div> : userTasks.length === 0 ? <div className="text-center py-4">
                     <div className="text-sm text-gray-500">No tasks assigned to you</div>
-                  </div>
-                ) : (
-                  userTasks
-                    .filter(task => {
-                      // First filter by task type
-                      const matchesType = activeTab === 'All' || task.taskType === activeTab;
-                      if (!matchesType) return false;
-                      
-                      // Then filter to show only unscheduled tasks (no specific time) in backlog
-                      if (!task.dueDate) return true; // Tasks without due date go to backlog
-                      
-                       try {
-                         const taskDateTime = new Date(task.dueDate);
-                         console.log('🕐 Backlog filter - Task:', task.taskName, 'Date:', task.dueDate, 'Parsed Hours:', taskDateTime.getUTCHours(), 'Minutes:', taskDateTime.getUTCMinutes());
-                         // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
-                         return taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0;
-                      } catch (error) {
-                        console.error('Error parsing task date for backlog filter:', task.dueDate, error);
-                        return true; // If we can't parse the date, show it in backlog as fallback
-                      }
-                    })
-                    .map((task, index) => (
-                      <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                             {...provided.dragHandleProps}
-                             data-dragging={snapshot.isDragging}
-                             className={cn(
-                               "px-3 py-2 rounded-lg cursor-grab transition-colors group border border-gray-100/50",
-                               snapshot.isDragging 
-                                 ? "bg-blue-50 border-blue-200 shadow-xl opacity-90" 
-                                 : "hover:bg-gray-50/50 active:cursor-grabbing"
-                             )}
-                             style={{
-                               ...provided.draggableProps.style,
-                               // Remove transform offset issues during drag
-                               transform: snapshot.isDragging 
-                                 ? provided.draggableProps.style?.transform 
-                                 : provided.draggableProps.style?.transform
-                             }}
-                          >
+                  </div> : userTasks.filter(task => {
+                // First filter by task type
+                const matchesType = activeTab === 'All' || task.taskType === activeTab;
+                if (!matchesType) return false;
+
+                // Then filter to show only unscheduled tasks (no specific time) in backlog
+                if (!task.dueDate) return true; // Tasks without due date go to backlog
+
+                try {
+                  const taskDateTime = new Date(task.dueDate);
+                  console.log('🕐 Backlog filter - Task:', task.taskName, 'Date:', task.dueDate, 'Parsed Hours:', taskDateTime.getUTCHours(), 'Minutes:', taskDateTime.getUTCMinutes());
+                  // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
+                  return taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0;
+                } catch (error) {
+                  console.error('Error parsing task date for backlog filter:', task.dueDate, error);
+                  return true; // If we can't parse the date, show it in backlog as fallback
+                }
+              }).map((task, index) => <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
+                        {(provided, snapshot) => <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} data-dragging={snapshot.isDragging} className={cn("px-3 py-2 rounded-lg cursor-grab transition-colors group border border-gray-100/50", snapshot.isDragging ? "bg-blue-50 border-blue-200 shadow-xl opacity-90" : "hover:bg-gray-50/50 active:cursor-grabbing")} style={{
+                  ...provided.draggableProps.style,
+                  // Remove transform offset issues during drag
+                  transform: snapshot.isDragging ? provided.draggableProps.style?.transform : provided.draggableProps.style?.transform
+                }}>
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-sm font-semibold text-gray-800 truncate mb-1">
@@ -540,14 +447,7 @@ const TasksPage = () => {
                                   <p className="text-xs text-gray-500 font-medium truncate">
                                     {task.projectName || 'No Project'}
                                   </p>
-                                  <span className={cn(
-                                    "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0",
-                                    task.taskType === 'Task' ? 'bg-green-50 text-green-600' :
-                                    task.taskType === 'Issue' ? 'bg-orange-50 text-orange-600' :
-                                    task.taskType === 'Bug' ? 'bg-red-50 text-red-600' :
-                                    task.taskType === 'Feature' ? 'bg-purple-50 text-purple-600' :
-                                    'bg-gray-50 text-gray-600'
-                                  )}>
+                                  <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0", task.taskType === 'Task' ? 'bg-green-50 text-green-600' : task.taskType === 'Issue' ? 'bg-orange-50 text-orange-600' : task.taskType === 'Bug' ? 'bg-red-50 text-red-600' : task.taskType === 'Feature' ? 'bg-purple-50 text-purple-600' : 'bg-gray-50 text-gray-600')}>
                                     {task.taskType}
                                   </span>
                                    <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-50 text-blue-600">
@@ -556,14 +456,10 @@ const TasksPage = () => {
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))
-                )}
+                          </div>}
+                      </Draggable>)}
                 {provided.placeholder}
-              </div>
-            )}
+              </div>}
           </Droppable>
         </div>
 
@@ -587,7 +483,7 @@ const TasksPage = () => {
           </h2>
           <div className="flex items-center space-x-4">
             {/* View Mode Toggle */}
-            <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as ViewMode)}>
+            <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
               <ToggleGroupItem value="day" size="sm">Day</ToggleGroupItem>
               <ToggleGroupItem value="week" size="sm">Week</ToggleGroupItem>
               <ToggleGroupItem value="month" size="sm">Month</ToggleGroupItem>
@@ -615,29 +511,8 @@ const TasksPage = () => {
       </div>
 
       {/* Right Sidebar - Only show in Day view */}
-      <div className={`w-80 bg-white/70 backdrop-blur-xl border-l border-gray-200/50 p-6 space-y-6 shadow-sm ${
-        viewMode !== 'day' ? 'hidden' : ''
-      }`}>
-        {/* Focus Timer */}
-        
-        {/* Calendar */}
-        <div>
-          
-
-          
-        </div>
-
-        {/* Dashboard */}
-        
-
-        {/* Resources */}
-        
-
-        {/* Gallery */}
-        
-      </div>
+      
       </DragDropContext>
-    </div>
-  );
+    </div>;
 };
 export default TasksPage;
