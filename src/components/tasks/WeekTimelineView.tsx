@@ -218,7 +218,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                   }}
                                 >
                                    <div className={`
-                                     w-full max-w-[100px] h-9 flex-shrink-0 relative overflow-hidden
+                                     w-24 h-9 flex-shrink-0 relative overflow-hidden
                                      glass-card border border-white/20 
                                      cursor-grab active:cursor-grabbing select-none
                                      rounded-lg backdrop-blur-sm
