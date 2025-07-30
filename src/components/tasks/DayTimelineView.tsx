@@ -257,16 +257,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Header with date */}
-      <div className="flex items-center justify-between p-4 border-b border-border/20 bg-card/50">
-        <h2 className="text-lg font-semibold text-foreground">
-          {format(currentDate, 'EEEE, MMMM d, yyyy')}
-        </h2>
-        <div className="text-sm text-muted-foreground">
-          Day View
-        </div>
-      </div>
-
       {/* Timeline Grid */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">

@@ -113,27 +113,27 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Week Header */}
-      <div className="grid grid-cols-8 gap-0 mb-4">
-        <div className="p-4 text-center text-muted-foreground font-medium text-sm">
-          
-        </div>
-        {weekHeaders.map((dayName, index) => {
-          const day = weekDays[index];
-          const isToday = isSameDay(day, new Date());
-          
-          return (
-            <div key={dayName} className="p-4 text-center">
-              <div className="text-muted-foreground font-medium text-sm uppercase">
-                {dayName} {day.getDate()}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
       {/* Week Grid with Time Slots */}
       <div className="flex-1 overflow-auto border-2 border-border/40 rounded-lg bg-background">
+        {/* Day Headers Row */}
+        <div className="grid grid-cols-8 gap-0 border-b-2 border-border/40 bg-muted/20">
+          <div className="p-3 text-center text-muted-foreground font-medium text-sm">
+            Time
+          </div>
+          {weekHeaders.map((dayName, index) => {
+            const day = weekDays[index];
+            const isToday = isSameDay(day, new Date());
+            
+            return (
+              <div key={dayName} className="p-3 text-center border-r-2 border-border/40 last:border-r-0">
+                <div className={`text-muted-foreground font-medium text-sm uppercase ${isToday ? 'text-primary font-bold' : ''}`}>
+                  {dayName} {day.getDate()}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
         <div className="grid grid-cols-8 gap-0 min-h-full">
           {/* Time Column */}
           <div className="bg-muted/20 border-r-2 border-border/40">
