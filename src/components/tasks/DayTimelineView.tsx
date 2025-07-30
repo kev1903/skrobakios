@@ -35,10 +35,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const taskDate = new Date(task.dueDate);
       if (!isSameDay(taskDate, currentDate)) return false;
       
-      // Only show tasks with specific times (not at midnight/00:00) in timeline
+      // Show tasks with specific times (not at midnight/00:00) in timeline
+      // Tasks at midnight are considered "unscheduled" and stay in backlog
       return !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
     });
     
+    console.log('📅 Current date for timeline:', currentDate.toISOString());
+    console.log('📅 All tasks passed to timeline:', tasks.length, tasks.map(t => ({ name: t.taskName, dueDate: t.dueDate })));
     console.log('📅 Tasks for current date:', dayTasks.length, dayTasks.map(t => ({ name: t.taskName, dueDate: t.dueDate, duration: t.duration })));
     
     // Generate 48 30-minute slots (24 hours × 2)

@@ -133,7 +133,11 @@ const TasksPage = () => {
     });
     console.log('🎯 Source droppableId:', source.droppableId);
     console.log('🎯 Destination droppableId:', destination?.droppableId);
-    if (!destination) return;
+    
+    if (!destination) {
+      console.log('❌ No destination - drag cancelled');
+      return;
+    }
 
     // Handle drop on day timeline slots (format: "timeline-SLOTINDEX")
     if (destination.droppableId.startsWith('timeline-')) {
