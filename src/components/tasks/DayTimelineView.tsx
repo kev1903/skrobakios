@@ -113,7 +113,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     if (!dragState.isDragging || !dragState.taskId || !dragState.startTime) return;
 
     const deltaY = e.clientY - dragState.startY;
-    const slotsChanged = Math.round(deltaY / 50); // Each slot is 50px height
+    const slotsChanged = Math.round(deltaY / 64); // Each slot is 64px height
     
     if (slotsChanged === 0) return;
 
@@ -210,128 +210,150 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   }, [generateTimeSlots]);
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col bg-background">
+      {/* Header with date */}
+      <div className="flex items-center justify-between p-4 border-b border-border/20 bg-card/50">
+        <h2 className="text-lg font-semibold text-foreground">
+          {format(currentDate, 'EEEE, MMMM d, yyyy')}
+        </h2>
+        <div className="text-sm text-muted-foreground">
+          Day View
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-1 max-h-[600px] overflow-y-auto border border-border rounded-lg bg-card">
-          {timeSlots.map((slot) => (
-            <div key={slot.hour} className="grid grid-cols-12 border-b border-border/50 h-[50px]">
-              {/* Time Label */}
-              <div className="col-span-2 flex items-center justify-center p-2 bg-muted/30 border-r border-border/50">
-                <span className="text-sm font-medium text-muted-foreground">
-                  {slot.label}
-                </span>
-              </div>
+      {/* Timeline Grid */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto">
+          <div className="grid grid-cols-[80px_1fr] min-h-full">
+            {/* Time Column */}
+            <div className="border-r border-border/20 bg-muted/20">
+              {timeSlots.map((slot) => (
+                <div key={slot.hour} className="h-16 border-b border-border/10 flex items-start justify-end pr-3 pt-1">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {slot.label}
+                  </span>
+                </div>
+              ))}
+            </div>
 
-              {/* Task Drop Zone */}
-              <div className="col-span-10 p-2">
-                <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`h-[34px] rounded-md transition-colors flex items-center ${
-                        snapshot.isDraggingOver
-                          ? 'bg-primary/10 border-2 border-dashed border-primary/30'
-                          : 'bg-background hover:bg-muted/20'
-                      }`}
-                    >
-                      <div className="flex gap-2 overflow-x-auto scrollbar-thin py-1 px-1 w-full">
-                        {slot.tasks.map((task, index) => {
-                          const taskDuration = task.duration || 30; // Default 30 minutes
-                          const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
-                          const heightInPixels = (slotsSpanned * 50) - 4; // 50px per slot minus padding
-                          
-                          return (
-                            <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
-                              {(provided, snapshot) => (
-                                 <div
-                                   ref={provided.innerRef}
-                                   {...provided.draggableProps}
-                                   {...provided.dragHandleProps}
-                                   data-dragging={snapshot.isDragging}
-                                   className={`transition-all duration-200 ${
-                                     snapshot.isDragging 
-                                       ? 'shadow-xl opacity-90' 
-                                       : 'hover:shadow-md'
-                                   }`}
-                                   style={{
-                                     ...provided.draggableProps.style,
-                                     // Ensure proper cursor tracking during drag
-                                     transform: snapshot.isDragging 
-                                       ? provided.draggableProps.style?.transform 
-                                       : provided.draggableProps.style?.transform,
-                                     zIndex: snapshot.isDragging ? 1000 : slotsSpanned > 1 ? 10 : 1
-                                   }}
-                                 >
-                                   <Card 
-                                     className={`relative w-36 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none group`}
-                                     style={{ 
+            {/* Events Column */}
+            <div className="relative">
+              {timeSlots.map((slot) => (
+                <div key={slot.hour} className="h-16 border-b border-border/10 relative">
+                  <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`absolute inset-0 transition-colors ${
+                          snapshot.isDraggingOver
+                            ? 'bg-primary/5 border-l-2 border-primary/30'
+                            : 'hover:bg-muted/10'
+                        }`}
+                      >
+                        <div className="p-1 h-full">
+                          {slot.tasks.map((task, index) => {
+                            const taskDuration = task.duration || 30; // Default 30 minutes
+                            const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
+                            const heightInPixels = (slotsSpanned * 64) - 8; // 64px per slot minus padding
+                            
+                            return (
+                              <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
+                                {(provided, snapshot) => (
+                                   <div
+                                     ref={provided.innerRef}
+                                     {...provided.draggableProps}
+                                     {...provided.dragHandleProps}
+                                     data-dragging={snapshot.isDragging}
+                                     className={`absolute transition-all duration-200 ${
+                                       snapshot.isDragging 
+                                         ? 'shadow-xl opacity-90 z-50' 
+                                         : 'hover:shadow-md z-10'
+                                     }`}
+                                     style={{
+                                       ...provided.draggableProps.style,
+                                       transform: snapshot.isDragging 
+                                         ? provided.draggableProps.style?.transform 
+                                         : provided.draggableProps.style?.transform,
+                                       left: `${index * 200 + 4}px`, // Offset multiple tasks horizontally
+                                       width: '190px',
                                        height: `${heightInPixels}px`,
-                                       minHeight: '38px' // Ensure minimum height
+                                       minHeight: '56px'
                                      }}
                                    >
-                                      {/* Top resize handle */}
-                                      <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                        <div 
-                                          className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm"
-                                          onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                                        >
-                                          <ChevronUp className="w-3 h-3" />
+                                     <Card 
+                                       className={`h-full w-full ${getStatusColor(task.status)} border-l-4 cursor-grab active:cursor-grabbing select-none group shadow-sm`}
+                                       style={{ borderLeftColor: task.priority === 'High' ? 'hsl(var(--destructive))' : task.priority === 'Medium' ? 'hsl(var(--warning))' : 'hsl(var(--success))' }}
+                                     >
+                                        {/* Top resize handle */}
+                                        <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                                          <div 
+                                            className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm"
+                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                                          >
+                                            <ChevronUp className="w-3 h-3" />
+                                          </div>
                                         </div>
-                                      </div>
-                                      
-                                      {/* Bottom resize handle */}
-                                      <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                        <div 
-                                          className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm"
-                                          onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                                        >
-                                          <ChevronDown className="w-3 h-3" />
+                                        
+                                        {/* Bottom resize handle */}
+                                        <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                                          <div 
+                                            className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm"
+                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                          >
+                                            <ChevronDown className="w-3 h-3" />
+                                          </div>
                                         </div>
-                                      </div>
-                                     
-                                     <CardContent className="px-2 py-1 h-full flex flex-col justify-center gap-0.5">
-                                        <div className="flex flex-col">
-                                          {/* Task Name - Primary, more prominent */}
-                                          <h4 className="text-xs font-semibold line-clamp-1 text-foreground leading-tight">
+                                       
+                                       <CardContent className="p-3 h-full flex flex-col justify-start gap-1">
+                                          <h4 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
                                             {task.taskName}
                                           </h4>
                                           
-                                          {/* Project Name - Secondary, subtle */}
-                                          <p className="text-xs text-muted-foreground/80 truncate leading-tight font-normal">
+                                          <p className="text-xs text-muted-foreground/80 leading-tight">
                                             {task.projectName || "No Project"}
                                           </p>
                                           
-                                          {/* Duration indicator for multi-slot tasks */}
                                           {slotsSpanned > 1 && (
-                                            <p className="text-xs text-muted-foreground/60 leading-tight">
-                                              {taskDuration}min
-                                            </p>
+                                            <div className="flex items-center gap-1 mt-1">
+                                              <Clock className="w-3 h-3 text-muted-foreground/60" />
+                                              <span className="text-xs text-muted-foreground/60">
+                                                {taskDuration}min
+                                              </span>
+                                            </div>
                                           )}
-                                        </div>
-                                     </CardContent>
-                                   </Card>
-                                </div>
-                              )}
-                            </Draggable>
-                          );
-                        })}
-                        {provided.placeholder}
-                      </div>
-                      
-                      {slot.tasks.length === 0 && !snapshot.isDraggingOver && (
-                        <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
-                          Drop tasks here
+                                          
+                                          <div className="flex items-center gap-1 mt-auto">
+                                            <Badge variant="outline" className={`text-xs px-1.5 py-0.5 ${getPriorityColor(task.priority)}`}>
+                                              {task.priority}
+                                            </Badge>
+                                          </div>
+                                       </CardContent>
+                                     </Card>
+                                  </div>
+                                )}
+                              </Draggable>
+                            );
+                          })}
+                          {provided.placeholder}
                         </div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
+                        
+                        {slot.tasks.length === 0 && !snapshot.isDraggingOver && (
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-30 transition-opacity">
+                            <span className="text-xs text-muted-foreground">
+                              {slot.label}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-
+      </div>
     </div>
   );
 };
