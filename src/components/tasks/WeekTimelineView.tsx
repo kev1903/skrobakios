@@ -114,12 +114,14 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Clock className="w-5 h-5" />
-          Week of {format(weekDays[0], 'MMM d')} - {format(weekDays[6], 'MMM d, yyyy')}
-        </h3>
-        <Button size="sm" variant="outline">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Clock className="w-5 h-5 text-muted-foreground" />
+          <h3 className="text-lg font-semibold">
+            Week of {format(weekDays[0], 'MMM d')} - {format(weekDays[6], 'MMM d, yyyy')}
+          </h3>
+        </div>
+        <Button size="sm" variant="outline" className="flex-shrink-0">
           <Plus className="w-4 h-4 mr-1" />
           Add Task
         </Button>
