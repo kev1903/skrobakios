@@ -461,13 +461,12 @@ const TasksPage = () => {
         {/* Calendar Navigation */}
         <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
             {formatDate(currentDate)}
+            <span className="flex items-center gap-1 text-lg">
+              🕒 {format(currentTime, 'HH:mm:ss')}
+            </span>
           </h2>
-          <div className="flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <Clock className="w-6 h-6" />
-            <span>{format(currentTime, 'HH:mm:ss')}</span>
-          </div>
         </div>
           <div className="flex items-center space-x-4">
             {/* New Event Button */}
