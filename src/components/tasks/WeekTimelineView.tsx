@@ -39,17 +39,16 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   }, [currentDate]);
 
   const weekDays = getWeekDays();
-  const weekHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekHeaders = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
-  // Generate 24-hour time slots for the week
+  // Generate time slots for the week (8 AM to 1 PM)
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // Generate 48 30-minute slots (24 hours × 2)
-    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
-      const hour = Math.floor(slotIndex / 2);
-      const minutes = (slotIndex % 2) * 30;
-      const timeLabel = format(setHours(setMinutes(new Date(), minutes), hour), 'HH:mm');
+    // Generate time slots from 8 AM to 1 PM (6 hours)
+    for (let slotIndex = 0; slotIndex < 6; slotIndex++) {
+      const hour = slotIndex + 8; // Start from 8 AM
+      const timeLabel = hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
       
       // Create dayTasks object to hold tasks for each day of the week
       const dayTasks: { [dayIndex: number]: Task[] } = {};
@@ -63,20 +62,16 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           // Only show tasks with specific times (not at midnight/00:00) in timeline
           if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
           
-          // Check if task falls within this 30-minute slot
+          // Check if task falls within this hour slot
           const taskHour = taskDate.getUTCHours();
-          const taskMinutes = taskDate.getUTCMinutes();
-          
-          return taskHour === hour && 
-                 ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
-                  (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
+          return taskHour === hour;
         });
         
         dayTasks[dayIndex] = dayTasksForSlot;
       });
       
       slots.push({
-        hour: slotIndex, // 30-minute slot index
+        hour: slotIndex,
         label: timeLabel,
         dayTasks
       });
@@ -113,155 +108,109 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   }, [generateTimeSlots]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <Clock className="w-5 h-5 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">
-          Week of {format(weekDays[0], 'MMM d')} - {format(weekDays[6], 'MMM d, yyyy')}
-        </h3>
+    <div className="h-full flex flex-col">
+      {/* Week Header */}
+      <div className="grid grid-cols-8 gap-0 mb-4">
+        <div className="p-4 text-center text-muted-foreground font-medium text-sm">
+          
+        </div>
+        {weekHeaders.map((dayName, index) => {
+          const day = weekDays[index];
+          const isToday = isSameDay(day, new Date());
+          
+          return (
+            <div key={dayName} className="p-4 text-center">
+              <div className="text-muted-foreground font-medium text-sm uppercase">
+                {dayName} {day.getDate()}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="border border-border rounded-lg bg-card overflow-hidden">
-        {/* Week Headers */}
-        <div className="grid grid-cols-8 bg-muted/30 border-b border-border">
-          {/* Empty cell for time column */}
-          <div className="p-3 border-r border-border/50"></div>
+      {/* Week Grid with Time Slots */}
+      <div className="flex-1 overflow-auto border border-border/20 rounded-lg">
+        <div className="grid grid-cols-8 gap-0 min-h-full">
+          {/* Time Column */}
+          <div className="bg-background border-r border-border/20">
+            {timeSlots.map(slot => (
+              <div key={slot.hour} className="h-16 p-3 border-b border-border/20 text-sm text-muted-foreground font-medium flex items-start">
+                {slot.label}
+              </div>
+            ))}
+          </div>
           
-          {/* Day headers */}
-          {weekHeaders.map((dayName, index) => {
-            const day = weekDays[index];
-            const isToday = isSameDay(day, new Date());
-            
-            return (
-              <div 
-                key={dayName} 
-                className={`p-3 text-center border-r border-border/50 last:border-r-0 ${
-                  isToday ? 'bg-primary/5' : ''
-                }`}
-              >
-                <div className={`font-medium text-sm ${
-                  isToday ? 'text-primary' : 'text-muted-foreground'
-                }`}>
-                  {dayName}
-                </div>
-                <div className={`text-lg font-semibold ${
-                  isToday ? 'text-primary' : 'text-foreground'
-                }`}>
-                  {day.getDate()}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Time slots grid */}
-        <div className="max-h-[600px] overflow-y-auto">
-          {timeSlots.map((slot) => (
-            <div key={slot.hour} className="grid grid-cols-8 border-b border-border/50 h-[50px]">
-              {/* Time Label */}
-              <div className="flex items-center justify-center p-2 bg-muted/30 border-r border-border/50">
-                <span className="text-sm font-medium text-muted-foreground">
-                  {slot.label}
-                </span>
-              </div>
-
-              {/* Day columns */}
-              {weekDays.map((day, dayIndex) => (
-                <div key={dayIndex} className="p-1 border-r border-border/50 last:border-r-0">
-                  <Droppable droppableId={`week-timeline-${slot.hour}-${dayIndex}`} direction="horizontal">
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`h-[42px] rounded-md transition-colors flex items-center ${
-                          snapshot.isDraggingOver
-                            ? 'bg-primary/10 border-2 border-dashed border-primary/30'
-                            : 'bg-background hover:bg-muted/20'
-                        }`}
-                      >
-                        <div className={`flex gap-1 py-1 px-1 w-full overflow-hidden ${
-                          isDragging ? 'drag-no-scroll' : ''
-                        }`}>
-                          {(slot.dayTasks[dayIndex] || []).map((task, index) => (
-                            <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={index}>
-                              {(provided, snapshot) => {
-                                // Update drag state when this specific task is being dragged
-                                React.useEffect(() => {
-                                  if (snapshot.isDragging && !isDragging) {
-                                    setIsDragging(true);
-                                  } else if (!snapshot.isDragging && isDragging) {
-                                    // Small delay to prevent flicker
-                                    setTimeout(() => setIsDragging(false), 100);
-                                  }
-                                }, [snapshot.isDragging]);
-
-                                 return (
+          {/* Day Columns */}
+          {weekDays.map((day, dayIndex) => (
+            <div key={dayIndex} className="bg-background border-r border-border/20 relative last:border-r-0">
+              {timeSlots.map(slot => (
+                <div
+                  key={`${dayIndex}-${slot.hour}`}
+                  className="h-16 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative"
+                />
+              ))}
+              
+              {/* Tasks Overlay */}
+              <div className="absolute inset-0 pointer-events-none">
+                {timeSlots.map(slot => {
+                  const dayTasks = slot.dayTasks[dayIndex] || [];
+                  return dayTasks.map((task, taskIndex) => {
+                    const taskDate = new Date(task.dueDate);
+                    const taskHour = taskDate.getUTCHours();
+                    const taskMinutes = taskDate.getUTCMinutes();
+                    
+                    // Calculate position within the slot
+                    const slotPosition = (taskHour - 8) * 64; // 64px per hour, starting from 8 AM
+                    const duration = Math.max(60, 90); // Default 90 minutes duration
+                    
+                    // Task colors based on priority or category
+                    const getTaskColor = () => {
+                      switch (task.priority?.toLowerCase()) {
+                        case 'high': return 'bg-red-400/90';
+                        case 'medium': return 'bg-amber-400/90';
+                        case 'low': return 'bg-green-400/90';
+                        default: return 'bg-blue-400/90';
+                      }
+                    };
+                    
+                    return (
+                      <Droppable key={`${slot.hour}-${dayIndex}`} droppableId={`week-slot-${slot.hour}-${dayIndex}`}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="absolute inset-0"
+                          >
+                            <Draggable draggableId={`week-task-${task.id}`} index={taskIndex}>
+                              {(provided, snapshot) => (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  data-dragging={snapshot.isDragging}
-                                  className={`group transition-all duration-300 ease-out ${
-                                    snapshot.isDragging 
-                                      ? 'scale-105 shadow-2xl z-50' 
-                                      : 'hover:scale-102 hover:shadow-lg'
-                                  }`}
+                                  className={`${getTaskColor()} backdrop-blur-sm text-white text-xs p-2 rounded-md absolute left-2 right-2 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto`}
                                   style={{
-                                    ...provided.draggableProps.style,
-                                    transform: snapshot.isDragging 
-                                      ? provided.draggableProps.style?.transform 
-                                      : provided.draggableProps.style?.transform
+                                    top: `${slotPosition + 2}px`,
+                                    height: `${duration - 4}px`
                                   }}
                                 >
-                                   <div className={`
-                                     w-36 h-9 flex-shrink-0 relative overflow-hidden
-                                     glass-card border border-white/20 
-                                     cursor-grab active:cursor-grabbing select-none
-                                     rounded-lg backdrop-blur-sm
-                                     ${snapshot.isDragging ? 'ring-2 ring-primary/40 ring-offset-1' : ''}
-                                     ${getStatusColor(task.status)}
-                                     hover:border-white/30 transition-all duration-200
-                                   `}>
-                                     {/* Priority indicator dot */}
-                                     <div className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${
-                                       task.priority === 'High' ? 'bg-red-400' :
-                                       task.priority === 'Medium' ? 'bg-amber-400' :
-                                       'bg-green-400'
-                                     }`} />
-                                     
-                                     <div className="px-1.5 py-1.5 h-full flex flex-col justify-center gap-0.5 overflow-hidden">
-                                       <div className="text-xs font-semibold text-foreground/90 leading-3 truncate">
-                                         {task.taskName}
-                                       </div>
-                                       <div className="text-[10px] text-muted-foreground/70 leading-3 font-medium truncate">
-                                         {task.projectName ? task.projectName.substring(0, 8) + (task.projectName.length > 8 ? '...' : '') : 'No Project'}
-                                       </div>
-                                     </div>
-
-                                    {/* Subtle gradient overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/5 pointer-events-none" />
-                                    
-                                    {/* Hover indicator */}
-                                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+                                  <div className="font-semibold text-sm leading-tight">
+                                    {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
                                   </div>
+                                  <div className="font-medium mt-1 leading-tight">{task.taskName}</div>
+                                  {task.projectName && (
+                                    <div className="text-white/80 text-xs mt-1">{task.projectName}</div>
+                                  )}
                                 </div>
-                                );
-                              }}
+                              )}
                             </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                        
-                        {(slot.dayTasks[dayIndex] || []).length === 0 && !snapshot.isDraggingOver && (
-                          <div className="flex items-center justify-center h-full text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">
-                            Drop
+                            {provided.placeholder}
                           </div>
                         )}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              ))}
+                      </Droppable>
+                    );
+                  });
+                })}
+              </div>
             </div>
           ))}
         </div>
