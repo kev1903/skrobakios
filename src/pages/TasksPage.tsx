@@ -469,11 +469,8 @@ const TasksPage = () => {
       <div className="flex-1 p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          
-          <Button className="bg-blue-500 hover:bg-blue-600 rounded-xl px-6 py-2.5 font-medium shadow-lg shadow-blue-500/25">
-            <Plus className="w-4 h-4 mr-2" />
-            New Event
-          </Button>
+          {/* Empty div to maintain spacing */}
+          <div></div>
         </div>
 
         {/* Calendar Navigation */}
@@ -482,6 +479,12 @@ const TasksPage = () => {
             {formatDate(currentDate)}
           </h2>
           <div className="flex items-center space-x-4">
+            {/* New Event Button */}
+            <Button className="bg-blue-500 hover:bg-blue-600 rounded-xl px-6 py-2.5 font-medium shadow-lg shadow-blue-500/25">
+              <Plus className="w-4 h-4 mr-2" />
+              New Event
+            </Button>
+            
             {/* View Mode Toggle */}
             <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
               <ToggleGroupItem value="day" size="sm">Day</ToggleGroupItem>
