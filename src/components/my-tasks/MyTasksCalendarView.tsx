@@ -120,7 +120,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
   return (
     <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex h-[calc(100vh-200px)] gap-6">
+      <div className="flex h-full gap-6">
         {/* Left Sidebar - Task Backlog - Fixed */}
         <div className="w-80 flex-shrink-0 h-full">
           <Card className="h-full flex flex-col">

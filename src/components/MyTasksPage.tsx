@@ -162,9 +162,9 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-white z-40 overflow-auto">
-      <div className="min-h-full bg-white">
-        <div className="relative z-10 p-6">
+    <div className="fixed inset-0 bg-white z-40">
+      <div className="h-full bg-white flex flex-col">
+        <div className="flex-shrink-0 p-6 pb-0">
           {/* Back Button */}
           <div className="mb-4">
             <Button 
@@ -184,10 +184,12 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
             onViewModeChange={setViewMode}
             onNavigate={onNavigate}
           />
+        </div>
 
-          {/* Content Layout - Full width for calendar, two-column for others */}
+        {/* Content Layout - Full width for calendar, two-column for others */}
+        <div className="flex-1 overflow-hidden p-6 pt-6">
           {viewMode === 'calendar' ? (
-            <div className="mt-6">
+            <div className="h-full">
               {tasks.length === 0 ? (
                 <MyTasksEmptyState onNavigate={onNavigate} />
               ) : (
