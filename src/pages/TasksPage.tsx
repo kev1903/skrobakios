@@ -24,6 +24,15 @@ const TasksPage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [userTasks, setUserTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Live time updater
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Load tasks assigned to the current user
   useEffect(() => {
@@ -105,14 +114,14 @@ const TasksPage = () => {
   const formatDate = (date: Date) => {
     switch (viewMode) {
       case 'day':
-        return format(date, 'EEEE, MMMM d, yyyy');
+        return format(date, 'EEEE, d MMMM'); // e.g., "Thursday, 31 July"
       case 'week':
         const weekStart = startOfWeek(date);
         const weekEnd = endOfWeek(date);
-        return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
+        return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}`;
       case 'month':
       default:
-        return format(date, 'MMMM yyyy');
+        return format(date, 'MMMM'); // e.g., "July"
     }
   };
   const navigate = (direction: 'prev' | 'next') => {
@@ -475,9 +484,15 @@ const TasksPage = () => {
 
         {/* Calendar Navigation */}
         <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold text-gray-900">
             {formatDate(currentDate)}
           </h2>
+          <div className="flex items-center gap-2 text-lg font-semibold text-gray-700">
+            <Clock className="w-5 h-5" />
+            <span>{format(currentTime, 'HH:mm:ss')}</span>
+          </div>
+        </div>
           <div className="flex items-center space-x-4">
             {/* New Event Button */}
             <Button className="bg-blue-500 hover:bg-blue-600 rounded-xl px-6 py-2.5 font-medium shadow-lg shadow-blue-500/25">
