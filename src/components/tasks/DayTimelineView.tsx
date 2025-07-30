@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes } from 'date-fns';
-import { Clock, Plus } from 'lucide-react';
+import { Clock, Plus, ChevronUp, ChevronDown } from 'lucide-react';
 import { Task } from './types';
 
 interface DayTimelineViewProps {
@@ -163,21 +163,35 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                      : provided.draggableProps.style?.transform
                                  }}
                                >
-                                <Card className={`w-36 h-10 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
-                                  <CardContent className="px-2 py-1 h-full flex flex-col justify-center gap-0.5">
-                                     <div className="flex flex-col">
-                                       {/* Task Name - Primary, more prominent */}
-                                       <h4 className="text-xs font-semibold line-clamp-1 text-foreground leading-tight">
-                                         {task.taskName}
-                                       </h4>
-                                       
-                                       {/* Project Name - Secondary, subtle */}
-                                       <p className="text-xs text-muted-foreground/80 truncate leading-tight font-normal">
-                                         {task.projectName || "No Project"}
-                                       </p>
+                                 <Card className={`relative w-36 h-10 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none group`}>
+                                   {/* Top resize handle */}
+                                   <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                     <div className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm">
+                                       <ChevronUp className="w-3 h-3" />
                                      </div>
-                                  </CardContent>
-                                </Card>
+                                   </div>
+                                   
+                                   {/* Bottom resize handle */}
+                                   <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                     <div className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm">
+                                       <ChevronDown className="w-3 h-3" />
+                                     </div>
+                                   </div>
+                                   
+                                   <CardContent className="px-2 py-1 h-full flex flex-col justify-center gap-0.5">
+                                      <div className="flex flex-col">
+                                        {/* Task Name - Primary, more prominent */}
+                                        <h4 className="text-xs font-semibold line-clamp-1 text-foreground leading-tight">
+                                          {task.taskName}
+                                        </h4>
+                                        
+                                        {/* Project Name - Secondary, subtle */}
+                                        <p className="text-xs text-muted-foreground/80 truncate leading-tight font-normal">
+                                          {task.projectName || "No Project"}
+                                        </p>
+                                      </div>
+                                   </CardContent>
+                                 </Card>
                               </div>
                             )}
                           </Draggable>
