@@ -470,10 +470,7 @@ const TasksPage = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           
-          <Button className="bg-blue-500 hover:bg-blue-600 rounded-xl px-6 py-2.5 font-medium shadow-lg shadow-blue-500/25">
-            <Plus className="w-4 h-4 mr-2" />
-            New Event
-          </Button>
+          
         </div>
 
         {/* Calendar Navigation */}
