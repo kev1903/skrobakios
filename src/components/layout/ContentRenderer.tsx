@@ -51,6 +51,7 @@ import { ReviewsPage } from "@/components/review/ReviewsPage";
 import { MilestonePage } from "@/components/MilestonePage";
 import { PermissionManager } from "@/components/permissions/PermissionManager";
 import { PersonalPage } from "@/components/PersonalPage";
+import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
@@ -283,9 +284,8 @@ export const ContentRenderer = ({
       return null;
     case "user-edit":
     case "existing-user-profile":
-      // Profile pages removed - redirect to home
-      onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+    case "user-profile":
+      return <PersonalPage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "business":
@@ -298,19 +298,14 @@ export const ContentRenderer = ({
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "platform-dashboard":
-      // Platform dashboard removed - redirect to home
-      onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+    case "personal-dashboard":
+      return <PersonalDashboard onNavigate={onNavigate} />;
     case "project-dashboard":
       // Redirect to projects list instead
       onNavigate("projects");
       return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "portfolio-manage":
       return <PortfolioManagePage onNavigate={onNavigate} />;
-    case "user-profile":
-      // Profile page removed - redirect to home
-      onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "portfolio":
       return <PortfolioViewPage onNavigate={onNavigate} />;
     case "reviews":
