@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { format, isSameDay, setHours, setMinutes } from 'date-fns';
+import { format, isSameDay, setHours, setMinutes, addMinutes, subMinutes } from 'date-fns';
 import { Clock, Plus, ChevronUp, ChevronDown } from 'lucide-react';
 import { Task } from './types';
 
@@ -78,6 +78,92 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   }, [tasks, currentDate]);
 
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateTimeSlots());
+  const [dragState, setDragState] = useState<{
+    isDragging: boolean;
+    taskId: string | null;
+    handle: 'top' | 'bottom' | null;
+    startY: number;
+    startTime: Date | null;
+  }>({
+    isDragging: false,
+    taskId: null,
+    handle: null,
+    startY: 0,
+    startTime: null
+  });
+
+  // Handle resize drag functionality
+  const handleResizeStart = useCallback((e: React.MouseEvent, taskId: string, handle: 'top' | 'bottom') => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    setDragState({
+      isDragging: true,
+      taskId,
+      handle,
+      startY: e.clientY,
+      startTime: new Date(task.dueDate)
+    });
+  }, [tasks]);
+
+  const handleResizeMove = useCallback((e: MouseEvent) => {
+    if (!dragState.isDragging || !dragState.taskId || !dragState.startTime) return;
+
+    const deltaY = e.clientY - dragState.startY;
+    const slotsChanged = Math.round(deltaY / 50); // Each slot is 50px height
+    
+    if (slotsChanged === 0) return;
+
+    const task = tasks.find(t => t.id === dragState.taskId);
+    if (!task || !onTaskUpdate) return;
+
+    let newTime: Date;
+    
+    if (dragState.handle === 'top') {
+      // Moving top handle - change start time (move task earlier/later)
+      newTime = subMinutes(dragState.startTime, slotsChanged * 30);
+    } else {
+      // Moving bottom handle - change end time (extend/reduce duration)
+      newTime = addMinutes(dragState.startTime, slotsChanged * 30);
+    }
+
+    // Ensure time is within valid bounds (00:00 to 23:59)
+    const hours = newTime.getHours();
+    const minutes = newTime.getMinutes();
+    
+    if (hours < 0 || hours > 23 || (hours === 23 && minutes > 59)) return;
+
+    // Update the task
+    onTaskUpdate(dragState.taskId, {
+      dueDate: newTime.toISOString()
+    });
+  }, [dragState, tasks, onTaskUpdate]);
+
+  const handleResizeEnd = useCallback(() => {
+    setDragState({
+      isDragging: false,
+      taskId: null,
+      handle: null,
+      startY: 0,
+      startTime: null
+    });
+  }, []);
+
+  // Add global mouse event listeners for resize dragging
+  React.useEffect(() => {
+    if (dragState.isDragging) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [dragState.isDragging, handleResizeMove, handleResizeEnd]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -158,19 +244,25 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                  }}
                                >
                                  <Card className={`relative w-36 h-10 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none group`}>
-                                   {/* Top resize handle */}
-                                   <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                     <div className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm">
-                                       <ChevronUp className="w-3 h-3" />
-                                     </div>
-                                   </div>
-                                   
-                                   {/* Bottom resize handle */}
-                                   <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                     <div className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm">
-                                       <ChevronDown className="w-3 h-3" />
-                                     </div>
-                                   </div>
+                                    {/* Top resize handle */}
+                                    <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                      <div 
+                                        className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm"
+                                        onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                                      >
+                                        <ChevronUp className="w-3 h-3" />
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Bottom resize handle */}
+                                    <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                      <div 
+                                        className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm"
+                                        onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                      >
+                                        <ChevronDown className="w-3 h-3" />
+                                      </div>
+                                    </div>
                                    
                                    <CardContent className="px-2 py-1 h-full flex flex-col justify-center gap-0.5">
                                       <div className="flex flex-col">
