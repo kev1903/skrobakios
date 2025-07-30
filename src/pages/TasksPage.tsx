@@ -371,7 +371,7 @@ const TasksPage = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-900 text-sm">Task Backlog</h3>
             <Link to="/tasks/new" className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors">
-              + Add to backlog
+              ADD TASK
             </Link>
           </div>
 
