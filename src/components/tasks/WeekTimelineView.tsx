@@ -183,8 +183,8 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                             : 'bg-background hover:bg-muted/20'
                         }`}
                       >
-                        <div className={`flex gap-1 py-1 px-1 w-full ${
-                          isDragging ? 'drag-no-scroll' : 'scrollbar-thin overflow-x-auto'
+                        <div className={`flex gap-1 py-1 px-1 w-full overflow-hidden ${
+                          isDragging ? 'drag-no-scroll' : ''
                         }`}>
                           {(slot.dayTasks[dayIndex] || []).map((task, index) => (
                             <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={index}>
@@ -217,30 +217,30 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                       : provided.draggableProps.style?.transform
                                   }}
                                 >
-                                  <div className={`
-                                    w-28 h-9 flex-shrink-0 relative overflow-hidden
-                                    glass-card border border-white/20 
-                                    cursor-grab active:cursor-grabbing select-none
-                                    rounded-lg backdrop-blur-sm
-                                    ${snapshot.isDragging ? 'ring-2 ring-primary/40 ring-offset-1' : ''}
-                                    ${getStatusColor(task.status)}
-                                    hover:border-white/30 transition-all duration-200
-                                  `}>
-                                    {/* Priority indicator dot */}
-                                    <div className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ${
-                                      task.priority === 'High' ? 'bg-red-400' :
-                                      task.priority === 'Medium' ? 'bg-amber-400' :
-                                      'bg-green-400'
-                                    }`} />
-                                    
-                                    <div className="px-2 py-1.5 h-full flex flex-col justify-center gap-0.5">
-                                      <div className="text-xs font-semibold text-foreground/90 leading-3 line-clamp-1">
-                                        {task.taskName}
-                                      </div>
-                                      <div className="text-[10px] text-muted-foreground/70 leading-3 font-medium truncate">
-                                        {task.projectName ? task.projectName.substring(0, 10) + (task.projectName.length > 10 ? '...' : '') : 'No Project'}
-                                      </div>
-                                    </div>
+                                   <div className={`
+                                     w-full max-w-[100px] h-9 flex-shrink-0 relative overflow-hidden
+                                     glass-card border border-white/20 
+                                     cursor-grab active:cursor-grabbing select-none
+                                     rounded-lg backdrop-blur-sm
+                                     ${snapshot.isDragging ? 'ring-2 ring-primary/40 ring-offset-1' : ''}
+                                     ${getStatusColor(task.status)}
+                                     hover:border-white/30 transition-all duration-200
+                                   `}>
+                                     {/* Priority indicator dot */}
+                                     <div className={`absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${
+                                       task.priority === 'High' ? 'bg-red-400' :
+                                       task.priority === 'Medium' ? 'bg-amber-400' :
+                                       'bg-green-400'
+                                     }`} />
+                                     
+                                     <div className="px-1.5 py-1.5 h-full flex flex-col justify-center gap-0.5 overflow-hidden">
+                                       <div className="text-xs font-semibold text-foreground/90 leading-3 truncate">
+                                         {task.taskName}
+                                       </div>
+                                       <div className="text-[10px] text-muted-foreground/70 leading-3 font-medium truncate">
+                                         {task.projectName ? task.projectName.substring(0, 8) + (task.projectName.length > 8 ? '...' : '') : 'No Project'}
+                                       </div>
+                                     </div>
 
                                     {/* Subtle gradient overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/5 pointer-events-none" />
