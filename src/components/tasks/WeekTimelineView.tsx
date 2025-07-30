@@ -199,16 +199,16 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                   }
                                 }, [snapshot.isDragging]);
 
-                                return (
+                                 return (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                   data-dragging={snapshot.isDragging}
-                                  className={`transition-all duration-200 ${
+                                  className={`group transition-all duration-300 ease-out ${
                                     snapshot.isDragging 
-                                      ? 'shadow-xl opacity-90' 
-                                      : 'hover:shadow-md'
+                                      ? 'scale-105 shadow-2xl z-50' 
+                                      : 'hover:scale-102 hover:shadow-lg'
                                   }`}
                                   style={{
                                     ...provided.draggableProps.style,
@@ -217,16 +217,37 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                       : provided.draggableProps.style?.transform
                                   }}
                                 >
-                                  <Card className={`w-24 h-8 flex-shrink-0 ${getStatusColor(task.status)} border cursor-grab active:cursor-grabbing select-none`}>
-                                    <CardContent className="px-1 py-0.5 h-full flex flex-col justify-center">
-                                      <div className="text-xs font-medium line-clamp-1 text-foreground leading-tight">
+                                  <div className={`
+                                    w-28 h-9 flex-shrink-0 relative overflow-hidden
+                                    glass-card border border-white/20 
+                                    cursor-grab active:cursor-grabbing select-none
+                                    rounded-lg backdrop-blur-sm
+                                    ${snapshot.isDragging ? 'ring-2 ring-primary/40 ring-offset-1' : ''}
+                                    ${getStatusColor(task.status)}
+                                    hover:border-white/30 transition-all duration-200
+                                  `}>
+                                    {/* Priority indicator dot */}
+                                    <div className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ${
+                                      task.priority === 'High' ? 'bg-red-400' :
+                                      task.priority === 'Medium' ? 'bg-amber-400' :
+                                      'bg-green-400'
+                                    }`} />
+                                    
+                                    <div className="px-2 py-1.5 h-full flex flex-col justify-center gap-0.5">
+                                      <div className="text-xs font-semibold text-foreground/90 leading-3 line-clamp-1">
                                         {task.taskName}
                                       </div>
-                                      <div className="text-xs text-muted-foreground/80 truncate leading-tight font-normal">
-                                        {task.projectName ? task.projectName.substring(0, 8) + '...' : 'No Project'}
+                                      <div className="text-[10px] text-muted-foreground/70 leading-3 font-medium truncate">
+                                        {task.projectName ? task.projectName.substring(0, 10) + (task.projectName.length > 10 ? '...' : '') : 'No Project'}
                                       </div>
-                                    </CardContent>
-                                  </Card>
+                                    </div>
+
+                                    {/* Subtle gradient overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/5 pointer-events-none" />
+                                    
+                                    {/* Hover indicator */}
+                                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+                                  </div>
                                 </div>
                                 );
                               }}
