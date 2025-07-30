@@ -45,9 +45,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // Generate time slots from 8 AM to 1 PM (6 hours)
-    for (let slotIndex = 0; slotIndex < 6; slotIndex++) {
-      const hour = slotIndex + 8; // Start from 8 AM
+    // Generate time slots from 8 AM to 1 PM (6 hours), but use 30-minute slots for compatibility 
+    for (let slotIndex = 16; slotIndex < 28; slotIndex += 2) { // 16 = 8 AM in 30-min slots, 28 = 2 PM
+      const hour = Math.floor(slotIndex / 2);
       const timeLabel = hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
       
       // Create dayTasks object to hold tasks for each day of the week
@@ -62,16 +62,20 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           // Only show tasks with specific times (not at midnight/00:00) in timeline
           if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
           
-          // Check if task falls within this hour slot
+          // Check if task falls within this 30-minute slot
           const taskHour = taskDate.getUTCHours();
-          return taskHour === hour;
+          const taskMinutes = taskDate.getUTCMinutes();
+          
+          return taskHour === hour && 
+                 ((slotIndex % 2 === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
+                  (slotIndex % 2 === 1 && taskMinutes >= 30 && taskMinutes < 60));
         });
         
         dayTasks[dayIndex] = dayTasksForSlot;
       });
       
       slots.push({
-        hour: slotIndex,
+        hour: slotIndex, // Use 30-minute slot index for compatibility
         label: timeLabel,
         dayTasks
       });
@@ -143,74 +147,74 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           {/* Day Columns */}
           {weekDays.map((day, dayIndex) => (
             <div key={dayIndex} className="bg-background border-r border-border/20 relative last:border-r-0">
-              {timeSlots.map(slot => (
-                <div
-                  key={`${dayIndex}-${slot.hour}`}
-                  className="h-16 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative"
-                />
-              ))}
-              
-              {/* Tasks Overlay */}
-              <div className="absolute inset-0 pointer-events-none">
-                {timeSlots.map(slot => {
-                  const dayTasks = slot.dayTasks[dayIndex] || [];
-                  return dayTasks.map((task, taskIndex) => {
-                    const taskDate = new Date(task.dueDate);
-                    const taskHour = taskDate.getUTCHours();
-                    const taskMinutes = taskDate.getUTCMinutes();
-                    
-                    // Calculate position within the slot
-                    const slotPosition = (taskHour - 8) * 64; // 64px per hour, starting from 8 AM
-                    const duration = Math.max(60, 90); // Default 90 minutes duration
-                    
-                    // Task colors based on priority or category
-                    const getTaskColor = () => {
-                      switch (task.priority?.toLowerCase()) {
-                        case 'high': return 'bg-red-400/90';
-                        case 'medium': return 'bg-amber-400/90';
-                        case 'low': return 'bg-green-400/90';
-                        default: return 'bg-blue-400/90';
-                      }
-                    };
-                    
-                    return (
-                      <Droppable key={`${slot.hour}-${dayIndex}`} droppableId={`week-slot-${slot.hour}-${dayIndex}`}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className="absolute inset-0"
-                          >
-                            <Draggable draggableId={`week-task-${task.id}`} index={taskIndex}>
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className={`${getTaskColor()} backdrop-blur-sm text-white text-xs p-2 rounded-md absolute left-2 right-2 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto`}
-                                  style={{
-                                    top: `${slotPosition + 2}px`,
-                                    height: `${duration - 4}px`
-                                  }}
-                                >
-                                  <div className="font-semibold text-sm leading-tight">
-                                    {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
+              {timeSlots.map(slot => {
+                const dayTasks = slot.dayTasks[dayIndex] || [];
+                
+                return (
+                  <Droppable key={`${slot.hour}-${dayIndex}`} droppableId={`week-timeline-${slot.hour}-${dayIndex}`}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`h-16 border-b border-border/20 cursor-pointer transition-colors relative p-1 ${
+                          snapshot.isDraggingOver
+                            ? 'bg-primary/10 border-primary/30'
+                            : 'hover:bg-accent/30'
+                        }`}
+                      >
+                        <div className="flex gap-1 h-full overflow-hidden">
+                          {dayTasks.map((task, taskIndex) => {
+                            const taskDate = new Date(task.dueDate);
+                            
+                            // Task colors based on priority or category
+                            const getTaskColor = () => {
+                              switch (task.priority?.toLowerCase()) {
+                                case 'high': return 'bg-red-400/90';
+                                case 'medium': return 'bg-amber-400/90';
+                                case 'low': return 'bg-green-400/90';
+                                default: return 'bg-blue-400/90';
+                              }
+                            };
+                            
+                            return (
+                              <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={taskIndex}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className={`${getTaskColor()} backdrop-blur-sm text-white text-xs p-2 rounded-md cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 flex-1 min-w-0 ${
+                                      snapshot.isDragging ? 'scale-105 shadow-lg z-50' : ''
+                                    }`}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                    }}
+                                  >
+                                    <div className="font-semibold text-sm leading-tight truncate">
+                                      {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
+                                    </div>
+                                    <div className="font-medium mt-1 leading-tight truncate">{task.taskName}</div>
+                                    {task.projectName && (
+                                      <div className="text-white/80 text-xs mt-1 truncate">{task.projectName}</div>
+                                    )}
                                   </div>
-                                  <div className="font-medium mt-1 leading-tight">{task.taskName}</div>
-                                  {task.projectName && (
-                                    <div className="text-white/80 text-xs mt-1">{task.projectName}</div>
-                                  )}
-                                </div>
-                              )}
-                            </Draggable>
-                            {provided.placeholder}
+                                )}
+                              </Draggable>
+                            );
+                          })}
+                          {provided.placeholder}
+                        </div>
+                        
+                        {dayTasks.length === 0 && !snapshot.isDraggingOver && (
+                          <div className="flex items-center justify-center h-full text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">
+                            Drop
                           </div>
                         )}
-                      </Droppable>
-                    );
-                  });
-                })}
-              </div>
+                      </div>
+                    )}
+                  </Droppable>
+                );
+              })}
             </div>
           ))}
         </div>
