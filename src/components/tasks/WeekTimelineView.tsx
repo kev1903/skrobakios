@@ -133,12 +133,12 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
       </div>
 
       {/* Week Grid with Time Slots */}
-      <div className="flex-1 overflow-auto border border-border/20 rounded-lg">
+      <div className="flex-1 overflow-auto border-2 border-border/40 rounded-lg bg-background">
         <div className="grid grid-cols-8 gap-0 min-h-full">
           {/* Time Column */}
-          <div className="bg-background border-r border-border/20">
+          <div className="bg-muted/20 border-r-2 border-border/40">
             {timeSlots.map(slot => (
-              <div key={slot.hour} className="h-16 p-3 border-b border-border/20 text-sm text-muted-foreground font-medium flex items-start">
+              <div key={slot.hour} className="h-16 p-3 border-b-2 border-border/30 text-sm text-muted-foreground font-medium flex items-start last:border-b-0">
                 {slot.label}
               </div>
             ))}
@@ -146,7 +146,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           
           {/* Day Columns */}
           {weekDays.map((day, dayIndex) => (
-            <div key={dayIndex} className="bg-background border-r border-border/20 relative last:border-r-0">
+            <div key={dayIndex} className="bg-background border-r-2 border-border/40 relative last:border-r-0">
               {timeSlots.map(slot => {
                 const dayTasks = slot.dayTasks[dayIndex] || [];
                 
@@ -156,7 +156,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`h-16 border-b border-border/20 cursor-pointer transition-colors relative p-1 ${
+                        className={`h-16 border-b-2 border-border/30 cursor-pointer transition-colors relative p-1 last:border-b-0 ${
                           snapshot.isDraggingOver
                             ? 'bg-primary/10 border-primary/30'
                             : 'hover:bg-accent/30'
