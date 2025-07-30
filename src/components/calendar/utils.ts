@@ -2,10 +2,10 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, startOfWeek, 
 import { TimeBlock, CalendarViewData } from './types';
 
 export const categoryColors = {
-  work: 'bg-blue-500',
-  personal: 'bg-green-500', 
-  meeting: 'bg-purple-500',
-  break: 'bg-orange-500'
+  work: 'bg-blue-400',
+  personal: 'bg-green-400', 
+  meeting: 'bg-purple-400',
+  break: 'bg-amber-400'
 };
 
 export const getCalendarData = (currentDate: Date, viewMode: 'week' | 'month'): CalendarViewData => {

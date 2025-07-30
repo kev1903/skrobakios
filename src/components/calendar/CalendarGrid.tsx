@@ -22,10 +22,12 @@ export const CalendarGrid = ({
 }: CalendarGridProps) => {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
-  // Generate time slots for week view (6 AM to 10 PM)
-  const timeSlots = Array.from({ length: 17 }, (_, i) => {
-    const hour = i + 6;
-    return `${hour.toString().padStart(2, '0')}:00`;
+  // Generate time slots for week view (8 AM to 1 PM)
+  const timeSlots = Array.from({ length: 6 }, (_, i) => {
+    const hour = i + 8;
+    if (hour === 12) return '12 PM';
+    if (hour > 12) return `${hour - 12} PM`;
+    return `${hour} AM`;
   });
 
   if (viewMode === 'week') {
@@ -34,29 +36,26 @@ export const CalendarGrid = ({
     return (
       <div className="h-full flex flex-col">
         {/* Week Header */}
-        <div className="grid grid-cols-8 gap-px mb-2">
-          <div className="p-3 text-center text-muted-foreground font-semibold text-sm bg-muted/20 rounded-lg">
-            Time
+        <div className="grid grid-cols-8 gap-0 mb-4">
+          <div className="p-4 text-center text-muted-foreground font-medium text-sm">
+            
           </div>
           {weekDays.map(day => (
-            <div key={day.toISOString()} className="p-3 text-center text-muted-foreground font-semibold text-sm bg-muted/20 rounded-lg">
-              <div className={`${isToday(day) ? 'text-primary font-bold' : ''}`}>
-                {format(day, 'EEE')}
-              </div>
-              <div className={`text-xs ${isToday(day) ? 'text-primary' : 'text-muted-foreground'}`}>
-                {format(day, 'd')}
+            <div key={day.toISOString()} className="p-4 text-center">
+              <div className="text-muted-foreground font-medium text-sm uppercase">
+                {format(day, 'EEE')} {format(day, 'd')}
               </div>
             </div>
           ))}
         </div>
 
         {/* Week Grid with Time Slots */}
-        <div className="flex-1 overflow-auto">
-          <div className="grid grid-cols-8 gap-px bg-border/30 rounded-lg min-h-full">
+        <div className="flex-1 overflow-auto border border-border/20 rounded-lg">
+          <div className="grid grid-cols-8 gap-0 min-h-full">
             {/* Time Column */}
-            <div className="bg-card/60 backdrop-blur-sm">
+            <div className="bg-background border-r border-border/20">
               {timeSlots.map(time => (
-                <div key={time} className="h-16 p-2 border-b border-border/20 text-xs text-muted-foreground font-medium">
+                <div key={time} className="h-16 p-3 border-b border-border/20 text-sm text-muted-foreground font-medium flex items-start">
                   {time}
                 </div>
               ))}
@@ -68,7 +67,7 @@ export const CalendarGrid = ({
               const isDayToday = isToday(day);
               
               return (
-                <div key={day.toISOString()} className="bg-card/80 backdrop-blur-sm relative">
+                <div key={day.toISOString()} className="bg-background border-r border-border/20 relative last:border-r-0">
                   {timeSlots.map(time => (
                     <div
                       key={`${day.toISOString()}-${time}`}
@@ -87,25 +86,25 @@ export const CalendarGrid = ({
                       const endHour = parseInt(block.endTime.split(':')[0]);
                       const endMinute = parseInt(block.endTime.split(':')[1]);
                       
-                      // Calculate position (6 AM = 0, so subtract 6 from hour)
-                      const startPosition = ((startHour - 6) + startMinute / 60) * 64; // 64px per hour
+                      // Calculate position (8 AM = 0, so subtract 8 from hour)
+                      const startPosition = ((startHour - 8) + startMinute / 60) * 64; // 64px per hour
                       const duration = ((endHour - startHour) + (endMinute - startMinute) / 60) * 64;
                       
                       return (
                         <div
                           key={block.id}
-                          className={`${block.color} text-white text-xs p-1 rounded absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-opacity pointer-events-auto`}
+                          className={`${block.color}/90 backdrop-blur-sm text-white text-xs p-2 rounded-md absolute left-2 right-2 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto`}
                           style={{
-                            top: `${startPosition}px`,
-                            height: `${Math.max(duration, 24)}px` // Minimum height of 24px
+                            top: `${startPosition + 2}px`,
+                            height: `${Math.max(duration - 4, 24)}px` // Minimum height of 24px with spacing
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
                             onBlockEdit(block);
                           }}
                         >
-                          <div className="font-medium truncate">{block.title}</div>
-                          <div className="text-white/80 text-xs">{block.startTime}-{block.endTime}</div>
+                          <div className="font-semibold text-sm leading-tight">{block.startTime} - {block.endTime}</div>
+                          <div className="font-medium mt-1 leading-tight">{block.title}</div>
                         </div>
                       );
                     })}
