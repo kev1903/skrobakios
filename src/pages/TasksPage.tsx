@@ -97,7 +97,7 @@ const TasksPage = () => {
         return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}`;
       case 'month':
       default:
-        return format(date, 'MMMM'); // e.g., "July"
+        return format(date, 'MMMM yyyy'); // e.g., "July 2024"
     }
   };
   const navigate = (direction: 'prev' | 'next') => {
