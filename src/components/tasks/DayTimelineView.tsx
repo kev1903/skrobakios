@@ -340,19 +340,21 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const isCurrentDay = isSameDay(currentDate, new Date());
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
       {/* Timeline Grid */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
-          <div className="grid grid-cols-[80px_1fr] min-h-full">
+          <div className="grid grid-cols-[100px_1fr] min-h-full">
             {/* Time Column */}
-            <div className="border-r border-border/20 bg-muted/10 min-w-[80px]">
+            <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[100px] shadow-inner">
               {timeSlots.map((slot, index) => {
                 const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
                 return (
-                  <div key={slot.hour} className={`h-16 border-b border-border/10 flex items-start justify-end pr-4 pt-2 ${isFullHour ? 'border-b-border/20' : ''}`}>
-                    <span className={`font-mono text-muted-foreground leading-tight ${
-                      isFullHour ? 'text-sm font-medium' : 'text-xs opacity-60'
+                  <div key={slot.hour} className={`h-16 border-b flex items-start justify-end pr-4 pt-2 transition-colors hover:bg-accent/20 ${
+                    isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                  }`}>
+                    <span className={`font-mono leading-tight ${
+                      isFullHour ? 'text-sm font-medium text-muted-foreground' : 'text-xs opacity-60 text-muted-foreground/60'
                     }`}>
                       {slot.label}
                     </span>
@@ -362,7 +364,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             </div>
 
             {/* Events Column */}
-            <div className="relative">
+            <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
               {timeSlots.map((slot) => (
                 <div key={slot.hour} className="h-16 border-b border-border/10 relative">
                   <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
