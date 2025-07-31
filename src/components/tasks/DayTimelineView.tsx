@@ -376,11 +376,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                                
                                                return (
                                                  <>
-                                                   {/* Time range - always show at top */}
-                                                   <div className="flex items-center justify-between text-xs font-medium text-primary bg-primary/5 rounded px-1.5 py-0.5 mb-1">
-                                                     <span>{startTimeStr}</span>
-                                                     <span>-</span>
-                                                     <span>{endTimeStr}</span>
+                                                   {/* Time range and duration - always show at top */}
+                                                   <div className="flex items-center justify-between gap-2 mb-1">
+                                                     <div className="flex items-center text-xs font-medium text-primary bg-primary/5 rounded px-1.5 py-0.5">
+                                                       <span>{startTimeStr}</span>
+                                                       <span className="mx-1">-</span>
+                                                       <span>{endTimeStr}</span>
+                                                     </div>
+                                                     <div className="flex items-center gap-1 text-xs text-muted-foreground/60">
+                                                       <Clock className="w-3 h-3 flex-shrink-0" />
+                                                       <span className="font-medium">{taskDuration}min</span>
+                                                     </div>
                                                    </div>
                                                    
                                                    {/* Task name - adaptive based on container height */}
