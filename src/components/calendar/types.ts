@@ -5,7 +5,7 @@ export interface TimeBlock {
   date: Date;
   startTime: string;
   endTime: string;
-  category: 'work' | 'personal' | 'meeting' | 'break' | 'family' | 'site_visit' | 'church';
+  category: 'work' | 'personal' | 'meeting' | 'break' | 'family' | 'site_visit' | 'church' | 'rest';
   color: string;
 }
 

@@ -8,7 +8,8 @@ export const categoryColors = {
   break: 'bg-amber-400',
   family: 'bg-pink-400',
   site_visit: 'bg-indigo-400',
-  church: 'bg-violet-400'
+  church: 'bg-violet-400',
+  rest: 'bg-slate-400'
 };
 
 export const getCalendarData = (currentDate: Date, viewMode: 'week' | 'month'): CalendarViewData => {

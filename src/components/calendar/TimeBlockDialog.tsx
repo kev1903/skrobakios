@@ -109,6 +109,7 @@ export const TimeBlockDialog = ({
                 <SelectItem value="family">Family</SelectItem>
                 <SelectItem value="site_visit">Site Visit</SelectItem>
                 <SelectItem value="church">Church</SelectItem>
+                <SelectItem value="rest">Rest</SelectItem>
               </SelectContent>
             </Select>
           </div>
