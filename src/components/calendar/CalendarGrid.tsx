@@ -35,29 +35,38 @@ export const CalendarGrid = ({
     const weekDays = paddedDays.filter(day => day !== null) as Date[];
     
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg">
         {/* Week Header */}
-        <div className="grid grid-cols-8 gap-0 mb-4">
-          <div className="p-4 text-center text-muted-foreground font-medium text-sm">
-            
+        <div className="grid grid-cols-8 gap-1 mb-4 p-4 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm rounded-t-xl border-b border-border/20">
+          <div className="p-3 text-center text-muted-foreground font-medium text-sm bg-card/50 rounded-lg border border-border/20">
+            Time
           </div>
-          {weekDays.map(day => (
-            <div key={day.toISOString()} className="p-4 text-center">
-              <div className="text-muted-foreground font-medium text-sm uppercase">
-                {format(day, 'EEE')}
+          {weekDays.map(day => {
+            const isDayToday = isToday(day);
+            return (
+              <div key={day.toISOString()} className={`p-3 text-center transition-all duration-200 rounded-lg border ${
+                isDayToday 
+                  ? 'bg-gradient-to-b from-primary/20 to-primary/10 border-primary/30 shadow-md' 
+                  : 'bg-card/50 border-border/20 hover:bg-card/70'
+              }`}>
+                <div className={`font-medium text-sm uppercase ${
+                  isDayToday ? 'text-primary font-bold' : 'text-muted-foreground'
+                }`}>
+                  {format(day, 'EEE')}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Week Grid with Time Slots */}
-        <div className="flex-1 overflow-auto border border-border/20 rounded-lg">
+        <div className="flex-1 overflow-auto mx-4 mb-4 rounded-lg border border-border/30 shadow-inner bg-gradient-to-b from-background to-muted/10">
           <div className="grid grid-cols-8 gap-0 min-h-full">
             {/* Time Column */}
-            <div className="bg-background border-r border-border/20">
+            <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30">
               {timeSlots.map((time, index) => (
-                <div key={time} className={`h-6 p-1 border-b border-border/20 text-xs text-muted-foreground font-medium flex items-start ${
-                  index % 2 === 0 ? '' : 'text-muted-foreground/60'
+                <div key={time} className={`h-6 p-1 border-b border-border/20 text-xs font-medium flex items-start transition-colors hover:bg-accent/20 ${
+                  index % 2 === 0 ? 'text-muted-foreground bg-card/30' : 'text-muted-foreground/60 bg-transparent'
                 }`}>
                   {index % 2 === 0 ? time : ''}
                 </div>
@@ -70,13 +79,19 @@ export const CalendarGrid = ({
               const isDayToday = isToday(day);
               
               return (
-                <div key={day.toISOString()} className="bg-background border-r border-border/20 relative last:border-r-0">
+                <div key={day.toISOString()} className={`relative last:border-r-0 border-r border-border/30 ${
+                  isDayToday 
+                    ? 'bg-gradient-to-b from-primary/10 via-primary/5 to-transparent' 
+                    : 'bg-gradient-to-b from-card/20 to-transparent hover:from-card/30'
+                } transition-all duration-200`}>
                   {timeSlots.map((time, index) => (
                     <div
                       key={`${day.toISOString()}-${time}-${index}`}
-                      className={`h-6 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
-                        isDayToday ? 'bg-primary/5' : ''
-                      }`}
+                      className={`h-6 border-b border-border/20 cursor-pointer relative transition-colors duration-150 ${
+                        isDayToday 
+                          ? 'hover:bg-primary/20' 
+                          : 'hover:bg-accent/30'
+                      } ${index % 4 === 0 ? 'border-border/30' : ''}`}
                       onClick={() => onDayClick(day)}
                     />
                   ))}
@@ -124,18 +139,18 @@ export const CalendarGrid = ({
 
   // Month view (existing layout)
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg p-4">
       {/* Calendar Header */}
-      <div className="grid grid-cols-7 gap-px mb-2">
+      <div className="grid grid-cols-7 gap-2 mb-4">
         {weekDays.map(day => (
-          <div key={day} className="p-3 text-center text-muted-foreground font-semibold text-lg bg-muted/20 rounded-lg">
+          <div key={day} className="p-4 text-center text-muted-foreground font-semibold text-lg bg-gradient-to-b from-card/70 to-card/50 backdrop-blur-sm rounded-lg border border-border/20 shadow-sm">
             {day}
           </div>
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="flex-1 grid grid-cols-7 gap-px bg-border/30 rounded-lg overflow-hidden">
+      <div className="flex-1 grid grid-cols-7 gap-2 bg-gradient-to-b from-muted/20 to-muted/10 rounded-lg overflow-hidden p-2 border border-border/20">
         {paddedDays.map((day, index) => {
           if (!day) {
             return <div key={index} className="bg-muted/10"></div>;
