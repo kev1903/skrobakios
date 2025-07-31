@@ -22,13 +22,13 @@ export const CalendarGrid = ({
 }: CalendarGridProps) => {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
-  // Generate time slots for week view (full 24 hours)
-  const timeSlots = Array.from({ length: 24 }, (_, i) => {
-    const hour = i;
-    if (hour === 0) return '12 AM';
-    if (hour === 12) return '12 PM';
-    if (hour > 12) return `${hour - 12} PM`;
-    return `${hour} AM`;
+  // Generate time slots for week view (30-minute intervals)
+  const timeSlots = Array.from({ length: 48 }, (_, i) => {
+    const hour = Math.floor(i / 2);
+    const minute = (i % 2) * 30;
+    const period = hour < 12 ? 'AM' : 'PM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
   });
 
   if (viewMode === 'week') {
@@ -55,9 +55,11 @@ export const CalendarGrid = ({
           <div className="grid grid-cols-8 gap-0 min-h-full">
             {/* Time Column */}
             <div className="bg-background border-r border-border/20">
-              {timeSlots.map(time => (
-                <div key={time} className="h-8 p-2 border-b border-border/20 text-xs text-muted-foreground font-medium flex items-start">
-                  {time}
+              {timeSlots.map((time, index) => (
+                <div key={time} className={`h-4 p-1 border-b border-border/20 text-xs text-muted-foreground font-medium flex items-start ${
+                  index % 2 === 0 ? '' : 'text-muted-foreground/60'
+                }`}>
+                  {index % 2 === 0 ? time : ''}
                 </div>
               ))}
             </div>
@@ -69,10 +71,10 @@ export const CalendarGrid = ({
               
               return (
                 <div key={day.toISOString()} className="bg-background border-r border-border/20 relative last:border-r-0">
-                  {timeSlots.map(time => (
+                  {timeSlots.map((time, index) => (
                     <div
-                      key={`${day.toISOString()}-${time}`}
-                      className={`h-8 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
+                      key={`${day.toISOString()}-${time}-${index}`}
+                      className={`h-4 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
                         isDayToday ? 'bg-primary/5' : ''
                       }`}
                       onClick={() => onDayClick(day)}
@@ -87,9 +89,9 @@ export const CalendarGrid = ({
                       const endHour = parseInt(block.endTime.split(':')[0]);
                       const endMinute = parseInt(block.endTime.split(':')[1]);
                       
-                      // Calculate position (12 AM = 0, so use hour directly)
-                      const startPosition = (startHour + startMinute / 60) * 32; // 32px per hour
-                      const duration = ((endHour - startHour) + (endMinute - startMinute) / 60) * 32;
+                      // Calculate position (30-minute intervals, 16px per 30min slot)
+                      const startPosition = (startHour * 2 + startMinute / 30) * 16; // 16px per 30min
+                      const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 16;
                       
                       return (
                         <div
@@ -97,7 +99,7 @@ export const CalendarGrid = ({
                           className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto overflow-hidden`}
                           style={{
                             top: `${startPosition + 2}px`,
-                            height: `${Math.max(duration - 4, 24)}px` // Minimum height of 24px with spacing
+                            height: `${Math.max(duration - 2, 12)}px` // Minimum height of 12px with spacing
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
