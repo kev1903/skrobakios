@@ -31,6 +31,7 @@ import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
+import Dashboard from "./pages/Dashboard";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -197,6 +198,15 @@ const AppContent = () => {
           <UserProvider>
             <CompanyProvider>
               <SubscriptionPageWrapper />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+        
+        {/* Dashboard Hub */}
+        <Route path="/dashboard" element={
+          <UserProvider>
+            <CompanyProvider>
+              <Dashboard />
             </CompanyProvider>
           </UserProvider>
         } />
