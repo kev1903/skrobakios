@@ -5,7 +5,10 @@ export const categoryColors = {
   work: 'bg-blue-400',
   personal: 'bg-green-400', 
   meeting: 'bg-purple-400',
-  break: 'bg-amber-400'
+  break: 'bg-amber-400',
+  family: 'bg-pink-400',
+  site_visit: 'bg-indigo-400',
+  church: 'bg-violet-400'
 };
 
 export const getCalendarData = (currentDate: Date, viewMode: 'week' | 'month'): CalendarViewData => {
