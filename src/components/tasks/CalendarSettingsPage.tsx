@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save, Layers } from 'lucide-react';
-import { TimeBlockingCalendar } from '@/components/TimeBlockingCalendar';
+import { TimeBlockPreview } from '@/components/calendar/TimeBlockPreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -259,11 +259,7 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
                 </div>
                 
                 <div className="bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200/50 p-4">
-                  <TimeBlockingCalendar
-                    currentDate={currentDate}
-                    viewMode="week"
-                    onMonthChange={setCurrentDate}
-                  />
+                  <TimeBlockPreview />
                 </div>
 
                 {/* Time Blocking Settings */}
