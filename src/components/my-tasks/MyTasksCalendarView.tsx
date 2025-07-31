@@ -9,6 +9,7 @@ import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react
 import { Task } from '../tasks/types';
 import { DayTimelineView } from '../tasks/DayTimelineView';
 import { WeekTimelineView } from '../tasks/WeekTimelineView';
+import { MonthTimelineView } from '../tasks/MonthTimelineView';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
@@ -386,6 +387,16 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                 currentDate={currentDate} 
                 tasks={tasks}
                 onTaskUpdate={onTaskUpdate}
+              />
+            ) : viewMode === 'month' ? (
+              <MonthTimelineView 
+                currentDate={currentDate} 
+                tasks={tasks}
+                onTaskUpdate={onTaskUpdate}
+                onDayClick={(day) => {
+                  setCurrentDate(day);
+                  setViewMode('day');
+                }}
               />
             ) : (
               <DayTimelineView 

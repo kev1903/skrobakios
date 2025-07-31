@@ -119,10 +119,10 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   return (
     <div className="h-full flex flex-col">
       {/* Week Grid with Time Slots */}
-      <div className="flex-1 overflow-auto border-2 border-border/40 rounded-lg bg-background">
+      <div className="flex-1 overflow-auto border border-border/20 rounded-lg bg-background">
         {/* Day Headers Row */}
-        <div className="grid grid-cols-8 gap-0 border-b-2 border-border/40 bg-muted/20">
-          <div className="p-3 text-center text-muted-foreground font-medium text-sm">
+        <div className="grid grid-cols-8 gap-0 border-b border-border/20 bg-muted/10">
+          <div className="p-3 text-center text-muted-foreground font-medium text-sm min-w-[80px]">
             Time
           </div>
           {weekHeaders.map((dayName, index) => {
@@ -130,7 +130,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
             const isToday = isSameDay(day, new Date());
             
             return (
-              <div key={dayName} className="p-3 text-center border-r-2 border-border/40 last:border-r-0">
+              <div key={dayName} className="p-3 text-center border-r border-border/20 last:border-r-0">
                 <div className={`text-muted-foreground font-medium text-sm uppercase ${isToday ? 'text-primary font-bold' : ''}`}>
                   {dayName} {day.getDate()}
                 </div>
@@ -141,17 +141,24 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
         
         <div className="grid grid-cols-8 gap-0 min-h-full">
           {/* Time Column */}
-          <div className="bg-muted/20 border-r-2 border-border/40">
-            {timeSlots.map(slot => (
-              <div key={slot.hour} className="h-16 p-3 border-b-2 border-border/30 text-sm text-muted-foreground font-medium flex items-start last:border-b-0">
-                {slot.label}
-              </div>
-            ))}
+          <div className="bg-muted/10 border-r border-border/20 min-w-[80px]">
+            {timeSlots.map((slot, index) => {
+              const isFullHour = index % 2 === 0; // Every even slot is a full hour
+              return (
+                <div key={slot.hour} className={`h-16 border-b border-border/10 flex items-start justify-end pr-4 pt-2 ${isFullHour ? 'border-b-border/20' : ''}`}>
+                  <span className={`font-mono text-muted-foreground leading-tight ${
+                    isFullHour ? 'text-sm font-medium' : 'text-xs opacity-60'
+                  }`}>
+                    {slot.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
           
           {/* Day Columns */}
           {weekDays.map((day, dayIndex) => (
-            <div key={dayIndex} className="bg-background border-r-2 border-border/40 relative last:border-r-0">
+            <div key={dayIndex} className="bg-background border-r border-border/20 relative last:border-r-0">
               {timeSlots.map(slot => {
                 const dayTasks = slot.dayTasks[dayIndex] || [];
                 
@@ -161,7 +168,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`h-16 border-b-2 border-border/30 cursor-pointer transition-colors relative p-1 last:border-b-0 ${
+                        className={`h-16 border-b border-border/10 cursor-pointer transition-colors relative p-1 ${
                           snapshot.isDraggingOver
                             ? 'bg-primary/10 border-primary/30'
                             : 'hover:bg-accent/30'
