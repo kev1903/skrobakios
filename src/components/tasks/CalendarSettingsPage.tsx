@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save, Layers } from 'lucide-react';
+import { TimeBlockingCalendar } from '@/components/TimeBlockingCalendar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +20,7 @@ interface CalendarSettingsPageProps {
 }
 
 export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBack }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [settings, setSettings] = useState({
     timeFormat: '24h',
     startTime: '06:00',
@@ -249,75 +251,79 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
             </TabsContent>
 
             <TabsContent value="timeblocking" className="space-y-6 mt-6">
-              {/* Time Blocking Settings */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
+              {/* Time Blocking Calendar */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
                   <Layers className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-gray-900">Time Blocking Settings</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Time Blocking Calendar</h3>
                 </div>
                 
+                <div className="bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200/50 p-4">
+                  <TimeBlockingCalendar
+                    currentDate={currentDate}
+                    viewMode="week"
+                    onMonthChange={setCurrentDate}
+                  />
+                </div>
+
+                {/* Time Blocking Settings */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Enable Time Blocking</Label>
-                      <p className="text-sm text-muted-foreground">Allow creating time blocks on the calendar</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <h4 className="text-md font-medium text-gray-900">Settings</h4>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Auto-fit Time Blocks</Label>
+                        <p className="text-sm text-muted-foreground">Automatically adjust block size to fit available slots</p>
+                      </div>
+                      <Switch
+                        checked={false}
+                        onCheckedChange={() => {}}
+                      />
                     </div>
-                    <Switch
-                      checked={true}
-                      onCheckedChange={() => {}}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Auto-fit Time Blocks</Label>
-                      <p className="text-sm text-muted-foreground">Automatically adjust block size to fit available slots</p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Show Block Conflicts</Label>
+                        <p className="text-sm text-muted-foreground">Highlight overlapping time blocks</p>
+                      </div>
+                      <Switch
+                        checked={true}
+                        onCheckedChange={() => {}}
+                      />
                     </div>
-                    <Switch
-                      checked={false}
-                      onCheckedChange={() => {}}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Show Block Conflicts</Label>
-                      <p className="text-sm text-muted-foreground">Highlight overlapping time blocks</p>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="minBlockDuration">Minimum Block Duration (minutes)</Label>
+                      <Select value="15">
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="15">15 minutes</SelectItem>
+                          <SelectItem value="30">30 minutes</SelectItem>
+                          <SelectItem value="60">1 hour</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Switch
-                      checked={true}
-                      onCheckedChange={() => {}}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="minBlockDuration">Minimum Block Duration (minutes)</Label>
-                    <Select value="15">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="15">15 minutes</SelectItem>
-                        <SelectItem value="30">30 minutes</SelectItem>
-                        <SelectItem value="60">1 hour</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="defaultBlockColor">Default Block Color</Label>
-                    <Select value="blue">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="blue">Blue</SelectItem>
-                        <SelectItem value="green">Green</SelectItem>
-                        <SelectItem value="purple">Purple</SelectItem>
-                        <SelectItem value="orange">Orange</SelectItem>
-                        <SelectItem value="red">Red</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="defaultBlockColor">Default Block Color</Label>
+                      <Select value="blue">
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="blue">Blue</SelectItem>
+                          <SelectItem value="green">Green</SelectItem>
+                          <SelectItem value="purple">Purple</SelectItem>
+                          <SelectItem value="orange">Orange</SelectItem>
+                          <SelectItem value="red">Red</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </div>
