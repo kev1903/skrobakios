@@ -365,30 +365,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                          className="cursor-grab active:cursor-grabbing absolute inset-2 z-10"
                                        />
 
-                                       <CardContent className="p-3 h-full flex flex-col justify-start gap-1">
-                                          <h4 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
-                                            {task.taskName}
-                                          </h4>
-                                          
-                                          <p className="text-xs text-muted-foreground/80 leading-tight">
-                                            {task.projectName || "No Project"}
-                                          </p>
-                                          
-                                          {slotsSpanned > 1 && (
-                                            <div className="flex items-center gap-1 mt-1">
-                                              <Clock className="w-3 h-3 text-muted-foreground/60" />
-                                              <span className="text-xs text-muted-foreground/60">
-                                                {taskDuration}min
-                                              </span>
-                                            </div>
-                                          )}
-                                          
-                                          <div className="flex items-center gap-1 mt-auto">
-                                            <Badge variant="outline" className={`text-xs px-1.5 py-0.5 ${getPriorityColor(task.priority)}`}>
-                                              {task.priority}
-                                            </Badge>
-                                          </div>
-                                       </CardContent>
+                                        <CardContent className="p-3 h-full flex flex-col justify-start gap-1">
+                                           <h4 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
+                                             {task.taskName}
+                                           </h4>
+                                           
+                                           <p className="text-xs text-muted-foreground/80 leading-tight">
+                                             {task.projectName || "No Project"}
+                                           </p>
+                                           
+                                           <div className="flex items-center gap-1 mt-auto">
+                                             <Clock className="w-3 h-3 text-muted-foreground/60" />
+                                             <span className="text-xs text-muted-foreground/60">
+                                               {taskDuration}min
+                                             </span>
+                                           </div>
+                                        </CardContent>
                                      </Card>
                                   </div>
                                 )}
