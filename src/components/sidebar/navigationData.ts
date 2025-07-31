@@ -15,6 +15,7 @@ import {
   HelpCircle,
   Settings,
   Database,
+  BarChart3,
 } from "lucide-react";
 import { NavigationItem } from './types';
 
@@ -31,6 +32,7 @@ export const personalProfileNavigation: NavigationItem[] = [
 
 export const generalNavigation: NavigationItem[] = [
   { id: "home", label: "Home", icon: Home },
+  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
   { id: "my-tasks", label: "MY TASKS", icon: Calendar },
   { id: "schedules", label: "My Schedules", icon: Calendar },
   { id: "inbox", label: "Inbox", icon: Mail },
