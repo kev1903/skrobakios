@@ -374,9 +374,49 @@ const TasksPage = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-900 text-sm">Task Backlog</h3>
-            <Link to="/tasks/new" className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors">
-              ADD TASK
-            </Link>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={async () => {
+                  try {
+                    // Find all tasks that have specific times (not at midnight)
+                    const scheduledTasks = userTasks.filter(task => {
+                      if (!task.dueDate) return false;
+                      const taskDateTime = new Date(task.dueDate);
+                      return !(taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0);
+                    });
+                    
+                    if (scheduledTasks.length === 0) {
+                      console.log('No scheduled tasks to reset');
+                      return;
+                    }
+                    
+                    // Reset all scheduled tasks to midnight (move to backlog)
+                    const resetPromises = scheduledTasks.map(task => {
+                      const resetDate = new Date(task.dueDate);
+                      resetDate.setUTCHours(0, 0, 0, 0); // Set to midnight UTC
+                      return taskService.updateTask(task.id, {
+                        dueDate: resetDate.toISOString()
+                      }, userProfile);
+                    });
+                    
+                    await Promise.all(resetPromises);
+                    console.log(`Reset ${scheduledTasks.length} tasks to backlog`);
+                    
+                    // Reload tasks to reflect changes
+                    const updatedTasks = await taskService.loadTasksAssignedToUser();
+                    setUserTasks(updatedTasks);
+                  } catch (error) {
+                    console.error('Failed to reset tasks:', error);
+                  }
+                }}
+                className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors"
+              >
+                RESET
+              </button>
+              <Link to="/tasks/new" className="text-blue-500 text-sm font-medium hover:text-blue-600 transition-colors">
+                ADD TASK
+              </Link>
+            </div>
           </div>
 
           {/* Task Type Filter */}
