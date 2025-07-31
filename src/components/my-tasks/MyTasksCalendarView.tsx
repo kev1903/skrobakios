@@ -191,15 +191,15 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
   return (
     <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
         {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
-        <div className="absolute left-0 top-0 w-80 h-full z-10 bg-background">
-          <Card className="h-full flex flex-col border-r shadow-sm">{/* Main Calendar Area - Scrollable with left margin */}
-            <CardHeader className="pb-4 flex-shrink-0">
-              <CardTitle className="text-lg">Task Backlog</CardTitle>
+        <div className="absolute left-0 top-0 w-80 h-full z-10">
+          <Card className="h-full flex flex-col border-r shadow-lg bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-xl border-border/30">
+            <CardHeader className="pb-4 flex-shrink-0 bg-gradient-to-r from-muted/30 to-muted/10 border-b border-border/20">
+              <CardTitle className="text-lg font-semibold text-foreground">Task Backlog</CardTitle>
               <Button 
                 size="sm" 
-                className="w-full justify-start"
+                className="w-full justify-start bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-200"
                 onClick={() => {/* Add new task */}}
               >
                 <Plus className="w-4 h-4 mr-2" />
