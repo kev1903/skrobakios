@@ -84,8 +84,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       return !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
     });
     
-    // Generate 48 30-minute slots (24 hours × 2) - Full 24 hour coverage
-    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
+    // First, add a combined 00:00-05:00 slot
+    const nightTasks = dayTasks.filter(task => {
+      const taskDateTime = new Date(task.dueDate);
+      const taskHour = taskDateTime.getUTCHours();
+      return taskHour >= 0 && taskHour < 5;
+    });
+    
+    slots.push({
+      hour: -1, // Special identifier for the combined night slot
+      label: '00:00-05:00',
+      tasks: nightTasks
+    });
+    
+    // Generate remaining slots starting from 05:00 (slot index 10 = 05:00)
+    // Generate 38 30-minute slots (from 05:00 to 24:00 = 19 hours × 2)
+    for (let slotIndex = 10; slotIndex < 48; slotIndex++) {
       const hour = Math.floor(slotIndex / 2);
       const minutes = (slotIndex % 2) * 30;
       
@@ -306,10 +320,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     const hours = now.getHours();
     const minutes = now.getMinutes();
     
-    // Calculate position based on 64px per hour (32px per 30min slot)
-    // Each 30-min slot = 64px, so 1 minute = 64/30 ≈ 2.133px
-    const totalMinutes = hours * 60 + minutes;
-    const position = (totalMinutes / 30) * 64; // 64px per 30-minute slot
+    let position: number;
+    
+    // Calculate position based on new slot arrangement
+    if (hours >= 0 && hours < 5) {
+      // Current time is in the combined 00:00-05:00 slot
+      position = 32; // Middle of the first 64px slot
+    } else {
+      // Calculate position for slots starting from 05:00
+      // Each slot after the night slot represents time from 05:00 onwards
+      const minutesSince5AM = (hours - 5) * 60 + minutes;
+      position = 64 + (minutesSince5AM / 30) * 64; // 64px for night slot + calculated position
+    }
     
     return position;
   };
@@ -509,9 +531,27 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   const endHour = parseInt(block.endTime.split(':')[0]);
                   const endMinute = parseInt(block.endTime.split(':')[1]);
                   
-                  // Calculate position (30-minute intervals, 64px per 30min slot)
-                  const startPosition = (startHour * 2 + startMinute / 30) * 64;
-                  const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
+                  // Calculate position with new slot arrangement (combined 00:00-05:00 slot)
+                  let startPosition: number;
+                  let duration: number;
+                  
+                  if (startHour < 5) {
+                    // Time block starts in the combined night slot
+                    startPosition = 0;
+                    if (endHour <= 5) {
+                      // Entire block is within night slot
+                      duration = 64;
+                    } else {
+                      // Block spans from night slot into regular slots
+                      const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 64;
+                      duration = 64 + remainingDuration;
+                    }
+                  } else {
+                    // Time block starts at 05:00 or later
+                    const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
+                    startPosition = 64 + (adjustedStartHour * 2 + startMinute / 30) * 64;
+                    duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
+                  }
                   
                   return (
                     <div
