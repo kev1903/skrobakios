@@ -364,7 +364,7 @@ const TasksPage = () => {
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
       <DragDropContext onDragStart={(start) => console.log('🚀 Drag started:', start)} onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
-      <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm">
+      <div className="fixed top-0 left-0 w-80 h-screen bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm overflow-y-auto z-10">
         {/* Return to Home Button */}
         <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -505,7 +505,7 @@ const TasksPage = () => {
       </div>
 
       {/* Main Content - Calendar View */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 ml-80">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           {/* Empty div to maintain spacing */}
