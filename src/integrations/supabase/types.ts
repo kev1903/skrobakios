@@ -2212,6 +2212,48 @@ export type Database = {
           },
         ]
       }
+      time_blocks: {
+        Row: {
+          category: string
+          color: string
+          created_at: string
+          day_of_week: number
+          description: string | null
+          end_time: string
+          id: string
+          start_time: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          color: string
+          created_at?: string
+          day_of_week: number
+          description?: string | null
+          end_time: string
+          id?: string
+          start_time: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          color?: string
+          created_at?: string
+          day_of_week?: number
+          description?: string | null
+          end_time?: string
+          id?: string
+          start_time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       time_entries: {
         Row: {
           category: string
