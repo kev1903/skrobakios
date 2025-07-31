@@ -40,15 +40,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       return !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
     });
     
-    console.log('📅 Current date for timeline:', currentDate.toISOString());
-    console.log('📅 All tasks passed to timeline:', tasks.length, tasks.map(t => ({ name: t.taskName, dueDate: t.dueDate })));
-    console.log('📅 Tasks for current date:', dayTasks.length, dayTasks.map(t => ({ name: t.taskName, dueDate: t.dueDate, duration: t.duration })));
-    
-    // Generate 48 30-minute slots (24 hours × 2)
+    // Generate 48 30-minute slots (24 hours × 2) - Full 24 hour coverage
     for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
       const hour = Math.floor(slotIndex / 2);
       const minutes = (slotIndex % 2) * 30;
-      const timeLabel = format(setHours(setMinutes(new Date(), minutes), hour), 'HH:mm');
+      
+      // Create a proper date object for time formatting
+      const timeDate = new Date();
+      timeDate.setHours(hour, minutes, 0, 0);
+      const timeLabel = format(timeDate, 'HH:mm');
       
       // Filter tasks that start in this specific 30-minute slot
       const slotTasks = dayTasks.filter(task => {
@@ -69,10 +69,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         }
       });
       
-      console.log(`🕐 Slot ${slotIndex} (${timeLabel}):`, slotTasks.length, 'tasks');
-      
       slots.push({
-        hour: slotIndex, // Now represents 30-minute slot index instead of hour
+        hour: slotIndex, // Represents 30-minute slot index
         label: timeLabel,
         tasks: slotTasks
       });
@@ -266,13 +264,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           <div className="grid grid-cols-[80px_1fr] min-h-full">
             {/* Time Column */}
             <div className="border-r border-border/20 bg-muted/20">
-              {timeSlots.map((slot) => (
-                <div key={slot.hour} className="h-16 border-b border-border/10 flex items-start justify-end pr-3 pt-1">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {slot.label}
-                  </span>
-                </div>
-              ))}
+              {timeSlots.map((slot, index) => {
+                const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
+                return (
+                  <div key={slot.hour} className={`h-16 border-b border-border/10 flex items-start justify-end pr-3 pt-1 ${isFullHour ? 'border-b-border/30' : ''}`}>
+                    <span className={`text-sm font-medium text-muted-foreground ${isFullHour ? 'font-semibold' : 'text-xs opacity-70'}`}>
+                      {slot.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Events Column */}
