@@ -22,9 +22,10 @@ export const CalendarGrid = ({
 }: CalendarGridProps) => {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
-  // Generate time slots for week view (8 AM to 1 PM)
-  const timeSlots = Array.from({ length: 6 }, (_, i) => {
-    const hour = i + 8;
+  // Generate time slots for week view (full 24 hours)
+  const timeSlots = Array.from({ length: 24 }, (_, i) => {
+    const hour = i;
+    if (hour === 0) return '12 AM';
     if (hour === 12) return '12 PM';
     if (hour > 12) return `${hour - 12} PM`;
     return `${hour} AM`;
@@ -43,7 +44,7 @@ export const CalendarGrid = ({
           {weekDays.map(day => (
             <div key={day.toISOString()} className="p-4 text-center">
               <div className="text-muted-foreground font-medium text-sm uppercase">
-                {format(day, 'EEE')} {format(day, 'd')}
+                {format(day, 'EEE')}
               </div>
             </div>
           ))}
@@ -86,8 +87,8 @@ export const CalendarGrid = ({
                       const endHour = parseInt(block.endTime.split(':')[0]);
                       const endMinute = parseInt(block.endTime.split(':')[1]);
                       
-                      // Calculate position (8 AM = 0, so subtract 8 from hour)
-                      const startPosition = ((startHour - 8) + startMinute / 60) * 64; // 64px per hour
+                      // Calculate position (12 AM = 0, so use hour directly)
+                      const startPosition = (startHour + startMinute / 60) * 64; // 64px per hour
                       const duration = ((endHour - startHour) + (endMinute - startMinute) / 60) * 64;
                       
                       return (
