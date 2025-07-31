@@ -355,7 +355,7 @@ const TasksPage = () => {
     }
   };
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
-      <DragDropContext onDragEnd={handleDragEnd}>
+      <DragDropContext onDragStart={(start) => console.log('🚀 Drag started:', start)} onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
       <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm">
         {/* Return to Home Button */}
@@ -414,9 +414,12 @@ const TasksPage = () => {
 
                 try {
                   const taskDateTime = new Date(task.dueDate);
-                  console.log('🕐 Backlog filter - Task:', task.taskName, 'Date:', task.dueDate, 'Parsed Hours:', taskDateTime.getUTCHours(), 'Minutes:', taskDateTime.getUTCMinutes());
+                  const hours = taskDateTime.getUTCHours();
+                  const minutes = taskDateTime.getUTCMinutes();
+                  const isBacklogTask = hours === 0 && minutes === 0;
+                  console.log('🕐 Backlog filter - Task:', task.taskName, 'Date:', task.dueDate, 'Parsed Hours:', hours, 'Minutes:', minutes, 'Goes to backlog:', isBacklogTask);
                   // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
-                  return taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0;
+                  return isBacklogTask;
                 } catch (error) {
                   console.error('Error parsing task date for backlog filter:', task.dueDate, error);
                   return true; // If we can't parse the date, show it in backlog as fallback
