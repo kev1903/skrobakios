@@ -39,18 +39,18 @@ export const getCalendarData = (currentDate: Date, viewMode: 'week' | 'month'): 
 };
 
 export const getBlocksForDay = (day: Date, timeBlocks: TimeBlock[]): TimeBlock[] => {
-  return timeBlocks.filter(block => isSameDay(block.date, day));
+  const dayOfWeek = day.getDay();
+  return timeBlocks.filter(block => block.dayOfWeek === dayOfWeek);
 };
 
 export const createTimeBlock = (
-  selectedDate: Date,
-  newBlock: { title: string; description: string; startTime: string; endTime: string; category: TimeBlock['category'] }
+  newBlock: { title: string; description: string; dayOfWeek: number; startTime: string; endTime: string; category: TimeBlock['category'] }
 ): TimeBlock => {
   return {
     id: Date.now().toString(),
     title: newBlock.title,
     description: newBlock.description,
-    date: selectedDate,
+    dayOfWeek: newBlock.dayOfWeek,
     startTime: newBlock.startTime,
     endTime: newBlock.endTime,
     category: newBlock.category,

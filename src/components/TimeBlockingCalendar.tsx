@@ -19,6 +19,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
   const [newBlock, setNewBlock] = useState<NewTimeBlock>({
     title: '',
     description: '',
+    dayOfWeek: 0,
     startTime: '09:00',
     endTime: '10:00',
     category: 'work'
@@ -32,6 +33,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     setNewBlock({
       title: '',
       description: '',
+      dayOfWeek: day.getDay(),
       startTime: '09:00',
       endTime: '10:00',
       category: 'work'
@@ -40,26 +42,28 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
   }, []);
 
   const handleCreateTimeBlock = useCallback(() => {
-    if (!selectedDate || !newBlock.title) return;
+    if (!newBlock.title) return;
 
-    const timeBlock = createTimeBlock(selectedDate, newBlock);
+    const timeBlock = createTimeBlock(newBlock);
     setTimeBlocks(prev => [...prev, timeBlock]);
     setIsDialogOpen(false);
     setNewBlock({
       title: '',
       description: '',
+      dayOfWeek: 0,
       startTime: '09:00',
       endTime: '10:00',
       category: 'work'
     });
-  }, [selectedDate, newBlock]);
+  }, [newBlock]);
 
   const handleEditTimeBlock = useCallback((block: TimeBlock) => {
     setEditingBlock(block);
-    setSelectedDate(block.date);
+    setSelectedDate(null); // No longer need specific date
     setNewBlock({
       title: block.title,
       description: block.description || '',
+      dayOfWeek: block.dayOfWeek,
       startTime: block.startTime,
       endTime: block.endTime,
       category: block.category
@@ -74,6 +78,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
       ...editingBlock,
       title: newBlock.title,
       description: newBlock.description,
+      dayOfWeek: newBlock.dayOfWeek,
       startTime: newBlock.startTime,
       endTime: newBlock.endTime,
       category: newBlock.category,

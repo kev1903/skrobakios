@@ -37,12 +37,10 @@ export const TimeBlockDialog = ({
       <DialogContent className="glass-card">
         <DialogHeader>
           <DialogTitle className="text-card-foreground">
-            {editingBlock ? 'Edit Time Block' : 'Create Time Block'}
-            {selectedDate && (
-              <span className="text-muted-foreground text-sm ml-2">
-                for {format(selectedDate, 'MMMM d, yyyy')}
-              </span>
-            )}
+            {editingBlock ? 'Edit Weekly Time Block' : 'Create Weekly Time Block'}
+            <span className="text-muted-foreground text-sm ml-2">
+              (repeats every week)
+            </span>
           </DialogTitle>
         </DialogHeader>
 

@@ -2,7 +2,7 @@ export interface TimeBlock {
   id: string;
   title: string;
   description?: string;
-  date: Date;
+  dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
   startTime: string;
   endTime: string;
   category: 'work' | 'personal' | 'meeting' | 'break' | 'family' | 'site_visit' | 'church' | 'rest';
@@ -12,6 +12,7 @@ export interface TimeBlock {
 export interface NewTimeBlock {
   title: string;
   description: string;
+  dayOfWeek: number;
   startTime: string;
   endTime: string;
   category: TimeBlock['category'];
