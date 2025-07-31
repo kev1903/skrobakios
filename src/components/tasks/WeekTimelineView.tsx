@@ -6,6 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addDays, startOfWeek } from 'date-fns';
 import { Clock, Plus } from 'lucide-react';
 import { Task } from './types';
+import { TimeBlock } from '../calendar/types';
+import { getBlocksForDay } from '../calendar/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeekTimelineViewProps {
   currentDate: Date;
@@ -27,6 +30,38 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   onDragStart 
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+
+  // Load time blocks from database
+  const loadTimeBlocks = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('time_blocks')
+        .select('*');
+
+      if (error) throw error;
+
+      const formattedBlocks: TimeBlock[] = data?.map(block => ({
+        id: block.id,
+        title: block.title,
+        description: block.description,
+        dayOfWeek: block.day_of_week,
+        startTime: block.start_time,
+        endTime: block.end_time,
+        category: block.category as TimeBlock['category'],
+        color: block.color
+      })) || [];
+
+      setTimeBlocks(formattedBlocks);
+    } catch (error) {
+      console.error('Error loading time blocks:', error);
+    }
+  }, []);
+
+  // Load time blocks on component mount
+  React.useEffect(() => {
+    loadTimeBlocks();
+  }, [loadTimeBlocks]);
   
   // Get the week days starting from Sunday (to match the headers)
   const getWeekDays = useCallback(() => {
@@ -227,6 +262,36 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   </Droppable>
                 );
               })}
+              
+              {/* Time Blocks Underlay for this day */}
+              {(() => {
+                const dayBlocks = getBlocksForDay(day, timeBlocks);
+                return dayBlocks.map(block => {
+                  const startHour = parseInt(block.startTime.split(':')[0]);
+                  const startMinute = parseInt(block.startTime.split(':')[1]);
+                  const endHour = parseInt(block.endTime.split(':')[0]);
+                  const endMinute = parseInt(block.endTime.split(':')[1]);
+                  
+                  // Calculate position (30-minute intervals, 64px per 30min slot)
+                  const startPosition = (startHour * 2 + startMinute / 30) * 64;
+                  const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
+                  
+                  return (
+                    <div
+                      key={`timeblock-${block.id}-${dayIndex}`}
+                      className={`${block.color}/15 border border-current/20 absolute left-0 right-0 pointer-events-none z-0 rounded-md`}
+                      style={{
+                        top: `${startPosition}px`,
+                        height: `${Math.max(duration - 2, 20)}px`
+                      }}
+                    >
+                      <div className="p-1 text-xs font-medium opacity-50 leading-tight">
+                        <div className="truncate text-center">{block.title}</div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           ))}
         </div>
