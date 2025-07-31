@@ -366,39 +366,48 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                          className="cursor-grab active:cursor-grabbing absolute inset-2 z-10"
                                        />
 
-                                         <CardContent className="p-2 h-full flex flex-col justify-start gap-1 overflow-hidden">
-                                            {/* Task name - adaptive based on container height */}
-                                            <h4 className={`font-semibold text-foreground leading-tight overflow-hidden ${
-                                              heightInPixels < 80 
-                                                ? 'text-xs line-clamp-1' 
-                                                : heightInPixels < 120 
-                                                  ? 'text-sm line-clamp-2' 
-                                                  : 'text-sm line-clamp-3'
-                                            }`}>
-                                              {task.taskName}
-                                            </h4>
-                                            
-                                            {/* Project name - only show if container is tall enough */}
-                                            {heightInPixels >= 80 && (
-                                              <p className={`text-muted-foreground/80 leading-tight overflow-hidden ${
-                                                heightInPixels < 120 
-                                                  ? 'text-xs line-clamp-1' 
-                                                  : 'text-xs line-clamp-2'
-                                              }`}>
-                                                {task.projectName || "No Project"}
-                                              </p>
-                                            )}
-                                            
-                                            {/* Duration - only show if container is tall enough */}
-                                            {heightInPixels >= 100 && (
-                                              <div className="flex items-center gap-1 mt-auto">
-                                                <Clock className="w-3 h-3 text-muted-foreground/60 flex-shrink-0" />
-                                                <span className="text-xs text-muted-foreground/60 truncate">
-                                                  {taskDuration}min
-                                                </span>
-                                              </div>
-                                            )}
-                                         </CardContent>
+                                          <CardContent className="p-2 h-full flex flex-col justify-start gap-1 overflow-hidden">
+                                             {/* Calculate start and end times */}
+                                             {(() => {
+                                               const startTime = new Date(task.dueDate);
+                                               const endTime = new Date(startTime.getTime() + (taskDuration * 60 * 1000));
+                                               const startTimeStr = format(startTime, 'HH:mm');
+                                               const endTimeStr = format(endTime, 'HH:mm');
+                                               
+                                               return (
+                                                 <>
+                                                   {/* Time range - always show at top */}
+                                                   <div className="flex items-center justify-between text-xs font-medium text-primary bg-primary/5 rounded px-1.5 py-0.5 mb-1">
+                                                     <span>{startTimeStr}</span>
+                                                     <span>-</span>
+                                                     <span>{endTimeStr}</span>
+                                                   </div>
+                                                   
+                                                   {/* Task name - adaptive based on container height */}
+                                                   <h4 className={`font-semibold text-foreground leading-tight overflow-hidden ${
+                                                     heightInPixels < 80 
+                                                       ? 'text-xs line-clamp-1' 
+                                                       : heightInPixels < 120 
+                                                         ? 'text-sm line-clamp-1' 
+                                                         : 'text-sm line-clamp-2'
+                                                   }`}>
+                                                     {task.taskName}
+                                                   </h4>
+                                                   
+                                                   {/* Project name - only show if container is tall enough */}
+                                                   {heightInPixels >= 100 && (
+                                                     <p className={`text-muted-foreground/80 leading-tight overflow-hidden ${
+                                                       heightInPixels < 120 
+                                                         ? 'text-xs line-clamp-1' 
+                                                         : 'text-xs line-clamp-1'
+                                                     }`}>
+                                                       {task.projectName || "No Project"}
+                                                     </p>
+                                                   )}
+                                                 </>
+                                               );
+                                             })()}
+                                          </CardContent>
                                      </Card>
                                   </div>
                                 )}
