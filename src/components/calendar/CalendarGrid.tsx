@@ -96,18 +96,18 @@ export const CalendarGrid = ({
                       return (
                         <div
                           key={block.id}
-                          className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto overflow-hidden`}
+                          className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto overflow-hidden flex flex-col justify-start`}
                           style={{
                             top: `${startPosition + 2}px`,
-                            height: `${Math.max(duration - 2, 12)}px` // Minimum height of 12px with spacing
+                            height: `${Math.max(duration - 2, 20)}px` // Minimum height of 20px to show title
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
                             onBlockEdit(block);
                           }}
                         >
-                          <div className="font-medium text-xs leading-tight truncate">{block.title}</div>
-                          <div className="text-white/90 text-xs leading-tight">{block.startTime}-{block.endTime}</div>
+                          <div className="font-semibold text-xs leading-tight truncate text-white drop-shadow-sm">{block.title}</div>
+                          <div className="text-white/80 text-xs leading-tight mt-0.5">{block.startTime}-{block.endTime}</div>
                         </div>
                       );
                     })}
@@ -162,14 +162,14 @@ export const CalendarGrid = ({
                 {dayBlocks.map(block => (
                   <div
                     key={block.id}
-                    className={`${block.color} text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden`}
+                    className={`${block.color} text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden flex flex-col`}
                     onClick={(e) => {
                       e.stopPropagation();
                       onBlockEdit(block);
                     }}
                   >
-                    <div className="font-medium truncate text-xs leading-tight">{block.title}</div>
-                    <div className="text-white/90 text-xs leading-tight">{block.startTime}-{block.endTime}</div>
+                    <div className="font-semibold truncate text-xs leading-tight text-white drop-shadow-sm">{block.title}</div>
+                    <div className="text-white/80 text-xs leading-tight mt-0.5">{block.startTime}-{block.endTime}</div>
                   </div>
                 ))}
                 
