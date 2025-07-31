@@ -56,7 +56,7 @@ export const CalendarGrid = ({
             {/* Time Column */}
             <div className="bg-background border-r border-border/20">
               {timeSlots.map(time => (
-                <div key={time} className="h-16 p-3 border-b border-border/20 text-sm text-muted-foreground font-medium flex items-start">
+                <div key={time} className="h-8 p-2 border-b border-border/20 text-xs text-muted-foreground font-medium flex items-start">
                   {time}
                 </div>
               ))}
@@ -72,7 +72,7 @@ export const CalendarGrid = ({
                   {timeSlots.map(time => (
                     <div
                       key={`${day.toISOString()}-${time}`}
-                      className={`h-16 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
+                      className={`h-8 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
                         isDayToday ? 'bg-primary/5' : ''
                       }`}
                       onClick={() => onDayClick(day)}
@@ -88,8 +88,8 @@ export const CalendarGrid = ({
                       const endMinute = parseInt(block.endTime.split(':')[1]);
                       
                       // Calculate position (12 AM = 0, so use hour directly)
-                      const startPosition = (startHour + startMinute / 60) * 64; // 64px per hour
-                      const duration = ((endHour - startHour) + (endMinute - startMinute) / 60) * 64;
+                      const startPosition = (startHour + startMinute / 60) * 32; // 32px per hour
+                      const duration = ((endHour - startHour) + (endMinute - startMinute) / 60) * 32;
                       
                       return (
                         <div
