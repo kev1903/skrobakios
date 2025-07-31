@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle } from 'lucide-react';
+import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle, Settings, CalendarDays } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -522,19 +522,34 @@ const TasksPage = () => {
               New Event
             </Button>
             
+            {/* Calendar Settings Button */}
+            <Button variant="outline" size="sm" className="rounded-xl px-4 py-2">
+              <Settings className="w-4 h-4 mr-2" />
+              Calendar Settings
+            </Button>
+            
             {/* View Mode Toggle */}
             <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
-              <ToggleGroupItem value="day" size="sm">Day</ToggleGroupItem>
-              <ToggleGroupItem value="week" size="sm">Week</ToggleGroupItem>
-              <ToggleGroupItem value="month" size="sm">Month</ToggleGroupItem>
+              <ToggleGroupItem value="day" size="sm" className="flex items-center gap-2">
+                <CalendarDays className="w-4 h-4" />
+                Day
+              </ToggleGroupItem>
+              <ToggleGroupItem value="week" size="sm" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Week
+              </ToggleGroupItem>
+              <ToggleGroupItem value="month" size="sm" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Month
+              </ToggleGroupItem>
             </ToggleGroup>
             
             {/* Navigation */}
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full" onClick={() => navigate('prev')}>
+              <Button variant="outline" size="sm" className="w-9 h-9 rounded-full p-0" onClick={() => navigate('prev')}>
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="w-8 h-8 rounded-full" onClick={() => navigate('next')}>
+              <Button variant="outline" size="sm" className="w-9 h-9 rounded-full p-0" onClick={() => navigate('next')}>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
