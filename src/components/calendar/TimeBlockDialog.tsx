@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Clock, Trash2 } from 'lucide-react';
+import { Clock, Trash2, Palette } from 'lucide-react';
 import { TimeBlock, NewTimeBlock } from './types';
+import { colorOptions } from './utils';
 
 interface TimeBlockDialogProps {
   isOpen: boolean;
@@ -99,7 +100,7 @@ export const TimeBlockDialog = ({
               <SelectTrigger className="input-glass">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="glass-card">
+              <SelectContent className="glass-card bg-card border border-border z-50">
                 <SelectItem value="work">Work</SelectItem>
                 <SelectItem value="personal">Personal</SelectItem>
                 <SelectItem value="meeting">Meeting</SelectItem>
@@ -110,6 +111,27 @@ export const TimeBlockDialog = ({
                 <SelectItem value="rest">Rest</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="color">Color</Label>
+            <div className="grid grid-cols-8 gap-2 mt-2">
+              {colorOptions.map((color) => (
+                <button
+                  key={color.value}
+                  type="button"
+                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
+                    color.value
+                  } ${
+                    newBlock.color === color.value 
+                      ? 'border-primary ring-2 ring-primary/50' 
+                      : 'border-border hover:border-primary'
+                  }`}
+                  onClick={() => onBlockChange({ color: color.value })}
+                  title={color.name}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">

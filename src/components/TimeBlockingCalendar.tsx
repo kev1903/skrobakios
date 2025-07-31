@@ -26,7 +26,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     dayOfWeek: 0,
     startTime: '09:00',
     endTime: '10:00',
-    category: 'work'
+    category: 'work',
+    color: 'bg-blue-400'
   });
 
   // Load time blocks from database
@@ -80,7 +81,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
       dayOfWeek: day.getDay(),
       startTime: '09:00',
       endTime: '10:00',
-      category: 'work'
+      category: 'work',
+      color: 'bg-blue-400'
     });
     setIsDialogOpen(true);
   }, []);
@@ -98,7 +100,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
           start_time: newBlock.startTime,
           end_time: newBlock.endTime,
           category: newBlock.category,
-          color: categoryColors[newBlock.category],
+          color: newBlock.color,
           user_id: (await supabase.auth.getUser()).data.user?.id
         })
         .select()
@@ -132,7 +134,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
         dayOfWeek: 0,
         startTime: '09:00',
         endTime: '10:00',
-        category: 'work'
+        category: 'work',
+        color: 'bg-blue-400'
       });
     } catch (error) {
       console.error('Error creating time block:', error);
@@ -153,7 +156,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
       dayOfWeek: block.dayOfWeek,
       startTime: block.startTime,
       endTime: block.endTime,
-      category: block.category
+      category: block.category,
+      color: block.color
     });
     setIsDialogOpen(true);
   }, []);
@@ -171,7 +175,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
           start_time: newBlock.startTime,
           end_time: newBlock.endTime,
           category: newBlock.category,
-          color: categoryColors[newBlock.category]
+          color: newBlock.color
         })
         .eq('id', editingBlock.id)
         .select()

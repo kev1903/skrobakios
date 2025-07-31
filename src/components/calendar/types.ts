@@ -16,6 +16,7 @@ export interface NewTimeBlock {
   startTime: string;
   endTime: string;
   category: TimeBlock['category'];
+  color: string;
 }
 
 export interface CalendarViewData {
