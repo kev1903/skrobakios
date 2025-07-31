@@ -40,7 +40,7 @@ import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
 import { BusinessSettingsPage } from "@/components/BusinessSettingsPage";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
 
-import { TaskManagement } from "@/components/projects/TaskManagement";
+import { TaskManagement } from "@/components/TaskManagement";
 import { Project } from "@/hooks/useProjects";
 import { BusinessManagementPage } from "@/components/BusinessManagementPage";
 import { CreateBusinessPage } from "@/components/CreateBusinessPage";

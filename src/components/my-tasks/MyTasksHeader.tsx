@@ -9,6 +9,7 @@ export const MyTasksHeader = ({
   onViewModeChange, 
   onNavigate 
 }: MyTasksHeaderProps) => {
+  console.log('MyTasksHeader rendered with onNavigate:', typeof onNavigate);
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
