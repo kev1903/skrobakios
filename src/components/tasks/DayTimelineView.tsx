@@ -263,12 +263,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         <div className="h-full overflow-y-auto">
           <div className="grid grid-cols-[80px_1fr] min-h-full">
             {/* Time Column */}
-            <div className="border-r border-border/20 bg-muted/20">
+            <div className="border-r border-border/20 bg-muted/10 min-w-[80px]">
               {timeSlots.map((slot, index) => {
                 const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
                 return (
-                  <div key={slot.hour} className={`h-16 border-b border-border/10 flex items-start justify-end pr-3 pt-1 ${isFullHour ? 'border-b-border/30' : ''}`}>
-                    <span className={`text-sm font-medium text-muted-foreground ${isFullHour ? 'font-semibold' : 'text-xs opacity-70'}`}>
+                  <div key={slot.hour} className={`h-16 border-b border-border/10 flex items-start justify-end pr-4 pt-2 ${isFullHour ? 'border-b-border/20' : ''}`}>
+                    <span className={`font-mono text-muted-foreground leading-tight ${
+                      isFullHour ? 'text-sm font-medium' : 'text-xs opacity-60'
+                    }`}>
                       {slot.label}
                     </span>
                   </div>
