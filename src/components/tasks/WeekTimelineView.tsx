@@ -342,13 +342,13 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
-                      className={`${block.color}/15 border border-current/20 absolute left-0 right-0 pointer-events-none z-0 rounded-md`}
+                      className={`${block.color} border-2 border-white/50 absolute left-1 right-1 pointer-events-none z-0 rounded-md shadow-sm backdrop-blur-sm`}
                       style={{
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
                     >
-                      <div className="p-1 text-xs font-medium opacity-50 leading-tight">
+                      <div className="p-1 text-xs font-bold text-white leading-tight drop-shadow-md">
                         <div className="truncate text-center">{block.title}</div>
                       </div>
                     </div>

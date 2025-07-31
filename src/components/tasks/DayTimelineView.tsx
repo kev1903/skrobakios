@@ -558,16 +558,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   return (
                     <div
                       key={`timeblock-${block.id}`}
-                      className={`${block.color}/20 border border-current/30 absolute left-0 right-0 pointer-events-none z-0 rounded-lg`}
+                      className={`${block.color} border-2 border-white/50 absolute left-2 right-2 pointer-events-none z-0 rounded-lg shadow-md backdrop-blur-sm`}
                       style={{
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
                     >
-                      <div className="p-2 text-xs font-medium opacity-60 leading-tight">
+                      <div className="p-2 text-xs font-bold text-white leading-tight drop-shadow-md">
                         <div className="truncate">{block.title}</div>
                         {block.description && (
-                          <div className="text-xs opacity-75 truncate">{block.description}</div>
+                          <div className="text-xs opacity-90 truncate font-medium">{block.description}</div>
                         )}
                       </div>
                     </div>
