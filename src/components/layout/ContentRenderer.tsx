@@ -59,6 +59,7 @@ import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { BusinessMapPage } from "@/components/BusinessMapPage";
+import Dashboard from "@/pages/Dashboard";
 
 
 interface ContentRendererProps {
@@ -297,6 +298,8 @@ export const ContentRenderer = ({
       // Platform removed - redirect to home
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+    case "dashboard":
+      return <Dashboard />;
     case "platform-dashboard":
     case "personal-dashboard":
       return <PersonalDashboard onNavigate={onNavigate} />;
