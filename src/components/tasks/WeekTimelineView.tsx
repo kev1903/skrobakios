@@ -302,38 +302,35 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   );
                 });
               })()}
-              
-              {/* Current Time Indicator - Only show for current day */}
-              {(() => {
-                const isCurrentDay = isSameDay(day, new Date());
-                if (!isCurrentDay) return null;
-                
-                const now = new Date();
-                const hours = now.getHours();
-                const minutes = now.getMinutes();
-                
-                // Calculate position based on 64px per hour (32px per 30min slot)
-                const totalMinutes = hours * 60 + minutes;
-                const currentTimePosition = (totalMinutes / 30) * 64; // 64px per 30-minute slot
-                
-                return (
-                  <div 
-                    className="absolute left-0 right-0 z-50 pointer-events-none"
-                    style={{ top: `${currentTimePosition}px` }}
-                  >
-                    {/* Time dot */}
-                    <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
-                    {/* Time line */}
-                    <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
-                    {/* Current time label - positioned on the right edge */}
-                    <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
-                      {format(currentTime, 'HH:mm')}
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
           ))}
+          
+          {/* Week-wide Current Time Indicator */}
+          {(() => {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            
+            // Calculate position based on 64px per hour (32px per 30min slot)
+            const totalMinutes = hours * 60 + minutes;
+            const currentTimePosition = (totalMinutes / 30) * 64; // 64px per 30-minute slot
+            
+            return (
+              <div 
+                className="absolute left-0 right-0 z-50 pointer-events-none"
+                style={{ top: `${currentTimePosition}px` }}
+              >
+                {/* Time dot on the left edge of the time column */}
+                <div className="absolute left-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md" style={{ left: '76px' }}></div>
+                {/* Time line spanning across all day columns */}
+                <div className="w-full h-0.5 bg-red-500 shadow-sm" style={{ marginLeft: '80px' }}></div>
+                {/* Current time label positioned in the time column */}
+                <div className="absolute left-2 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                  {format(currentTime, 'HH:mm')}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>
