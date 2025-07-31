@@ -339,16 +339,26 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                     duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
                   }
                   
+                  console.log(`Week Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
+                  
+                  // Override colors based on title/category for the specific blocks you mentioned
+                  let blockColor = block.color;
+                  if (block.title.toLowerCase().includes('devotion')) {
+                    blockColor = 'bg-yellow-400';
+                  } else if (block.title.toLowerCase().includes('get ready')) {
+                    blockColor = 'bg-green-400';
+                  }
+                  
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
-                      className={`bg-transparent border-2 ${block.color.replace('bg-', 'border-')} absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm`}
+                      className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm`}
                       style={{
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
                     >
-                      <div className={`p-1 text-xs font-medium leading-tight ${block.color.replace('bg-', 'text-')}`}>
+                      <div className={`p-1 text-xs font-medium leading-tight ${blockColor.replace('bg-', 'text-')}`}>
                         <div className="truncate text-center">{block.title}</div>
                       </div>
                     </div>

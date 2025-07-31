@@ -555,16 +555,26 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
                   }
                   
+                  console.log(`Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
+                  
+                  // Override colors based on title/category for the specific blocks you mentioned
+                  let blockColor = block.color;
+                  if (block.title.toLowerCase().includes('devotion')) {
+                    blockColor = 'bg-yellow-400';
+                  } else if (block.title.toLowerCase().includes('get ready')) {
+                    blockColor = 'bg-green-400';
+                  }
+                  
                   return (
                     <div
                       key={`timeblock-${block.id}`}
-                      className={`bg-transparent border-2 ${block.color.replace('bg-', 'border-')} absolute left-2 right-2 pointer-events-none z-0 rounded-lg backdrop-blur-sm`}
+                      className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-2 right-2 pointer-events-none z-0 rounded-lg backdrop-blur-sm`}
                       style={{
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
                     >
-                      <div className={`p-2 text-xs font-medium leading-tight ${block.color.replace('bg-', 'text-')}`}>
+                      <div className={`p-2 text-xs font-medium leading-tight ${blockColor.replace('bg-', 'text-')}`}>
                         <div className="truncate">{block.title}</div>
                         {block.description && (
                           <div className="text-xs opacity-75 truncate">{block.description}</div>
