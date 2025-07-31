@@ -30,7 +30,17 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   onDragStart 
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+
+  // Update current time every minute
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Load time blocks from database
   const loadTimeBlocks = useCallback(async () => {
@@ -291,6 +301,36 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                     </div>
                   );
                 });
+              })()}
+              
+              {/* Current Time Indicator - Only show for current day */}
+              {(() => {
+                const isCurrentDay = isSameDay(day, new Date());
+                if (!isCurrentDay) return null;
+                
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                
+                // Calculate position based on 64px per hour (32px per 30min slot)
+                const totalMinutes = hours * 60 + minutes;
+                const currentTimePosition = (totalMinutes / 30) * 64; // 64px per 30-minute slot
+                
+                return (
+                  <div 
+                    className="absolute left-0 right-0 z-50 pointer-events-none"
+                    style={{ top: `${currentTimePosition}px` }}
+                  >
+                    {/* Time dot */}
+                    <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
+                    {/* Time line */}
+                    <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
+                    {/* Current time label - positioned on the right edge */}
+                    <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                      {format(currentTime, 'HH:mm')}
+                    </div>
+                  </div>
+                );
               })()}
             </div>
           ))}
