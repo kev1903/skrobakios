@@ -24,7 +24,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   tasks = [], 
   onTaskUpdate 
 }) => {
-  
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every minute
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Generate 24-hour time slots
   const generateTimeSlots = useCallback((): TimeSlot[] => {
@@ -256,6 +265,23 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     setTimeSlots(generateTimeSlots());
   }, [generateTimeSlots]);
 
+  // Calculate current time indicator position
+  const getCurrentTimePosition = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    // Calculate position based on 64px per hour (32px per 30min slot)
+    // Each 30-min slot = 64px, so 1 minute = 64/30 ≈ 2.133px
+    const totalMinutes = hours * 60 + minutes;
+    const position = (totalMinutes / 30) * 64; // 64px per 30-minute slot
+    
+    return position;
+  };
+
+  const currentTimePosition = getCurrentTimePosition();
+  const isCurrentDay = isSameDay(currentDate, new Date());
+
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Timeline Grid */}
@@ -437,7 +463,24 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     )}
                   </Droppable>
                 </div>
-              ))}
+                ))}
+              
+              {/* Current Time Indicator - Only show for current day */}
+              {isCurrentDay && (
+                <div 
+                  className="absolute left-0 right-0 z-50 pointer-events-none"
+                  style={{ top: `${currentTimePosition}px` }}
+                >
+                  {/* Time dot */}
+                  <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
+                  {/* Time line */}
+                  <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
+                  {/* Current time label */}
+                  <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                    {format(currentTime, 'HH:mm')}
+                  </div>
+                </div>
+               )}
             </div>
           </div>
         </div>
