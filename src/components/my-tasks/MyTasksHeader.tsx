@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3, List, Target, Calendar } from "lucide-react";
+import { Plus, Grid3X3, List, Target, Calendar, BarChart3 } from "lucide-react";
 import { MyTasksHeaderProps } from './types';
 
 export const MyTasksHeader = ({ 
@@ -23,6 +23,16 @@ export const MyTasksHeader = ({
       {/* Controls Row */}
       <div className="flex items-center justify-end">
         <div className="flex items-center space-x-3">
+          <Button 
+            onClick={() => onNavigate("dashboard")}
+            size="sm"
+            variant="outline"
+            className="border-primary/20 hover:bg-primary/5"
+          >
+            <BarChart3 className="w-4 h-4 mr-1" />
+            Dashboard
+          </Button>
+          
           <Button 
             onClick={() => onNavigate("milestones")}
             size="sm"
