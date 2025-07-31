@@ -56,7 +56,7 @@ export const CalendarGrid = ({
             {/* Time Column */}
             <div className="bg-background border-r border-border/20">
               {timeSlots.map((time, index) => (
-                <div key={time} className={`h-4 p-1 border-b border-border/20 text-xs text-muted-foreground font-medium flex items-start ${
+                <div key={time} className={`h-6 p-1 border-b border-border/20 text-xs text-muted-foreground font-medium flex items-start ${
                   index % 2 === 0 ? '' : 'text-muted-foreground/60'
                 }`}>
                   {index % 2 === 0 ? time : ''}
@@ -74,7 +74,7 @@ export const CalendarGrid = ({
                   {timeSlots.map((time, index) => (
                     <div
                       key={`${day.toISOString()}-${time}-${index}`}
-                      className={`h-4 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
+                      className={`h-6 border-b border-border/20 cursor-pointer hover:bg-accent/30 relative ${
                         isDayToday ? 'bg-primary/5' : ''
                       }`}
                       onClick={() => onDayClick(day)}
@@ -89,9 +89,9 @@ export const CalendarGrid = ({
                       const endHour = parseInt(block.endTime.split(':')[0]);
                       const endMinute = parseInt(block.endTime.split(':')[1]);
                       
-                      // Calculate position (30-minute intervals, 16px per 30min slot)
-                      const startPosition = (startHour * 2 + startMinute / 30) * 16; // 16px per 30min
-                      const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 16;
+                      // Calculate position (30-minute intervals, 24px per 30min slot)
+                      const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
+                      const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                       
                       return (
                         <div
