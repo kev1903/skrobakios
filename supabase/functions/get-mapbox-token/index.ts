@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const mapboxToken = Deno.env.get('Map_Box Token');
+    const mapboxToken = Deno.env.get('MAPBOX_TOKEN');
     
     if (!mapboxToken) {
       console.error('Mapbox token not found in environment variables');
