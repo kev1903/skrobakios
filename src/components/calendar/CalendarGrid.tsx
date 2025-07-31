@@ -96,7 +96,7 @@ export const CalendarGrid = ({
                       return (
                         <div
                           key={block.id}
-                          className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-border pointer-events-auto overflow-hidden flex items-center justify-center`}
+                          className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center`}
                           style={{
                             top: `${startPosition + 2}px`,
                             height: `${Math.max(duration - 2, 20)}px` // Minimum height of 20px to show title
