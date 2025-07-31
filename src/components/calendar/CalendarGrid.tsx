@@ -93,10 +93,12 @@ export const CalendarGrid = ({
                       const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
                       const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                       
+                      const borderColor = block.color.replace('bg-', 'border-');
+                      
                       return (
                         <div
                           key={block.id}
-                          className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center`}
+                          className={`${block.color} ${borderColor} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center`}
                           style={{
                             top: `${startPosition + 2}px`,
                             height: `${Math.max(duration - 2, 20)}px` // Minimum height of 20px to show title
@@ -158,18 +160,22 @@ export const CalendarGrid = ({
               </div>
               
               <div className="flex-1 space-y-1 overflow-y-auto">
-                {dayBlocks.map(block => (
-                  <div
-                    key={block.id}
-                    className={`${block.color} text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden flex items-center justify-center`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onBlockEdit(block);
-                    }}
-                  >
-                    <div className="font-semibold truncate text-xs leading-tight text-white drop-shadow-sm text-center">{block.title}</div>
-                  </div>
-                ))}
+                {dayBlocks.map(block => {
+                  const borderColor = block.color.replace('bg-', 'border-');
+                  
+                  return (
+                    <div
+                      key={block.id}
+                      className={`${block.color} ${borderColor} text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden flex items-center justify-center border-2`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onBlockEdit(block);
+                      }}
+                    >
+                      <div className="font-semibold truncate text-xs leading-tight text-white drop-shadow-sm text-center">{block.title}</div>
+                    </div>
+                  );
+                })}
                 
                 {dayBlocks.length > 2 && (
                   <div className="text-xs text-muted-foreground">
