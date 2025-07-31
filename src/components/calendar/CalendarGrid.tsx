@@ -94,7 +94,7 @@ export const CalendarGrid = ({
                       return (
                         <div
                           key={block.id}
-                          className={`${block.color} backdrop-blur-sm text-white text-xs p-2 rounded-md absolute left-2 right-2 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto`}
+                          className={`${block.color} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 pointer-events-auto overflow-hidden`}
                           style={{
                             top: `${startPosition + 2}px`,
                             height: `${Math.max(duration - 4, 24)}px` // Minimum height of 24px with spacing
@@ -104,8 +104,8 @@ export const CalendarGrid = ({
                             onBlockEdit(block);
                           }}
                         >
-                          <div className="font-semibold text-sm leading-tight">{block.startTime} - {block.endTime}</div>
-                          <div className="font-medium mt-1 leading-tight">{block.title}</div>
+                          <div className="font-medium text-xs leading-tight truncate">{block.title}</div>
+                          <div className="text-white/90 text-xs leading-tight">{block.startTime}-{block.endTime}</div>
                         </div>
                       );
                     })}
@@ -160,14 +160,14 @@ export const CalendarGrid = ({
                 {dayBlocks.map(block => (
                   <div
                     key={block.id}
-                    className={`${block.color} text-white text-xs p-1 rounded cursor-pointer hover:opacity-80 transition-opacity`}
+                    className={`${block.color} text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden`}
                     onClick={(e) => {
                       e.stopPropagation();
                       onBlockEdit(block);
                     }}
                   >
-                    <div className="font-medium truncate">{block.title}</div>
-                    <div className="text-white/80">{block.startTime}-{block.endTime}</div>
+                    <div className="font-medium truncate text-xs leading-tight">{block.title}</div>
+                    <div className="text-white/90 text-xs leading-tight">{block.startTime}-{block.endTime}</div>
                   </div>
                 ))}
                 
