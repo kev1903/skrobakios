@@ -314,14 +314,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                      ref={provided.innerRef}
                                      {...provided.draggableProps}
                                      data-dragging={snapshot.isDragging}
-                                     className={`absolute transition-all duration-200 ${
+                                     className={`absolute ${
+                                       // Disable transitions during resize operations to prevent flashing
+                                       dragState.isDragging && dragState.taskId === task.id
+                                         ? 'border-2 border-primary/50' 
+                                         : 'transition-all duration-200'
+                                     } ${
                                        snapshot.isDragging 
                                          ? 'shadow-xl opacity-90 z-50' 
                                          : 'hover:shadow-md z-10'
-                                     } ${
-                                       dragState.isDragging && dragState.taskId === task.id 
-                                         ? 'animate-pulse border-2 border-primary/50' 
-                                         : ''
                                      }`}
                                      style={{
                                        ...provided.draggableProps.style,
