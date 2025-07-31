@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -67,179 +68,261 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
 
         {/* Settings Content */}
         <div className="bg-white/70 backdrop-blur-xl rounded-xl border border-gray-200/50 shadow-sm">
-          <div className="p-6 space-y-8">
-            
-            {/* Time Settings */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold text-gray-900">Time Settings</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="timeFormat">Time Format</Label>
-                  <Select value={settings.timeFormat} onValueChange={(value) => handleSettingChange('timeFormat', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="24h">24 Hour (14:30)</SelectItem>
-                      <SelectItem value="12h">12 Hour (2:30 PM)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="timeSlotDuration">Time Slot Duration</Label>
-                  <Select value={settings.timeSlotDuration} onValueChange={(value) => handleSettingChange('timeSlotDuration', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15">15 minutes</SelectItem>
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="startTime">Calendar Start Time</Label>
-                  <Input
-                    id="startTime"
-                    type="time"
-                    value={settings.startTime}
-                    onChange={(e) => handleSettingChange('startTime', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="endTime">Calendar End Time</Label>
-                  <Input
-                    id="endTime"
-                    type="time"
-                    value={settings.endTime}
-                    onChange={(e) => handleSettingChange('endTime', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+          <Tabs defaultValue="general" className="p-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="display">Display</TabsTrigger>
+              <TabsTrigger value="tasks">Tasks</TabsTrigger>
+              <TabsTrigger value="timeblocking">Time Blocking</TabsTrigger>
+            </TabsList>
 
-            <Separator />
-
-            {/* Display Settings */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Eye className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold text-gray-900">Display Settings</h3>
-              </div>
-              
+            <TabsContent value="general" className="space-y-6 mt-6">
+              {/* Time Settings */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Show Weekends</Label>
-                    <p className="text-sm text-muted-foreground">Display Saturday and Sunday in week view</p>
-                  </div>
-                  <Switch
-                    checked={settings.showWeekends}
-                    onCheckedChange={(checked) => handleSettingChange('showWeekends', checked)}
-                  />
+                <div className="flex items-center gap-2 mb-4">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-gray-900">Time Settings</h3>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Show Task Duration</Label>
-                    <p className="text-sm text-muted-foreground">Display duration badges on tasks</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="timeFormat">Time Format</Label>
+                    <Select value={settings.timeFormat} onValueChange={(value) => handleSettingChange('timeFormat', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="24h">24 Hour (14:30)</SelectItem>
+                        <SelectItem value="12h">12 Hour (2:30 PM)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Switch
-                    checked={settings.showTaskDuration}
-                    onCheckedChange={(checked) => handleSettingChange('showTaskDuration', checked)}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Highlight Current Time</Label>
-                    <p className="text-sm text-muted-foreground">Show current time indicator on timeline</p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="timeSlotDuration">Time Slot Duration</Label>
+                    <Select value={settings.timeSlotDuration} onValueChange={(value) => handleSettingChange('timeSlotDuration', value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Switch
-                    checked={settings.highlightCurrentTime}
-                    onCheckedChange={(checked) => handleSettingChange('highlightCurrentTime', checked)}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Compact View</Label>
-                    <p className="text-sm text-muted-foreground">Reduce spacing between time slots</p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="startTime">Calendar Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={settings.startTime}
+                      onChange={(e) => handleSettingChange('startTime', e.target.value)}
+                    />
                   </div>
-                  <Switch
-                    checked={settings.compactView}
-                    onCheckedChange={(checked) => handleSettingChange('compactView', checked)}
-                  />
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="endTime">Calendar End Time</Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={settings.endTime}
+                      onChange={(e) => handleSettingChange('endTime', e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <Separator />
+              <Separator />
 
-            {/* Task Settings */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold text-gray-900">Task Settings</h3>
-              </div>
-              
+              {/* Notifications */}
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="defaultTaskDuration">Default Task Duration (minutes)</Label>
-                  <Input
-                    id="defaultTaskDuration"
-                    type="number"
-                    min="15"
-                    max="480"
-                    step="15"
-                    value={settings.defaultTaskDuration}
-                    onChange={(e) => handleSettingChange('defaultTaskDuration', e.target.value)}
-                  />
+                <div className="flex items-center gap-2 mb-4">
+                  <Bell className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>Auto-schedule Breaks</Label>
-                    <p className="text-sm text-muted-foreground">Automatically add breaks between tasks</p>
+                    <Label>Enable Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Get notified about upcoming tasks</p>
                   </div>
                   <Switch
-                    checked={settings.autoScheduleBreaks}
-                    onCheckedChange={(checked) => handleSettingChange('autoScheduleBreaks', checked)}
+                    checked={settings.enableNotifications}
+                    onCheckedChange={(checked) => handleSettingChange('enableNotifications', checked)}
                   />
                 </div>
               </div>
-            </div>
+            </TabsContent>
 
-            <Separator />
-
-            {/* Notifications */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Bell className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Enable Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Get notified about upcoming tasks</p>
+            <TabsContent value="display" className="space-y-6 mt-6">
+              {/* Display Settings */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Eye className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-gray-900">Display Settings</h3>
                 </div>
-                <Switch
-                  checked={settings.enableNotifications}
-                  onCheckedChange={(checked) => handleSettingChange('enableNotifications', checked)}
-                />
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Show Weekends</Label>
+                      <p className="text-sm text-muted-foreground">Display Saturday and Sunday in week view</p>
+                    </div>
+                    <Switch
+                      checked={settings.showWeekends}
+                      onCheckedChange={(checked) => handleSettingChange('showWeekends', checked)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Show Task Duration</Label>
+                      <p className="text-sm text-muted-foreground">Display duration badges on tasks</p>
+                    </div>
+                    <Switch
+                      checked={settings.showTaskDuration}
+                      onCheckedChange={(checked) => handleSettingChange('showTaskDuration', checked)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Highlight Current Time</Label>
+                      <p className="text-sm text-muted-foreground">Show current time indicator on timeline</p>
+                    </div>
+                    <Switch
+                      checked={settings.highlightCurrentTime}
+                      onCheckedChange={(checked) => handleSettingChange('highlightCurrentTime', checked)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Compact View</Label>
+                      <p className="text-sm text-muted-foreground">Reduce spacing between time slots</p>
+                    </div>
+                    <Switch
+                      checked={settings.compactView}
+                      onCheckedChange={(checked) => handleSettingChange('compactView', checked)}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            </TabsContent>
 
-          </div>
+            <TabsContent value="tasks" className="space-y-6 mt-6">
+              {/* Task Settings */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-gray-900">Task Settings</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="defaultTaskDuration">Default Task Duration (minutes)</Label>
+                    <Input
+                      id="defaultTaskDuration"
+                      type="number"
+                      min="15"
+                      max="480"
+                      step="15"
+                      value={settings.defaultTaskDuration}
+                      onChange={(e) => handleSettingChange('defaultTaskDuration', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Auto-schedule Breaks</Label>
+                      <p className="text-sm text-muted-foreground">Automatically add breaks between tasks</p>
+                    </div>
+                    <Switch
+                      checked={settings.autoScheduleBreaks}
+                      onCheckedChange={(checked) => handleSettingChange('autoScheduleBreaks', checked)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="timeblocking" className="space-y-6 mt-6">
+              {/* Time Blocking Settings */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Layers className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-gray-900">Time Blocking Settings</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Enable Time Blocking</Label>
+                      <p className="text-sm text-muted-foreground">Allow creating time blocks on the calendar</p>
+                    </div>
+                    <Switch
+                      checked={true}
+                      onCheckedChange={() => {}}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Auto-fit Time Blocks</Label>
+                      <p className="text-sm text-muted-foreground">Automatically adjust block size to fit available slots</p>
+                    </div>
+                    <Switch
+                      checked={false}
+                      onCheckedChange={() => {}}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Show Block Conflicts</Label>
+                      <p className="text-sm text-muted-foreground">Highlight overlapping time blocks</p>
+                    </div>
+                    <Switch
+                      checked={true}
+                      onCheckedChange={() => {}}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="minBlockDuration">Minimum Block Duration (minutes)</Label>
+                    <Select value="15">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="defaultBlockColor">Default Block Color</Label>
+                    <Select value="blue">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="blue">Blue</SelectItem>
+                        <SelectItem value="green">Green</SelectItem>
+                        <SelectItem value="purple">Purple</SelectItem>
+                        <SelectItem value="orange">Orange</SelectItem>
+                        <SelectItem value="red">Red</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
