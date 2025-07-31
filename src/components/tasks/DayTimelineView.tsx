@@ -365,22 +365,39 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                          className="cursor-grab active:cursor-grabbing absolute inset-2 z-10"
                                        />
 
-                                        <CardContent className="p-3 h-full flex flex-col justify-start gap-1">
-                                           <h4 className="text-sm font-semibold text-foreground leading-tight line-clamp-2">
-                                             {task.taskName}
-                                           </h4>
-                                           
-                                           <p className="text-xs text-muted-foreground/80 leading-tight">
-                                             {task.projectName || "No Project"}
-                                           </p>
-                                           
-                                           <div className="flex items-center gap-1 mt-auto">
-                                             <Clock className="w-3 h-3 text-muted-foreground/60" />
-                                             <span className="text-xs text-muted-foreground/60">
-                                               {taskDuration}min
-                                             </span>
-                                           </div>
-                                        </CardContent>
+                                         <CardContent className="p-2 h-full flex flex-col justify-start gap-1 overflow-hidden">
+                                            {/* Task name - adaptive based on container height */}
+                                            <h4 className={`font-semibold text-foreground leading-tight overflow-hidden ${
+                                              heightInPixels < 80 
+                                                ? 'text-xs line-clamp-1' 
+                                                : heightInPixels < 120 
+                                                  ? 'text-sm line-clamp-2' 
+                                                  : 'text-sm line-clamp-3'
+                                            }`}>
+                                              {task.taskName}
+                                            </h4>
+                                            
+                                            {/* Project name - only show if container is tall enough */}
+                                            {heightInPixels >= 80 && (
+                                              <p className={`text-muted-foreground/80 leading-tight overflow-hidden ${
+                                                heightInPixels < 120 
+                                                  ? 'text-xs line-clamp-1' 
+                                                  : 'text-xs line-clamp-2'
+                                              }`}>
+                                                {task.projectName || "No Project"}
+                                              </p>
+                                            )}
+                                            
+                                            {/* Duration - only show if container is tall enough */}
+                                            {heightInPixels >= 100 && (
+                                              <div className="flex items-center gap-1 mt-auto">
+                                                <Clock className="w-3 h-3 text-muted-foreground/60 flex-shrink-0" />
+                                                <span className="text-xs text-muted-foreground/60 truncate">
+                                                  {taskDuration}min
+                                                </span>
+                                              </div>
+                                            )}
+                                         </CardContent>
                                      </Card>
                                   </div>
                                 )}
