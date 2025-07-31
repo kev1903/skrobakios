@@ -41,14 +41,19 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const weekDays = getWeekDays();
   const weekHeaders = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
-  // Generate time slots for the week (8 AM to 1 PM)
+  // Generate time slots for the week (Full 24 hours)
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // Generate time slots from 8 AM to 1 PM (6 hours), but use 30-minute slots for compatibility 
-    for (let slotIndex = 16; slotIndex < 28; slotIndex += 2) { // 16 = 8 AM in 30-min slots, 28 = 2 PM
+    // Generate 48 30-minute slots (24 hours × 2) - Full 24 hour coverage
+    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
       const hour = Math.floor(slotIndex / 2);
-      const timeLabel = hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+      const minutes = (slotIndex % 2) * 30;
+      
+      // Create a proper date object for time formatting
+      const timeDate = new Date();
+      timeDate.setHours(hour, minutes, 0, 0);
+      const timeLabel = format(timeDate, 'HH:mm');
       
       // Create dayTasks object to hold tasks for each day of the week
       const dayTasks: { [dayIndex: number]: Task[] } = {};
@@ -67,15 +72,15 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           const taskMinutes = taskDate.getUTCMinutes();
           
           return taskHour === hour && 
-                 ((slotIndex % 2 === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
-                  (slotIndex % 2 === 1 && taskMinutes >= 30 && taskMinutes < 60));
+                 ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
+                  (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
         });
         
         dayTasks[dayIndex] = dayTasksForSlot;
       });
       
       slots.push({
-        hour: slotIndex, // Use 30-minute slot index for compatibility
+        hour: slotIndex, // Use 30-minute slot index
         label: timeLabel,
         dayTasks
       });

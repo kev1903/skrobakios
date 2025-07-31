@@ -8,6 +8,7 @@ import { format, isSameDay, addDays } from 'date-fns';
 import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { Task } from '../tasks/types';
 import { DayTimelineView } from '../tasks/DayTimelineView';
+import { WeekTimelineView } from '../tasks/WeekTimelineView';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,6 +25,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
@@ -322,13 +324,28 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               <div className="flex items-center gap-4">
                 {/* View Toggle */}
                 <div className="flex items-center bg-muted rounded-lg p-1">
-                  <Button variant="default" size="sm" className="px-3 py-1.5 h-auto">
+                  <Button 
+                    variant={viewMode === 'day' ? 'default' : 'ghost'} 
+                    size="sm" 
+                    className="px-3 py-1.5 h-auto"
+                    onClick={() => setViewMode('day')}
+                  >
                     Day
                   </Button>
-                  <Button variant="ghost" size="sm" className="px-3 py-1.5 h-auto">
+                  <Button 
+                    variant={viewMode === 'week' ? 'default' : 'ghost'} 
+                    size="sm" 
+                    className="px-3 py-1.5 h-auto"
+                    onClick={() => setViewMode('week')}
+                  >
                     Week
                   </Button>
-                  <Button variant="ghost" size="sm" className="px-3 py-1.5 h-auto">
+                  <Button 
+                    variant={viewMode === 'month' ? 'default' : 'ghost'} 
+                    size="sm" 
+                    className="px-3 py-1.5 h-auto"
+                    onClick={() => setViewMode('month')}
+                  >
                     Month
                   </Button>
                 </div>
@@ -363,12 +380,20 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               </h2>
             </div>
 
-            {/* Day Timeline Content */}
-            <DayTimelineView 
-              currentDate={currentDate} 
-              tasks={tasks}
-              onTaskUpdate={onTaskUpdate}
-            />
+            {/* Timeline Content */}
+            {viewMode === 'week' ? (
+              <WeekTimelineView 
+                currentDate={currentDate} 
+                tasks={tasks}
+                onTaskUpdate={onTaskUpdate}
+              />
+            ) : (
+              <DayTimelineView 
+                currentDate={currentDate} 
+                tasks={tasks}
+                onTaskUpdate={onTaskUpdate}
+              />
+            )}
           </div>
         </div>
       </div>
