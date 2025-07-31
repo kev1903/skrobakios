@@ -516,16 +516,9 @@ const TasksPage = () => {
           </h2>
         </div>
           <div className="flex items-center space-x-4">
-            {/* New Event Button */}
-            <Button className="bg-blue-500 hover:bg-blue-600 rounded-xl px-6 py-2.5 font-medium shadow-lg shadow-blue-500/25">
-              <Plus className="w-4 h-4 mr-2" />
-              New Event
-            </Button>
-            
             {/* Calendar Settings Button */}
-            <Button variant="outline" size="sm" className="rounded-xl px-4 py-2">
-              <Settings className="w-4 h-4 mr-2" />
-              Calendar Settings
+            <Button variant="outline" size="sm" className="w-9 h-9 rounded-full p-0">
+              <Settings className="w-4 h-4" />
             </Button>
             
             {/* View Mode Toggle */}
