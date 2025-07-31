@@ -28,9 +28,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   
-  // Get the week days starting from Sunday
+  // Get the week days starting from Sunday (to match the headers)
   const getWeekDays = useCallback(() => {
-    const weekStart = startOfWeek(currentDate);
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 }); // 0 = Sunday
     const weekDays = [];
     for (let i = 0; i < 7; i++) {
       weekDays.push(addDays(weekStart, i));
@@ -39,7 +39,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   }, [currentDate]);
 
   const weekDays = getWeekDays();
-  const weekHeaders = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  const weekHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
   // Generate time slots for the week (Full 24 hours)
   const generateTimeSlots = useCallback((): TimeSlot[] => {
