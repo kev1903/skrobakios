@@ -12,6 +12,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
 import { DayTimelineView } from '@/components/tasks/DayTimelineView';
 import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
+import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
 import { useUser } from '@/contexts/UserContext';
 type ViewMode = 'day' | 'week' | 'month';
 const TasksPage = () => {
@@ -25,6 +26,7 @@ const TasksPage = () => {
   const [userTasks, setUserTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showCalendarSettings, setShowCalendarSettings] = useState(false);
 
   // Live time updater
   useEffect(() => {
@@ -354,6 +356,11 @@ const TasksPage = () => {
         return renderMonthView();
     }
   };
+  // Conditionally render Calendar Settings or main Tasks page
+  if (showCalendarSettings) {
+    return <CalendarSettingsPage onBack={() => setShowCalendarSettings(false)} />;
+  }
+
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
       <DragDropContext onDragStart={(start) => console.log('🚀 Drag started:', start)} onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
@@ -517,7 +524,12 @@ const TasksPage = () => {
         </div>
           <div className="flex items-center space-x-4">
             {/* Calendar Settings Button */}
-            <Button variant="outline" size="sm" className="w-9 h-9 rounded-full p-0">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-9 h-9 rounded-full p-0"
+              onClick={() => setShowCalendarSettings(true)}
+            >
               <Settings className="w-4 h-4" />
             </Button>
             
