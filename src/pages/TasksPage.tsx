@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle, Settings, CalendarDays } from 'lucide-react';
+import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle, Settings, CalendarDays, BarChart3 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -370,6 +370,17 @@ const TasksPage = () => {
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium text-sm">Return to Home</span>
         </Link>
+
+        {/* Dashboard Button */}
+        <Button
+          onClick={() => window.location.href = '/dashboard'}
+          variant="outline"
+          size="sm"
+          className="w-full justify-start border-primary/20 hover:bg-primary/5 text-gray-700 hover:text-primary"
+        >
+          <BarChart3 className="w-4 h-4 mr-2" />
+          Dashboard
+        </Button>
 
         {/* Search */}
         <div className="relative">
