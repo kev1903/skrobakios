@@ -361,10 +361,10 @@ const TasksPage = () => {
     return <CalendarSettingsPage onBack={() => setShowCalendarSettings(false)} />;
   }
 
-  return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex font-sans">
+  return <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex font-sans">
       <DragDropContext onDragStart={(start) => console.log('🚀 Drag started:', start)} onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
-      <div className="fixed top-0 left-0 w-80 h-screen bg-white/70 backdrop-blur-xl border-r border-gray-200/50 p-6 space-y-6 shadow-sm overflow-y-auto z-10">
+      <div className="fixed top-0 left-0 w-80 h-screen bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-6 space-y-6 shadow-lg overflow-y-auto z-10">
         {/* Return to Home Button */}
         <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -573,7 +573,7 @@ const TasksPage = () => {
         </div>
 
         {/* Large Calendar Grid */}
-        <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 shadow-sm">
+        <div className="bg-gradient-to-br from-white/90 via-purple-50/50 to-blue-50/50 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/30 shadow-xl">
           {renderCalendarView()}
         </div>
 
