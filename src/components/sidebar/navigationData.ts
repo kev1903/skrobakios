@@ -31,7 +31,6 @@ export const personalProfileNavigation: NavigationItem[] = [
 
 export const generalNavigation: NavigationItem[] = [
   { id: "home", label: "Home", icon: Home },
-  { id: "dashboard", label: "Dashboard", icon: TrendingUp },
   { id: "my-tasks", label: "MY TASKS", icon: Calendar },
   { id: "schedules", label: "My Schedules", icon: Calendar },
   { id: "inbox", label: "Inbox", icon: Mail },
