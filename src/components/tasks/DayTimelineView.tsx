@@ -431,6 +431,27 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
+                    // Convert CSS class to actual color value
+                    const getColorFromClass = (colorClass: string) => {
+                      const colorMap: { [key: string]: string } = {
+                        'bg-rose-400': '#fb7185',
+                        'bg-slate-400': '#94a3b8',
+                        'bg-blue-400': '#60a5fa',
+                        'bg-green-400': '#4ade80',
+                        'bg-yellow-400': '#facc15',
+                        'bg-purple-400': '#c084fc',
+                        'bg-orange-400': '#fb923c',
+                        'bg-red-400': '#f87171',
+                        'bg-indigo-400': '#818cf8',
+                        'bg-pink-400': '#f472b6',
+                        'bg-emerald-400': '#34d399',
+                        'bg-cyan-400': '#22d3ee',
+                      };
+                      return colorMap[colorClass] || '#94a3b8'; // Default to slate-400
+                    };
+                    
+                    const actualColor = getColorFromClass(block.color);
+                    
                     return (
                       <div
                         key={block.id}
@@ -438,8 +459,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
-                          backgroundColor: block.color ? `${block.color}40` : '#e5e7eb40',
-                          borderColor: block.color || '#9ca3af',
+                          backgroundColor: `${actualColor}40`,
+                          borderColor: actualColor,
                           left: '2px',
                           right: '2px',
                         }}
@@ -447,32 +468,25 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         {/* Colored line indicator */}
                         <div 
                           className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                          style={{ backgroundColor: block.color || '#9ca3af' }}
+                          style={{ backgroundColor: actualColor }}
                         />
                         
                         <div className="p-1 h-full flex flex-col justify-center pl-3">
                           <div 
                             className="text-xs font-semibold text-center drop-shadow-sm" 
-                            style={{ color: block.color || '#374151' }}
+                            style={{ color: actualColor }}
                           >
                             {block.title}
                           </div>
                           {block.description && heightPixels > 30 && (
                             <div 
                               className="text-[10px] text-center opacity-80 mt-1" 
-                              style={{ color: block.color || '#6b7280' }}
+                              style={{ color: actualColor }}
                             >
                               {block.description}
                             </div>
                           )}
                         </div>
-                        
-                        {/* Debug: Show color value */}
-                        {process.env.NODE_ENV === 'development' && (
-                          <div className="absolute top-0 right-0 text-[8px] bg-black text-white px-1 opacity-50">
-                            {block.color || 'no color'}
-                          </div>
-                        )}
                       </div>
                     );
                   });
