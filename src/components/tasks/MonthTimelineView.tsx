@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
+import { GripVertical } from 'lucide-react';
 import { Task } from './types';
 
 interface MonthTimelineViewProps {
@@ -120,14 +121,19 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <div className="font-medium leading-tight truncate">
-                                  {task.taskName}
-                                </div>
-                                {hasSpecificTime && (
-                                  <div className="text-xs opacity-75 leading-tight">
-                                    {format(taskDate, 'HH:mm')}
+                                <div className="flex items-center gap-1">
+                                  <GripVertical className="w-3 h-3 opacity-50 flex-shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium leading-tight truncate">
+                                      {task.taskName}
+                                    </div>
+                                    {hasSpecificTime && (
+                                      <div className="text-xs opacity-75 leading-tight">
+                                        {format(taskDate, 'HH:mm')}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
+                                </div>
                               </div>
                             )}
                           </Draggable>

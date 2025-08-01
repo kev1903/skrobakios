@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addDays, startOfWeek } from 'date-fns';
-import { Clock, Plus } from 'lucide-react';
+import { Clock, Plus, GripVertical } from 'lucide-react';
 import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
@@ -304,14 +304,19 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     style={{
                                       ...provided.draggableProps.style,
                                     }}
-                                  >
-                                    <div className="font-semibold text-sm leading-tight truncate">
-                                      {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
-                                    </div>
-                                    <div className="font-medium mt-1 leading-tight truncate">{task.taskName}</div>
-                                    {task.projectName && (
-                                      <div className="text-white/80 text-xs mt-1 truncate">{task.projectName}</div>
-                                    )}
+                                   >
+                                     <div className="flex items-center gap-1">
+                                       <GripVertical className="w-3 h-3 text-white/60 flex-shrink-0" />
+                                       <div className="flex-1 min-w-0">
+                                         <div className="font-semibold text-sm leading-tight truncate">
+                                           {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
+                                         </div>
+                                         <div className="font-medium mt-1 leading-tight truncate">{task.taskName}</div>
+                                         {task.projectName && (
+                                           <div className="text-white/80 text-xs mt-1 truncate">{task.projectName}</div>
+                                         )}
+                                       </div>
+                                     </div>
                                   </div>
                                 )}
                               </Draggable>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addMinutes, subMinutes } from 'date-fns';
-import { Clock, Plus, ChevronUp, ChevronDown, Target } from 'lucide-react';
+import { Clock, Plus, ChevronUp, ChevronDown, Target, GripVertical } from 'lucide-react';
 import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
@@ -604,8 +604,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                           minHeight: '20px'
                                         }}
                                       >
-                                        <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
-                                          <span className="font-medium truncate block">{task.taskName}</span>
+                                        <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)} flex items-center gap-1`}>
+                                          <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
+                                          <span className="font-medium truncate flex-1">{task.taskName}</span>
                                           
                                           {/* Resize handles */}
                                           <div 
