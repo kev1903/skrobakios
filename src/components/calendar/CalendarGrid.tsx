@@ -110,16 +110,16 @@ export const CalendarGrid = ({
                       const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
                       const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                       
-                      // Get color from category mapping or fallback to stored color
-                      const bgColor = categoryColors[block.category] || block.color || '#6b7280';
+                      // Get color from category mapping or fallback to stored color (now HSL format)
+                      const bgColor = categoryColors[block.category] || block.color || '217 33% 47%';
                       
                       return (
                         <div
                           key={block.id}
                           className="backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center"
                           style={{
-                            backgroundColor: bgColor,
-                            borderColor: bgColor,
+                            backgroundColor: `hsl(${bgColor})`,
+                            borderColor: `hsl(${bgColor})`,
                             top: `${startPosition + 2}px`,
                             height: `${Math.max(duration - 2, 20)}px` // Minimum height of 20px to show title
                           }}
@@ -181,16 +181,16 @@ export const CalendarGrid = ({
               
               <div className="flex-1 space-y-1 overflow-y-auto">
                 {dayBlocks.map(block => {
-                  // Get color from category mapping or fallback to stored color
-                  const bgColor = categoryColors[block.category] || block.color || '#6b7280';
+                  // Get color from category mapping or fallback to stored color (now HSL format)
+                  const bgColor = categoryColors[block.category] || block.color || '217 33% 47%';
                   
                   return (
                     <div
                       key={block.id}
                       className="text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden flex items-center justify-center border-2"
                       style={{
-                        backgroundColor: bgColor,
-                        borderColor: bgColor
+                        backgroundColor: `hsl(${bgColor})`,
+                        borderColor: `hsl(${bgColor})`
                       }}
                       onClick={(e) => {
                         e.stopPropagation();

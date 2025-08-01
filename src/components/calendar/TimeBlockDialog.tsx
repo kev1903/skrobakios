@@ -121,12 +121,11 @@ export const TimeBlockDialog = ({
                   key={color.value}
                   type="button"
                   className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
-                    color.value
-                  } ${
                     newBlock.color === color.value 
                       ? 'border-primary ring-2 ring-primary/50' 
                       : 'border-border hover:border-primary'
                   }`}
+                  style={{ backgroundColor: `hsl(${color.value})` }}
                   onClick={() => onBlockChange({ color: color.value })}
                   title={color.name}
                 />

@@ -13,22 +13,22 @@ export const categoryColors = {
 };
 
 export const colorOptions = [
-  { name: 'Blue', value: 'bg-blue-400', hex: '#60a5fa' },
-  { name: 'Green', value: 'bg-green-400', hex: '#4ade80' },
-  { name: 'Purple', value: 'bg-purple-400', hex: '#a78bfa' },
-  { name: 'Amber', value: 'bg-amber-400', hex: '#fbbf24' },
-  { name: 'Pink', value: 'bg-pink-400', hex: '#f472b6' },
-  { name: 'Indigo', value: 'bg-indigo-400', hex: '#818cf8' },
-  { name: 'Violet', value: 'bg-violet-400', hex: '#a78bfa' },
-  { name: 'Slate', value: 'bg-slate-400', hex: '#94a3b8' },
-  { name: 'Red', value: 'bg-red-400', hex: '#f87171' },
-  { name: 'Orange', value: 'bg-orange-400', hex: '#fb923c' },
-  { name: 'Yellow', value: 'bg-yellow-400', hex: '#facc15' },
-  { name: 'Emerald', value: 'bg-emerald-400', hex: '#34d399' },
-  { name: 'Teal', value: 'bg-teal-400', hex: '#2dd4bf' },
-  { name: 'Cyan', value: 'bg-cyan-400', hex: '#22d3ee' },
-  { name: 'Sky', value: 'bg-sky-400', hex: '#38bdf8' },
-  { name: 'Rose', value: 'bg-rose-400', hex: '#fb7185' }
+  { name: 'Blue', value: '217 91% 60%', hex: '#60a5fa' },
+  { name: 'Green', value: '134 61% 52%', hex: '#4ade80' },
+  { name: 'Purple', value: '263 69% 69%', hex: '#a78bfa' },
+  { name: 'Amber', value: '43 96% 56%', hex: '#fbbf24' },
+  { name: 'Pink', value: '327 73% 97%', hex: '#f472b6' },
+  { name: 'Indigo', value: '231 48% 48%', hex: '#818cf8' },
+  { name: 'Violet', value: '262 83% 58%', hex: '#a78bfa' },
+  { name: 'Slate', value: '215 28% 60%', hex: '#94a3b8' },
+  { name: 'Red', value: '0 85% 70%', hex: '#f87171' },
+  { name: 'Orange', value: '20 91% 62%', hex: '#fb923c' },
+  { name: 'Yellow', value: '54 92% 53%', hex: '#facc15' },
+  { name: 'Emerald', value: '159 64% 52%', hex: '#34d399' },
+  { name: 'Teal', value: '172 66% 51%', hex: '#2dd4bf' },
+  { name: 'Cyan', value: '188 86% 53%', hex: '#22d3ee' },
+  { name: 'Sky', value: '198 93% 60%', hex: '#38bdf8' },
+  { name: 'Rose', value: '351 83% 75%', hex: '#fb7185' }
 ];
 
 export const getCalendarData = (currentDate: Date, viewMode: 'week' | 'month'): CalendarViewData => {
