@@ -15,11 +15,13 @@ import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
 import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
 import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
+import { useToast } from "@/hooks/use-toast";
 
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
   const { userProfile } = useUser();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -372,31 +374,45 @@ const TasksPage = () => {
                       const scheduledTasks = userTasks.filter(task => {
                         if (!task.dueDate) return false;
                         const taskDateTime = new Date(task.dueDate);
-                        return !(taskDateTime.getUTCHours() === 0 && taskDateTime.getUTCMinutes() === 0);
+                        return !(taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0);
                       });
                       
                       if (scheduledTasks.length === 0) {
-                        console.log('No scheduled tasks to reset');
+                        toast({
+                          title: "No tasks to reset",
+                          description: "All tasks are already in the backlog.",
+                          variant: "default",
+                        });
                         return;
                       }
                       
                       // Reset all scheduled tasks to midnight (move to backlog)
                       const resetPromises = scheduledTasks.map(task => {
                         const resetDate = new Date(task.dueDate);
-                        resetDate.setUTCHours(0, 0, 0, 0); // Set to midnight UTC
+                        resetDate.setHours(0, 0, 0, 0); // Set to midnight local time
                         return taskService.updateTask(task.id, {
                           dueDate: resetDate.toISOString()
                         }, userProfile);
                       });
                       
                       await Promise.all(resetPromises);
-                      console.log(`Reset ${scheduledTasks.length} tasks to backlog`);
+                      
+                      toast({
+                        title: "Calendar cleared successfully",
+                        description: `${scheduledTasks.length} task${scheduledTasks.length > 1 ? 's' : ''} moved back to backlog.`,
+                        variant: "default",
+                      });
                       
                       // Reload tasks to reflect changes
                       const updatedTasks = await taskService.loadTasksAssignedToUser();
                       setUserTasks(updatedTasks);
                     } catch (error) {
                       console.error('Failed to reset tasks:', error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to reset tasks. Please try again.",
+                        variant: "destructive",
+                      });
                     }
                   }}
                   className="text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors"
