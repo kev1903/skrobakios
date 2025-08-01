@@ -151,9 +151,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           const taskHour = taskDateTime.getUTCHours();
           const taskMinutes = taskDateTime.getUTCMinutes();
           
-          return taskHour === hour && 
+          console.log(`🔍 Slot ${slotIndex} (${timeLabel}): Checking task "${task.taskName}" with UTC time ${taskHour}:${taskMinutes.toString().padStart(2, '0')} (${taskDateTime.toISOString()})`);
+          
+          const matches = taskHour === hour && 
                  ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
                   (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
+          
+          if (matches) {
+            console.log(`✅ Task "${task.taskName}" matches slot ${slotIndex} (${timeLabel})`);
+          }
+          
+          return matches;
         } catch (error) {
           console.error('Error parsing task date:', task.dueDate, error);
           return false;

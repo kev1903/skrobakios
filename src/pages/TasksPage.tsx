@@ -170,9 +170,9 @@ const TasksPage = () => {
           let newDate = new Date(currentDate);
           
           if (slotHour === '-1') {
-            // Combined night slot (00:00-05:00), default to 02:30
-            newDate.setHours(2, 30, 0, 0);
-            console.log('🌙 Setting night slot time to 02:30');
+            // Combined night slot (00:00-05:00), default to 02:30 UTC
+            newDate.setUTCHours(2, 30, 0, 0);
+            console.log('🌙 Setting night slot time to 02:30 UTC');
           } else {
             // slotHour is actually the slot index from the timeline
             // Timeline structure: slot 10-47 represents 05:00-24:00 in 30-min intervals
@@ -182,19 +182,21 @@ const TasksPage = () => {
               // Should not happen based on timeline structure, but handle gracefully
               const hour = Math.floor(slotIndex / 2);
               const minutes = (slotIndex % 2) * 30;
-              newDate.setHours(hour, minutes, 0, 0);
-              console.log(`🌅 Setting time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
+              newDate.setUTCHours(hour, minutes, 0, 0);
+              console.log(`🌅 Setting UTC time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
             } else {
               // Regular slots: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
               const adjustedSlot = slotIndex - 10; // Convert to 0-based from 05:00
               const hour = 5 + Math.floor(adjustedSlot / 2); // Start from hour 5
               const minutes = (adjustedSlot % 2) * 30;
-              newDate.setHours(hour, minutes, 0, 0);
-              console.log(`⏰ Setting time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex}, adjusted ${adjustedSlot})`);
+              newDate.setUTCHours(hour, minutes, 0, 0);
+              console.log(`⏰ Setting UTC time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex}, adjusted ${adjustedSlot})`);
             }
           }
           
           console.log('📝 Updating task with new date:', newDate.toISOString());
+          console.log('🕐 Local time set:', newDate.toString());
+          console.log('🌍 UTC time will be:', newDate.toISOString());
           await taskService.updateTask(task.id, { dueDate: newDate.toISOString() }, userProfile);
           console.log('✅ Task update successful');
           
