@@ -532,20 +532,20 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       <div
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
-                                        className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 ${
+                                        {...provided.dragHandleProps}
+                                        className={`absolute inset-x-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 ${
                                           snapshot.isDragging ? 'shadow-lg opacity-80 z-50 cursor-grabbing' : 'cursor-grab'
                                         }`}
                                         style={{
                                           ...provided.draggableProps.style,
-                                          top: snapshot.isDragging ? undefined : `${topOffset}px`,
+                                          ...(snapshot.isDragging ? {} : {
+                                            top: `${topOffset}px`,
+                                          }),
                                           height: `${heightInPixels}px`,
                                           minHeight: '20px'
                                         }}
                                       >
-                                        <div 
-                                          {...provided.dragHandleProps}
-                                          className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)} flex items-center gap-1`}
-                                        >
+                                        <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)} flex items-center gap-1`}>
                                           <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
                                           <span className="font-medium truncate flex-1">{task.taskName}</span>
                                           
