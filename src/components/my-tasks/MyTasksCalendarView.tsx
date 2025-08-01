@@ -117,7 +117,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
     if (!destination) return;
 
-    // Handle timeline drops
+    // Handle timeline drops (works for all droppableIds that start with 'timeline-')
     if (destination.droppableId.startsWith('timeline-') && onTaskUpdate) {
       const slotHour = destination.droppableId.replace('timeline-', '');
       const task = tasks.find(t => t.id === draggableId);
@@ -145,7 +145,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         }
       }
     }
-    // Handle legacy day area drops
+    // Handle legacy day area drops  
     else if (destination.droppableId === 'day-area' && onTaskUpdate) {
       const task = tasks.find(t => t.id === draggableId);
       if (task) {

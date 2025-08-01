@@ -393,7 +393,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               <div className="border-r border-border/30 relative bg-gradient-to-b from-background/50 to-muted/10">
                 {timeSlots.map((slot) => (
                   <div key={`name-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    <Droppable droppableId={`timeline-name-${slot.hour}`} direction="vertical">
+                    <Droppable droppableId={`timeline-${slot.hour}`} direction="vertical">
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
@@ -420,7 +420,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                             }
                             
                             return (
-                              <Draggable key={task.id} draggableId={`timeline-name-${task.id}`} index={index}>
+                              <Draggable key={task.id} draggableId={task.id} index={index}>
                                 {(provided, snapshot) => (
                                   <div
                                     ref={provided.innerRef}
@@ -430,8 +430,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       snapshot.isDragging ? 'shadow-xl opacity-90 z-50' : 'hover:shadow-md z-10'
                                     }`}
                                     style={{
-                                      top: `${topOffset}px`,
-                                      height: `${heightInPixels}px`,
+                                      ...provided.draggableProps.style,
+                                      top: snapshot.isDragging ? undefined : `${topOffset}px`,
+                                      height: snapshot.isDragging ? undefined : `${heightInPixels}px`,
                                       minHeight: '20px'
                                     }}
                                   >
