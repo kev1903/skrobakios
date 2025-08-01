@@ -348,7 +348,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Column Headers */}
         <div className="border-b border-border/30 bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-sm">
-          <div className="grid grid-cols-[60px_40px_1fr_120px_80px_80px] h-10">
+          <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] h-10">
             <div className="border-r border-border/30 flex items-center justify-center">
               <span className="text-xs font-medium text-muted-foreground">Time</span>
             </div>
@@ -373,7 +373,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <div className="grid grid-cols-[60px_40px_1fr_120px_80px_80px] min-h-full">
+            <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] min-h-full">
               {/* Time Column */}
               <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[60px] shadow-inner">
                 {timeSlots.map((slot, index) => {
@@ -445,7 +445,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         }}
                       >
                         <div className="p-1 h-full flex flex-col justify-center">
-                          <div className="text-[10px] font-medium truncate" style={{ color: block.color }}>
+                          <div className="text-xs font-medium text-center" style={{ color: block.color }}>
                             {block.title}
                           </div>
                         </div>
