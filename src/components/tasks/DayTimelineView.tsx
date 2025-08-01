@@ -349,41 +349,36 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <div className="grid grid-cols-[100px_1fr] min-h-full">
-              {/* Time Column */}
-              <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[100px] shadow-inner">
-                {timeSlots.map((slot, index) => {
-                  const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
-                  return (
-                    <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
-                      isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
-                    }`}>
+            <div className="w-full min-h-full">
+              {timeSlots.map((slot, index) => {
+                const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
+                return (
+                  <div key={slot.hour} className={`h-6 border-b flex transition-colors hover:bg-accent/20 ${
+                    isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                  }`}>
+                    {/* Time label - side by side with events */}
+                    <div className="flex items-center justify-start pl-3 pr-2 min-w-[60px] bg-gradient-to-r from-card/80 to-card/60 backdrop-blur-sm border-r border-border/20">
                       <span className={`font-inter leading-tight ${
-                        isFullHour ? 'text-sm font-medium text-foreground/80' : 'text-xs font-normal text-muted-foreground/70'
+                        isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
                       }`}>
                         {slot.label}
                       </span>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* Events Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={slot.hour} className="h-6 border-b border-border/10 relative">
-                    <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`absolute inset-0 transition-colors ${
-                            snapshot.isDraggingOver
-                              ? 'bg-primary/5 border-l-2 border-primary/30'
-                              : 'hover:bg-muted/10'
-                          }`}
-                        >
-                          <div className="p-1 h-full">
+                    
+                     {/* Events area - now side by side with time */}
+                     <div className="flex-1 relative bg-gradient-to-b from-background/50 to-muted/10">
+                       <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
+                         {(provided, snapshot) => (
+                           <div
+                             ref={provided.innerRef}
+                             {...provided.droppableProps}
+                             className={`absolute inset-0 transition-colors ${
+                               snapshot.isDraggingOver
+                                 ? 'bg-primary/5 border-l-2 border-primary/30'
+                                 : 'hover:bg-muted/10'
+                             }`}
+                           >
+                           <div className="p-1 h-full">
                             {slot.tasks.map((task, index) => {
                               const taskDuration = task.duration || 30; // Default 30 minutes
                               const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
@@ -501,14 +496,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                               </span>
                             </div>
                           )}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                ))}
-                
-                {/* Time blocks overlay */}
-                {(() => {
+                         </div>
+                       )}
+                     </Droppable>
+                   </div>
+                   </div>
+                 );
+               })}
+                 
+                 {/* Time blocks overlay */}
+                 {(() => {
                   // Ensure currentDate is a Date object
                   const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
                   const dayBlocks = getBlocksForDay(dateObj, timeBlocks);
@@ -571,114 +568,113 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   });
                 })()}
                 
-                {/* Current Time Indicator - Only show for current day */}
-                {isCurrentDay && (
-                  <div 
-                    className="absolute left-0 right-0 z-50 pointer-events-none"
-                    style={{ top: `${currentTimePosition}px` }}
-                  >
-                    {/* Time dot */}
-                    <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
-                    {/* Time line */}
-                    <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
-                    {/* Current time label */}
-                    <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
-                      {format(currentTime, 'HH:mm')}
-                    </div>
-                  </div>
-                )}
+                 {/* Current Time Indicator - Only show for current day */}
+                 {isCurrentDay && (
+                   <div 
+                     className="absolute left-0 right-0 z-50 pointer-events-none"
+                     style={{ top: `${currentTimePosition}px` }}
+                   >
+                     {/* Time dot */}
+                     <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
+                     {/* Time line */}
+                     <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
+                     {/* Current time label */}
+                     <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                       {format(currentTime, 'HH:mm')}
+                     </div>
+                   </div>
+                   )}
               </div>
             </div>
           </div>
         </div>
-      </div>
       
-      {/* Right Sidebar */}
-      <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
-        <div className="h-full flex flex-col">
-          {/* Sidebar Header */}
-          
-          {/* Sidebar Content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {/* Quick Stats */}
-            <Card className="p-4 bg-background/50 border-border/50">
-              <h4 className="font-medium mb-3 text-sm">Today's Overview</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Tasks</span>
-                  <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate))).length}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Completed</span>
-                  <Badge variant="secondary" className="bg-success/20 text-success">
-                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'Completed').length}
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">In Progress</span>
-                  <Badge variant="secondary" className="bg-primary/20 text-primary">
-                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'In Progress').length}
-                  </Badge>
-                </div>
-              </div>
-            </Card>
-            
-            {/* Upcoming Tasks */}
-            <Card className="p-4 bg-background/50 border-border/50">
-              <h4 className="font-medium mb-3 text-sm">Upcoming Tasks</h4>
-              <div className="space-y-2">
-                {tasks
-                  .filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed')
-                  .slice(0, 5)
-                  .map(task => (
-                    <div key={task.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 transition-colors">
-                      <div className={`w-2 h-2 rounded-full ${
-                        task.priority === 'High' ? 'bg-destructive' : 
-                        task.priority === 'Medium' ? 'bg-warning' : 'bg-success'
-                      }`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{task.taskName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(task.dueDate), 'HH:mm')}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed').length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
-                )}
-              </div>
-            </Card>
-            
-            {/* Top Priorities */}
-            <Card className="p-4 bg-background/50 border-border/50">
-              <div className="flex items-center gap-2 mb-3">
-                <Target className="w-4 h-4 text-primary" />
-                <h4 className="font-medium text-sm">Top 3 Priorities Today</h4>
-              </div>
-              <div className="space-y-3">
-                {priorities.map((priority, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <span className="text-sm font-medium text-muted-foreground mt-2 min-w-[20px]">
-                      {index + 1}.
-                    </span>
-                    <Input
-                      placeholder={`Priority ${index + 1}`}
-                      value={priority}
-                      onChange={(e) => {
-                        const newPriorities = [...priorities];
-                        newPriorities[index] = e.target.value;
-                        setPriorities(newPriorities);
-                      }}
-                      className="text-sm"
-                    />
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+        {/* Right Sidebar */}
+       <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
+         <div className="h-full flex flex-col">
+           {/* Sidebar Header */}
+           
+           {/* Sidebar Content */}
+           <div className="flex-1 overflow-y-auto p-4 space-y-4">
+             {/* Quick Stats */}
+             <Card className="p-4 bg-background/50 border-border/50">
+               <h4 className="font-medium mb-3 text-sm">Today's Overview</h4>
+               <div className="space-y-2">
+                 <div className="flex justify-between items-center">
+                   <span className="text-sm text-muted-foreground">Total Tasks</span>
+                   <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate))).length}</Badge>
+                 </div>
+                 <div className="flex justify-between items-center">
+                   <span className="text-sm text-muted-foreground">Completed</span>
+                   <Badge variant="secondary" className="bg-success/20 text-success">
+                     {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'Completed').length}
+                   </Badge>
+                 </div>
+                 <div className="flex justify-between items-center">
+                   <span className="text-sm text-muted-foreground">In Progress</span>
+                   <Badge variant="secondary" className="bg-primary/20 text-primary">
+                     {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'In Progress').length}
+                   </Badge>
+                 </div>
+               </div>
+             </Card>
+             
+             {/* Upcoming Tasks */}
+             <Card className="p-4 bg-background/50 border-border/50">
+               <h4 className="font-medium mb-3 text-sm">Upcoming Tasks</h4>
+               <div className="space-y-2">
+                 {tasks
+                   .filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed')
+                   .slice(0, 5)
+                   .map(task => (
+                     <div key={task.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 transition-colors">
+                       <div className={`w-2 h-2 rounded-full ${
+                         task.priority === 'High' ? 'bg-destructive' : 
+                         task.priority === 'Medium' ? 'bg-warning' : 'bg-success'
+                       }`} />
+                       <div className="flex-1 min-w-0">
+                         <p className="text-sm font-medium truncate">{task.taskName}</p>
+                         <p className="text-xs text-muted-foreground">
+                           {format(new Date(task.dueDate), 'HH:mm')}
+                         </p>
+                       </div>
+                     </div>
+                   ))}
+                 {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed').length === 0 && (
+                   <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
+                 )}
+               </div>
+             </Card>
+             
+             {/* Top Priorities */}
+             <Card className="p-4 bg-background/50 border-border/50">
+               <div className="flex items-center gap-2 mb-3">
+                 <Target className="w-4 h-4 text-primary" />
+                 <h4 className="font-medium text-sm">Top 3 Priorities Today</h4>
+               </div>
+               <div className="space-y-3">
+                 {priorities.map((priority, index) => (
+                   <div key={index} className="flex items-start gap-2">
+                     <span className="text-sm font-medium text-muted-foreground mt-2 min-w-[20px]">
+                       {index + 1}.
+                     </span>
+                     <Input
+                       placeholder={`Priority ${index + 1}`}
+                       value={priority}
+                       onChange={(e) => {
+                         const newPriorities = [...priorities];
+                         newPriorities[index] = e.target.value;
+                         setPriorities(newPriorities);
+                       }}
+                       className="text-sm"
+                     />
+                   </div>
+                 ))}
+               </div>
+             </Card>
+           </div>
+         </div>
+       </div>
+     </div>
+   );
+ };
