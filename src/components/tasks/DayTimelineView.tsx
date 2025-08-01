@@ -359,7 +359,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Calculate current time indicator position
   const getCurrentTimePosition = () => {
     const now = new Date();
-    // Use local time to match task filtering logic
     const hours = now.getHours();
     const minutes = now.getMinutes();
     
@@ -367,13 +366,21 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     
     // Calculate position based on slot arrangement with combined 00:00-05:00 slot
     if (hours >= 0 && hours < 5) {
-      // Current time is in the combined 00:00-05:00 slot
-      position = 12; // Middle of the first 24px slot
+      // Current time is in the combined 00:00-05:00 slot (24px height)
+      // Position proportionally within the night slot
+      const totalMinutesInNight = 5 * 60; // 300 minutes total (00:00-05:00)
+      const currentMinutesInNight = hours * 60 + minutes;
+      position = (currentMinutesInNight / totalMinutesInNight) * 24;
     } else {
       // Calculate position for slots starting from 05:00
-      // Each slot after the night slot represents time from 05:00 onwards
-      const minutesSince5AM = (hours - 5) * 60 + minutes;
-      position = 24 + (minutesSince5AM / 30) * 24; // 24px for night slot + calculated position
+      // Each 30-minute slot is 24px high
+      // Find which slot the current time falls into
+      const totalMinutesSince5AM = (hours - 5) * 60 + minutes;
+      const slotNumber = Math.floor(totalMinutesSince5AM / 30); // Which 30-min slot
+      const minutesIntoSlot = totalMinutesSince5AM % 30; // How far into the slot
+      
+      // Position = night slot (24px) + completed slots + position within current slot
+      position = 24 + (slotNumber * 24) + (minutesIntoSlot / 30) * 24;
     }
     
     return position;
