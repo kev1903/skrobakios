@@ -213,7 +213,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           })}
         </div>
         
-        <div className="grid grid-cols-8 gap-0 min-h-full">
+        <div className="grid grid-cols-8 gap-0 min-h-full relative">
           {/* Time Column */}
           <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner relative">
             {timeSlots.map((slot, index) => {
@@ -238,19 +238,19 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                 </div>
               );
             })}
-            
-            {/* Current Time Indicator */}
-            {isSameDay(currentTime, currentDate) && (
-              <div 
-                className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-10 pointer-events-none"
-                style={{
-                  top: `${(currentTime.getHours() * 2 + currentTime.getMinutes() / 30) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
-                }}
-              >
-                <div className="absolute -left-2 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
-              </div>
-            )}
           </div>
+          
+          {/* Current Time Indicator - Spans Entire Calendar */}
+          {isSameDay(currentTime, currentDate) && (
+            <div 
+              className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-[100] pointer-events-none"
+              style={{
+                top: `${(currentTime.getHours() * 2 + currentTime.getMinutes() / 30) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
+              }}
+            >
+              <div className="absolute left-12 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
+            </div>
+          )}
           
           {/* Day Columns */}
           {weekDays.map((day, dayIndex) => (

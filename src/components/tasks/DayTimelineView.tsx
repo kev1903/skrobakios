@@ -364,7 +364,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         </div>
         
         {/* Timeline Grid */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden relative">
           <div className="h-full overflow-hidden">
             <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] min-h-full">
               {/* Time Column */}
@@ -391,19 +391,19 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     </div>
                   );
                 })}
-                
-                {/* Current Time Indicator */}
-                {isCurrentDay && (
-                  <div 
-                    className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-10 pointer-events-none"
-                    style={{
-                      top: `${(currentTime.getHours() * 2 + Math.floor(currentTime.getMinutes() / 30)) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
-                    }}
-                  >
-                    <div className="absolute -left-2 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
-                  </div>
-                )}
               </div>
+          
+          {/* Current Time Indicator - Spans Entire Calendar */}
+          {isCurrentDay && (
+            <div 
+              className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-[100] pointer-events-none"
+              style={{
+                top: `${(currentTime.getHours() * 2 + Math.floor(currentTime.getMinutes() / 30)) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
+              }}
+            >
+              <div className="absolute left-8 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
+            </div>
+          )}
 
               {/* Time Blocks Column */}
               <div className="border-r border-border/30 bg-gradient-to-b from-card/60 to-card/40 backdrop-blur-sm relative">
