@@ -389,16 +389,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 })}
               </div>
 
-              {/* Task Name Column */}
-              <div className="border-r border-border/30 relative bg-gradient-to-b from-background/50 to-muted/10">
+              {/* Combined Task Row - spans all columns */}
+              <div className="col-span-4 relative bg-gradient-to-b from-background/50 to-muted/10">
                 {timeSlots.map((slot) => (
-                  <div key={`name-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                  <div key={slot.hour} className="h-6 border-b border-border/10 relative">
                     <Droppable droppableId={`timeline-${slot.hour}`} direction="vertical">
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`absolute inset-0 transition-colors ${
+                          className={`absolute inset-0 grid grid-cols-4 transition-colors ${
                             snapshot.isDraggingOver
                               ? 'bg-primary/5 border-l-2 border-primary/30'
                               : 'hover:bg-muted/10'
@@ -426,7 +426,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    className={`absolute left-1 right-1 rounded px-2 py-1 text-xs flex items-center ${getStatusColor(task.status)} ${
+                                    className={`absolute inset-0 grid grid-cols-4 gap-0 ${
                                       snapshot.isDragging ? 'shadow-xl opacity-90 z-50' : 'hover:shadow-md z-10'
                                     }`}
                                     style={{
@@ -436,7 +436,33 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       minHeight: '20px'
                                     }}
                                   >
-                                    <span className="font-medium truncate">{task.taskName}</span>
+                                    {/* Task Name Column */}
+                                    <div className="border-r border-border/20 px-2 py-1 flex items-center">
+                                      <div className={`rounded px-2 py-1 text-xs w-full ${getStatusColor(task.status)}`}>
+                                        <span className="font-medium truncate">{task.taskName}</span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Project Column */}
+                                    <div className="border-r border-border/20 px-2 py-1 flex items-center">
+                                      <div className="rounded px-2 py-1 text-xs w-full bg-muted/30">
+                                        <span className="text-muted-foreground truncate">{task.projectName || 'No Project'}</span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Duration Column */}
+                                    <div className="border-r border-border/20 px-2 py-1 flex items-center justify-center">
+                                      <div className="rounded px-2 py-1 text-xs bg-accent/30">
+                                        <span className="font-medium">{taskDuration}min</span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Priority Column */}
+                                    <div className="px-2 py-1 flex items-center justify-center">
+                                      <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
+                                        {task.priority}
+                                      </Badge>
+                                    </div>
                                   </div>
                                 )}
                               </Draggable>
@@ -446,119 +472,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         </div>
                       )}
                     </Droppable>
-                  </div>
-                ))}
-              </div>
-
-              {/* Project Column */}
-              <div className="border-r border-border/30 relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`project-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    {slot.tasks.map((task, index) => {
-                      const taskDuration = task.duration || 30;
-                      const slotsSpanned = Math.ceil(taskDuration / 30);
-                      let heightInPixels = (slotsSpanned * 24) - 4;
-                      let topOffset = 0;
-                      
-                      if (dragState.isDragging && dragState.taskId === task.id) {
-                        if (dragState.previewHeight !== null) {
-                          heightInPixels = dragState.previewHeight;
-                        }
-                        if (dragState.previewTop !== null) {
-                          topOffset = dragState.previewTop;
-                        }
-                      }
-                      
-                      return (
-                        <div
-                          key={`project-${task.id}`}
-                          className="absolute left-1 right-1 rounded px-2 py-1 text-xs flex items-center bg-muted/30"
-                          style={{
-                            top: `${topOffset}px`,
-                            height: `${heightInPixels}px`,
-                            minHeight: '20px'
-                          }}
-                        >
-                          <span className="text-muted-foreground truncate">{task.projectName || 'No Project'}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-
-              {/* Duration Column */}
-              <div className="border-r border-border/30 relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`duration-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    {slot.tasks.map((task, index) => {
-                      const taskDuration = task.duration || 30;
-                      const slotsSpanned = Math.ceil(taskDuration / 30);
-                      let heightInPixels = (slotsSpanned * 24) - 4;
-                      let topOffset = 0;
-                      
-                      if (dragState.isDragging && dragState.taskId === task.id) {
-                        if (dragState.previewHeight !== null) {
-                          heightInPixels = dragState.previewHeight;
-                        }
-                        if (dragState.previewTop !== null) {
-                          topOffset = dragState.previewTop;
-                        }
-                      }
-                      
-                      return (
-                        <div
-                          key={`duration-${task.id}`}
-                          className="absolute left-1 right-1 rounded px-2 py-1 text-xs flex items-center justify-center bg-accent/30"
-                          style={{
-                            top: `${topOffset}px`,
-                            height: `${heightInPixels}px`,
-                            minHeight: '20px'
-                          }}
-                        >
-                          <span className="font-medium">{taskDuration}min</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-
-              {/* Priority Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`priority-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    {slot.tasks.map((task, index) => {
-                      const taskDuration = task.duration || 30;
-                      const slotsSpanned = Math.ceil(taskDuration / 30);
-                      let heightInPixels = (slotsSpanned * 24) - 4;
-                      let topOffset = 0;
-                      
-                      if (dragState.isDragging && dragState.taskId === task.id) {
-                        if (dragState.previewHeight !== null) {
-                          heightInPixels = dragState.previewHeight;
-                        }
-                        if (dragState.previewTop !== null) {
-                          topOffset = dragState.previewTop;
-                        }
-                      }
-                      
-                      return (
-                        <div
-                          key={`priority-${task.id}`}
-                          className="absolute left-1 right-1 rounded px-2 py-1 text-xs flex items-center justify-center"
-                          style={{
-                            top: `${topOffset}px`,
-                            height: `${heightInPixels}px`,
-                            minHeight: '20px'
-                          }}
-                        >
-                          <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
-                            {task.priority}
-                          </Badge>
-                        </div>
-                      );
-                    })}
                   </div>
                 ))}
                 
@@ -622,13 +535,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   });
                 })()}
 
-                {/* Current Time Indicator - span across all columns */}
+                {/* Current Time Indicator */}
                 {isCurrentDay && (
                   <div 
                     className="absolute z-50 pointer-events-none"
                     style={{ 
                       top: `${currentTimePosition}px`,
-                      left: '-340px',
+                      left: '-60px',
                       right: '0'
                     }}
                   >
