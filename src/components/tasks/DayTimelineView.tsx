@@ -488,29 +488,23 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
-                          backgroundColor: `hsl(${actualColor} / 0.4)`,
+                          backgroundColor: 'transparent',
                           borderColor: `hsl(${actualColor})`,
                           left: '2px',
                           right: '2px',
                         }}
                       >
-                        {/* Colored line indicator */}
-                        <div 
-                          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                          style={{ backgroundColor: `hsl(${actualColor})` }}
-                        />
+                        {/* Remove colored line indicator since we have border */}
                         
                         <div className="p-1 h-full flex flex-col justify-center pl-3">
                           <div 
-                            className="text-xs font-semibold text-center drop-shadow-sm" 
-                            style={{ color: `hsl(${actualColor})` }}
+                            className="text-xs font-semibold text-center drop-shadow-sm text-foreground" 
                           >
                             {block.title}
                           </div>
                           {block.description && heightPixels > 30 && (
                             <div 
-                              className="text-[10px] text-center opacity-80 mt-1" 
-                              style={{ color: `hsl(${actualColor})` }}
+                              className="text-[10px] text-center opacity-80 mt-1 text-muted-foreground" 
                             >
                               {block.description}
                             </div>
