@@ -397,12 +397,14 @@ const TasksPage = () => {
       <DragDropContext 
         onDragStart={(start) => {
           console.log('🚀 Drag started:', start);
+          console.log('🎯 Setting isDragActive to true');
           setIsDragActive(true);
           // Add body class to help with drag styling
           document.body.classList.add('react-beautiful-dnd-dragging');
         }} 
         onDragEnd={(result) => {
           console.log('🏁 Drag ended:', result);
+          console.log('🎯 Setting isDragActive to false');
           setIsDragActive(false);
           // Remove body class
           document.body.classList.remove('react-beautiful-dnd-dragging');
@@ -685,8 +687,9 @@ const TasksPage = () => {
           </div>
         </div>
 
-        {/* Task Edit Panel - Moved inside DragDropContext */}
-        <TaskEditSidePanel
+        {/* Task Edit Panel - Hidden during drag operations */}
+        {!isDragActive && (
+          <TaskEditSidePanel
           task={selectedTaskForEdit}
           isOpen={isTaskEditOpen}
           onClose={() => {
@@ -716,6 +719,7 @@ const TasksPage = () => {
             }
           }}
         />
+        )}
       </DragDropContext>
     </div>
   );

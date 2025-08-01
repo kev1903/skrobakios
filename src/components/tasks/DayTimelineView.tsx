@@ -36,6 +36,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [priorities, setPriorities] = useState<string[]>(['', '', '']);
   const { settings } = useTimeTracking();
   
+  // Debug log for drag state
+  console.log('🎯 DayTimelineView isDragActive:', isDragActive);
+  
   // Get category colors from time tracking settings
   const categoryColors = settings?.category_colors || {
     'Design': '#3B82F6',
