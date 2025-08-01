@@ -508,19 +508,23 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     const endHour = parseInt(block.endTime.split(':')[0]);
                     const endMinute = parseInt(block.endTime.split(':')[1]);
                     
-                    // Calculate position (accounting for combined 00:00-05:00 slot)
+                    // Calculate position to match time slots exactly
                     let startPosition: number;
-                    let duration: number;
                     
                     if (startHour >= 0 && startHour < 5) {
-                      startPosition = 12; // Middle of combined slot
+                      // Position within the combined 00:00-05:00 slot (first slot, 24px high)
+                      startPosition = 0;
                     } else {
-                      const minutesSince5AM = (startHour - 5) * 60 + startMinute;
-                      startPosition = 24 + (minutesSince5AM / 30) * 24;
+                      // Calculate position for slots starting from 05:00
+                      // Convert time to 30-minute slot index (starting from slot 10 which is 05:00)
+                      const totalMinutes = startHour * 60 + startMinute;
+                      const minutesSince5AM = totalMinutes - (5 * 60); // Minutes since 5:00 AM
+                      const slotIndex = Math.floor(minutesSince5AM / 30); // Which 30-min slot (0-based from 05:00)
+                      startPosition = 24 + (slotIndex * 24); // 24px for combined slot + slots after
                     }
                     
                     const totalDurationMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-                    const heightPixels = (totalDurationMinutes / 30) * 24;
+                    const heightPixels = Math.max(24, (totalDurationMinutes / 30) * 24); // Minimum 1 slot height
                     
                     return (
                       <div
