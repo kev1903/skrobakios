@@ -366,8 +366,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     
     let position: number;
     
-    // Each slot is 24px (h-6 class)
-    // Slot arrangement: 00:00-05:00 (night slot), then 05:30, 06:00, 06:30, 07:00, 07:30, 08:00, etc.
+    // The timeline structure matches the slot generation:
+    // Night slot: 00:00-05:00 (24px)
+    // Then: 05:00, 05:30, 06:00, 06:30, 07:00, 07:30, 08:00, 08:30... (24px each)
     
     if (hours >= 0 && hours < 5) {
       // Current time is in the combined 00:00-05:00 slot (24px height)
@@ -376,36 +377,28 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       position = (currentMinutesInNight / totalMinutesInNight) * 24;
       console.log(`🌙 Night slot position: ${position}px`);
     } else {
-      // After 05:00, calculate based on slot index
-      // Looking at the generated slots: they start from slot index 0 (night), then regular 30-min slots
-      // From the timeline generation: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
+      // After 05:00, the slots follow the same pattern as slot generation
+      // Slot index 10 = 05:00, 11 = 05:30, 12 = 06:00, etc.
+      // Convert current time to slot index logic: slotIndex = hours * 2 + (minutes >= 30 ? 1 : 0)
       
-      let slotFromStart = 0; // Which slot after the night slot
+      const currentSlotIndex = hours * 2 + (minutes >= 30 ? 1 : 0);
+      console.log(`📍 Current slot index would be: ${currentSlotIndex}`);
       
-      if (hours === 5) {
-        if (minutes < 30) {
-          // 05:00-05:30 - position within the night slot end
-          position = 24;
-          console.log(`🌅 Early morning (05:00-05:30): ${position}px`);
-          return position;
-        } else {
-          // 05:30-06:00 - first slot after night
-          slotFromStart = 0;
-        }
-      } else {
-        // For 06:00 and later
-        // Calculate how many 30-minute slots since 05:30
-        const totalMinutesSince530 = (hours - 5) * 60 + (minutes - 30);
-        slotFromStart = Math.floor(totalMinutesSince530 / 30);
-      }
+      // The first slot after night slot is index 10 (05:00)
+      // So the position is: night slot (24px) + (currentSlotIndex - 10) * 24px + position within slot
       
-      // Each slot after night slot is 24px
-      // Position within the current slot
-      const minutesIntoCurrentSlot = minutes % 30;
-      const positionInSlot = (minutesIntoCurrentSlot / 30) * 24;
+      const slotsAfterNight = currentSlotIndex - 10;
+      const minutesIntoSlot = minutes % 30;
+      const positionInSlot = (minutesIntoSlot / 30) * 24;
       
-      position = 24 + (slotFromStart * 24) + positionInSlot;
-      console.log(`⏰ Day position: ${position}px (slot ${slotFromStart}, ${minutesIntoCurrentSlot} minutes into slot)`);
+      position = 24 + (slotsAfterNight * 24) + positionInSlot;
+      
+      console.log(`⏰ Calculation breakdown:`);
+      console.log(`   Current slot index: ${currentSlotIndex}`);
+      console.log(`   Slots after night: ${slotsAfterNight}`);
+      console.log(`   Minutes into slot: ${minutesIntoSlot}`);
+      console.log(`   Position in slot: ${positionInSlot}px`);
+      console.log(`   Final position: 24 + (${slotsAfterNight} * 24) + ${positionInSlot} = ${position}px`);
     }
     
     return position;
