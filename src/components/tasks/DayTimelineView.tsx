@@ -36,14 +36,23 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   
   // Get category colors from time tracking settings
   const categoryColors = settings?.category_colors || {
-    work: '#3b82f6',
-    personal: '#10b981',
-    meeting: '#8b5cf6',
-    break: '#f59e0b',
+    'Design': '#3B82F6',
+    'Admin': '#10B981', 
+    'Calls': '#F59E0B',
+    'Break': '#EF4444',
+    'Browsing': '#8B5CF6',
+    'Site Visit': '#06B6D4',
+    'Deep Work': '#059669',
+    'Other': '#6B7280',
+    // Legacy categories for backward compatibility
+    work: '#3B82F6',
+    personal: '#10B981',
+    meeting: '#F59E0B',
+    break: '#EF4444',
     family: '#ec4899',
-    site_visit: '#f97316',
-    church: '#6366f1',
-    rest: '#6b7280'
+    site_visit: '#06B6D4',
+    church: '#8B5CF6',
+    rest: '#6B7280'
   };
 
   // Load time blocks from database
@@ -446,7 +455,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
                     // Use category colors from time tracking settings
-                    const actualColor = categoryColors[block.category] || block.color || '#6b7280';
+                    const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '#9CA3AF';
                     
                     return (
                       <div
@@ -455,7 +464,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
-                          backgroundColor: `${actualColor}40`,
+                          backgroundColor: `${actualColor}60`,
                           borderColor: actualColor,
                           left: '2px',
                           right: '2px',

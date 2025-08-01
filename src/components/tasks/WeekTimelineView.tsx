@@ -37,14 +37,23 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   
   // Get category colors from time tracking settings
   const categoryColors = settings?.category_colors || {
-    work: '#3b82f6',
-    personal: '#10b981',
-    meeting: '#8b5cf6',
-    break: '#f59e0b',
+    'Design': '#3B82F6',
+    'Admin': '#10B981', 
+    'Calls': '#F59E0B',
+    'Break': '#EF4444',
+    'Browsing': '#8B5CF6',
+    'Site Visit': '#06B6D4',
+    'Deep Work': '#059669',
+    'Other': '#6B7280',
+    // Legacy categories for backward compatibility
+    work: '#3B82F6',
+    personal: '#10B981',
+    meeting: '#F59E0B',
+    break: '#EF4444',
     family: '#ec4899',
-    site_visit: '#f97316',
-    church: '#6366f1',
-    rest: '#6b7280'
+    site_visit: '#06B6D4',
+    church: '#8B5CF6',
+    rest: '#6B7280'
   };
 
   // Update current time every minute
@@ -356,14 +365,14 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   console.log(`Week Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
                   
                   // Use category colors from time tracking settings
-                  const actualColor = categoryColors[block.category] || block.color || '#6b7280';
+                  const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '#9CA3AF';
                   
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
                       className="absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm border-2"
                       style={{
-                        backgroundColor: `${actualColor}40`,
+                        backgroundColor: `${actualColor}60`,
                         borderColor: actualColor,
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
