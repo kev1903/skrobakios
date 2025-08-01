@@ -438,8 +438,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
-                          backgroundColor: `${block.color}30`,
-                          borderColor: block.color,
+                          backgroundColor: block.color ? `${block.color}40` : '#e5e7eb40',
+                          borderColor: block.color || '#9ca3af',
                           left: '2px',
                           right: '2px',
                         }}
@@ -447,25 +447,32 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         {/* Colored line indicator */}
                         <div 
                           className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                          style={{ backgroundColor: block.color }}
+                          style={{ backgroundColor: block.color || '#9ca3af' }}
                         />
                         
                         <div className="p-1 h-full flex flex-col justify-center pl-3">
                           <div 
                             className="text-xs font-semibold text-center drop-shadow-sm" 
-                            style={{ color: block.color }}
+                            style={{ color: block.color || '#374151' }}
                           >
                             {block.title}
                           </div>
                           {block.description && heightPixels > 30 && (
                             <div 
                               className="text-[10px] text-center opacity-80 mt-1" 
-                              style={{ color: block.color }}
+                              style={{ color: block.color || '#6b7280' }}
                             >
                               {block.description}
                             </div>
                           )}
                         </div>
+                        
+                        {/* Debug: Show color value */}
+                        {process.env.NODE_ENV === 'development' && (
+                          <div className="absolute top-0 right-0 text-[8px] bg-black text-white px-1 opacity-50">
+                            {block.color || 'no color'}
+                          </div>
+                        )}
                       </div>
                     );
                   });
