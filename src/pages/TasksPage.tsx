@@ -273,6 +273,8 @@ const TasksPage = () => {
   };
 
   const [isDragActive, setIsDragActive] = useState(false);
+  const [mouseDownTime, setMouseDownTime] = useState<number | null>(null);
+  const [isDraggingTask, setIsDraggingTask] = useState(false);
 
   const renderDayView = () => <DayTimelineView 
     currentDate={currentDate} 
@@ -399,6 +401,7 @@ const TasksPage = () => {
           console.log('🚀 Drag started:', start);
           console.log('🎯 Setting isDragActive to true');
           setIsDragActive(true);
+          setIsDraggingTask(true);
           // Add body class to help with drag styling
           document.body.classList.add('react-beautiful-dnd-dragging');
         }} 
@@ -406,6 +409,7 @@ const TasksPage = () => {
           console.log('🏁 Drag ended:', result);
           console.log('🎯 Setting isDragActive to false');
           setIsDragActive(false);
+          setIsDraggingTask(false);
           // Remove body class
           document.body.classList.remove('react-beautiful-dnd-dragging');
           handleDragEnd(result);
@@ -590,10 +594,21 @@ const TasksPage = () => {
                                 <div className="flex-1 min-w-0">
                                   <h4 
                                     className="text-sm font-semibold text-gray-800 truncate mb-1 cursor-pointer hover:text-blue-600 transition-colors"
-                                    onClick={(e) => {
-                                      e.stopPropagation(); // Prevent drag when clicking
-                                      setSelectedTaskForEdit(task);
-                                      setIsTaskEditOpen(true);
+                                    onMouseDown={() => {
+                                      setMouseDownTime(Date.now());
+                                    }}
+                                    onMouseUp={(e) => {
+                                      const mouseUpTime = Date.now();
+                                      const timeDiff = mouseDownTime ? mouseUpTime - mouseDownTime : 0;
+                                      
+                                      // Only open side panel if it was a quick click (not a drag)
+                                      // and we're not currently dragging
+                                      if (timeDiff < 200 && !isDraggingTask) {
+                                        e.stopPropagation();
+                                        setSelectedTaskForEdit(task);
+                                        setIsTaskEditOpen(true);
+                                      }
+                                      setMouseDownTime(null);
                                     }}
                                   >
                                     {task.taskName}
