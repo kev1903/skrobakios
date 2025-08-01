@@ -433,6 +433,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               currentDate={currentDate} 
               tasks={tasks}
               onTaskUpdate={onTaskUpdate}
+              enableDragDrop={true}
             />
           )}
         </div>
