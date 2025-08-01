@@ -227,11 +227,11 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     (slotMinutes === 30 && currentMinutes >= 30 && currentMinutes < 60));
               
               return (
-                <div key={slot.hour} className={`h-16 border-b flex items-start justify-end pr-4 pt-2 transition-colors hover:bg-accent/20 ${
+                <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
                   isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
                 } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
                   <span className={`font-inter leading-tight ${
-                    isFullHour ? 'text-sm font-medium text-foreground/80' : 'text-xs font-normal text-muted-foreground/70'
+                    isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
                   } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                     {slot.label}
                   </span>
@@ -244,7 +244,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
               <div 
                 className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-10 pointer-events-none"
                 style={{
-                  top: `${(currentTime.getHours() * 2 + currentTime.getMinutes() / 30) * 64 + (currentTime.getMinutes() % 30) / 30 * 64}px`
+                  top: `${(currentTime.getHours() * 2 + currentTime.getMinutes() / 30) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
                 }}
               >
                 <div className="absolute -left-2 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
@@ -264,7 +264,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`h-16 border-b border-border/10 cursor-pointer transition-colors relative p-1 ${
+                        className={`h-6 border-b border-border/10 cursor-pointer transition-colors relative p-1 ${
                           snapshot.isDraggingOver
                             ? 'bg-primary/10 border-primary/30'
                             : 'hover:bg-accent/30'
@@ -291,7 +291,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    className={`${getTaskColor()} backdrop-blur-sm text-white text-xs p-2 rounded-md cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 flex-1 min-w-0 ${
+                                    className={`${getTaskColor()} backdrop-blur-sm text-white text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 flex-1 min-w-0 ${
                                       snapshot.isDragging ? 'scale-105 shadow-lg z-50' : ''
                                     }`}
                                     style={{
@@ -299,15 +299,12 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     }}
                                    >
                                      <div className="flex items-center gap-1">
-                                       <GripVertical className="w-3 h-3 text-white/60 flex-shrink-0" />
+                                       <GripVertical className="w-2 h-2 text-white/60 flex-shrink-0" />
                                        <div className="flex-1 min-w-0">
-                                         <div className="font-semibold text-sm leading-tight truncate">
+                                         <div className="font-semibold text-[10px] leading-tight truncate">
                                            {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
                                          </div>
-                                         <div className="font-medium mt-1 leading-tight truncate">{task.taskName}</div>
-                                         {task.projectName && (
-                                           <div className="text-white/80 text-xs mt-1 truncate">{task.projectName}</div>
-                                         )}
+                                         <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
                                        </div>
                                      </div>
                                   </div>
@@ -319,7 +316,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                         </div>
                         
                         {dayTasks.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="flex items-center justify-center h-full text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity z-10">
+                          <div className="flex items-center justify-center h-full text-[10px] text-muted-foreground opacity-0 hover:opacity-100 transition-opacity z-10">
                             Drop
                           </div>
                         )}
@@ -338,12 +335,12 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   const endHour = parseInt(block.endTime.split(':')[0]);
                   const endMinute = parseInt(block.endTime.split(':')[1]);
                   
-                  // Calculate position using proper 30-minute slots (64px height each)
+                  // Calculate position using proper 30-minute slots (24px height each)
                   const startSlotIndex = startHour * 2 + Math.floor(startMinute / 30);
                   const endSlotIndex = endHour * 2 + Math.floor(endMinute / 30);
                   
-                  const startPosition = startSlotIndex * 64;
-                  const duration = (endSlotIndex - startSlotIndex) * 64;
+                  const startPosition = startSlotIndex * 24;
+                  const duration = (endSlotIndex - startSlotIndex) * 24;
                   
                   console.log(`Week Time block: ${block.title}, Category: ${block.category}, Start: ${startHour}:${startMinute}, End: ${endHour}:${endMinute}`);
                   
@@ -353,16 +350,16 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
-                      className="absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm border-2"
+                      className="absolute left-1 right-1 pointer-events-none z-0 rounded-sm backdrop-blur-sm border"
                       style={{
                         backgroundColor: 'transparent',
                         borderColor: `hsl(${actualColor})`,
                         top: `${startPosition}px`,
-                        height: `${Math.max(duration, 32)}px`
+                        height: `${Math.max(duration, 12)}px`
                       }}
                     >
                       <div 
-                        className="flex items-center justify-center h-full text-foreground text-xs font-semibold px-2"
+                        className="flex items-center justify-center h-full text-foreground text-[10px] font-semibold px-1"
                       >
                         <span className="truncate">{block.title}</span>
                       </div>
