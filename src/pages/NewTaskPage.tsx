@@ -96,8 +96,21 @@ const NewTaskPage = () => {
 
     setLoading(true);
     try {
-      // Find selected user data
-      const selectedUser = users.find(user => user.user_id === formData.assignedToUserId);
+      // Get current user info for auto-assignment
+      const { data: currentUser } = await supabase.auth.getUser();
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, avatar_url')
+        .eq('user_id', currentUser?.user?.id)
+        .single();
+
+      // Find selected user data or use current user as default
+      let selectedUser = users.find(user => user.user_id === formData.assignedToUserId);
+      
+      // If no assignee is selected, auto-assign to current user
+      if (!selectedUser && currentProfile) {
+        selectedUser = currentProfile;
+      }
       
       await taskService.addTask({
         project_id: formData.projectId === 'no-project' || !formData.projectId ? null : formData.projectId,
@@ -105,8 +118,9 @@ const NewTaskPage = () => {
         taskType: 'Task',
         priority: formData.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
-          name: selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}`.trim() : formData.assignedTo || 'Unassigned',
-          avatar: selectedUser?.avatar_url || ''
+          name: selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}`.trim() : 'Unassigned',
+          avatar: selectedUser?.avatar_url || '',
+          userId: selectedUser?.user_id || undefined
         },
         dueDate: formData.dueDate,
         status: formData.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
