@@ -389,16 +389,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 })}
               </div>
 
-              {/* Combined Task Row - spans all columns */}
-              <div className="col-span-4 relative bg-gradient-to-b from-background/50 to-muted/10">
+              {/* Task Name Column */}
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
                 {timeSlots.map((slot) => (
-                  <div key={slot.hour} className="h-6 border-b border-border/10 relative">
-                    <Droppable droppableId={`timeline-${slot.hour}`} direction="vertical">
+                  <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                    <Droppable droppableId={`taskname-${slot.hour}`} direction="vertical">
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`absolute inset-0 grid grid-cols-4 transition-colors ${
+                          className={`absolute inset-0 transition-colors ${
                             snapshot.isDraggingOver
                               ? 'bg-primary/5 border-l-2 border-primary/30'
                               : 'hover:bg-muted/10'
@@ -420,13 +420,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                             }
                             
                             return (
-                              <Draggable key={task.id} draggableId={task.id} index={index}>
+                              <Draggable key={`taskname-${task.id}`} draggableId={task.id} index={index}>
                                 {(provided, snapshot) => (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    className={`absolute left-0 right-0 grid grid-cols-4 gap-0 ${
+                                    className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 ${
                                       snapshot.isDragging ? 'shadow-xl opacity-90 z-50' : 'hover:shadow-md z-10'
                                     }`}
                                     style={{
@@ -436,32 +436,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       minHeight: '20px'
                                     }}
                                   >
-                                    {/* Task Name Column */}
-                                    <div className="border-r border-border/30 px-1 py-1 flex items-center bg-background/50 backdrop-blur-sm">
-                                      <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
-                                        <span className="font-medium truncate block">{task.taskName}</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Project Column */}
-                                    <div className="border-r border-border/30 px-1 py-1 flex items-center bg-background/50 backdrop-blur-sm">
-                                      <div className="rounded px-2 py-1 text-xs w-full bg-muted/20 border border-border/30">
-                                        <span className="text-foreground/80 truncate block font-medium">{task.projectName || 'No Project'}</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Duration Column */}
-                                    <div className="border-r border-border/30 px-1 py-1 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-                                      <div className="rounded px-2 py-1 text-xs bg-accent/20 border border-border/30">
-                                        <span className="font-medium text-foreground/90">{taskDuration}min</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Priority Column */}
-                                    <div className="px-1 py-1 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-                                      <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
-                                        {task.priority}
-                                      </Badge>
+                                    <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
+                                      <span className="font-medium truncate block">{task.taskName}</span>
                                     </div>
                                   </div>
                                 )}
@@ -474,85 +450,211 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     </Droppable>
                   </div>
                 ))}
-                
-                {/* Time blocks overlay - start from time column */}
-                {(() => {
-                  const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
-                  const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
-                  
-                  return blocksForDay.map((block) => {
-                    const startHour = parseInt(block.startTime.split(':')[0]);
-                    const startMinute = parseInt(block.startTime.split(':')[1]);
-                    const endHour = parseInt(block.endTime.split(':')[0]);
-                    const endMinute = parseInt(block.endTime.split(':')[1]);
-                    
-                    let startPosition: number;
-                    let endPosition: number;
-                    
-                    if (startHour >= 0 && startHour < 5) {
-                      startPosition = 0;
-                    } else {
-                      const startTotalMinutes = startHour * 60 + startMinute;
-                      const startSlotIndex = Math.floor((startTotalMinutes - 300) / 30);
-                      startPosition = 24 + (startSlotIndex * 24);
-                    }
-                    
-                    if (endHour >= 0 && endHour < 5) {
-                      endPosition = 24;
-                    } else {
-                      const endTotalMinutes = endHour * 60 + endMinute;
-                      const endSlotIndex = Math.floor((endTotalMinutes - 300) / 30);
-                      endPosition = 24 + (endSlotIndex * 24);
-                    }
-                    
-                    const heightPixels = Math.max(24, endPosition - startPosition);
-                    
-                    return (
-                      <div
-                        key={block.id}
-                        className="absolute rounded-lg border-l-4 backdrop-blur-sm pointer-events-none z-0"
-                        style={{
-                          top: `${startPosition}px`,
-                          height: `${heightPixels}px`,
-                          backgroundColor: `${block.color}20`,
-                          borderLeftColor: block.color,
-                          left: '0', // Start after time column
-                          right: '0', // Extend across task columns only
-                        }}
-                      >
-                        <div className="p-2 h-full flex flex-col justify-center">
-                          <div className="text-xs font-medium" style={{ color: block.color }}>
-                            {block.title}
-                          </div>
-                          {block.description && (
-                            <div className="text-xs opacity-70 mt-1" style={{ color: block.color }}>
-                              {block.description}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
+              </div>
 
-                {/* Current Time Indicator */}
-                {isCurrentDay && (
-                  <div 
-                    className="absolute z-50 pointer-events-none"
-                    style={{ 
-                      top: `${currentTimePosition}px`,
-                      left: '-60px',
-                      right: '0'
-                    }}
-                  >
-                    <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
-                    <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
-                    <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
-                      {format(currentTime, 'HH:mm')}
+              {/* Project Column */}
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {timeSlots.map((slot) => (
+                  <div key={`project-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                    <div className="absolute inset-0">
+                      {slot.tasks.map((task, index) => {
+                        const taskDuration = task.duration || 30;
+                        const slotsSpanned = Math.ceil(taskDuration / 30);
+                        let heightInPixels = (slotsSpanned * 24) - 4;
+                        let topOffset = 0;
+                        
+                        if (dragState.isDragging && dragState.taskId === task.id) {
+                          if (dragState.previewHeight !== null) {
+                            heightInPixels = dragState.previewHeight;
+                          }
+                          if (dragState.previewTop !== null) {
+                            topOffset = dragState.previewTop;
+                          }
+                        }
+                        
+                        return (
+                          <div
+                            key={`project-${task.id}`}
+                            className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/60 backdrop-blur-sm border-r border-border/30"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${heightInPixels}px`,
+                              minHeight: '20px'
+                            }}
+                          >
+                            <div className="rounded px-2 py-1 text-xs w-full bg-muted/20 border border-border/30">
+                              <span className="text-foreground/80 truncate block font-medium">{task.projectName || 'No Project'}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                )}
+                ))}
               </div>
+
+              {/* Duration Column */}
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {timeSlots.map((slot) => (
+                  <div key={`duration-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                    <div className="absolute inset-0">
+                      {slot.tasks.map((task, index) => {
+                        const taskDuration = task.duration || 30;
+                        const slotsSpanned = Math.ceil(taskDuration / 30);
+                        let heightInPixels = (slotsSpanned * 24) - 4;
+                        let topOffset = 0;
+                        
+                        if (dragState.isDragging && dragState.taskId === task.id) {
+                          if (dragState.previewHeight !== null) {
+                            heightInPixels = dragState.previewHeight;
+                          }
+                          if (dragState.previewTop !== null) {
+                            topOffset = dragState.previewTop;
+                          }
+                        }
+                        
+                        return (
+                          <div
+                            key={`duration-${task.id}`}
+                            className="absolute left-0 right-0 px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm border-r border-border/30"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${heightInPixels}px`,
+                              minHeight: '20px'
+                            }}
+                          >
+                            <div className="rounded px-2 py-1 text-xs bg-accent/20 border border-border/30">
+                              <span className="font-medium text-foreground/90">{taskDuration}min</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Priority Column */}
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {timeSlots.map((slot) => (
+                  <div key={`priority-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                    <div className="absolute inset-0">
+                      {slot.tasks.map((task, index) => {
+                        const taskDuration = task.duration || 30;
+                        const slotsSpanned = Math.ceil(taskDuration / 30);
+                        let heightInPixels = (slotsSpanned * 24) - 4;
+                        let topOffset = 0;
+                        
+                        if (dragState.isDragging && dragState.taskId === task.id) {
+                          if (dragState.previewHeight !== null) {
+                            heightInPixels = dragState.previewHeight;
+                          }
+                          if (dragState.previewTop !== null) {
+                            topOffset = dragState.previewTop;
+                          }
+                        }
+                        
+                        return (
+                          <div
+                            key={`priority-${task.id}`}
+                            className="absolute left-0 right-0 px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${heightInPixels}px`,
+                              minHeight: '20px'
+                            }}
+                          >
+                            <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
+                              {task.priority}
+                            </Badge>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Time blocks and current time overlay */}
+            <div className="absolute inset-0 pointer-events-none">
+              {/* Time blocks overlay */}
+              {(() => {
+                const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
+                
+                return blocksForDay.map((block) => {
+                  const startHour = parseInt(block.startTime.split(':')[0]);
+                  const startMinute = parseInt(block.startTime.split(':')[1]);
+                  const endHour = parseInt(block.endTime.split(':')[0]);
+                  const endMinute = parseInt(block.endTime.split(':')[1]);
+                  
+                  let startPosition: number;
+                  let endPosition: number;
+                  
+                  if (startHour >= 0 && startHour < 5) {
+                    startPosition = 0;
+                  } else {
+                    const startTotalMinutes = startHour * 60 + startMinute;
+                    const startSlotIndex = Math.floor((startTotalMinutes - 300) / 30);
+                    startPosition = 24 + (startSlotIndex * 24);
+                  }
+                  
+                  if (endHour >= 0 && endHour < 5) {
+                    endPosition = 24;
+                  } else {
+                    const endTotalMinutes = endHour * 60 + endMinute;
+                    const endSlotIndex = Math.floor((endTotalMinutes - 300) / 30);
+                    endPosition = 24 + (endSlotIndex * 24);
+                  }
+                  
+                  const heightPixels = Math.max(24, endPosition - startPosition);
+                  
+                  return (
+                    <div
+                      key={block.id}
+                      className="absolute rounded-lg border-l-4 backdrop-blur-sm pointer-events-none z-0"
+                      style={{
+                        top: `${startPosition}px`,
+                        height: `${heightPixels}px`,
+                        backgroundColor: `${block.color}20`,
+                        borderLeftColor: block.color,
+                        left: '0',
+                        right: '0',
+                      }}
+                    >
+                      <div className="p-2 h-full flex flex-col justify-center">
+                        <div className="text-xs font-medium" style={{ color: block.color }}>
+                          {block.title}
+                        </div>
+                        {block.description && (
+                          <div className="text-xs opacity-70 mt-1" style={{ color: block.color }}>
+                            {block.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+
+              {/* Current Time Indicator */}
+              {isCurrentDay && (
+                <div 
+                  className="absolute z-50 pointer-events-none"
+                  style={{ 
+                    top: `${currentTimePosition}px`,
+                    left: '-60px',
+                    right: '0'
+                  }}
+                >
+                  <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
+                  <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
+                  <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                    {format(currentTime, 'HH:mm')}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
