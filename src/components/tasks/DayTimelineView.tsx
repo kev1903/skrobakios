@@ -516,11 +516,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                           height: `${heightPixels}px`,
                           backgroundColor: `${block.color}20`,
                           borderLeftColor: block.color,
-                          left: '-60px', // Start from time column
-                          right: '0', // Extend across all columns
+                          left: '0', // Start after time column
+                          right: '0', // Extend across task columns only
                         }}
                       >
-                        <div className="p-2 h-full flex flex-col justify-center ml-16">
+                        <div className="p-2 h-full flex flex-col justify-center">
                           <div className="text-xs font-medium" style={{ color: block.color }}>
                             {block.title}
                           </div>
