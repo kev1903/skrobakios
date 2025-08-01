@@ -562,7 +562,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   </div>
                 ))}
                 
-                {/* Time blocks overlay - span across all columns */}
+                {/* Time blocks overlay - start from time column */}
                 {(() => {
                   const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
                   const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
@@ -597,17 +597,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     return (
                       <div
                         key={block.id}
-                        className="absolute left-0 right-0 rounded-lg border-l-4 backdrop-blur-sm pointer-events-none z-0"
+                        className="absolute rounded-lg border-l-4 backdrop-blur-sm pointer-events-none z-0"
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
                           backgroundColor: `${block.color}20`,
                           borderLeftColor: block.color,
-                          marginLeft: '-340px', // Span across all columns
-                          marginRight: '0'
+                          left: '-60px', // Start from time column
+                          right: '0', // Extend across all columns
                         }}
                       >
-                        <div className="p-2 h-full flex flex-col justify-center">
+                        <div className="p-2 h-full flex flex-col justify-center ml-16">
                           <div className="text-xs font-medium" style={{ color: block.color }}>
                             {block.title}
                           </div>
