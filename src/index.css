@@ -402,3 +402,21 @@ body[data-rbd-drag-occurring="true"] {
 .drag-no-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* Hide side panels during drag operations to prevent visual artifacts */
+body.react-beautiful-dnd-dragging .side-panel,
+body.react-beautiful-dnd-dragging [data-side-panel="true"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.1s ease !important;
+}
+
+/* Prevent drag portal interference */
+body.react-beautiful-dnd-dragging .portal-container {
+  z-index: 9998 !important;
+}
+
+/* Ensure drag portals stay on top */
+body.react-beautiful-dnd-dragging [data-rbd-draggable-context-id] {
+  z-index: 10001 !important;
+}
