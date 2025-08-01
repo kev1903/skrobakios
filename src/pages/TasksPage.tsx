@@ -13,6 +13,7 @@ import { Task } from '@/components/tasks/types';
 import { DayTimelineView } from '@/components/tasks/DayTimelineView';
 import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
 import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
+import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
 type ViewMode = 'day' | 'week' | 'month';
 const TasksPage = () => {
@@ -27,6 +28,8 @@ const TasksPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showCalendarSettings, setShowCalendarSettings] = useState(false);
+  const [selectedTaskForEdit, setSelectedTaskForEdit] = useState<Task | null>(null);
+  const [isTaskEditOpen, setIsTaskEditOpen] = useState(false);
 
   // Live time updater
   useEffect(() => {
@@ -494,7 +497,8 @@ const TasksPage = () => {
                                   className="text-sm font-semibold text-gray-800 truncate mb-1 cursor-pointer hover:text-blue-600 transition-colors"
                                   onClick={(e) => {
                                     e.stopPropagation(); // Prevent drag when clicking
-                                    window.location.href = `/task-edit?id=${task.id}`;
+                                    setSelectedTaskForEdit(task);
+                                    setIsTaskEditOpen(true);
                                   }}
                                 >
                                   {task.taskName}
@@ -590,6 +594,16 @@ const TasksPage = () => {
       {/* Right Sidebar - Only show in Day view */}
       
       </DragDropContext>
+
+      {/* Task Edit Panel */}
+      <TaskEditSidePanel
+        task={selectedTaskForEdit}
+        isOpen={isTaskEditOpen}
+        onClose={() => {
+          setIsTaskEditOpen(false);
+          setSelectedTaskForEdit(null);
+        }}
+      />
     </div>;
 };
 export default TasksPage;
