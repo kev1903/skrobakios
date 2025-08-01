@@ -54,9 +54,17 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     setCurrentDate(new Date());
   };
 
-  // Filter tasks for backlog (all tasks)
+  // Filter tasks for backlog (unscheduled tasks or tasks at midnight)
   const getBacklogTasks = () => {
     return tasks.filter(task => {
+      // Check if task is unscheduled (in backlog)
+      const isInBacklog = !task.dueDate || (() => {
+        const taskDate = new Date(task.dueDate);
+        return taskDate.getHours() === 0 && taskDate.getMinutes() === 0;
+      })();
+
+      if (!isInBacklog) return false;
+
       const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            task.projectName?.toLowerCase().includes(searchTerm.toLowerCase());
       

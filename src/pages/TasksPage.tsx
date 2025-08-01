@@ -370,12 +370,19 @@ const TasksPage = () => {
                 <button 
                   onClick={async () => {
                     try {
+                      console.log('🔍 Total user tasks:', userTasks.length);
+                      console.log('🔍 User tasks with dueDates:', userTasks.map(t => ({ id: t.id, name: t.taskName, dueDate: t.dueDate })));
+                      
                       // Find all tasks that have specific times (not at midnight)
                       const scheduledTasks = userTasks.filter(task => {
                         if (!task.dueDate) return false;
                         const taskDateTime = new Date(task.dueDate);
-                        return !(taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0);
+                        const isScheduled = !(taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0);
+                        console.log(`🔍 Task "${task.taskName}": ${task.dueDate} -> hours: ${taskDateTime.getHours()}, minutes: ${taskDateTime.getMinutes()}, isScheduled: ${isScheduled}`);
+                        return isScheduled;
                       });
+                      
+                      console.log('🔍 Scheduled tasks found:', scheduledTasks.length);
                       
                       if (scheduledTasks.length === 0) {
                         toast({
@@ -474,10 +481,10 @@ const TasksPage = () => {
 
                         try {
                           const taskDateTime = new Date(task.dueDate);
-                          const hours = taskDateTime.getUTCHours();
-                          const minutes = taskDateTime.getUTCMinutes();
+                          const hours = taskDateTime.getHours();
+                          const minutes = taskDateTime.getMinutes();
                           const isBacklogTask = hours === 0 && minutes === 0;
-                          // Tasks at midnight (00:00 UTC) are considered unscheduled and go to backlog
+                          // Tasks at midnight (00:00 local time) are considered unscheduled and go to backlog
                           return isBacklogTask;
                         } catch (error) {
                           console.error('Error parsing task date for backlog filter:', task.dueDate, error);
