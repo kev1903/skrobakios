@@ -298,7 +298,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                         </div>
                         
                         {dayTasks.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="flex items-center justify-center h-full text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-center h-full text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity z-10">
                             Drop
                           </div>
                         )}

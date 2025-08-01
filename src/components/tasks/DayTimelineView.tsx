@@ -512,7 +512,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         </div>
                         
                         {slot.tasks.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-30 transition-opacity">
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-30 transition-opacity z-10">
                             <span className="text-xs text-muted-foreground">
                               {slot.label}
                             </span>
