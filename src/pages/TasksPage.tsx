@@ -143,12 +143,17 @@ const TasksPage = () => {
   // Handle drag end
   const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
+    console.log('🔄 Drag end result:', { destination, source, draggableId });
     setDraggedTask(null);
 
-    if (!destination) return;
+    if (!destination) {
+      console.log('❌ No destination - drag cancelled');
+      return;
+    }
 
     // Handle timeline drops (works for all droppableIds that start with 'timeline-')
     if (destination.droppableId.startsWith('timeline-')) {
+      console.log('📅 Dropping on timeline slot:', destination.droppableId);
       const slotHour = destination.droppableId.replace('timeline-', '');
       
       // Extract task ID from draggableId (handle prefixed IDs)
@@ -158,6 +163,7 @@ const TasksPage = () => {
       }
       
       const task = userTasks.find(t => t.id === taskId);
+      console.log('🎯 Found task to update:', task);
       
       if (task) {
         try {
@@ -166,22 +172,29 @@ const TasksPage = () => {
           if (slotHour === '-1') {
             // Combined night slot (00:00-05:00), default to 02:30
             newDate.setHours(2, 30, 0, 0);
+            console.log('🌙 Setting night slot time to 02:30');
           } else {
             // Calculate hour and minutes from slot index
             const slotIndex = parseInt(slotHour);
             const hour = Math.floor(slotIndex / 2);
             const minutes = (slotIndex % 2) * 30;
             newDate.setHours(hour, minutes, 0, 0);
+            console.log(`⏰ Setting time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
           }
           
+          console.log('📝 Updating task with new date:', newDate.toISOString());
           await taskService.updateTask(task.id, { dueDate: newDate.toISOString() }, userProfile);
+          console.log('✅ Task update successful');
           
           // Reload tasks to reflect changes
           const updatedTasks = await taskService.loadTasksAssignedToUser();
+          console.log('🔄 Reloaded tasks count:', updatedTasks.length);
           setUserTasks(updatedTasks);
         } catch (error) {
-          console.error('Failed to update task:', error);
+          console.error('❌ Failed to update task:', error);
         }
+      } else {
+        console.error('❌ Task not found for ID:', taskId);
       }
     }
   };
