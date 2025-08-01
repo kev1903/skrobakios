@@ -370,9 +370,9 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
       {/* Main Calendar Area - Scrollable with left margin for sidebar */}
       <div className="ml-80 h-full overflow-y-auto pl-6">
-        <div className="space-y-6 pb-6">
+        <div className="space-y-2 pb-6">
           {/* Header */}
-          <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-4">
+          <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2">
             <div className="flex items-center gap-4">
               <Button size="sm" variant="outline">
                 <Plus className="w-4 h-4 mr-2" />
