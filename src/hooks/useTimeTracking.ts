@@ -36,14 +36,14 @@ export const DEFAULT_CATEGORIES = [
 ];
 
 export const DEFAULT_CATEGORY_COLORS = {
-  'Design': '#3B82F6',
-  'Admin': '#10B981', 
-  'Calls': '#F59E0B',
-  'Break': '#EF4444',
-  'Browsing': '#8B5CF6',
-  'Site Visit': '#06B6D4',
-  'Deep Work': '#059669',
-  'Other': '#6B7280'
+  'Design': '217 91% 60%',     // hsl(217, 91%, 60%) - Blue
+  'Admin': '159 61% 51%',      // hsl(159, 61%, 51%) - Green  
+  'Calls': '43 96% 56%',       // hsl(43, 96%, 56%) - Amber
+  'Break': '0 84% 60%',        // hsl(0, 84%, 60%) - Red
+  'Browsing': '263 69% 69%',   // hsl(263, 69%, 69%) - Purple
+  'Site Visit': '188 94% 43%', // hsl(188, 94%, 43%) - Cyan
+  'Deep Work': '160 84% 39%',  // hsl(160, 84%, 39%) - Emerald
+  'Other': '217 33% 47%'       // hsl(217, 33%, 47%) - Gray
 };
 
 export const useTimeTracking = () => {

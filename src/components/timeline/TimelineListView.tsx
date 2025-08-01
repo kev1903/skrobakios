@@ -115,7 +115,7 @@ export const TimelineListView = ({
                     <div className="flex items-center space-x-3">
                       <div
                         className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: categoryColors[entry.category] || '#6b7280' }}
+                        style={{ backgroundColor: `hsl(${categoryColors[entry.category] || '217 33% 47%'})` }}
                       />
                       <h4 className="font-medium text-foreground">{entry.task_activity}</h4>
                       <Badge className={cn("text-xs", getStatusColor(entry))}>

@@ -41,25 +41,25 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Debug log for drag state
   console.log('🎯 DayTimelineView isDragActive:', isDragActive);
   
-  // Get category colors from time tracking settings
+  // Get category colors from time tracking settings - now in HSL format
   const categoryColors = settings?.category_colors || {
-    'Design': '#3B82F6',
-    'Admin': '#10B981', 
-    'Calls': '#F59E0B',
-    'Break': '#EF4444',
-    'Browsing': '#8B5CF6',
-    'Site Visit': '#06B6D4',
-    'Deep Work': '#059669',
-    'Other': '#6B7280',
+    'Design': '217 91% 60%',     // Blue
+    'Admin': '159 61% 51%',      // Green  
+    'Calls': '43 96% 56%',       // Amber
+    'Break': '0 84% 60%',        // Red
+    'Browsing': '263 69% 69%',   // Purple
+    'Site Visit': '188 94% 43%', // Cyan
+    'Deep Work': '160 84% 39%',  // Emerald
+    'Other': '217 33% 47%',      // Gray
     // Legacy categories for backward compatibility
-    work: '#3B82F6',
-    personal: '#10B981',
-    meeting: '#F59E0B',
-    break: '#EF4444',
-    family: '#ec4899',
-    site_visit: '#06B6D4',
-    church: '#8B5CF6',
-    rest: '#6B7280'
+    work: '217 91% 60%',        // Blue
+    personal: '159 61% 51%',    // Green
+    meeting: '43 96% 56%',      // Amber
+    break: '0 84% 60%',         // Red
+    family: '327 73% 97%',      // Pink
+    site_visit: '188 94% 43%',  // Cyan
+    church: '263 69% 69%',      // Purple
+    rest: '217 33% 47%'         // Gray
   };
 
   // Load time blocks from database
@@ -478,8 +478,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
-                    // Use category colors from time tracking settings
-                    const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '#9CA3AF';
+                    // Use category colors from time tracking settings - now in HSL format
+                    const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
                     
                     return (
                       <div
@@ -488,8 +488,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
-                          backgroundColor: `${actualColor}60`,
-                          borderColor: actualColor,
+                          backgroundColor: `hsl(${actualColor} / 0.4)`,
+                          borderColor: `hsl(${actualColor})`,
                           left: '2px',
                           right: '2px',
                         }}
@@ -497,20 +497,20 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         {/* Colored line indicator */}
                         <div 
                           className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
-                          style={{ backgroundColor: actualColor }}
+                          style={{ backgroundColor: `hsl(${actualColor})` }}
                         />
                         
                         <div className="p-1 h-full flex flex-col justify-center pl-3">
                           <div 
                             className="text-xs font-semibold text-center drop-shadow-sm" 
-                            style={{ color: actualColor }}
+                            style={{ color: `hsl(${actualColor})` }}
                           >
                             {block.title}
                           </div>
                           {block.description && heightPixels > 30 && (
                             <div 
                               className="text-[10px] text-center opacity-80 mt-1" 
-                              style={{ color: actualColor }}
+                              style={{ color: `hsl(${actualColor})` }}
                             >
                               {block.description}
                             </div>

@@ -116,7 +116,7 @@ export const TimeTrackingTable = ({
                       <div className="flex items-center gap-2">
                         <div 
                           className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: categoryColors[cat] || '#6B7280' }}
+                          style={{ backgroundColor: `hsl(${categoryColors[cat] || '217 33% 47%'})` }}
                         />
                         {cat}
                       </div>
@@ -182,7 +182,7 @@ export const TimeTrackingTable = ({
                       <div className="flex items-center gap-2">
                         <div 
                           className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: categoryColors[entry.category] || '#6B7280' }}
+                          style={{ backgroundColor: `hsl(${categoryColors[entry.category] || '217 33% 47%'})` }}
                         />
                         <span className="text-slate-800">{entry.category}</span>
                       </div>
@@ -270,7 +270,7 @@ export const TimeTrackingTable = ({
                                             <div className="flex items-center gap-2">
                                               <div 
                                                 className="w-3 h-3 rounded-full" 
-                                                style={{ backgroundColor: categoryColors[cat] || '#6B7280' }}
+                                                style={{ backgroundColor: `hsl(${categoryColors[cat] || '217 33% 47%'})` }}
                                               />
                                               {cat}
                                             </div>

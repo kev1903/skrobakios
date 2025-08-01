@@ -35,25 +35,25 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const { settings } = useTimeTracking();
   
-  // Get category colors from time tracking settings
+  // Get category colors from time tracking settings - now in HSL format
   const categoryColors = settings?.category_colors || {
-    'Design': '#3B82F6',
-    'Admin': '#10B981', 
-    'Calls': '#F59E0B',
-    'Break': '#EF4444',
-    'Browsing': '#8B5CF6',
-    'Site Visit': '#06B6D4',
-    'Deep Work': '#059669',
-    'Other': '#6B7280',
+    'Design': '217 91% 60%',     // Blue
+    'Admin': '159 61% 51%',      // Green  
+    'Calls': '43 96% 56%',       // Amber
+    'Break': '0 84% 60%',        // Red
+    'Browsing': '263 69% 69%',   // Purple
+    'Site Visit': '188 94% 43%', // Cyan
+    'Deep Work': '160 84% 39%',  // Emerald
+    'Other': '217 33% 47%',      // Gray
     // Legacy categories for backward compatibility
-    work: '#3B82F6',
-    personal: '#10B981',
-    meeting: '#F59E0B',
-    break: '#EF4444',
-    family: '#ec4899',
-    site_visit: '#06B6D4',
-    church: '#8B5CF6',
-    rest: '#6B7280'
+    work: '217 91% 60%',        // Blue
+    personal: '159 61% 51%',    // Green
+    meeting: '43 96% 56%',      // Amber
+    break: '0 84% 60%',         // Red
+    family: '327 73% 97%',      // Pink
+    site_visit: '188 94% 43%',  // Cyan
+    church: '263 69% 69%',      // Purple
+    rest: '217 33% 47%'         // Gray
   };
 
   // Update current time every minute
@@ -365,15 +365,15 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   console.log(`Week Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
                   
                   // Use category colors from time tracking settings
-                  const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '#9CA3AF';
+                  const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
                   
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
                       className="absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm border-2"
                       style={{
-                        backgroundColor: `${actualColor}60`,
-                        borderColor: actualColor,
+                        backgroundColor: `hsl(${actualColor} / 0.4)`,
+                        borderColor: `hsl(${actualColor})`,
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
@@ -381,7 +381,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       <div 
                         className="flex items-center justify-center h-full text-white text-xs font-semibold px-2"
                         style={{ 
-                          backgroundColor: `${actualColor}90`,
+                          backgroundColor: `hsl(${actualColor} / 0.9)`,
                           textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                         }}
                       >
