@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -521,62 +520,50 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   
                   return (
                     <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                      <Droppable droppableId={droppableId} direction="vertical">
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className={`absolute inset-0 transition-colors ${
-                              snapshot.isDraggingOver
-                                ? 'bg-primary/5 border-l-2 border-primary/30'
-                                : 'hover:bg-muted/10'
-                            }`}
-                          >
-                            {/* Tasks in this slot */}
-                            {slot.tasks.map((task, index) => {
-                              const taskDuration = task.duration || 30;
-                              const slotsSpanned = Math.ceil(taskDuration / 30);
-                              let heightInPixels = (slotsSpanned * 24) - 4;
-                              let topOffset = 0;
-                              
-                              if (dragState.isDragging && dragState.taskId === task.id) {
-                                if (dragState.previewHeight !== null) {
-                                  heightInPixels = dragState.previewHeight;
-                                }
-                                if (dragState.previewTop !== null) {
-                                  topOffset = dragState.previewTop;
-                                }
-                              }
-                              
-                              return (
-                                <Draggable key={`timeline-${task.id}`} draggableId={`timeline-${task.id}`} index={index}>
-                                  {(provided, snapshot) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 ${
-                                        snapshot.isDragging ? 'shadow-xl opacity-90 z-50' : 'hover:shadow-md z-10'
-                                      }`}
-                                      style={{
-                                        ...provided.draggableProps.style,
-                                        top: snapshot.isDragging ? undefined : `${topOffset}px`,
-                                        height: snapshot.isDragging ? undefined : `${heightInPixels}px`,
-                                        minHeight: '20px'
-                                      }}
-                                    >
-                                      <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
-                                        <span className="font-medium truncate block">{task.taskName}</span>
-                                      </div>
-                                    </div>
-                                  )}
-                                </Draggable>
-                              );
-                            })}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
+                      <div className="absolute inset-0 transition-colors hover:bg-muted/10">
+                        {/* Tasks in this slot */}
+                        {slot.tasks.map((task, index) => {
+                          const taskDuration = task.duration || 30;
+                          const slotsSpanned = Math.ceil(taskDuration / 30);
+                          let heightInPixels = (slotsSpanned * 24) - 4;
+                          let topOffset = 0;
+                          
+                          if (dragState.isDragging && dragState.taskId === task.id) {
+                            if (dragState.previewHeight !== null) {
+                              heightInPixels = dragState.previewHeight;
+                            }
+                            if (dragState.previewTop !== null) {
+                              topOffset = dragState.previewTop;
+                            }
+                          }
+                          
+                          return (
+                            <div
+                              key={`timeline-${task.id}`}
+                              className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10"
+                              style={{
+                                top: `${topOffset}px`,
+                                height: `${heightInPixels}px`,
+                                minHeight: '20px'
+                              }}
+                            >
+                              <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
+                                <span className="font-medium truncate block">{task.taskName}</span>
+                                
+                                {/* Resize handles */}
+                                <div 
+                                  className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                  onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                                />
+                                <div 
+                                  className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                  onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}

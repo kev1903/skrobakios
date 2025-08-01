@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Task } from './types';

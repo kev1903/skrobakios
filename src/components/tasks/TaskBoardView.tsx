@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useTaskContext } from './useTaskContext';
 import { TaskBoardColumn } from './TaskBoardColumn';
 import { TaskEditSidePanel } from './TaskEditSidePanel';
@@ -40,27 +39,6 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
     setSelectedTask(null);
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-
-    // If there's no destination or the item was dropped in the same place, do nothing
-    if (!destination || (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    )) {
-      return;
-    }
-
-    // Find the task being dragged
-    const draggedTask = tasks.find(task => task.id === draggableId);
-    if (!draggedTask) return;
-
-    // Update the task's status to match the destination column
-    const newStatus = destination.droppableId as Task['status'];
-    updateTask(draggedTask.id, { status: newStatus });
-
-    console.log(`Moved task "${draggedTask.taskName}" from ${source.droppableId} to ${newStatus}`);
-  };
 
   const handleAddTask = (status: string) => {
     const tempTaskId = `temp-${Date.now()}`;
@@ -123,38 +101,28 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
 
   return (
     <>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex flex-col md:flex-row gap-6 md:h-full">
-          {statusColumns.map((column) => (
-            <Droppable key={column.id} droppableId={column.id}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={`flex-1 md:w-64 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4 transition-colors ${
-                    snapshot.isDraggingOver ? 'bg-white/20 border-white/40' : ''
-                  }`}
-                >
-                  <TaskBoardColumn
-                    column={column}
-                    tasks={getTasksByStatus(column.id)}
-                    editingTaskId={editingTaskId}
-                    newTaskTitle={newTaskTitle}
-                    onTaskTitleChange={setNewTaskTitle}
-                    onSaveTask={handleSaveTask}
-                    onCancelEdit={handleCancelEdit}
-                    onKeyPress={handleKeyPress}
-                    onBlur={handleBlur}
-                    onAddTask={handleAddTask}
-                    onTaskClick={handleTaskClick}
-                  />
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          ))}
-        </div>
-      </DragDropContext>
+      <div className="flex flex-col md:flex-row gap-6 md:h-full">
+        {statusColumns.map((column) => (
+          <div
+            key={column.id}
+            className="flex-1 md:w-64 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4 transition-colors"
+          >
+            <TaskBoardColumn
+              column={column}
+              tasks={getTasksByStatus(column.id)}
+              editingTaskId={editingTaskId}
+              newTaskTitle={newTaskTitle}
+              onTaskTitleChange={setNewTaskTitle}
+              onSaveTask={handleSaveTask}
+              onCancelEdit={handleCancelEdit}
+              onKeyPress={handleKeyPress}
+              onBlur={handleBlur}
+              onAddTask={handleAddTask}
+              onTaskClick={handleTaskClick}
+            />
+          </div>
+        ))}
+      </div>
 
       <TaskEditSidePanel
         task={selectedTask}
