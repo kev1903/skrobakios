@@ -1,9 +1,14 @@
-/* Hide task edit panel during drag operations */
+/* Completely hide task edit panel during drag operations */
+body.react-beautiful-dnd-dragging .task-edit-panel,
 body.hide-task-panel .task-edit-panel {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  z-index: -1 !important;
 }
 
 /* Ensure drag preview is always visible */
