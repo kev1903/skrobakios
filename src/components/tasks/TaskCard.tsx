@@ -45,9 +45,6 @@ export const TaskCard = ({ task, onClick }: TaskCardProps) => {
             </div>
           </div>
           
-          {task.description && (
-            <p className="text-xs text-muted-foreground">{task.description}</p>
-          )}
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
