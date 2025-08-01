@@ -434,20 +434,37 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     return (
                       <div
                         key={block.id}
-                        className="absolute rounded border-l-4 backdrop-blur-sm pointer-events-none z-10"
+                        className="absolute rounded-md backdrop-blur-sm pointer-events-none z-10 border-2 shadow-sm"
                         style={{
                           top: `${startPosition}px`,
                           height: `${heightPixels}px`,
-                          backgroundColor: `${block.color}20`,
-                          borderLeftColor: block.color,
+                          backgroundColor: `${block.color}30`,
+                          borderColor: block.color,
                           left: '2px',
                           right: '2px',
                         }}
                       >
-                        <div className="p-1 h-full flex flex-col justify-center">
-                          <div className="text-xs font-medium text-center" style={{ color: block.color }}>
+                        {/* Colored line indicator */}
+                        <div 
+                          className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                          style={{ backgroundColor: block.color }}
+                        />
+                        
+                        <div className="p-1 h-full flex flex-col justify-center pl-3">
+                          <div 
+                            className="text-xs font-semibold text-center drop-shadow-sm" 
+                            style={{ color: block.color }}
+                          >
                             {block.title}
                           </div>
+                          {block.description && heightPixels > 30 && (
+                            <div 
+                              className="text-[10px] text-center opacity-80 mt-1" 
+                              style={{ color: block.color }}
+                            >
+                              {block.description}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
