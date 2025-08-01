@@ -274,9 +274,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                           {dayTasks.map((task, taskIndex) => {
                             const taskDate = new Date(task.dueDate);
                             
-                            // Task colors - consistent light blue/teal styling to match reference
+                            // Task colors - transparent background to match other columns
                             const getTaskColor = () => {
-                              return 'bg-cyan-100/90 border-cyan-200/60';
+                              return 'bg-transparent border-border/30';
                             };
                             
                             return (
@@ -286,7 +286,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                      className={`${getTaskColor()} backdrop-blur-sm text-gray-700 text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border flex-1 min-w-0 ${
+                                      className={`${getTaskColor()} backdrop-blur-sm text-foreground text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border flex-1 min-w-0 ${
                                         snapshot.isDragging ? 'scale-105 shadow-lg !z-[9999] backdrop-blur-none' : 'z-10'
                                       }`}
                                     style={{

@@ -545,7 +545,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                           minHeight: '20px'
                                         }}
                                       >
-                                        <div className="rounded px-2 py-1 text-xs w-full border bg-cyan-100/90 border-cyan-200/50 text-gray-700 flex items-center gap-1">
+                                        <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground flex items-center gap-1">
                                           <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
                                           <span className="font-medium truncate flex-1">{task.taskName}</span>
                                           
@@ -606,7 +606,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       minHeight: '20px'
                                     }}
                                   >
-                                    <div className="rounded px-2 py-1 text-xs w-full border bg-cyan-100/90 border-cyan-200/50 text-gray-700">
+                                    <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground">
                                       <span className="font-medium truncate block">{task.taskName}</span>
                                       
                                       {/* Resize handles */}
