@@ -272,16 +272,22 @@ const TasksPage = () => {
     }
   };
 
-  const renderDayView = () => <DayTimelineView currentDate={currentDate} tasks={userTasks} onTaskUpdate={async (taskId, updates) => {
-    try {
-      await taskService.updateTask(taskId, updates, userProfile);
-      // Reload tasks to reflect changes
-      const updatedTasks = await taskService.loadTasksAssignedToUser();
-      setUserTasks(updatedTasks);
-    } catch (error) {
-      console.error('Failed to update task:', error);
-    }
-  }} />;
+  const [isDragActive, setIsDragActive] = useState(false);
+
+  const renderDayView = () => <DayTimelineView 
+    currentDate={currentDate} 
+    tasks={userTasks} 
+    isDragActive={isDragActive}
+    onTaskUpdate={async (taskId, updates) => {
+      try {
+        await taskService.updateTask(taskId, updates, userProfile);
+        // Reload tasks to reflect changes
+        const updatedTasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(updatedTasks);
+      } catch (error) {
+        console.error('Failed to update task:', error);
+      }
+    }} />;
 
   const renderWeekView = () => <WeekTimelineView currentDate={currentDate} tasks={userTasks} onTaskUpdate={async (taskId, updates) => {
     try {
@@ -391,11 +397,13 @@ const TasksPage = () => {
       <DragDropContext 
         onDragStart={(start) => {
           console.log('🚀 Drag started:', start);
+          setIsDragActive(true);
           // Add body class to help with drag styling
           document.body.classList.add('react-beautiful-dnd-dragging');
         }} 
         onDragEnd={(result) => {
           console.log('🏁 Drag ended:', result);
+          setIsDragActive(false);
           // Remove body class
           document.body.classList.remove('react-beautiful-dnd-dragging');
           handleDragEnd(result);

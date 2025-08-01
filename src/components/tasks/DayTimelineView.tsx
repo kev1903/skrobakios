@@ -16,6 +16,7 @@ interface DayTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  isDragActive?: boolean;
 }
 
 interface TimeSlot {
@@ -27,7 +28,8 @@ interface TimeSlot {
 export const DayTimelineView: React.FC<DayTimelineViewProps> = ({ 
   currentDate, 
   tasks = [], 
-  onTaskUpdate 
+  onTaskUpdate,
+  isDragActive = false
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
@@ -708,90 +710,92 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         </div>
       </div>
       
-      {/* Right Sidebar */}
-      <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
-        <div className="h-full flex flex-col">
-          {/* Sidebar Content */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {/* Quick Stats */}
-            <Card className="p-4 bg-background/50 border-border/50">
-              <h4 className="font-medium mb-3 text-sm">Today's Overview</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Tasks</span>
-                  <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate))).length}</Badge>
+      {/* Right Sidebar - Hidden during drag operations */}
+      {!isDragActive && (
+        <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
+          <div className="h-full flex flex-col">
+            {/* Sidebar Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* Quick Stats */}
+              <Card className="p-4 bg-background/50 border-border/50">
+                <h4 className="font-medium mb-3 text-sm">Today's Overview</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Total Tasks</span>
+                    <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate))).length}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Completed</span>
+                    <Badge variant="secondary" className="bg-success/20 text-success">
+                      {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'Completed').length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">In Progress</span>
+                    <Badge variant="secondary" className="bg-primary/20 text-primary">
+                      {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'In Progress').length}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Completed</span>
-                  <Badge variant="secondary" className="bg-success/20 text-success">
-                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'Completed').length}
-                  </Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">In Progress</span>
-                  <Badge variant="secondary" className="bg-primary/20 text-primary">
-                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'In Progress').length}
-                  </Badge>
-                </div>
-              </div>
-            </Card>
-            
-            {/* Upcoming Tasks */}
-            <Card className="p-4 bg-background/50 border-border/50">
-              <h4 className="font-medium mb-3 text-sm">Upcoming Tasks</h4>
-              <div className="space-y-2">
-                {tasks
-                  .filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed')
-                  .slice(0, 5)
-                  .map(task => (
-                    <div key={task.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 transition-colors">
-                      <div className={`w-2 h-2 rounded-full ${
-                        task.priority === 'High' ? 'bg-destructive' : 
-                        task.priority === 'Medium' ? 'bg-warning' : 'bg-success'
-                      }`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{task.taskName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(task.dueDate), 'HH:mm')}
-                        </p>
+              </Card>
+              
+              {/* Upcoming Tasks */}
+              <Card className="p-4 bg-background/50 border-border/50">
+                <h4 className="font-medium mb-3 text-sm">Upcoming Tasks</h4>
+                <div className="space-y-2">
+                  {tasks
+                    .filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed')
+                    .slice(0, 5)
+                    .map(task => (
+                      <div key={task.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 transition-colors">
+                        <div className={`w-2 h-2 rounded-full ${
+                          task.priority === 'High' ? 'bg-destructive' : 
+                          task.priority === 'Medium' ? 'bg-warning' : 'bg-success'
+                        }`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{task.taskName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(task.dueDate), 'HH:mm')}
+                          </p>
+                        </div>
                       </div>
+                    ))}
+                  {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed').length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
+                  )}
+                </div>
+              </Card>
+              
+              {/* Top Priorities */}
+              <Card className="p-4 bg-background/50 border-border/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-primary" />
+                  <h4 className="font-medium text-sm">Top 3 Priorities Today</h4>
+                </div>
+                <div className="space-y-3">
+                  {priorities.map((priority, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <span className="text-sm font-medium text-muted-foreground mt-2 min-w-[20px]">
+                        {index + 1}.
+                      </span>
+                      <Input
+                        placeholder={`Priority ${index + 1}`}
+                        value={priority}
+                        onChange={(e) => {
+                          const newPriorities = [...priorities];
+                          newPriorities[index] = e.target.value;
+                          setPriorities(newPriorities);
+                        }}
+                        className="text-sm"
+                      />
                     </div>
                   ))}
-                {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed').length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
-                )}
-              </div>
-            </Card>
-            
-            {/* Top Priorities */}
-            <Card className="p-4 bg-background/50 border-border/50">
-              <div className="flex items-center gap-2 mb-3">
-                <Target className="w-4 h-4 text-primary" />
-                <h4 className="font-medium text-sm">Top 3 Priorities Today</h4>
-              </div>
-              <div className="space-y-3">
-                {priorities.map((priority, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <span className="text-sm font-medium text-muted-foreground mt-2 min-w-[20px]">
-                      {index + 1}.
-                    </span>
-                    <Input
-                      placeholder={`Priority ${index + 1}`}
-                      value={priority}
-                      onChange={(e) => {
-                        const newPriorities = [...priorities];
-                        newPriorities[index] = e.target.value;
-                        setPriorities(newPriorities);
-                      }}
-                      className="text-sm"
-                    />
-                  </div>
-                ))}
-              </div>
-            </Card>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
