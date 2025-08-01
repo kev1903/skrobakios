@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/drag-hide.css';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle, Settings, CalendarDays, BarChart3 } from 'lucide-react';
@@ -402,8 +403,9 @@ const TasksPage = () => {
           console.log('🎯 Setting isDragActive to true');
           setIsDragActive(true);
           setIsDraggingTask(true);
-          // Add body class to help with drag styling
+          // Add body class to help with drag styling and hide side panel
           document.body.classList.add('react-beautiful-dnd-dragging');
+          document.body.classList.add('hide-task-panel');
         }} 
         onDragEnd={(result) => {
           console.log('🏁 Drag ended:', result);
@@ -412,6 +414,7 @@ const TasksPage = () => {
           setIsDraggingTask(false);
           // Remove body class
           document.body.classList.remove('react-beautiful-dnd-dragging');
+          document.body.classList.remove('hide-task-panel');
           handleDragEnd(result);
         }}
       >
@@ -702,8 +705,8 @@ const TasksPage = () => {
           </div>
         </div>
 
-        {/* Task Edit Panel - Hidden during drag operations */}
-        {!isDragActive && (
+        {/* Task Edit Panel */}
+        <div className="task-edit-panel">
           <TaskEditSidePanel
           task={selectedTaskForEdit}
           isOpen={isTaskEditOpen}
@@ -733,8 +736,8 @@ const TasksPage = () => {
               throw error;
             }
           }}
-        />
-        )}
+          />
+        </div>
       </DragDropContext>
     </div>
   );
