@@ -107,8 +107,36 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
     if (!destination) return;
 
+    // Extract task ID from draggableId (handle prefixed IDs)
+    let taskId = draggableId;
+    if (draggableId.startsWith('backlog-')) {
+      taskId = draggableId.replace('backlog-', '');
+    }
+    if (draggableId.startsWith('week-timeline-')) {
+      taskId = draggableId.replace('week-timeline-', '');
+    }
+
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !onTaskUpdate) return;
+
+    // Handle drop back to backlog
+    if (destination.droppableId === 'backlog') {
+      try {
+        // Reset task to midnight (unscheduled)
+        const resetDate = new Date(task.dueDate);
+        resetDate.setHours(0, 0, 0, 0);
+        
+        await onTaskUpdate(task.id, {
+          dueDate: resetDate.toISOString()
+        });
+      } catch (error) {
+        console.error('Failed to move task to backlog:', error);
+      }
+      return;
+    }
+
     // Handle timeline drops (works for all droppableIds that start with 'timeline-' or 'week-timeline-')
-    if ((destination.droppableId.startsWith('timeline-') || destination.droppableId.startsWith('week-timeline-')) && onTaskUpdate) {
+    if (destination.droppableId.startsWith('timeline-') || destination.droppableId.startsWith('week-timeline-')) {
       let slotHour: string;
       let targetDate = new Date(currentDate);
       
@@ -129,36 +157,23 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         slotHour = destination.droppableId.replace('timeline-', '');
       }
       
-      // Extract task ID from draggableId (handle prefixed IDs)
-      let taskId = draggableId;
-      if (draggableId.startsWith('backlog-')) {
-        taskId = draggableId.replace('backlog-', '');
-      }
-      if (draggableId.startsWith('week-timeline-')) {
-        taskId = draggableId.replace('week-timeline-', '');
-      }
-      
-      const task = tasks.find(t => t.id === taskId);
-      
-      if (task) {
-        try {
-          if (slotHour === '-1') {
-            // Combined night slot (00:00-05:00), default to 02:30
-            targetDate.setHours(2, 30, 0, 0);
-          } else {
-            // Calculate hour and minutes from slot index (consistent across all views)
-            const slotIndex = parseInt(slotHour);
-            const hour = Math.floor(slotIndex / 2);
-            const minutes = (slotIndex % 2) * 30;
-            targetDate.setHours(hour, minutes, 0, 0);
-          }
-          
-          await onTaskUpdate(task.id, {
-            dueDate: targetDate.toISOString()
-          });
-        } catch (error) {
-          console.error('Failed to update task:', error);
+      try {
+        if (slotHour === '-1') {
+          // Combined night slot (00:00-05:00), default to 02:30
+          targetDate.setHours(2, 30, 0, 0);
+        } else {
+          // Calculate hour and minutes from slot index (consistent across all views)
+          const slotIndex = parseInt(slotHour);
+          const hour = Math.floor(slotIndex / 2);
+          const minutes = (slotIndex % 2) * 30;
+          targetDate.setHours(hour, minutes, 0, 0);
         }
+        
+        await onTaskUpdate(task.id, {
+          dueDate: targetDate.toISOString()
+        });
+      } catch (error) {
+        console.error('Failed to update task:', error);
       }
     }
   }, [currentDate, tasks, onTaskUpdate]);
