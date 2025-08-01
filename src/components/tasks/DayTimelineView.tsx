@@ -383,53 +383,53 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                               : 'hover:bg-muted/10'
                           }`}
                         >
-                          <div className="p-1 h-full">
-                            {slot.tasks.map((task, index) => {
-                              const taskDuration = task.duration || 30; // Default 30 minutes
-                              const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
-                              let heightInPixels = (slotsSpanned * 24) - 8; // 24px per slot minus padding
-                              let topOffset = 0;
-                              
-                              // Apply live preview for resizing
-                              if (dragState.isDragging && dragState.taskId === task.id) {
-                                if (dragState.previewHeight !== null) {
-                                  heightInPixels = dragState.previewHeight;
-                                }
-                                if (dragState.previewTop !== null) {
-                                  topOffset = dragState.previewTop;
-                                }
-                              }
-                              
-                              return (
-                                 <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
-                                   {(provided, snapshot) => (
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        data-dragging={snapshot.isDragging}
-                                        className={`absolute ${
-                                          // Disable transitions during resize operations to prevent flashing
-                                          dragState.isDragging && dragState.taskId === task.id
-                                            ? 'border-2 border-primary/50' 
-                                            : 'transition-all duration-200'
-                                        } ${
-                                          snapshot.isDragging 
-                                            ? 'shadow-xl opacity-90 z-50' 
-                                            : 'hover:shadow-md z-10'
-                                        }`}
-                                        style={{
-                                          ...provided.draggableProps.style,
-                                          // Fix drag offset by using consistent positioning
-                                          transform: snapshot.isDragging 
-                                            ? provided.draggableProps.style?.transform 
-                                            : `translate(${index * 200 + 4}px, ${topOffset}px)`,
-                                          left: snapshot.isDragging ? 0 : `${index * 200 + 4}px`,
-                                          top: snapshot.isDragging ? 0 : `${topOffset}px`,
-                                          width: '190px',
-                                          height: `${heightInPixels}px`,
-                                          minHeight: '56px'
-                                        }}
-                                      >
+                           <div className="p-1 h-full">
+                             {slot.tasks.map((task, index) => {
+                               const taskDuration = task.duration || 30; // Default 30 minutes
+                               const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
+                               let heightInPixels = (slotsSpanned * 24) - 4; // 24px per slot minus reduced padding
+                               let topOffset = 0;
+                               
+                               // Apply live preview for resizing
+                               if (dragState.isDragging && dragState.taskId === task.id) {
+                                 if (dragState.previewHeight !== null) {
+                                   heightInPixels = dragState.previewHeight;
+                                 }
+                                 if (dragState.previewTop !== null) {
+                                   topOffset = dragState.previewTop;
+                                 }
+                               }
+                               
+                               return (
+                                  <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
+                                    {(provided, snapshot) => (
+                                       <div
+                                         ref={provided.innerRef}
+                                         {...provided.draggableProps}
+                                         data-dragging={snapshot.isDragging}
+                                         className={`absolute ${
+                                           // Disable transitions during resize operations to prevent flashing
+                                           dragState.isDragging && dragState.taskId === task.id
+                                             ? 'border-2 border-primary/50' 
+                                             : 'transition-all duration-200'
+                                         } ${
+                                           snapshot.isDragging 
+                                             ? 'shadow-xl opacity-90 z-50' 
+                                             : 'hover:shadow-md z-10'
+                                         }`}
+                                         style={{
+                                           ...provided.draggableProps.style,
+                                           // Fix drag offset by using consistent positioning
+                                           transform: snapshot.isDragging 
+                                             ? provided.draggableProps.style?.transform 
+                                             : `translate(${index * 200 + 2}px, ${topOffset}px)`,
+                                           left: snapshot.isDragging ? 0 : `${index * 200 + 2}px`,
+                                           top: snapshot.isDragging ? 0 : `${topOffset}px`,
+                                           width: '190px',
+                                           height: `${heightInPixels}px`,
+                                           minHeight: '20px' // Reduced minimum height to fit in rows
+                                         }}
+                                       >
                                        <Card 
                                          className={`h-full w-full ${getStatusColor(task.status)} border-l-4 select-none group shadow-sm relative`}
                                          style={{ borderLeftColor: task.priority === 'High' ? 'hsl(var(--destructive))' : task.priority === 'Medium' ? 'hsl(var(--warning))' : 'hsl(var(--success))' }}
@@ -442,39 +442,39 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                             <div className="w-full h-1 bg-primary rounded-full"></div>
                                           </div>
                                           
-                                          {/* Task content */}
-                                          <CardContent 
-                                            className="p-3 h-full flex flex-col justify-center"
-                                            {...provided.dragHandleProps}
-                                          >
-                                            <div className="flex items-center justify-between mb-2">
-                                              <div className="flex items-center gap-2">
-                                                <Clock className="w-3 h-3 text-muted-foreground" />
-                                                <span className="text-xs font-medium text-muted-foreground">
-                                                  {format(new Date(task.dueDate), 'HH:mm')}
-                                                </span>
-                                              </div>
-                                              <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                                {task.priority}
-                                              </Badge>
-                                            </div>
-                                            <h4 className="font-medium text-sm text-foreground leading-tight mb-1 line-clamp-2">
-                                              {task.taskName}
-                                            </h4>
-                                            {task.description && (
-                                              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                                {task.description}
-                                              </p>
-                                            )}
-                                            <div className="flex items-center justify-between mt-2">
-                                              <Badge variant="secondary" className={getStatusColor(task.status)}>
-                                                {task.status}
-                                              </Badge>
-                                              <span className="text-xs text-muted-foreground">
-                                                {task.duration || 30}min
-                                              </span>
-                                            </div>
-                                          </CardContent>
+                                           {/* Task content */}
+                                           <CardContent 
+                                             className="p-1.5 h-full flex flex-col justify-center"
+                                             {...provided.dragHandleProps}
+                                           >
+                                             <div className="flex items-center justify-between mb-1">
+                                               <div className="flex items-center gap-1">
+                                                 <Clock className="w-2.5 h-2.5 text-muted-foreground" />
+                                                 <span className="text-[10px] font-medium text-muted-foreground">
+                                                   {format(new Date(task.dueDate), 'HH:mm')}
+                                                 </span>
+                                               </div>
+                                               <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
+                                                 {task.priority}
+                                               </Badge>
+                                             </div>
+                                             <h4 className="font-medium text-xs text-foreground leading-tight mb-1 line-clamp-1">
+                                               {task.taskName}
+                                             </h4>
+                                             {task.description && heightInPixels > 40 && (
+                                               <p className="text-[10px] text-muted-foreground line-clamp-1 leading-relaxed">
+                                                 {task.description}
+                                               </p>
+                                             )}
+                                             <div className="flex items-center justify-between mt-1">
+                                               <Badge variant="secondary" className={`text-[9px] px-1 py-0 ${getStatusColor(task.status)}`}>
+                                                 {task.status}
+                                               </Badge>
+                                               <span className="text-[10px] text-muted-foreground">
+                                                 {task.duration || 30}min
+                                               </span>
+                                             </div>
+                                           </CardContent>
                                           
                                           {/* Bottom resize handle */}
                                           <div 
