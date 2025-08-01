@@ -431,9 +431,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
-                    // Convert CSS class to actual color value
-                    const getColorFromClass = (colorClass: string) => {
-                      const colorMap: { [key: string]: string } = {
+                    // Centralized color mapping based on category - should sync with Settings page
+                    const getCategoryColor = (category: string, colorClass?: string) => {
+                      // Primary category color mapping
+                      const categoryColors: { [key: string]: string } = {
+                        'work': '#3b82f6',      // Blue
+                        'personal': '#10b981',   // Green  
+                        'meeting': '#8b5cf6',    // Purple
+                        'break': '#f59e0b',      // Amber
+                        'family': '#ec4899',     // Pink
+                        'site_visit': '#f97316', // Orange
+                        'church': '#6366f1',     // Indigo
+                        'rest': '#6b7280',       // Gray
+                      };
+                      
+                      // Fallback to CSS class mapping if category color not found
+                      const cssClassColors: { [key: string]: string } = {
                         'bg-rose-400': '#fb7185',
                         'bg-slate-400': '#94a3b8',
                         'bg-blue-400': '#60a5fa',
@@ -446,11 +459,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         'bg-pink-400': '#f472b6',
                         'bg-emerald-400': '#34d399',
                         'bg-cyan-400': '#22d3ee',
+                        'bg-amber-400': '#fbbf24',
                       };
-                      return colorMap[colorClass] || '#94a3b8'; // Default to slate-400
+                      
+                      // First try category color, then CSS class, then default
+                      return categoryColors[category] || 
+                             (colorClass ? cssClassColors[colorClass] : null) || 
+                             '#94a3b8'; // Default gray
                     };
                     
-                    const actualColor = getColorFromClass(block.color);
+                    const actualColor = getCategoryColor(block.category, block.color);
                     
                     return (
                       <div
