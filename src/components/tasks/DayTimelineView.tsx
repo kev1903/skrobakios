@@ -366,30 +366,46 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     
     let position: number;
     
-    // Calculate position based on slot arrangement with combined 00:00-05:00 slot
+    // Each slot is 24px (h-6 class)
+    // Slot arrangement: 00:00-05:00 (night slot), then 05:30, 06:00, 06:30, 07:00, 07:30, 08:00, etc.
+    
     if (hours >= 0 && hours < 5) {
       // Current time is in the combined 00:00-05:00 slot (24px height)
-      // Position proportionally within the night slot
-      const totalMinutesInNight = 5 * 60; // 300 minutes total (00:00-05:00)
+      const totalMinutesInNight = 5 * 60; // 300 minutes total
       const currentMinutesInNight = hours * 60 + minutes;
       position = (currentMinutesInNight / totalMinutesInNight) * 24;
-      console.log(`🌙 Night slot position: ${position}px (${currentMinutesInNight}/${totalMinutesInNight} minutes)`);
-    } else if (hours === 5 && minutes < 30) {
-      // Time between 05:00-05:30 - still in the night slot but at the very end
-      position = 24;
-      console.log(`🌅 Early morning (05:00-05:30): ${position}px`);
+      console.log(`🌙 Night slot position: ${position}px`);
     } else {
-      // Calculate position for slots starting from 05:30
-      // Timeline actually starts at 05:30, not 05:00!
-      const totalMinutesSince530AM = (hours - 5) * 60 + (minutes - 30);
-      const slotNumber = Math.floor(totalMinutesSince530AM / 30); // Which 30-min slot
-      const minutesIntoSlot = totalMinutesSince530AM % 30; // How far into the slot
+      // After 05:00, calculate based on slot index
+      // Looking at the generated slots: they start from slot index 0 (night), then regular 30-min slots
+      // From the timeline generation: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
       
-      // Position = night slot (24px) + completed slots + position within current slot
-      position = 24 + (slotNumber * 24) + (minutesIntoSlot / 30) * 24;
-      console.log(`⏰ Day position: ${position}px (slot ${slotNumber}, ${minutesIntoSlot} minutes into slot)`);
-      console.log(`📊 Calculation: 24 + (${slotNumber} * 24) + (${minutesIntoSlot}/30 * 24) = ${position}`);
-      console.log(`📍 Time since 05:30: ${totalMinutesSince530AM} minutes`);
+      let slotFromStart = 0; // Which slot after the night slot
+      
+      if (hours === 5) {
+        if (minutes < 30) {
+          // 05:00-05:30 - position within the night slot end
+          position = 24;
+          console.log(`🌅 Early morning (05:00-05:30): ${position}px`);
+          return position;
+        } else {
+          // 05:30-06:00 - first slot after night
+          slotFromStart = 0;
+        }
+      } else {
+        // For 06:00 and later
+        // Calculate how many 30-minute slots since 05:30
+        const totalMinutesSince530 = (hours - 5) * 60 + (minutes - 30);
+        slotFromStart = Math.floor(totalMinutesSince530 / 30);
+      }
+      
+      // Each slot after night slot is 24px
+      // Position within the current slot
+      const minutesIntoCurrentSlot = minutes % 30;
+      const positionInSlot = (minutesIntoCurrentSlot / 30) * 24;
+      
+      position = 24 + (slotFromStart * 24) + positionInSlot;
+      console.log(`⏰ Day position: ${position}px (slot ${slotFromStart}, ${minutesIntoCurrentSlot} minutes into slot)`);
     }
     
     return position;
