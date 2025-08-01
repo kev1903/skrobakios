@@ -490,7 +490,13 @@ const TasksPage = () => {
                 }}>
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-semibold text-gray-800 truncate mb-1">
+                                <h4 
+                                  className="text-sm font-semibold text-gray-800 truncate mb-1 cursor-pointer hover:text-blue-600 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent drag when clicking
+                                    window.location.href = `/task-edit?id=${task.id}`;
+                                  }}
+                                >
                                   {task.taskName}
                                 </h4>
                                 <div className="flex items-center gap-2">
