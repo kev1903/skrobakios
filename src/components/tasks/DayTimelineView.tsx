@@ -2,9 +2,10 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addMinutes, subMinutes } from 'date-fns';
-import { Clock, Plus, ChevronUp, ChevronDown } from 'lucide-react';
+import { Clock, Plus, ChevronUp, ChevronDown, Target } from 'lucide-react';
 import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
@@ -29,6 +30,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const [priorities, setPriorities] = useState<string[]>(['', '', '']);
 
   // Load time blocks from database
   const loadTimeBlocks = useCallback(async () => {
@@ -653,18 +655,30 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
             </Card>
             
-            {/* Quick Actions */}
+            {/* Top Priorities */}
             <Card className="p-4 bg-background/50 border-border/50">
-              <h4 className="font-medium mb-3 text-sm">Quick Actions</h4>
-              <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                  <Plus className="w-4 h-4" />
-                  Add New Task
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                  <Clock className="w-4 h-4" />
-                  Schedule Break
-                </Button>
+              <div className="flex items-center gap-2 mb-3">
+                <Target className="w-4 h-4 text-primary" />
+                <h4 className="font-medium text-sm">Top 3 Priorities Today</h4>
+              </div>
+              <div className="space-y-3">
+                {priorities.map((priority, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <span className="text-sm font-medium text-muted-foreground mt-2 min-w-[20px]">
+                      {index + 1}.
+                    </span>
+                    <Input
+                      placeholder={`Priority ${index + 1}`}
+                      value={priority}
+                      onChange={(e) => {
+                        const newPriorities = [...priorities];
+                        newPriorities[index] = e.target.value;
+                        setPriorities(newPriorities);
+                      }}
+                      className="text-sm"
+                    />
+                  </div>
+                ))}
               </div>
             </Card>
           </div>
