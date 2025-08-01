@@ -243,12 +243,12 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           {/* Current Time Indicator - Spans Entire Calendar */}
           {isSameDay(currentTime, currentDate) && (
             <div 
-              className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-[100] pointer-events-none"
+              className="absolute left-0 right-0 h-0.5 border-t-2 border-dotted border-blue-500 z-[1000] pointer-events-none"
               style={{
                 top: `${(currentTime.getHours() * 2 + currentTime.getMinutes() / 30) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
               }}
             >
-              <div className="absolute left-12 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
+              <div className="absolute left-12 -top-2 w-4 h-4 bg-blue-500 rounded-full shadow-md"></div>
             </div>
           )}
           
