@@ -372,8 +372,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
   return (
     <div className="h-full flex bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
-      {/* Main Timeline Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main Timeline Area - Dynamic width based on sidebar visibility */}
+      <div className={`flex flex-col overflow-hidden transition-all duration-200 ${isDragActive ? 'w-full' : 'flex-1'}`}>
         {/* Column Headers */}
         <div className="border-b border-border/30 bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-sm">
           <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] h-10">
@@ -713,7 +713,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         </div>
       </div>
       
-      {/* Right Sidebar - Hidden during drag operations */}
+      {/* Right Sidebar - Completely hidden during drag operations */}
       {!isDragActive && (
         <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
           <div className="h-full flex flex-col">
