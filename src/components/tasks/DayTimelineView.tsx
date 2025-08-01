@@ -362,6 +362,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     const hours = now.getHours();
     const minutes = now.getMinutes();
     
+    console.log(`🕐 Current time: ${hours}:${minutes.toString().padStart(2, '0')}`);
+    
     let position: number;
     
     // Calculate position based on slot arrangement with combined 00:00-05:00 slot
@@ -371,6 +373,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const totalMinutesInNight = 5 * 60; // 300 minutes total (00:00-05:00)
       const currentMinutesInNight = hours * 60 + minutes;
       position = (currentMinutesInNight / totalMinutesInNight) * 24;
+      console.log(`🌙 Night slot position: ${position}px (${currentMinutesInNight}/${totalMinutesInNight} minutes)`);
     } else {
       // Calculate position for slots starting from 05:00
       // Each 30-minute slot is 24px high
@@ -381,6 +384,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       
       // Position = night slot (24px) + completed slots + position within current slot
       position = 24 + (slotNumber * 24) + (minutesIntoSlot / 30) * 24;
+      console.log(`⏰ Day position: ${position}px (slot ${slotNumber}, ${minutesIntoSlot} minutes into slot)`);
+      console.log(`📊 Calculation: 24 + (${slotNumber} * 24) + (${minutesIntoSlot}/30 * 24) = ${position}`);
     }
     
     return position;
