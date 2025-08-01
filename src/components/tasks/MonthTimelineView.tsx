@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Task } from './types';
@@ -91,35 +92,57 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
                 </div>
 
                 {/* Tasks */}
-                <div className="space-y-1 overflow-hidden">
-                  {dayTasks.slice(0, 3).map((task, taskIndex) => {
-                    const taskDate = new Date(task.dueDate);
-                    const hasSpecificTime = !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
+                <Droppable droppableId={`month-day-${day.toISOString()}`}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`space-y-1 overflow-hidden ${
+                        snapshot.isDraggingOver ? 'bg-primary/5 rounded' : ''
+                      }`}
+                    >
+                      {dayTasks.slice(0, 3).map((task, taskIndex) => {
+                        const taskDate = new Date(task.dueDate);
+                        const hasSpecificTime = !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
 
-                    return (
-                      <div
-                        key={task.id}
-                        className={`${getTaskColor(task)} text-xs p-1.5 rounded border cursor-pointer hover:opacity-80 transition-all`}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="font-medium leading-tight truncate">
-                          {task.taskName}
+                        return (
+                          <Draggable key={task.id} draggableId={`month-${task.id}`} index={taskIndex}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`${getTaskColor(task)} text-xs p-1.5 rounded border cursor-grab active:cursor-grabbing hover:opacity-80 transition-all ${
+                                  snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''
+                                }`}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="font-medium leading-tight truncate">
+                                  {task.taskName}
+                                </div>
+                                {hasSpecificTime && (
+                                  <div className="text-xs opacity-75 leading-tight">
+                                    {format(taskDate, 'HH:mm')}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </Draggable>
+                        );
+                      })}
+                      
+                      {dayTasks.length > 3 && (
+                        <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
+                          +{dayTasks.length - 3} more
                         </div>
-                        {hasSpecificTime && (
-                          <div className="text-xs opacity-75 leading-tight">
-                            {format(taskDate, 'HH:mm')}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  
-                  {dayTasks.length > 3 && (
-                    <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
-                      +{dayTasks.length - 3} more
+                      )}
+                      {provided.placeholder}
                     </div>
                   )}
-                </div>
+                </Droppable>
               </div>
             );
           })}

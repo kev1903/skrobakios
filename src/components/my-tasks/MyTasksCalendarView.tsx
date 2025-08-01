@@ -115,6 +115,9 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     if (draggableId.startsWith('week-timeline-')) {
       taskId = draggableId.replace('week-timeline-', '');
     }
+    if (draggableId.startsWith('month-')) {
+      taskId = draggableId.replace('month-', '');
+    }
 
     const task = tasks.find(t => t.id === taskId);
     if (!task || !onTaskUpdate) return;

@@ -562,50 +562,70 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                           )}
                         </Droppable>
                       ) : (
-                        <div className="absolute inset-0 transition-colors hover:bg-muted/10">
-                          {/* Tasks in this slot - Non-draggable version */}
-                          {slot.tasks.map((task, index) => {
-                            const taskDuration = task.duration || 30;
-                            const slotsSpanned = Math.ceil(taskDuration / 30);
-                            let heightInPixels = (slotsSpanned * 24) - 4;
-                            let topOffset = 0;
-                            
-                            if (dragState.isDragging && dragState.taskId === task.id) {
-                              if (dragState.previewHeight !== null) {
-                                heightInPixels = dragState.previewHeight;
-                              }
-                              if (dragState.previewTop !== null) {
-                                topOffset = dragState.previewTop;
-                              }
-                            }
-                            
-                            return (
-                              <div
-                                key={`timeline-${task.id}`}
-                                className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10"
-                                style={{
-                                  top: `${topOffset}px`,
-                                  height: `${heightInPixels}px`,
-                                  minHeight: '20px'
-                                }}
-                              >
-                                <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
-                                  <span className="font-medium truncate block">{task.taskName}</span>
-                                  
-                                  {/* Resize handles */}
-                                  <div 
-                                    className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                    onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                                  />
-                                  <div 
-                                    className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                    onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
+                        <Droppable droppableId={`timeline-${slot.hour}`}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                              className={`absolute inset-0 transition-colors ${
+                                snapshot.isDraggingOver ? 'bg-primary/10' : 'hover:bg-muted/10'
+                              }`}
+                            >
+                              {/* Tasks in this slot - Now draggable */}
+                              {slot.tasks.map((task, index) => {
+                                const taskDuration = task.duration || 30;
+                                const slotsSpanned = Math.ceil(taskDuration / 30);
+                                let heightInPixels = (slotsSpanned * 24) - 4;
+                                let topOffset = 0;
+                                
+                                if (dragState.isDragging && dragState.taskId === task.id) {
+                                  if (dragState.previewHeight !== null) {
+                                    heightInPixels = dragState.previewHeight;
+                                  }
+                                  if (dragState.previewTop !== null) {
+                                    topOffset = dragState.previewTop;
+                                  }
+                                }
+                                
+                                return (
+                                  <Draggable key={task.id} draggableId={task.id} index={index}>
+                                    {(provided, snapshot) => (
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-grab active:cursor-grabbing ${
+                                          snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''
+                                        }`}
+                                        style={{
+                                          ...provided.draggableProps.style,
+                                          top: `${topOffset}px`,
+                                          height: `${heightInPixels}px`,
+                                          minHeight: '20px'
+                                        }}
+                                      >
+                                        <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
+                                          <span className="font-medium truncate block">{task.taskName}</span>
+                                          
+                                          {/* Resize handles */}
+                                          <div 
+                                            className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                                          />
+                                          <div 
+                                            className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </Draggable>
+                                );
+                              })}
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
                       )}
                     </div>
                   );
