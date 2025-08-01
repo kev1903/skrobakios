@@ -295,12 +295,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                    >
                                      <div className="flex items-center gap-1">
                                        <GripVertical className="w-2 h-2 text-gray-500/60 flex-shrink-0" />
-                                       <div className="flex-1 min-w-0">
-                                         <div className="font-semibold text-[10px] leading-tight truncate">
-                                           {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
-                                         </div>
-                                         <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
-                                       </div>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
+                                        </div>
                                      </div>
                                   </div>
                                 )}
