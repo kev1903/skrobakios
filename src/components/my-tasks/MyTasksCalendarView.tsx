@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
@@ -87,6 +89,60 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         return "bg-muted text-muted-foreground border-border";
     }
   };
+
+  // Handle drag start
+  const handleDragStart = useCallback((start: any) => {
+    let taskId = start.draggableId;
+    if (taskId.startsWith('backlog-')) {
+      taskId = taskId.replace('backlog-', '');
+    }
+    const task = tasks.find(t => t.id === taskId);
+    setDraggedTask(task || null);
+  }, [tasks]);
+
+  // Handle drag end
+  const handleDragEnd = useCallback(async (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+    setDraggedTask(null);
+
+    if (!destination) return;
+
+    // Handle timeline drops (works for all droppableIds that start with 'timeline-')
+    if (destination.droppableId.startsWith('timeline-') && onTaskUpdate) {
+      const slotHour = destination.droppableId.replace('timeline-', '');
+      
+      // Extract task ID from draggableId (handle prefixed IDs)
+      let taskId = draggableId;
+      if (draggableId.startsWith('backlog-')) {
+        taskId = draggableId.replace('backlog-', '');
+      }
+      
+      const task = tasks.find(t => t.id === taskId);
+      
+      if (task) {
+        try {
+          let newDate = new Date(currentDate);
+          
+          if (slotHour === '-1') {
+            // Combined night slot (00:00-05:00), default to 02:30
+            newDate.setHours(2, 30, 0, 0);
+          } else {
+            // Calculate hour and minutes from slot index
+            const slotIndex = parseInt(slotHour);
+            const hour = Math.floor(slotIndex / 2);
+            const minutes = (slotIndex % 2) * 30;
+            newDate.setHours(hour, minutes, 0, 0);
+          }
+          
+          await onTaskUpdate(task.id, {
+            dueDate: newDate.toISOString()
+          });
+        } catch (error) {
+          console.error('Failed to update task:', error);
+        }
+      }
+    }
+  }, [currentDate, tasks, onTaskUpdate]);
 
   const getTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
@@ -161,6 +217,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const dayTasks = getDayTasks();
 
   return (
+    <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
     <div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
       <div className="absolute left-0 top-0 w-80 h-full z-10">
@@ -211,30 +268,50 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
             {/* Task List - Scrollable */}
             <div className="flex-1 overflow-hidden">
-              <div className="space-y-3 overflow-y-auto h-full pr-2">
-                {backlogTasks.map((task, index) => (
+              <Droppable droppableId="backlog">
+                {(provided) => (
                   <div
-                    key={task.id}
-                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-pointer transition-all"
-                    onClick={() => onTaskClick(task)}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="space-y-3 overflow-y-auto h-full pr-2"
                   >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm">{task.taskName}</h4>
-                      <p className="text-xs text-muted-foreground">
-                        {task.projectName}
-                      </p>
-                      <div className="flex gap-2">
-                        <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                          {task.taskType}
-                        </Badge>
-                        <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
-                      </div>
-                    </div>
+                    {backlogTasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
+                              snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''
+                            }`}
+                            style={{
+                              ...provided.draggableProps.style,
+                            }}
+                            onClick={() => onTaskClick(task)}
+                          >
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-sm">{task.taskName}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {task.projectName}
+                              </p>
+                              <div className="flex gap-2">
+                                <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                                  {task.taskType}
+                                </Badge>
+                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                                  {task.priority}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
-                ))}
-              </div>
+                )}
+              </Droppable>
 
               {backlogTasks.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
@@ -360,6 +437,20 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
           )}
         </div>
       </div>
+
+      {/* Drag Feedback */}
+      {draggedTask && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Card className="bg-primary text-primary-foreground">
+            <CardContent className="p-3">
+              <div className="text-sm font-medium">
+                Moving: {draggedTask.taskName}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
+    </DragDropContext>
   );
 };
