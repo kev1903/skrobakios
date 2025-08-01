@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+
 import { Task } from './TaskContext';
 import { TaskCard } from './TaskCard';
 import { TaskCardEditor } from './TaskCardEditor';
@@ -59,29 +59,10 @@ export const TaskBoardColumn = ({
                 onBlur={() => onBlur(task.id, column.id)}
               />
             ) : (
-              <Draggable 
-                draggableId={task.id} 
-                index={index}
-                isDragDisabled={task.id.startsWith('temp-')}
-              >
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={{
-                      ...provided.draggableProps.style,
-                      cursor: snapshot.isDragging ? 'grabbing' : 'grab'
-                    }}
-                    className={`${snapshot.isDragging ? 'shadow-2xl' : ''}`}
-                  >
-                    <TaskCard 
-                      task={task} 
-                      onClick={onTaskClick}
-                    />
-                  </div>
-                )}
-              </Draggable>
+              <TaskCard 
+                task={task} 
+                onClick={onTaskClick}
+              />
             )}
           </div>
         ))}

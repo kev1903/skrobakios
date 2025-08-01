@@ -76,72 +76,51 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
             const isCurrentMonthDay = isCurrentMonth(day);
 
             return (
-              <Droppable key={day.toISOString()} droppableId={`month-${day.toISOString()}`}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`min-h-[120px] border-r border-border/20 border-b border-border/10 cursor-pointer transition-colors relative p-2 last:border-r-0 ${
-                      snapshot.isDraggingOver
-                        ? 'bg-primary/10 border-primary/30'
-                        : 'hover:bg-accent/30'
-                    } ${!isCurrentMonthDay ? 'opacity-40 bg-muted/5' : ''} ${
-                      isToday ? 'bg-primary/5 border-primary/20' : ''
-                    }`}
-                    onClick={() => onDayClick?.(day)}
-                  >
-                    {/* Day Number */}
-                    <div className={`text-sm font-medium mb-2 ${
-                      isToday ? 'text-primary font-bold' : isCurrentMonthDay ? 'text-foreground' : 'text-muted-foreground'
-                    }`}>
-                      {format(day, 'd')}
-                    </div>
+              <div
+                key={day.toISOString()}
+                className={`min-h-[120px] border-r border-border/20 border-b border-border/10 cursor-pointer transition-colors relative p-2 last:border-r-0 hover:bg-accent/30 ${!isCurrentMonthDay ? 'opacity-40 bg-muted/5' : ''} ${
+                  isToday ? 'bg-primary/5 border-primary/20' : ''
+                }`}
+                onClick={() => onDayClick?.(day)}
+              >
+                {/* Day Number */}
+                <div className={`text-sm font-medium mb-2 ${
+                  isToday ? 'text-primary font-bold' : isCurrentMonthDay ? 'text-foreground' : 'text-muted-foreground'
+                }`}>
+                  {format(day, 'd')}
+                </div>
 
-                    {/* Tasks */}
-                    <div className="space-y-1 overflow-hidden">
-                      {dayTasks.slice(0, 3).map((task, taskIndex) => {
-                        const taskDate = new Date(task.dueDate);
-                        const hasSpecificTime = !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
+                {/* Tasks */}
+                <div className="space-y-1 overflow-hidden">
+                  {dayTasks.slice(0, 3).map((task, taskIndex) => {
+                    const taskDate = new Date(task.dueDate);
+                    const hasSpecificTime = !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
 
-                        return (
-                          <Draggable key={task.id} draggableId={`month-${task.id}`} index={taskIndex}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`${getTaskColor(task)} text-xs p-1.5 rounded border cursor-pointer hover:opacity-80 transition-all ${
-                                  snapshot.isDragging ? 'scale-105 shadow-lg z-50' : ''
-                                }`}
-                                style={{
-                                  ...provided.draggableProps.style,
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <div className="font-medium leading-tight truncate">
-                                  {task.taskName}
-                                </div>
-                                {hasSpecificTime && (
-                                  <div className="text-xs opacity-75 leading-tight">
-                                    {format(taskDate, 'HH:mm')}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </Draggable>
-                        );
-                      })}
-                      
-                      {dayTasks.length > 3 && (
-                        <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
-                          +{dayTasks.length - 3} more
+                    return (
+                      <div
+                        key={task.id}
+                        className={`${getTaskColor(task)} text-xs p-1.5 rounded border cursor-pointer hover:opacity-80 transition-all`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="font-medium leading-tight truncate">
+                          {task.taskName}
                         </div>
-                      )}
-                      {provided.placeholder}
+                        {hasSpecificTime && (
+                          <div className="text-xs opacity-75 leading-tight">
+                            {format(taskDate, 'HH:mm')}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  
+                  {dayTasks.length > 3 && (
+                    <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
+                      +{dayTasks.length - 3} more
                     </div>
-                  </div>
-                )}
-              </Droppable>
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>
