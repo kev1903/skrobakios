@@ -9,6 +9,7 @@ import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { useTimeTracking } from '@/hooks/useTimeTracking';
 
 interface WeekTimelineViewProps {
   currentDate: Date;
@@ -32,6 +33,19 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const { settings } = useTimeTracking();
+  
+  // Get category colors from time tracking settings
+  const categoryColors = settings?.category_colors || {
+    work: '#3b82f6',
+    personal: '#10b981',
+    meeting: '#8b5cf6',
+    break: '#f59e0b',
+    family: '#ec4899',
+    site_visit: '#f97316',
+    church: '#6366f1',
+    rest: '#6b7280'
+  };
 
   // Update current time every minute
   React.useEffect(() => {
@@ -341,25 +355,28 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   
                   console.log(`Week Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
                   
-                  // Override colors based on title/category for the specific blocks you mentioned
-                  let blockColor = block.color;
-                  if (block.title.toLowerCase().includes('devotion')) {
-                    blockColor = 'bg-yellow-400';
-                  } else if (block.title.toLowerCase().includes('get ready')) {
-                    blockColor = 'bg-green-400';
-                  }
+                  // Use category colors from time tracking settings
+                  const actualColor = categoryColors[block.category] || block.color || '#6b7280';
                   
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
-                      className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm`}
+                      className="absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm border-2"
                       style={{
+                        backgroundColor: `${actualColor}40`,
+                        borderColor: actualColor,
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
                     >
-                      <div className={`p-1 text-xs font-medium leading-tight ${blockColor.replace('bg-', 'text-')}`}>
-                        <div className="truncate text-center">{block.title}</div>
+                      <div 
+                        className="flex items-center justify-center h-full text-white text-xs font-semibold px-2"
+                        style={{ 
+                          backgroundColor: `${actualColor}90`,
+                          textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        <span className="truncate">{block.title}</span>
                       </div>
                     </div>
                   );

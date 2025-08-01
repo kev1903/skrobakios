@@ -10,6 +10,7 @@ import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { useTimeTracking } from '@/hooks/useTimeTracking';
 
 interface DayTimelineViewProps {
   currentDate: Date;
@@ -31,6 +32,19 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [priorities, setPriorities] = useState<string[]>(['', '', '']);
+  const { settings } = useTimeTracking();
+  
+  // Get category colors from time tracking settings
+  const categoryColors = settings?.category_colors || {
+    work: '#3b82f6',
+    personal: '#10b981',
+    meeting: '#8b5cf6',
+    break: '#f59e0b',
+    family: '#ec4899',
+    site_visit: '#f97316',
+    church: '#6366f1',
+    rest: '#6b7280'
+  };
 
   // Load time blocks from database
   const loadTimeBlocks = useCallback(async () => {
@@ -431,44 +445,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
-                    // Centralized color mapping based on category - should sync with Settings page
-                    const getCategoryColor = (category: string, colorClass?: string) => {
-                      // Primary category color mapping
-                      const categoryColors: { [key: string]: string } = {
-                        'work': '#3b82f6',      // Blue
-                        'personal': '#10b981',   // Green  
-                        'meeting': '#8b5cf6',    // Purple
-                        'break': '#f59e0b',      // Amber
-                        'family': '#ec4899',     // Pink
-                        'site_visit': '#f97316', // Orange
-                        'church': '#6366f1',     // Indigo
-                        'rest': '#6b7280',       // Gray
-                      };
-                      
-                      // Fallback to CSS class mapping if category color not found
-                      const cssClassColors: { [key: string]: string } = {
-                        'bg-rose-400': '#fb7185',
-                        'bg-slate-400': '#94a3b8',
-                        'bg-blue-400': '#60a5fa',
-                        'bg-green-400': '#4ade80',
-                        'bg-yellow-400': '#facc15',
-                        'bg-purple-400': '#c084fc',
-                        'bg-orange-400': '#fb923c',
-                        'bg-red-400': '#f87171',
-                        'bg-indigo-400': '#818cf8',
-                        'bg-pink-400': '#f472b6',
-                        'bg-emerald-400': '#34d399',
-                        'bg-cyan-400': '#22d3ee',
-                        'bg-amber-400': '#fbbf24',
-                      };
-                      
-                      // First try category color, then CSS class, then default
-                      return categoryColors[category] || 
-                             (colorClass ? cssClassColors[colorClass] : null) || 
-                             '#94a3b8'; // Default gray
-                    };
-                    
-                    const actualColor = getCategoryColor(block.category, block.color);
+                    // Use category colors from time tracking settings
+                    const actualColor = categoryColors[block.category] || block.color || '#6b7280';
                     
                     return (
                       <div
