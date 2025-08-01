@@ -486,11 +486,26 @@ const TasksPage = () => {
                   return true; // If we can't parse the date, show it in backlog as fallback
                 }
               }).map((task, index) => <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
-                        {(provided, snapshot) => <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} data-dragging={snapshot.isDragging} className={cn("px-3 py-2 rounded-lg cursor-grab transition-colors group border border-gray-100/50", snapshot.isDragging ? "bg-blue-50 border-blue-200 shadow-xl opacity-90" : "hover:bg-gray-50/50 active:cursor-grabbing")} style={{
-                  ...provided.draggableProps.style,
-                  // Remove transform offset issues during drag
-                  transform: snapshot.isDragging ? provided.draggableProps.style?.transform : provided.draggableProps.style?.transform
-                }}>
+                        {(provided, snapshot) => <div 
+                          ref={provided.innerRef} 
+                          {...provided.draggableProps} 
+                          {...provided.dragHandleProps} 
+                          data-dragging={snapshot.isDragging} 
+                          className={cn(
+                            "px-3 py-2 rounded-lg cursor-grab transition-colors group border border-gray-100/50",
+                            snapshot.isDragging 
+                              ? "bg-blue-50 border-blue-200 shadow-2xl opacity-95 z-[9999] relative" 
+                              : "hover:bg-gray-50/50 active:cursor-grabbing"
+                          )} 
+                          style={{
+                            ...provided.draggableProps.style,
+                            // Fix z-index and offset issues during drag
+                            zIndex: snapshot.isDragging ? 9999 : 'auto',
+                            transform: snapshot.isDragging 
+                              ? provided.draggableProps.style?.transform 
+                              : 'none'
+                          }}
+                        >
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
                                 <h4 
