@@ -181,7 +181,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     if (!dragState.isDragging || !dragState.taskId || !dragState.startTime) return;
 
     const deltaY = e.clientY - dragState.startY;
-    const slotsChanged = Math.round(deltaY / 64); // Each slot is 64px height
+    const slotsChanged = Math.round(deltaY / 24); // Each slot is 24px height
     
     const task = tasks.find(t => t.id === dragState.taskId);
     if (!task) return;
@@ -195,14 +195,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const newDuration = currentDuration + (-slotsChanged * 30); // Inverse the slotsChanged for top handle
       if (newDuration < 30) return; // Minimum 30 minutes
       
-      newHeight = Math.ceil(newDuration / 30) * 64 - 8;
-      newTop = slotsChanged * 64; // When dragging up (negative slotsChanged), this creates negative newTop
+      newHeight = Math.ceil(newDuration / 30) * 24 - 8;
+      newTop = slotsChanged * 24; // When dragging up (negative slotsChanged), this creates negative newTop
     } else {
       // Moving bottom handle - preview extending downward  
       const newDuration = currentDuration + (slotsChanged * 30);
       if (newDuration < 30) return; // Minimum 30 minutes
       
-      newHeight = Math.ceil(newDuration / 30) * 64 - 8;
+      newHeight = Math.ceil(newDuration / 30) * 24 - 8;
       newTop = 0; // Keep top position same
     }
     
@@ -232,14 +232,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     if (!task) return;
 
     const deltaY = document.body.style.cursor === 'n-resize' ? 
-      -(dragState.previewTop || 0) / 64 * 30 : 
-      ((dragState.previewHeight || 0) - ((task.duration || 30) / 30 * 64 - 8)) / 64 * 30;
+      -(dragState.previewTop || 0) / 24 * 30 : 
+      ((dragState.previewHeight || 0) - ((task.duration || 30) / 30 * 24 - 8)) / 24 * 30;
     
     const currentDuration = task.duration || 30;
     
     if (dragState.handle === 'top') {
       // Calculate new start time and duration
-      const slotsChanged = Math.round((dragState.previewTop || 0) / 64); // Note: no negative here since previewTop already has correct sign
+      const slotsChanged = Math.round((dragState.previewTop || 0) / 24); // Note: no negative here since previewTop already has correct sign
       const newStartTime = subMinutes(dragState.startTime, slotsChanged * 30);
       const newDuration = currentDuration + (-slotsChanged * 30); // Inverse for top handle
       
@@ -251,8 +251,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       }
     } else {
       // Calculate new duration
-      const heightDiff = (dragState.previewHeight || 0) - ((task.duration || 30) / 30 * 64 - 8);
-      const slotsChanged = Math.round(heightDiff / 64);
+      const heightDiff = (dragState.previewHeight || 0) - ((task.duration || 30) / 30 * 24 - 8);
+      const slotsChanged = Math.round(heightDiff / 24);
       const newDuration = currentDuration + (slotsChanged * 30);
       
       if (newDuration >= 30) {
@@ -328,12 +328,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     // Calculate position based on slot arrangement with combined 00:00-05:00 slot
     if (hours >= 0 && hours < 5) {
       // Current time is in the combined 00:00-05:00 slot
-      position = 32; // Middle of the first 64px slot
+      position = 12; // Middle of the first 24px slot
     } else {
       // Calculate position for slots starting from 05:00
       // Each slot after the night slot represents time from 05:00 onwards
       const minutesSince5AM = (hours - 5) * 60 + minutes;
-      position = 64 + (minutesSince5AM / 30) * 64; // 64px for night slot + calculated position
+      position = 24 + (minutesSince5AM / 30) * 24; // 24px for night slot + calculated position
     }
     
     return position;
@@ -355,7 +355,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 {timeSlots.map((slot, index) => {
                   const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
                   return (
-                    <div key={slot.hour} className={`h-16 border-b flex items-start justify-end pr-4 pt-2 transition-colors hover:bg-accent/20 ${
+                    <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
                       isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
                     }`}>
                       <span className={`font-inter leading-tight ${
@@ -371,7 +371,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               {/* Events Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
                 {timeSlots.map((slot) => (
-                  <div key={slot.hour} className="h-16 border-b border-border/10 relative">
+                  <div key={slot.hour} className="h-6 border-b border-border/10 relative">
                     <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
                       {(provided, snapshot) => (
                         <div
@@ -387,7 +387,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                             {slot.tasks.map((task, index) => {
                               const taskDuration = task.duration || 30; // Default 30 minutes
                               const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
-                              let heightInPixels = (slotsSpanned * 64) - 8; // 64px per slot minus padding
+                              let heightInPixels = (slotsSpanned * 24) - 8; // 24px per slot minus padding
                               let topOffset = 0;
                               
                               // Apply live preview for resizing
@@ -528,17 +528,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                       startPosition = 0;
                       if (endHour <= 5) {
                         // Entire block is within night slot
-                        duration = 64;
-                      } else {
-                        // Block spans from night slot into regular slots
-                        const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 64;
-                        duration = 64 + remainingDuration;
-                      }
-                    } else {
-                      // Time block starts at 05:00 or later
-                      const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
-                      startPosition = 64 + (adjustedStartHour * 2 + startMinute / 30) * 64;
-                      duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
+        duration = 24;
+      } else {
+        // Block spans from night slot into regular slots
+        const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 24;
+        duration = 24 + remainingDuration;
+      }
+    } else {
+      // Time block starts at 05:00 or later
+      const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
+      startPosition = 24 + (adjustedStartHour * 2 + startMinute / 30) * 24;
+      duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                     }
                     
                     console.log(`Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
