@@ -148,8 +148,8 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   };
 
   const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setIsSidePanelOpen(true);
+    // Navigate to task edit page with task ID
+    onNavigate(`task-edit?id=${task.id}`);
   };
 
   const handleCloseSidePanel = () => {
