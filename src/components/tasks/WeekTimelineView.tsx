@@ -90,43 +90,31 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // Generate individual slots for 00:00-05:00 range (matching Day view)
-    for (let hour = 0; hour < 5; hour++) {
-      for (let minutes = 0; minutes < 60; minutes += 30) {
-        const timeDate = new Date();
-        timeDate.setHours(hour, minutes, 0, 0);
-        const timeLabel = format(timeDate, 'HH:mm');
+    // First, add a combined 00:00-05:00 slot
+    const nightSlot: TimeSlot = {
+      hour: -1, // Special identifier for the combined night slot
+      label: '00:00-05:00',
+      dayTasks: {}
+    };
+    
+    // For each day of the week, find tasks in the 00:00-05:00 range
+    weekDays.forEach((day, dayIndex) => {
+      const nightTasks = tasks.filter(task => {
+        const taskDate = new Date(task.dueDate);
+        if (!isSameDay(taskDate, day)) return false;
         
-        const dayTasks: { [dayIndex: number]: Task[] } = {};
+        // Only show tasks with specific times (not at midnight/00:00) in timeline
+        if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
         
-        // For each day of the week, find tasks for this time slot
-        weekDays.forEach((day, dayIndex) => {
-          const nightTasks = tasks.filter(task => {
-            const taskDate = new Date(task.dueDate);
-            if (!isSameDay(taskDate, day)) return false;
-            
-            // Only show tasks with specific times (not at midnight/00:00) in timeline
-            if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
-            
-            // Check if task falls within this 30-minute slot
-            const taskHour = taskDate.getUTCHours();
-            const taskMinutes = taskDate.getUTCMinutes();
-            
-            return taskHour === hour && 
-                   ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
-                    (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
-          });
-          
-          dayTasks[dayIndex] = nightTasks;
-        });
-        
-        slots.push({
-          hour: hour * 2 + (minutes / 30), // Create unique slot identifier
-          label: timeLabel,
-          dayTasks
-        });
-      }
-    }
+        // Check if task falls within 00:00-05:00 range
+        const taskHour = taskDate.getUTCHours();
+        return taskHour >= 0 && taskHour < 5;
+      });
+      
+      nightSlot.dayTasks[dayIndex] = nightTasks;
+    });
+    
+    slots.push(nightSlot);
     
     // Generate remaining slots starting from 05:00 (slot index 10 = 05:00)
     // Generate 38 30-minute slots (from 05:00 to 24:00 = 19 hours × 2)
@@ -329,16 +317,27 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   const endHour = parseInt(block.endTime.split(':')[0]);
                   const endMinute = parseInt(block.endTime.split(':')[1]);
                   
-                  // Calculate position with individual 30-minute slots throughout the day
-                  const startTimeInMinutes = startHour * 60 + startMinute;
-                  const endTimeInMinutes = endHour * 60 + endMinute;
+                  // Calculate position with combined 00:00-05:00 slot arrangement
+                  let startPosition: number;
+                  let duration: number;
                   
-                  const startSlotIndex = Math.floor(startTimeInMinutes / 30);
-                  const endSlotIndex = Math.floor(endTimeInMinutes / 30);
-                  
-                  // Each slot is 64px
-                  const startPosition = startSlotIndex * 64;
-                  const duration = (endSlotIndex - startSlotIndex + 1) * 64;
+                  if (startHour < 5) {
+                    // Time block starts in the combined night slot
+                    startPosition = 0;
+                    if (endHour <= 5) {
+                      // Entire block is within night slot
+                      duration = 64;
+                    } else {
+                      // Block spans from night slot into regular slots
+                      const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 64;
+                      duration = 64 + remainingDuration;
+                    }
+                  } else {
+                    // Time block starts at 05:00 or later
+                    const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
+                    startPosition = 64 + (adjustedStartHour * 2 + startMinute / 30) * 64;
+                    duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
+                  }
                   
                   console.log(`Week Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
                   
@@ -377,13 +376,16 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
             
             let currentTimePosition: number;
             
-            // Calculate position based on individual 30-minute slots throughout the day
-            const totalMinutesFromMidnight = hours * 60 + minutes;
-            const slotIndex = Math.floor(totalMinutesFromMidnight / 30);
-            const minutesIntoSlot = totalMinutesFromMidnight % 30;
-            
-            // Each slot is 64px, position within slot based on minutes
-            currentTimePosition = slotIndex * 64 + (minutesIntoSlot / 30) * 64;
+            // Calculate position based on slot arrangement with combined 00:00-05:00 slot
+            if (hours >= 0 && hours < 5) {
+              // Current time is in the combined 00:00-05:00 slot
+              currentTimePosition = 32; // Middle of the first 64px slot
+            } else {
+              // Calculate position for slots starting from 05:00
+              // Each slot after the night slot represents time from 05:00 onwards
+              const minutesSince5AM = (hours - 5) * 60 + minutes;
+              currentTimePosition = 64 + (minutesSince5AM / 30) * 64; // 64px for night slot + calculated position
+            }
             
             return (
               <div 

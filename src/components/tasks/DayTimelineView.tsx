@@ -87,30 +87,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       return !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
     });
     
-    // First, add individual slots for 00:00-05:00 range
-    for (let hour = 0; hour < 5; hour++) {
-      for (let minutes = 0; minutes < 60; minutes += 30) {
-        const timeDate = new Date();
-        timeDate.setHours(hour, minutes, 0, 0);
-        const timeLabel = format(timeDate, 'HH:mm');
-        
-        const nightTasks = dayTasks.filter(task => {
-          const taskDateTime = new Date(task.dueDate);
-          const taskHour = taskDateTime.getUTCHours();
-          const taskMinutes = taskDateTime.getUTCMinutes();
-          
-          return taskHour === hour && 
-                 ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
-                  (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
-        });
-        
-        slots.push({
-          hour: hour * 2 + (minutes / 30), // Create unique slot identifier
-          label: timeLabel,
-          tasks: nightTasks
-        });
-      }
-    }
+    // First, add a combined 00:00-05:00 slot
+    const nightTasks = dayTasks.filter(task => {
+      const taskDateTime = new Date(task.dueDate);
+      const taskHour = taskDateTime.getUTCHours();
+      return taskHour >= 0 && taskHour < 5;
+    });
+    
+    slots.push({
+      hour: -1, // Special identifier for the combined night slot
+      label: '00:00-05:00',
+      tasks: nightTasks
+    });
     
     // Generate remaining slots starting from 05:00 (slot index 10 = 05:00)
     // Generate 38 30-minute slots (from 05:00 to 24:00 = 19 hours × 2)
@@ -335,13 +323,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     const hours = now.getHours();
     const minutes = now.getMinutes();
     
-    // Calculate position based on individual 30-minute slots throughout the day
-    const totalMinutesFromMidnight = hours * 60 + minutes;
-    const slotIndex = Math.floor(totalMinutesFromMidnight / 30);
-    const minutesIntoSlot = totalMinutesFromMidnight % 30;
+    let position: number;
     
-    // Each slot is 64px, position within slot based on minutes
-    const position = slotIndex * 64 + (minutesIntoSlot / 30) * 64;
+    // Calculate position based on slot arrangement with combined 00:00-05:00 slot
+    if (hours >= 0 && hours < 5) {
+      // Current time is in the combined 00:00-05:00 slot
+      position = 32; // Middle of the first 64px slot
+    } else {
+      // Calculate position for slots starting from 05:00
+      // Each slot after the night slot represents time from 05:00 onwards
+      const minutesSince5AM = (hours - 5) * 60 + minutes;
+      position = 64 + (minutesSince5AM / 30) * 64; // 64px for night slot + calculated position
+    }
     
     return position;
   };
