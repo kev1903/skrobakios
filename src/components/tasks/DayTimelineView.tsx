@@ -374,18 +374,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const currentMinutesInNight = hours * 60 + minutes;
       position = (currentMinutesInNight / totalMinutesInNight) * 24;
       console.log(`🌙 Night slot position: ${position}px (${currentMinutesInNight}/${totalMinutesInNight} minutes)`);
+    } else if (hours === 5 && minutes < 30) {
+      // Time between 05:00-05:30 - still in the night slot but at the very end
+      position = 24;
+      console.log(`🌅 Early morning (05:00-05:30): ${position}px`);
     } else {
-      // Calculate position for slots starting from 05:00
-      // Each 30-minute slot is 24px high
-      // Find which slot the current time falls into
-      const totalMinutesSince5AM = (hours - 5) * 60 + minutes;
-      const slotNumber = Math.floor(totalMinutesSince5AM / 30); // Which 30-min slot
-      const minutesIntoSlot = totalMinutesSince5AM % 30; // How far into the slot
+      // Calculate position for slots starting from 05:30
+      // Timeline actually starts at 05:30, not 05:00!
+      const totalMinutesSince530AM = (hours - 5) * 60 + (minutes - 30);
+      const slotNumber = Math.floor(totalMinutesSince530AM / 30); // Which 30-min slot
+      const minutesIntoSlot = totalMinutesSince530AM % 30; // How far into the slot
       
       // Position = night slot (24px) + completed slots + position within current slot
       position = 24 + (slotNumber * 24) + (minutesIntoSlot / 30) * 24;
       console.log(`⏰ Day position: ${position}px (slot ${slotNumber}, ${minutesIntoSlot} minutes into slot)`);
       console.log(`📊 Calculation: 24 + (${slotNumber} * 24) + (${minutesIntoSlot}/30 * 24) = ${position}`);
+      console.log(`📍 Time since 05:30: ${totalMinutesSince530AM} minutes`);
     }
     
     return position;
