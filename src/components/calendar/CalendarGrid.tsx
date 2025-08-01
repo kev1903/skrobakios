@@ -10,6 +10,7 @@ interface CalendarGridProps {
   timeBlocks: TimeBlock[];
   onDayClick: (day: Date) => void;
   onBlockEdit: (block: TimeBlock) => void;
+  categoryColors: Record<string, string>;
 }
 
 export const CalendarGrid = ({
@@ -18,7 +19,8 @@ export const CalendarGrid = ({
   isCurrentPeriod,
   timeBlocks,
   onDayClick,
-  onBlockEdit
+  onBlockEdit,
+  categoryColors
 }: CalendarGridProps) => {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
@@ -108,13 +110,16 @@ export const CalendarGrid = ({
                       const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
                       const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                       
-                      const borderColor = block.color.replace('bg-', 'border-');
+                      // Get color from category mapping or fallback to stored color
+                      const bgColor = categoryColors[block.category] || block.color || '#6b7280';
                       
                       return (
                         <div
                           key={block.id}
-                          className={`${block.color} ${borderColor} backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center`}
+                          className="backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center"
                           style={{
+                            backgroundColor: bgColor,
+                            borderColor: bgColor,
                             top: `${startPosition + 2}px`,
                             height: `${Math.max(duration - 2, 20)}px` // Minimum height of 20px to show title
                           }}
@@ -176,12 +181,17 @@ export const CalendarGrid = ({
               
               <div className="flex-1 space-y-1 overflow-y-auto">
                 {dayBlocks.map(block => {
-                  const borderColor = block.color.replace('bg-', 'border-');
+                  // Get color from category mapping or fallback to stored color
+                  const bgColor = categoryColors[block.category] || block.color || '#6b7280';
                   
                   return (
                     <div
                       key={block.id}
-                      className={`${block.color} ${borderColor} text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden flex items-center justify-center border-2`}
+                      className="text-white text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity overflow-hidden flex items-center justify-center border-2"
+                      style={{
+                        backgroundColor: bgColor,
+                        borderColor: bgColor
+                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         onBlockEdit(block);

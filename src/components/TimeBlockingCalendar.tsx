@@ -5,6 +5,7 @@ import { TimeBlock, NewTimeBlock } from './calendar/types';
 import { getCalendarData, createTimeBlock, categoryColors } from './calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTimeTracking } from '@/hooks/useTimeTracking';
 
 interface TimeBlockingCalendarProps {
   currentDate: Date;
@@ -19,6 +20,19 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { settings } = useTimeTracking();
+  
+  // Get category colors from time tracking settings
+  const categoryColors = settings?.category_colors || {
+    work: '#3b82f6',
+    personal: '#10b981',
+    meeting: '#8b5cf6',
+    break: '#f59e0b',
+    family: '#ec4899',
+    site_visit: '#f97316',
+    church: '#6366f1',
+    rest: '#6b7280'
+  };
   
   const [newBlock, setNewBlock] = useState<NewTimeBlock>({
     title: '',
@@ -259,6 +273,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
           timeBlocks={timeBlocks}
           onDayClick={handleDayClick}
           onBlockEdit={handleEditTimeBlock}
+          categoryColors={categoryColors}
         />
       )}
 
