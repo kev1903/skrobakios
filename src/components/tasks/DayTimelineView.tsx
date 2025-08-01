@@ -102,7 +102,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Generate 24-hour time slots
+  // Generate 24-hour time slots (48 30-minute slots)
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
@@ -114,25 +114,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       
       // Show tasks with specific times (not at midnight/00:00) in timeline
       // Tasks at midnight are considered "unscheduled" and stay in backlog
-      return !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
+      return !(taskDate.getHours() === 0 && taskDate.getMinutes() === 0);
     });
     
-    // First, add a combined 00:00-05:00 slot
-    const nightTasks = dayTasks.filter(task => {
-      const taskDateTime = new Date(task.dueDate);
-      const taskHour = taskDateTime.getUTCHours();
-      return taskHour >= 0 && taskHour < 5;
-    });
-    
-    slots.push({
-      hour: -1, // Special identifier for the combined night slot
-      label: '00:00-05:00',
-      tasks: nightTasks
-    });
-    
-    // Generate remaining slots starting from 05:00 (slot index 10 = 05:00)
-    // Generate 38 30-minute slots (from 05:00 to 24:00 = 19 hours × 2)
-    for (let slotIndex = 10; slotIndex < 48; slotIndex++) {
+    // Generate 48 30-minute slots (24 hours × 2)
+    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
       const hour = Math.floor(slotIndex / 2);
       const minutes = (slotIndex % 2) * 30;
       
@@ -147,22 +133,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           const taskDateTime = new Date(task.dueDate);
           if (isNaN(taskDateTime.getTime())) return false; // Invalid date
           
-          // Check if task starts in this 30-minute slot
-          // Use local time to match the display labels
+          // Check if task starts in this 30-minute slot using consistent local time
           const taskHour = taskDateTime.getHours();
           const taskMinutes = taskDateTime.getMinutes();
           
-          console.log(`🔍 Slot ${slotIndex} (${timeLabel}): Checking task "${task.taskName}" with local time ${taskHour}:${taskMinutes.toString().padStart(2, '0')} (${taskDateTime.toString()})`);
-          
-          const matches = taskHour === hour && 
+          return taskHour === hour && 
                  ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
                   (minutes === 30 && taskMinutes >= 30 && taskMinutes < 60));
-          
-          if (matches) {
-            console.log(`✅ Task "${task.taskName}" matches slot ${slotIndex} (${timeLabel})`);
-          }
-          
-          return matches;
         } catch (error) {
           console.error('Error parsing task date:', task.dueDate, error);
           return false;
@@ -391,21 +368,41 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           <div className="h-full overflow-hidden">
             <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] min-h-full">
               {/* Time Column */}
-              <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[60px] shadow-inner">
+              <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[60px] shadow-inner relative">
                 {timeSlots.map((slot, index) => {
-                  const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
+                  const isFullHour = slot.hour % 2 === 0; // Every even slot is a full hour
+                  const currentHour = currentTime.getHours();
+                  const currentMinutes = currentTime.getMinutes();
+                  const slotHour = Math.floor(slot.hour / 2);
+                  const slotMinutes = (slot.hour % 2) * 30;
+                  const isCurrentSlot = isCurrentDay && slotHour === currentHour && 
+                                       ((slotMinutes === 0 && currentMinutes >= 0 && currentMinutes < 30) ||
+                                        (slotMinutes === 30 && currentMinutes >= 30 && currentMinutes < 60));
+                  
                   return (
                     <div key={slot.hour} className={`h-6 border-b flex items-center justify-start pl-3 transition-colors hover:bg-accent/20 ${
                       isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
-                    }`}>
+                    } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
                       <span className={`font-inter leading-tight ${
                         isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
-                      }`}>
+                      } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                         {slot.label}
                       </span>
                     </div>
                   );
                 })}
+                
+                {/* Current Time Indicator */}
+                {isCurrentDay && (
+                  <div 
+                    className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-10 pointer-events-none"
+                    style={{
+                      top: `${(currentTime.getHours() * 2 + Math.floor(currentTime.getMinutes() / 30)) * 24 + (currentTime.getMinutes() % 30) / 30 * 24}px`
+                    }}
+                  >
+                    <div className="absolute -left-2 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
+                  </div>
+                )}
               </div>
 
               {/* Time Blocks Column */}

@@ -109,39 +109,12 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const weekDays = getWeekDays();
   const weekHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-  // Generate time slots for the week (Full 24 hours)
+  // Generate time slots for the week (24 hours in 30-minute slots)
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
-    // First, add a combined 00:00-05:00 slot
-    const nightSlot: TimeSlot = {
-      hour: -1, // Special identifier for the combined night slot
-      label: '00:00-05:00',
-      dayTasks: {}
-    };
-    
-    // For each day of the week, find tasks in the 00:00-05:00 range
-    weekDays.forEach((day, dayIndex) => {
-      const nightTasks = tasks.filter(task => {
-        const taskDate = new Date(task.dueDate);
-        if (!isSameDay(taskDate, day)) return false;
-        
-        // Only show tasks with specific times (not at midnight/00:00) in timeline
-        if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
-        
-        // Check if task falls within 00:00-05:00 range
-        const taskHour = taskDate.getUTCHours();
-        return taskHour >= 0 && taskHour < 5;
-      });
-      
-      nightSlot.dayTasks[dayIndex] = nightTasks;
-    });
-    
-    slots.push(nightSlot);
-    
-    // Generate remaining slots starting from 05:00 (slot index 10 = 05:00)
-    // Generate 38 30-minute slots (from 05:00 to 24:00 = 19 hours × 2)
-    for (let slotIndex = 10; slotIndex < 48; slotIndex++) {
+    // Generate 48 30-minute slots (24 hours × 2)
+    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
       const hour = Math.floor(slotIndex / 2);
       const minutes = (slotIndex % 2) * 30;
       
@@ -160,11 +133,11 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           if (!isSameDay(taskDate, day)) return false;
           
           // Only show tasks with specific times (not at midnight/00:00) in timeline
-          if (taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0) return false;
+          if (taskDate.getHours() === 0 && taskDate.getMinutes() === 0) return false;
           
           // Check if task falls within this 30-minute slot
-          const taskHour = taskDate.getUTCHours();
-          const taskMinutes = taskDate.getUTCMinutes();
+          const taskHour = taskDate.getHours();
+          const taskMinutes = taskDate.getMinutes();
           
           return taskHour === hour && 
                  ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
@@ -242,21 +215,41 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
         
         <div className="grid grid-cols-8 gap-0 min-h-full">
           {/* Time Column */}
-          <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner">
+          <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner relative">
             {timeSlots.map((slot, index) => {
-              const isFullHour = index % 2 === 0; // Every even slot is a full hour
+              const isFullHour = slot.hour % 2 === 0; // Every even slot is a full hour
+              const currentHour = currentTime.getHours();
+              const currentMinutes = currentTime.getMinutes();
+              const slotHour = Math.floor(slot.hour / 2);
+              const slotMinutes = (slot.hour % 2) * 30;
+              const isCurrentSlot = slotHour === currentHour && 
+                                   ((slotMinutes === 0 && currentMinutes >= 0 && currentMinutes < 30) ||
+                                    (slotMinutes === 30 && currentMinutes >= 30 && currentMinutes < 60));
+              
               return (
                 <div key={slot.hour} className={`h-16 border-b flex items-start justify-end pr-4 pt-2 transition-colors hover:bg-accent/20 ${
                   isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
-                }`}>
-                  <span className={`font-inter text-muted-foreground leading-tight ${
+                } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
+                  <span className={`font-inter leading-tight ${
                     isFullHour ? 'text-sm font-medium text-foreground/80' : 'text-xs font-normal text-muted-foreground/70'
-                  }`}>
+                  } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                     {slot.label}
                   </span>
                 </div>
               );
             })}
+            
+            {/* Current Time Indicator */}
+            {isSameDay(currentTime, currentDate) && (
+              <div 
+                className="absolute left-0 right-0 h-0.5 bg-primary shadow-md z-10 pointer-events-none"
+                style={{
+                  top: `${(currentTime.getHours() * 2 + currentTime.getMinutes() / 30) * 64 + (currentTime.getMinutes() % 30) / 30 * 64}px`
+                }}
+              >
+                <div className="absolute -left-2 -top-2 w-4 h-4 bg-primary rounded-full shadow-md"></div>
+              </div>
+            )}
           </div>
           
           {/* Day Columns */}
@@ -345,29 +338,14 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   const endHour = parseInt(block.endTime.split(':')[0]);
                   const endMinute = parseInt(block.endTime.split(':')[1]);
                   
-                  // Calculate position with combined 00:00-05:00 slot arrangement
-                  let startPosition: number;
-                  let duration: number;
+                  // Calculate position using proper 30-minute slots (64px height each)
+                  const startSlotIndex = startHour * 2 + Math.floor(startMinute / 30);
+                  const endSlotIndex = endHour * 2 + Math.floor(endMinute / 30);
                   
-                  if (startHour < 5) {
-                    // Time block starts in the combined night slot
-                    startPosition = 0;
-                    if (endHour <= 5) {
-                      // Entire block is within night slot
-                      duration = 64;
-                    } else {
-                      // Block spans from night slot into regular slots
-                      const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 64;
-                      duration = 64 + remainingDuration;
-                    }
-                  } else {
-                    // Time block starts at 05:00 or later
-                    const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
-                    startPosition = 64 + (adjustedStartHour * 2 + startMinute / 30) * 64;
-                    duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
-                  }
+                  const startPosition = startSlotIndex * 64;
+                  const duration = (endSlotIndex - startSlotIndex) * 64;
                   
-                  console.log(`Week Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
+                  console.log(`Week Time block: ${block.title}, Category: ${block.category}, Start: ${startHour}:${startMinute}, End: ${endHour}:${endMinute}`);
                   
                   // Use category colors from time tracking settings
                   const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
@@ -380,7 +358,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                         backgroundColor: 'transparent',
                         borderColor: `hsl(${actualColor})`,
                         top: `${startPosition}px`,
-                        height: `${Math.max(duration - 2, 20)}px`
+                        height: `${Math.max(duration, 32)}px`
                       }}
                     >
                       <div 
