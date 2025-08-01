@@ -214,7 +214,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   return (
     <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
       {/* Week Grid with Time Slots */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden">
         {/* Day Headers Row */}
         <div className="grid grid-cols-8 gap-1 border-b border-border/30 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm p-2">
           <div className="p-3 text-center text-muted-foreground font-medium text-sm min-w-[100px] bg-card/50 rounded-lg border border-border/20">

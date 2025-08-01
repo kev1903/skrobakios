@@ -388,7 +388,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">
+          <div className="h-full overflow-hidden">
             <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] min-h-full">
               {/* Time Column */}
               <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[60px] shadow-inner">

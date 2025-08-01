@@ -58,7 +58,7 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
   return (
     <div className="h-full flex flex-col">
       {/* Month Grid */}
-      <div className="flex-1 overflow-auto border border-border/20 rounded-lg bg-background">
+      <div className="flex-1 overflow-hidden border border-border/20 rounded-lg bg-background">
         {/* Week Headers */}
         <div className="grid grid-cols-7 gap-0 border-b border-border/20 bg-muted/10">
           {weekHeaders.map(day => (
