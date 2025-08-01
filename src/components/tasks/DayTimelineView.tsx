@@ -148,10 +148,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           if (isNaN(taskDateTime.getTime())) return false; // Invalid date
           
           // Check if task starts in this 30-minute slot
-          const taskHour = taskDateTime.getUTCHours();
-          const taskMinutes = taskDateTime.getUTCMinutes();
+          // Use local time to match the display labels
+          const taskHour = taskDateTime.getHours();
+          const taskMinutes = taskDateTime.getMinutes();
           
-          console.log(`🔍 Slot ${slotIndex} (${timeLabel}): Checking task "${task.taskName}" with UTC time ${taskHour}:${taskMinutes.toString().padStart(2, '0')} (${taskDateTime.toISOString()})`);
+          console.log(`🔍 Slot ${slotIndex} (${timeLabel}): Checking task "${task.taskName}" with local time ${taskHour}:${taskMinutes.toString().padStart(2, '0')} (${taskDateTime.toString()})`);
           
           const matches = taskHour === hour && 
                  ((minutes === 0 && taskMinutes >= 0 && taskMinutes < 30) ||
@@ -358,8 +359,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Calculate current time indicator position
   const getCurrentTimePosition = () => {
     const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+    // Use UTC time to match task filtering logic
+    const hours = now.getUTCHours();
+    const minutes = now.getUTCMinutes();
     
     let position: number;
     
