@@ -1,4 +1,42 @@
 
+/* CRITICAL: React Beautiful DnD drag fixes */
+body.react-beautiful-dnd-dragging * {
+  cursor: grabbing !important;
+}
+
+.react-beautiful-dnd-drag-handle {
+  cursor: grab !important;
+}
+
+.react-beautiful-dnd-drag-handle:active {
+  cursor: grabbing !important;
+}
+
+/* Ensure dragged items render above everything */
+div[data-rbd-drag-handle-draggable-id] {
+  z-index: 9999 !important;
+}
+
+/* Portal styles for React Beautiful DnD */
+.react-beautiful-dnd-dragging {
+  position: fixed !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+}
+
+/* Bulletproof drag positioning */
+[data-dragging="true"] {
+  position: fixed !important;
+  z-index: 10000 !important;
+  pointer-events: none !important;
+  opacity: 0.9 !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+  background-color: #dbeafe !important;
+  border: 2px solid #3b82f6 !important;
+  border-radius: 8px !important;
+  transform-origin: center center !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
