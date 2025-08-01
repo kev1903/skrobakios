@@ -372,18 +372,14 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       key={`timeblock-${block.id}-${dayIndex}`}
                       className="absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm border-2"
                       style={{
-                        backgroundColor: `hsl(${actualColor} / 0.4)`,
+                        backgroundColor: 'transparent',
                         borderColor: `hsl(${actualColor})`,
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
                       }}
                     >
                       <div 
-                        className="flex items-center justify-center h-full text-white text-xs font-semibold px-2"
-                        style={{ 
-                          backgroundColor: `hsl(${actualColor} / 0.9)`,
-                          textShadow: '0 1px 2px rgba(0,0,0,0.5)'
-                        }}
+                        className="flex items-center justify-center h-full text-foreground text-xs font-semibold px-2"
                       >
                         <span className="truncate">{block.title}</span>
                       </div>
