@@ -436,33 +436,33 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       minHeight: '20px'
                                     }}
                                   >
-                                    {/* Task Name Column */}
-                                    <div className="border-r border-border/20 px-2 py-1 flex items-center">
-                                      <div className={`rounded px-2 py-1 text-xs w-full ${getStatusColor(task.status)}`}>
-                                        <span className="font-medium truncate">{task.taskName}</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Project Column */}
-                                    <div className="border-r border-border/20 px-2 py-1 flex items-center">
-                                      <div className="rounded px-2 py-1 text-xs w-full bg-muted/30">
-                                        <span className="text-muted-foreground truncate">{task.projectName || 'No Project'}</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Duration Column */}
-                                    <div className="border-r border-border/20 px-2 py-1 flex items-center justify-center">
-                                      <div className="rounded px-2 py-1 text-xs bg-accent/30">
-                                        <span className="font-medium">{taskDuration}min</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Priority Column */}
-                                    <div className="px-2 py-1 flex items-center justify-center">
-                                      <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
-                                        {task.priority}
-                                      </Badge>
-                                    </div>
+                                     {/* Task Name Column */}
+                                     <div className="border-r border-border/20 px-2 py-1 flex items-center bg-transparent">
+                                       <div className={`rounded px-2 py-1 text-xs w-full ${getStatusColor(task.status)}`}>
+                                         <span className="font-medium truncate">{task.taskName}</span>
+                                       </div>
+                                     </div>
+                                     
+                                     {/* Project Column */}
+                                     <div className="border-r border-border/20 px-2 py-1 flex items-center bg-transparent">
+                                       <div className="rounded px-2 py-1 text-xs w-full bg-muted/20 border border-border/30">
+                                         <span className="text-foreground/80 truncate font-medium">{task.projectName || 'No Project'}</span>
+                                       </div>
+                                     </div>
+                                     
+                                     {/* Duration Column */}
+                                     <div className="border-r border-border/20 px-2 py-1 flex items-center justify-center bg-transparent">
+                                       <div className="rounded px-2 py-1 text-xs bg-accent/20 border border-border/30">
+                                         <span className="font-medium text-foreground/90">{taskDuration}min</span>
+                                       </div>
+                                     </div>
+                                     
+                                     {/* Priority Column */}
+                                     <div className="px-2 py-1 flex items-center justify-center bg-transparent">
+                                       <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
+                                         {task.priority}
+                                       </Badge>
+                                     </div>
                                   </div>
                                 )}
                               </Draggable>
