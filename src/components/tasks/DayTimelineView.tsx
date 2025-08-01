@@ -77,7 +77,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     // Filter tasks for current date that have specific times (not midnight)
     const dayTasks = tasks.filter(task => {
       const taskDate = new Date(task.dueDate);
-      if (!isSameDay(taskDate, currentDate)) return false;
+      const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
+      if (!isSameDay(taskDate, dateObj)) return false;
       
       // Show tasks with specific times (not at midnight/00:00) in timeline
       // Tasks at midnight are considered "unscheduled" and stay in backlog
@@ -337,7 +338,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   };
 
   const currentTimePosition = getCurrentTimePosition();
-  const isCurrentDay = isSameDay(currentDate, new Date());
+  const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
 
   return (
     <div className="h-full flex bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
@@ -505,9 +506,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 
                 {/* Time blocks overlay */}
                 {(() => {
-                  // Get current day of week (0 = Sunday, 1 = Monday, etc.)
-                  const dayOfWeek = currentDate.getDay();
-                  const dayBlocks = getBlocksForDay(currentDate, timeBlocks);
+                  // Ensure currentDate is a Date object
+                  const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                  const dayBlocks = getBlocksForDay(dateObj, timeBlocks);
                   
                   return dayBlocks.map(block => {
                     const startHour = parseInt(block.startTime.split(':')[0]);
@@ -596,7 +597,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           <div className="p-4 border-b border-border/30">
             <h3 className="font-semibold text-foreground">Day Details</h3>
             <p className="text-sm text-muted-foreground">
-              {format(currentDate, 'EEEE, MMMM d, yyyy')}
+              {format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'EEEE, MMMM d, yyyy')}
             </p>
           </div>
           
@@ -608,18 +609,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Total Tasks</span>
-                  <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate)).length}</Badge>
+                  <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate))).length}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Completed</span>
                   <Badge variant="secondary" className="bg-success/20 text-success">
-                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status === 'Completed').length}
+                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'Completed').length}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">In Progress</span>
                   <Badge variant="secondary" className="bg-primary/20 text-primary">
-                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status === 'In Progress').length}
+                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status === 'In Progress').length}
                   </Badge>
                 </div>
               </div>
@@ -630,7 +631,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               <h4 className="font-medium mb-3 text-sm">Upcoming Tasks</h4>
               <div className="space-y-2">
                 {tasks
-                  .filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status !== 'Completed')
+                  .filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed')
                   .slice(0, 5)
                   .map(task => (
                     <div key={task.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 transition-colors">
@@ -646,7 +647,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                       </div>
                     </div>
                   ))}
-                {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status !== 'Completed').length === 0 && (
+                {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate instanceof Date ? currentDate : new Date(currentDate)) && task.status !== 'Completed').length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
                 )}
               </div>
