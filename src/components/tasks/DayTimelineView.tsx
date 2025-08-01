@@ -604,12 +604,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
         <div className="h-full flex flex-col">
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-border/30">
-            <h3 className="font-semibold text-foreground">Day Details</h3>
-            <p className="text-sm text-muted-foreground">
-              {format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'EEEE, MMMM d, yyyy')}
-            </p>
-          </div>
           
           {/* Sidebar Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
