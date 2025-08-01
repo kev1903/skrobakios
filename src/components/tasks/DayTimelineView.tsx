@@ -356,11 +356,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     setTimeSlots(generateTimeSlots());
   }, [generateTimeSlots]);
 
-  // Calculate current time indicator position
-  const getCurrentTimePosition = () => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+  // Calculate current time indicator position - memoized and reactive to currentTime
+  const currentTimePosition = React.useMemo(() => {
+    const hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
     
     console.log(`🕐 Current time: ${hours}:${minutes.toString().padStart(2, '0')}`);
     
@@ -402,9 +401,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
     
     return position;
-  };
-
-  const currentTimePosition = getCurrentTimePosition();
+  }, [currentTime]);
+  
   const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
 
   return (
