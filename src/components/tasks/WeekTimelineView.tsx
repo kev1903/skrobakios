@@ -352,7 +352,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
-                      className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-1 right-1 pointer-events-none z-0 rounded-md backdrop-blur-sm`}
+                      className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-1 right-1 pointer-events-none -z-10 rounded-md backdrop-blur-sm`}
                       style={{
                         top: `${startPosition}px`,
                         height: `${Math.max(duration - 2, 20)}px`
