@@ -394,41 +394,6 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
             </div>
           ))}
           
-          {/* Week-wide Current Time Indicator */}
-          {(() => {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            
-            let currentTimePosition: number;
-            
-            // Calculate position based on slot arrangement with combined 00:00-05:00 slot
-            if (hours >= 0 && hours < 5) {
-              // Current time is in the combined 00:00-05:00 slot
-              currentTimePosition = 32; // Middle of the first 64px slot
-            } else {
-              // Calculate position for slots starting from 05:00
-              // Each slot after the night slot represents time from 05:00 onwards
-              const minutesSince5AM = (hours - 5) * 60 + minutes;
-              currentTimePosition = 64 + (minutesSince5AM / 30) * 64; // 64px for night slot + calculated position
-            }
-            
-            return (
-              <div 
-                className="absolute left-0 right-0 z-50 pointer-events-none"
-                style={{ top: `${currentTimePosition}px` }}
-              >
-                {/* Time dot on the left edge of the time column */}
-                <div className="absolute left-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md" style={{ left: '76px' }}></div>
-                {/* Time line spanning across all day columns */}
-                <div className="w-full h-0.5 bg-red-500 shadow-sm" style={{ marginLeft: '80px' }}></div>
-                {/* Current time label positioned in the time column */}
-                <div className="absolute left-2 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
-                  {format(currentTime, 'HH:mm')}
-                </div>
-              </div>
-            );
-          })()}
         </div>
       </div>
     </div>

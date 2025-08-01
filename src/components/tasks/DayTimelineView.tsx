@@ -356,53 +356,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     setTimeSlots(generateTimeSlots());
   }, [generateTimeSlots]);
 
-  // Calculate current time indicator position - memoized and reactive to currentTime
-  const currentTimePosition = React.useMemo(() => {
-    const hours = currentTime.getHours();
-    const minutes = currentTime.getMinutes();
-    
-    console.log(`🕐 Current time: ${hours}:${minutes.toString().padStart(2, '0')}`);
-    
-    let position: number;
-    
-    // The timeline structure matches the slot generation:
-    // Night slot: 00:00-05:00 (24px)
-    // Then: 05:00, 05:30, 06:00, 06:30, 07:00, 07:30, 08:00, 08:30... (24px each)
-    
-    if (hours >= 0 && hours < 5) {
-      // Current time is in the combined 00:00-05:00 slot (24px height)
-      const totalMinutesInNight = 5 * 60; // 300 minutes total
-      const currentMinutesInNight = hours * 60 + minutes;
-      position = (currentMinutesInNight / totalMinutesInNight) * 24;
-      console.log(`🌙 Night slot position: ${position}px`);
-    } else {
-      // After 05:00, the slots follow the same pattern as slot generation
-      // Slot index 10 = 05:00, 11 = 05:30, 12 = 06:00, etc.
-      // Convert current time to slot index logic: slotIndex = hours * 2 + (minutes >= 30 ? 1 : 0)
-      
-      const currentSlotIndex = hours * 2 + (minutes >= 30 ? 1 : 0);
-      console.log(`📍 Current slot index would be: ${currentSlotIndex}`);
-      
-      // The first slot after night slot is index 10 (05:00)
-      // So the position is: night slot (24px) + (currentSlotIndex - 10) * 24px + position within slot
-      
-      const slotsAfterNight = currentSlotIndex - 10;
-      const minutesIntoSlot = minutes % 30;
-      const positionInSlot = (minutesIntoSlot / 30) * 24;
-      
-      position = 24 + (slotsAfterNight * 24) + positionInSlot;
-      
-      console.log(`⏰ Calculation breakdown:`);
-      console.log(`   Current slot index: ${currentSlotIndex}`);
-      console.log(`   Slots after night: ${slotsAfterNight}`);
-      console.log(`   Minutes into slot: ${minutesIntoSlot}`);
-      console.log(`   Position in slot: ${positionInSlot}px`);
-      console.log(`   Final position: 24 + (${slotsAfterNight} * 24) + ${positionInSlot} = ${position}px`);
-    }
-    
-    return position;
-  }, [currentTime]);
-  
   const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
 
   return (
@@ -783,25 +736,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
             </div>
 
-            {/* Current Time Indicator - Only on calendar view */}
-            <div className="absolute inset-0 pointer-events-none" style={{ left: '60px' }}>
-              {isCurrentDay && (
-                <div 
-                  className="absolute z-50 pointer-events-none"
-                  style={{ 
-                    top: `${currentTimePosition}px`,
-                    left: '0',
-                    right: '0'
-                  }}
-                >
-                  <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
-                  <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
-                  <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
-                    {format(currentTime, 'HH:mm')}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
