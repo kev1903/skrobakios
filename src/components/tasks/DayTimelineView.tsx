@@ -359,9 +359,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Calculate current time indicator position
   const getCurrentTimePosition = () => {
     const now = new Date();
-    // Use UTC time to match task filtering logic
-    const hours = now.getUTCHours();
-    const minutes = now.getUTCMinutes();
+    // Use local time to match task filtering logic
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
     
     let position: number;
     
@@ -766,14 +766,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
             </div>
 
-            {/* Current Time Indicator */}
-            <div className="absolute inset-0 pointer-events-none">
+            {/* Current Time Indicator - Only on calendar view */}
+            <div className="absolute inset-0 pointer-events-none" style={{ left: '60px' }}>
               {isCurrentDay && (
                 <div 
                   className="absolute z-50 pointer-events-none"
                   style={{ 
                     top: `${currentTimePosition}px`,
-                    left: '-60px',
+                    left: '0',
                     right: '0'
                   }}
                 >
