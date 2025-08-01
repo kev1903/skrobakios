@@ -348,9 +348,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Column Headers */}
         <div className="border-b border-border/30 bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-sm">
-          <div className="grid grid-cols-[60px_1fr_120px_80px_80px] h-10">
+          <div className="grid grid-cols-[60px_40px_1fr_120px_80px_80px] h-10">
             <div className="border-r border-border/30 flex items-center justify-center">
               <span className="text-xs font-medium text-muted-foreground">Time</span>
+            </div>
+            <div className="border-r border-border/30 flex items-center justify-center">
+              <span className="text-xs font-medium text-muted-foreground">Blocks</span>
             </div>
             <div className="border-r border-border/30 flex items-center justify-center">
               <span className="text-xs font-medium text-muted-foreground">Task Name</span>
@@ -370,7 +373,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <div className="grid grid-cols-[60px_1fr_120px_80px_80px] min-h-full">
+            <div className="grid grid-cols-[60px_40px_1fr_120px_80px_80px] min-h-full">
               {/* Time Column */}
               <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[60px] shadow-inner">
                 {timeSlots.map((slot, index) => {
@@ -387,6 +390,69 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Time Blocks Column */}
+              <div className="border-r border-border/30 bg-gradient-to-b from-card/60 to-card/40 backdrop-blur-sm relative">
+                {timeSlots.map((slot, index) => (
+                  <div key={`timeblock-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                  </div>
+                ))}
+                
+                {/* Time blocks positioned in this column */}
+                {(() => {
+                  const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                  const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
+                  
+                  return blocksForDay.map((block) => {
+                    const startHour = parseInt(block.startTime.split(':')[0]);
+                    const startMinute = parseInt(block.startTime.split(':')[1]);
+                    const endHour = parseInt(block.endTime.split(':')[0]);
+                    const endMinute = parseInt(block.endTime.split(':')[1]);
+                    
+                    let startPosition: number;
+                    let endPosition: number;
+                    
+                    if (startHour >= 0 && startHour < 5) {
+                      startPosition = 0;
+                    } else {
+                      const startTotalMinutes = startHour * 60 + startMinute;
+                      const startSlotIndex = Math.floor((startTotalMinutes - 300) / 30);
+                      startPosition = 24 + (startSlotIndex * 24);
+                    }
+                    
+                    if (endHour >= 0 && endHour < 5) {
+                      endPosition = 24;
+                    } else {
+                      const endTotalMinutes = endHour * 60 + endMinute;
+                      const endSlotIndex = Math.floor((endTotalMinutes - 300) / 30);
+                      endPosition = 24 + (endSlotIndex * 24);
+                    }
+                    
+                    const heightPixels = Math.max(24, endPosition - startPosition);
+                    
+                    return (
+                      <div
+                        key={block.id}
+                        className="absolute rounded border-l-4 backdrop-blur-sm pointer-events-none z-10"
+                        style={{
+                          top: `${startPosition}px`,
+                          height: `${heightPixels}px`,
+                          backgroundColor: `${block.color}20`,
+                          borderLeftColor: block.color,
+                          left: '2px',
+                          right: '2px',
+                        }}
+                      >
+                        <div className="p-1 h-full flex flex-col justify-center">
+                          <div className="text-[10px] font-medium truncate" style={{ color: block.color }}>
+                            {block.title}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Task Name Column */}
@@ -576,69 +642,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
             </div>
 
-            {/* Time blocks and current time overlay */}
+            {/* Current Time Indicator */}
             <div className="absolute inset-0 pointer-events-none">
-              {/* Time blocks overlay */}
-              {(() => {
-                const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
-                const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
-                
-                return blocksForDay.map((block) => {
-                  const startHour = parseInt(block.startTime.split(':')[0]);
-                  const startMinute = parseInt(block.startTime.split(':')[1]);
-                  const endHour = parseInt(block.endTime.split(':')[0]);
-                  const endMinute = parseInt(block.endTime.split(':')[1]);
-                  
-                  let startPosition: number;
-                  let endPosition: number;
-                  
-                  if (startHour >= 0 && startHour < 5) {
-                    startPosition = 0;
-                  } else {
-                    const startTotalMinutes = startHour * 60 + startMinute;
-                    const startSlotIndex = Math.floor((startTotalMinutes - 300) / 30);
-                    startPosition = 24 + (startSlotIndex * 24);
-                  }
-                  
-                  if (endHour >= 0 && endHour < 5) {
-                    endPosition = 24;
-                  } else {
-                    const endTotalMinutes = endHour * 60 + endMinute;
-                    const endSlotIndex = Math.floor((endTotalMinutes - 300) / 30);
-                    endPosition = 24 + (endSlotIndex * 24);
-                  }
-                  
-                  const heightPixels = Math.max(24, endPosition - startPosition);
-                  
-                  return (
-                    <div
-                      key={block.id}
-                      className="absolute rounded-lg border-l-4 backdrop-blur-sm pointer-events-none z-0"
-                      style={{
-                        top: `${startPosition}px`,
-                        height: `${heightPixels}px`,
-                        backgroundColor: `${block.color}20`,
-                        borderLeftColor: block.color,
-                        left: '0',
-                        right: '0',
-                      }}
-                    >
-                      <div className="p-2 h-full flex flex-col justify-center">
-                        <div className="text-xs font-medium" style={{ color: block.color }}>
-                          {block.title}
-                        </div>
-                        {block.description && (
-                          <div className="text-xs opacity-70 mt-1" style={{ color: block.color }}>
-                            {block.description}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-
-              {/* Current Time Indicator */}
               {isCurrentDay && (
                 <div 
                   className="absolute z-50 pointer-events-none"
