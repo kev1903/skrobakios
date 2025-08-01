@@ -117,8 +117,36 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
     if (!destination) return;
 
-    // If dropped on day area, update task date
-    if (destination.droppableId === 'day-area' && onTaskUpdate) {
+    // Handle timeline drops
+    if (destination.droppableId.startsWith('timeline-') && onTaskUpdate) {
+      const slotHour = destination.droppableId.replace('timeline-', '');
+      const task = tasks.find(t => t.id === draggableId);
+      
+      if (task) {
+        try {
+          let newDate = new Date(currentDate);
+          
+          if (slotHour === '-1') {
+            // Combined night slot (00:00-05:00), default to 02:30
+            newDate.setHours(2, 30, 0, 0);
+          } else {
+            // Calculate hour and minutes from slot index
+            const slotIndex = parseInt(slotHour);
+            const hour = Math.floor(slotIndex / 2);
+            const minutes = (slotIndex % 2) * 30;
+            newDate.setHours(hour, minutes, 0, 0);
+          }
+          
+          await onTaskUpdate(task.id, {
+            dueDate: newDate.toISOString()
+          });
+        } catch (error) {
+          console.error('Failed to update task:', error);
+        }
+      }
+    }
+    // Handle legacy day area drops
+    else if (destination.droppableId === 'day-area' && onTaskUpdate) {
       const task = tasks.find(t => t.id === draggableId);
       if (task) {
         try {
@@ -250,16 +278,34 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                     >
                       {backlogTasks.map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
-                                snapshot.isDragging ? 'shadow-lg rotate-2 scale-105' : ''
-                              }`}
-                              onClick={() => onTaskClick(task)}
-                            >
+                           {(provided, snapshot) => (
+                             <div
+                               ref={provided.innerRef}
+                               {...provided.draggableProps}
+                               {...provided.dragHandleProps}
+                               className={`p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
+                                 snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''
+                               }`}
+                                 style={{
+                                   ...provided.draggableProps.style,
+                                   // Complete fix for drag cursor offset issue
+                                   ...(snapshot.isDragging && {
+                                     // Override react-beautiful-dnd's positioning to fix cursor offset
+                                     position: 'fixed',
+                                     width: '190px',
+                                     height: '56px',
+                                     margin: '0',
+                                     padding: '0',
+                                     // Keep the library's transform but ensure consistent sizing
+                                     transform: provided.draggableProps.style?.transform,
+                                     zIndex: 9999,
+                                     pointerEvents: 'none',
+                                     // Fix: Adjust the transform origin to center for better cursor alignment
+                                     transformOrigin: 'center'
+                                   })
+                                 }}
+                               onClick={() => onTaskClick(task)}
+                             >
                               <div className="space-y-2">
                                 <h4 className="font-medium text-sm">{task.taskName}</h4>
                                 <p className="text-xs text-muted-foreground">

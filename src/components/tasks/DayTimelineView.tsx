@@ -401,34 +401,35 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                               }
                               
                               return (
-                                <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
-                                  {(provided, snapshot) => (
-                                     <div
-                                       ref={provided.innerRef}
-                                       {...provided.draggableProps}
-                                       data-dragging={snapshot.isDragging}
-                                       className={`absolute ${
-                                         // Disable transitions during resize operations to prevent flashing
-                                         dragState.isDragging && dragState.taskId === task.id
-                                           ? 'border-2 border-primary/50' 
-                                           : 'transition-all duration-200'
-                                       } ${
-                                         snapshot.isDragging 
-                                           ? 'shadow-xl opacity-90 z-50' 
-                                           : 'hover:shadow-md z-10'
-                                       }`}
-                                       style={{
-                                         ...provided.draggableProps.style,
-                                         transform: snapshot.isDragging 
-                                           ? provided.draggableProps.style?.transform 
-                                           : provided.draggableProps.style?.transform,
-                                         left: `${index * 200 + 4}px`, // Offset multiple tasks horizontally
-                                         top: `${topOffset}px`, // Apply preview top offset
-                                         width: '190px',
-                                         height: `${heightInPixels}px`,
-                                         minHeight: '56px'
-                                       }}
-                                     >
+                                 <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
+                                   {(provided, snapshot) => (
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        data-dragging={snapshot.isDragging}
+                                        className={`absolute ${
+                                          // Disable transitions during resize operations to prevent flashing
+                                          dragState.isDragging && dragState.taskId === task.id
+                                            ? 'border-2 border-primary/50' 
+                                            : 'transition-all duration-200'
+                                        } ${
+                                          snapshot.isDragging 
+                                            ? 'shadow-xl opacity-90 z-50' 
+                                            : 'hover:shadow-md z-10'
+                                        }`}
+                                        style={{
+                                          ...provided.draggableProps.style,
+                                          // Fix drag offset by using consistent positioning
+                                          transform: snapshot.isDragging 
+                                            ? provided.draggableProps.style?.transform 
+                                            : `translate(${index * 200 + 4}px, ${topOffset}px)`,
+                                          left: snapshot.isDragging ? 0 : `${index * 200 + 4}px`,
+                                          top: snapshot.isDragging ? 0 : `${topOffset}px`,
+                                          width: '190px',
+                                          height: `${heightInPixels}px`,
+                                          minHeight: '56px'
+                                        }}
+                                      >
                                        <Card 
                                          className={`h-full w-full ${getStatusColor(task.status)} border-l-4 select-none group shadow-sm relative`}
                                          style={{ borderLeftColor: task.priority === 'High' ? 'hsl(var(--destructive))' : task.priority === 'Medium' ? 'hsl(var(--warning))' : 'hsl(var(--success))' }}
