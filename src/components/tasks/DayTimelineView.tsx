@@ -508,23 +508,33 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     const endHour = parseInt(block.endTime.split(':')[0]);
                     const endMinute = parseInt(block.endTime.split(':')[1]);
                     
-                    // Calculate position to match time slots exactly
+                    // Calculate position to match time slots structure exactly
                     let startPosition: number;
+                    let endPosition: number;
                     
+                    // Find start position by matching timeSlots array structure
                     if (startHour >= 0 && startHour < 5) {
-                      // Position within the combined 00:00-05:00 slot (first slot, 24px high)
+                      // This falls in the combined 00:00-05:00 slot (index 0)
                       startPosition = 0;
                     } else {
-                      // Calculate position for slots starting from 05:00
-                      // Convert time to 30-minute slot index (starting from slot 10 which is 05:00)
-                      const totalMinutes = startHour * 60 + startMinute;
-                      const minutesSince5AM = totalMinutes - (5 * 60); // Minutes since 5:00 AM
-                      const slotIndex = Math.floor(minutesSince5AM / 30); // Which 30-min slot (0-based from 05:00)
-                      startPosition = 24 + (slotIndex * 24); // 24px for combined slot + slots after
+                      // Find the corresponding slot index for times >= 05:00
+                      // Convert time to 30-minute slot index starting from 05:00
+                      const startTotalMinutes = startHour * 60 + startMinute;
+                      const startSlotIndex = Math.floor((startTotalMinutes - 300) / 30); // 300 = 5*60 (5AM in minutes)
+                      // Position = 24px for combined slot + (slotIndex * 24px)
+                      startPosition = 24 + (startSlotIndex * 24);
                     }
                     
-                    const totalDurationMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-                    const heightPixels = Math.max(24, (totalDurationMinutes / 30) * 24); // Minimum 1 slot height
+                    // Calculate end position
+                    if (endHour >= 0 && endHour < 5) {
+                      endPosition = 24; // End of combined slot
+                    } else {
+                      const endTotalMinutes = endHour * 60 + endMinute;
+                      const endSlotIndex = Math.floor((endTotalMinutes - 300) / 30);
+                      endPosition = 24 + (endSlotIndex * 24);
+                    }
+                    
+                    const heightPixels = Math.max(24, endPosition - startPosition);
                     
                     return (
                       <div
