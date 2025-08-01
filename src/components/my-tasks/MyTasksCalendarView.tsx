@@ -106,7 +106,10 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   };
 
   const handleDragStart = useCallback((start: any) => {
-    const taskId = start.draggableId;
+    let taskId = start.draggableId;
+    if (taskId.startsWith('backlog-')) {
+      taskId = taskId.replace('backlog-', '');
+    }
     const task = tasks.find(t => t.id === taskId);
     setDraggedTask(task || null);
   }, [tasks]);
@@ -120,7 +123,16 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     // Handle timeline drops (works for all droppableIds that start with 'timeline-')
     if (destination.droppableId.startsWith('timeline-') && onTaskUpdate) {
       const slotHour = destination.droppableId.replace('timeline-', '');
-      const task = tasks.find(t => t.id === draggableId);
+      
+      // Extract task ID from draggableId (handle prefixed IDs)
+      let taskId = draggableId;
+      if (draggableId.startsWith('backlog-')) {
+        taskId = draggableId.replace('backlog-', '');
+      } else if (draggableId.startsWith('timeline-')) {
+        taskId = draggableId.replace('timeline-', '');
+      }
+      
+      const task = tasks.find(t => t.id === taskId);
       
       if (task) {
         try {
@@ -147,7 +159,13 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     }
     // Handle legacy day area drops  
     else if (destination.droppableId === 'day-area' && onTaskUpdate) {
-      const task = tasks.find(t => t.id === draggableId);
+      // Extract task ID from draggableId (handle prefixed IDs)
+      let taskId = draggableId;
+      if (draggableId.startsWith('backlog-')) {
+        taskId = draggableId.replace('backlog-', '');
+      }
+      
+      const task = tasks.find(t => t.id === taskId);
       if (task) {
         try {
           await onTaskUpdate(task.id, {
@@ -277,7 +295,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                       className="space-y-3 overflow-y-auto h-full pr-2"
                     >
                       {backlogTasks.map((task, index) => (
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                        <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
                            {(provided, snapshot) => (
                              <div
                                ref={provided.innerRef}

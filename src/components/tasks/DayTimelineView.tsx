@@ -505,65 +505,81 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
               {/* Task Name Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    <Droppable droppableId={`taskname-${slot.hour}`} direction="vertical">
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`absolute inset-0 transition-colors ${
-                            snapshot.isDraggingOver
-                              ? 'bg-primary/5 border-l-2 border-primary/30'
-                              : 'hover:bg-muted/10'
-                          }`}
-                        >
-                          {slot.tasks.map((task, index) => {
-                            const taskDuration = task.duration || 30;
-                            const slotsSpanned = Math.ceil(taskDuration / 30);
-                            let heightInPixels = (slotsSpanned * 24) - 4;
-                            let topOffset = 0;
-                            
-                            if (dragState.isDragging && dragState.taskId === task.id) {
-                              if (dragState.previewHeight !== null) {
-                                heightInPixels = dragState.previewHeight;
+                {timeSlots.map((slot, index) => {
+                  // Create droppable area for each hour slot
+                  // For TasksPage compatibility, we need to create droppable based on slot.hour
+                  // which represents slot index (not actual hour for combined slots)
+                  let droppableId: string;
+                  
+                  if (slot.hour === -1) {
+                    // Night slot, use a special identifier
+                    droppableId = `timeline--1`;
+                  } else {
+                    // Use the slot.hour which is actually the slot index
+                    droppableId = `timeline-${slot.hour}`;
+                  }
+                  
+                  return (
+                    <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                      <Droppable droppableId={droppableId} direction="vertical">
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className={`absolute inset-0 transition-colors ${
+                              snapshot.isDraggingOver
+                                ? 'bg-primary/5 border-l-2 border-primary/30'
+                                : 'hover:bg-muted/10'
+                            }`}
+                          >
+                            {/* Tasks in this slot */}
+                            {slot.tasks.map((task, index) => {
+                              const taskDuration = task.duration || 30;
+                              const slotsSpanned = Math.ceil(taskDuration / 30);
+                              let heightInPixels = (slotsSpanned * 24) - 4;
+                              let topOffset = 0;
+                              
+                              if (dragState.isDragging && dragState.taskId === task.id) {
+                                if (dragState.previewHeight !== null) {
+                                  heightInPixels = dragState.previewHeight;
+                                }
+                                if (dragState.previewTop !== null) {
+                                  topOffset = dragState.previewTop;
+                                }
                               }
-                              if (dragState.previewTop !== null) {
-                                topOffset = dragState.previewTop;
-                              }
-                            }
-                            
-                            return (
-                              <Draggable key={`taskname-${task.id}`} draggableId={task.id} index={index}>
-                                {(provided, snapshot) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 ${
-                                      snapshot.isDragging ? 'shadow-xl opacity-90 z-50' : 'hover:shadow-md z-10'
-                                    }`}
-                                    style={{
-                                      ...provided.draggableProps.style,
-                                      top: snapshot.isDragging ? undefined : `${topOffset}px`,
-                                      height: snapshot.isDragging ? undefined : `${heightInPixels}px`,
-                                      minHeight: '20px'
-                                    }}
-                                  >
-                                    <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
-                                      <span className="font-medium truncate block">{task.taskName}</span>
+                              
+                              return (
+                                <Draggable key={`timeline-${task.id}`} draggableId={`timeline-${task.id}`} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 ${
+                                        snapshot.isDragging ? 'shadow-xl opacity-90 z-50' : 'hover:shadow-md z-10'
+                                      }`}
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        top: snapshot.isDragging ? undefined : `${topOffset}px`,
+                                        height: snapshot.isDragging ? undefined : `${heightInPixels}px`,
+                                        minHeight: '20px'
+                                      }}
+                                    >
+                                      <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
+                                        <span className="font-medium truncate block">{task.taskName}</span>
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
-                              </Draggable>
-                            );
-                          })}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                ))}
+                                  )}
+                                </Draggable>
+                              );
+                            })}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Project Column */}
