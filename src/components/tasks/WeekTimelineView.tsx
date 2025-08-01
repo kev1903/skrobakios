@@ -274,9 +274,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                           {dayTasks.map((task, taskIndex) => {
                             const taskDate = new Date(task.dueDate);
                             
-                            // Task colors - consistent styling to match reference
+                            // Task colors - consistent light blue/teal styling to match reference
                             const getTaskColor = () => {
-                              return 'bg-cyan-100/90 border-cyan-200/50';
+                              return 'bg-cyan-100/90 border-cyan-200/60';
                             };
                             
                             return (

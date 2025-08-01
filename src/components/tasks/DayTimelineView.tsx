@@ -545,7 +545,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                           minHeight: '20px'
                                         }}
                                       >
-                                        <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)} flex items-center gap-1`}>
+                                        <div className="rounded px-2 py-1 text-xs w-full border bg-cyan-100/90 border-cyan-200/50 text-gray-700 flex items-center gap-1">
                                           <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
                                           <span className="font-medium truncate flex-1">{task.taskName}</span>
                                           
@@ -606,7 +606,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                       minHeight: '20px'
                                     }}
                                   >
-                                    <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)}`}>
+                                    <div className="rounded px-2 py-1 text-xs w-full border bg-cyan-100/90 border-cyan-200/50 text-gray-700">
                                       <span className="font-medium truncate block">{task.taskName}</span>
                                       
                                       {/* Resize handles */}
@@ -614,9 +614,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                         className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
                                         onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
                                       />
-                                      <div 
-                                        className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                      />
+                                       <div 
+                                         className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                         onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                       />
                                     </div>
                                   </div>
                                 );
