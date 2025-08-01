@@ -291,9 +291,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    className={`${getTaskColor()} backdrop-blur-sm text-white text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 flex-1 min-w-0 ${
-                                      snapshot.isDragging ? 'scale-105 shadow-lg z-50' : ''
-                                    }`}
+                                     className={`${getTaskColor()} backdrop-blur-sm text-white text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 flex-1 min-w-0 ${
+                                       snapshot.isDragging ? 'scale-105 shadow-lg !z-[9999] backdrop-blur-none' : 'z-10'
+                                     }`}
                                     style={{
                                       ...provided.draggableProps.style,
                                     }}
@@ -350,7 +350,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   return (
                     <div
                       key={`timeblock-${block.id}-${dayIndex}`}
-                      className="absolute left-1 right-1 pointer-events-none z-0 rounded-sm backdrop-blur-sm border"
+                      className="absolute left-1 right-1 pointer-events-none z-0 rounded-sm border"
                       style={{
                         backgroundColor: 'transparent',
                         borderColor: `hsl(${actualColor})`,
