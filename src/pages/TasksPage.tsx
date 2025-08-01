@@ -367,7 +367,7 @@ const TasksPage = () => {
   return <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex font-sans">
       <DragDropContext onDragStart={(start) => console.log('🚀 Drag started:', start)} onDragEnd={handleDragEnd}>
       {/* Left Sidebar */}
-      <div className="fixed top-0 left-0 w-80 h-screen bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-6 space-y-6 shadow-lg overflow-y-auto z-10">
+      <div className="fixed top-0 left-0 w-80 h-screen bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-6 space-y-6 shadow-lg overflow-y-auto">
         {/* Return to Home Button */}
         <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -494,16 +494,26 @@ const TasksPage = () => {
                           className={cn(
                             "px-3 py-2 rounded-lg cursor-grab transition-colors group border border-gray-100/50",
                             snapshot.isDragging 
-                              ? "bg-blue-50 border-blue-200 shadow-2xl opacity-95 z-[9999] relative" 
+                              ? "bg-blue-50 border-blue-200 shadow-2xl" 
                               : "hover:bg-gray-50/50 active:cursor-grabbing"
                           )} 
                           style={{
                             ...provided.draggableProps.style,
-                            // Fix z-index and offset issues during drag
-                            zIndex: snapshot.isDragging ? 9999 : 'auto',
-                            transform: snapshot.isDragging 
-                              ? provided.draggableProps.style?.transform 
-                              : 'none'
+                            // Complete fix for react-beautiful-dnd drag issues
+                            ...(snapshot.isDragging && {
+                              // Override react-beautiful-dnd's positioning to fix cursor offset
+                              position: 'fixed',
+                              width: '280px', // Match sidebar width minus padding
+                              margin: '0',
+                              padding: '12px', // Match px-3 py-2
+                              // Keep the library's transform but ensure consistent sizing
+                              transform: provided.draggableProps.style?.transform,
+                              zIndex: 9999,
+                              pointerEvents: 'none',
+                              // Fix: Adjust the transform origin to center for better cursor alignment
+                              transformOrigin: 'center',
+                              opacity: 0.9
+                            })
                           }}
                         >
                             <div className="flex items-center justify-between">
