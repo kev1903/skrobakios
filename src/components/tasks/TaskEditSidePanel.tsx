@@ -23,10 +23,24 @@ interface TaskEditSidePanelProps {
   isOpen: boolean;
   onClose: () => void;
   projectId?: string;
+  updateTask?: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask?: (taskId: string) => Promise<void>;
 }
 
-export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId }: TaskEditSidePanelProps) => {
-  const { updateTask, deleteTask } = useTaskContext();
+export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId, updateTask: propUpdateTask, deleteTask: propDeleteTask }: TaskEditSidePanelProps) => {
+  // Use context if available, otherwise use props
+  let updateTask, deleteTask;
+  
+  try {
+    const context = useTaskContext();
+    updateTask = context.updateTask;
+    deleteTask = context.deleteTask;
+  } catch (error) {
+    // Context not available, use props
+    updateTask = propUpdateTask;
+    deleteTask = propDeleteTask;
+  }
+  
   const [editedTask, setEditedTask] = useState<Task | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [expandedSections, setExpandedSections] = useState({

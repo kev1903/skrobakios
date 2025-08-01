@@ -603,6 +603,28 @@ const TasksPage = () => {
           setIsTaskEditOpen(false);
           setSelectedTaskForEdit(null);
         }}
+        updateTask={async (taskId: string, updates: Partial<Task>) => {
+          try {
+            await taskService.updateTask(taskId, updates, userProfile);
+            // Reload tasks to reflect changes
+            const updatedTasks = await taskService.loadTasksAssignedToUser();
+            setUserTasks(updatedTasks);
+          } catch (error) {
+            console.error('Error updating task:', error);
+            throw error;
+          }
+        }}
+        deleteTask={async (taskId: string) => {
+          try {
+            await taskService.deleteTask(taskId);
+            // Reload tasks to reflect changes
+            const updatedTasks = await taskService.loadTasksAssignedToUser();
+            setUserTasks(updatedTasks);
+          } catch (error) {
+            console.error('Error deleting task:', error);
+            throw error;
+          }
+        }}
       />
     </div>;
 };
