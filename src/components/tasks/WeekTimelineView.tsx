@@ -274,14 +274,9 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                           {dayTasks.map((task, taskIndex) => {
                             const taskDate = new Date(task.dueDate);
                             
-                            // Task colors based on priority or category
+                            // Task colors - consistent styling to match reference
                             const getTaskColor = () => {
-                              switch (task.priority?.toLowerCase()) {
-                                case 'high': return 'bg-red-400/90';
-                                case 'medium': return 'bg-amber-400/90';
-                                case 'low': return 'bg-green-400/90';
-                                default: return 'bg-blue-400/90';
-                              }
+                              return 'bg-cyan-100/90 border-cyan-200/50';
                             };
                             
                             return (
@@ -291,15 +286,15 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                     className={`${getTaskColor()} backdrop-blur-sm text-white text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border border-white/20 flex-1 min-w-0 ${
-                                       snapshot.isDragging ? 'scale-105 shadow-lg !z-[9999] backdrop-blur-none' : 'z-10'
-                                     }`}
+                                      className={`${getTaskColor()} backdrop-blur-sm text-gray-700 text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border flex-1 min-w-0 ${
+                                        snapshot.isDragging ? 'scale-105 shadow-lg !z-[9999] backdrop-blur-none' : 'z-10'
+                                      }`}
                                     style={{
                                       ...provided.draggableProps.style,
                                     }}
                                    >
                                      <div className="flex items-center gap-1">
-                                       <GripVertical className="w-2 h-2 text-white/60 flex-shrink-0" />
+                                       <GripVertical className="w-2 h-2 text-gray-500/60 flex-shrink-0" />
                                        <div className="flex-1 min-w-0">
                                          <div className="font-semibold text-[10px] leading-tight truncate">
                                            {format(taskDate, 'HH:mm')} - {format(new Date(taskDate.getTime() + 60 * 60 * 1000), 'HH:mm')}
