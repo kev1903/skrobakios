@@ -506,7 +506,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                             <div
                               ref={provided.innerRef}
                               {...provided.droppableProps}
-                              className={`absolute inset-0 transition-colors ${
+                              className={`h-full flex flex-col transition-colors ${
                                 snapshot.isDraggingOver ? 'bg-primary/10' : 'hover:bg-muted/10'
                               }`}
                             >
@@ -515,16 +515,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                 const taskDuration = task.duration || 30;
                                 const slotsSpanned = Math.ceil(taskDuration / 30);
                                 let heightInPixels = (slotsSpanned * 24) - 4;
-                                let topOffset = 0;
-                                
-                                if (dragState.isDragging && dragState.taskId === task.id) {
-                                  if (dragState.previewHeight !== null) {
-                                    heightInPixels = dragState.previewHeight;
-                                  }
-                                  if (dragState.previewTop !== null) {
-                                    topOffset = dragState.previewTop;
-                                  }
-                                }
                                 
                                 return (
                                   <Draggable key={task.id} draggableId={task.id} index={index}>
@@ -533,17 +523,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
-                                        className={`absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-grab active:cursor-grabbing ${
+                                        className={`px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-grab active:cursor-grabbing ${
                                           snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''
                                         }`}
-                                         style={{
-                                           ...provided.draggableProps.style,
-                                           ...(snapshot.isDragging ? {} : {
-                                             top: `${topOffset}px`,
-                                           }),
-                                           height: `${heightInPixels}px`,
-                                           minHeight: '20px'
-                                         }}
+                                        style={{
+                                          ...provided.draggableProps.style,
+                                          height: `${heightInPixels}px`,
+                                          minHeight: '20px'
+                                        }}
                                       >
                                         <div className={`rounded px-2 py-1 text-xs w-full border ${getStatusColor(task.status)} flex items-center gap-1`}>
                                           <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
