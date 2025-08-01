@@ -340,268 +340,332 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const isCurrentDay = isSameDay(currentDate, new Date());
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
-      {/* Timeline Grid */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          <div className="grid grid-cols-[100px_1fr] min-h-full">
-            {/* Time Column */}
-            <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[100px] shadow-inner">
-              {timeSlots.map((slot, index) => {
-                const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
-                return (
-                  <div key={slot.hour} className={`h-16 border-b flex items-start justify-end pr-4 pt-2 transition-colors hover:bg-accent/20 ${
-                    isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
-                  }`}>
-                    <span className={`font-mono leading-tight ${
-                      isFullHour ? 'text-sm font-medium text-muted-foreground' : 'text-xs opacity-60 text-muted-foreground/60'
-                    }`}>
-                      {slot.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Events Column */}
-            <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-              {timeSlots.map((slot) => (
-                <div key={slot.hour} className="h-16 border-b border-border/10 relative">
-                  <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`absolute inset-0 transition-colors ${
-                          snapshot.isDraggingOver
-                            ? 'bg-primary/5 border-l-2 border-primary/30'
-                            : 'hover:bg-muted/10'
-                        }`}
-                      >
-                        <div className="p-1 h-full">
-                          {slot.tasks.map((task, index) => {
-                            const taskDuration = task.duration || 30; // Default 30 minutes
-                            const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
-                            let heightInPixels = (slotsSpanned * 64) - 8; // 64px per slot minus padding
-                            let topOffset = 0;
-                            
-                            // Apply live preview for resizing
-                            if (dragState.isDragging && dragState.taskId === task.id) {
-                              if (dragState.previewHeight !== null) {
-                                heightInPixels = dragState.previewHeight;
-                              }
-                              if (dragState.previewTop !== null) {
-                                topOffset = dragState.previewTop;
-                              }
-                            }
-                            
-                            return (
-                              <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
-                                {(provided, snapshot) => (
-                                   <div
-                                     ref={provided.innerRef}
-                                     {...provided.draggableProps}
-                                     data-dragging={snapshot.isDragging}
-                                     className={`absolute ${
-                                       // Disable transitions during resize operations to prevent flashing
-                                       dragState.isDragging && dragState.taskId === task.id
-                                         ? 'border-2 border-primary/50' 
-                                         : 'transition-all duration-200'
-                                     } ${
-                                       snapshot.isDragging 
-                                         ? 'shadow-xl opacity-90 z-50' 
-                                         : 'hover:shadow-md z-10'
-                                     }`}
-                                     style={{
-                                       ...provided.draggableProps.style,
-                                       transform: snapshot.isDragging 
-                                         ? provided.draggableProps.style?.transform 
-                                         : provided.draggableProps.style?.transform,
-                                       left: `${index * 200 + 4}px`, // Offset multiple tasks horizontally
-                                       top: `${topOffset}px`, // Apply preview top offset
-                                       width: '190px',
-                                       height: `${heightInPixels}px`,
-                                       minHeight: '56px'
-                                     }}
-                                   >
-                                     <Card 
-                                       className={`h-full w-full ${getStatusColor(task.status)} border-l-4 select-none group shadow-sm relative`}
-                                       style={{ borderLeftColor: task.priority === 'High' ? 'hsl(var(--destructive))' : task.priority === 'Medium' ? 'hsl(var(--warning))' : 'hsl(var(--success))' }}
-                                     >
-                                        {/* Top resize handle */}
-                                        <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
-                                          <div 
-                                            className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm"
-                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                                          >
-                                            <ChevronUp className="w-3 h-3" />
-                                          </div>
-                                        </div>
-                                        
-                                        {/* Bottom resize handle */}
-                                        <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
-                                          <div 
-                                            className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm"
-                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                                          >
-                                            <ChevronDown className="w-3 h-3" />
-                                          </div>
-                                        </div>
-                                       
-                                       {/* Drag handle area - separate from resize handles */}
-                                       <div
-                                         {...provided.dragHandleProps}
-                                         className="cursor-grab active:cursor-grabbing absolute inset-2 z-10"
-                                       />
-
-                                          <CardContent className="p-2 h-full flex flex-col justify-start gap-1 overflow-hidden">
-                                             {/* Calculate start and end times */}
-                                             {(() => {
-                                               const startTime = new Date(task.dueDate);
-                                               const endTime = new Date(startTime.getTime() + (taskDuration * 60 * 1000));
-                                               const startTimeStr = format(startTime, 'HH:mm');
-                                               const endTimeStr = format(endTime, 'HH:mm');
-                                               
-                                               return (
-                                                 <>
-                                                   {/* Time range and duration - always show at top */}
-                                                   <div className="flex items-center justify-between gap-2 mb-1">
-                                                     <div className="flex items-center text-xs font-medium text-primary bg-primary/5 rounded px-1.5 py-0.5">
-                                                       <span>{startTimeStr}</span>
-                                                       <span className="mx-1">-</span>
-                                                       <span>{endTimeStr}</span>
-                                                     </div>
-                                                     <div className="flex items-center gap-1 text-xs text-muted-foreground/60">
-                                                       <Clock className="w-3 h-3 flex-shrink-0" />
-                                                       <span className="font-medium">{taskDuration}min</span>
-                                                     </div>
-                                                   </div>
-                                                   
-                                                   {/* Task name - adaptive based on container height */}
-                                                   <h4 className={`font-semibold text-foreground leading-tight overflow-hidden ${
-                                                     heightInPixels < 80 
-                                                       ? 'text-xs line-clamp-1' 
-                                                       : heightInPixels < 120 
-                                                         ? 'text-sm line-clamp-1' 
-                                                         : 'text-sm line-clamp-2'
-                                                   }`}>
-                                                     {task.taskName}
-                                                   </h4>
-                                                   
-                                                   {/* Project name - only show if container is tall enough */}
-                                                   {heightInPixels >= 100 && (
-                                                     <p className={`text-muted-foreground/80 leading-tight overflow-hidden ${
-                                                       heightInPixels < 120 
-                                                         ? 'text-xs line-clamp-1' 
-                                                         : 'text-xs line-clamp-1'
-                                                     }`}>
-                                                       {task.projectName || "No Project"}
-                                                     </p>
-                                                   )}
-                                                 </>
-                                               );
-                                             })()}
-                                          </CardContent>
-                                     </Card>
-                                  </div>
-                                )}
-                              </Draggable>
-                            );
-                          })}
-                          {provided.placeholder}
-                        </div>
-                        
-                        {slot.tasks.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-30 transition-opacity z-10">
-                            <span className="text-xs text-muted-foreground">
-                              {slot.label}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              ))}
-              
-              {/* Time Blocks Underlay - Show time blocks as guide */}
-              {(() => {
-                const dayBlocks = getBlocksForDay(currentDate, timeBlocks);
-                return dayBlocks.map(block => {
-                  const startHour = parseInt(block.startTime.split(':')[0]);
-                  const startMinute = parseInt(block.startTime.split(':')[1]);
-                  const endHour = parseInt(block.endTime.split(':')[0]);
-                  const endMinute = parseInt(block.endTime.split(':')[1]);
-                  
-                  // Calculate position with new slot arrangement (combined 00:00-05:00 slot)
-                  let startPosition: number;
-                  let duration: number;
-                  
-                  if (startHour < 5) {
-                    // Time block starts in the combined night slot
-                    startPosition = 0;
-                    if (endHour <= 5) {
-                      // Entire block is within night slot
-                      duration = 64;
-                    } else {
-                      // Block spans from night slot into regular slots
-                      const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 64;
-                      duration = 64 + remainingDuration;
-                    }
-                  } else {
-                    // Time block starts at 05:00 or later
-                    const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
-                    startPosition = 64 + (adjustedStartHour * 2 + startMinute / 30) * 64;
-                    duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
-                  }
-                  
-                  console.log(`Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
-                  
-                  // Override colors based on title/category for the specific blocks you mentioned
-                  let blockColor = block.color;
-                  if (block.title.toLowerCase().includes('devotion')) {
-                    blockColor = 'bg-yellow-400';
-                  } else if (block.title.toLowerCase().includes('get ready')) {
-                    blockColor = 'bg-green-400';
-                  }
-                  
+    <div className="h-full flex bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
+      {/* Main Timeline Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Timeline Grid */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            <div className="grid grid-cols-[100px_1fr] min-h-full">
+              {/* Time Column */}
+              <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[100px] shadow-inner">
+                {timeSlots.map((slot, index) => {
+                  const isFullHour = index % 2 === 0; // Every even slot is a full hour (00:00, 01:00, etc.)
                   return (
-                    <div
-                      key={`timeblock-${block.id}`}
-                      className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-2 right-2 pointer-events-none z-0 rounded-lg backdrop-blur-sm`}
-                      style={{
-                        top: `${startPosition}px`,
-                        height: `${Math.max(duration - 2, 20)}px`
-                      }}
-                    >
-                      <div className={`p-2 text-xs font-medium leading-tight ${blockColor.replace('bg-', 'text-')}`}>
-                        <div className="truncate">{block.title}</div>
-                        {block.description && (
-                          <div className="text-xs opacity-75 truncate">{block.description}</div>
-                        )}
-                      </div>
+                    <div key={slot.hour} className={`h-16 border-b flex items-start justify-end pr-4 pt-2 transition-colors hover:bg-accent/20 ${
+                      isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                    }`}>
+                      <span className={`font-mono leading-tight ${
+                        isFullHour ? 'text-sm font-medium text-muted-foreground' : 'text-xs opacity-60 text-muted-foreground/60'
+                      }`}>
+                        {slot.label}
+                      </span>
                     </div>
                   );
-                });
-              })()}
-              
-              {/* Current Time Indicator - Only show for current day */}
-              {isCurrentDay && (
-                <div 
-                  className="absolute left-0 right-0 z-50 pointer-events-none"
-                  style={{ top: `${currentTimePosition}px` }}
-                >
-                  {/* Time dot */}
-                  <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
-                  {/* Time line */}
-                  <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
-                  {/* Current time label */}
-                  <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
-                    {format(currentTime, 'HH:mm')}
+                })}
+              </div>
+
+              {/* Events Column */}
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {timeSlots.map((slot) => (
+                  <div key={slot.hour} className="h-16 border-b border-border/10 relative">
+                    <Droppable droppableId={`timeline-${slot.hour}`} direction="horizontal">
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`absolute inset-0 transition-colors ${
+                            snapshot.isDraggingOver
+                              ? 'bg-primary/5 border-l-2 border-primary/30'
+                              : 'hover:bg-muted/10'
+                          }`}
+                        >
+                          <div className="p-1 h-full">
+                            {slot.tasks.map((task, index) => {
+                              const taskDuration = task.duration || 30; // Default 30 minutes
+                              const slotsSpanned = Math.ceil(taskDuration / 30); // How many 30-min slots this task spans
+                              let heightInPixels = (slotsSpanned * 64) - 8; // 64px per slot minus padding
+                              let topOffset = 0;
+                              
+                              // Apply live preview for resizing
+                              if (dragState.isDragging && dragState.taskId === task.id) {
+                                if (dragState.previewHeight !== null) {
+                                  heightInPixels = dragState.previewHeight;
+                                }
+                                if (dragState.previewTop !== null) {
+                                  topOffset = dragState.previewTop;
+                                }
+                              }
+                              
+                              return (
+                                <Draggable key={task.id} draggableId={`timeline-${task.id}`} index={index}>
+                                  {(provided, snapshot) => (
+                                     <div
+                                       ref={provided.innerRef}
+                                       {...provided.draggableProps}
+                                       data-dragging={snapshot.isDragging}
+                                       className={`absolute ${
+                                         // Disable transitions during resize operations to prevent flashing
+                                         dragState.isDragging && dragState.taskId === task.id
+                                           ? 'border-2 border-primary/50' 
+                                           : 'transition-all duration-200'
+                                       } ${
+                                         snapshot.isDragging 
+                                           ? 'shadow-xl opacity-90 z-50' 
+                                           : 'hover:shadow-md z-10'
+                                       }`}
+                                       style={{
+                                         ...provided.draggableProps.style,
+                                         transform: snapshot.isDragging 
+                                           ? provided.draggableProps.style?.transform 
+                                           : provided.draggableProps.style?.transform,
+                                         left: `${index * 200 + 4}px`, // Offset multiple tasks horizontally
+                                         top: `${topOffset}px`, // Apply preview top offset
+                                         width: '190px',
+                                         height: `${heightInPixels}px`,
+                                         minHeight: '56px'
+                                       }}
+                                     >
+                                       <Card 
+                                         className={`h-full w-full ${getStatusColor(task.status)} border-l-4 select-none group shadow-sm relative`}
+                                         style={{ borderLeftColor: task.priority === 'High' ? 'hsl(var(--destructive))' : task.priority === 'Medium' ? 'hsl(var(--warning))' : 'hsl(var(--success))' }}
+                                       >
+                                          {/* Top resize handle */}
+                                          <div className="absolute -top-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                                            <div 
+                                              className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-n-resize shadow-sm"
+                                              onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                                            >
+                                              <ChevronUp className="w-3 h-3" />
+                                            </div>
+                                          </div>
+                                          
+                                          {/* Main task content */}
+                                          <CardContent className="p-3 flex flex-col justify-between h-full">
+                                            <div {...provided.dragHandleProps} className="cursor-move flex-1 min-h-0">
+                                              <div className="flex items-start justify-between mb-2">
+                                                <div className="flex-1 min-w-0">
+                                                <h4 className="font-semibold text-sm leading-tight mb-1 truncate">
+                                                  {task.taskName}
+                                                </h4>
+                                                  {task.description && (
+                                                    <p className="text-xs text-muted-foreground line-clamp-2">
+                                                      {task.description}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              
+                                              {/* Task metadata */}
+                                              <div className="flex flex-wrap gap-1 mt-auto">
+                                                <Badge className={`text-xs px-1 py-0 h-5 ${getPriorityColor(task.priority)}`}>
+                                                  {task.priority}
+                                                </Badge>
+                                                {task.duration && (
+                                                  <Badge variant="outline" className="text-xs px-1 py-0 h-5 flex items-center gap-1">
+                                                    <Clock className="w-3 h-3" />
+                                                    {task.duration}m
+                                                  </Badge>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </CardContent>
+                                          
+                                          {/* Bottom resize handle */}
+                                          <div className="absolute -bottom-1 left-0 right-0 h-2 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                                            <div 
+                                              className="bg-primary/80 hover:bg-primary text-primary-foreground rounded-full w-6 h-3 flex items-center justify-center cursor-s-resize shadow-sm"
+                                              onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                            >
+                                              <ChevronDown className="w-3 h-3" />
+                                            </div>
+                                          </div>
+                                       </Card>
+                                     </div>
+                                  )}
+                                </Draggable>
+                              );
+                            })}
+                          </div>
+                          
+                          {provided.placeholder}
+                          
+                          {slot.tasks.length === 0 && !snapshot.isDraggingOver && (
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-30 transition-opacity z-10">
+                              <span className="text-xs text-muted-foreground">
+                                {slot.label}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </Droppable>
                   </div>
-                </div>
-               )}
+                ))}
+                
+                {/* Time blocks overlay */}
+                {(() => {
+                  // Get current day of week (0 = Sunday, 1 = Monday, etc.)
+                  const dayOfWeek = currentDate.getDay();
+                  const dayBlocks = getBlocksForDay(currentDate, timeBlocks);
+                  
+                  return dayBlocks.map(block => {
+                    const startHour = parseInt(block.startTime.split(':')[0]);
+                    const startMinute = parseInt(block.startTime.split(':')[1]);
+                    const endHour = parseInt(block.endTime.split(':')[0]);
+                    const endMinute = parseInt(block.endTime.split(':')[1]);
+                    
+                    // Calculate position with new slot arrangement (combined 00:00-05:00 slot)
+                    let startPosition: number;
+                    let duration: number;
+                    
+                    if (startHour < 5) {
+                      // Time block starts in the combined night slot
+                      startPosition = 0;
+                      if (endHour <= 5) {
+                        // Entire block is within night slot
+                        duration = 64;
+                      } else {
+                        // Block spans from night slot into regular slots
+                        const remainingDuration = ((endHour - 5) * 2 + endMinute / 30) * 64;
+                        duration = 64 + remainingDuration;
+                      }
+                    } else {
+                      // Time block starts at 05:00 or later
+                      const adjustedStartHour = startHour - 5; // Adjust for the combined night slot
+                      startPosition = 64 + (adjustedStartHour * 2 + startMinute / 30) * 64;
+                      duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 64;
+                    }
+                    
+                    console.log(`Time block: ${block.title}, Category: ${block.category}, Color: ${block.color}`);
+                    
+                    // Override colors based on title/category for the specific blocks you mentioned
+                    let blockColor = block.color;
+                    if (block.title.toLowerCase().includes('devotion')) {
+                      blockColor = 'bg-yellow-400';
+                    } else if (block.title.toLowerCase().includes('get ready')) {
+                      blockColor = 'bg-green-400';
+                    }
+                    
+                    return (
+                      <div
+                        key={`timeblock-${block.id}`}
+                        className={`bg-transparent border-2 ${blockColor.replace('bg-', 'border-')} absolute left-2 right-2 pointer-events-none z-0 rounded-lg backdrop-blur-sm`}
+                        style={{
+                          top: `${startPosition}px`,
+                          height: `${Math.max(duration - 2, 20)}px`
+                        }}
+                      >
+                        <div className={`p-2 text-xs font-medium leading-tight ${blockColor.replace('bg-', 'text-')}`}>
+                          <div className="truncate">{block.title}</div>
+                          {block.description && (
+                            <div className="text-xs opacity-75 truncate">{block.description}</div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+                
+                {/* Current Time Indicator - Only show for current day */}
+                {isCurrentDay && (
+                  <div 
+                    className="absolute left-0 right-0 z-50 pointer-events-none"
+                    style={{ top: `${currentTimePosition}px` }}
+                  >
+                    {/* Time dot */}
+                    <div className="absolute -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md"></div>
+                    {/* Time line */}
+                    <div className="w-full h-0.5 bg-red-500 shadow-sm"></div>
+                    {/* Current time label */}
+                    <div className="absolute -right-16 -top-2 bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                      {format(currentTime, 'HH:mm')}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Right Sidebar */}
+      <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm overflow-hidden">
+        <div className="h-full flex flex-col">
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-border/30">
+            <h3 className="font-semibold text-foreground">Day Details</h3>
+            <p className="text-sm text-muted-foreground">
+              {format(currentDate, 'EEEE, MMMM d, yyyy')}
+            </p>
+          </div>
+          
+          {/* Sidebar Content */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Quick Stats */}
+            <Card className="p-4 bg-background/50 border-border/50">
+              <h4 className="font-medium mb-3 text-sm">Today's Overview</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total Tasks</span>
+                  <Badge variant="secondary">{tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate)).length}</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Completed</span>
+                  <Badge variant="secondary" className="bg-success/20 text-success">
+                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status === 'Completed').length}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">In Progress</span>
+                  <Badge variant="secondary" className="bg-primary/20 text-primary">
+                    {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status === 'In Progress').length}
+                  </Badge>
+                </div>
+              </div>
+            </Card>
+            
+            {/* Upcoming Tasks */}
+            <Card className="p-4 bg-background/50 border-border/50">
+              <h4 className="font-medium mb-3 text-sm">Upcoming Tasks</h4>
+              <div className="space-y-2">
+                {tasks
+                  .filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status !== 'Completed')
+                  .slice(0, 5)
+                  .map(task => (
+                    <div key={task.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/20 transition-colors">
+                      <div className={`w-2 h-2 rounded-full ${
+                        task.priority === 'High' ? 'bg-destructive' : 
+                        task.priority === 'Medium' ? 'bg-warning' : 'bg-success'
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{task.taskName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(task.dueDate), 'HH:mm')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                {tasks.filter(task => isSameDay(new Date(task.dueDate), currentDate) && task.status !== 'Completed').length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">No upcoming tasks</p>
+                )}
+              </div>
+            </Card>
+            
+            {/* Quick Actions */}
+            <Card className="p-4 bg-background/50 border-border/50">
+              <h4 className="font-medium mb-3 text-sm">Quick Actions</h4>
+              <div className="space-y-2">
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add New Task
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Clock className="w-4 h-4" />
+                  Schedule Break
+                </Button>
+              </div>
+            </Card>
           </div>
         </div>
       </div>
