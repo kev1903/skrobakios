@@ -179,8 +179,13 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
 
   
 
-  // Don't render the floating tracker if loading or if timer is running
-  if (loading || activeTimer) {
+  // Don't render the floating tracker if loading
+  if (loading) {
+    return null;
+  }
+
+  // Don't render the floating tracker if timer is running (TimerTopBar will show instead)
+  if (activeTimer) {
     return null;
   }
 

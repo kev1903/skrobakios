@@ -119,8 +119,6 @@ export const useTimeTracking = () => {
         description: "Failed to load time entries",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -601,10 +599,23 @@ export const useTimeTracking = () => {
 
   // Load initial data
   useEffect(() => {
-    loadTimeEntries();
-    loadSettings();
-    loadCategories();
-    checkActiveTimer();
+    const initializeTimeTracking = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          loadTimeEntries(),
+          loadSettings(),
+          loadCategories(),
+          checkActiveTimer()
+        ]);
+      } catch (error) {
+        console.error('Error initializing time tracking:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeTimeTracking();
   }, []);
 
   return {
