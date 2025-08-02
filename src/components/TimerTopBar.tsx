@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export const TimerTopBar = () => {
+  const location = useLocation();
   const { toast } = useToast();
   const { activeTimer, stopTimer, pauseTimer, resumeTimer, startTimer, categories, addCategory, settings, loading } = useTimeTracking();
   const { getProjects } = useProjects();
@@ -245,6 +246,11 @@ export const TimerTopBar = () => {
       return userProfile.email || "SKROBAKI";
     }
   };
+
+  // Don't render the TimerTopBar on the landing page
+  if (location.pathname === '/') {
+    return null;
+  }
 
   // Always render the top bar, but show different content based on timer state
   return (
