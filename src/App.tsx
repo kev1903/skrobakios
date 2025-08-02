@@ -156,7 +156,8 @@ const AppContent = () => {
   const [searchParams] = useSearchParams();
   
   // Check if we're specifically on the landing page (not authenticated home page)
-  const isLandingPage = location.pathname === "/" && searchParams.get('page') === 'landing';
+  // Landing page is when we're on "/" and either no page param or page=landing
+  const isLandingPage = location.pathname === "/" && (!searchParams.get('page') || searchParams.get('page') === 'landing');
   // Check if we're on the auth page
   const isAuthPage = location.pathname === "/" && searchParams.get('page') === 'auth';
   // Check if we're on the sign up page
