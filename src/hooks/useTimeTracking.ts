@@ -5,17 +5,16 @@ import { useCompany } from '@/contexts/CompanyContext';
 
 export interface TimeEntry {
   id: string;
-  company_id: string;
   user_id: string;
+  company_id: string | null;
   start_time: string;
   end_time: string | null;
-  duration: number | null;
+  duration: number | null; // in seconds
   task_activity: string;
-  category: string;
-  project_id: string | null;
+  category: string | null;
   project_name: string | null;
   notes: string | null;
-  is_active: boolean;
+  status: string; // 'running', 'paused', 'completed'
   created_at: string;
   updated_at: string;
 }
@@ -86,7 +85,12 @@ export const useTimeTracking = () => {
       const { data, error } = await query;
       
       if (error) throw error;
-      setTimeEntries(data || []);
+      // Map database fields to match our interface
+      const mappedData = data?.map((entry: any) => ({
+        ...entry,
+        status: entry.status || (entry.is_active ? 'running' : 'completed')
+      })) || [];
+      setTimeEntries(mappedData);
     } catch (error) {
       console.error('Error loading time entries:', error);
       toast({
@@ -166,15 +170,20 @@ export const useTimeTracking = () => {
         .from('time_entries')
         .select('*')
         .eq('user_id', user.data.user.id)
-        .eq('is_active', true)
-        .single();
+        .eq('status', 'running')
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
 
       if (data) {
-        setActiveTimer(data);
+        // Map database fields to match our interface
+        const mappedData: TimeEntry = {
+          ...data,
+          status: data.status || ((data as any).is_active ? 'running' : 'completed')
+        };
+        setActiveTimer(mappedData);
       }
     } catch (error) {
       console.error('Error checking active timer:', error);
@@ -201,13 +210,13 @@ export const useTimeTracking = () => {
       }
 
       const newEntry = {
-        company_id: currentCompany?.id || '',
+        company_id: currentCompany?.id || null,
         user_id: user.data.user.id,
         start_time: new Date().toISOString(),
         task_activity: taskActivity,
-        category: category,
+        category: category || null,
         project_name: projectName || null,
-        is_active: true
+        status: 'running'
       };
 
       const { data, error } = await supabase
@@ -218,7 +227,12 @@ export const useTimeTracking = () => {
 
       if (error) throw error;
       
-      setActiveTimer(data);
+      // Map database fields to match our interface
+      const mappedData: TimeEntry = {
+        ...data,
+        status: data.status || ((data as any).is_active ? 'running' : 'completed')
+      };
+      setActiveTimer(mappedData);
       toast({
         title: "Timer Started",
         description: `Started tracking: ${taskActivity}`,
@@ -241,14 +255,14 @@ export const useTimeTracking = () => {
     try {
       const endTime = new Date();
       const startTime = new Date(activeTimer.start_time);
-      const duration = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60)); // minutes
+      const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000); // seconds
 
       const { error } = await supabase
         .from('time_entries')
         .update({
           end_time: endTime.toISOString(),
           duration: duration,
-          is_active: false
+          status: 'completed'
         })
         .eq('id', activeTimer.id);
 
@@ -257,7 +271,7 @@ export const useTimeTracking = () => {
       setActiveTimer(null);
       toast({
         title: "Timer Stopped",
-        description: `Tracked ${duration} minutes`,
+        description: `Tracked ${Math.floor(duration / 60)} minutes`,
       });
       
       loadTimeEntries();
@@ -300,7 +314,7 @@ export const useTimeTracking = () => {
         company_id: currentCompany.id,
         user_id: user.data.user.id,
         duration,
-        is_active: false
+        status: 'completed'
       };
 
       const { data, error } = await supabase
