@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import Index from "./pages/Index";
 import TasksPage from "./pages/TasksPage";
 import TimeSheetPage from "./pages/TimeSheetPage";
@@ -151,6 +151,11 @@ const App = () => {
 
 const AppContent = () => {
   const { impersonationMode } = useAuth();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  
+  // Check if we're on the landing page
+  const isLandingPage = location.pathname === "/" && (!searchParams.get('page') || searchParams.get('page') === 'landing');
 
   return (
     <UserProvider>
@@ -160,7 +165,7 @@ const AppContent = () => {
             {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
               <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
             )}
-            <TimerTopBar />
+            {!isLandingPage && <TimerTopBar />}
           <Routes>
         <Route path="/" element={
           <AppContextProvider>
