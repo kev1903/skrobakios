@@ -574,6 +574,17 @@ const TasksPage = () => {
           {/* Calendar Navigation */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
+              {/* Dashboard Button */}
+              <Button
+                onClick={() => window.location.href = '/dashboard'}
+                variant="outline"
+                size="sm"
+                className="border-primary/20 hover:bg-primary/5 text-gray-700 hover:text-primary font-medium"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Dashboard
+              </Button>
+
               {/* TimeSheet Button */}
               <Button 
                 variant="outline" 
@@ -586,17 +597,6 @@ const TasksPage = () => {
               >
                 <Clock className="w-4 h-4 mr-2" />
                 TimeSheet
-              </Button>
-
-              {/* Dashboard Button */}
-              <Button
-                onClick={() => window.location.href = '/dashboard'}
-                variant="outline"
-                size="sm"
-                className="border-primary/20 hover:bg-primary/5 text-gray-700 hover:text-primary font-medium"
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Dashboard
               </Button>
             </div>
             
