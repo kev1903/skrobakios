@@ -1,6 +1,10 @@
-
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { LandingPage } from "@/components/LandingPage";
+import { ServicesPage } from "@/components/pages/ServicesPage";
+import { ProjectsPage } from "@/components/pages/ProjectsPage";
+import { AboutPage } from "@/components/pages/AboutPage";
+import { ContactPage } from "@/components/pages/ContactPage";
 import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
@@ -52,6 +56,32 @@ const Index = () => {
       setCurrentPage(pageParam);
     }
   }, [searchParams]); // Remove currentPage dependency to prevent infinite loops
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'auth':
+        return <LandingPage onNavigate={handleNavigate} />;
+      case 'signup':
+        return <LandingPage onNavigate={handleNavigate} />;
+      case 'services':
+        return <ServicesPage onNavigate={handleNavigate} />;
+      case 'projects':
+        return <ProjectsPage onNavigate={handleNavigate} />;
+      case 'about':
+        return <AboutPage onNavigate={handleNavigate} />;
+      case 'contact':
+        return <ContactPage onNavigate={handleNavigate} />;
+      case 'landing':
+      default:
+        return <LandingPage onNavigate={handleNavigate} />;
+    }
+  };
+
+  // Handle authenticated pages vs landing page
+  if (currentPage === 'landing' || currentPage === 'auth' || currentPage === 'signup' || 
+      currentPage === 'services' || currentPage === 'projects' || currentPage === 'about' || currentPage === 'contact') {
+    return renderPage();
+  }
 
   return (
     <DigitalObjectsProvider>

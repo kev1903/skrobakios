@@ -189,11 +189,40 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <img 
                   src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
                   alt="SKROBAKI"
-                  className="h-10 w-auto object-contain drop-shadow-lg"
+                  className="h-10 w-auto object-contain drop-shadow-lg cursor-pointer"
+                  onClick={() => goToSlide(0)}
                 />
                 <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
               </div>
             </div>
+
+            {/* Navigation */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <button 
+                onClick={() => onNavigate('services')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Services
+              </button>
+              <button 
+                onClick={() => onNavigate('projects')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Projects
+              </button>
+              <button 
+                onClick={() => onNavigate('about')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => onNavigate('contact')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Contact
+              </button>
+            </nav>
 
             {/* Login Button */}
             <Button 
