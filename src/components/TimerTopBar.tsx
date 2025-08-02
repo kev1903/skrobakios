@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 
 export const TimerTopBar = () => {
   const { activeTimer, stopTimer, pauseTimer, resumeTimer } = useTimeTracking();

@@ -12,6 +12,7 @@ import NewTaskPage from "./pages/NewTaskPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
+import { TimeTrackingProvider } from "./contexts/TimeTrackingContext";
 
 import { AppContextProvider } from "./contexts/AppContextProvider";
 
@@ -154,11 +155,12 @@ const AppContent = () => {
   return (
     <UserProvider>
       <CompanyProvider>
-        <>
-          {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
-            <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
-          )}
-          <TimerTopBar />
+        <TimeTrackingProvider>
+          <>
+            {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
+              <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
+            )}
+            <TimerTopBar />
           <Routes>
         <Route path="/" element={
           <AppContextProvider>
@@ -196,7 +198,8 @@ const AppContent = () => {
         {/* SK25008 Project Dashboard */}
         <Route path="/sk25008" element={<SK25008Dashboard />} />
       </Routes>
-        </>
+          </>
+        </TimeTrackingProvider>
       </CompanyProvider>
     </UserProvider>
   );

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { useProjects } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
