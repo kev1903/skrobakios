@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Square, Clock, ChevronUp, ChevronDown, Settings } from 'lucide-react';
+import { Play, Pause, Square, Clock, ChevronUp, ChevronDown, Settings, Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useProjects } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,12 +25,35 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
     loading
   } = useTimeTracking();
 
+  const { getProjects } = useProjects();
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [taskActivity, setTaskActivity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [projectName, setProjectName] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
   const [currentDuration, setCurrentDuration] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [projects, setProjects] = useState<Array<{id: string, name: string}>>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+
+  // Load projects
+  useEffect(() => {
+    const loadProjects = async () => {
+      setLoadingProjects(true);
+      try {
+        const projectList = await getProjects();
+        setProjects(projectList.map(p => ({ id: p.id, name: p.name })));
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    loadProjects();
+  }, [getProjects]);
 
   // Auto-expand when timer is running
   useEffect(() => {
@@ -100,7 +126,8 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
     }
 
     try {
-      await startTimer(taskActivity, selectedCategory || undefined, projectName || undefined);
+      const projectName = selectedProject ? projects.find(p => p.id === selectedProject)?.name : undefined;
+      await startTimer(taskActivity, selectedCategory || undefined, projectName);
       setIsPaused(false);
       toast({
         title: "Timer Started",
@@ -128,7 +155,7 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
       // Clear form after successful stop
       setTaskActivity('');
       setSelectedCategory('');
-      setProjectName('');
+      setSelectedProject('');
       setCurrentDuration(0);
     } catch (error) {
       console.error('Timer stop error:', error);
@@ -257,33 +284,85 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Category</label>
-                <Select
-                  value={selectedCategory}
-                  onValueChange={setSelectedCategory}
-                  disabled={!!activeTimer}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={categoryOpen}
+                      className="mt-1 w-full justify-between"
+                      disabled={!!activeTimer}
+                    >
+                      {selectedCategory || "Select or type category..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput 
+                        placeholder="Search or type new category..." 
+                        value={selectedCategory}
+                        onValueChange={setSelectedCategory}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          <div className="p-2">
+                            <Button 
+                              variant="ghost" 
+                              className="w-full justify-start"
+                              onClick={() => {
+                                setCategoryOpen(false);
+                              }}
+                            >
+                              <Check className="mr-2 h-4 w-4" />
+                              Use "{selectedCategory}"
+                            </Button>
+                          </div>
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {categories.map((category) => (
+                            <CommandItem
+                              key={category}
+                              value={category}
+                              onSelect={(currentValue) => {
+                                setSelectedCategory(currentValue);
+                                setCategoryOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedCategory === category ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {category}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Project</label>
-                <Input
-                  placeholder="Project name"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  disabled={!!activeTimer}
-                  className="mt-1"
-                />
+                <Select
+                  value={selectedProject}
+                  onValueChange={setSelectedProject}
+                  disabled={!!activeTimer || loadingProjects}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={loadingProjects ? "Loading..." : "Select project"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
