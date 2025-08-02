@@ -152,41 +152,27 @@ const AppContent = () => {
   const { impersonationMode } = useAuth();
 
   return (
-    <>
-      {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
-        <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
-      )}
-      <TimerTopBar />
-      <Routes>
+    <UserProvider>
+      <CompanyProvider>
+        <>
+          {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
+            <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
+          )}
+          <TimerTopBar />
+          <Routes>
         <Route path="/" element={
-          <UserProvider>
-            <CompanyProvider>
-              <AppContextProvider>
-                <Index />
-              </AppContextProvider>
-            </CompanyProvider>
-          </UserProvider>
+          <AppContextProvider>
+            <Index />
+          </AppContextProvider>
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
         
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
-        <Route path="/company/:companyId/edit" element={
-          <UserProvider>
-            <CompanyProvider>
-              <CompanyEditPageWrapper />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
         {/* Profile edit route removed */}
-        <Route path="/impersonate" element={
-          <UserProvider>
-            <CompanyProvider>
-              <Index />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        <Route path="/impersonate" element={<Index />} />
         
         {/* Public Routes - No authentication required */}
         <Route path="/directory" element={<PublicDirectory />} />
@@ -197,56 +183,22 @@ const AppContent = () => {
         <Route path="/invitation-signup" element={<InvitationSignupPage />} />
         
         {/* Subscription Management */}
-        <Route path="/subscription" element={
-          <UserProvider>
-            <CompanyProvider>
-              <SubscriptionPageWrapper />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        <Route path="/subscription" element={<SubscriptionPageWrapper />} />
         
         {/* Tasks Management */}
-        <Route path="/tasks" element={
-          <UserProvider>
-            <CompanyProvider>
-              <TasksPage />
-            </CompanyProvider>
-          </UserProvider>
-        } />
-        <Route path="/timesheet" element={
-          <UserProvider>
-            <CompanyProvider>
-              <TimeSheetPage />
-            </CompanyProvider>
-          </UserProvider>
-        } />
-        <Route path="/tasks/new" element={
-          <UserProvider>
-            <CompanyProvider>
-              <NewTaskPage />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/timesheet" element={<TimeSheetPage />} />
+        <Route path="/tasks/new" element={<NewTaskPage />} />
         
         {/* Dashboard Analytics Page */}
-        <Route path="/dashboard" element={
-          <UserProvider>
-            <CompanyProvider>
-              <DashboardPage />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        <Route path="/dashboard" element={<DashboardPage />} />
         
         {/* SK25008 Project Dashboard */}
-        <Route path="/sk25008" element={
-          <UserProvider>
-            <CompanyProvider>
-              <SK25008Dashboard />
-            </CompanyProvider>
-          </UserProvider>
-        } />
+        <Route path="/sk25008" element={<SK25008Dashboard />} />
       </Routes>
-    </>
+        </>
+      </CompanyProvider>
+    </UserProvider>
   );
 };
 
