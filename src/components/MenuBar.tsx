@@ -459,7 +459,7 @@ export const MenuBar = () => {
                   className="gap-2"
                 >
                   <Play className="h-4 w-4" />
-                  Start Timer
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
                   <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
                 </Button>
               </div>
