@@ -21,6 +21,8 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
     activeTimer,
     startTimer,
     stopTimer,
+    categories,
+    addCategory,
     settings,
     loading
   } = useTimeTracking();
@@ -175,7 +177,7 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
     });
   };
 
-  const categories = settings?.productive_categories || ['Work', 'Development', 'Meeting', 'Research'];
+  
 
   if (loading) {
     return null;
@@ -312,12 +314,15 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
                             <Button 
                               variant="ghost" 
                               className="w-full justify-start"
-                              onClick={() => {
+                              onClick={async () => {
+                                if (selectedCategory && !categories.includes(selectedCategory)) {
+                                  await addCategory(selectedCategory);
+                                }
                                 setCategoryOpen(false);
                               }}
                             >
                               <Check className="mr-2 h-4 w-4" />
-                              Use "{selectedCategory}"
+                              Add "{selectedCategory}"
                             </Button>
                           </div>
                         </CommandEmpty>

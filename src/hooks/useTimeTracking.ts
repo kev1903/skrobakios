@@ -51,6 +51,7 @@ export const useTimeTracking = () => {
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [settings, setSettings] = useState<TimeTrackingSettings | null>(null);
   const [activeTimer, setActiveTimer] = useState<TimeEntry | null>(null);
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { currentCompany } = useCompany();
@@ -59,6 +60,7 @@ export const useTimeTracking = () => {
   useEffect(() => {
     loadTimeEntries();
     loadSettings();
+    loadCategories();
     checkActiveTimer();
   }, []);
 
@@ -185,6 +187,81 @@ export const useTimeTracking = () => {
       });
     } catch (error) {
       console.error('Error creating default settings:', error);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user || !currentCompany?.id) return;
+
+      const { data, error } = await supabase
+        .from('time_categories')
+        .select('name')
+        .eq('user_id', user.data.user.id)
+        .eq('company_id', currentCompany.id)
+        .order('name');
+
+      if (error) throw error;
+
+      const categoryNames = data?.map(cat => cat.name) || [];
+      setCategories([...new Set([...DEFAULT_CATEGORIES, ...categoryNames])]);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const addCategory = async (categoryName: string) => {
+    try {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user || !currentCompany?.id) return;
+
+      // Check if category already exists
+      if (categories.includes(categoryName)) {
+        return;
+      }
+
+      // Generate a random color for the new category
+      const colors = Object.values(DEFAULT_CATEGORY_COLORS);
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      const { error } = await supabase
+        .from('time_categories')
+        .insert({
+          user_id: user.data.user.id,
+          company_id: currentCompany.id,
+          name: categoryName,
+          color: randomColor,
+          is_default: false
+        });
+
+      if (error && error.code !== '23505') { // Ignore unique constraint violations
+        throw error;
+      }
+
+      // Update local categories
+      setCategories(prev => [...prev, categoryName]);
+      
+      // Update category colors in settings
+      if (settings) {
+        const updatedColors = {
+          ...settings.category_colors,
+          [categoryName]: randomColor
+        };
+        await updateSettings({ category_colors: updatedColors });
+      }
+
+      toast({
+        title: "Category Added",
+        description: `"${categoryName}" category has been added`,
+      });
+    } catch (error) {
+      console.error('Error adding category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add category",
+        variant: "destructive",
+      });
     }
   };
 
@@ -534,8 +611,11 @@ export const useTimeTracking = () => {
     timeEntries,
     settings,
     activeTimer,
+    categories,
     loading,
     loadTimeEntries,
+    loadCategories,
+    addCategory,
     startTimer,
     stopTimer,
     createTimeEntry,
