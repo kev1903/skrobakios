@@ -153,15 +153,16 @@ const TasksPage = () => {
       return;
     }
 
-    // Handle timeline drops (works for all droppableIds that start with 'timeline-')
-    if (destination.droppableId.startsWith('timeline-')) {
+    // Handle timeline drops (works for all droppableIds that start with 'timeline-' or 'week-timeline-')
+    if (destination.droppableId.startsWith('timeline-') || destination.droppableId.startsWith('week-timeline-')) {
       console.log('📅 Dropping on timeline slot:', destination.droppableId);
-      const slotHour = destination.droppableId.replace('timeline-', '');
       
       // Extract task ID from draggableId (handle prefixed IDs)
       let taskId = draggableId;
       if (draggableId.startsWith('backlog-')) {
         taskId = draggableId.replace('backlog-', '');
+      } else if (draggableId.startsWith('week-timeline-')) {
+        taskId = draggableId.replace('week-timeline-', '');
       }
       
       const task = userTasks.find(t => t.id === taskId);
@@ -169,30 +170,56 @@ const TasksPage = () => {
       
       if (task) {
         try {
-          let newDate = new Date(currentDate);
+          let newDate;
           
-          if (slotHour === '-1') {
-            // Combined night slot (00:00-05:00), default to 02:30 local time
-            newDate.setHours(2, 30, 0, 0);
-            console.log('🌙 Setting night slot time to 02:30 local time');
-          } else {
-            // slotHour is actually the slot index from the timeline
-            // Timeline structure: slot 10-47 represents 05:00-24:00 in 30-min intervals
-            const slotIndex = parseInt(slotHour);
-            
-            if (slotIndex < 10) {
-              // Should not happen based on timeline structure, but handle gracefully
+          // Handle week timeline format
+          if (destination.droppableId.startsWith('week-timeline-')) {
+            // Parse week timeline format: "week-timeline-{slotIndex}-{dayIndex}"
+            const parts = destination.droppableId.split('-');
+            if (parts.length >= 4) {
+              const slotIndex = parseInt(parts[2]);
+              const dayIndex = parseInt(parts[3]);
+              
+              // Calculate target date and time
+              const weekStart = startOfWeek(currentDate);
+              newDate = addDays(weekStart, dayIndex);
               const hour = Math.floor(slotIndex / 2);
               const minutes = (slotIndex % 2) * 30;
               newDate.setHours(hour, minutes, 0, 0);
-              console.log(`🌅 Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
+              
+              console.log(`📅 Week timeline: Moving to day ${dayIndex}, slot ${slotIndex} (${hour}:${minutes.toString().padStart(2, '0')})`);
             } else {
-              // Regular slots: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
-              const adjustedSlot = slotIndex - 10; // Convert to 0-based from 05:00
-              const hour = 5 + Math.floor(adjustedSlot / 2); // Start from hour 5
-              const minutes = (adjustedSlot % 2) * 30;
-              newDate.setHours(hour, minutes, 0, 0);
-              console.log(`⏰ Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex}, adjusted ${adjustedSlot})`);
+              console.error('❌ Invalid week timeline droppable ID format');
+              return;
+            }
+          } else {
+            // Handle day timeline format (existing logic)
+            const slotHour = destination.droppableId.replace('timeline-', '');
+            newDate = new Date(currentDate);
+            
+            if (slotHour === '-1') {
+              // Combined night slot (00:00-05:00), default to 02:30 local time
+              newDate.setHours(2, 30, 0, 0);
+              console.log('🌙 Setting night slot time to 02:30 local time');
+            } else {
+              // slotHour is actually the slot index from the timeline
+              // Timeline structure: slot 10-47 represents 05:00-24:00 in 30-min intervals
+              const slotIndex = parseInt(slotHour);
+              
+              if (slotIndex < 10) {
+                // Should not happen based on timeline structure, but handle gracefully
+                const hour = Math.floor(slotIndex / 2);
+                const minutes = (slotIndex % 2) * 30;
+                newDate.setHours(hour, minutes, 0, 0);
+                console.log(`🌅 Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
+              } else {
+                // Regular slots: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
+                const adjustedSlot = slotIndex - 10; // Convert to 0-based from 05:00
+                const hour = 5 + Math.floor(adjustedSlot / 2); // Start from hour 5
+                const minutes = (adjustedSlot % 2) * 30;
+                newDate.setHours(hour, minutes, 0, 0);
+                console.log(`⏰ Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex}, adjusted ${adjustedSlot})`);
+              }
             }
           }
           

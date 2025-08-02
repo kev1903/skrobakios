@@ -153,22 +153,27 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       
       // Parse different droppableId formats
       if (destination.droppableId.startsWith('week-timeline-')) {
-        // Format: week-timeline-{slot.hour}-{dayIndex}
-        const parts = destination.droppableId.replace('week-timeline-', '').split('-');
-        slotHour = parts[0];
-        const dayIndex = parseInt(parts[1]);
-        
-        // Calculate the target date based on dayIndex
-        const weekStart = new Date(currentDate);
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of week (Sunday)
-        targetDate = new Date(weekStart);
-        targetDate.setDate(weekStart.getDate() + dayIndex);
+        // Format: week-timeline-{slotIndex}-{dayIndex}
+        const parts = destination.droppableId.split('-');
+        if (parts.length >= 4) {
+          const slotIndex = parseInt(parts[2]);
+          const dayIndex = parseInt(parts[3]);
+          
+          // Calculate the target date based on dayIndex (0=Sunday, 1=Monday, etc.)
+          const weekStart = new Date(currentDate);
+          weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of week (Sunday)
+          targetDate = new Date(weekStart);
+          targetDate.setDate(weekStart.getDate() + dayIndex);
+          
+          // Calculate hour and minutes from slot index
+          const hour = Math.floor(slotIndex / 2);
+          const minutes = (slotIndex % 2) * 30;
+          targetDate.setHours(hour, minutes, 0, 0);
+        }
       } else {
         // Format: timeline-{slot.hour}
         slotHour = destination.droppableId.replace('timeline-', '');
-      }
-      
-      try {
+        
         if (slotHour === '-1') {
           // Combined night slot (00:00-05:00), default to 02:30
           targetDate.setHours(2, 30, 0, 0);
@@ -179,7 +184,9 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
           const minutes = (slotIndex % 2) * 30;
           targetDate.setHours(hour, minutes, 0, 0);
         }
-        
+      }
+      
+      try {
         await onTaskUpdate(task.id, {
           dueDate: targetDate.toISOString()
         });

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Droppable, Draggable, DragStart } from 'react-beautiful-dnd';
+import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -166,6 +166,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
   }, []);
+
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
