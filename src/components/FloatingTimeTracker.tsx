@@ -61,7 +61,7 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
 
   // Update timer duration every second with more precision
   useEffect(() => {
-    if (activeTimer?.start_time && !isPaused) {
+    if (activeTimer?.start_time && activeTimer.status === 'running' && !isPaused) {
       const updateDuration = () => {
         const now = new Date();
         const start = new Date(activeTimer.start_time);
@@ -167,8 +167,8 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
           <div className="flex items-center gap-3">
             <div className={cn(
               "w-3 h-3 rounded-full transition-colors",
-              activeTimer && !isPaused ? "bg-green-500 animate-pulse" : 
-              activeTimer && isPaused ? "bg-yellow-500" : "bg-gray-400"
+              activeTimer?.status === 'running' && !isPaused ? "bg-green-500 animate-pulse" : 
+              activeTimer?.status === 'running' && isPaused ? "bg-yellow-500" : "bg-gray-400"
             )} />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">

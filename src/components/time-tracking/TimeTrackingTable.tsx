@@ -170,10 +170,10 @@ export const TimeTrackingTable = ({
                       {formatTime(entry.start_time)}
                     </TableCell>
                     <TableCell className="text-slate-800">
-                      {entry.end_time ? formatTime(entry.end_time) : (entry.is_active ? 'Running...' : '-')}
+                      {entry.end_time ? formatTime(entry.end_time) : (entry.status === 'running' ? 'Running...' : '-')}
                     </TableCell>
                     <TableCell className="text-slate-800 font-medium">
-                      {entry.is_active ? formatDuration(getCurrentTimerDuration()) : formatDuration(entry.duration)}
+                      {entry.status === 'running' ? formatDuration(getCurrentTimerDuration()) : formatDuration(entry.duration)}
                     </TableCell>
                     <TableCell className="text-slate-900 font-medium">
                       {entry.task_activity}

@@ -181,8 +181,8 @@ export const useTimeTracking = () => {
         // Map database fields to match our interface
         const mappedData: TimeEntry = {
           ...data,
-          status: data.status || ((data as any).is_active ? 'running' : 'completed')
-        };
+          status: (data as any).status || ((data as any).is_active ? 'running' : 'completed')
+        } as TimeEntry;
         setActiveTimer(mappedData);
       }
     } catch (error) {
@@ -230,8 +230,8 @@ export const useTimeTracking = () => {
       // Map database fields to match our interface
       const mappedData: TimeEntry = {
         ...data,
-        status: data.status || ((data as any).is_active ? 'running' : 'completed')
-      };
+        status: (data as any).status || ((data as any).is_active ? 'running' : 'completed')
+      } as TimeEntry;
       setActiveTimer(mappedData);
       toast({
         title: "Timer Started",

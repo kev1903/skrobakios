@@ -2377,6 +2377,7 @@ export type Database = {
           project_id: string | null
           project_name: string | null
           start_time: string
+          status: string
           task_activity: string
           updated_at: string
           user_id: string | null
@@ -2393,6 +2394,7 @@ export type Database = {
           project_id?: string | null
           project_name?: string | null
           start_time: string
+          status?: string
           task_activity: string
           updated_at?: string
           user_id?: string | null
@@ -2409,6 +2411,7 @@ export type Database = {
           project_id?: string | null
           project_name?: string | null
           start_time?: string
+          status?: string
           task_activity?: string
           updated_at?: string
           user_id?: string | null

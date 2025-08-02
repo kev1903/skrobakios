@@ -79,12 +79,12 @@ export const TimelineListView = ({
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
   const getStatusColor = (entry: TimeEntry) => {
-    if (entry.is_active) return 'bg-green-100 text-green-800 border-green-200';
+    if (entry.status === 'running') return 'bg-green-100 text-green-800 border-green-200';
     if (entry.end_time) return 'bg-blue-100 text-blue-800 border-blue-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
   const getStatusText = (entry: TimeEntry) => {
-    if (entry.is_active) return 'Active';
+    if (entry.status === 'running') return 'Active';
     if (entry.end_time) return 'Completed';
     return 'Draft';
   };
@@ -150,7 +150,7 @@ export const TimelineListView = ({
 
                   {/* Actions */}
                   <div className="flex items-center space-x-2">
-                    {entry.is_active ? (
+                    {entry.status === 'running' ? (
                       <Button size="sm" variant="outline" className="border-red-200 text-red-700 hover:bg-red-50">
                         <Pause className="w-4 h-4" />
                       </Button>
