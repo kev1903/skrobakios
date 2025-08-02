@@ -1,25 +1,23 @@
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 
 export const useTimerBarSpacing = () => {
-  const { activeTimer } = useTimeTracking();
-  
-  // Return appropriate classes based on whether timer is active
+  // TimerTopBar is now always visible, so always apply spacing
   const getSpacingClasses = () => {
-    return activeTimer ? 'pt-[73px]' : '';
+    return 'pt-[73px]';
   };
 
   const getMinHeightClasses = () => {
-    return activeTimer ? 'min-h-[calc(100vh-73px)]' : 'min-h-screen';
+    return 'min-h-[calc(100vh-73px)]';
   };
 
   const getFullHeightClasses = () => {
-    return activeTimer ? 'h-[calc(100vh-73px)]' : 'h-screen';
+    return 'h-[calc(100vh-73px)]';
   };
 
   return {
     spacingClasses: getSpacingClasses(),
     minHeightClasses: getMinHeightClasses(),
     fullHeightClasses: getFullHeightClasses(),
-    hasActiveTimer: !!activeTimer
+    hasActiveTimer: true // Always true since bar is always visible
   };
 };
