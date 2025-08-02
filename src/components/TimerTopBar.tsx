@@ -247,11 +247,6 @@ export const TimerTopBar = () => {
     }
   };
 
-  // Don't render the TimerTopBar on the landing page
-  if (location.pathname === '/') {
-    return null;
-  }
-
   // Always render the top bar, but show different content based on timer state
   return (
     <>
