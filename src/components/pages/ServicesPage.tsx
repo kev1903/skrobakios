@@ -146,6 +146,62 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
+        <div className="max-w-7xl mx-auto px-8 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center space-x-4 architectural-accent">
+              <div className="relative">
+                <img 
+                  src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+                  alt="SKROBAKI"
+                  className="h-8 w-auto object-contain drop-shadow-lg cursor-pointer"
+                  onClick={() => onNavigate('landing')}
+                />
+                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
+              </div>
+            </div>
+
+            {/* Centered Navigation */}
+            <nav className="hidden md:flex items-center justify-center space-x-8 flex-1">
+              <button 
+                onClick={() => onNavigate('services')}
+                className="text-sm font-medium text-brand-gold transition-colors duration-200"
+              >
+                Services
+              </button>
+              <button 
+                onClick={() => onNavigate('projects')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Projects
+              </button>
+              <button 
+                onClick={() => onNavigate('about')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => onNavigate('contact')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Contact
+              </button>
+            </nav>
+
+            {/* Login Button */}
+            <button 
+              onClick={() => onNavigate('auth')}
+              className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+            >
+              Login
+            </button>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="pt-24 pb-16 bg-gradient-to-br from-background via-background/95 to-card/30">
         <div className="max-w-7xl mx-auto px-8">
