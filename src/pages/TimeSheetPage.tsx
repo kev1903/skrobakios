@@ -139,8 +139,11 @@ const TimeSheetPage = () => {
   }
 
   return (
-    <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-6", minHeightClasses, spacingClasses)}>
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100", minHeightClasses, spacingClasses)}>
+      <div className="flex h-full">
+        {/* Main Content Area */}
+        <div className="flex-1 p-6">
+          <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -395,6 +398,8 @@ const TimeSheetPage = () => {
               </p>
             </CardContent>
           </Card>
+        </div>
+          </div>
         </div>
       </div>
 
