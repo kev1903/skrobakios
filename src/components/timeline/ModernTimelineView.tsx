@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, BarChart3, List, Plus, Search, Filter, Calendar as CalendarIcon, Clock, User, AlertCircle } from 'lucide-react';
-import { useTimeTracking, TimeEntry, DEFAULT_CATEGORY_COLORS } from '@/hooks/useTimeTracking';
+
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { format, isToday, isYesterday, isThisWeek, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { useScreenSize } from '@/hooks/use-mobile';
@@ -30,7 +30,9 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
   const [groupBy, setGroupBy] = useState<'none' | 'category' | 'project' | 'date'>('date');
 
   const screenSize = useScreenSize();
-  const { timeEntries, loading, getDailyStats } = useTimeTracking();
+  const timeEntries: any[] = [];
+  const loading = false;
+  const getDailyStats = () => ({ totalHours: 0, productiveHours: 0 });
   const { tasks, loading: tasksLoading, updateTask } = useCentralTasks(projectId, companyId || '');
 
   // Sample tasks for development/testing
@@ -196,7 +198,7 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
   const availableProjects = Array.from(new Set(timeEntries.map(entry => entry.project_name).filter(Boolean))) as string[];
 
   // Calculate stats
-  const stats = getDailyStats(filteredEntries);
+  const stats = getDailyStats();
   const totalDuration = filteredEntries.reduce((sum, entry) => sum + (entry.duration || 0), 0);
 
   if (loading || tasksLoading) {
@@ -283,13 +285,15 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
       <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
         <CardContent className="p-0">
           {viewMode === 'list' ? (
-            <TimelineListView
-              entries={filteredEntries}
-              categoryColors={DEFAULT_CATEGORY_COLORS}
-              groupBy={groupBy}
-              sortBy={sortBy}
-              screenSize={screenSize}
-            />
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h2 className="text-xl font-semibold text-muted-foreground mb-2">Timeline List Removed</h2>
+                <p className="text-muted-foreground">
+                  Timeline list functionality has been removed.
+                </p>
+              </div>
+            </div>
           ) : (
             <TimelineGanttView
               tasks={displayTasks}
