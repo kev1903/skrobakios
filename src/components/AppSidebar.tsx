@@ -19,10 +19,6 @@ export const AppSidebar = ({
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <ResponsiveSidebar currentPage={currentPage} onNavigate={onNavigate} />
-        <SidebarInset className="flex-1">
-          {isMobile && <MobileHeader onNavigate={onNavigate} />}
-          {children}
-        </SidebarInset>
       </div>
     </SidebarProvider>
   );
