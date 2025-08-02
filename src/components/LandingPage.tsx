@@ -289,23 +289,30 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-20">
-                <Button 
-                  key="blue-button-force-update"
-                  className="px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2 text-white transition-all duration-300 border-0"
+                <button 
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
                   style={{ 
-                    backgroundColor: 'rgb(54,119,159) !important',
+                    backgroundColor: 'rgb(54,119,159)',
                     boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
                     border: 'none'
                   }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(44,99,139)';
+                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(54, 119, 159, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(54,119,159)';
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(54, 119, 159, 0.2)';
+                  }}
                   onClick={() => {
-                    console.log('Blue button clicked with color: rgb(54,119,159)');
+                    console.log('Custom blue button clicked - color should be rgb(54,119,159)');
                     goToSlide(1);
                   }}
                 >
                   <Sparkles className="w-4 h-4" />
                   Explore Services
                   <ArrowRight className="w-4 h-4" />
-                </Button>
+                </button>
                 <Button 
                   variant="outline" 
                   className="button-ghost px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
