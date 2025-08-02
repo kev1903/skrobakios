@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save, Layers, Plus, Link, CheckCircle, Settings, ExternalLink } from 'lucide-react';
 import { TimeBlockingCalendar } from '@/components/TimeBlockingCalendar';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { calendarIntegrationService, CalendarIntegration } from '@/services/calendarIntegrationService';
+import { useToast } from '@/hooks/use-toast';
 
 interface CalendarSettingsPageProps {
   onBack: () => void;
@@ -21,6 +23,10 @@ interface CalendarSettingsPageProps {
 
 export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBack }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [integrations, setIntegrations] = useState<CalendarIntegration[]>([]);
+  const { toast } = useToast();
+  
   const [settings, setSettings] = useState({
     timeFormat: '24h',
     startTime: '06:00',
@@ -35,6 +41,72 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
     theme: 'light',
     compactView: false,
   });
+
+  // Load integrations on component mount
+  useEffect(() => {
+    loadIntegrations();
+  }, []);
+
+  const loadIntegrations = async () => {
+    try {
+      const data = await calendarIntegrationService.getIntegrations();
+      setIntegrations(data);
+    } catch (error) {
+      console.error('Failed to load integrations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load calendar integrations",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleConnectOutlook = async () => {
+    try {
+      setIsConnecting(true);
+      const { authUrl } = await calendarIntegrationService.connectOutlook();
+      
+      // Open OAuth window
+      window.open(authUrl, 'outlook-auth', 'width=600,height=700,scrollbars=yes,resizable=yes');
+      
+      // Listen for auth completion
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data.type === 'OUTLOOK_AUTH_SUCCESS') {
+          toast({
+            title: "Success!",
+            description: "Outlook calendar connected successfully",
+          });
+          loadIntegrations();
+          window.removeEventListener('message', handleMessage);
+        } else if (event.data.type === 'OUTLOOK_AUTH_ERROR') {
+          toast({
+            title: "Error",
+            description: event.data.error || "Failed to connect Outlook calendar",
+            variant: "destructive",
+          });
+          window.removeEventListener('message', handleMessage);
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+      
+      // Auto-reload integrations after a delay (fallback)
+      setTimeout(() => {
+        loadIntegrations();
+        window.removeEventListener('message', handleMessage);
+      }, 10000);
+      
+    } catch (error) {
+      console.error('Error connecting to Outlook:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate Outlook connection",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
 
   const handleSettingChange = (key: string, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -230,7 +302,12 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
                       <p className="text-sm text-gray-600 mb-4">
                         Connect your Outlook calendar for seamless Microsoft 365 integration.
                       </p>
-                      <Button className="w-full" variant="outline">
+                      <Button 
+                        className="w-full" 
+                        variant="outline" 
+                        onClick={handleConnectOutlook}
+                        disabled={isConnecting}
+                      >
                         <Plus className="w-4 h-4 mr-2" />
                         Connect Outlook Calendar
                       </Button>

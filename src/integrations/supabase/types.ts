@@ -214,6 +214,57 @@ export type Database = {
           },
         ]
       }
+      calendar_integrations: {
+        Row: {
+          access_token: string
+          calendar_id: string | null
+          calendar_name: string | null
+          created_at: string | null
+          id: string
+          last_sync_at: string | null
+          provider: string
+          provider_user_id: string
+          refresh_token: string | null
+          sync_enabled: boolean | null
+          sync_frequency_minutes: number | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          calendar_id?: string | null
+          calendar_name?: string | null
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          provider: string
+          provider_user_id: string
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          sync_frequency_minutes?: number | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          calendar_id?: string | null
+          calendar_name?: string | null
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          provider?: string
+          provider_user_id?: string
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          sync_frequency_minutes?: number | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       companies: {
         Row: {
           abn: string | null
@@ -649,6 +700,62 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_calendar_events: {
+        Row: {
+          attendees: Json | null
+          created_at: string | null
+          description: string | null
+          end_time: string
+          external_event_id: string
+          id: string
+          integration_id: string
+          is_all_day: boolean | null
+          location: string | null
+          start_time: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          attendees?: Json | null
+          created_at?: string | null
+          description?: string | null
+          end_time: string
+          external_event_id: string
+          id?: string
+          integration_id: string
+          is_all_day?: boolean | null
+          location?: string | null
+          start_time: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          attendees?: Json | null
+          created_at?: string | null
+          description?: string | null
+          end_time?: string
+          external_event_id?: string
+          id?: string
+          integration_id?: string
+          is_all_day?: boolean | null
+          location?: string | null
+          start_time?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_calendar_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_integrations"
             referencedColumns: ["id"]
           },
         ]
@@ -2139,6 +2246,7 @@ export type Database = {
           assigned_to_name: string | null
           assigned_to_user_id: string | null
           category: string | null
+          company_id: string | null
           created_at: string
           description: string | null
           digital_object_id: string | null
@@ -2162,6 +2270,7 @@ export type Database = {
           assigned_to_name?: string | null
           assigned_to_user_id?: string | null
           category?: string | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           digital_object_id?: string | null
@@ -2185,6 +2294,7 @@ export type Database = {
           assigned_to_name?: string | null
           assigned_to_user_id?: string | null
           category?: string | null
+          company_id?: string | null
           created_at?: string
           description?: string | null
           digital_object_id?: string | null
