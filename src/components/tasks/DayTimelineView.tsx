@@ -399,10 +399,33 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
   const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
 
+  // Format date and time for header
+  const formatDateForHeader = (date: Date) => {
+    return format(date, 'EEEE, d MMMM'); // Saturday, 2 August
+  };
+  
+  const formatTimeForHeader = (time: Date) => {
+    return format(time, 'HH:mm:ss'); // 17:02:36
+  };
+
   return (
     <div className="h-full flex bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
       {/* Main Timeline Area - Dynamic width based on sidebar visibility */}
       <div className={`flex flex-col overflow-hidden transition-all duration-200 ${isDragActive ? 'w-full' : 'flex-1'}`}>
+        {/* Date and Time Header */}
+        <div className="border-b border-border/30 bg-gradient-to-r from-card/95 to-card/80 backdrop-blur-sm px-6 py-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">
+              {formatDateForHeader(currentDate instanceof Date ? currentDate : new Date(currentDate))}
+            </h2>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground tabular-nums">
+                {formatTimeForHeader(currentTime)}
+              </span>
+            </div>
+          </div>
+        </div>
         {/* Column Headers */}
         <div className="border-b border-border/30 bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-sm">
           <div className="grid grid-cols-[60px_100px_1fr_120px_80px_80px] h-10">
