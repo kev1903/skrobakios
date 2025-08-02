@@ -176,22 +176,22 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
   }
 
   return (
-    <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-4">
+    <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-2">
       <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
             <img 
               src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
               alt="Skrobaki Logo" 
-              className="w-32 h-32 object-contain mx-auto mb-4"
+              className="w-24 h-24 object-contain mx-auto mb-2"
             />
-          <h1 className="text-3xl font-bold text-gradient heading-modern mb-2">
+          <h1 className="text-2xl font-bold text-gradient heading-modern mb-1">
             Welcome to SKROBAKI
           </h1>
-          <p className="text-muted-foreground body-modern">Modern construction management platform</p>
+          <p className="text-muted-foreground body-modern text-sm">Modern construction management platform</p>
         </div>
 
         <Card className="glass-card shadow-xl">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <Button
               variant="ghost"
               onClick={() => onNavigate('landing')}
@@ -215,8 +215,8 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
             )}
 
             <div className="w-full">
-              <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold">Sign In</h2>
+              <div className="text-center mb-4">
+                <h2 className="text-lg font-semibold">Sign In</h2>
               </div>
               
               <form onSubmit={handleLogin} className="space-y-4">
@@ -298,18 +298,6 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Don't have an account?{' '}
-                  <Button
-                    variant="link"
-                    className="p-0 text-sm font-medium"
-                    onClick={() => onNavigate('platform-signup')}
-                  >
-                    Sign up for free
-                  </Button>
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>
