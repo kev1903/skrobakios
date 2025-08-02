@@ -30,16 +30,7 @@ export const TimerTopBar = () => {
   const { isAuthenticated } = useAuth();
   const { currentCompany } = useCompany();
   const { activeContext } = useAppContext();
-  
-  // Safely try to use sidebar - might not be available in all contexts
-  let sidebarToggle;
-  try {
-    const sidebar = useSidebar();
-    sidebarToggle = sidebar?.toggleSidebar;
-  } catch (error) {
-    // No sidebar provider available - that's okay
-    sidebarToggle = null;
-  }
+  const { toggleSidebar } = useSidebar();
   
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
@@ -263,14 +254,7 @@ export const TimerTopBar = () => {
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
             <button 
-              onClick={() => {
-                if (sidebarToggle) {
-                  sidebarToggle();
-                } else {
-                  // Fallback behavior - navigate to home or show a menu
-                  window.location.href = '/?page=home';
-                }
-              }}
+              onClick={toggleSidebar}
               className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
               aria-label="Toggle sidebar"
             >
