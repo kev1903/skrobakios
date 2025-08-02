@@ -615,8 +615,6 @@ export const TimerTopBar = () => {
           </div>
         )}
       </div>
-      {/* Spacer to push content down */}
-      <div className="h-[73px]" />
     </>
   );
 };
