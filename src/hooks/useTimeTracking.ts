@@ -358,17 +358,74 @@ export const useTimeTracking = () => {
         updated_at: data.updated_at
       };
       setActiveTimer(mappedData);
+      console.log('Timer started, activeTimer set:', mappedData);
+      
       toast({
         title: "Timer Started",
         description: `Started tracking: ${taskActivity}`,
       });
       
+      // Refresh time entries without waiting
       loadTimeEntries();
     } catch (error) {
       console.error('Error starting timer:', error);
       toast({
         title: "Error",
         description: "Failed to start timer",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const pauseTimer = async () => {
+    if (!activeTimer) return;
+
+    try {
+      const { error } = await supabase
+        .from('time_entries')
+        .update({ status: 'paused' })
+        .eq('id', activeTimer.id);
+
+      if (error) throw error;
+
+      setActiveTimer(prev => prev ? { ...prev, status: 'paused' } : null);
+      
+      toast({
+        title: "Timer Paused",
+        description: "Timer has been paused",
+      });
+    } catch (error) {
+      console.error('Error pausing timer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to pause timer",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resumeTimer = async () => {
+    if (!activeTimer) return;
+
+    try {
+      const { error } = await supabase
+        .from('time_entries')
+        .update({ status: 'running' })
+        .eq('id', activeTimer.id);
+
+      if (error) throw error;
+
+      setActiveTimer(prev => prev ? { ...prev, status: 'running' } : null);
+      
+      toast({
+        title: "Timer Resumed",
+        description: "Timer has been resumed",
+      });
+    } catch (error) {
+      console.error('Error resuming timer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to resume timer",
         variant: "destructive",
       });
     }
@@ -394,6 +451,8 @@ export const useTimeTracking = () => {
       if (error) throw error;
 
       setActiveTimer(null);
+      console.log('Timer stopped, activeTimer cleared');
+      
       toast({
         title: "Timer Stopped",
         description: `Tracked ${Math.floor(duration / 60)} minutes`,
@@ -634,6 +693,8 @@ export const useTimeTracking = () => {
     addCategory,
     startTimer,
     stopTimer,
+    pauseTimer,
+    resumeTimer,
     createTimeEntry,
     updateTimeEntry,
     deleteTimeEntry,

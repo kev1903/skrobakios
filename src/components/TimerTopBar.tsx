@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
 
 export const TimerTopBar = () => {
-  const { activeTimer, stopTimer } = useTimeTracking();
-  const [isPaused, setIsPaused] = useState(false);
+  const { activeTimer, stopTimer, pauseTimer, resumeTimer } = useTimeTracking();
   const [currentDuration, setCurrentDuration] = useState(0);
+  const isPaused = activeTimer?.status === 'paused';
 
   // Debug logging
   React.useEffect(() => {
@@ -29,7 +29,21 @@ export const TimerTopBar = () => {
     return () => clearInterval(interval);
   }, [activeTimer, isPaused]);
 
-  if (!activeTimer) return null;
+  // Initialize duration when activeTimer changes
+  useEffect(() => {
+    if (activeTimer?.start_time) {
+      const startTime = new Date(activeTimer.start_time).getTime();
+      const now = Date.now();
+      setCurrentDuration(Math.floor((now - startTime) / 1000));
+    }
+  }, [activeTimer]);
+
+  if (!activeTimer) {
+    console.log('TimerTopBar: No active timer, not rendering');
+    return null;
+  }
+
+  console.log('TimerTopBar: Rendering with active timer:', activeTimer);
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -43,7 +57,11 @@ export const TimerTopBar = () => {
   };
 
   const handlePauseResume = () => {
-    setIsPaused(!isPaused);
+    if (isPaused) {
+      resumeTimer();
+    } else {
+      pauseTimer();
+    }
   };
 
   return (
