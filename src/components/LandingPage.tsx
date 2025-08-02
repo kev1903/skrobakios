@@ -225,14 +225,12 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </nav>
 
             {/* Login Button */}
-            <Button 
+            <button 
               onClick={() => onNavigate('auth')}
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-xs font-medium rounded-md border-0 hover:bg-brand-gold/10 text-muted-foreground hover:text-brand-gold transition-all duration-200"
+              className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
             >
               Login
-            </Button>
+            </button>
           </div>
         </div>
       </header>
