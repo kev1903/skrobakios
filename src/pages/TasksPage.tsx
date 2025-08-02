@@ -591,8 +591,8 @@ const TasksPage = () => {
                 size="sm" 
                 className="bg-primary/10 border-primary/20 hover:bg-primary/20 text-primary font-medium"
                 onClick={() => {
-                  // Navigate to time management or timesheet page
-                  window.location.href = '/?page=time-management';
+                  // Navigate to timesheet page
+                  window.location.href = '/timesheet';
                 }}
               >
                 <Clock className="w-4 h-4 mr-2" />

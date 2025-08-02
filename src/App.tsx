@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import Index from "./pages/Index";
 import TasksPage from "./pages/TasksPage";
+import TimeSheetPage from "./pages/TimeSheetPage";
 import DashboardPage from "./pages/DashboardPage";
 import NewTaskPage from "./pages/NewTaskPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -207,6 +208,13 @@ const AppContent = () => {
           <UserProvider>
             <CompanyProvider>
               <TasksPage />
+            </CompanyProvider>
+          </UserProvider>
+        } />
+        <Route path="/timesheet" element={
+          <UserProvider>
+            <CompanyProvider>
+              <TimeSheetPage />
             </CompanyProvider>
           </UserProvider>
         } />
