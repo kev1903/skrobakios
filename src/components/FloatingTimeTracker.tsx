@@ -179,7 +179,8 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
 
   
 
-  if (loading) {
+  // Don't render the floating tracker if loading or if timer is running
+  if (loading || activeTimer) {
     return null;
   }
 
