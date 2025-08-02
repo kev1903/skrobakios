@@ -177,133 +177,139 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
 
   return (
     <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-4">
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-8">
             <img 
               src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
               alt="Skrobaki Logo" 
-              className="w-16 h-16 object-contain mx-auto mb-2"
+              className="w-32 h-32 object-contain mx-auto mb-4"
             />
-          <h1 className="text-xl font-bold text-gradient heading-modern">
-            Sign In
+          <h1 className="text-3xl font-bold text-gradient heading-modern mb-2">
+            Welcome to SKROBAKI
           </h1>
+          <p className="text-muted-foreground body-modern">Modern construction management platform</p>
         </div>
 
-        <Card className="glass-card shadow-lg">
-          <CardContent className="p-4">
+        <Card className="glass-card shadow-xl">
+          <CardContent className="p-6">
             <Button
               variant="ghost"
               onClick={() => onNavigate('landing')}
-              className="mb-3 p-0 text-xs text-muted-foreground hover:text-foreground"
+              className="mb-4 p-0 text-sm"
             >
-              <ArrowLeft className="w-3 h-3 mr-1" />
+              <ArrowLeft className="w-4 h-4 mr-2" />
               Back to home
             </Button>
-            
             {error && (
-              <Alert className="mb-3 py-2 border-red-200 bg-red-50">
-                <AlertCircle className="h-3 w-3 text-red-600" />
-                <AlertDescription className="text-xs text-red-800">{error}</AlertDescription>
+              <Alert className="mb-4 border-red-200 bg-red-50">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
               </Alert>
             )}
             
             {success && (
-              <Alert className="mb-3 py-2 border-green-200 bg-green-50">
-                <CheckCircle className="h-3 w-3 text-green-600" />
-                <AlertDescription className="text-xs text-green-800">{success}</AlertDescription>
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">{success}</AlertDescription>
               </Alert>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-3">
-              <div>
-                <Label htmlFor="login-email" className="text-xs">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-2 top-2.5 h-3 w-3 text-gray-400" />
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="pl-7 py-2 text-sm"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                    disabled={isLoading}
-                  />
-                </div>
+            <div className="w-full">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold">Sign In</h2>
               </div>
               
-              <div>
-                <Label htmlFor="login-password" className="text-xs">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-2 top-2.5 h-3 w-3 text-gray-400" />
-                  <Input
-                    id="login-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    className="pl-7 pr-8 py-2 text-sm"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                    disabled={isLoading}
-                  />
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <Label htmlFor="login-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      className="pl-10"
+                      value={loginData.email}
+                      onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="login-password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      className="pl-10 pr-10"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                      disabled={isLoading}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember-me"
+                      checked={loginData.rememberMe}
+                      onCheckedChange={(checked) => 
+                        setLoginData(prev => ({ ...prev, rememberMe: !!checked }))
+                      }
+                    />
+                    <Label htmlFor="remember-me" className="text-sm">
+                      Remember me
+                    </Label>
+                  </div>
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
+                    variant="link"
+                    className="p-0 text-sm"
+                    onClick={() => setCurrentView('reset-password')}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-3 w-3 text-gray-400" />
-                    ) : (
-                      <Eye className="h-3 w-3 text-gray-400" />
-                    )}
+                    Forgot password?
                   </Button>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-1">
-                  <Checkbox
-                    id="remember-me"
-                    checked={loginData.rememberMe}
-                    onCheckedChange={(checked) => 
-                      setLoginData(prev => ({ ...prev, rememberMe: !!checked }))
-                    }
-                  />
-                  <Label htmlFor="remember-me" className="text-xs">
-                    Remember me
-                  </Label>
-                </div>
-                <Button
-                  type="button"
-                  variant="link"
-                  className="p-0 text-xs h-auto"
-                  onClick={() => setCurrentView('reset-password')}
+                
+                <Button 
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
                 >
-                  Forgot password?
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
-              </div>
-              
-              <Button 
-                type="submit"
-                className="w-full py-2"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
+              </form>
 
-            <div className="mt-3 text-center">
-              <p className="text-xs text-muted-foreground">
-                Don't have an account?{' '}
-                <Button
-                  variant="link"
-                  className="p-0 text-xs font-medium h-auto"
-                  onClick={() => onNavigate('platform-signup')}
-                >
-                  Sign up for free
-                </Button>
-              </p>
+              <div className="mt-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{' '}
+                  <Button
+                    variant="link"
+                    className="p-0 text-sm font-medium"
+                    onClick={() => onNavigate('platform-signup')}
+                  >
+                    Sign up for free
+                  </Button>
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
