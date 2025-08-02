@@ -147,7 +147,14 @@ export const NavigationRibbon = ({
                 return (
                   <button 
                     key={item.id} 
-                    onClick={() => handleNavigateAndClose(item.id)} 
+                    onClick={() => {
+                      // Special handling for Projects button to open project list
+                      if (item.id === "projects") {
+                        handleNavigateAndClose("projects");
+                      } else {
+                        handleNavigateAndClose(item.id);
+                      }
+                    }}
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
                         ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
