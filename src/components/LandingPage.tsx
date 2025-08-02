@@ -114,7 +114,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
-        <div className="max-w-7xl mx-auto px-8 py-6">
+        <div className="max-w-7xl mx-auto px-8 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-4 architectural-accent">
@@ -131,11 +131,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             {/* Login Button */}
             <Button 
               onClick={() => onNavigate('auth')}
-              variant="outline"
-              className="button-ghost flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium tracking-wide h-auto"
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-xs font-medium rounded-md border-0 hover:bg-brand-gold/10 text-muted-foreground hover:text-brand-gold transition-all duration-200"
             >
-              <LogIn className="w-4 h-4" />
-              <span>Login</span>
+              Login
             </Button>
           </div>
         </div>
