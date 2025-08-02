@@ -290,14 +290,16 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
                       variant="outline"
                       role="combobox"
                       aria-expanded={categoryOpen}
-                      className="mt-1 w-full justify-between"
+                      className="mt-1 w-full justify-between text-left overflow-hidden"
                       disabled={!!activeTimer}
                     >
-                      {selectedCategory || "Select or type category..."}
+                      <span className="truncate flex-1 min-w-0">
+                        {selectedCategory || "Select or type category..."}
+                      </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
+                  <PopoverContent className="w-full p-0 bg-popover border border-border shadow-lg z-50">
                     <Command>
                       <CommandInput 
                         placeholder="Search or type new category..." 
