@@ -22,8 +22,8 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   };
 
   return (
-    <Sidebar className="w-full h-full bg-transparent border-none shadow-none">
-      <SidebarHeader className="p-6 space-y-4">
+    <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
+      <SidebarHeader className="p-4 border-b border-white/20 space-y-3">
         {/* Context Switcher - Shows User Name and Business */}
         <div className="w-full">
           <SidebarContextSwitcher onNavigate={onNavigate} isCollapsed={isCollapsed} />
@@ -34,20 +34,18 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
           onClick={handleRibbonClick}
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="w-full justify-start text-white hover:bg-white/20 hover:text-white"
         >
           <Menu className="w-4 h-4 mr-2" />
           {!isCollapsed && <span>Navigation</span>}
         </Button>
       </SidebarHeader>
       
-      <div className="flex-1 overflow-hidden">
-        <NavigationRibbon 
-          currentPage={currentPage}
-          onNavigate={onNavigate}
-          isCollapsed={isCollapsed}
-        />
-      </div>
+      <NavigationRibbon 
+        currentPage={currentPage}
+        onNavigate={onNavigate}
+        isCollapsed={isCollapsed}
+      />
 
       <SidebarFooter isCollapsed={isCollapsed} onNavigate={onNavigate} />
     </Sidebar>
