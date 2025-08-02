@@ -24,7 +24,9 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
 
   // Redirect if already authenticated
   useEffect(() => {
+    console.log(`🔐 AuthPage: isAuthenticated=${isAuthenticated}, loading=${loading}`);
     if (isAuthenticated && !loading) {
+      console.log(`🔐 AuthPage: User already authenticated, redirecting to landing`);
       onNavigate("landing");
     }
   }, [isAuthenticated, loading, onNavigate]);

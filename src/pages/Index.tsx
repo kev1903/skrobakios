@@ -27,6 +27,7 @@ const Index = () => {
 
   // Enhanced navigation function that tracks previous page
   const handleNavigate = (page: string) => {
+    console.log(`🧭 Navigation requested: ${currentPage} -> ${page}`);
     // Store current page as previous (unless it's the same page)
     if (page !== currentPage) {
       previousPageRef.current = currentPage;
