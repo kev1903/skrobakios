@@ -45,9 +45,9 @@ div[data-rbd-drag-handle-draggable-id] {
 
 @layer base {
   :root {
-    /* Light Theme - Sophisticated Architectural Design System */
+    /* Light Theme - Modern Blue Gradient Design System */
     --background: 0 0% 100%;
-    --foreground: 220 15% 15%;
+    --foreground: 220 20% 10%;
 
     --card: 0 0% 98%;
     --card-foreground: 220 15% 20%;
@@ -55,66 +55,67 @@ div[data-rbd-drag-handle-draggable-id] {
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 15%;
 
-    --primary: 199 47% 63%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 10% 95%;
+    --secondary: 220 14% 96%;
     --secondary-foreground: 220 15% 25%;
 
-    --muted: 220 8% 95%;
-    --muted-foreground: 220 5% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
 
-    --accent: 199 47% 92%;
-    --accent-foreground: 220 15% 15%;
+    --accent: 217 91% 95%;
+    --accent-foreground: 217 91% 60%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 12% 90%;
-    --input: 220 12% 97%;
-    --ring: 199 47% 63%;
+    --border: 220 13% 91%;
+    --input: 220 13% 97%;
+    --ring: 217 91% 60%;
 
     --radius: 0.75rem;
 
-    /* Light Theme Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-bg-light: rgba(255, 255, 255, 0.8);
+    /* Enhanced Blue Glassmorphism Theme */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-bg-light: rgba(255, 255, 255, 0.85);
     --glass-bg-hover: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(115, 171, 204, 0.15);
-    --glass-shadow: rgba(0, 0, 0, 0.08);
-    --glass-shadow-hover: rgba(115, 171, 204, 0.2);
+    --glass-border: rgba(59, 130, 246, 0.2);
+    --glass-shadow: rgba(59, 130, 246, 0.08);
+    --glass-shadow-hover: rgba(59, 130, 246, 0.15);
     --glass-backdrop: blur(20px);
     
-    /* Architectural Brand Colors */
-    --brand-gold: 199 47% 63%;
-    --brand-gold-light: 199 47% 73%;
-    --brand-gold-dark: 199 47% 53%;
-    --brand-charcoal: 220 15% 15%;
-    --brand-charcoal-light: 220 15% 25%;
-    --brand-warm-white: 40 25% 96%;
-    --brand-warm-gray: 220 5% 55%;
+    /* Blue Gradient Brand Colors */
+    --brand-blue: 217 91% 60%;
+    --brand-blue-light: 217 91% 70%;
+    --brand-blue-dark: 217 91% 50%;
+    --brand-navy: 220 20% 10%;
+    --brand-navy-light: 220 20% 20%;
+    --brand-light-blue: 210 100% 95%;
+    --brand-gray: 220 8% 55%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-gold)) 0%, hsl(var(--brand-gold-light)) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--brand-charcoal)) 0%, hsl(var(--brand-charcoal-light)) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(115, 171, 204, 0.08) 0%, rgba(115, 171, 204, 0.02) 100%);
+    /* Modern Blue Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 70%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 20% 10%) 0%, hsl(220 20% 20%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.04) 100%);
+    --gradient-blue-bg: linear-gradient(135deg, hsl(217 91% 95%) 0%, hsl(210 100% 95%) 50%, hsl(217 91% 92%) 100%);
     
-    /* Design System Colors */
-    --neutral-50: 40 25% 97%;
-    --neutral-100: 40 20% 92%;
-    --neutral-800: 220 15% 12%;
-    --neutral-900: 220 15% 8%;
-    --neutral-950: 220 15% 3%;
+    /* Enhanced Design System Colors */
+    --neutral-50: 210 100% 98%;
+    --neutral-100: 210 40% 95%;
+    --neutral-800: 220 20% 15%;
+    --neutral-900: 220 20% 10%;
+    --neutral-950: 220 20% 5%;
     
-    /* Sidebar Variables */
+    /* Sidebar Variables - Blue Theme */
     --sidebar-background: rgba(255, 255, 255, 0.9);
-    --sidebar-foreground: 220 15% 15%;
-    --sidebar-primary: 199 47% 63%;
+    --sidebar-foreground: 220 20% 10%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: rgba(115, 171, 204, 0.1);
-    --sidebar-accent-foreground: 220 15% 15%;
-    --sidebar-border: rgba(115, 171, 204, 0.15);
-    --sidebar-ring: 199 47% 63%;
+    --sidebar-accent: rgba(59, 130, 246, 0.1);
+    --sidebar-accent-foreground: 220 20% 10%;
+    --sidebar-border: rgba(59, 130, 246, 0.15);
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
@@ -179,9 +180,9 @@ div[data-rbd-drag-handle-draggable-id] {
   body {
     @apply bg-background text-foreground font-inter;
     background: 
-      radial-gradient(circle at 20% 30%, rgba(115, 171, 204, 0.02) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.8) 0%, transparent 60%),
-      linear-gradient(145deg, hsl(var(--background)) 0%, rgba(248, 250, 252, 0.5) 50%, hsl(var(--background)) 100%);
+      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(147, 197, 253, 0.08) 0%, transparent 60%),
+      var(--gradient-blue-bg);
     min-height: 100vh;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -198,8 +199,8 @@ div[data-rbd-drag-handle-draggable-id] {
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(circle at 25% 25%, rgba(115, 171, 204, 0.03) 0%, transparent 40%),
-      radial-gradient(circle at 75% 75%, rgba(115, 171, 204, 0.01) 0%, transparent 40%),
+      radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(147, 197, 253, 0.03) 0%, transparent 40%),
       var(--gradient-glass);
     pointer-events: none;
     z-index: -1;

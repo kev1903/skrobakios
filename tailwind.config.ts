@@ -82,18 +82,18 @@ export default {
 					border: 'var(--glass-border)',
 					shadow: 'var(--glass-shadow)'
 				},
-				// Architectural Brand Colors
-				'brand-gold': {
-					DEFAULT: 'hsl(var(--brand-gold))',
-					light: 'hsl(var(--brand-gold-light))',
-					dark: 'hsl(var(--brand-gold-dark))',
+				// Modern Blue Brand Colors
+				'brand-blue': {
+					DEFAULT: 'hsl(var(--brand-blue))',
+					light: 'hsl(var(--brand-blue-light))',
+					dark: 'hsl(var(--brand-blue-dark))',
 				},
-				'brand-charcoal': {
-					DEFAULT: 'hsl(var(--brand-charcoal))',
-					light: 'hsl(var(--brand-charcoal-light))',
+				'brand-navy': {
+					DEFAULT: 'hsl(var(--brand-navy))',
+					light: 'hsl(var(--brand-navy-light))',
 				},
-				'brand-warm-white': 'hsl(var(--brand-warm-white))',
-				'brand-warm-gray': 'hsl(var(--brand-warm-gray))',
+				'brand-light-blue': 'hsl(var(--brand-light-blue))',
+				'brand-gray': 'hsl(var(--brand-gray))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
