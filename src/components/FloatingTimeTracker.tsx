@@ -191,37 +191,37 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
 
   return (
     <Card className={cn(
-      "fixed bottom-6 right-6 z-50 w-80 shadow-lg border backdrop-blur-sm bg-card/95",
+      "fixed bottom-6 right-6 z-50 shadow-lg border backdrop-blur-sm bg-card/95",
       "transition-all duration-300 ease-in-out",
-      isExpanded ? "h-auto" : "h-16",
+      isExpanded ? "w-80 h-auto" : "w-auto h-auto",
       className
     )}>
-      <CardContent className="p-4">
+      <CardContent className={cn(
+        "transition-all duration-300",
+        isExpanded ? "p-4" : "p-2"
+      )}>
         {/* Minimalist Collapsed View */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-            <span className="font-mono text-lg font-semibold text-muted-foreground">
+        {!isExpanded && (
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+            <span className="font-mono text-sm font-medium text-muted-foreground">
               0:00
             </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(true)}
-              className="h-8 w-8 p-0"
+              className="h-6 w-6 p-0"
               title="Start Timer"
             >
-              <Play className="w-4 h-4" />
+              <Play className="w-3 h-3" />
             </Button>
           </div>
-        </div>
+        )}
 
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="mt-4 space-y-3 animate-fade-in">
+          <div className="mt-3 space-y-3 animate-fade-in w-72">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Task Description</label>
               <Input
