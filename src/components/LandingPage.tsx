@@ -107,24 +107,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-lg border-b border-border/30">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-foreground to-foreground/80 rounded-xl flex items-center justify-center">
+                <span className="text-background font-bold text-lg">S</span>
               </div>
-              <h1 className="text-2xl font-playfair font-bold text-gray-900">SKROBAKI</h1>
+              <h1 className="text-2xl font-elegant font-bold text-foreground">SKROBAKI</h1>
             </div>
 
             {/* Login Button */}
             <Button 
               onClick={() => onNavigate('auth')}
               variant="outline"
-              className="flex items-center gap-2 border-gray-300 hover:bg-gray-50"
+              className="flex items-center gap-2 border-border/40 hover:bg-accent/20 text-foreground"
             >
               <LogIn className="w-4 h-4" />
               Login
@@ -136,86 +136,86 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/80" />
         
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h1 className="text-5xl md:text-7xl font-playfair font-bold text-white mb-6 leading-tight">
-            We design & build<br />
-            <span className="text-gray-200">Luxury Family Homes</span>
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
+          <h1 className="text-5xl md:text-8xl font-elegant font-light text-foreground mb-8 leading-tight tracking-wide">
+            The project <span className="italic font-normal">itself</span><br />
+            <span className="text-muted-foreground">holds the key to inspiration.</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Crafting your dream home with elegance, expertise, and excellence.
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            Crafting architectural excellence through sophisticated design and unparalleled craftsmanship.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
             <Button 
               size="lg" 
-              className="bg-white text-gray-900 hover:bg-gray-100 text-lg px-8 py-4 h-auto"
+              className="bg-foreground text-background hover:bg-foreground/90 text-lg px-12 py-6 h-auto rounded-full font-light tracking-wide"
               onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
             >
               View Services
-              <ArrowRight className="ml-2 w-5 h-5" />
+              <ArrowRight className="ml-3 w-5 h-5" />
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white text-white hover:bg-white/10 text-lg px-8 py-4 h-auto"
+              className="border-border/40 text-foreground hover:bg-accent/20 text-lg px-12 py-6 h-auto rounded-full font-light tracking-wide backdrop-blur-sm"
               onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <Calendar className="mr-2 w-5 h-5" />
-              Book Free Consultation
+              <Calendar className="mr-3 w-5 h-5" />
+              Book Consultation
             </Button>
           </div>
 
           {/* Trust Bar */}
-          <div className="flex flex-wrap justify-center gap-6 text-white/80">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap justify-center gap-8 text-muted-foreground/80">
+            <div className="flex items-center gap-3 glass-light rounded-full px-6 py-3">
               <Award className="w-5 h-5" />
-              <span>Registered Builder</span>
+              <span className="font-light">Registered Builder</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 glass-light rounded-full px-6 py-3">
               <CheckCircle className="w-5 h-5" />
-              <span>BIM-Integrated</span>
+              <span className="font-light">BIM-Integrated</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 glass-light rounded-full px-6 py-3">
               <Star className="w-5 h-5" />
-              <span>Award-Winning</span>
+              <span className="font-light">Award-Winning</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Services Overview */}
-      <section id="services" className="py-20 bg-gray-50">
+      <section id="services" className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold text-gray-900 mb-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-elegant font-light text-foreground mb-8 tracking-wide">
               Our Services
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Comprehensive construction project management services tailored for luxury residential builds
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
+              Comprehensive architectural and construction services tailored for discerning clients who demand excellence
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-10">
             {services.map((category, idx) => (
-              <Card key={idx} className="bg-white shadow-lg border-0 rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <CardContent className="p-8">
-                  <h3 className="text-2xl font-playfair font-semibold text-gray-900 mb-6">
+              <Card key={idx} className="glass-card border-border/20 overflow-hidden hover:glass-hover transition-all duration-500 group">
+                <CardContent className="p-10">
+                  <h3 className="text-2xl font-elegant font-normal text-foreground mb-8 tracking-wide">
                     {category.category}
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {category.items.map((item, itemIdx) => (
-                      <div key={itemIdx} className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <item.icon className="w-5 h-5 text-gray-700" />
+                      <div key={itemIdx} className="flex items-start gap-5">
+                        <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors duration-300">
+                          <item.icon className="w-6 h-6 text-foreground/70" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900 mb-1">{item.name}</h4>
-                          <p className="text-gray-600 text-sm">{item.description}</p>
+                          <h4 className="font-medium text-foreground mb-2 font-inter">{item.name}</h4>
+                          <p className="text-muted-foreground text-sm font-light leading-relaxed">{item.description}</p>
                         </div>
                       </div>
                     ))}
@@ -228,42 +228,42 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Project Lifecycle Timeline */}
-      <section className="py-20 bg-white">
+      <section className="py-32 bg-card">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold text-gray-900 mb-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-elegant font-light text-card-foreground mb-8 tracking-wide">
               7-Stage Project Lifecycle
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our systematic approach ensures every project is delivered on time, on budget, and to the highest standards
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
+              Our methodical approach ensures seamless execution from conceptual design to final delivery
             </p>
           </div>
 
           <div className="relative">
             {/* Timeline Line */}
-            <div className="absolute left-1/2 transform -translate-x-px h-full w-0.5 bg-gray-300 hidden lg:block"></div>
+            <div className="absolute left-1/2 transform -translate-x-px h-full w-px bg-border/30 hidden lg:block"></div>
             
-            <div className="space-y-12">
+            <div className="space-y-16">
               {projectLifecycle.map((stage, idx) => (
                 <div key={idx} className={`relative flex items-center ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-                  <div className={`flex-1 ${idx % 2 === 0 ? 'lg:pr-12' : 'lg:pl-12'}`}>
-                    <Card className="bg-gray-50 border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-4 mb-3">
-                          <Badge variant="secondary" className="text-lg font-bold px-3 py-1">
+                  <div className={`flex-1 ${idx % 2 === 0 ? 'lg:pr-16' : 'lg:pl-16'}`}>
+                    <Card className="glass-card border-border/20 hover:glass-hover transition-all duration-500">
+                      <CardContent className="p-8">
+                        <div className="flex items-center gap-6 mb-4">
+                          <Badge variant="secondary" className="text-xl font-light px-4 py-2 bg-accent/20 text-accent-foreground rounded-full">
                             {stage.stage}
                           </Badge>
-                          <h3 className="text-xl font-playfair font-semibold text-gray-900">
+                          <h3 className="text-2xl font-elegant font-normal text-card-foreground tracking-wide">
                             {stage.title}
                           </h3>
                         </div>
-                        <p className="text-gray-600">{stage.description}</p>
+                        <p className="text-muted-foreground font-light leading-relaxed">{stage.description}</p>
                       </CardContent>
                     </Card>
                   </div>
                   
                   {/* Timeline Dot */}
-                  <div className="relative z-10 w-4 h-4 bg-gray-900 rounded-full hidden lg:block"></div>
+                  <div className="relative z-10 w-6 h-6 bg-foreground rounded-full hidden lg:block shadow-lg"></div>
                   
                   <div className="flex-1"></div>
                 </div>
@@ -274,34 +274,34 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Featured Projects */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold text-gray-900 mb-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-elegant font-light text-foreground mb-8 tracking-wide">
               Featured Projects
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Showcasing our expertise in luxury residential construction and design excellence
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
+              A curated selection of architectural masterpieces that embody our commitment to excellence
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {featuredProjects.map((project, idx) => (
-              <Card key={idx} className="bg-white border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
-                <div className="relative h-64 overflow-hidden">
+              <Card key={idx} className="glass-card border-border/20 overflow-hidden group hover:glass-hover transition-all duration-500">
+                <div className="relative h-80 overflow-hidden">
                   <img 
                     src={project.image} 
                     alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent group-hover:from-background/80 transition-all duration-500"></div>
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-playfair font-semibold text-gray-900 mb-2">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-elegant font-normal text-card-foreground mb-3 tracking-wide">
                     {project.title}
                   </h3>
-                  <p className="text-gray-600 mb-3">{project.location}</p>
-                  <p className="text-gray-700">{project.description}</p>
+                  <p className="text-muted-foreground mb-4 font-light">{project.location}</p>
+                  <p className="text-muted-foreground font-light leading-relaxed">{project.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -310,28 +310,28 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-white">
+      <section className="py-32 bg-card">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-playfair font-bold text-gray-900 mb-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-elegant font-light text-card-foreground mb-8 tracking-wide">
               What Our Clients Say
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Trusted by families across Melbourne for exceptional construction and service
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
+              Testimonials from discerning clients who have experienced our commitment to architectural excellence
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {testimonials.map((testimonial, idx) => (
-              <Card key={idx} className="bg-gray-50 border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="p-8">
-                  <Quote className="w-8 h-8 text-gray-400 mb-4" />
-                  <p className="text-gray-700 mb-6 italic text-lg leading-relaxed">
+              <Card key={idx} className="glass-card border-border/20 hover:glass-hover transition-all duration-500">
+                <CardContent className="p-10">
+                  <Quote className="w-10 h-10 text-muted-foreground/40 mb-6" />
+                  <p className="text-card-foreground mb-8 italic text-lg leading-relaxed font-light">
                     "{testimonial.quote}"
                   </p>
                   <div>
-                    <p className="font-semibold text-gray-900 mb-1">{testimonial.author}</p>
-                    <p className="text-gray-600 text-sm">{testimonial.project}</p>
+                    <p className="font-medium text-card-foreground mb-2 font-inter">{testimonial.author}</p>
+                    <p className="text-muted-foreground text-sm font-light">{testimonial.project}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -341,70 +341,75 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Contact & CTA Section */}
-      <section id="contact" className="py-20 bg-gray-900 text-white">
+      <section id="contact" className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-6">
-                Ready to Build Your Dream Home?
+              <h2 className="text-4xl md:text-6xl font-elegant font-light mb-8 tracking-wide text-foreground">
+                Ready to Create Something Extraordinary?
               </h2>
-              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                Let's discuss your vision and create something extraordinary together. 
-                Book a free consultation to get started.
+              <p className="text-xl text-muted-foreground mb-12 leading-relaxed font-light">
+                Let's discuss your architectural vision and bring it to life with uncompromising attention to detail.
               </p>
               
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-gray-400" />
-                  <span>+61 3 9876 5432</span>
+              <div className="space-y-6 mb-12">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
+                    <Phone className="w-6 h-6 text-foreground/70" />
+                  </div>
+                  <span className="text-foreground font-light">+61 3 9876 5432</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-gray-400" />
-                  <span>hello@skrobaki.com.au</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-foreground/70" />
+                  </div>
+                  <span className="text-foreground font-light">hello@skrobaki.com.au</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-gray-400" />
-                  <span>Melbourne, Victoria</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
+                    <MapPin className="w-6 h-6 text-foreground/70" />
+                  </div>
+                  <span className="text-foreground font-light">Melbourne, Victoria</span>
                 </div>
               </div>
 
               <Button 
                 size="lg" 
-                className="bg-white text-gray-900 hover:bg-gray-100 text-lg px-8 py-4 h-auto"
+                className="bg-foreground text-background hover:bg-foreground/90 text-lg px-12 py-6 h-auto rounded-full font-light tracking-wide"
               >
-                <Calendar className="mr-2 w-5 h-5" />
-                Book Free Consultation
+                <Calendar className="mr-3 w-5 h-5" />
+                Book Consultation
               </Button>
             </div>
 
             <div>
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardContent className="p-8">
-                  <h3 className="text-2xl font-playfair font-semibold mb-6">Get In Touch</h3>
-                  <form className="space-y-4">
+              <Card className="glass-card border-border/20">
+                <CardContent className="p-10">
+                  <h3 className="text-2xl font-elegant font-normal mb-8 text-card-foreground tracking-wide">Get In Touch</h3>
+                  <form className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <input 
                         type="text" 
                         placeholder="First Name"
-                        className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white/40"
+                        className="bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
                       />
                       <input 
                         type="text" 
                         placeholder="Last Name"
-                        className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white/40"
+                        className="bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
                       />
                     </div>
                     <input 
                       type="email" 
                       placeholder="Email Address"
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white/40"
+                      className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
                     />
                     <input 
                       type="tel" 
                       placeholder="Phone Number"
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white/40"
+                      className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
                     />
-                    <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/40">
+                    <select className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm">
                       <option value="">Select Service Type</option>
                       <option value="project-management">Project Management</option>
                       <option value="estimating">Cost Estimating</option>
@@ -415,11 +420,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                     <textarea 
                       placeholder="Tell us about your project..."
                       rows={4}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white/40 resize-none"
+                      className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border resize-none font-light backdrop-blur-sm"
                     />
                     <Button 
                       type="submit" 
-                      className="w-full bg-white text-gray-900 hover:bg-gray-100"
+                      className="w-full bg-foreground text-background hover:bg-foreground/90 py-4 rounded-2xl font-light tracking-wide"
                     >
                       Send Message
                     </Button>
@@ -432,24 +437,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-white py-12">
+      <footer className="bg-card/50 backdrop-blur-sm text-card-foreground py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-4 gap-12">
             <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-black font-bold">S</span>
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-foreground rounded-2xl flex items-center justify-center">
+                  <span className="text-background font-bold text-lg">S</span>
                 </div>
-                <h3 className="text-xl font-playfair font-bold">SKROBAKI</h3>
+                <h3 className="text-xl font-elegant font-bold tracking-wide">SKROBAKI</h3>
               </div>
-              <p className="text-gray-400">
-                Crafting luxury family homes with elegance, expertise, and excellence.
+              <p className="text-muted-foreground font-light leading-relaxed">
+                Crafting architectural excellence through sophisticated design and unparalleled craftsmanship.
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className="font-medium mb-6 text-card-foreground font-inter">Services</h4>
+              <ul className="space-y-3 text-muted-foreground font-light">
                 <li>Project Management</li>
                 <li>Cost Estimating</li>
                 <li>Building Inspections</li>
@@ -458,8 +463,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
+              <h4 className="font-medium mb-6 text-card-foreground font-inter">Company</h4>
+              <ul className="space-y-3 text-muted-foreground font-light">
                 <li>About Us</li>
                 <li>Projects</li>
                 <li>Careers</li>
@@ -468,8 +473,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <div className="space-y-2 text-gray-400">
+              <h4 className="font-medium mb-6 text-card-foreground font-inter">Contact</h4>
+              <div className="space-y-3 text-muted-foreground font-light">
                 <p>+61 3 9876 5432</p>
                 <p>hello@skrobaki.com.au</p>
                 <p>Melbourne, Victoria</p>
@@ -477,7 +482,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+          <div className="border-t border-border/30 mt-16 pt-8 text-center text-muted-foreground font-light">
             <p>&copy; 2024 Skrobaki. All rights reserved.</p>
           </div>
         </div>

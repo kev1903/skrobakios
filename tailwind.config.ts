@@ -21,8 +21,9 @@ export default {
 		extend: {
 			fontFamily: {
 				'playfair': ['Playfair Display', 'serif'],
-				'inter': ['Inter', 'Helvetica Neue', 'sans-serif'],
-				'manrope': ['Manrope', 'sans-serif'],
+				'inter': ['Inter', 'system-ui', 'sans-serif'],
+				'manrope': ['Manrope', 'system-ui', 'sans-serif'],
+				'elegant': ['Playfair Display', 'Georgia', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
