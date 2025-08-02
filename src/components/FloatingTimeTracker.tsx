@@ -27,10 +27,41 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
   const [selectedCategory, setSelectedCategory] = useState('');
   const [projectName, setProjectName] = useState('');
   const [currentDuration, setCurrentDuration] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Update timer duration every second
+  // Auto-expand when timer is running
   useEffect(() => {
-    if (activeTimer?.start_time) {
+    if (activeTimer && !isExpanded) {
+      setIsExpanded(true);
+    }
+  }, [activeTimer, isExpanded]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (activeTimer) {
+            handleStopTimer();
+          } else if (taskActivity.trim()) {
+            handleStartTimer();
+          }
+        }
+        if (e.key === ' ') {
+          e.preventDefault();
+          setIsExpanded(!isExpanded);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTimer, taskActivity, isExpanded]);
+
+  // Update timer duration every second with more precision
+  useEffect(() => {
+    if (activeTimer?.start_time && !isPaused) {
       const updateDuration = () => {
         const now = new Date();
         const start = new Date(activeTimer.start_time);
@@ -41,10 +72,10 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
       updateDuration();
       const interval = setInterval(updateDuration, 1000);
       return () => clearInterval(interval);
-    } else {
+    } else if (!activeTimer) {
       setCurrentDuration(0);
     }
-  }, [activeTimer]);
+  }, [activeTimer, isPaused]);
 
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -64,16 +95,20 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
         description: "Please enter a task description before starting the timer.",
         variant: "destructive",
       });
+      setIsExpanded(true); // Ensure form is visible
       return;
     }
 
     try {
       await startTimer(taskActivity, selectedCategory || undefined, projectName || undefined);
+      setIsPaused(false);
       toast({
         title: "Timer Started",
         description: `Started tracking "${taskActivity}"`,
       });
+      // Keep the form filled for editing
     } catch (error) {
+      console.error('Timer start error:', error);
       toast({
         title: "Error",
         description: "Failed to start timer. Please try again.",
@@ -85,21 +120,32 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
   const handleStopTimer = async () => {
     try {
       await stopTimer();
+      setIsPaused(false);
       toast({
         title: "Timer Stopped",
-        description: "Time entry has been saved.",
+        description: `Time entry saved: ${formatDuration(currentDuration)}`,
       });
-      // Clear form
+      // Clear form after successful stop
       setTaskActivity('');
       setSelectedCategory('');
       setProjectName('');
+      setCurrentDuration(0);
     } catch (error) {
+      console.error('Timer stop error:', error);
       toast({
         title: "Error",
         description: "Failed to stop timer. Please try again.",
         variant: "destructive",
       });
     }
+  };
+
+  const handlePauseTimer = () => {
+    setIsPaused(!isPaused);
+    toast({
+      title: isPaused ? "Timer Resumed" : "Timer Paused",
+      description: isPaused ? "Timer is now running" : "Timer is paused",
+    });
   };
 
   const categories = settings?.productive_categories || ['Work', 'Development', 'Meeting', 'Research'];
@@ -120,14 +166,19 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-3 h-3 rounded-full",
-              activeTimer ? "bg-green-500 animate-pulse" : "bg-gray-400"
+              "w-3 h-3 rounded-full transition-colors",
+              activeTimer && !isPaused ? "bg-green-500 animate-pulse" : 
+              activeTimer && isPaused ? "bg-yellow-500" : "bg-gray-400"
             )} />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span className="font-mono text-lg font-semibold">
+                <span className={cn(
+                  "font-mono text-lg font-semibold transition-colors",
+                  isPaused ? "text-yellow-600" : activeTimer ? "text-green-600" : "text-foreground"
+                )}>
                   {formatDuration(currentDuration)}
+                  {isPaused && <span className="ml-1 text-xs">⏸</span>}
                 </span>
               </div>
               {activeTimer && (
@@ -140,20 +191,33 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
           
           <div className="flex items-center gap-1">
             {activeTimer ? (
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={handleStopTimer}
-                className="h-8 w-8 p-0"
-              >
-                <Square className="w-3 h-3" />
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant={isPaused ? "default" : "secondary"}
+                  onClick={handlePauseTimer}
+                  className="h-8 w-8 p-0"
+                  title={isPaused ? "Resume Timer" : "Pause Timer"}
+                >
+                  {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleStopTimer}
+                  className="h-8 w-8 p-0"
+                  title="Stop Timer"
+                >
+                  <Square className="w-3 h-3" />
+                </Button>
+              </>
             ) : (
               <Button
                 size="sm"
                 onClick={() => isExpanded ? handleStartTimer() : setIsExpanded(true)}
-                disabled={!isExpanded && !taskActivity}
+                disabled={!isExpanded && !taskActivity.trim()}
                 className="h-8 w-8 p-0"
+                title={isExpanded ? "Start Timer" : "Expand Timer"}
               >
                 <Play className="w-3 h-3" />
               </Button>
@@ -164,6 +228,7 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
               variant="ghost"
               onClick={() => setIsExpanded(!isExpanded)}
               className="h-8 w-8 p-0"
+              title={isExpanded ? "Collapse" : "Expand"}
             >
               {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
             </Button>
@@ -234,26 +299,46 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
             )}
 
             {activeTimer && (
-              <div className="bg-muted/50 rounded-lg p-3">
+              <div className={cn(
+                "rounded-lg p-3 transition-colors",
+                isPaused ? "bg-yellow-50 border border-yellow-200" : "bg-muted/50"
+              )}>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium">{activeTimer.task_activity}</div>
                     <div className="text-sm text-muted-foreground">
                       {activeTimer.category && `${activeTimer.category} • `}
                       {activeTimer.project_name || 'No project'}
+                      {isPaused && <span className="ml-2 text-yellow-600">• Paused</span>}
                     </div>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleStopTimer}
-                  >
-                    <Square className="w-4 h-4 mr-2" />
-                    Stop
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={isPaused ? "default" : "secondary"}
+                      size="sm"
+                      onClick={handlePauseTimer}
+                    >
+                      {isPaused ? <Play className="w-4 h-4 mr-2" /> : <Pause className="w-4 h-4 mr-2" />}
+                      {isPaused ? 'Resume' : 'Pause'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleStopTimer}
+                    >
+                      <Square className="w-4 h-4 mr-2" />
+                      Stop
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
+
+            {/* Keyboard shortcuts help */}
+            <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/30 rounded">
+              <div>⌘/Ctrl + Enter: {activeTimer ? 'Stop' : 'Start'} timer</div>
+              <div>⌘/Ctrl + Space: Toggle expand/collapse</div>
+            </div>
           </div>
         )}
       </CardContent>
