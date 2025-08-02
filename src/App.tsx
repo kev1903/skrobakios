@@ -154,8 +154,8 @@ const AppContent = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   
-  // Check if we're on the landing page
-  const isLandingPage = location.pathname === "/" && (!searchParams.get('page') || searchParams.get('page') === 'landing');
+  // Check if we're specifically on the landing page (not authenticated home page)
+  const isLandingPage = location.pathname === "/" && searchParams.get('page') === 'landing';
 
   return (
     <UserProvider>
