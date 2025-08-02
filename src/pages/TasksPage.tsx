@@ -16,7 +16,7 @@ import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
 import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from "@/hooks/use-toast";
-
+import { FloatingTimeTracker } from '@/components/FloatingTimeTracker';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -700,6 +700,8 @@ const TasksPage = () => {
           </div>
         )}
 
+        {/* Floating Time Tracker */}
+        <FloatingTimeTracker />
       </div>
     </DragDropContext>
   );

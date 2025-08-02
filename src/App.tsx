@@ -30,7 +30,7 @@ import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
-
+import { TimerTopBar } from "./components/TimerTopBar";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
@@ -158,7 +158,7 @@ const AppContent = () => {
           {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
             <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
           )}
-          
+          <TimerTopBar />
           <Routes>
         <Route path="/" element={
           <AppContextProvider>

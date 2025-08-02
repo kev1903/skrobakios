@@ -33,7 +33,7 @@ import { ProjectTeamPage } from "@/components/projects/ProjectTeamPage";
 import { ProjectTeamManagementPage } from "@/components/ProjectTeamManagementPage";
 import { ProjectCostPage } from "@/components/project-cost/ProjectCostPage";
 
-
+import { TimeManagementPage } from "@/components/TimeManagementPage";
 
 import { AdminPage } from "@/components/admin/AdminPage";
 import { CompanySettingsPage } from "@/components/company/CompanySettingsPage";
@@ -52,7 +52,7 @@ import { MilestonePage } from "@/components/MilestonePage";
 import { PermissionManager } from "@/components/permissions/PermissionManager";
 import { PersonalPage } from "@/components/PersonalPage";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
-
+import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
@@ -94,9 +94,7 @@ export const ContentRenderer = ({
     case "milestones":
       return <MilestonePage onNavigate={onNavigate} />;
     case "time-management":
-      // Time management removed - redirect to tasks
-      onNavigate("tasks");
-      return null;
+      return <TimeManagementPage onNavigate={onNavigate} />;
     case "settings":
       return <BusinessSettingsPage onNavigate={onNavigate} />;
     case "admin":
@@ -315,9 +313,7 @@ export const ContentRenderer = ({
     case "personal":
       return <PersonalPage onNavigate={onNavigate} />;
     case "time":
-      // Time page removed - redirect to tasks
-      onNavigate("tasks");
-      return null;
+      return <TimePage onNavigate={onNavigate} />;
     case "wellness":
       return <WellnessPage onNavigate={onNavigate} />;
     case "family":

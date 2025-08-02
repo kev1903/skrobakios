@@ -9,7 +9,7 @@ import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
-
+import { useTimeTracking } from '@/hooks/useTimeTracking';
 
 interface WeekTimelineViewProps {
   currentDate: Date;
@@ -33,10 +33,10 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
+  const { settings } = useTimeTracking();
   
-  
-  // Default category colors - now in HSL format
-  const categoryColors = {
+  // Get category colors from time tracking settings - now in HSL format
+  const categoryColors = settings?.category_colors || {
     'Design': '217 91% 60%',     // Blue
     'Admin': '159 61% 51%',      // Green  
     'Calls': '43 96% 56%',       // Amber
