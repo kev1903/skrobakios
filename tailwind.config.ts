@@ -20,10 +20,9 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'playfair': ['Playfair Display', 'serif'],
 				'inter': ['Inter', 'system-ui', 'sans-serif'],
-				'manrope': ['Manrope', 'system-ui', 'sans-serif'],
-				'elegant': ['Playfair Display', 'Georgia', 'serif'],
+				'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'monospace'],
+				'display': ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

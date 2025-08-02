@@ -109,265 +109,276 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-lg border-b border-border/30">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-md border-b border-border/20">
+        <div className="max-w-7xl mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-foreground to-foreground/80 rounded-xl flex items-center justify-center">
-                <span className="text-background font-bold text-lg">S</span>
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
+                <span className="text-background font-medium text-sm">S</span>
               </div>
-              <h1 className="text-2xl font-elegant font-bold text-foreground">SKROBAKI</h1>
+              <h1 className="text-xl font-display font-medium text-foreground tracking-tight">SKROBAKI</h1>
             </div>
 
             {/* Login Button */}
             <Button 
               onClick={() => onNavigate('auth')}
               variant="outline"
-              className="flex items-center gap-2 border-border/40 hover:bg-accent/20 text-foreground"
+              className="button-minimal flex items-center gap-2 border-border/40 hover:bg-accent/40 text-foreground rounded-lg px-4 py-2"
             >
               <LogIn className="w-4 h-4" />
-              Login
+              <span className="font-light">Login</span>
             </Button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-start overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-background/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/80 to-background/95" />
         
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
-          <h1 className="text-5xl md:text-8xl font-elegant font-light text-foreground mb-8 leading-tight tracking-wide">
-            The project <span className="italic font-normal">itself</span><br />
-            <span className="text-muted-foreground">holds the key to inspiration.</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-            Crafting architectural excellence through sophisticated design and unparalleled craftsmanship.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-            <Button 
-              size="lg" 
-              className="bg-foreground text-background hover:bg-foreground/90 text-lg px-12 py-6 h-auto rounded-full font-light tracking-wide"
-              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              View Services
-              <ArrowRight className="ml-3 w-5 h-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-border/40 text-foreground hover:bg-accent/20 text-lg px-12 py-6 h-auto rounded-full font-light tracking-wide backdrop-blur-sm"
-              onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              <Calendar className="mr-3 w-5 h-5" />
-              Book Consultation
-            </Button>
-          </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-8 py-24">
+          <div className="max-w-4xl">
+            <h1 className="heading-xl text-foreground mb-12 max-w-3xl">
+              The project <span className="italic font-extralight opacity-80">itself</span><br />
+              <span className="text-muted-foreground">holds the key to inspiration.</span>
+            </h1>
+            
+            <p className="body-lg text-muted-foreground mb-16 max-w-2xl">
+              Architectural excellence through minimalist design philosophy and uncompromising attention to detail.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 mb-20">
+              <Button 
+                size="lg" 
+                className="interactive-minimal bg-foreground text-background hover:bg-foreground/90 text-lg px-8 py-4 h-auto rounded-lg font-light"
+                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Explore Services
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="interactive-minimal border-border/40 text-foreground hover:bg-accent/20 text-lg px-8 py-4 h-auto rounded-lg font-light backdrop-blur-sm"
+                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <Calendar className="mr-2 w-4 h-4" />
+                Book Consultation
+              </Button>
+            </div>
 
-          {/* Trust Bar */}
-          <div className="flex flex-wrap justify-center gap-8 text-muted-foreground/80">
-            <div className="flex items-center gap-3 glass-light rounded-full px-6 py-3">
-              <Award className="w-5 h-5" />
-              <span className="font-light">Registered Builder</span>
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap gap-8 text-muted-foreground/60">
+              <div className="flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                <span className="text-sm font-light">Registered Builder</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                <span className="text-sm font-light">BIM-Integrated</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4" />
+                <span className="text-sm font-light">Award-Winning</span>
+              </div>
             </div>
-            <div className="flex items-center gap-3 glass-light rounded-full px-6 py-3">
-              <CheckCircle className="w-5 h-5" />
-              <span className="font-light">BIM-Integrated</span>
-            </div>
-            <div className="flex items-center gap-3 glass-light rounded-full px-6 py-3">
-              <Star className="w-5 h-5" />
-              <span className="font-light">Award-Winning</span>
-            </div>
+          </div>
+        </div>
+        
+        <div className="absolute bottom-8 left-8 text-muted-foreground/40">
+          <div className="text-xs font-light space-y-1">
+            <div>Melbourne</div>
+            <div>Victoria</div>
           </div>
         </div>
       </section>
 
       {/* Services Overview */}
-      <section id="services" className="py-32 bg-background">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-elegant font-light text-foreground mb-8 tracking-wide">
-              Our Services
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
-              Comprehensive architectural and construction services tailored for discerning clients who demand excellence
-            </p>
+      <section id="services" className="py-40 bg-background">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="mb-24">
+            <div className="max-w-3xl">
+              <h2 className="heading-lg text-foreground mb-8">
+                Our Approach
+              </h2>
+              <p className="body-lg text-muted-foreground">
+                Comprehensive architectural and construction services designed for clients who value precision, quality, and innovative solutions.
+              </p>
+            </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-10">
+          <div className="grid lg:grid-cols-3 gap-12">
             {services.map((category, idx) => (
-              <Card key={idx} className="glass-card border-border/20 overflow-hidden hover:glass-hover transition-all duration-500 group">
-                <CardContent className="p-10">
-                  <h3 className="text-2xl font-elegant font-normal text-foreground mb-8 tracking-wide">
-                    {category.category}
-                  </h3>
-                  <div className="space-y-6">
-                    {category.items.map((item, itemIdx) => (
-                      <div key={itemIdx} className="flex items-start gap-5">
-                        <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors duration-300">
-                          <item.icon className="w-6 h-6 text-foreground/70" />
+              <div key={idx} className="interactive-minimal group">
+                <Card className="glass-card border-border/10 overflow-hidden h-full">
+                  <CardContent className="p-8">
+                    <h3 className="heading-md text-foreground mb-10 opacity-90">
+                      {category.category}
+                    </h3>
+                    <div className="space-y-8">
+                      {category.items.map((item, itemIdx) => (
+                        <div key={itemIdx} className="flex items-start gap-4">
+                          <div className="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <item.icon className="w-4 h-4 text-foreground/60" />
+                          </div>
+                          <div className="space-y-2">
+                            <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                            <p className="text-muted-foreground text-sm font-light leading-relaxed">{item.description}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-foreground mb-2 font-inter">{item.name}</h4>
-                          <p className="text-muted-foreground text-sm font-light leading-relaxed">{item.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Project Lifecycle Timeline */}
-      <section className="py-32 bg-card">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-elegant font-light text-card-foreground mb-8 tracking-wide">
-              7-Stage Project Lifecycle
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
-              Our methodical approach ensures seamless execution from conceptual design to final delivery
-            </p>
+      <section className="py-40 bg-card/30">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="mb-24">
+            <div className="max-w-3xl">
+              <h2 className="heading-lg text-card-foreground mb-8">
+                Project Lifecycle
+              </h2>
+              <p className="body-lg text-muted-foreground">
+                A systematic seven-stage approach ensuring seamless execution from initial concept to final delivery.
+              </p>
+            </div>
           </div>
 
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-1/2 transform -translate-x-px h-full w-px bg-border/30 hidden lg:block"></div>
-            
-            <div className="space-y-16">
-              {projectLifecycle.map((stage, idx) => (
-                <div key={idx} className={`relative flex items-center ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-                  <div className={`flex-1 ${idx % 2 === 0 ? 'lg:pr-16' : 'lg:pl-16'}`}>
-                    <Card className="glass-card border-border/20 hover:glass-hover transition-all duration-500">
-                      <CardContent className="p-8">
-                        <div className="flex items-center gap-6 mb-4">
-                          <Badge variant="secondary" className="text-xl font-light px-4 py-2 bg-accent/20 text-accent-foreground rounded-full">
-                            {stage.stage}
-                          </Badge>
-                          <h3 className="text-2xl font-elegant font-normal text-card-foreground tracking-wide">
-                            {stage.title}
-                          </h3>
-                        </div>
-                        <p className="text-muted-foreground font-light leading-relaxed">{stage.description}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  
-                  {/* Timeline Dot */}
-                  <div className="relative z-10 w-6 h-6 bg-foreground rounded-full hidden lg:block shadow-lg"></div>
-                  
-                  <div className="flex-1"></div>
-                </div>
-              ))}
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {projectLifecycle.map((stage, idx) => (
+              <div key={idx} className="interactive-minimal">
+                <Card className="glass-card border-border/10 h-full">
+                  <CardContent className="p-6">
+                    <div className="mb-6">
+                      <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
+                        <span className="text-foreground font-medium">{stage.stage}</span>
+                      </div>
+                      <h3 className="heading-md text-card-foreground mb-3">
+                        {stage.title}
+                      </h3>
+                    </div>
+                    <p className="text-muted-foreground text-sm font-light leading-relaxed">{stage.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Featured Projects */}
-      <section className="py-32 bg-background">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-elegant font-light text-foreground mb-8 tracking-wide">
-              Featured Projects
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
-              A curated selection of architectural masterpieces that embody our commitment to excellence
-            </p>
+      <section className="py-40 bg-background">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex justify-between items-end mb-24">
+            <div className="max-w-3xl">
+              <h2 className="heading-lg text-foreground mb-8">
+                Selected Works
+              </h2>
+              <p className="body-lg text-muted-foreground">
+                A curated portfolio showcasing our commitment to architectural excellence and innovative design solutions.
+              </p>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProjects.map((project, idx) => (
-              <Card key={idx} className="glass-card border-border/20 overflow-hidden group hover:glass-hover transition-all duration-500">
-                <div className="relative h-80 overflow-hidden">
-                  <img 
-                    src={project.image} 
-                    alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent group-hover:from-background/80 transition-all duration-500"></div>
-                </div>
-                <CardContent className="p-8">
-                  <h3 className="text-2xl font-elegant font-normal text-card-foreground mb-3 tracking-wide">
-                    {project.title}
-                  </h3>
-                  <p className="text-muted-foreground mb-4 font-light">{project.location}</p>
-                  <p className="text-muted-foreground font-light leading-relaxed">{project.description}</p>
-                </CardContent>
-              </Card>
+              <div key={idx} className="interactive-minimal group">
+                <Card className="glass-card border-border/10 overflow-hidden h-full">
+                  <div className="relative h-64 overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent"></div>
+                  </div>
+                  <CardContent className="p-6">
+                    <h3 className="heading-md text-card-foreground mb-2">
+                      {project.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm font-light mb-3">{project.location}</p>
+                    <p className="text-muted-foreground text-sm font-light leading-relaxed">{project.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="py-32 bg-card">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-elegant font-light text-card-foreground mb-8 tracking-wide">
-              What Our Clients Say
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
-              Testimonials from discerning clients who have experienced our commitment to architectural excellence
-            </p>
+      <section className="py-40 bg-card/30">
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="mb-24">
+            <div className="max-w-3xl">
+              <h2 className="heading-lg text-card-foreground mb-8">
+                Client Testimonials
+              </h2>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, idx) => (
-              <Card key={idx} className="glass-card border-border/20 hover:glass-hover transition-all duration-500">
-                <CardContent className="p-10">
-                  <Quote className="w-10 h-10 text-muted-foreground/40 mb-6" />
-                  <p className="text-card-foreground mb-8 italic text-lg leading-relaxed font-light">
-                    "{testimonial.quote}"
-                  </p>
-                  <div>
-                    <p className="font-medium text-card-foreground mb-2 font-inter">{testimonial.author}</p>
-                    <p className="text-muted-foreground text-sm font-light">{testimonial.project}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div key={idx} className="interactive-minimal">
+                <Card className="glass-card border-border/10 h-full">
+                  <CardContent className="p-8">
+                    <div className="mb-6">
+                      <Quote className="w-6 h-6 text-muted-foreground/30 mb-4" />
+                      <p className="text-card-foreground text-base leading-relaxed font-light italic">
+                        "{testimonial.quote}"
+                      </p>
+                    </div>
+                    <div className="border-t border-border/20 pt-6">
+                      <p className="font-medium text-card-foreground text-sm mb-1">{testimonial.author}</p>
+                      <p className="text-muted-foreground text-xs font-light">{testimonial.project}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Contact & CTA Section */}
-      <section id="contact" className="py-32 bg-background">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section id="contact" className="py-40 bg-background">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="grid lg:grid-cols-2 gap-20 items-start">
             <div>
-              <h2 className="text-4xl md:text-6xl font-elegant font-light mb-8 tracking-wide text-foreground">
-                Ready to Create Something Extraordinary?
+              <h2 className="heading-lg text-foreground mb-8">
+                Let's Create Something Exceptional
               </h2>
-              <p className="text-xl text-muted-foreground mb-12 leading-relaxed font-light">
-                Let's discuss your architectural vision and bring it to life with uncompromising attention to detail.
+              <p className="body-lg text-muted-foreground mb-16">
+                Begin your architectural journey with a conversation about your vision and aspirations.
               </p>
               
-              <div className="space-y-6 mb-12">
+              <div className="space-y-6 mb-16">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-foreground/70" />
+                  <div className="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-foreground/60" />
                   </div>
                   <span className="text-foreground font-light">+61 3 9876 5432</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-foreground/70" />
+                  <div className="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-foreground/60" />
                   </div>
                   <span className="text-foreground font-light">hello@skrobaki.com.au</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-foreground/70" />
+                  <div className="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-foreground/60" />
                   </div>
                   <span className="text-foreground font-light">Melbourne, Victoria</span>
                 </div>
@@ -375,41 +386,41 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
               <Button 
                 size="lg" 
-                className="bg-foreground text-background hover:bg-foreground/90 text-lg px-12 py-6 h-auto rounded-full font-light tracking-wide"
+                className="interactive-minimal bg-foreground text-background hover:bg-foreground/90 px-8 py-4 h-auto rounded-lg font-light"
               >
-                <Calendar className="mr-3 w-5 h-5" />
-                Book Consultation
+                <Calendar className="mr-2 w-4 h-4" />
+                Schedule Consultation
               </Button>
             </div>
 
             <div>
-              <Card className="glass-card border-border/20">
-                <CardContent className="p-10">
-                  <h3 className="text-2xl font-elegant font-normal mb-8 text-card-foreground tracking-wide">Get In Touch</h3>
+              <Card className="glass-card border-border/10">
+                <CardContent className="p-8">
+                  <h3 className="heading-md text-card-foreground mb-8">Get In Touch</h3>
                   <form className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                       <input 
                         type="text" 
                         placeholder="First Name"
-                        className="bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
+                        className="input-minimal px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none font-light"
                       />
                       <input 
                         type="text" 
                         placeholder="Last Name"
-                        className="bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
+                        className="input-minimal px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none font-light"
                       />
                     </div>
                     <input 
                       type="email" 
                       placeholder="Email Address"
-                      className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
+                      className="w-full input-minimal px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none font-light"
                     />
                     <input 
                       type="tel" 
                       placeholder="Phone Number"
-                      className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm"
+                      className="w-full input-minimal px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none font-light"
                     />
-                    <select className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:border-border font-light backdrop-blur-sm">
+                    <select className="w-full input-minimal px-4 py-3 text-foreground focus:outline-none font-light">
                       <option value="">Select Service Type</option>
                       <option value="project-management">Project Management</option>
                       <option value="estimating">Cost Estimating</option>
@@ -420,11 +431,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                     <textarea 
                       placeholder="Tell us about your project..."
                       rows={4}
-                      className="w-full bg-input border border-border/40 rounded-2xl px-6 py-4 text-foreground placeholder-muted-foreground focus:outline-none focus:border-border resize-none font-light backdrop-blur-sm"
+                      className="w-full input-minimal px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none resize-none font-light"
                     />
                     <Button 
                       type="submit" 
-                      className="w-full bg-foreground text-background hover:bg-foreground/90 py-4 rounded-2xl font-light tracking-wide"
+                      className="w-full button-minimal bg-foreground text-background hover:bg-foreground/90 py-3 rounded-lg font-light"
                     >
                       Send Message
                     </Button>
@@ -437,24 +448,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card/50 backdrop-blur-sm text-card-foreground py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12">
+      <footer className="bg-card/20 backdrop-blur-sm text-card-foreground py-20 border-t border-border/10">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="grid md:grid-cols-4 gap-16">
             <div>
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-foreground rounded-2xl flex items-center justify-center">
-                  <span className="text-background font-bold text-lg">S</span>
+                <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
+                  <span className="text-background font-medium text-sm">S</span>
                 </div>
-                <h3 className="text-xl font-elegant font-bold tracking-wide">SKROBAKI</h3>
+                <h3 className="text-lg font-display font-medium tracking-tight">SKROBAKI</h3>
               </div>
-              <p className="text-muted-foreground font-light leading-relaxed">
-                Crafting architectural excellence through sophisticated design and unparalleled craftsmanship.
+              <p className="text-muted-foreground font-light leading-relaxed text-sm">
+                Architectural excellence through minimalist design philosophy and uncompromising attention to detail.
               </p>
             </div>
             
             <div>
-              <h4 className="font-medium mb-6 text-card-foreground font-inter">Services</h4>
-              <ul className="space-y-3 text-muted-foreground font-light">
+              <h4 className="font-medium mb-6 text-card-foreground text-sm">Services</h4>
+              <ul className="space-y-3 text-muted-foreground font-light text-sm">
                 <li>Project Management</li>
                 <li>Cost Estimating</li>
                 <li>Building Inspections</li>
@@ -463,9 +474,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
             
             <div>
-              <h4 className="font-medium mb-6 text-card-foreground font-inter">Company</h4>
-              <ul className="space-y-3 text-muted-foreground font-light">
-                <li>About Us</li>
+              <h4 className="font-medium mb-6 text-card-foreground text-sm">Company</h4>
+              <ul className="space-y-3 text-muted-foreground font-light text-sm">
+                <li>About</li>
                 <li>Projects</li>
                 <li>Careers</li>
                 <li>Contact</li>
@@ -473,8 +484,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
             
             <div>
-              <h4 className="font-medium mb-6 text-card-foreground font-inter">Contact</h4>
-              <div className="space-y-3 text-muted-foreground font-light">
+              <h4 className="font-medium mb-6 text-card-foreground text-sm">Contact</h4>
+              <div className="space-y-3 text-muted-foreground font-light text-sm">
                 <p>+61 3 9876 5432</p>
                 <p>hello@skrobaki.com.au</p>
                 <p>Melbourne, Victoria</p>
@@ -482,7 +493,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
           </div>
           
-          <div className="border-t border-border/30 mt-16 pt-8 text-center text-muted-foreground font-light">
+          <div className="divider-minimal mt-16 mb-8"></div>
+          <div className="text-center text-muted-foreground font-light text-xs">
             <p>&copy; 2024 Skrobaki. All rights reserved.</p>
           </div>
         </div>
