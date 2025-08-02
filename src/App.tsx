@@ -158,19 +158,18 @@ const AppContent = () => {
   const isLandingPage = location.pathname === "/" && searchParams.get('page') === 'landing';
 
   return (
-    <UserProvider>
-      <CompanyProvider>
-        <TimeTrackingProvider>
-          <>
-            {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
-              <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
-            )}
-            {!isLandingPage && <TimerTopBar />}
-          <Routes>
+    <AppContextProvider>
+      <UserProvider>
+        <CompanyProvider>
+          <TimeTrackingProvider>
+            <>
+              {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
+                <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
+              )}
+              {!isLandingPage && <TimerTopBar />}
+            <Routes>
         <Route path="/" element={
-          <AppContextProvider>
-            <Index />
-          </AppContextProvider>
+          <Index />
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
@@ -203,10 +202,11 @@ const AppContent = () => {
         {/* SK25008 Project Dashboard */}
         <Route path="/sk25008" element={<SK25008Dashboard />} />
       </Routes>
-          </>
-        </TimeTrackingProvider>
-      </CompanyProvider>
-    </UserProvider>
+            </>
+          </TimeTrackingProvider>
+        </CompanyProvider>
+      </UserProvider>
+    </AppContextProvider>
   );
 };
 
