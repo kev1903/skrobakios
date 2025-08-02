@@ -12,8 +12,10 @@ export interface TimeEntry {
   duration: number | null; // in seconds
   task_activity: string;
   category: string | null;
+  project_id?: string | null;
   project_name: string | null;
   notes: string | null;
+  is_active: boolean;
   status: string; // 'running', 'paused', 'completed'
   created_at: string;
   updated_at: string;
@@ -98,9 +100,22 @@ export const useTimeTracking = () => {
       
       if (error) throw error;
       // Map database fields to match our interface
-      const mappedData = data?.map((entry: any) => ({
-        ...entry,
-        status: entry.status || (entry.is_active ? 'running' : 'completed')
+      const mappedData: TimeEntry[] = data?.map((entry: any): TimeEntry => ({
+        id: entry.id,
+        user_id: entry.user_id,
+        company_id: entry.company_id,
+        start_time: entry.start_time,
+        end_time: entry.end_time,
+        duration: entry.duration,
+        task_activity: entry.task_activity,
+        category: entry.category,
+        project_id: entry.project_id,
+        project_name: entry.project_name,
+        notes: entry.notes,
+        is_active: entry.is_active || false,
+        status: entry.status || (entry.is_active ? 'running' : 'completed'),
+        created_at: entry.created_at,
+        updated_at: entry.updated_at
       })) || [];
       setTimeEntries(mappedData);
     } catch (error) {
@@ -192,9 +207,22 @@ export const useTimeTracking = () => {
       if (data) {
         // Map database fields to match our interface
         const mappedData: TimeEntry = {
-          ...data,
-          status: (data as any).status || ((data as any).is_active ? 'running' : 'completed')
-        } as TimeEntry;
+          id: data.id,
+          user_id: data.user_id,
+          company_id: data.company_id,
+          start_time: data.start_time,
+          end_time: data.end_time,
+          duration: data.duration,
+          task_activity: data.task_activity,
+          category: data.category,
+          project_id: data.project_id,
+          project_name: data.project_name,
+          notes: data.notes,
+          is_active: data.is_active || false,
+          status: data.status || (data.is_active ? 'running' : 'completed'),
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        };
         setActiveTimer(mappedData);
       }
     } catch (error) {
@@ -241,9 +269,22 @@ export const useTimeTracking = () => {
       
       // Map database fields to match our interface
       const mappedData: TimeEntry = {
-        ...data,
-        status: (data as any).status || ((data as any).is_active ? 'running' : 'completed')
-      } as TimeEntry;
+        id: data.id,
+        user_id: data.user_id,
+        company_id: data.company_id,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        duration: data.duration,
+        task_activity: data.task_activity,
+        category: data.category,
+        project_id: data.project_id,
+        project_name: data.project_name,
+        notes: data.notes,
+        is_active: data.is_active || false,
+        status: data.status || (data.is_active ? 'running' : 'completed'),
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
       setActiveTimer(mappedData);
       toast({
         title: "Timer Started",
