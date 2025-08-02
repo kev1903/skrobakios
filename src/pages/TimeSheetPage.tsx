@@ -142,77 +142,89 @@ const TimeSheetPage = () => {
     <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100", minHeightClasses, spacingClasses)}>
       <div className="flex h-full">
         {/* Main Content Area */}
-        <div className="flex-1 p-6">
-          <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex-1 p-4">
+          <div className="max-w-6xl mx-auto space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
             <Link to="/tasks" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium text-sm">Back to Tasks</span>
             </Link>
+            
+            <div className="h-4 w-px bg-gray-300 mx-1"></div>
+            
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">TimeSheet</h1>
-              <p className="text-muted-foreground">Track and manage your time entries</p>
+              <h1 className="text-xl font-bold text-gray-900">TimeSheet</h1>
+              <p className="text-gray-600 text-xs">Track and manage your time entries</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[140px] h-8 text-sm">
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="me">My Timesheet</SelectItem>
-                <SelectItem value="team">Team View</SelectItem>
               </SelectContent>
             </Select>
-            
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" className="gap-1 h-8 text-xs">
+              <Filter className="w-3 h-3" />
               Filter
             </Button>
-            
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" className="gap-1 h-8 text-xs">
+              <Download className="w-3 h-3" />
               Export
             </Button>
           </div>
         </div>
 
-        {/* Week Navigation & Stats */}
-        <Card className="border-0 bg-white/70 backdrop-blur-sm shadow-lg">
-          <CardHeader>
+        {/* Week Navigation & Stats - Compact */}
+        <Card className="bg-white/70 backdrop-blur-xl border border-gray-200/50 shadow-sm mb-4">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button variant="outline" size="sm" onClick={() => navigateWeek('prev')}>
-                  ←
-                </Button>
-                <div className="text-center">
-                  <CardTitle className="text-xl">
-                    {format(startOfWeek(currentWeek), 'MMM d')} - {format(endOfWeek(currentWeek), 'MMM d, yyyy')}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">Week {format(currentWeek, 'w')}</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => navigateWeek('next')}>
-                  →
-                </Button>
-              </div>
-              
-              <div className="flex items-center gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{formatDuration(weekTotal)}</div>
-                  <div className="text-sm text-muted-foreground">Total Hours</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {weekDays.reduce((total, day) => total + getEntriesForDay(day).length, 0)}
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setCurrentWeek(new Date(currentWeek.getTime() - 7 * 24 * 60 * 60 * 1000))}
+                    className="h-7 w-7 p-0"
+                  >
+                    ←
+                  </Button>
+                  <div className="text-center min-w-[160px]">
+                    <div className="font-semibold text-sm">
+                      {format(startOfWeek(currentWeek), 'MMM d')} - {format(endOfWeek(currentWeek), 'MMM d, yyyy')}
+                    </div>
+                    <div className="text-xs text-gray-500">Week {format(currentWeek, 'w')}</div>
                   </div>
-                  <div className="text-sm text-muted-foreground">Logged Entries</div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setCurrentWeek(new Date(currentWeek.getTime() + 7 * 24 * 60 * 60 * 1000))}
+                    className="h-7 w-7 p-0"
+                  >
+                    →
+                  </Button>
+                </div>
+                
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="font-medium text-lg">0:00</span>
+                    <span className="text-gray-500 text-xs">Total Hours</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="font-medium">1</span>
+                    <span className="text-gray-500 text-xs">Entries</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </CardHeader>
+          </CardContent>
         </Card>
 
         {/* Weekly Calendar Grid with Time Column */}
