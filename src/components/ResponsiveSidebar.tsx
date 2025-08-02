@@ -17,8 +17,8 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   const { spacingClasses } = useTimerBarSpacing();
 
   return (
-    <Sidebar className={`backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10 ${spacingClasses}`}>
-      <SidebarHeader className="p-4 border-b border-white/20 space-y-3">
+    <Sidebar className={`glass-sidebar backdrop-blur-2xl border-r border-sidebar-border shadow-2xl shadow-black/10 ${spacingClasses}`}>
+      <SidebarHeader className="p-4 border-b border-sidebar-border bg-sidebar-background/50 backdrop-blur-sm">
         {/* Context Switcher - Shows User Name and Business */}
         <div className="w-full">
           <SidebarContextSwitcher onNavigate={onNavigate} isCollapsed={isCollapsed} />

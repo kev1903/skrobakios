@@ -20,7 +20,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
     return (
       <Button 
         variant="ghost" 
-        className="w-full justify-start text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5 h-auto p-2" 
+        className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground border border-sidebar-border bg-sidebar-background/50 h-auto p-2" 
         disabled
       >
         Loading...
@@ -75,7 +75,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
         <DropdownMenuTrigger asChild>
           <Button 
             variant="ghost" 
-            className="w-full h-10 p-2 text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5"
+            className="w-full h-10 p-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground border border-sidebar-border bg-sidebar-background/50"
           >
             <div className="w-full text-center">
               <div className="text-xs font-medium truncate">
@@ -86,7 +86,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
-          className="w-64 bg-white/95 backdrop-blur-md border-white/20 z-50" 
+          className="w-64 glass-light backdrop-blur-md border-sidebar-border z-50" 
           align="start"
           side="right"
         >
@@ -151,18 +151,18 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5 h-auto p-3"
+          className="w-full justify-between text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground border border-sidebar-border bg-sidebar-background/50 h-auto p-3"
         >
           <div className="flex flex-col items-start min-w-0 flex-1">
             <span className="font-medium text-sm truncate w-full text-left">{displayText}</span>
-            <span className="text-xs text-white/70 truncate w-full text-left">{contextType}</span>
+            <span className="text-xs text-sidebar-foreground/70 truncate w-full text-left">{contextType}</span>
           </div>
           <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
         </Button>
       </DropdownMenuTrigger>
       
       <DropdownMenuContent 
-        className="w-64 bg-white/95 backdrop-blur-md border-white/20 z-50" 
+        className="w-64 glass-light backdrop-blur-md border-sidebar-border z-50" 
         align="start"
       >
         {/* Personal Context */}

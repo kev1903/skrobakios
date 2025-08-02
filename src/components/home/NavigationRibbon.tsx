@@ -112,7 +112,7 @@ export const NavigationRibbon = ({
         {/* Show Profile Navigation when in personal context, otherwise show business sections */}
         {activeContext === 'personal' ? (
           <div className="space-y-1">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            <div className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider px-3 py-2">
               {!isCollapsed && "Profile Navigation"}
             </div>
             {personalProfileNavigation.map(item => {
@@ -124,11 +124,11 @@ export const NavigationRibbon = ({
                   onClick={() => handleNavigateAndClose(item.id)} 
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                     isActive 
-                      ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                      : "text-white hover:bg-white/30"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium backdrop-blur-sm border border-sidebar-border shadow-lg" 
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                  <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-sidebar-primary" : "text-sidebar-foreground/80"}`} />
                   {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                 </button>
               );
@@ -138,7 +138,7 @@ export const NavigationRibbon = ({
           <>
             {/* Core Business Modules (replacing General section) */}
             <div className="space-y-1">
-              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              <div className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider px-3 py-2">
                 {!isCollapsed && "Business Modules"}
               </div>
               {coreBusinessModules.map(item => {
@@ -150,11 +150,11 @@ export const NavigationRibbon = ({
                     onClick={() => handleNavigateAndClose(item.id)} 
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
-                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-white hover:bg-white/30"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium backdrop-blur-sm border border-sidebar-border shadow-lg" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-sidebar-primary" : "text-sidebar-foreground/80"}`} />
                     {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                   </button>
                 );
@@ -163,7 +163,7 @@ export const NavigationRibbon = ({
 
             {/* Additional Business Features (subscription-based) */}
             <div className="space-y-1">
-              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              <div className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider px-3 py-2">
                 {!isCollapsed && "Additional Features"}
               </div>
               {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales" && item.id !== "system").map(item => {
@@ -175,11 +175,11 @@ export const NavigationRibbon = ({
                     onClick={() => handleNavigateAndClose(item.id)} 
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
-                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-white hover:bg-white/30"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium backdrop-blur-sm border border-sidebar-border shadow-lg" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-sidebar-primary" : "text-sidebar-foreground/80"}`} />
                     {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                   </button>
                 );
@@ -188,9 +188,9 @@ export const NavigationRibbon = ({
               {/* Direct link to My Tasks page */}
               <Link 
                 to="/tasks"
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-white hover:bg-white/30"
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               >
-                <CheckSquare className="w-4 h-4 transition-all duration-200 text-white/80" />
+                <CheckSquare className="w-4 h-4 transition-all duration-200 text-sidebar-foreground/80" />
                 {!isCollapsed && <span className="text-sm font-medium">My Tasks</span>}
               </Link>
             </div>
@@ -200,8 +200,8 @@ export const NavigationRibbon = ({
 
       {/* Support Section */}
       {filteredSupportNavigation.length > 0 && (
-        <div className={`border-t border-white/20 space-y-1 ${isFloatingMode ? 'px-3 py-4' : 'p-4'}`}>
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+        <div className={`border-t border-sidebar-border space-y-1 ${isFloatingMode ? 'px-3 py-4' : 'p-4'}`}>
+          <div className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider px-3 py-2">
             {!isCollapsed && "Support"}
           </div>
           {filteredSupportNavigation.map(item => {
@@ -213,8 +213,8 @@ export const NavigationRibbon = ({
                 onClick={() => handleNavigateAndClose(item.id)} 
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                   isActive 
-                    ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                    : "text-white hover:bg-white/30"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium backdrop-blur-sm border border-sidebar-border shadow-lg" 
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -231,7 +231,7 @@ export const NavigationRibbon = ({
   if (isFloatingMode) {
     // Floating mode - fixed positioning
     return (
-      <div className="fixed left-0 top-0 w-48 h-full bg-white/10 backdrop-blur-md border-r border-white/20 shadow-2xl z-40 transition-all duration-300">
+      <div className="fixed left-0 top-0 w-48 h-full glass-sidebar backdrop-blur-md border-r border-sidebar-border shadow-2xl z-40 transition-all duration-300">
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>
@@ -240,7 +240,7 @@ export const NavigationRibbon = ({
   } else {
     // Embedded mode - use SidebarContent wrapper
     return (
-      <div className="h-full bg-white/10 backdrop-blur-md transition-all duration-300">
+      <div className="h-full glass-sidebar backdrop-blur-md transition-all duration-300">
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>
