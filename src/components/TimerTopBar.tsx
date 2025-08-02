@@ -11,6 +11,7 @@ export const TimerTopBar = () => {
   // Debug logging
   React.useEffect(() => {
     console.log('TimerTopBar activeTimer state:', activeTimer);
+    console.log('TimerTopBar rendering, activeTimer exists:', !!activeTimer);
   }, [activeTimer]);
 
   useEffect(() => {

@@ -257,8 +257,12 @@ export const useTimeTracking = () => {
 
   const checkActiveTimer = async () => {
     try {
+      console.log('Checking for active timer...');
       const user = await supabase.auth.getUser();
-      if (!user.data.user) return;
+      if (!user.data.user) {
+        console.log('No user found when checking active timer');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('time_entries')
@@ -271,6 +275,7 @@ export const useTimeTracking = () => {
         throw error;
       }
 
+      console.log('Active timer query result:', data);
       if (data) {
         // Map database fields to match our interface
         const mappedData: TimeEntry = {
