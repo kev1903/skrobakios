@@ -373,16 +373,6 @@ const TasksPage = () => {
             <span className="font-medium text-sm">Return to Home</span>
           </Link>
 
-          {/* Dashboard Button */}
-          <Button
-            onClick={() => window.location.href = '/dashboard'}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start border-primary/20 hover:bg-primary/5 text-gray-700 hover:text-primary"
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Dashboard
-          </Button>
 
           {/* Search */}
           <div className="relative">
@@ -583,7 +573,7 @@ const TasksPage = () => {
 
           {/* Calendar Navigation */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* TimeSheet Button */}
               <Button 
                 variant="outline" 
@@ -596,6 +586,17 @@ const TasksPage = () => {
               >
                 <Clock className="w-4 h-4 mr-2" />
                 TimeSheet
+              </Button>
+
+              {/* Dashboard Button */}
+              <Button
+                onClick={() => window.location.href = '/dashboard'}
+                variant="outline"
+                size="sm"
+                className="border-primary/20 hover:bg-primary/5 text-gray-700 hover:text-primary font-medium"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Dashboard
               </Button>
             </div>
             
