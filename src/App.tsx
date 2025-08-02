@@ -156,14 +156,14 @@ const AppContent = () => {
   const [searchParams] = useSearchParams();
   
   // Check if we're specifically on the landing page (not authenticated home page)
-  // Landing page is when we're on "/" and either no page param or page=landing
-  const isLandingPage = location.pathname === "/" && (!searchParams.get('page') || searchParams.get('page') === 'landing');
+  // Landing page is when we're on "/" and either no page param or page=landing, AND user is not authenticated
+  const isLandingPage = location.pathname === "/" && (!searchParams.get('page') || searchParams.get('page') === 'landing') && !user;
   // Check if we're on the auth page
   const isAuthPage = location.pathname === "/" && searchParams.get('page') === 'auth';
   // Check if we're on the sign up page
   const isSignUpPage = location.pathname === "/" && searchParams.get('page') === 'signup';
-  // Check if we're on the home page
-  const isHomePage = location.pathname === "/" && searchParams.get('page') === 'home';
+  // Check if we're on the home page (authenticated users on "/" or "/?page=home")
+  const isHomePage = location.pathname === "/" && (searchParams.get('page') === 'home' || (!searchParams.get('page') && user));
 
   return (
     <GlobalSidebarProvider>
