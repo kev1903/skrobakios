@@ -20,7 +20,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'inter': ['Inter', 'sans-serif'],
+				'playfair': ['Playfair Display', 'serif'],
+				'inter': ['Inter', 'Helvetica Neue', 'sans-serif'],
 				'manrope': ['Manrope', 'sans-serif'],
 			},
 			colors: {
