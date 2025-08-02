@@ -3158,6 +3158,16 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: number
       }
+      get_user_profile: {
+        Args: { _user_id: string }
+        Returns: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          avatar_url: string
+        }[]
+      }
       get_user_role: {
         Args: { target_user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -3185,10 +3195,9 @@ export type Database = {
         }[]
       }
       has_role: {
-        Args: {
-          _user_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-        }
+        Args:
+          | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
+          | { _user_id: string; _role: string }
         Returns: boolean
       }
       initialize_company_modules: {
@@ -3218,6 +3227,15 @@ export type Database = {
       is_superadmin: {
         Args: { target_user_id?: string }
         Returns: boolean
+      }
+      log_user_action: {
+        Args: {
+          _action: string
+          _resource_type: string
+          _resource_id?: string
+          _metadata?: Json
+        }
+        Returns: undefined
       }
       set_active_context: {
         Args: { p_context_type: string; p_context_id?: string }
