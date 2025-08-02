@@ -114,10 +114,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
-                <span className="text-background font-medium text-sm">S</span>
-              </div>
-              <h1 className="text-xl font-display font-medium text-foreground tracking-tight">SKROBAKI</h1>
+              <img 
+                src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+                alt="SKROBAKI"
+                className="h-8 w-auto object-contain"
+              />
             </div>
 
             {/* Login Button */}
@@ -453,10 +454,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="grid md:grid-cols-4 gap-16">
             <div>
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
-                  <span className="text-background font-medium text-sm">S</span>
-                </div>
-                <h3 className="text-lg font-display font-medium tracking-tight">SKROBAKI</h3>
+                <img 
+                  src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+                  alt="SKROBAKI"
+                  className="h-6 w-auto object-contain opacity-90"
+                />
               </div>
               <p className="text-muted-foreground font-light leading-relaxed text-sm">
                 Architectural excellence through minimalist design philosophy and uncompromising attention to detail.
