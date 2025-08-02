@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save, Layers } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Eye, Grid3X3, Palette, Bell, Save, Layers, Plus, Link, CheckCircle, Settings, ExternalLink } from 'lucide-react';
 import { TimeBlockingCalendar } from '@/components/TimeBlockingCalendar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -159,56 +159,196 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
             </TabsContent>
 
             <TabsContent value="display" className="space-y-6 mt-6">
-              {/* Display Settings */}
-              <div className="space-y-4">
+              {/* Calendar Integrations */}
+              <div className="space-y-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Eye className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-gray-900">Display Settings</h3>
+                  <Link className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold text-gray-900">Calendar Integrations</h3>
                 </div>
                 
+                {/* Header Description */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800">
+                    Connect your external calendars to sync events and appointments with your task calendar. 
+                    Two-way sync keeps your schedules in perfect harmony.
+                  </p>
+                </div>
+
+                {/* Connected Calendars */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Show Weekends</Label>
-                      <p className="text-sm text-muted-foreground">Display Saturday and Sunday in week view</p>
+                  <h4 className="text-md font-medium text-gray-900 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    Connected Calendars (0)
+                  </h4>
+                  
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-600 mb-2">No calendars connected yet</p>
+                    <p className="text-sm text-gray-500">Add your first calendar integration below</p>
+                  </div>
+                </div>
+
+                {/* Available Calendar Providers */}
+                <div className="space-y-4">
+                  <h4 className="text-md font-medium text-gray-900 flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-primary" />
+                    Add Calendar Integration
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Google Calendar */}
+                    <div className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer bg-white">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-gray-900">Google Calendar</h5>
+                          <p className="text-xs text-gray-500">Sync with Google Workspace</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Seamlessly sync your Google Calendar events with two-way integration.
+                      </p>
+                      <Button className="w-full" variant="outline">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Connect Google Calendar
+                      </Button>
                     </div>
-                    <Switch
-                      checked={settings.showWeekends}
-                      onCheckedChange={(checked) => handleSettingChange('showWeekends', checked)}
-                    />
+
+                    {/* Outlook Calendar */}
+                    <div className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer bg-white">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-gray-900">Outlook Calendar</h5>
+                          <p className="text-xs text-gray-500">Sync with Microsoft 365</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Connect your Outlook calendar for seamless Microsoft 365 integration.
+                      </p>
+                      <Button className="w-full" variant="outline">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Connect Outlook Calendar
+                      </Button>
+                    </div>
+
+                    {/* iCloud Calendar */}
+                    <div className="border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer bg-white">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-gray-900">iCloud Calendar</h5>
+                          <p className="text-xs text-gray-500">Sync with Apple ecosystem</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Integrate your iCloud calendar for perfect Apple device synchronization.
+                      </p>
+                      <Button className="w-full" variant="outline">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Connect iCloud Calendar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Sync Settings */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Settings className="w-5 h-5 text-primary" />
+                    <h4 className="text-md font-medium text-gray-900">Sync Settings</h4>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Show Task Duration</Label>
-                      <p className="text-sm text-muted-foreground">Display duration badges on tasks</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Two-way Sync</Label>
+                          <p className="text-sm text-muted-foreground">Changes sync both directions</p>
+                        </div>
+                        <Switch checked={true} onCheckedChange={() => {}} />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Auto Sync</Label>
+                          <p className="text-sm text-muted-foreground">Automatically sync every 15 minutes</p>
+                        </div>
+                        <Switch checked={true} onCheckedChange={() => {}} />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Sync Past Events</Label>
+                          <p className="text-sm text-muted-foreground">Include events from the past 30 days</p>
+                        </div>
+                        <Switch checked={false} onCheckedChange={() => {}} />
+                      </div>
                     </div>
-                    <Switch
-                      checked={settings.showTaskDuration}
-                      onCheckedChange={(checked) => handleSettingChange('showTaskDuration', checked)}
-                    />
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Sync Frequency</Label>
+                        <Select value="15">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="5">Every 5 minutes</SelectItem>
+                            <SelectItem value="15">Every 15 minutes</SelectItem>
+                            <SelectItem value="30">Every 30 minutes</SelectItem>
+                            <SelectItem value="60">Every hour</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Default Calendar for New Tasks</Label>
+                        <Select value="local">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="local">Local Calendar</SelectItem>
+                            <SelectItem value="google">Google Calendar</SelectItem>
+                            <SelectItem value="outlook">Outlook Calendar</SelectItem>
+                            <SelectItem value="icloud">iCloud Calendar</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Highlight Current Time</Label>
-                      <p className="text-sm text-muted-foreground">Show current time indicator on timeline</p>
+                </div>
+
+                {/* Help Section */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <ExternalLink className="w-5 h-5 text-blue-500 mt-0.5" />
+                    <div>
+                      <h5 className="font-medium text-gray-900 mb-1">Need Help?</h5>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Setting up calendar integrations requires API access. Follow our setup guides for each provider:
+                      </p>
+                      <div className="space-y-1">
+                        <a href="#" className="text-sm text-blue-600 hover:text-blue-800 block">
+                          → Google Calendar Setup Guide
+                        </a>
+                        <a href="#" className="text-sm text-blue-600 hover:text-blue-800 block">
+                          → Microsoft Outlook Setup Guide
+                        </a>
+                        <a href="#" className="text-sm text-blue-600 hover:text-blue-800 block">
+                          → iCloud Calendar Setup Guide
+                        </a>
+                      </div>
                     </div>
-                    <Switch
-                      checked={settings.highlightCurrentTime}
-                      onCheckedChange={(checked) => handleSettingChange('highlightCurrentTime', checked)}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Compact View</Label>
-                      <p className="text-sm text-muted-foreground">Reduce spacing between time slots</p>
-                    </div>
-                    <Switch
-                      checked={settings.compactView}
-                      onCheckedChange={(checked) => handleSettingChange('compactView', checked)}
-                    />
                   </div>
                 </div>
               </div>
