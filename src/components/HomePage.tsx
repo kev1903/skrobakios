@@ -4,7 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 // Removed HomeFloatingBar import as its functionality is now in MenuBar
 
-import { CenteredCompanyName } from '@/components/CenteredCompanyName';
+
 
 import { useCompany } from '@/contexts/CompanyContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -66,7 +66,7 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  
   const { currentCompany, loading: companyLoading } = useCompany();
   const { roles, isSuperAdmin } = useUserRole();
   const [mapConfig, setMapConfig] = useState({
@@ -700,8 +700,6 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
         </div>
       )}
       
-      {/* Centered Company Name with AI Effects */}
-      <CenteredCompanyName isSpeaking={isSpeaking} onNavigate={onNavigate} />
     </div>
   );
 };
