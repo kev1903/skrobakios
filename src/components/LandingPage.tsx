@@ -76,6 +76,31 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Scroll navigation
+  useEffect(() => {
+    let isScrolling = false;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      
+      if (isScrolling) return;
+      isScrolling = true;
+
+      if (e.deltaY > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+
+      setTimeout(() => {
+        isScrolling = false;
+      }, 800);
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [currentSlide]);
+
   const services = [
     {
       category: "Project Management",
