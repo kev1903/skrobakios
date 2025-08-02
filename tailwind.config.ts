@@ -21,8 +21,9 @@ export default {
 		extend: {
 			fontFamily: {
 				'inter': ['Inter', 'system-ui', 'sans-serif'],
+				'playfair': ['Playfair Display', 'serif'],
 				'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'monospace'],
-				'display': ['Inter', 'system-ui', 'sans-serif'],
+				'display': ['Playfair Display', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -80,7 +81,19 @@ export default {
 					DEFAULT: 'var(--glass-bg)',
 					border: 'var(--glass-border)',
 					shadow: 'var(--glass-shadow)'
-				}
+				},
+				// Architectural Brand Colors
+				'brand-gold': {
+					DEFAULT: 'hsl(var(--brand-gold))',
+					light: 'hsl(var(--brand-gold-light))',
+					dark: 'hsl(var(--brand-gold-dark))',
+				},
+				'brand-charcoal': {
+					DEFAULT: 'hsl(var(--brand-charcoal))',
+					light: 'hsl(var(--brand-charcoal-light))',
+				},
+				'brand-warm-white': 'hsl(var(--brand-warm-white))',
+				'brand-warm-gray': 'hsl(var(--brand-warm-gray))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

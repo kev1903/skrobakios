@@ -45,52 +45,66 @@ div[data-rbd-drag-handle-draggable-id] {
 
 @layer base {
   :root {
-    /* Modern Minimalist Design System */
-    --background: 0 0% 2%;
-    --foreground: 0 0% 95%;
+    /* Sophisticated Architectural Design System */
+    --background: 220 15% 3%;
+    --foreground: 40 25% 96%;
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 92%;
+    --card: 220 15% 4%;
+    --card-foreground: 40 20% 94%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 92%;
+    --popover: 220 15% 4%;
+    --popover-foreground: 40 20% 94%;
 
-    --primary: 0 0% 95%;
-    --primary-foreground: 0 0% 2%;
+    --primary: 35 85% 58%;
+    --primary-foreground: 220 15% 8%;
 
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 85%;
+    --secondary: 220 10% 12%;
+    --secondary-foreground: 40 15% 88%;
 
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 220 8% 10%;
+    --muted-foreground: 220 5% 55%;
 
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 92%;
+    --accent: 35 45% 18%;
+    --accent-foreground: 40 25% 96%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 12%;
-    --input: 0 0% 6%;
-    --ring: 0 0% 95%;
+    --border: 220 12% 15%;
+    --input: 220 12% 8%;
+    --ring: 35 85% 58%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Minimal Glassmorphism */
-    --glass-bg: rgba(8, 8, 8, 0.6);
-    --glass-bg-light: rgba(12, 12, 12, 0.8);
-    --glass-bg-hover: rgba(16, 16, 16, 0.9);
-    --glass-border: rgba(255, 255, 255, 0.05);
-    --glass-shadow: rgba(0, 0, 0, 0.3);
-    --glass-shadow-hover: rgba(0, 0, 0, 0.5);
-    --glass-backdrop: blur(16px);
+    /* Enhanced Architectural Glassmorphism */
+    --glass-bg: rgba(20, 25, 35, 0.4);
+    --glass-bg-light: rgba(25, 30, 40, 0.6);
+    --glass-bg-hover: rgba(30, 35, 45, 0.8);
+    --glass-border: rgba(200, 145, 70, 0.12);
+    --glass-shadow: rgba(0, 0, 0, 0.4);
+    --glass-shadow-hover: rgba(200, 145, 70, 0.15);
+    --glass-backdrop: blur(20px);
+    
+    /* Architectural Brand Colors */
+    --brand-gold: 35 85% 58%;
+    --brand-gold-light: 35 85% 68%;
+    --brand-gold-dark: 35 85% 48%;
+    --brand-charcoal: 220 15% 15%;
+    --brand-charcoal-light: 220 15% 25%;
+    --brand-warm-white: 40 25% 96%;
+    --brand-warm-gray: 220 5% 55%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-gold)) 0%, hsl(var(--brand-gold-light)) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--brand-charcoal)) 0%, hsl(var(--brand-charcoal-light)) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(200, 145, 70, 0.08) 0%, rgba(200, 145, 70, 0.02) 100%);
     
     /* Design System Colors */
-    --neutral-50: 0 0% 97%;
-    --neutral-100: 0 0% 92%;
-    --neutral-800: 0 0% 8%;
-    --neutral-900: 0 0% 4%;
-    --neutral-950: 0 0% 2%;
+    --neutral-50: 40 25% 97%;
+    --neutral-100: 40 20% 92%;
+    --neutral-800: 220 15% 12%;
+    --neutral-900: 220 15% 8%;
+    --neutral-950: 220 15% 3%;
     
     /* Sidebar Variables */
     --sidebar-background: rgba(8, 8, 8, 0.9);
@@ -165,9 +179,9 @@ div[data-rbd-drag-handle-draggable-id] {
   body {
     @apply bg-background text-foreground font-inter;
     background: 
-      radial-gradient(circle at 30% 20%, rgba(16, 16, 16, 0.8) 0%, transparent 60%),
-      radial-gradient(circle at 70% 80%, rgba(8, 8, 8, 0.9) 0%, transparent 60%),
-      linear-gradient(180deg, #010101 0%, #030303 50%, #020202 100%);
+      radial-gradient(circle at 20% 30%, rgba(200, 145, 70, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(20, 25, 35, 0.8) 0%, transparent 60%),
+      linear-gradient(145deg, hsl(var(--background)) 0%, hsl(var(--brand-charcoal)) 50%, hsl(var(--background)) 100%);
     min-height: 100vh;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -184,8 +198,9 @@ div[data-rbd-drag-handle-draggable-id] {
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.003) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.002) 0%, transparent 50%);
+      radial-gradient(circle at 25% 25%, rgba(200, 145, 70, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(200, 145, 70, 0.04) 0%, transparent 40%),
+      var(--gradient-glass);
     pointer-events: none;
     z-index: -1;
     transition: opacity 0.4s ease;
@@ -232,51 +247,95 @@ div[data-rbd-drag-handle-draggable-id] {
 /* ... keep existing code (components and utilities sections) */
 
 @layer components {
-  /* Modern Typography System */
+  /* Sophisticated Typography System */
   .text-gradient {
-    background: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--brand-gold)) 0%, hsl(var(--brand-gold-light)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .heading-xl {
-    @apply text-6xl md:text-8xl lg:text-9xl font-display font-light tracking-tighter leading-none;
+    @apply text-6xl md:text-8xl lg:text-9xl font-display font-extralight tracking-tighter leading-none;
+    text-shadow: 0 2px 20px rgba(200, 145, 70, 0.15);
   }
   
   .heading-lg {
     @apply text-4xl md:text-6xl font-display font-light tracking-tight leading-tight;
+    text-shadow: 0 1px 15px rgba(200, 145, 70, 0.1);
   }
   
   .heading-md {
-    @apply text-2xl md:text-3xl font-display font-medium tracking-tight leading-tight;
+    @apply text-2xl md:text-3xl font-display font-normal tracking-tight leading-tight;
   }
   
   .body-lg {
-    @apply text-lg md:text-xl font-inter font-light leading-relaxed tracking-normal;
+    @apply text-lg md:text-xl font-inter font-light leading-relaxed tracking-wide;
   }
   
   .body-md {
     @apply text-base font-inter font-normal leading-relaxed;
   }
 
-  /* Refined Input Styles */
+  /* Sophisticated Input Styles */
   .input-minimal {
-    @apply backdrop-blur-sm bg-input border border-border/30 focus:bg-input focus:border-border/60 transition-all duration-300 rounded-lg;
+    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-brand-gold/50 focus:ring-2 focus:ring-brand-gold/20 transition-all duration-300 rounded-lg;
   }
 
-  /* Subtle Interactive Elements */
+  /* Enhanced Interactive Elements */
   .interactive-minimal {
-    @apply transition-all duration-300 ease-out hover:scale-[1.02] hover:-translate-y-0.5;
+    @apply transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  .interactive-minimal:hover {
+    box-shadow: 0 20px 40px rgba(200, 145, 70, 0.15);
   }
 
   .button-minimal {
-    @apply transition-all duration-300 hover:bg-accent/80 active:scale-[0.98];
+    @apply transition-all duration-300 hover:bg-accent/80 active:scale-[0.98] hover:shadow-lg;
   }
 
-  /* Pure Design Elements */
+  .button-gold {
+    @apply bg-brand-gold text-brand-charcoal hover:bg-brand-gold-light hover:scale-105 active:scale-[0.98] font-medium;
+    box-shadow: 0 8px 25px rgba(200, 145, 70, 0.3);
+  }
+
+  .button-gold:hover {
+    box-shadow: 0 12px 35px rgba(200, 145, 70, 0.4);
+  }
+
+  /* Architectural Design Elements */
   .divider-minimal {
-    @apply w-full h-px bg-gradient-to-r from-transparent via-border to-transparent;
+    @apply w-full h-px bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent;
+  }
+
+  .architectural-accent {
+    position: relative;
+  }
+
+  .architectural-accent::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: var(--gradient-primary);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .architectural-accent:hover::before {
+    opacity: 0.3;
   }
 }
 

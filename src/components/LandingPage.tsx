@@ -19,12 +19,21 @@ import {
   Phone,
   Mail,
   MapPin,
-  LogIn
+  LogIn,
+  Compass,
+  Home,
+  Sparkles
 } from 'lucide-react';
 import heroImage from '@/assets/hero-architecture.jpg';
 import modernBuilding from '@/assets/modern-building.jpg';
 import whiteBuilding from '@/assets/white-building.jpg';
 import { Architectural3DScene } from '@/components/3d/Architectural3DScene';
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/playfair-display/300.css';
+import '@fontsource/playfair-display/400.css';
+import '@fontsource/playfair-display/700.css';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -110,26 +119,29 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-md border-b border-border/20">
+      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center space-x-4">
-              <img 
-                src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
-                alt="SKROBAKI"
-                className="h-8 w-auto object-contain"
-              />
+            <div className="flex items-center space-x-4 architectural-accent">
+              <div className="relative">
+                <img 
+                  src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+                  alt="SKROBAKI"
+                  className="h-10 w-auto object-contain drop-shadow-lg"
+                />
+                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
+              </div>
             </div>
 
             {/* Login Button */}
             <Button 
               onClick={() => onNavigate('auth')}
               variant="outline"
-              className="button-minimal flex items-center gap-2 border-border/40 hover:bg-accent/40 text-foreground rounded-lg px-4 py-2"
+              className="button-minimal flex items-center gap-2 border-brand-gold/30 hover:bg-brand-gold/10 hover:border-brand-gold/50 text-foreground rounded-xl px-6 py-3 font-light tracking-wide"
             >
               <LogIn className="w-4 h-4" />
-              <span className="font-light">Login</span>
+              <span>Login</span>
             </Button>
           </div>
         </div>
@@ -137,67 +149,98 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-start overflow-hidden">
-        {/* Temporary fallback background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="w-full h-full bg-gradient-to-br from-muted/20 to-background" />
+        {/* Enhanced background with architectural elements */}
+        <div className="absolute inset-0">
+          <div className="w-full h-full bg-gradient-to-br from-background via-brand-charcoal/40 to-background" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,145,70,0.15)_0%,transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(200,145,70,0.08)_0%,transparent_50%)]" />
         </div>
         
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/75 to-background/85" />
+        {/* Architectural grid overlay */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="w-full h-full" style={{
+            backgroundImage: `
+              linear-gradient(rgba(200,145,70,0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(200,145,70,0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px'
+          }} />
+        </div>
+        
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/85 to-background/90" />
         
         <div className="relative z-10 max-w-7xl mx-auto px-8 py-24">
-          <div className="max-w-4xl">
-            <h1 className="heading-xl text-foreground mb-12 max-w-3xl">
-              The project <span className="italic font-extralight opacity-80">itself</span><br />
+          <div className="max-w-5xl">
+            {/* Decorative element */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-16 h-px bg-gradient-to-r from-brand-gold to-transparent"></div>
+              <Compass className="w-5 h-5 text-brand-gold" />
+              <span className="text-sm font-light text-brand-gold tracking-wider uppercase">Architectural Excellence</span>
+            </div>
+            
+            <h1 className="heading-xl text-foreground mb-12 max-w-4xl font-playfair">
+              The project <span className="text-gradient-gold italic font-light">itself</span><br />
               <span className="text-muted-foreground">holds the key to inspiration.</span>
             </h1>
             
-            <p className="body-lg text-muted-foreground mb-16 max-w-2xl">
-              Architectural excellence through minimalist design philosophy and uncompromising attention to detail.
+            <p className="body-lg text-muted-foreground mb-16 max-w-2xl leading-relaxed">
+              Architectural excellence through sophisticated design philosophy and uncompromising attention to detail. 
+              We transform visions into extraordinary built environments.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 mb-20">
               <Button 
                 size="lg" 
-                className="interactive-minimal bg-foreground text-background hover:bg-foreground/90 text-lg px-8 py-4 h-auto rounded-lg font-light"
+                className="button-gold interactive-minimal text-lg px-10 py-5 h-auto rounded-xl font-medium tracking-wide"
                 onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
               >
+                <Sparkles className="mr-3 w-5 h-5" />
                 Explore Services
-                <ArrowRight className="ml-2 w-4 h-4" />
+                <ArrowRight className="ml-3 w-5 h-5" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="interactive-minimal border-border/40 text-foreground hover:bg-accent/20 text-lg px-8 py-4 h-auto rounded-lg font-light backdrop-blur-sm"
+                className="interactive-minimal border-brand-gold/40 text-foreground hover:bg-brand-gold/10 hover:border-brand-gold/60 text-lg px-10 py-5 h-auto rounded-xl font-light backdrop-blur-sm"
                 onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <Calendar className="mr-2 w-4 h-4" />
+                <Calendar className="mr-3 w-5 h-5" />
                 Book Consultation
               </Button>
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap gap-8 text-muted-foreground/60">
-              <div className="flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                <span className="text-sm font-light">Registered Builder</span>
+            <div className="flex flex-wrap gap-10 text-muted-foreground/70">
+              <div className="flex items-center gap-3 group">
+                <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
+                  <Award className="w-4 h-4 text-brand-gold" />
+                </div>
+                <span className="text-sm font-light tracking-wide">Registered Builder</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm font-light">BIM-Integrated</span>
+              <div className="flex items-center gap-3 group">
+                <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
+                  <CheckCircle className="w-4 h-4 text-brand-gold" />
+                </div>
+                <span className="text-sm font-light tracking-wide">BIM-Integrated</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4" />
-                <span className="text-sm font-light">Award-Winning</span>
+              <div className="flex items-center gap-3 group">
+                <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
+                  <Star className="w-4 h-4 text-brand-gold" />
+                </div>
+                <span className="text-sm font-light tracking-wide">Award-Winning</span>
               </div>
             </div>
           </div>
         </div>
         
-        <div className="absolute bottom-8 left-8 text-muted-foreground/40">
-          <div className="text-xs font-light space-y-1">
-            <div>Melbourne</div>
-            <div>Victoria</div>
+        <div className="absolute bottom-8 left-8 text-muted-foreground/50">
+          <div className="text-xs font-light space-y-2 tracking-wider">
+            <div className="flex items-center gap-2">
+              <Home className="w-3 h-3 text-brand-gold" />
+              <span>Melbourne</span>
+            </div>
+            <div className="text-xs opacity-60">Victoria, Australia</div>
           </div>
         </div>
       </section>
@@ -218,20 +261,23 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
           <div className="grid lg:grid-cols-3 gap-12">
             {services.map((category, idx) => (
-              <div key={idx} className="interactive-minimal group">
-                <Card className="glass-card border-border/10 overflow-hidden h-full">
-                  <CardContent className="p-8">
-                    <h3 className="heading-md text-foreground mb-10 opacity-90">
-                      {category.category}
-                    </h3>
+              <div key={idx} className="interactive-minimal group architectural-accent">
+                <Card className="glass-card border-brand-gold/10 overflow-hidden h-full group-hover:border-brand-gold/20 transition-all duration-500">
+                  <CardContent className="p-10">
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="w-2 h-12 bg-gradient-to-b from-brand-gold to-brand-gold-light rounded-full"></div>
+                      <h3 className="heading-md text-foreground font-playfair">
+                        {category.category}
+                      </h3>
+                    </div>
                     <div className="space-y-8">
                       {category.items.map((item, itemIdx) => (
-                        <div key={itemIdx} className="flex items-start gap-4">
-                          <div className="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                            <item.icon className="w-4 h-4 text-foreground/60" />
+                        <div key={itemIdx} className="flex items-start gap-5 group/item hover:translate-x-2 transition-transform duration-300">
+                          <div className="w-10 h-10 bg-brand-gold/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 group-hover/item:bg-brand-gold/30 transition-colors">
+                            <item.icon className="w-5 h-5 text-brand-gold" />
                           </div>
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-foreground text-sm">{item.name}</h4>
+                          <div className="space-y-3">
+                            <h4 className="font-medium text-foreground text-base tracking-wide">{item.name}</h4>
                             <p className="text-muted-foreground text-sm font-light leading-relaxed">{item.description}</p>
                           </div>
                         </div>
@@ -452,19 +498,22 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card/20 backdrop-blur-sm text-card-foreground py-20 border-t border-border/10">
+      <footer className="bg-card/30 backdrop-blur-xl text-card-foreground py-24 border-t border-brand-gold/20">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="grid md:grid-cols-4 gap-16">
-            <div>
-              <div className="flex items-center space-x-3 mb-6">
+          <div className="grid md:grid-cols-4 gap-20">
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-4 mb-8 architectural-accent">
                 <img 
                   src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
                   alt="SKROBAKI"
-                  className="h-6 w-auto object-contain opacity-90"
+                  className="h-8 w-auto object-contain drop-shadow-lg"
                 />
+                <div className="w-px h-8 bg-brand-gold/30"></div>
+                <span className="text-brand-gold font-light tracking-wider text-sm">ARCHITECTURAL EXCELLENCE</span>
               </div>
-              <p className="text-muted-foreground font-light leading-relaxed text-sm">
-                Architectural excellence through minimalist design philosophy and uncompromising attention to detail.
+              <p className="text-muted-foreground font-light leading-relaxed text-base max-w-md">
+                Transforming architectural visions into extraordinary built environments through sophisticated design 
+                philosophy and uncompromising attention to detail.
               </p>
             </div>
             
