@@ -197,75 +197,24 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
       className
     )}>
       <CardContent className="p-4">
-        {/* Collapsed Header */}
+        {/* Minimalist Collapsed View */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              "w-3 h-3 rounded-full transition-colors",
-              activeTimer?.status === 'running' && !isPaused ? "bg-green-500 animate-pulse" : 
-              activeTimer?.status === 'running' && isPaused ? "bg-yellow-500" : "bg-gray-400"
-            )} />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span className={cn(
-                  "font-mono text-lg font-semibold transition-colors",
-                  isPaused ? "text-yellow-600" : activeTimer ? "text-green-600" : "text-foreground"
-                )}>
-                  {formatDuration(currentDuration)}
-                  {isPaused && <span className="ml-1 text-xs">⏸</span>}
-                </span>
-              </div>
-              {activeTimer && (
-                <span className="text-xs text-muted-foreground truncate max-w-32">
-                  {activeTimer.task_activity}
-                </span>
-              )}
-            </div>
+            <div className="w-3 h-3 rounded-full bg-muted-foreground" />
+            <span className="font-mono text-lg font-semibold text-muted-foreground">
+              0:00
+            </span>
           </div>
           
-          <div className="flex items-center gap-1">
-            {activeTimer ? (
-              <>
-                <Button
-                  size="sm"
-                  variant={isPaused ? "default" : "secondary"}
-                  onClick={handlePauseTimer}
-                  className="h-8 w-8 p-0"
-                  title={isPaused ? "Resume Timer" : "Pause Timer"}
-                >
-                  {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={handleStopTimer}
-                  className="h-8 w-8 p-0"
-                  title="Stop Timer"
-                >
-                  <Square className="w-3 h-3" />
-                </Button>
-              </>
-            ) : (
-              <Button
-                size="sm"
-                onClick={() => isExpanded ? handleStartTimer() : setIsExpanded(true)}
-                disabled={!isExpanded && !taskActivity.trim()}
-                className="h-8 w-8 p-0"
-                title={isExpanded ? "Start Timer" : "Expand Timer"}
-              >
-                <Play className="w-3 h-3" />
-              </Button>
-            )}
-            
+          <div className="flex items-center gap-2">
             <Button
-              size="sm"
               variant="ghost"
-              onClick={() => setIsExpanded(!isExpanded)}
+              size="sm"
+              onClick={() => setIsExpanded(true)}
               className="h-8 w-8 p-0"
-              title={isExpanded ? "Collapse" : "Expand"}
+              title="Start Timer"
             >
-              {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+              <Play className="w-4 h-4" />
             </Button>
           </div>
         </div>
