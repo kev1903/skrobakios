@@ -73,7 +73,7 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
           <Tabs defaultValue="general" className="p-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="display">Display</TabsTrigger>
+              <TabsTrigger value="display">Sync Calendar</TabsTrigger>
               <TabsTrigger value="tasks">Tasks</TabsTrigger>
               <TabsTrigger value="timeblocking">Time Blocking</TabsTrigger>
             </TabsList>
