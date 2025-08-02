@@ -8,6 +8,11 @@ export const TimerTopBar = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [currentDuration, setCurrentDuration] = useState(0);
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('TimerTopBar activeTimer state:', activeTimer);
+  }, [activeTimer]);
+
   useEffect(() => {
     if (!activeTimer) return;
 
