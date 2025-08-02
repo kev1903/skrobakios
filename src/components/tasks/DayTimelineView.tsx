@@ -174,6 +174,70 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     previewTop: null
   });
 
+  // State for tracking expanded tasks
+  const [expandedTasks, setExpandedTasks] = useState<{[taskId: string]: number}>({});
+
+  // Helper function to detect edge clicks
+  const isEdgeClick = (e: React.MouseEvent, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    
+    const edgeThreshold = 8; // 8px edge detection zone
+    
+    // Check if click is on left or right edge
+    const isLeftEdge = clickX <= edgeThreshold;
+    const isRightEdge = clickX >= rect.width - edgeThreshold;
+    const isTopEdge = clickY <= edgeThreshold;
+    const isBottomEdge = clickY >= rect.height - edgeThreshold;
+    
+    return { isLeftEdge, isRightEdge, isTopEdge, isBottomEdge };
+  };
+
+  // Handle edge click to expand container
+  const handleEdgeClick = useCallback(async (e: React.MouseEvent, taskId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const target = e.currentTarget as HTMLElement;
+    const edges = isEdgeClick(e, target);
+    
+    if (!edges.isBottomEdge && !edges.isRightEdge) return;
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !onTaskUpdate) return;
+
+    const currentDuration = task.duration || 30;
+    const currentExpansion = expandedTasks[taskId] || 0;
+    
+    if (edges.isBottomEdge) {
+      // Expand downward (increase duration)
+      const newExpansion = currentExpansion + 1;
+      const newDuration = currentDuration + (30 * newExpansion);
+      
+      setExpandedTasks(prev => ({
+        ...prev,
+        [taskId]: newExpansion
+      }));
+      
+      await onTaskUpdate(taskId, { duration: newDuration });
+    }
+    
+    if (edges.isRightEdge) {
+      // Could implement horizontal expansion logic here if needed
+      // For now, just expand duration like bottom edge
+      const newExpansion = currentExpansion + 1;
+      const newDuration = currentDuration + (30 * newExpansion);
+      
+      setExpandedTasks(prev => ({
+        ...prev,
+        [taskId]: newExpansion
+      }));
+      
+      await onTaskUpdate(taskId, { duration: newDuration });
+    }
+  }, [tasks, onTaskUpdate, expandedTasks]);
+
   // Handle resize drag functionality
   const handleResizeStart = useCallback((e: React.MouseEvent, taskId: string, handle: 'top' | 'bottom') => {
     e.preventDefault();
@@ -529,22 +593,23 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                 return (
                                   <Draggable key={task.id} draggableId={task.id} index={index}>
                                     {(provided, snapshot) => (
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        className={`absolute inset-x-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 ${
-                                          snapshot.isDragging ? 'shadow-lg opacity-80 z-50 cursor-grabbing' : 'cursor-grab'
-                                        }`}
-                                        style={{
-                                          ...provided.draggableProps.style,
-                                          ...(snapshot.isDragging ? {} : {
-                                            top: `${topOffset}px`,
-                                          }),
-                                          height: `${heightInPixels}px`,
-                                          minHeight: '20px'
-                                        }}
-                                      >
+                                       <div
+                                         ref={provided.innerRef}
+                                         {...provided.draggableProps}
+                                         {...provided.dragHandleProps}
+                                         className={`absolute inset-x-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer ${
+                                           snapshot.isDragging ? 'shadow-lg opacity-80 z-50 cursor-grabbing' : 'cursor-grab'
+                                         }`}
+                                         style={{
+                                           ...provided.draggableProps.style,
+                                           ...(snapshot.isDragging ? {} : {
+                                             top: `${topOffset}px`,
+                                           }),
+                                           height: `${heightInPixels}px`,
+                                           minHeight: '20px'
+                                         }}
+                                         onClick={(e) => handleEdgeClick(e, task.id)}
+                                       >
                                         <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground flex items-center gap-1">
                                           <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
                                           <span className="font-medium truncate flex-1">{task.taskName}</span>
@@ -599,12 +664,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                 return (
                                   <div
                                     key={`timeline-${task.id}`}
-                                    className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10"
+                                    className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer"
                                     style={{
                                       top: `${topOffset}px`,
                                       height: `${heightInPixels}px`,
                                       minHeight: '20px'
                                     }}
+                                    onClick={(e) => handleEdgeClick(e, task.id)}
                                   >
                                     <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground">
                                       <span className="font-medium truncate block">{task.taskName}</span>
