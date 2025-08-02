@@ -45,7 +45,7 @@ export const TimerTopBar = () => {
       <div className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-orange-500' : 'bg-green-500'}`} />
+            <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-orange-500' : 'bg-green-500'} animate-pulse`} />
             <span className="text-2xl font-mono font-semibold">
               {formatDuration(currentDuration)}
             </span>
