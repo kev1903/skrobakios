@@ -290,7 +290,21 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               
               <div className="flex flex-col sm:flex-row gap-4 mb-20">
                 <Button 
-                  className="button-blue px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
+                  className="px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2 text-white hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  style={{ 
+                    backgroundColor: 'rgb(54,119,159)',
+                    boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(44,99,139)';
+                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(54, 119, 159, 0.3)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(54,119,159)';
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(54, 119, 159, 0.2)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
                   onClick={() => goToSlide(1)}
                 >
                   <Sparkles className="w-4 h-4" />
