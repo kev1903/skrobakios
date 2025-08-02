@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,21 @@ export const MenuBar = () => {
   
   // Header icons state
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle clicking outside the dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Load projects
   useEffect(() => {
@@ -336,11 +351,10 @@ export const MenuBar = () => {
                 </button>
                 
                 {/* User Profile */}
-                <div className="relative">
+                <div className="relative" ref={profileDropdownRef}>
                   <div 
                     className="flex items-center gap-2 px-2 py-1 bg-background/20 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-background/30 transition-colors duration-200"
-                    onMouseEnter={() => setShowProfileDropdown(true)}
-                    onMouseLeave={() => setShowProfileDropdown(false)}
+                    onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                   >
                     <Avatar className="w-6 h-6">
                       <AvatarImage 
@@ -363,8 +377,6 @@ export const MenuBar = () => {
                   {showProfileDropdown && (
                     <div 
                       className="absolute right-0 top-full mt-2 w-48 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-lg z-40"
-                      onMouseEnter={() => setShowProfileDropdown(true)}
-                      onMouseLeave={() => setShowProfileDropdown(false)}
                     >
                       <div className="p-3 border-b border-border">
                         <div className="flex items-center gap-3">
