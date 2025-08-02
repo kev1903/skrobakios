@@ -11,10 +11,12 @@ import { ResponsiveSidebarProps } from './sidebar/types';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
+import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
+  const { spacingClasses } = useTimerBarSpacing();
 
   const handleRibbonClick = () => {
     // This navigation button is for main navigation, not for toggling sidebar
@@ -22,7 +24,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   };
 
   return (
-    <Sidebar className="backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10">
+    <Sidebar className={`backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10 ${spacingClasses}`}>
       <SidebarHeader className="p-4 border-b border-white/20 space-y-3">
         {/* Context Switcher - Shows User Name and Business */}
         <div className="w-full">
