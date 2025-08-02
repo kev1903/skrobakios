@@ -28,7 +28,7 @@ export const MenuBar = () => {
   const { getProjects } = useProjects();
   const { userProfile } = useUser();
   const { unreadCount } = useNotifications();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, signOut } = useAuth();
   const { currentCompany } = useCompany();
   const { activeContext } = useAppContext();
   const { toggleSidebar } = useGlobalSidebar();
@@ -206,19 +206,11 @@ export const MenuBar = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to log out. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Successfully logged out",
-        });
-      }
+      await signOut(); // This will redirect to landing page automatically
+      toast({
+        title: "Success",
+        description: "Successfully logged out",
+      });
     } catch (error) {
       console.error('Logout error:', error);
       toast({
