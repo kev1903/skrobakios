@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
-import { HomeFloatingBar } from '@/components/HomeFloatingBar';
+// Removed HomeFloatingBar import as its functionality is now in TimerTopBar
 
 import { CenteredCompanyName } from '@/components/CenteredCompanyName';
 
@@ -678,14 +678,7 @@ export const HomePage = ({ onNavigate, onSelectProject, currentPage = "" }: Home
       <div id="map" ref={mapContainer} className="w-full h-full" />
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/10" />
       
-      {/* Floating Top Bar */}
-      <HomeFloatingBar 
-        onNavigate={onNavigate} 
-        onSelectProject={onSelectProject}
-        showSaveButton={showSaveButton}
-        onSaveMapPosition={saveCurrentMapPosition}
-        currentPage={currentPage}
-      />
+      {/* Navigation functionality now handled by permanent TimerTopBar */}
       
       {/* Loading overlay */}
       {isLoading && (

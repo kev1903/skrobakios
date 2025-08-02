@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { NotificationBadge } from '@/components/ui/notification-badge';
+import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { useProjects } from '@/hooks/useProjects';
+import { useUser } from '@/contexts/UserContext';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const TimerTopBar = () => {
   const { toast } = useToast();
   const { activeTimer, stopTimer, pauseTimer, resumeTimer, startTimer, categories, addCategory, settings, loading } = useTimeTracking();
   const { getProjects } = useProjects();
+  const { userProfile } = useUser();
+  const { unreadCount } = useNotifications();
+  const { isAuthenticated } = useAuth();
   
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
@@ -27,6 +38,9 @@ export const TimerTopBar = () => {
   const [projectOpen, setProjectOpen] = useState(false);
   const [projects, setProjects] = useState<Array<{id: string, name: string}>>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
+  
+  // Header icons state
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   // Load projects
   useEffect(() => {
@@ -168,15 +182,41 @@ export const TimerTopBar = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to log out. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Successfully logged out",
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred during logout",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Always render the top bar, but show different content based on timer state
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-3">
-          {activeTimer ? (
-            // Active Timer State
-            <>
-              <div className="flex items-center space-x-4">
+          {/* Left side - Timer info */}
+          <div className="flex items-center space-x-4">
+            {activeTimer ? (
+              // Active Timer State
+              <>
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-orange-500' : 'bg-green-500'} animate-pulse`} />
                   <span className="text-2xl font-mono font-semibold">
@@ -199,9 +239,140 @@ export const TimerTopBar = () => {
                     {activeTimer.project_name}
                   </span>
                 )}
-              </div>
+              </>
+            ) : (
+              // No Active Timer State
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-gray-400" />
+                  <span className="text-2xl font-mono font-semibold text-gray-500">
+                    00:00
+                  </span>
+                </div>
+                
+                <div className="text-sm text-muted-foreground">
+                  No active timer
+                </div>
+              </>
+            )}
+          </div>
 
-              <div className="flex items-center space-x-2">
+          {/* Right side - Navigation icons and actions */}
+          <div className="flex items-center space-x-3">
+            {/* Navigation Icons */}
+            {isAuthenticated ? (
+              <>
+                {/* Tasks Icon */}
+                <Link 
+                  to="/tasks"
+                  className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                </Link>
+                
+                {/* Notifications */}
+                <NotificationDropdown>
+                  <NotificationBadge count={unreadCount}>
+                    <button className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200">
+                      <Bell className="w-4 h-4" />
+                    </button>
+                  </NotificationBadge>
+                </NotificationDropdown>
+                
+                {/* Inbox Icon */}
+                <button 
+                  onClick={() => window.location.href = '/?page=inbox'} 
+                  className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
+                >
+                  <Inbox className="w-4 h-4" />
+                </button>
+                
+                {/* User Profile */}
+                <div className="relative">
+                  <div 
+                    className="flex items-center gap-2 px-2 py-1 bg-background/20 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-background/30 transition-colors duration-200"
+                    onMouseEnter={() => setShowProfileDropdown(true)}
+                    onMouseLeave={() => setShowProfileDropdown(false)}
+                  >
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage 
+                        src={userProfile.avatarUrl || undefined} 
+                        alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <AvatarFallback className="bg-background/40 text-xs">
+                        {userProfile?.firstName && userProfile?.lastName 
+                          ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
+                          : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'
+                        }
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  
+                  {/* Profile Dropdown */}
+                  {showProfileDropdown && (
+                    <div 
+                      className="absolute right-0 top-full mt-2 w-48 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-lg z-40"
+                      onMouseEnter={() => setShowProfileDropdown(true)}
+                      onMouseLeave={() => setShowProfileDropdown(false)}
+                    >
+                      <div className="p-3 border-b border-border">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage 
+                              src={userProfile.avatarUrl || undefined} 
+                              alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
+                            />
+                            <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                              {userProfile?.firstName && userProfile?.lastName 
+                                ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
+                                : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'
+                              }
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {userProfile?.firstName && userProfile?.lastName 
+                                ? `${userProfile.firstName} ${userProfile.lastName}`
+                                : userProfile?.email || 'User'
+                              }
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {userProfile?.email || ''}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="py-2">
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-left text-sm text-foreground hover:bg-background/20 transition-colors duration-200"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Log out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Sign In Button for unauthenticated users */
+              <button 
+                onClick={() => window.location.href = '/?page=auth'} 
+                className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-sm rounded-lg border border-primary/30 text-primary hover:bg-primary/30 transition-colors duration-200"
+              >
+                <LogIn className="w-4 h-4" />
+                <span className="text-sm font-medium">Sign In</span>
+              </button>
+            )}
+
+            {/* Timer Control Buttons */}
+            {activeTimer ? (
+              <div className="flex items-center space-x-2 pl-2 border-l border-border">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -224,28 +395,8 @@ export const TimerTopBar = () => {
                   <Square className="h-4 w-4" />
                 </Button>
               </div>
-            </>
-          ) : (
-            // No Active Timer State with Form
-            <>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-400" />
-                  <span className="text-2xl font-mono font-semibold text-gray-500">
-                    00:00
-                  </span>
-                </div>
-                
-                <div className="text-sm text-muted-foreground">
-                  No active timer
-                </div>
-                
-                <span className="px-2 py-1 text-xs bg-muted rounded-md text-gray-500">
-                  Ready to track
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2">
+            ) : (
+              <div className="flex items-center space-x-2 pl-2 border-l border-border">
                 <Button
                   variant="outline"
                   size="sm"
@@ -257,8 +408,8 @@ export const TimerTopBar = () => {
                   <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
                 </Button>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Expandable Timer Creation Form */}
