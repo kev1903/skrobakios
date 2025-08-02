@@ -196,8 +196,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            {/* Centered Navigation */}
+            <nav className="hidden md:flex items-center justify-center space-x-8 flex-1">
               <button 
                 onClick={() => onNavigate('services')}
                 className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
