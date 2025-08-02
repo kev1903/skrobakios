@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Square, Clock, ChevronUp, ChevronDown, Settings, Check, ChevronsUpDown } from 'lucide-react';
+import { Play, Pause, Square, Clock, ChevronUp, ChevronDown, Settings, Check, ChevronsUpDown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -221,7 +221,22 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
 
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="mt-3 space-y-3 animate-fade-in w-72">
+          <div className="space-y-3 animate-fade-in w-72">
+            {/* Header with collapse button */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">Time Tracker</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(false)}
+                className="h-6 w-6 p-0"
+                title="Collapse"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+            
+            <div className="mt-3 space-y-3">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Task Description</label>
               <Input
@@ -379,6 +394,7 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
             <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/30 rounded">
               <div>⌘/Ctrl + Enter: {activeTimer ? 'Stop' : 'Start'} timer</div>
               <div>⌘/Ctrl + Space: Toggle expand/collapse</div>
+            </div>
             </div>
           </div>
         )}
