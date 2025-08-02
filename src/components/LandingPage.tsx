@@ -137,9 +137,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-start overflow-hidden">
-        {/* 3D Scene Background */}
+        {/* Temporary fallback background */}
         <div className="absolute inset-0 opacity-30">
-          <Architectural3DScene className="w-full h-full" />
+          <div className="w-full h-full bg-gradient-to-br from-muted/20 to-background" />
         </div>
         
         {/* Overlay for better text readability */}
