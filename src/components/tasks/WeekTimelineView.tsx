@@ -282,7 +282,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                             return (
                               <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={taskIndex}>
                                 {(provided, snapshot) => (
-                                  <div
+                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
@@ -293,7 +293,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                       ...provided.draggableProps.style,
                                     }}
                                    >
-                                     <div className="flex items-center gap-1">
+                                     <div className="flex items-center justify-center gap-1 h-full">
                                        <GripVertical className="w-2 h-2 text-gray-500/60 flex-shrink-0" />
                                         <div className="flex-1 min-w-0">
                                           <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
