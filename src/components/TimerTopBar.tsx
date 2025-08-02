@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
-import { useSidebar } from '@/components/ui/sidebar';
+// Removed useSidebar import since we're not using global sidebar provider
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { useProjects } from '@/hooks/useProjects';
 import { useUser } from '@/contexts/UserContext';
@@ -30,7 +30,6 @@ export const TimerTopBar = () => {
   const { isAuthenticated } = useAuth();
   const { currentCompany } = useCompany();
   const { activeContext } = useAppContext();
-  const { toggleSidebar } = useSidebar();
   
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
@@ -254,9 +253,12 @@ export const TimerTopBar = () => {
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
             <button 
-              onClick={toggleSidebar}
+              onClick={() => {
+                // Navigate to home page which has the sidebar
+                window.location.href = '/?page=home';
+              }}
               className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
-              aria-label="Toggle sidebar"
+              aria-label="Open navigation menu"
             >
               <Menu className="w-4 h-4" />
             </button>

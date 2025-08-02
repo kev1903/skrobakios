@@ -13,7 +13,6 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import { CompanyProvider } from "./contexts/CompanyContext";
 import { TimeTrackingProvider } from "./contexts/TimeTrackingContext";
-import { SidebarProvider } from "./components/ui/sidebar";
 
 import { AppContextProvider } from "./contexts/AppContextProvider";
 
@@ -159,11 +158,10 @@ const AppContent = () => {
   const isLandingPage = location.pathname === "/" && searchParams.get('page') === 'landing';
 
   return (
-    <SidebarProvider>
-      <AppContextProvider>
-        <UserProvider>
-          <CompanyProvider>
-            <TimeTrackingProvider>
+    <AppContextProvider>
+      <UserProvider>
+        <CompanyProvider>
+          <TimeTrackingProvider>
             <>
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
@@ -205,11 +203,10 @@ const AppContent = () => {
         <Route path="/sk25008" element={<SK25008Dashboard />} />
       </Routes>
             </>
-            </TimeTrackingProvider>
-          </CompanyProvider>
-        </UserProvider>
-      </AppContextProvider>
-    </SidebarProvider>
+          </TimeTrackingProvider>
+        </CompanyProvider>
+      </UserProvider>
+    </AppContextProvider>
   );
 };
 
