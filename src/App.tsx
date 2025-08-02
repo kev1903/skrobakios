@@ -156,6 +156,8 @@ const AppContent = () => {
   
   // Check if we're specifically on the landing page (not authenticated home page)
   const isLandingPage = location.pathname === "/" && searchParams.get('page') === 'landing';
+  // Check if we're on the auth page
+  const isAuthPage = location.pathname === "/" && searchParams.get('page') === 'auth';
 
   return (
     <AppContextProvider>
@@ -166,7 +168,7 @@ const AppContent = () => {
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
               )}
-              {!isLandingPage && <TimerTopBar />}
+              {!isLandingPage && !isAuthPage && <TimerTopBar />}
             <Routes>
         <Route path="/" element={
           <Index />
