@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Square } from 'lucide-react';
+import { Play, ArrowLeftRight, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 
@@ -94,18 +94,18 @@ export const TimerTopBar = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handlePauseResume}
-              className="h-8 w-8 p-0"
-            >
-              {isPaused ? (
-                <Play className="h-4 w-4" />
-              ) : (
-                <Pause className="h-4 w-4" />
-              )}
-            </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handlePauseResume}
+            className="h-8 w-8 p-0"
+          >
+            {isPaused ? (
+              <Play className="h-4 w-4" />
+            ) : (
+              <ArrowLeftRight className="h-4 w-4" />
+            )}
+          </Button>
             
             <Button
               variant="ghost"
