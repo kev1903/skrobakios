@@ -152,14 +152,13 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-4 architectural-accent">
-              <div className="relative">
+              <div className="relative group cursor-pointer" onClick={() => onNavigate('landing')}>
                 <img 
                   src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
                   alt="SKROBAKI"
-                  className="h-8 w-auto object-contain drop-shadow-lg cursor-pointer"
-                  onClick={() => onNavigate('landing')}
+                  className="h-8 w-auto object-contain drop-shadow-lg"
                 />
-                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
+                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none"></div>
               </div>
             </div>
 
