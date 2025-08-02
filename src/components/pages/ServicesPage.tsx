@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import projectManagementImage from '@/assets/project-management-team.jpg';
 import { 
   ArrowRight, 
   Building, 
@@ -260,9 +261,20 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
                 <div className={idx % 2 === 1 ? 'lg:order-1' : ''}>
                   <Card className="glass-card border-brand-gold/10 p-8">
                     <CardContent className="p-0">
-                      <div className="aspect-square bg-gradient-to-br from-brand-gold/10 to-brand-gold/5 rounded-2xl flex items-center justify-center">
-                        <div className="text-6xl text-brand-gold/20">{idx + 1}</div>
-                      </div>
+                      {category.category === "Project Management" ? (
+                        <div 
+                          className="aspect-square rounded-2xl bg-cover bg-center bg-no-repeat relative overflow-hidden"
+                          style={{ backgroundImage: `url(${projectManagementImage})` }}
+                        >
+                          <div className="absolute inset-0 bg-brand-gold/20 backdrop-blur-[1px] flex items-center justify-center">
+                            <div className="text-6xl text-white font-bold drop-shadow-lg">{idx + 1}</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="aspect-square bg-gradient-to-br from-brand-gold/10 to-brand-gold/5 rounded-2xl flex items-center justify-center">
+                          <div className="text-6xl text-brand-gold/20">{idx + 1}</div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
