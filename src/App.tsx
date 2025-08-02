@@ -150,7 +150,7 @@ const App = () => {
 };
 
 const AppContent = () => {
-  const { impersonationMode } = useAuth();
+  const { impersonationMode, user } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   
@@ -170,7 +170,7 @@ const AppContent = () => {
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
               )}
-              {!isLandingPage && !isAuthPage && !isSignUpPage && <TimerTopBar />}
+              {user && !isLandingPage && !isAuthPage && !isSignUpPage && <TimerTopBar />}
             <Routes>
         <Route path="/" element={
           <Index />
