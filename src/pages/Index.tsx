@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LandingPage } from "@/components/LandingPage";
+import { AuthPage } from "@/components/auth/AuthPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
 import { AboutPage } from "@/components/pages/AboutPage";
@@ -60,7 +61,7 @@ const Index = () => {
   const renderPage = () => {
     switch (currentPage) {
       case 'auth':
-        return <LandingPage onNavigate={handleNavigate} />;
+        return <AuthPage onNavigate={handleNavigate} />;
       case 'signup':
         return <LandingPage onNavigate={handleNavigate} />;
       case 'services':
