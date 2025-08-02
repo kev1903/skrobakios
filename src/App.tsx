@@ -158,6 +158,8 @@ const AppContent = () => {
   const isLandingPage = location.pathname === "/" && searchParams.get('page') === 'landing';
   // Check if we're on the auth page
   const isAuthPage = location.pathname === "/" && searchParams.get('page') === 'auth';
+  // Check if we're on the sign up page
+  const isSignUpPage = location.pathname === "/" && searchParams.get('page') === 'signup';
 
   return (
     <AppContextProvider>
@@ -168,7 +170,7 @@ const AppContent = () => {
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
               )}
-              {!isLandingPage && !isAuthPage && <TimerTopBar />}
+              {!isLandingPage && !isAuthPage && !isSignUpPage && <TimerTopBar />}
             <Routes>
         <Route path="/" element={
           <Index />
