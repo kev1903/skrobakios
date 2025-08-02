@@ -307,12 +307,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           
           <div className="relative z-10 max-w-7xl mx-auto px-8 py-24">
             <div className="max-w-5xl">
-              {/* Decorative element */}
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-16 h-px bg-gradient-to-r from-brand-gold to-transparent"></div>
-                <Compass className="w-5 h-5 text-brand-gold" />
-                <span className="text-sm font-light text-brand-gold tracking-wider uppercase">Architectural Excellence</span>
-              </div>
+              {/* Main content starts here */}
               
               <h1 className="heading-xl text-foreground mb-12 max-w-4xl font-playfair">
                 The project <span className="text-gradient-gold italic font-light">itself</span><br />
