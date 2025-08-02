@@ -270,7 +270,10 @@ export const MenuBar = () => {
             </button>
             
             {/* Company Logo */}
-            <div className="flex items-center space-x-2">
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-200" 
+              onClick={() => window.location.href = '/?page=home'}
+            >
               <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
