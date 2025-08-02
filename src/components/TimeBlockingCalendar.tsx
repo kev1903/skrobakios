@@ -6,6 +6,7 @@ import { getCalendarData, createTimeBlock, categoryColors } from './calendar/uti
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface TimeBlockingCalendarProps {
   currentDate: Date;
@@ -21,6 +22,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { settings } = useTimeTracking();
+  const { currentCompany } = useCompany();
   
   // Get category colors from time tracking settings
   const categoryColors = settings?.category_colors || {
@@ -57,9 +59,16 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
   const loadTimeBlocks = useCallback(async () => {
     try {
       setLoading(true);
+      const { data: user } = await supabase.auth.getUser();
+      
+      if (!user.user) {
+        throw new Error('User not authenticated');
+      }
+
       const { data, error } = await supabase
         .from('time_blocks')
         .select('*')
+        .eq('user_id', user.user.id)
         .order('day_of_week', { ascending: true });
 
       if (error) throw error;
@@ -114,6 +123,12 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     if (!newBlock.title) return;
 
     try {
+      const { data: user } = await supabase.auth.getUser();
+      
+      if (!user.user || !currentCompany) {
+        throw new Error('User not authenticated or no company selected');
+      }
+
       const { data, error } = await supabase
         .from('time_blocks')
         .insert({
@@ -124,7 +139,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
           end_time: newBlock.endTime,
           category: newBlock.category,
           color: newBlock.color,
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          user_id: user.user.id,
+          company_id: currentCompany.id
         })
         .select()
         .single();
