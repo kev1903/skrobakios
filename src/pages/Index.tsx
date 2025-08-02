@@ -12,7 +12,10 @@ import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState("landing");
+  const [currentPage, setCurrentPage] = useState(() => {
+    // Initialize based on current route - if we're on root path, show landing page
+    return window.location.pathname === "/" ? "landing" : "landing";
+  });
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
