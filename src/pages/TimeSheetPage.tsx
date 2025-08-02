@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { FloatingTimeTracker } from '@/components/FloatingTimeTracker';
 import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
 
 const TimeSheetPage = () => {
@@ -415,8 +414,7 @@ const TimeSheetPage = () => {
         </div>
       </div>
 
-      {/* Floating Time Tracker */}
-      <FloatingTimeTracker />
+      {/* Timer functionality now handled by TimerTopBar */}
     </div>
   );
 };
