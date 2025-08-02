@@ -315,14 +315,16 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-blue {
-    @apply bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] font-medium;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+    background-color: rgb(54,119,159);
+    @apply text-white hover:scale-[1.02] active:scale-[0.98] font-medium;
+    box-shadow: 0 4px 15px rgba(54, 119, 159, 0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .button-blue:hover {
-    box-shadow: 0 6px 25px rgba(37, 99, 235, 0.3);
+    background-color: rgb(44, 99, 139);
+    box-shadow: 0 6px 25px rgba(54, 119, 159, 0.3);
     transform: translateY(-1px);
   }
 
