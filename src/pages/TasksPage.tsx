@@ -367,7 +367,7 @@ const TasksPage = () => {
     <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
     <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex font-sans", minHeightClasses, spacingClasses)}>
         {/* Left Sidebar */}
-        <div className={cn("fixed left-0 w-80 bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-4 space-y-4 shadow-lg overflow-y-auto", fullHeightClasses, spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0')}>
+        <div className={cn("fixed left-0 w-80 bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-6 space-y-6 shadow-lg overflow-y-auto", fullHeightClasses, spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0')}>
           {/* Return to Home Button */}
           <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -565,15 +565,15 @@ const TasksPage = () => {
         </div>
 
         {/* Main Content - Calendar View */}
-        <div className="flex-1 p-4 ml-80">
+        <div className="flex-1 p-8 ml-80">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-8">
             {/* Empty div to maintain spacing */}
             <div></div>
           </div>
 
           {/* Calendar Navigation */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               {/* Dashboard Button */}
               <Button
@@ -651,7 +651,7 @@ const TasksPage = () => {
           </div>
 
           {/* Large Calendar Grid */}
-          <div className="bg-gradient-to-br from-white/90 via-purple-50/50 to-blue-50/50 backdrop-blur-xl rounded-2xl p-4 border border-purple-200/30 shadow-xl">
+          <div className="bg-gradient-to-br from-white/90 via-purple-50/50 to-blue-50/50 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/30 shadow-xl">
             {renderCalendarView()}
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export const TimerTopBar = () => {
-  const location = useLocation();
   const { toast } = useToast();
   const { activeTimer, stopTimer, pauseTimer, resumeTimer, startTimer, categories, addCategory, settings, loading } = useTimeTracking();
   const { getProjects } = useProjects();
@@ -264,7 +263,7 @@ export const TimerTopBar = () => {
             </button>
             
             {/* Company Logo */}
-            <Link to="/system" className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer">
+            <div className="flex items-center space-x-2">
               <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
@@ -273,7 +272,7 @@ export const TimerTopBar = () => {
               <h1 className="text-sm font-bold text-foreground hidden sm:block">
                 {getCompanyDisplayText()}
               </h1>
-            </Link>
+            </div>
           </div>
 
           {/* Center - Timer info */}
