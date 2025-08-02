@@ -544,13 +544,26 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </div>
             </div>
 
-            <Button 
-              className="button-gold px-8 py-4 text-base font-medium tracking-wide rounded-lg h-auto"
+            <button 
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              style={{ 
+                backgroundColor: 'rgb(54,119,159)',
+                boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgb(44,99,139)';
+                e.currentTarget.style.boxShadow = '0 6px 25px rgba(54, 119, 159, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgb(54,119,159)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(54, 119, 159, 0.2)';
+              }}
               onClick={() => onNavigate('auth')}
             >
               Get Started Today
               <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+            </button>
           </div>
         </section>
       </div>
