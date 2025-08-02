@@ -43,6 +43,12 @@ const TimeSheetPage = () => {
     const dateString = format(date, 'yyyy-MM-dd');
     return timeEntries.filter(entry => {
       if (!entry.start_time) return false;
+      
+      // Only show logged/completed entries (not running entries)
+      const isLogged = entry.status === 'completed' || 
+                      (entry.end_time && entry.duration !== null && entry.duration > 0);
+      if (!isLogged) return false;
+      
       const entryDate = format(parseISO(entry.start_time), 'yyyy-MM-dd');
       return entryDate === dateString;
     });
@@ -196,8 +202,10 @@ const TimeSheetPage = () => {
                   <div className="text-sm text-muted-foreground">Total Hours</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{timeEntries.length}</div>
-                  <div className="text-sm text-muted-foreground">Entries</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {weekDays.reduce((total, day) => total + getEntriesForDay(day).length, 0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Logged Entries</div>
                 </div>
               </div>
             </div>
@@ -266,49 +274,68 @@ const TimeSheetPage = () => {
                 </div>
                 
                 {/* Day Columns */}
-                {weekDays.map((day, dayIndex) => (
-                  <div key={dayIndex} className="border-r border-border/20 last:border-r-0 bg-background/30 relative">
-                    {timeSlots.map((slot, slotIndex) => {
-                      const slotEntries = getEntriesForTimeSlot(day, slot.actualHour, slot.actualMinutes);
-                      const isFullHour = slot.hour % 2 === 0;
+                {weekDays.map((day, dayIndex) => {
+                  const dayEntries = getEntriesForDay(day);
+                  const hasLoggedEntries = dayEntries.length > 0;
+                  
+                  return (
+                    <div key={dayIndex} className="border-r border-border/20 last:border-r-0 bg-background/30 relative">
+                      {/* No entries message */}
+                      {!hasLoggedEntries && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center text-muted-foreground">
+                            <Clock className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                            <div className="text-xs">No logged entries</div>
+                            <div className="text-[10px] opacity-60">Start tracking time to see entries here</div>
+                          </div>
+                        </div>
+                      )}
                       
-                      return (
-                        <div 
-                          key={slotIndex} 
-                          className={`h-6 border-b relative ${
-                            isFullHour ? 'border-b-border/30' : 'border-b-border/10'
-                          } hover:bg-accent/10 transition-colors`}
-                        >
-                          {slotEntries.map((entry, entryIndex) => (
-                            <div
-                              key={entryIndex}
-                              className="absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
-                              style={{
-                                backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
-                                borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb'
-                              }}
-                            >
-                              <div className="px-2 py-1 text-xs truncate">
-                                <div className="font-medium text-foreground/90 truncate">
-                                  {entry.task_activity}
-                                </div>
-                                <div className="text-[10px] text-muted-foreground flex items-center justify-between">
-                                  <span>
-                                    {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
-                                    {entry.end_time && ` - ${format(parseISO(entry.end_time), 'HH:mm')}`}
-                                  </span>
-                                  <span className="font-medium">
-                                    {formatDuration(entry.duration || 0)}
-                                  </span>
+                      {timeSlots.map((slot, slotIndex) => {
+                        const slotEntries = getEntriesForTimeSlot(day, slot.actualHour, slot.actualMinutes);
+                        const isFullHour = slot.hour % 2 === 0;
+                        
+                        return (
+                          <div 
+                            key={slotIndex} 
+                            className={`h-6 border-b relative ${
+                              isFullHour ? 'border-b-border/30' : 'border-b-border/10'
+                            } hover:bg-accent/10 transition-colors`}
+                          >
+                            {slotEntries.map((entry, entryIndex) => (
+                              <div
+                                key={entryIndex}
+                                className="absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+                                style={{
+                                  backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
+                                  borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb'
+                                }}
+                              >
+                                <div className="px-2 py-1 text-xs truncate">
+                                  <div className="font-medium text-foreground/90 truncate flex items-center gap-1">
+                                    {entry.task_activity}
+                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 bg-green-100 text-green-700 border-green-200">
+                                      ✓
+                                    </Badge>
+                                  </div>
+                                  <div className="text-[10px] text-muted-foreground flex items-center justify-between">
+                                    <span>
+                                      {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
+                                      {entry.end_time && ` - ${format(parseISO(entry.end_time), 'HH:mm')}`}
+                                    </span>
+                                    <span className="font-medium">
+                                      {formatDuration(entry.duration || 0)}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
                 
                 {/* Current Time Indicator */}
                 {isSameDay(getCurrentTime(), currentWeek) && (
@@ -360,9 +387,11 @@ const TimeSheetPage = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{timeEntries.length}</div>
+              <div className="text-2xl font-bold">
+                {weekDays.reduce((total, day) => total + getEntriesForDay(day).length, 0)}
+              </div>
               <p className="text-xs text-muted-foreground">
-                Time entries this week
+                Logged entries this week
               </p>
             </CardContent>
           </Card>
