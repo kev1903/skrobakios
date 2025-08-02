@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -110,7 +110,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const weekHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
   // Generate time slots for the week (24 hours in 30-minute slots)
-  const generateTimeSlots = useCallback((): TimeSlot[] => {
+  const timeSlots = useMemo((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     
     // Generate 48 30-minute slots (24 hours × 2)
@@ -156,8 +156,6 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
     return slots;
   }, [tasks, weekDays]);
 
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>(generateTimeSlots());
-
   const handleDragStart = useCallback((start: DragStart) => {
     setIsDragging(true);
     onDragStart?.(start);
@@ -166,7 +164,6 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
   }, []);
-
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -180,10 +177,6 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
         return "bg-muted border-border text-muted-foreground";
     }
   };
-
-  React.useEffect(() => {
-    setTimeSlots(generateTimeSlots());
-  }, [generateTimeSlots]);
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
