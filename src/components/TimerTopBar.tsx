@@ -129,7 +129,7 @@ export const TimerTopBar = () => {
     }
 
     try {
-      const projectName = selectedProject ? projects.find(p => p.id === selectedProject)?.name : undefined;
+      const projectName = selectedProject && selectedProject !== 'none' ? projects.find(p => p.id === selectedProject)?.name : undefined;
       await startTimer(taskActivity, selectedCategory || undefined, projectName);
       toast({
         title: "Timer Started",
@@ -371,7 +371,7 @@ export const TimerTopBar = () => {
                       <SelectValue placeholder="Select project..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No project</SelectItem>
+                      <SelectItem value="none">No project</SelectItem>
                       {projects.map((project) => (
                         <SelectItem key={project.id} value={project.id}>
                           {project.name}
