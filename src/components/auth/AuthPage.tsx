@@ -26,8 +26,8 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
   useEffect(() => {
     console.log(`🔐 AuthPage: isAuthenticated=${isAuthenticated}, loading=${loading}`);
     if (isAuthenticated && !loading) {
-      console.log(`🔐 AuthPage: User already authenticated, redirecting to landing`);
-      onNavigate("landing");
+      console.log(`🔐 AuthPage: User already authenticated, redirecting to home`);
+      onNavigate("home");
     }
   }, [isAuthenticated, loading, onNavigate]);
 
@@ -56,7 +56,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
         }
       } else {
         setSuccess("Login successful! Redirecting...");
-        setTimeout(() => onNavigate("landing"), 1000);
+        setTimeout(() => onNavigate("home"), 1000);
       }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
