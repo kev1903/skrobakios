@@ -79,17 +79,17 @@ const Index = () => {
     }
   };
 
-  // Handle authenticated pages vs landing page
+  // Handle public pages vs protected pages
   if (currentPage === 'landing' || currentPage === 'auth' || currentPage === 'signup' || 
-      currentPage === 'services' || currentPage === 'projects' || currentPage === 'about' || currentPage === 'contact') {
+      currentPage === 'services' || currentPage === 'about' || currentPage === 'contact') {
     return renderPage();
   }
 
   return (
     <DigitalObjectsProvider>
       <TaskProvider>
-        {currentPage === "sales" || currentPage === "projects" || currentPage === "landing" || currentPage === "auth" ? (
-          // Sales CRM, Projects, Landing, and Auth take full screen - no main layout wrapper
+        {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
+          // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex min-h-screen">
             <div className="flex-1 transition-all duration-300">
               <ContentRenderer 
