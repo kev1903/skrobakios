@@ -303,12 +303,25 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-gold {
-    @apply bg-brand-gold text-brand-charcoal hover:bg-brand-gold-light hover:scale-105 active:scale-[0.98] font-medium;
-    box-shadow: 0 8px 25px rgba(200, 145, 70, 0.3);
+    @apply bg-brand-gold text-brand-charcoal hover:bg-brand-gold-light hover:scale-[1.02] active:scale-[0.98] font-medium;
+    box-shadow: 0 4px 15px rgba(200, 145, 70, 0.2);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .button-gold:hover {
-    box-shadow: 0 12px 35px rgba(200, 145, 70, 0.4);
+    box-shadow: 0 6px 25px rgba(200, 145, 70, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .button-ghost {
+    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-brand-gold/40 hover:shadow-md;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .button-ghost:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(200, 145, 70, 0.1);
   }
 
   /* Architectural Design Elements */

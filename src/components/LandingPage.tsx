@@ -132,7 +132,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <Button 
               onClick={() => onNavigate('auth')}
               variant="outline"
-              className="button-minimal flex items-center gap-2 border-brand-gold/30 hover:bg-brand-gold/10 hover:border-brand-gold/50 text-foreground rounded-xl px-6 py-3 font-light tracking-wide"
+              className="button-ghost flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium tracking-wide h-auto"
             >
               <LogIn className="w-4 h-4" />
               <span>Login</span>
@@ -183,23 +183,21 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               We transform visions into extraordinary built environments.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 mb-20">
+            <div className="flex flex-col sm:flex-row gap-4 mb-20">
               <Button 
-                size="lg" 
-                className="button-gold interactive-minimal text-lg px-10 py-5 h-auto rounded-xl font-medium tracking-wide"
+                className="button-gold px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
                 onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <Sparkles className="mr-3 w-5 h-5" />
+                <Sparkles className="w-4 h-4" />
                 Explore Services
-                <ArrowRight className="ml-3 w-5 h-5" />
+                <ArrowRight className="w-4 h-4" />
               </Button>
               <Button 
-                size="lg" 
                 variant="outline" 
-                className="interactive-minimal border-brand-gold/40 text-foreground hover:bg-brand-gold/10 hover:border-brand-gold/60 text-lg px-10 py-5 h-auto rounded-xl font-light backdrop-blur-sm"
+                className="button-ghost px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
                 onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <Calendar className="mr-3 w-5 h-5" />
+                <Calendar className="w-4 h-4" />
                 Book Consultation
               </Button>
             </div>
