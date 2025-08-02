@@ -9,11 +9,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
+import { useSidebar } from '@/components/ui/sidebar';
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { useProjects } from '@/hooks/useProjects';
 import { useUser } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
+import { useAppContext } from '@/contexts/AppContextProvider';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +28,9 @@ export const TimerTopBar = () => {
   const { userProfile } = useUser();
   const { unreadCount } = useNotifications();
   const { isAuthenticated } = useAuth();
+  const { currentCompany } = useCompany();
+  const { activeContext } = useAppContext();
+  const { toggleSidebar } = useSidebar();
   
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
@@ -207,12 +213,68 @@ export const TimerTopBar = () => {
     }
   };
 
+  // Get display text for company logo - using same logic as CenteredCompanyName
+  const getCompanyDisplayText = () => {
+    if (activeContext === 'personal') {
+      // Show user's full name for personal context
+      if (userProfile.firstName || userProfile.lastName) {
+        return `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      }
+      // Fallback to email for personal context
+      return userProfile.email || "Personal";
+    } else {
+      // Show business name for company context
+      // Check if company name looks like an auto-generated default
+      const isDefaultCompanyName = currentCompany?.name && (
+        currentCompany.name.includes('@') || 
+        currentCompany.name.endsWith('\'s Business') ||
+        currentCompany.name.endsWith('\'s Company')
+      );
+      
+      // If we have a real company name (not auto-generated), show it
+      if (currentCompany?.name && !isDefaultCompanyName) {
+        return currentCompany.name;
+      }
+      
+      // Fallback to user's name or default for company context
+      if (userProfile.firstName || userProfile.lastName) {
+        return `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      }
+      
+      return userProfile.email || "SKROBAKI";
+    }
+  };
+
   // Always render the top bar, but show different content based on timer state
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-3">
-          {/* Left side - Timer info */}
+          {/* Left side - Menu and Company Logo */}
+          <div className="flex items-center space-x-4">
+            {/* Hamburger Menu Icon */}
+            <button 
+              onClick={toggleSidebar}
+              className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+            
+            {/* Company Logo */}
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-xs">
+                  {getCompanyDisplayText().charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <h1 className="text-sm font-bold text-foreground hidden sm:block">
+                {getCompanyDisplayText()}
+              </h1>
+            </div>
+          </div>
+
+          {/* Center - Timer info */}
           <div className="flex items-center space-x-4">
             {activeTimer ? (
               // Active Timer State
