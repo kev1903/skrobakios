@@ -24,6 +24,7 @@ import {
 import heroImage from '@/assets/hero-architecture.jpg';
 import modernBuilding from '@/assets/modern-building.jpg';
 import whiteBuilding from '@/assets/white-building.jpg';
+import { Architectural3DScene } from '@/components/3d/Architectural3DScene';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -136,11 +137,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-start overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/80 to-background/95" />
+        {/* 3D Scene Background */}
+        <div className="absolute inset-0 opacity-30">
+          <Architectural3DScene className="w-full h-full" />
+        </div>
+        
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/75 to-background/85" />
         
         <div className="relative z-10 max-w-7xl mx-auto px-8 py-24">
           <div className="max-w-4xl">
