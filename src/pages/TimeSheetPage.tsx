@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { FloatingTimeTracker } from '@/components/FloatingTimeTracker';
+import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
 
 const TimeSheetPage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedEmployee, setSelectedEmployee] = useState('me');
+  const { spacingClasses, minHeightClasses } = useTimerBarSpacing();
   
   const {
     timeEntries,
@@ -127,7 +129,7 @@ const TimeSheetPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center", minHeightClasses, spacingClasses)}>
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading timesheet...</p>
@@ -137,7 +139,7 @@ const TimeSheetPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-6">
+    <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-6", minHeightClasses, spacingClasses)}>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

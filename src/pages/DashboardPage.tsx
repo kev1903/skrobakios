@@ -9,10 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { taskService } from '@/components/tasks/taskService';
 import { Task } from '@/components/tasks/types';
 import { useUser } from '@/contexts/UserContext';
+import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
+import { cn } from '@/lib/utils';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RechartsPieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
 
 const DashboardPage = () => {
   const { userProfile } = useUser();
+  const { spacingClasses, minHeightClasses } = useTimerBarSpacing();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState({
@@ -118,7 +121,7 @@ const DashboardPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex items-center justify-center">
+      <div className={cn("bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 flex items-center justify-center", minHeightClasses, spacingClasses)}>
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your analytics...</p>
@@ -128,7 +131,7 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+    <div className={cn("bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100", minHeightClasses, spacingClasses)}>
       {/* Header */}
       <div className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 p-6 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">

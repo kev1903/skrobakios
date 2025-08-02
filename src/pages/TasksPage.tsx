@@ -17,12 +17,14 @@ import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from "@/hooks/use-toast";
 import { FloatingTimeTracker } from '@/components/FloatingTimeTracker';
+import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
 
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
   const { userProfile } = useUser();
   const { toast } = useToast();
+  const { spacingClasses, minHeightClasses, fullHeightClasses } = useTimerBarSpacing();
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -364,9 +366,9 @@ const TasksPage = () => {
 
   return (
     <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex font-sans">
+    <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex font-sans", minHeightClasses, spacingClasses)}>
         {/* Left Sidebar */}
-        <div className="fixed top-0 left-0 w-80 h-screen bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-6 space-y-6 shadow-lg overflow-y-auto">
+        <div className={cn("fixed left-0 w-80 bg-gradient-to-b from-white/90 via-purple-50/70 to-blue-50/70 backdrop-blur-xl border-r border-purple-200/50 p-6 space-y-6 shadow-lg overflow-y-auto", fullHeightClasses, spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0')}>
           {/* Return to Home Button */}
           <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
