@@ -178,11 +178,11 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
   return (
     <div className="h-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-2">
       <div className="w-full max-w-lg">
-        <div className="text-center mb-4">
+        <div className="text-center mb-1">
             <img 
               src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
               alt="Skrobaki Logo" 
-              className="w-[360px] h-[360px] object-contain mx-auto mb-2"
+              className="w-[360px] h-[360px] object-contain mx-auto"
             />
           <h1 className="text-2xl font-bold text-gradient heading-modern mb-1">
             Welcome to SKROBAKI
