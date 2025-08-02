@@ -22,24 +22,22 @@ const TimeSheetPage = () => {
     loading
   } = useTimeTracking();
 
-  // Load time entries for the current week
+  // Load time entries for the current week (optimized)
   useEffect(() => {
     const weekStart = startOfWeek(currentWeek);
     const weekEnd = endOfWeek(currentWeek);
     
-    // Load entries for each day of the week
-    for (let i = 0; i < 7; i++) {
-      const date = addDays(weekStart, i);
-      loadTimeEntries(format(date, 'yyyy-MM-dd'));
-    }
+    // Load all entries for the week range in a single request
+    loadTimeEntries(format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd'));
   }, [currentWeek, loadTimeEntries]);
 
-  const getWeekDays = () => {
+  // Memoize week days calculation to avoid recalculating on every render
+  const weekDays = React.useMemo(() => {
     const weekStart = startOfWeek(currentWeek);
     return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  };
+  }, [currentWeek]);
 
-  const getEntriesForDay = (date: Date) => {
+  const getEntriesForDay = React.useCallback((date: Date) => {
     const dateString = format(date, 'yyyy-MM-dd');
     return timeEntries.filter(entry => {
       if (!entry.start_time) return false;
@@ -52,41 +50,43 @@ const TimeSheetPage = () => {
       const entryDate = format(parseISO(entry.start_time), 'yyyy-MM-dd');
       return entryDate === dateString;
     });
-  };
+  }, [timeEntries]);
 
-  const formatDuration = (seconds: number) => {
+  const formatDuration = React.useCallback((seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return `${hours}:${minutes.toString().padStart(2, '0')}`;
-  };
+  }, []);
 
-  const calculateDayTotal = (entries: any[]) => {
+  const calculateDayTotal = React.useCallback((entries: any[]) => {
     return entries.reduce((total, entry) => {
       return total + (entry.duration || 0);
     }, 0);
-  };
+  }, []);
 
-  const weekDays = getWeekDays();
-  const weekTotal = weekDays.reduce((total, day) => {
-    const dayEntries = getEntriesForDay(day);
-    return total + calculateDayTotal(dayEntries);
-  }, 0);
+  // Memoize week total calculation
+  const weekTotal = React.useMemo(() => {
+    return weekDays.reduce((total, day) => {
+      const dayEntries = getEntriesForDay(day);
+      return total + calculateDayTotal(dayEntries);
+    }, 0);
+  }, [weekDays, getEntriesForDay, calculateDayTotal]);
 
-  const navigateWeek = (direction: 'prev' | 'next') => {
+  const navigateWeek = React.useCallback((direction: 'prev' | 'next') => {
     setCurrentWeek(prev => {
       const newDate = new Date(prev);
       newDate.setDate(prev.getDate() + (direction === 'next' ? 7 : -7));
       return newDate;
     });
-  };
+  }, []);
 
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = React.useCallback((category: string) => {
     const colors = settings?.category_colors || {};
     return colors[category] || '#6B7280';
-  };
+  }, [settings]);
 
-  // Generate time slots for the week (24 hours in 30-minute slots)
-  const generateTimeSlots = () => {
+  // Generate time slots for the week (24 hours in 30-minute slots) - memoized for performance
+  const timeSlots = React.useMemo(() => {
     const slots = [];
     
     // Generate 48 30-minute slots (24 hours × 2)
@@ -107,11 +107,9 @@ const TimeSheetPage = () => {
       });
     }
     return slots;
-  };
+  }, []);
 
-  const timeSlots = generateTimeSlots();
-
-  const getEntriesForTimeSlot = (day: Date, slotHour: number, slotMinutes: number) => {
+  const getEntriesForTimeSlot = React.useCallback((day: Date, slotHour: number, slotMinutes: number) => {
     const dayEntries = getEntriesForDay(day);
     return dayEntries.filter(entry => {
       if (!entry.start_time) return false;
@@ -123,7 +121,7 @@ const TimeSheetPage = () => {
              ((slotMinutes === 0 && entryMinutes >= 0 && entryMinutes < 30) ||
               (slotMinutes === 30 && entryMinutes >= 30 && entryMinutes < 60));
     });
-  };
+  }, [timeEntries]);
 
   const getCurrentTime = () => new Date();
 

@@ -60,7 +60,7 @@ export const useTimeTracking = () => {
     checkActiveTimer();
   }, []);
 
-  const loadTimeEntries = async (date?: string) => {
+  const loadTimeEntries = async (date?: string, endDate?: string) => {
     try {
       const user = await supabase.auth.getUser();
       if (!user.data.user) return;
@@ -74,12 +74,24 @@ export const useTimeTracking = () => {
       if (date) {
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
         
-        query = query
-          .gte('start_time', startOfDay.toISOString())
-          .lte('start_time', endOfDay.toISOString());
+        if (endDate) {
+          // Date range query for better performance
+          const endOfRange = new Date(endDate);
+          endOfRange.setHours(23, 59, 59, 999);
+          
+          query = query
+            .gte('start_time', startOfDay.toISOString())
+            .lte('start_time', endOfRange.toISOString());
+        } else {
+          // Single day query  
+          const endOfDay = new Date(date);
+          endOfDay.setHours(23, 59, 59, 999);
+          
+          query = query
+            .gte('start_time', startOfDay.toISOString())
+            .lte('start_time', endOfDay.toISOString());
+        }
       }
 
       const { data, error } = await query;
