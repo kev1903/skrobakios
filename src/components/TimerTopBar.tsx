@@ -264,7 +264,7 @@ export const TimerTopBar = () => {
             </button>
             
             {/* Company Logo */}
-            <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer">
               <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
@@ -273,7 +273,7 @@ export const TimerTopBar = () => {
               <h1 className="text-sm font-bold text-foreground hidden sm:block">
                 {getCompanyDisplayText()}
               </h1>
-            </div>
+            </Link>
           </div>
 
           {/* Center - Timer info */}
