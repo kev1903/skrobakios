@@ -278,8 +278,7 @@ export const TimerTopBar = () => {
 
           {/* Center - Timer info */}
           <div className="flex items-center space-x-4">
-            {activeTimer ? (
-              // Active Timer State
+            {activeTimer && (
               <>
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-orange-500' : 'bg-green-500'} animate-pulse`} />
@@ -303,20 +302,6 @@ export const TimerTopBar = () => {
                     {activeTimer.project_name}
                   </span>
                 )}
-              </>
-            ) : (
-              // No Active Timer State
-              <>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-400" />
-                  <span className="text-2xl font-mono font-semibold text-gray-500">
-                    00:00
-                  </span>
-                </div>
-                
-                <div className="text-sm text-muted-foreground">
-                  No active timer
-                </div>
               </>
             )}
           </div>
