@@ -79,6 +79,48 @@ const TimeSheetPage = () => {
     return colors[category] || '#6B7280';
   };
 
+  // Generate time slots for the week (24 hours in 30-minute slots)
+  const generateTimeSlots = () => {
+    const slots = [];
+    
+    // Generate 48 30-minute slots (24 hours × 2)
+    for (let slotIndex = 0; slotIndex < 48; slotIndex++) {
+      const hour = Math.floor(slotIndex / 2);
+      const minutes = (slotIndex % 2) * 30;
+      
+      // Create a proper date object for time formatting
+      const timeDate = new Date();
+      timeDate.setHours(hour, minutes, 0, 0);
+      const timeLabel = format(timeDate, 'HH:mm');
+      
+      slots.push({
+        hour: slotIndex,
+        label: timeLabel,
+        actualHour: hour,
+        actualMinutes: minutes
+      });
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
+  const getEntriesForTimeSlot = (day: Date, slotHour: number, slotMinutes: number) => {
+    const dayEntries = getEntriesForDay(day);
+    return dayEntries.filter(entry => {
+      if (!entry.start_time) return false;
+      const entryDate = parseISO(entry.start_time);
+      const entryHour = entryDate.getHours();
+      const entryMinutes = entryDate.getMinutes();
+      
+      return entryHour === slotHour && 
+             ((slotMinutes === 0 && entryMinutes >= 0 && entryMinutes < 30) ||
+              (slotMinutes === 30 && entryMinutes >= 30 && entryMinutes < 60));
+    });
+  };
+
+  const getCurrentTime = () => new Date();
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
@@ -162,96 +204,124 @@ const TimeSheetPage = () => {
           </CardHeader>
         </Card>
 
-        {/* Weekly Calendar Grid */}
+        {/* Weekly Calendar Grid with Time Column */}
         <Card className="border-0 bg-white/70 backdrop-blur-sm shadow-lg">
           <CardContent className="p-6">
-            <div className="grid grid-cols-7 gap-4">
-              {weekDays.map((day, index) => {
-                const dayEntries = getEntriesForDay(day);
-                const dayTotal = calculateDayTotal(dayEntries);
-                const isToday = isSameDay(day, new Date());
-                
-                return (
-                  <div key={index} className="min-h-[400px]">
-                    {/* Day Header */}
-                    <div className={cn(
-                      "text-center p-3 rounded-t-lg border-b",
-                      isToday ? "bg-primary text-primary-foreground" : "bg-muted/50"
-                    )}>
-                      <div className="font-semibold">{format(day, 'EEE')}</div>
-                      <div className={cn(
-                        "text-2xl font-bold",
-                        isToday ? "text-primary-foreground" : "text-foreground"
-                      )}>
-                        {format(day, 'd')}
+            <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
+              {/* Day Headers Row */}
+              <div className="grid grid-cols-8 gap-1 border-b border-border/30 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm p-2">
+                <div className="p-3 text-center text-muted-foreground font-medium text-sm min-w-[100px] bg-card/50 rounded-lg border border-border/20">
+                  Time
+                </div>
+                {weekDays.map((day, index) => {
+                  const dayEntries = getEntriesForDay(day);
+                  const dayTotal = calculateDayTotal(dayEntries);
+                  const isToday = isSameDay(day, new Date());
+                  
+                  return (
+                    <div key={index} className={`p-3 text-center transition-all duration-200 rounded-lg border ${
+                      isToday 
+                        ? 'bg-gradient-to-b from-primary/20 to-primary/10 border-primary/30 shadow-md' 
+                        : 'bg-card/50 border-border/20 hover:bg-card/70'
+                    }`}>
+                      <div className={`font-medium text-sm uppercase ${
+                        isToday ? 'text-primary font-bold' : 'text-muted-foreground'
+                      }`}>
+                        {format(day, 'EEE')} {day.getDate()}
                       </div>
-                      <div className={cn(
-                        "text-xs",
-                        isToday ? "text-primary-foreground/80" : "text-muted-foreground"
-                      )}>
+                      <div className={`text-xs mt-1 ${
+                        isToday ? 'text-primary/80' : 'text-muted-foreground'
+                      }`}>
                         {formatDuration(dayTotal)}
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+              
+              {/* Time Grid */}
+              <div className="grid grid-cols-8 gap-0 min-h-[800px] relative overflow-auto max-h-[800px]">
+                {/* Time Column */}
+                <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner relative">
+                  {timeSlots.map((slot, index) => {
+                    const isFullHour = slot.hour % 2 === 0;
+                    const currentTime = getCurrentTime();
+                    const isCurrentSlot = isSameDay(currentTime, currentWeek) &&
+                                          slot.actualHour === currentTime.getHours() && 
+                                          ((slot.actualMinutes === 0 && currentTime.getMinutes() >= 0 && currentTime.getMinutes() < 30) ||
+                                           (slot.actualMinutes === 30 && currentTime.getMinutes() >= 30 && currentTime.getMinutes() < 60));
                     
-                    {/* Day Entries */}
-                    <div className="border border-t-0 rounded-b-lg p-2 space-y-2 min-h-[350px] bg-card">
-                      {dayEntries.length === 0 ? (
-                        <div className="text-center text-muted-foreground text-sm py-8">
-                          No entries
-                        </div>
-                      ) : (
-                        dayEntries.map((entry, entryIndex) => (
-                          <div
-                            key={entryIndex}
-                            className="p-3 rounded-lg border bg-white shadow-sm hover:shadow-md transition-shadow"
-                          >
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm truncate">
+                    return (
+                      <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
+                        isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                      } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
+                        <span className={`font-inter leading-tight ${
+                          isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
+                        } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
+                          {slot.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Day Columns */}
+                {weekDays.map((day, dayIndex) => (
+                  <div key={dayIndex} className="border-r border-border/20 last:border-r-0 bg-background/30 relative">
+                    {timeSlots.map((slot, slotIndex) => {
+                      const slotEntries = getEntriesForTimeSlot(day, slot.actualHour, slot.actualMinutes);
+                      const isFullHour = slot.hour % 2 === 0;
+                      
+                      return (
+                        <div 
+                          key={slotIndex} 
+                          className={`h-6 border-b relative ${
+                            isFullHour ? 'border-b-border/30' : 'border-b-border/10'
+                          } hover:bg-accent/10 transition-colors`}
+                        >
+                          {slotEntries.map((entry, entryIndex) => (
+                            <div
+                              key={entryIndex}
+                              className="absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+                              style={{
+                                backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
+                                borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb'
+                              }}
+                            >
+                              <div className="px-2 py-1 text-xs truncate">
+                                <div className="font-medium text-foreground/90 truncate">
                                   {entry.task_activity}
                                 </div>
-                                {entry.project_name && (
-                                  <div className="text-xs text-muted-foreground">
-                                    {entry.project_name}
-                                  </div>
-                                )}
-                              </div>
-                              {entry.category && (
-                                <Badge 
-                                  variant="secondary" 
-                                  className="text-xs"
-                                  style={{ 
-                                    backgroundColor: `${getCategoryColor(entry.category)}20`,
-                                    color: getCategoryColor(entry.category)
-                                  }}
-                                >
-                                  {entry.category}
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <div>
-                                {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
-                                {entry.end_time && ` - ${format(parseISO(entry.end_time), 'HH:mm')}`}
-                              </div>
-                              <div className="font-medium">
-                                {formatDuration(entry.duration || 0)}
+                                <div className="text-[10px] text-muted-foreground flex items-center justify-between">
+                                  <span>
+                                    {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
+                                    {entry.end_time && ` - ${format(parseISO(entry.end_time), 'HH:mm')}`}
+                                  </span>
+                                  <span className="font-medium">
+                                    {formatDuration(entry.duration || 0)}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                            
-                            {entry.notes && (
-                              <div className="text-xs text-muted-foreground mt-2 pt-2 border-t">
-                                {entry.notes}
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                ))}
+                
+                {/* Current Time Indicator */}
+                {isSameDay(getCurrentTime(), currentWeek) && (
+                  <div 
+                    className="absolute left-0 right-0 h-0.5 border-t-2 border-dotted border-blue-500 z-[1000] pointer-events-none"
+                    style={{
+                      top: `${(getCurrentTime().getHours() * 2 + getCurrentTime().getMinutes() / 30) * 24 + (getCurrentTime().getMinutes() % 30) / 30 * 24}px`
+                    }}
+                  >
+                    <div className="absolute -left-2 -top-1 w-4 h-2 bg-blue-500 rounded-full"></div>
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
