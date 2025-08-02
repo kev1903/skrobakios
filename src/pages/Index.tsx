@@ -6,6 +6,7 @@ import { TaskProvider } from "@/components/tasks/TaskContext";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
+import { GlobalSidebar } from "@/components/GlobalSidebar";
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 
@@ -64,7 +65,8 @@ const Index = () => {
                 currentProject={currentProject}
               />
             </div>
-            {/* No AI chat sidebar in first branch - system page is in second branch */}
+            {/* Global sidebar available on all pages */}
+            <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
           </div>
         ) : (
           // Home and all other pages get layout with sidebar
@@ -95,6 +97,9 @@ const Index = () => {
                   onNavigate={handleNavigate}
                 />
               )}
+              
+              {/* Global sidebar available on all pages */}
+              <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
             </div>
           </div>
         )}

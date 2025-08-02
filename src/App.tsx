@@ -35,6 +35,7 @@ import { TimerTopBar } from "./components/TimerTopBar";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
+import { GlobalSidebarProvider } from "./contexts/GlobalSidebarContext";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -162,10 +163,11 @@ const AppContent = () => {
   const isSignUpPage = location.pathname === "/" && searchParams.get('page') === 'signup';
 
   return (
-    <AppContextProvider>
-      <UserProvider>
-        <CompanyProvider>
-          <TimeTrackingProvider>
+    <GlobalSidebarProvider>
+      <AppContextProvider>
+        <UserProvider>
+          <CompanyProvider>
+            <TimeTrackingProvider>
             <>
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
@@ -211,6 +213,7 @@ const AppContent = () => {
         </CompanyProvider>
       </UserProvider>
     </AppContextProvider>
+    </GlobalSidebarProvider>
   );
 };
 
