@@ -28,12 +28,6 @@ import heroImage from '@/assets/hero-architecture.jpg';
 import modernBuilding from '@/assets/modern-building.jpg';
 import whiteBuilding from '@/assets/white-building.jpg';
 import { Architectural3DScene } from '@/components/3d/Architectural3DScene';
-import '@fontsource/inter/300.css';
-import '@fontsource/inter/400.css';
-import '@fontsource/inter/500.css';
-import '@fontsource/playfair-display/300.css';
-import '@fontsource/playfair-display/400.css';
-import '@fontsource/playfair-display/700.css';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
