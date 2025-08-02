@@ -321,17 +321,17 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <button 
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
                   style={{ 
-                    backgroundColor: 'rgb(54,119,159)',
-                    boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
+                    backgroundColor: 'rgb(115,171,204)',
+                    boxShadow: '0 4px 15px rgba(115, 171, 204, 0.2)',
                     border: 'none'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgb(44,99,139)';
-                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(54, 119, 159, 0.3)';
+                    e.currentTarget.style.backgroundColor = 'rgb(95,151,184)';
+                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(115, 171, 204, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgb(54,119,159)';
-                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(54, 119, 159, 0.2)';
+                    e.currentTarget.style.backgroundColor = 'rgb(115,171,204)';
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(115, 171, 204, 0.2)';
                   }}
                   onClick={() => {
                     console.log('Custom blue button clicked - color should be rgb(54,119,159)');
