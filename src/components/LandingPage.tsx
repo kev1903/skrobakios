@@ -178,7 +178,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-background relative">
+    <div className="h-screen overflow-hidden relative">
+      {/* Full Background Image */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1493397212122-2b85dda8106b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+        }}
+      >
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+      </div>
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
         <div className="max-w-7xl mx-auto px-8 py-3">
