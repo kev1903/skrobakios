@@ -145,9 +145,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section className="relative h-screen flex items-center justify-start overflow-hidden">
         {/* Enhanced background with architectural elements */}
         <div className="absolute inset-0">
-          <div className="w-full h-full bg-gradient-to-br from-background via-brand-charcoal/40 to-background" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,145,70,0.15)_0%,transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(200,145,70,0.08)_0%,transparent_50%)]" />
+          <div className="w-full h-full bg-gradient-to-br from-background via-background/90 to-background" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,145,70,0.05)_0%,transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(200,145,70,0.02)_0%,transparent_50%)]" />
         </div>
         
         {/* Architectural grid overlay */}
@@ -162,7 +162,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </div>
         
         {/* Overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/85 to-background/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/98 via-background/95 to-background/98" />
         
         <div className="relative z-10 max-w-7xl mx-auto px-8 py-24">
           <div className="max-w-5xl">
