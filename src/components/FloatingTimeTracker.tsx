@@ -184,11 +184,6 @@ export const FloatingTimeTracker = ({ className }: FloatingTimeTrackerProps) => 
     return null;
   }
 
-  // Don't render the floating tracker if timer is running (TimerTopBar will show instead)
-  if (activeTimer) {
-    return null;
-  }
-
   return (
     <Card className={cn(
       "fixed bottom-6 right-6 z-50 shadow-lg border backdrop-blur-sm bg-card/95",
