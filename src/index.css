@@ -55,7 +55,7 @@ div[data-rbd-drag-handle-draggable-id] {
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 15%;
 
-    --primary: 35 85% 58%;
+    --primary: 199 47% 63%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 10% 95%;
@@ -64,7 +64,7 @@ div[data-rbd-drag-handle-draggable-id] {
     --muted: 220 8% 95%;
     --muted-foreground: 220 5% 45%;
 
-    --accent: 35 45% 92%;
+    --accent: 199 47% 92%;
     --accent-foreground: 220 15% 15%;
 
     --destructive: 0 84% 60%;
@@ -72,7 +72,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
     --border: 220 12% 90%;
     --input: 220 12% 97%;
-    --ring: 35 85% 58%;
+    --ring: 199 47% 63%;
 
     --radius: 0.75rem;
 
@@ -80,15 +80,15 @@ div[data-rbd-drag-handle-draggable-id] {
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-bg-light: rgba(255, 255, 255, 0.8);
     --glass-bg-hover: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(200, 145, 70, 0.15);
+    --glass-border: rgba(115, 171, 204, 0.15);
     --glass-shadow: rgba(0, 0, 0, 0.08);
-    --glass-shadow-hover: rgba(200, 145, 70, 0.2);
+    --glass-shadow-hover: rgba(115, 171, 204, 0.2);
     --glass-backdrop: blur(20px);
     
     /* Architectural Brand Colors */
-    --brand-gold: 35 85% 58%;
-    --brand-gold-light: 35 85% 68%;
-    --brand-gold-dark: 35 85% 48%;
+    --brand-gold: 199 47% 63%;
+    --brand-gold-light: 199 47% 73%;
+    --brand-gold-dark: 199 47% 53%;
     --brand-charcoal: 220 15% 15%;
     --brand-charcoal-light: 220 15% 25%;
     --brand-warm-white: 40 25% 96%;
@@ -97,7 +97,7 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--brand-gold)) 0%, hsl(var(--brand-gold-light)) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(var(--brand-charcoal)) 0%, hsl(var(--brand-charcoal-light)) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(200, 145, 70, 0.08) 0%, rgba(200, 145, 70, 0.02) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(115, 171, 204, 0.08) 0%, rgba(115, 171, 204, 0.02) 100%);
     
     /* Design System Colors */
     --neutral-50: 40 25% 97%;
@@ -109,12 +109,12 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Sidebar Variables */
     --sidebar-background: rgba(255, 255, 255, 0.9);
     --sidebar-foreground: 220 15% 15%;
-    --sidebar-primary: 35 85% 58%;
+    --sidebar-primary: 199 47% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: rgba(200, 145, 70, 0.1);
+    --sidebar-accent: rgba(115, 171, 204, 0.1);
     --sidebar-accent-foreground: 220 15% 15%;
-    --sidebar-border: rgba(200, 145, 70, 0.15);
-    --sidebar-ring: 35 85% 58%;
+    --sidebar-border: rgba(115, 171, 204, 0.15);
+    --sidebar-ring: 199 47% 63%;
   }
 
   .dark {
@@ -179,7 +179,7 @@ div[data-rbd-drag-handle-draggable-id] {
   body {
     @apply bg-background text-foreground font-inter;
     background: 
-      radial-gradient(circle at 20% 30%, rgba(200, 145, 70, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 20% 30%, rgba(115, 171, 204, 0.02) 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.8) 0%, transparent 60%),
       linear-gradient(145deg, hsl(var(--background)) 0%, rgba(248, 250, 252, 0.5) 50%, hsl(var(--background)) 100%);
     min-height: 100vh;
@@ -198,8 +198,8 @@ div[data-rbd-drag-handle-draggable-id] {
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(circle at 25% 25%, rgba(200, 145, 70, 0.03) 0%, transparent 40%),
-      radial-gradient(circle at 75% 75%, rgba(200, 145, 70, 0.01) 0%, transparent 40%),
+      radial-gradient(circle at 25% 25%, rgba(115, 171, 204, 0.03) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(115, 171, 204, 0.01) 0%, transparent 40%),
       var(--gradient-glass);
     pointer-events: none;
     z-index: -1;
@@ -264,12 +264,12 @@ div[data-rbd-drag-handle-draggable-id] {
   
   .heading-xl {
     @apply text-6xl md:text-8xl lg:text-9xl font-display font-extralight tracking-tighter leading-none;
-    text-shadow: 0 2px 20px rgba(200, 145, 70, 0.15);
+    text-shadow: 0 2px 20px rgba(115, 171, 204, 0.15);
   }
   
   .heading-lg {
     @apply text-4xl md:text-6xl font-display font-light tracking-tight leading-tight;
-    text-shadow: 0 1px 15px rgba(200, 145, 70, 0.1);
+    text-shadow: 0 1px 15px rgba(115, 171, 204, 0.1);
   }
   
   .heading-md {
@@ -295,7 +295,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .interactive-minimal:hover {
-    box-shadow: 0 20px 40px rgba(200, 145, 70, 0.15);
+    box-shadow: 0 20px 40px rgba(115, 171, 204, 0.15);
   }
 
   .button-minimal {
@@ -304,13 +304,13 @@ div[data-rbd-drag-handle-draggable-id] {
 
   .button-gold {
     @apply bg-brand-gold text-brand-charcoal hover:bg-brand-gold-light hover:scale-[1.02] active:scale-[0.98] font-medium;
-    box-shadow: 0 4px 15px rgba(200, 145, 70, 0.2);
+    box-shadow: 0 4px 15px rgba(115, 171, 204, 0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .button-gold:hover {
-    box-shadow: 0 6px 25px rgba(200, 145, 70, 0.3);
+    box-shadow: 0 6px 25px rgba(115, 171, 204, 0.3);
     transform: translateY(-1px);
   }
 
@@ -335,7 +335,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   .button-ghost:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(200, 145, 70, 0.1);
+    box-shadow: 0 4px 20px rgba(115, 171, 204, 0.1);
   }
 
   /* Architectural Design Elements */
