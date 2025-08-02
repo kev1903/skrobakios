@@ -319,7 +319,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               
               <div className="flex flex-col sm:flex-row gap-4 mb-20">
                 <button 
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-muted-foreground transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
                   style={{ 
                     backgroundColor: 'rgb(115,171,204)',
                     boxShadow: '0 4px 15px rgba(115, 171, 204, 0.2)',
