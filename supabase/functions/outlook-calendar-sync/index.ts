@@ -71,6 +71,12 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url)
     const action = url.searchParams.get('action')
+    const code = url.searchParams.get('code')
+    
+    // Handle OAuth callback (when Microsoft redirects back with code)
+    if (code) {
+      return handleCallback(req, supabase, user.user.id)
+    }
     
     switch (action) {
       case 'auth-url':
@@ -109,7 +115,7 @@ async function handleAuthUrl(req: Request) {
     )
   }
 
-  const redirectUri = `${req.url.split('/outlook-calendar-sync')[0]}/outlook-calendar-sync?action=callback`
+  const redirectUri = `${req.url.split('/outlook-calendar-sync')[0]}/outlook-calendar-sync`
   const scopes = 'openid profile email https://graph.microsoft.com/Calendars.ReadWrite'
   const state = crypto.randomUUID()
   
@@ -149,7 +155,7 @@ async function handleCallback(req: Request, supabase: any, userId: string) {
   // Exchange code for token
   const clientId = Deno.env.get('MICROSOFT_CLIENT_ID')
   const clientSecret = Deno.env.get('MICROSOFT_CLIENT_SECRET')
-  const redirectUri = `${req.url.split('?')[0]}?action=callback`
+  const redirectUri = req.url.split('?')[0]
 
   const tokenResponse = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
     method: 'POST',
