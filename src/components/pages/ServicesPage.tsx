@@ -12,7 +12,41 @@ import {
   TrendingUp,
   CheckCircle,
   Star,
-  Calendar
+  Calendar,
+  Lightbulb,
+  MapPin,
+  FileText,
+  Home,
+  LayoutGrid,
+  Box,
+  Camera,
+  Printer,
+  Wrench,
+  TreePine,
+  Heart,
+  Tent,
+  Square,
+  Circle,
+  Search,
+  ShoppingCart,
+  Network,
+  DollarSign,
+  Scan,
+  Cog,
+  Monitor,
+  BarChart3,
+  Brain,
+  Target,
+  Calculator,
+  Grid3x3,
+  ArrowRightLeft,
+  LineChart,
+  Shield,
+  HardHat,
+  Gem,
+  MessageCircle,
+  UserCheck,
+  ClipboardList
 } from 'lucide-react';
 
 interface ServicesPageProps {
@@ -22,30 +56,83 @@ interface ServicesPageProps {
 export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
   const services = [
     {
+      category: "Design",
+      description: "Crafting visions with precision and elegance.",
+      items: [
+        { name: "Concept Design", icon: Lightbulb, description: "Turning your ideas into creative design proposals." },
+        { name: "Town Planning Drawings", icon: MapPin, description: "Documentation tailored for planning approvals." },
+        { name: "Working Drawings & Construction Documentation", icon: FileText, description: "Full sets for accurate construction and compliance." },
+        { name: "Interior Design", icon: Home, description: "Elegant, functional spaces designed for modern living." },
+        { name: "Spacial Design", icon: LayoutGrid, description: "Designing flow and form to enhance everyday experiences." },
+        { name: "3D Modelling & Visualisation", icon: Box, description: "See your project in 3D before it's built." },
+        { name: "3D Renderings", icon: Camera, description: "Photorealistic visuals for presentations or approvals." },
+        { name: "3D Printed Models", icon: Printer, description: "Scaled architectural models, printed with precision." }
+      ]
+    },
+    {
+      category: "Build",
+      description: "From vision to completion — we build with expertise.",
+      items: [
+        { name: "New Home Construction", icon: Building, description: "Custom-designed family homes with luxury and efficiency." },
+        { name: "High-End Renovations", icon: Wrench, description: "Transforming existing homes with style and structure." },
+        { name: "Hardscapes & Landscaping", icon: TreePine, description: "Durable, aesthetic outdoor spaces, tailored to your lifestyle." },
+        { name: "SDA Home Construction", icon: Heart, description: "Specialist Disability Accommodation built for comfort and compliance." },
+        { name: "Outdoor Pavilions & Alfresco Areas", icon: Tent, description: "Entertain and relax outdoors, all year round." },
+        { name: "Custom Brick Fences", icon: Square, description: "Elegant boundary walls with architectural details." },
+        { name: "Basketball Courts (via CourtScapes)", icon: Circle, description: "Backyard courts designed for performance and fun." }
+      ]
+    },
+    {
       category: "Project Management",
-      description: "Complete oversight from concept to completion",
+      description: "Guiding every stage with control and clarity.",
       items: [
-        { name: "7-Stage Lifecycle Management", icon: Clipboard, description: "Comprehensive project management from initial concept through final handover, ensuring every phase is executed with precision and attention to detail." },
-        { name: "Construction Advisory", icon: Users, description: "Expert guidance and consultation throughout your build journey, providing professional insights and recommendations at every decision point." },
-        { name: "Construction Management", icon: Settings, description: "On-site coordination and quality control with dedicated project managers ensuring timelines, budgets, and quality standards are met." }
+        { name: "Full-Service Project Management", icon: Settings, description: "End-to-end oversight for seamless delivery." },
+        { name: "Client-Side Project Management (Home Build Assist)", icon: Users, description: "Acting in your best interest, from plans to handover." },
+        { name: "Construction Administration", icon: Clipboard, description: "Managing contracts, site processes, and documentation." },
+        { name: "Site Inspections & Reports", icon: Search, description: "On-site evaluations with actionable recommendations." },
+        { name: "Procurement Management", icon: ShoppingCart, description: "Securing quality materials and trades, on budget." },
+        { name: "Contractor Coordination", icon: Network, description: "Managing all site professionals under one system." },
+        { name: "Budget & Cost Monitoring", icon: DollarSign, description: "Transparent cost tracking across all phases." },
+        { name: "Timeline & Progress Tracking", icon: Calendar, description: "Keeping your project on schedule, every step of the way." }
       ]
     },
     {
-      category: "Standalone Services", 
-      description: "Individual services tailored to your specific needs",
+      category: "Digital & Technical",
+      description: "Built smarter, through innovation and precision.",
       items: [
-        { name: "Cost Estimating", icon: TrendingUp, description: "Accurate budgeting and comprehensive cost analysis using industry-leading methodologies and current market data for reliable financial planning." },
-        { name: "Building Inspections", icon: Eye, description: "Thorough quality and compliance assessments conducted by certified professionals to ensure your project meets all regulatory requirements." },
-        { name: "3D Design & Rendering", icon: Building, description: "Advanced visualization services allowing you to see and experience your project before construction begins, reducing costly changes later." }
+        { name: "BIM Modelling", icon: Box, description: "Intelligent 3D models for planning and coordination." },
+        { name: "Scan to BIM", icon: Scan, description: "Digitising real-world buildings for updates or retrofits." },
+        { name: "Shop Drawings", icon: Ruler, description: "Fabrication-ready technical drawings for builders and fabricators." },
+        { name: "DfMA (Design for Manufacturing and Assembly)", icon: Cog, description: "Optimised designs for efficient off-site manufacturing." },
+        { name: "Digital Twin Systems", icon: Monitor, description: "Live digital replicas of your construction project." },
+        { name: "Live Project Dashboards", icon: BarChart3, description: "Real-time updates on budget, schedule, and progress." },
+        { name: "AI-Powered Estimating (Coming Soon)", icon: Brain, description: "Instant, intelligent cost analysis using AI." }
       ]
     },
     {
-      category: "BIM & Digital Services",
-      description: "Cutting-edge technology for modern construction",
+      category: "Estimating & Cost Planning",
+      description: "Plan with clarity. Build with confidence.",
       items: [
-        { name: "BIM Models", icon: Ruler, description: "Advanced building information modeling creating detailed 3D representations with integrated data for improved coordination and efficiency." },
-        { name: "Shop Drawings", icon: Clipboard, description: "Detailed construction documentation and technical drawings ensuring precise fabrication and installation of all building components." },
-        { name: "AI Timeline & Dashboards", icon: Settings, description: "Smart project tracking and analytics using artificial intelligence to optimize schedules and provide real-time project insights." }
+        { name: "Budget Benchmarking", icon: Target, description: "Early-stage financial planning using real data." },
+        { name: "Elemental Cost Planning (BCIS Method)", icon: Calculator, description: "Detailed estimates broken down by building components." },
+        { name: "Quantity Take-offs", icon: Ruler, description: "Accurate measurements and scope breakdowns." },
+        { name: "Quote Vetting & Matrix System", icon: Grid3x3, description: "Compare and review multiple quotes with our structured approach." },
+        { name: "Variation Management", icon: ArrowRightLeft, description: "Handle changes smoothly, with full transparency." },
+        { name: "Live Cost Tracker", icon: TrendingUp, description: "Track spend vs budget in real-time." },
+        { name: "Cash Flow Forecasting", icon: LineChart, description: "Anticipate cash needs, month by month." }
+      ]
+    },
+    {
+      category: "Consulting",
+      description: "Expert advice to simplify complex decisions.",
+      items: [
+        { name: "Feasibility Studies", icon: CheckCircle, description: "Know if your idea is viable before investing." },
+        { name: "Design Compliance Reviews", icon: Shield, description: "Ensure your plans meet building code and planning rules." },
+        { name: "Buildability Assessments", icon: HardHat, description: "Identify design risks early to avoid costly delays." },
+        { name: "Value Engineering", icon: Gem, description: "Maximise value without compromising quality." },
+        { name: "Private Building Consultation", icon: MessageCircle, description: "Independent advice on-site or during design." },
+        { name: "Expert Advice for Owner Builders", icon: UserCheck, description: "Guidance to help you manage your own build." },
+        { name: "Pre-Construction Planning", icon: ClipboardList, description: "Set up your project for success before starting on site." }
       ]
     }
   ];
