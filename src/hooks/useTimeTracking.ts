@@ -56,14 +56,6 @@ export const useTimeTracking = () => {
   const { toast } = useToast();
   const { currentCompany } = useCompany();
 
-  // Load initial data
-  useEffect(() => {
-    loadTimeEntries();
-    loadSettings();
-    loadCategories();
-    checkActiveTimer();
-  }, []);
-
   const loadTimeEntries = async (date?: string, endDate?: string) => {
     try {
       const user = await supabase.auth.getUser();
@@ -606,6 +598,14 @@ export const useTimeTracking = () => {
       topTasks
     };
   };
+
+  // Load initial data
+  useEffect(() => {
+    loadTimeEntries();
+    loadSettings();
+    loadCategories();
+    checkActiveTimer();
+  }, []);
 
   return {
     timeEntries,
