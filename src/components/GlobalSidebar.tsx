@@ -23,7 +23,7 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
       {/* Sidebar */}
       <div className="fixed left-0 top-0 bottom-0 z-50 w-80">
         <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
-          <div className="h-full" />
+          <div />
         </AppSidebar>
       </div>
     </>
