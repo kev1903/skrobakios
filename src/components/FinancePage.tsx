@@ -63,7 +63,7 @@ const alerts = [
 
 export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 pt-20 p-6">{/* Added pt-20 for header clearance */}
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
