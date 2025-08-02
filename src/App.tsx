@@ -162,6 +162,8 @@ const AppContent = () => {
   const isAuthPage = location.pathname === "/" && searchParams.get('page') === 'auth';
   // Check if we're on the sign up page
   const isSignUpPage = location.pathname === "/" && searchParams.get('page') === 'signup';
+  // Check if we're on the home page
+  const isHomePage = location.pathname === "/" && searchParams.get('page') === 'home';
 
   return (
     <GlobalSidebarProvider>
@@ -173,7 +175,7 @@ const AppContent = () => {
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
               )}
-              {user && !isLandingPage && !isAuthPage && !isSignUpPage && <MenuBar />}
+              {(user && !isLandingPage && !isAuthPage && !isSignUpPage) || isHomePage ? <MenuBar /> : null}
             <Routes>
         <Route path="/" element={
           <Index />
