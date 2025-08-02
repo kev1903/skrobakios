@@ -254,11 +254,11 @@ export const TimerTopBar = () => {
             {/* Hamburger Menu Icon */}
             <button 
               onClick={() => {
-                // Navigate to home page which has the sidebar
+                // Navigate to home page with sidebar
                 window.location.href = '/?page=home';
               }}
               className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
-              aria-label="Open navigation menu"
+              aria-label="Open main navigation sidebar"
             >
               <Menu className="w-4 h-4" />
             </button>
