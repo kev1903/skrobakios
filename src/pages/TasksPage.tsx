@@ -584,14 +584,32 @@ const TasksPage = () => {
           {/* Calendar Navigation */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                {formatDate(currentDate)}
-                <span className="flex items-center gap-1 text-lg">
-                  🕒 {format(currentTime, 'HH:mm:ss')}
-                </span>
-              </h2>
+              {/* TimeSheet Button */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="bg-primary/10 border-primary/20 hover:bg-primary/20 text-primary font-medium"
+                onClick={() => {
+                  // Navigate to time management or timesheet page
+                  window.location.href = '/?page=time-management';
+                }}
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                TimeSheet
+              </Button>
             </div>
+            
             <div className="flex items-center space-x-4">
+              {/* Date and Time - Moved to Right Side */}
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+                  {formatDate(currentDate)}
+                  <span className="flex items-center gap-1 text-lg text-primary">
+                    🕒 {format(currentTime, 'HH:mm:ss')}
+                  </span>
+                </h2>
+              </div>
+              
               {/* Calendar Settings Button */}
               <Button 
                 variant="outline" 
