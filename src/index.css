@@ -91,13 +91,13 @@ div[data-rbd-drag-handle-draggable-id] {
     --glass-backdrop: blur(20px);
     
     /* Sidebar Variables */
-    --sidebar-background: rgba(255, 255, 255, 0.6);
+    --sidebar-background: 0 0% 100% / 0.6;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 220 14.3% 25.9%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: rgba(59, 130, 246, 0.1);
+    --sidebar-accent: 220 14% 96% / 0.1;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: rgba(255, 255, 255, 0.3);
+    --sidebar-border: 214.3 31.8% 91.4% / 0.3;
     --sidebar-ring: 220 14.3% 25.9%;
   }
 
@@ -144,13 +144,13 @@ div[data-rbd-drag-handle-draggable-id] {
     --glass-shadow: rgba(0, 0, 0, 0.4);
     --glass-shadow-hover: rgba(0, 0, 0, 0.6);
     
-    --sidebar-background: rgba(15, 23, 42, 0.8);
+    --sidebar-background: 222.2 84% 4.9% / 0.8;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 210 40% 90%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: rgba(59, 130, 246, 0.2);
+    --sidebar-accent: 213 31% 91% / 0.2;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-border: 0 0% 100% / 0.1;
     --sidebar-ring: 210 40% 90%;
   }
 }

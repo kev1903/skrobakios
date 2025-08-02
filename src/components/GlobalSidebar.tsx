@@ -26,7 +26,7 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
       <div className={`fixed left-0 top-0 bottom-0 z-50 transform transition-transform duration-300 ease-in-out ${
         isMobile ? 'w-full' : 'w-80'
       }`}>
-        <div className="h-full bg-card/95 backdrop-blur-sm border-r border-border shadow-2xl">
+        <div className="h-full bg-sidebar/95 backdrop-blur-sm border-r border-sidebar-border shadow-2xl">
           <AppSidebar currentPage={currentPage} onNavigate={(page) => {
             onNavigate(page);
             closeSidebar(); // Close sidebar after navigation
