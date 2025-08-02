@@ -8,12 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 const TimeSheetPage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedEmployee, setSelectedEmployee] = useState('me');
-  const { spacingClasses, minHeightClasses } = useTimerBarSpacing();
+  const { spacingClasses, minHeightClasses } = useMenuBarSpacing();
   
   const {
     timeEntries,
@@ -414,7 +414,7 @@ const TimeSheetPage = () => {
         </div>
       </div>
 
-      {/* Timer functionality now handled by TimerTopBar */}
+      {/* Timer functionality now handled by MenuBar */}
     </div>
   );
 };

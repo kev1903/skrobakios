@@ -9,13 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { taskService } from '@/components/tasks/taskService';
 import { Task } from '@/components/tasks/types';
 import { useUser } from '@/contexts/UserContext';
-import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 import { cn } from '@/lib/utils';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RechartsPieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
 
 const DashboardPage = () => {
   const { userProfile } = useUser();
-  const { spacingClasses, minHeightClasses } = useTimerBarSpacing();
+  const { spacingClasses, minHeightClasses } = useMenuBarSpacing();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState({

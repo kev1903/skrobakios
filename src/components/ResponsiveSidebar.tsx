@@ -9,12 +9,12 @@ import { NavigationRibbon } from './home/NavigationRibbon';
 import { SidebarFooter } from './sidebar/SidebarFooter';
 import { ResponsiveSidebarProps } from './sidebar/types';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
-import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
-  const { spacingClasses } = useTimerBarSpacing();
+  const { spacingClasses } = useMenuBarSpacing();
 
   return (
     <Sidebar className={`backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10 ${spacingClasses}`}>

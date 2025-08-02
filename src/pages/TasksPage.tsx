@@ -16,14 +16,14 @@ import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
 import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from "@/hooks/use-toast";
-import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
   const { userProfile } = useUser();
   const { toast } = useToast();
-  const { spacingClasses, minHeightClasses, fullHeightClasses } = useTimerBarSpacing();
+  const { spacingClasses, minHeightClasses, fullHeightClasses } = useMenuBarSpacing();
   const [activeTab, setActiveTab] = useState('All');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -701,7 +701,7 @@ const TasksPage = () => {
           </div>
         )}
 
-        {/* Timer functionality now handled by TimerTopBar */}
+        {/* Timer functionality now handled by MenuBar */}
       </div>
     </DragDropContext>
   );

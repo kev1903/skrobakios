@@ -1,7 +1,7 @@
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 
-export const useTimerBarSpacing = () => {
-  // TimerTopBar is now always visible, so always apply spacing
+export const useMenuBarSpacing = () => {
+  // MenuBar is now always visible, so always apply spacing
   const getSpacingClasses = () => {
     return 'pt-[73px]';
   };

@@ -8,11 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useTimerBarSpacing } from '@/hooks/useTimerBarSpacing';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 const NewTaskPage = () => {
   const navigate = useNavigate();
-  const { spacingClasses, minHeightClasses } = useTimerBarSpacing();
+  const { spacingClasses, minHeightClasses } = useMenuBarSpacing();
 
   return (
     <div className={cn("bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-6", minHeightClasses, spacingClasses)}>

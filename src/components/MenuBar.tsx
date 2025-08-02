@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-export const TimerTopBar = () => {
+export const MenuBar = () => {
   const { toast } = useToast();
   const { activeTimer, stopTimer, pauseTimer, resumeTimer, startTimer, categories, addCategory, settings, loading } = useTimeTracking();
   const { getProjects } = useProjects();

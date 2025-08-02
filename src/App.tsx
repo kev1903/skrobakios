@@ -31,7 +31,7 @@ import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
-import { TimerTopBar } from "./components/TimerTopBar";
+import { MenuBar } from "./components/MenuBar";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
@@ -173,7 +173,7 @@ const AppContent = () => {
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
               )}
-              {user && !isLandingPage && !isAuthPage && !isSignUpPage && <TimerTopBar />}
+              {user && !isLandingPage && !isAuthPage && !isSignUpPage && <MenuBar />}
             <Routes>
         <Route path="/" element={
           <Index />
