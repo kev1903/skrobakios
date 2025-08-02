@@ -62,8 +62,13 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
       const { data: user } = await supabase.auth.getUser();
       
       if (!user.user) {
-        throw new Error('User not authenticated');
+        console.log('User not authenticated, skipping time blocks load');
+        setTimeBlocks([]);
+        setLoading(false);
+        return;
       }
+
+      console.log('Loading time blocks for user:', user.user.id);
 
       const { data, error } = await supabase
         .from('time_blocks')
@@ -71,7 +76,12 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
         .eq('user_id', user.user.id)
         .order('day_of_week', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error loading time blocks:', error);
+        throw error;
+      }
+
+      console.log('Time blocks data loaded:', data);
 
       const formattedBlocks: TimeBlock[] = data?.map(block => ({
         id: block.id,
@@ -97,9 +107,22 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     }
   }, [toast]);
 
-  // Load time blocks on component mount
+  // Load time blocks when authentication state changes
   useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed in time blocking:', event, session?.user?.id);
+      if (session?.user) {
+        loadTimeBlocks();
+      } else {
+        setTimeBlocks([]);
+        setLoading(false);
+      }
+    });
+
+    // Initial load
     loadTimeBlocks();
+
+    return () => subscription.unsubscribe();
   }, [loadTimeBlocks]);
 
   const { paddedDays, isCurrentPeriod } = getCalendarData(currentDate, viewMode);
