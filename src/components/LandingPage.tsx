@@ -290,7 +290,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               
               <div className="flex flex-col sm:flex-row gap-4 mb-20">
                 <Button 
-                  className="button-gold px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
+                  className="button-blue px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
                   onClick={() => goToSlide(1)}
                 >
                   <Sparkles className="w-4 h-4" />
