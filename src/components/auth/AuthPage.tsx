@@ -182,7 +182,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
             <img 
               src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
               alt="Skrobaki Logo" 
-              className="w-24 h-24 object-contain mx-auto mb-2"
+              className="w-36 h-36 object-contain mx-auto mb-2"
             />
           <h1 className="text-2xl font-bold text-gradient heading-modern mb-1">
             Welcome to SKROBAKI
