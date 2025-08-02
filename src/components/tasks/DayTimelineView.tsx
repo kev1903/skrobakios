@@ -397,6 +397,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     setTimeSlots(generateTimeSlots());
   }, [generateTimeSlots]);
 
+  // Update current time every second
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
 
   // Format date and time for header
