@@ -452,12 +452,19 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                     <tr className="border-b border-white/20">
                       <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Date</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Description</th>
-                      <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Amount</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Client</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Project</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Category</th>
                       <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Status</th>
                       <th className="text-right py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Actions</th>
+                      <th className="text-right py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">
+                        <div className="flex flex-col items-end">
+                          <span>Amount</span>
+                          <span className="text-xs text-green-600 font-medium">
+                            Total: {formatCurrency(totalIncome)}
+                          </span>
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -507,9 +514,6 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide font-medium">
                             Invoice #{invoice.invoice_number}
                           </td>
-                          <td className="py-4 px-6 text-sm font-medium text-green-600 tracking-wide">
-                            {formatCurrency(invoice.total, invoice.currency_code)}
-                          </td>
                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{invoice.contact_name}</td>
                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">-</td>
                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">Invoice Payment</td>
@@ -518,6 +522,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                             <Button variant="ghost" size="sm" className="text-xs tracking-wide">
                               View
                             </Button>
+                          </td>
+                          <td className="py-4 px-6 text-right text-sm font-medium text-green-600 tracking-wide">
+                            {formatCurrency(invoice.total, invoice.currency_code)}
                           </td>
                         </tr>
                       ))
