@@ -101,6 +101,55 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
     return () => window.removeEventListener('wheel', handleWheel);
   }, [currentSlide]);
 
+  // Touch/swipe navigation
+  useEffect(() => {
+    let startY = 0;
+    let isSwipping = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      isSwipping = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (isSwipping) return;
+      
+      const endY = e.changedTouches[0].clientY;
+      const deltaY = startY - endY;
+      const threshold = 50; // Minimum swipe distance
+
+      if (Math.abs(deltaY) > threshold) {
+        isSwipping = true;
+        
+        if (deltaY > 0) {
+          // Swipe up - next slide
+          nextSlide();
+        } else {
+          // Swipe down - previous slide
+          prevSlide();
+        }
+
+        setTimeout(() => {
+          isSwipping = false;
+        }, 800);
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [currentSlide]);
+
   const services = [
     {
       category: "Project Management",
