@@ -271,9 +271,17 @@ export const MenuBar = () => {
             
             {/* Company Logo */}
             <div className="flex items-center space-x-2">
-              <div 
+            <div 
                 className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity duration-200"
-                onClick={() => window.location.href = '/?page=home'}
+                onClick={() => {
+                  if (activeContext === 'company') {
+                    // Navigate to business homepage with map
+                    window.location.href = '/?page=home';
+                  } else {
+                    // Navigate to personal profile with map
+                    window.location.href = '/?page=profile';
+                  }
+                }}
               >
                 <span className="text-primary-foreground font-bold text-xs">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
