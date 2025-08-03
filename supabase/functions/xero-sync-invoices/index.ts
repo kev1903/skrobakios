@@ -126,8 +126,8 @@ Deno.serve(async (req) => {
     // Process each invoice
     for (const invoice of invoices) {
       try {
-        // Only process ACCPAY (received/income) invoices that are paid
-        if (invoice.Type === 'ACCREC' && invoice.Status === 'PAID') {
+        // Only process ACCREC (received/income) invoices - all statuses
+        if (invoice.Type === 'ACCREC') {
           
           // Check if we already have this invoice
           const { data: existingInvoice } = await supabase
