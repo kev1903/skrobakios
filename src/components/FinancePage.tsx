@@ -157,39 +157,58 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.03),transparent_50%)] -z-10" />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.1),transparent_50%)] -z-10" />
       
-      {/* Navigation Dropdown - SkrobakiOS Style */}
-      <div className="relative w-48">
-        <div className="bg-white/20 backdrop-blur-2xl border border-white/30 rounded-lg p-1 shadow-xl">
-          <button 
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full px-2 py-1.5 text-xs font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-lg backdrop-blur-sm transition-all duration-300 border-0 flex items-center justify-between"
-          >
-            <span>{getCurrentTabLabel()}</span>
-            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-
-        {/* Dropdown Menu */}
-        {isDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 mt-0.5 bg-white/90 backdrop-blur-2xl border border-white/40 rounded-lg shadow-xl z-50 overflow-hidden">
-            {tabOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => {
-                  setSelectedTab(option.value);
-                  setIsDropdownOpen(false);
-                }}
-                className={`w-full px-2 py-1.5 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-white/60 ${
-                  selectedTab === option.value 
-                    ? 'bg-blue-50/80 text-blue-600' 
-                    : 'text-slate-600'
-                }`}
+      {/* Toolbar - SkrobakiOS Style */}
+      <div className="bg-white/20 backdrop-blur-2xl border border-white/30 rounded-xl p-3 shadow-xl">
+        <div className="flex items-center justify-between">
+          {/* Left side - Title and Dropdown */}
+          <div className="flex items-center space-x-4">
+            <h2 className="text-xl font-inter font-light text-slate-700/90 tracking-wide">Income Management</h2>
+            
+            {/* Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="px-3 py-1.5 text-xs font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-lg backdrop-blur-sm transition-all duration-300 border-0 flex items-center space-x-2 border border-white/40"
               >
-                {option.label}
+                <span>{getCurrentTabLabel()}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-            ))}
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute top-full left-0 mt-0.5 bg-white/90 backdrop-blur-2xl border border-white/40 rounded-lg shadow-xl z-50 overflow-hidden w-48">
+                  {tabOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSelectedTab(option.value);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full px-3 py-1.5 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-white/60 ${
+                        selectedTab === option.value 
+                          ? 'bg-blue-50/80 text-blue-600' 
+                          : 'text-slate-600'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Right side - Buttons */}
+          <div className="flex items-center space-x-3">
+            <Button variant="outline" className="bg-white/40 backdrop-blur-xl border-white/20 text-slate-700 hover:bg-white/60 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-xl font-medium tracking-wide text-xs px-3 py-1.5">
+              <BarChart3 className="w-3 h-3 mr-1.5" />
+              Export
+            </Button>
+            <Button className="bg-blue-600/90 backdrop-blur-xl text-white hover:bg-blue-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide text-xs px-3 py-1.5">
+              +ADD
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Content Sections */}
@@ -197,17 +216,6 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         <div className="mt-6 bg-white/30 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-xl relative overflow-hidden animate-fade-in">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 to-indigo-50/10 rounded-2xl" />
           <div className="relative p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-inter font-light text-slate-700/90 tracking-wide mb-2">Income Management</h2>
-                <p className="text-slate-500/80 font-light tracking-wide">Track and categorize your business revenue</p>
-              </div>
-              <Button className="bg-blue-600/90 backdrop-blur-xl text-white hover:bg-blue-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide">
-                +ADD
-              </Button>
-            </div>
-
             {/* Filters */}
             <div className="flex flex-wrap gap-3 mb-6">
               <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
