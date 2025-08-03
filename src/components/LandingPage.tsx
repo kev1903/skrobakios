@@ -330,7 +330,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       
       <button
         onClick={nextSlide}
-        className="fixed left-3 sm:left-6 lg:left-8 top-1/2 transform translate-y-3 sm:translate-y-4 z-40 glass rounded-full p-2 sm:p-3 hover:bg-brand-gold/20 transition-all duration-300"
+        className="fixed left-3 sm:left-6 lg:left-8 top-1/2 transform translate-y-8 sm:translate-y-10 z-40 glass rounded-full p-2 sm:p-3 hover:bg-brand-gold/20 transition-all duration-300"
         disabled={currentSlide === slides.length - 1}
       >
         <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-brand-gold" />
