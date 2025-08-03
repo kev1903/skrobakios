@@ -62,18 +62,28 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
 
       if (data?.auth_url) {
         console.log('Opening Xero auth window:', data.auth_url);
-        // Open Xero auth in a new window
+        
+        // Try to open popup first
         const authWindow = window.open(
           data.auth_url, 
           'xero-auth', 
           'width=600,height=700,scrollbars=yes,resizable=yes'
         );
 
-        if (!authWindow) {
-          toast.error('Popup blocked! Please allow popups for this site.');
-          setIsConnecting(false);
+        // Check if popup was blocked
+        if (!authWindow || authWindow.closed || typeof authWindow.closed === 'undefined') {
+          console.log('Popup blocked, redirecting in same window');
+          toast.error('Popup blocked! Redirecting to Xero authorization...');
+          
+          // Store current page info to return to after auth
+          localStorage.setItem('xero_return_page', window.location.href);
+          
+          // Redirect in same window
+          window.location.href = data.auth_url;
           return;
         }
+
+        console.log('Popup opened successfully');
 
         // Listen for auth completion
         const messageListener = (event: MessageEvent) => {
