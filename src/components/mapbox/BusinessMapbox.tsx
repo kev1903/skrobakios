@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Building, Globe, Layers } from 'lucide-react';
+import { Building, Globe, Layers } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Project {
@@ -22,7 +22,7 @@ export const BusinessMapbox = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [geocoding, setGeocoding] = useState(false);
+  
 
   // Fetch Mapbox token from edge function
   useEffect(() => {
@@ -48,53 +48,6 @@ export const BusinessMapbox = () => {
     fetchMapboxToken();
   }, []);
 
-  // Function to geocode projects
-  const geocodeProjects = async () => {
-    console.log('🔵 BUTTON CLICKED - Starting geocoding process');
-    setGeocoding(true);
-    try {
-      console.log('🌍 Calling geocode-projects function...');
-      
-      const geocodeResult = await supabase.functions.invoke('geocode-projects');
-      console.log('🔄 Raw geocoding result:', geocodeResult);
-      
-      if (geocodeResult.error) {
-        console.error('❌ Geocoding function error:', geocodeResult.error);
-        throw new Error(geocodeResult.error.message);
-      }
-      
-      console.log('✅ Geocoding function completed, data:', geocodeResult.data);
-      
-      // Wait for database updates to propagate
-      console.log('⏳ Waiting for database updates...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Fetch updated projects
-      console.log('📡 Fetching updated projects...');
-      const { data, error } = await supabase
-        .from('projects')
-        .select('id, name, location, latitude, longitude, status');
-      
-      if (error) {
-        console.error('❌ Database fetch error:', error);
-        throw error;
-      }
-      
-      console.log(`📍 Reloaded ${data?.length || 0} projects after geocoding`);
-      const geocodedCount = data?.filter(p => p.latitude && p.longitude).length || 0;
-      console.log(`✅ ${geocodedCount} projects now have coordinates`);
-      
-      setProjects(data || []);
-      console.log('🎉 Projects state updated successfully');
-      
-    } catch (error) {
-      console.error('💥 Error during geocoding:', error);
-      alert(`Geocoding failed: ${error.message}`);
-    } finally {
-      console.log('🔵 BUTTON FINISHED - Geocoding process complete');
-      setGeocoding(false);
-    }
-  };
 
   // Fetch projects data and ensure they're geocoded
   useEffect(() => {
@@ -114,11 +67,7 @@ export const BusinessMapbox = () => {
         console.log(`✅ ${geocodedCount} projects have coordinates, ${(data?.length || 0) - geocodedCount} using fallback`);
         setProjects(data || []);
         
-        // Try to geocode if needed
-        if (geocodedCount < (data?.length || 0)) {
-          console.log('🔄 Some projects need geocoding, triggering geocoding process...');
-          setTimeout(() => geocodeProjects(), 1000);
-        }
+        // All projects loaded
         
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -366,32 +315,6 @@ export const BusinessMapbox = () => {
       <div ref={mapContainer} className="absolute inset-0 mt-[73px]" />
       
 
-      {/* Geocoding Controls */}
-      <div className="absolute top-20 right-4 z-10">
-        <div className="bg-background/95 backdrop-blur border rounded-lg p-3">
-          <Button 
-            onClick={geocodeProjects}
-            disabled={geocoding}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            {geocoding ? (
-              <>
-                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                Geocoding...
-              </>
-            ) : (
-              <>
-                <MapPin className="w-4 h-4" />
-                Fix Pin Locations
-              </>
-            )}
-          </Button>
-          <p className="text-xs text-muted-foreground mt-2 max-w-32">
-            Click to move pins to real addresses
-          </p>
-        </div>
-      </div>
 
       {/* Status Bar */}
       <div className="absolute bottom-4 left-4 z-10">
