@@ -116,9 +116,18 @@ Deno.serve(async (req) => {
     }
 
     const xeroData = await xeroResponse.json()
+    console.log('Raw Xero Response Data:', JSON.stringify(xeroData, null, 2))
+    
     const invoices: XeroInvoice[] = xeroData.Invoices || []
 
     console.log(`Found ${invoices.length} invoices from Xero`)
+    
+    if (invoices.length === 0) {
+      console.log('No invoices found - this could mean:')
+      console.log('1. The Xero organization has no invoices')
+      console.log('2. The Xero app lacks invoice read permissions')  
+      console.log('3. The API scopes don\'t include accounting.transactions')
+    }
 
     let syncedCount = 0
     let newIncomes = 0
