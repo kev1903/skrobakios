@@ -52,6 +52,8 @@ import { ReviewsPage } from "@/components/review/ReviewsPage";
 import { MilestonePage } from "@/components/MilestonePage";
 import { PermissionManager } from "@/components/permissions/PermissionManager";
 import { PersonalPage } from "@/components/PersonalPage";
+import MapComponent from "@/components/map/MapComponent";
+import { useAppContext } from "@/contexts/AppContextProvider";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
 import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
@@ -77,6 +79,7 @@ export const ContentRenderer = ({
   currentProject
 }: ContentRendererProps) => {
   const { isAuthenticated } = useAuth();
+  const { activeContext } = useAppContext();
   
   const renderProjectNotFound = () => <div className="flex items-center justify-center h-full">
       <p className="text-slate-500">Project not found</p>
@@ -300,7 +303,10 @@ export const ContentRenderer = ({
     case "user-edit":
     case "existing-user-profile":
     case "user-profile":
-      return <PersonalPage onNavigate={onNavigate} />;
+      // Show map for personal context, PersonalPage for company context
+      return activeContext === 'personal' ? 
+        <MapComponent className="w-full h-screen" /> : 
+        <PersonalPage onNavigate={onNavigate} />;
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "business":

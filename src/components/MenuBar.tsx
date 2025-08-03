@@ -30,7 +30,7 @@ export const MenuBar = () => {
   const { unreadCount } = useNotifications();
   const { isAuthenticated, signOut } = useAuth();
   const { currentCompany } = useCompany();
-  const { activeContext } = useAppContext();
+  const { activeContext, setActiveContext } = useAppContext();
   const { toggleSidebar } = useGlobalSidebar();
   
   const [currentDuration, setCurrentDuration] = useState(0);
@@ -283,11 +283,8 @@ export const MenuBar = () => {
                 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
                 onClick={() => {
                   // Switch to personal context and navigate to profile (map)
-                  if (activeContext !== 'personal') {
-                    window.location.href = '/?page=profile&context=personal';
-                  } else {
-                    window.location.href = '/?page=profile';
-                  }
+                  setActiveContext('personal');
+                  window.location.href = '/?page=profile';
                 }}
               >
                 {getCompanyDisplayText()}
