@@ -176,26 +176,26 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-4 sm:p-6">
-      <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg">
-        <div className="text-center mb-6 sm:mb-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 p-3">
+      <div className="w-full max-w-sm sm:max-w-md">
+        <div className="text-center mb-3">
             <img 
               src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
               alt="Skrobaki Logo" 
-              className="w-[360px] h-[150px] object-contain mx-auto mb-4"
+              className="w-[360px] h-[150px] object-contain mx-auto mb-2"
             />
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gradient heading-modern mb-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gradient heading-modern mb-1">
             Welcome to SKROBAKI
           </h1>
-          <p className="text-muted-foreground body-modern text-sm sm:text-base">Modern construction management platform</p>
+          <p className="text-muted-foreground body-modern text-sm">Modern construction management platform</p>
         </div>
 
         <Card className="glass-card shadow-xl">
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-3 sm:p-4">
             <Button
               variant="ghost"
               onClick={() => onNavigate('landing')}
-              className="mb-4 p-0 text-sm"
+              className="mb-3 p-0 text-sm"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to home
@@ -215,20 +215,20 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
             )}
 
             <div className="w-full">
-              <div className="text-center mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold">Sign In</h2>
+              <div className="text-center mb-4">
+                <h2 className="text-lg font-semibold">Sign In</h2>
               </div>
               
-              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+              <form onSubmit={handleLogin} className="space-y-3">
                 <div>
-                  <Label htmlFor="login-email" className="text-sm sm:text-base">Email</Label>
+                  <Label htmlFor="login-email" className="text-sm">Email</Label>
                   <div className="relative mt-1">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="login-email"
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10 h-11 sm:h-12 text-sm sm:text-base"
+                      className="pl-10 h-10 text-sm"
                       value={loginData.email}
                       onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
                       disabled={isLoading}
@@ -237,14 +237,14 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="login-password" className="text-sm sm:text-base">Password</Label>
+                  <Label htmlFor="login-password" className="text-sm">Password</Label>
                   <div className="relative mt-1">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="login-password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
-                      className="pl-10 pr-10 h-11 sm:h-12 text-sm sm:text-base"
+                      className="pl-10 pr-10 h-10 text-sm"
                       value={loginData.password}
                       onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
                       disabled={isLoading}
@@ -266,7 +266,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="remember-me"
@@ -291,7 +291,7 @@ export const AuthPage = ({ onNavigate }: AuthPageProps) => {
                 
                 <Button 
                   type="submit"
-                  className="w-full h-11 sm:h-12 text-sm sm:text-base font-medium mt-6"
+                  className="w-full h-10 text-sm font-medium mt-4"
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign In"}
