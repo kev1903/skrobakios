@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Building, Globe, Layers } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 interface Project {
   id: string;
@@ -16,8 +17,9 @@ interface Project {
   status?: string;
 }
 
-export const BusinessMapbox = () => {
+export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '' }) => {
   console.log('BusinessMapbox component rendered - cache cleared');
+  const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -354,7 +356,7 @@ export const BusinessMapbox = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-screen pt-[73px] bg-background flex items-center justify-center">
+      <div className={`w-full ${fullHeightClasses} ${spacingClasses} bg-background flex items-center justify-center ${className}`}>
         <div className="text-center">
           <Globe className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
           <p className="text-muted-foreground">Loading Mapbox...</p>
@@ -364,9 +366,9 @@ export const BusinessMapbox = () => {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-73px)] mt-[73px] bg-transparent relative">
+    <div className={`w-full ${fullHeightClasses} ${spacingClasses} bg-transparent relative ${className}`}>
       {/* Map Container */}
-      <div ref={mapContainer} className="absolute inset-0 mt-[73px]" />
+      <div ref={mapContainer} className="absolute inset-0" />
       
 
 
