@@ -86,7 +86,14 @@ export const BusinessMapbox = () => {
   // Set up global navigation function for popup clicks
   useEffect(() => {
     (window as any).projectNavigate = (projectId: string) => {
-      navigate(`/project-dashboard/${projectId}`);
+      try {
+        console.log('Attempting to navigate to:', `/project-dashboard/${projectId}`);
+        navigate(`/project-dashboard/${projectId}`);
+      } catch (error) {
+        console.error('Navigation error:', error);
+        // Fallback: use window.location
+        window.location.href = `/project-dashboard/${projectId}`;
+      }
     };
 
     return () => {
