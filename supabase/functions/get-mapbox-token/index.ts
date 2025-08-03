@@ -12,14 +12,14 @@ serve(async (req) => {
   }
 
   try {
-    // Get the Mapbox token from environment variables
-    const mapboxToken = Deno.env.get('MAPBOX_TOKEN')
+    // Get the Mapbox PUBLIC token for frontend map display
+    const mapboxToken = Deno.env.get('MAPBOX_PUBLIC_TOKEN')
     
     if (!mapboxToken) {
       return new Response(
         JSON.stringify({ 
-          error: 'Mapbox token not configured',
-          message: 'Please add MAPBOX_TOKEN to your Supabase Edge Function secrets'
+          error: 'Mapbox public token not configured',
+          message: 'Please add MAPBOX_PUBLIC_TOKEN to your Supabase Edge Function secrets'
         }),
         { 
           status: 500,
