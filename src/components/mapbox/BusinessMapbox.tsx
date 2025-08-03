@@ -16,6 +16,7 @@ interface Project {
 }
 
 export const BusinessMapbox = () => {
+  console.log('BusinessMapbox component rendered - cache cleared');
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
