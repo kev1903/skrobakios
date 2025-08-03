@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -120,6 +122,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownButtonRef = useRef<HTMLButtonElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -179,6 +182,30 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isDropdownOpen]);
+
+  const handleXeroSync = async () => {
+    setIsSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('xero-sync-invoices');
+      
+      if (error) {
+        console.error('Sync error:', error);
+        toast.error(error.message || 'Failed to sync with Xero');
+        return;
+      }
+
+      if (data.success) {
+        toast.success(data.message || 'Successfully synced with Xero');
+      } else {
+        toast.error(data.error || 'Failed to sync with Xero');
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast.error('Failed to sync with Xero');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -243,8 +270,13 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
               <BarChart3 className="w-3 h-3 mr-1.5" />
               Export
             </Button>
-            <Button variant="outline" className="bg-white/40 backdrop-blur-xl border-white/20 text-slate-700 hover:bg-white/60 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-xl font-medium tracking-wide text-xs px-3 py-1.5">
-              SYNC
+            <Button 
+              variant="outline" 
+              className="bg-white/40 backdrop-blur-xl border-white/20 text-slate-700 hover:bg-white/60 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-xl font-medium tracking-wide text-xs px-3 py-1.5"
+              onClick={handleXeroSync}
+              disabled={isSyncing}
+            >
+              {isSyncing ? 'SYNCING...' : 'SYNC'}
             </Button>
             <Button className="bg-blue-600/90 backdrop-blur-xl text-white hover:bg-blue-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide text-xs px-3 py-1.5">
               +ADD
