@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -117,6 +118,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTab, setSelectedTab] = useState('income');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -150,6 +153,33 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
     return tabOptions.find(tab => tab.value === selectedTab)?.label || 'Income';
   };
 
+  const handleDropdownToggle = () => {
+    if (!isDropdownOpen && dropdownButtonRef.current) {
+      const rect = dropdownButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 2,
+        left: rect.left + window.scrollX
+      });
+    }
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownButtonRef.current && !dropdownButtonRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* SkrobakiOS Background with Advanced Glass Morphism */}
@@ -167,16 +197,24 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
             {/* Dropdown */}
             <div className="relative">
               <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                ref={dropdownButtonRef}
+                onClick={handleDropdownToggle}
                 className="px-3 py-1.5 text-xs font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-lg backdrop-blur-sm transition-all duration-300 border-0 flex items-center space-x-2 border border-white/40"
               >
                 <span>{getCurrentTabLabel()}</span>
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-0.5 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden w-48" style={{ zIndex: 99999 }}>
+              {/* Dropdown Menu using React Portal */}
+              {isDropdownOpen && createPortal(
+                <div 
+                  className="fixed bg-white border border-gray-200 rounded-lg shadow-2xl w-48" 
+                  style={{ 
+                    top: dropdownPosition.top,
+                    left: dropdownPosition.left,
+                    zIndex: 999999
+                  }}
+                >
                   {tabOptions.map((option) => (
                     <button
                       key={option.value}
@@ -184,7 +222,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                         setSelectedTab(option.value);
                         setIsDropdownOpen(false);
                       }}
-                      className={`w-full px-3 py-1.5 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-gray-50 ${
+                      className={`w-full px-3 py-1.5 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg ${
                         selectedTab === option.value 
                           ? 'bg-blue-50 text-blue-600' 
                           : 'text-slate-600'
@@ -193,7 +231,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                       {option.label}
                     </button>
                   ))}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
           </div>
