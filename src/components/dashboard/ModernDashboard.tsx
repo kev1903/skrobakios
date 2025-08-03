@@ -140,17 +140,17 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
   }, []);
 
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
       <div className="relative z-10 flex flex-col min-h-screen">
-        <div className="flex-1 p-4 space-y-2">
+        <div className="flex-1 p-6 space-y-6">
         {/* Enhanced Header */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">Business Finance Dashboard</h1>
-            <p className="text-slate-600 mt-1 text-base">
+            <h1 className="heading-lg text-gradient-blue">Business Finance Dashboard</h1>
+            <p className="body-md text-muted-foreground mt-2">
               {currentTime.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -164,16 +164,16 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
           </div>
           
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">
+            <Button variant="outline" size="sm" className="glass-hover glass-light border-glass-border">
               <PieChart className="h-4 w-4 mr-2" />
               Analytics
             </Button>
-            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">
+            <Button variant="outline" size="sm" className="glass-hover glass-light border-glass-border">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
             <Button 
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/25 transition-all duration-200"
+              className="bg-gradient-to-r from-brand-blue to-brand-blue-light hover:from-brand-blue-dark hover:to-brand-blue text-white shadow-lg shadow-brand-blue/25 transition-all duration-300"
               onClick={() => onNavigate('finance')}
             >
               <CreditCard className="h-4 w-4 mr-2" />
@@ -184,112 +184,112 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
 
         {/* Financial Categories Tabs */}
         <Tabs defaultValue="income" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-white/60 backdrop-blur-sm border-white/20">
-            <TabsTrigger value="income" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+          <TabsList className="grid w-full grid-cols-6 glass backdrop-blur-lg border-glass-border">
+            <TabsTrigger value="income" className="data-[state=active]:bg-brand-blue data-[state=active]:text-white font-inter">
               Income
             </TabsTrigger>
-            <TabsTrigger value="expenses" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="expenses" className="data-[state=active]:bg-brand-blue data-[state=active]:text-white font-inter">
               Expenses
             </TabsTrigger>
-            <TabsTrigger value="debt" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="debt" className="data-[state=active]:bg-brand-blue data-[state=active]:text-white font-inter">
               Debt Repayment
             </TabsTrigger>
-            <TabsTrigger value="legal" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="legal" className="data-[state=active]:bg-brand-blue data-[state=active]:text-white font-inter">
               Legal Obligations
             </TabsTrigger>
-            <TabsTrigger value="assets" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs">
+            <TabsTrigger value="assets" className="data-[state=active]:bg-brand-blue data-[state=active]:text-white font-inter text-xs">
               Assets & Improvements
             </TabsTrigger>
-            <TabsTrigger value="investments" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <TabsTrigger value="investments" className="data-[state=active]:bg-brand-blue data-[state=active]:text-white font-inter">
               Investments
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="income" className="space-y-4 mt-0">
-            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+          <TabsContent value="income" className="space-y-6 mt-6">
+            <Card className="glass-card border-glass-border">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-800">Income Overview</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Income Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-6">
-                  <DollarSign className="h-14 w-14 text-emerald-600 mx-auto mb-3" />
-                  <p className="text-slate-600">Income tracking and analytics</p>
-                  <p className="text-sm text-slate-500">Monitor revenue streams and earnings</p>
+                <div className="text-center py-8">
+                  <DollarSign className="h-16 w-16 text-brand-blue mx-auto mb-4" />
+                  <p className="body-md text-muted-foreground">Income tracking and analytics</p>
+                  <p className="text-sm text-muted-foreground/80">Monitor revenue streams and earnings</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="expenses" className="space-y-4 mt-0">
-            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+          <TabsContent value="expenses" className="space-y-6 mt-6">
+            <Card className="glass-card border-glass-border">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-800">Expenses Management</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Expenses Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-6">
-                  <CreditCard className="h-14 w-14 text-red-500 mx-auto mb-3" />
-                  <p className="text-slate-600">Track and categorize expenses</p>
-                  <p className="text-sm text-slate-500">Monitor spending patterns and budgets</p>
+                <div className="text-center py-8">
+                  <CreditCard className="h-16 w-16 text-destructive mx-auto mb-4" />
+                  <p className="body-md text-muted-foreground">Track and categorize expenses</p>
+                  <p className="text-sm text-muted-foreground/80">Monitor spending patterns and budgets</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="debt" className="space-y-4 mt-0">
-            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+          <TabsContent value="debt" className="space-y-6 mt-6">
+            <Card className="glass-card border-glass-border">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-800">Debt Repayment</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Debt Repayment</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-6">
-                  <Target className="h-14 w-14 text-orange-600 mx-auto mb-3" />
-                  <p className="text-slate-600">Manage debt obligations</p>
-                  <p className="text-sm text-slate-500">Track repayment schedules and progress</p>
+                <div className="text-center py-8">
+                  <Target className="h-16 w-16 text-warning mx-auto mb-4" />
+                  <p className="body-md text-muted-foreground">Manage debt obligations</p>
+                  <p className="text-sm text-muted-foreground/80">Track repayment schedules and progress</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="legal" className="space-y-4 mt-0">
-            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+          <TabsContent value="legal" className="space-y-6 mt-6">
+            <Card className="glass-card border-glass-border">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-800">Legal Obligations</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Legal Obligations</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-6">
-                  <Activity className="h-14 w-14 text-purple-600 mx-auto mb-3" />
-                  <p className="text-slate-600">Compliance and legal requirements</p>
-                  <p className="text-sm text-slate-500">Track legal payments and obligations</p>
+                <div className="text-center py-8">
+                  <Activity className="h-16 w-16 text-brand-blue-dark mx-auto mb-4" />
+                  <p className="body-md text-muted-foreground">Compliance and legal requirements</p>
+                  <p className="text-sm text-muted-foreground/80">Track legal payments and obligations</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="assets" className="space-y-4 mt-0">
-            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+          <TabsContent value="assets" className="space-y-6 mt-6">
+            <Card className="glass-card border-glass-border">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-800">Assets & Business Improvements</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Assets & Business Improvements</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-6">
-                  <TrendingUp className="h-14 w-14 text-blue-600 mx-auto mb-3" />
-                  <p className="text-slate-600">Asset management and improvements</p>
-                  <p className="text-sm text-slate-500">Track capital investments and upgrades</p>
+                <div className="text-center py-8">
+                  <TrendingUp className="h-16 w-16 text-brand-blue mx-auto mb-4" />
+                  <p className="body-md text-muted-foreground">Asset management and improvements</p>
+                  <p className="text-sm text-muted-foreground/80">Track capital investments and upgrades</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="investments" className="space-y-4 mt-0">
-            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+          <TabsContent value="investments" className="space-y-6 mt-6">
+            <Card className="glass-card border-glass-border">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-800">Investments</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Investments</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-6">
-                  <BarChart3 className="h-14 w-14 text-emerald-600 mx-auto mb-3" />
-                  <p className="text-slate-600">Investment portfolio tracking</p>
-                  <p className="text-sm text-slate-500">Monitor investment performance and returns</p>
+                <div className="text-center py-8">
+                  <BarChart3 className="h-16 w-16 text-success mx-auto mb-4" />
+                  <p className="body-md text-muted-foreground">Investment portfolio tracking</p>
+                  <p className="text-sm text-muted-foreground/80">Monitor investment performance and returns</p>
                 </div>
               </CardContent>
             </Card>
@@ -299,19 +299,19 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
         {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {dashboardStats.map((stat, index) => (
-            <Card key={index} className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 group">
+            <Card key={index} className="glass-card interactive-minimal border-glass-border group">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">{stat.title}</CardTitle>
-                <div className={`p-2 rounded-lg bg-${stat.color}-100/70 group-hover:bg-${stat.color}-200/70 transition-colors duration-200`}>
-                  <stat.icon className={`h-4 w-4 text-${stat.color}-600`} />
+                <CardTitle className="body-md text-muted-foreground font-inter">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg glass-light group-hover:bg-brand-blue/10 transition-colors duration-200`}>
+                  <stat.icon className={`h-4 w-4 text-brand-blue`} />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-800 mb-1">{stat.value}</div>
+                <div className="text-2xl font-bold text-foreground mb-1 font-playfair">{stat.value}</div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-slate-500">{stat.description}</p>
+                  <p className="text-xs text-muted-foreground font-inter">{stat.description}</p>
                   <div className={`flex items-center gap-1 text-sm font-medium ${
-                    stat.changeType === 'positive' ? 'text-emerald-600' : 'text-red-500'
+                    stat.changeType === 'positive' ? 'text-success' : 'text-destructive'
                   }`}>
                     {stat.changeType === 'positive' ? (
                       <ArrowUpRight className="h-3 w-3" />
@@ -329,16 +329,16 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
         {/* Financial Insights Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {financialInsights.map((insight, index) => (
-            <Card key={index} className="bg-white/40 backdrop-blur-sm border-white/20 shadow-lg">
+            <Card key={index} className="glass border-glass-border shadow-lg">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-600">{insight.title}</p>
-                    <p className="text-xs text-slate-500 mt-1">{insight.period}</p>
+                    <p className="body-md text-muted-foreground font-inter">{insight.title}</p>
+                    <p className="text-xs text-muted-foreground/80 mt-1 font-inter">{insight.period}</p>
                   </div>
-                  <div className={`text-lg font-bold ${
-                    insight.trend === 'positive' ? 'text-emerald-600' : 
-                    insight.trend === 'negative' ? 'text-red-500' : 'text-slate-700'
+                  <div className={`text-lg font-bold font-playfair ${
+                    insight.trend === 'positive' ? 'text-success' : 
+                    insight.trend === 'negative' ? 'text-destructive' : 'text-foreground'
                   }`}>
                     {insight.amount}
                   </div>
@@ -348,68 +348,67 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
           ))}
         </div>
 
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Charts Section */}
           <div className="lg:col-span-2 space-y-6">
             {/* Revenue Chart */}
-            <Card className="glass-card bg-white/70 backdrop-blur-lg border-blue-200/30">
+            <Card className="glass-card border-glass-border">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Project Performance</CardTitle>
-                  <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">
+                  <CardTitle className="heading-md text-foreground font-playfair">Project Performance</CardTitle>
+                  <Button variant="outline" size="sm" className="glass-hover glass-light border-glass-border">
                     View All
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 {/* Mock Chart - replace with actual chart component */}
-                <div className="h-64 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-blue-500/30 to-blue-600/20"></div>
+                <div className="h-64 glass rounded-lg flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-brand-blue/5 via-brand-blue/10 to-brand-blue/5"></div>
                   <div className="relative z-10 text-center">
-                    <TrendingUp className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                    <p className="text-slate-600">Interactive charts coming soon</p>
-                    <p className="text-sm text-slate-500">Revenue trends, project timelines, and analytics</p>
+                    <TrendingUp className="h-16 w-16 text-brand-blue mx-auto mb-4" />
+                    <p className="body-md text-muted-foreground font-inter">Interactive charts coming soon</p>
+                    <p className="text-sm text-muted-foreground/80 font-inter">Revenue trends, project timelines, and analytics</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Transactions */}
-            <Card className="glass-card bg-white/70 backdrop-blur-lg border-blue-200/30">
+            <Card className="glass-card border-glass-border">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Recent Transactions</CardTitle>
+                  <CardTitle className="heading-md text-foreground font-playfair">Recent Transactions</CardTitle>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">Registered</Button>
-                    <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">Unregistered</Button>
-                    <Button variant="outline" size="sm" className="text-blue-600 font-medium bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">View all</Button>
+                    <Button variant="outline" size="sm" className="glass-hover glass-light border-glass-border font-inter">Registered</Button>
+                    <Button variant="outline" size="sm" className="glass-hover glass-light border-glass-border font-inter">Unregistered</Button>
+                    <Button variant="outline" size="sm" className="text-brand-blue font-medium glass-light border-glass-border hover:bg-brand-blue/10 font-inter">View all</Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="space-y-0">
                   {recentTransactions.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-4 hover:bg-blue-50/50 transition-colors">
+                    <div key={transaction.id} className="flex items-center justify-between p-4 hover:bg-brand-blue/5 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-lg">
+                        <div className="w-10 h-10 glass-light rounded-full flex items-center justify-center text-lg">
                           {transaction.icon}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-slate-800">{transaction.type}</span>
-                            <Badge variant={transaction.status === 'Completed' ? 'default' : 'secondary'} className="text-xs">
+                            <span className="font-medium text-foreground font-inter">{transaction.type}</span>
+                            <Badge variant={transaction.status === 'Completed' ? 'default' : 'secondary'} className="text-xs font-inter">
                               {transaction.status}
                             </Badge>
                           </div>
-                          <p className="text-sm text-slate-500">{transaction.project}</p>
+                          <p className="text-sm text-muted-foreground font-inter">{transaction.project}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`font-semibold ${transaction.amount.startsWith('+') ? 'text-emerald-600' : 'text-red-500'}`}>
+                        <div className={`font-semibold font-playfair ${transaction.amount.startsWith('+') ? 'text-success' : 'text-destructive'}`}>
                           {transaction.amount}
                         </div>
-                        <p className="text-sm text-slate-500">{transaction.date}</p>
+                        <p className="text-sm text-muted-foreground font-inter">{transaction.date}</p>
                       </div>
                     </div>
                   ))}
@@ -421,29 +420,29 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
           {/* Right Sidebar */}
           <div className="space-y-6">
             {/* Notifications */}
-            <Card className="glass-card bg-white/70 backdrop-blur-lg border-blue-200/30">
+            <Card className="glass-card border-glass-border">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Notifications</CardTitle>
-                  <Bell className="h-5 w-5 text-slate-400" />
+                  <CardTitle className="heading-md text-foreground font-playfair">Notifications</CardTitle>
+                  <Bell className="h-5 w-5 text-muted-foreground" />
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {notifications.map((notification) => (
-                  <div key={notification.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-blue-50/50 transition-colors">
-                    <Avatar className="h-8 w-8 border-2 border-blue-200">
+                  <div key={notification.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-brand-blue/5 transition-colors">
+                    <Avatar className="h-8 w-8 border-2 border-glass-border">
                       <AvatarImage src={notification.avatar || undefined} />
-                      <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                      <AvatarFallback className="glass-light text-brand-blue text-xs font-inter">
                         {notification.user.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm">
-                        <span className="font-medium text-slate-800">{notification.user}</span>
-                        <span className="text-slate-600"> {notification.action} for </span>
-                        <span className="font-medium text-blue-600">{notification.project}</span>
+                      <p className="text-sm font-inter">
+                        <span className="font-medium text-foreground">{notification.user}</span>
+                        <span className="text-muted-foreground"> {notification.action} for </span>
+                        <span className="font-medium text-brand-blue">{notification.project}</span>
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">{notification.time}</p>
+                      <p className="text-xs text-muted-foreground mt-1 font-inter">{notification.time}</p>
                     </div>
                   </div>
                 ))}
@@ -451,14 +450,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
 
             {/* Quick Actions */}
-            <Card className="glass-card bg-white/70 backdrop-blur-lg border-blue-200/30">
+            <Card className="glass-card border-glass-border">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-slate-800">Quick Actions</CardTitle>
+                <CardTitle className="heading-md text-foreground font-playfair">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start bg-white/50 hover:bg-white/80 border-blue-200/50"
+                  className="w-full justify-start glass-light hover:bg-brand-blue/10 border-glass-border font-inter"
                   onClick={() => onNavigate('projects')}
                 >
                   <Users className="h-4 w-4 mr-3" />
@@ -466,7 +465,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start bg-white/50 hover:bg-white/80 border-blue-200/50"
+                  className="w-full justify-start glass-light hover:bg-brand-blue/10 border-glass-border font-inter"
                   onClick={() => onNavigate('tasks')}
                 >
                   <Calendar className="h-4 w-4 mr-3" />
@@ -474,7 +473,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start bg-white/50 hover:bg-white/80 border-blue-200/50"
+                  className="w-full justify-start glass-light hover:bg-brand-blue/10 border-glass-border font-inter"
                   onClick={() => onNavigate('finance')}
                 >
                   <DollarSign className="h-4 w-4 mr-3" />
@@ -482,7 +481,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start bg-white/50 hover:bg-white/80 border-blue-200/50"
+                  className="w-full justify-start glass-light hover:bg-brand-blue/10 border-glass-border font-inter"
                   onClick={() => onNavigate('settings')}
                 >
                   <TrendingUp className="h-4 w-4 mr-3" />
