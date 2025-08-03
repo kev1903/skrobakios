@@ -27,6 +27,7 @@ interface XeroInvoice {
   SubTotal: number
   TotalTax: number
   Total: number
+  AmountDue: number
   CurrencyCode: string
 }
 
@@ -161,6 +162,7 @@ Deno.serve(async (req) => {
                 sub_total: invoice.SubTotal,
                 total_tax: invoice.TotalTax,
                 total: invoice.Total,
+                amount_due: invoice.AmountDue,
                 currency_code: invoice.CurrencyCode,
                 sync_timestamp: new Date().toISOString()
               })

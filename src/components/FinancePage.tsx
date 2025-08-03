@@ -290,6 +290,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         return;
       }
 
+      // Show progress message
+      toast.info('Syncing all invoices from Xero (all statuses)...');
+
       const { data, error } = await supabase.functions.invoke('xero-sync-invoices');
       
       if (error) {
@@ -299,7 +302,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       }
 
       if (data.success) {
-        toast.success(data.message || 'Successfully synced with Xero');
+        toast.success(`${data.message} (${data.new_entries} new invoices imported)`);
         // Refresh the invoices after successful sync
         fetchInvoices();
       } else {
