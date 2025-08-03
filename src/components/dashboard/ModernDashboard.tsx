@@ -181,58 +181,6 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
           </div>
         </div>
 
-        {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {dashboardStats.map((stat, index) => (
-            <Card key={index} className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 group">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">{stat.title}</CardTitle>
-                <div className={`p-2 rounded-lg bg-${stat.color}-100/70 group-hover:bg-${stat.color}-200/70 transition-colors duration-200`}>
-                  <stat.icon className={`h-4 w-4 text-${stat.color}-600`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-slate-800 mb-1">{stat.value}</div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-slate-500">{stat.description}</p>
-                  <div className={`flex items-center gap-1 text-sm font-medium ${
-                    stat.changeType === 'positive' ? 'text-emerald-600' : 'text-red-500'
-                  }`}>
-                    {stat.changeType === 'positive' ? (
-                      <ArrowUpRight className="h-3 w-3" />
-                    ) : (
-                      <ArrowDownRight className="h-3 w-3" />
-                    )}
-                    {stat.change}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Financial Insights Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {financialInsights.map((insight, index) => (
-            <Card key={index} className="bg-white/40 backdrop-blur-sm border-white/20 shadow-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600">{insight.title}</p>
-                    <p className="text-xs text-slate-500 mt-1">{insight.period}</p>
-                  </div>
-                  <div className={`text-lg font-bold ${
-                    insight.trend === 'positive' ? 'text-emerald-600' : 
-                    insight.trend === 'negative' ? 'text-red-500' : 'text-slate-700'
-                  }`}>
-                    {insight.amount}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {/* Financial Categories Tabs */}
         <Tabs defaultValue="income" className="w-full">
           <TabsList className="grid w-full grid-cols-6 bg-white/60 backdrop-blur-sm border-white/20">
@@ -347,6 +295,59 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
           </TabsContent>
         </Tabs>
 
+        {/* Enhanced Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dashboardStats.map((stat, index) => (
+            <Card key={index} className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 group">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-600">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg bg-${stat.color}-100/70 group-hover:bg-${stat.color}-200/70 transition-colors duration-200`}>
+                  <stat.icon className={`h-4 w-4 text-${stat.color}-600`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-slate-800 mb-1">{stat.value}</div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-500">{stat.description}</p>
+                  <div className={`flex items-center gap-1 text-sm font-medium ${
+                    stat.changeType === 'positive' ? 'text-emerald-600' : 'text-red-500'
+                  }`}>
+                    {stat.changeType === 'positive' ? (
+                      <ArrowUpRight className="h-3 w-3" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3" />
+                    )}
+                    {stat.change}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Financial Insights Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {financialInsights.map((insight, index) => (
+            <Card key={index} className="bg-white/40 backdrop-blur-sm border-white/20 shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-600">{insight.title}</p>
+                    <p className="text-xs text-slate-500 mt-1">{insight.period}</p>
+                  </div>
+                  <div className={`text-lg font-bold ${
+                    insight.trend === 'positive' ? 'text-emerald-600' : 
+                    insight.trend === 'negative' ? 'text-red-500' : 'text-slate-700'
+                  }`}>
+                    {insight.amount}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Charts Section */}
           <div className="lg:col-span-2 space-y-6">
@@ -355,7 +356,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg font-semibold text-slate-800">Project Performance</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-slate-600">
+                  <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">
                     View All
                   </Button>
                 </div>
@@ -379,9 +380,9 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg font-semibold text-slate-800">Recent Transactions</CardTitle>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" className="text-slate-600">Registered</Button>
-                    <Button variant="ghost" size="sm" className="text-slate-600">Unregistered</Button>
-                    <Button variant="ghost" size="sm" className="text-blue-600 font-medium">View all</Button>
+                    <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">Registered</Button>
+                    <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">Unregistered</Button>
+                    <Button variant="outline" size="sm" className="text-blue-600 font-medium bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">View all</Button>
                   </div>
                 </div>
               </CardHeader>
