@@ -126,7 +126,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasXeroConnection, setHasXeroConnection] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [statusFilter, setStatusFilter] = useState<string[]>(['All Status']);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -221,8 +222,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
 
   // Filter invoices based on status
   const filteredInvoices = invoices.filter(invoice => {
-    if (statusFilter === 'All Status') return true;
-    return invoice.status?.toUpperCase() === statusFilter.toUpperCase();
+    if (statusFilter.includes('All Status')) return true;
+    return statusFilter.some(status => invoice.status?.toUpperCase() === status.toUpperCase());
   });
 
   const totalIncome = filteredInvoices.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
@@ -267,16 +268,21 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       if (dropdownButtonRef.current && !dropdownButtonRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
+      // Also handle status dropdown
+      const statusDropdown = document.querySelector('.status-dropdown');
+      if (statusDropdown && !statusDropdown.contains(event.target as Node)) {
+        setIsStatusDropdownOpen(false);
+      }
     };
 
-    if (isDropdownOpen) {
+    if (isDropdownOpen || isStatusDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownOpen]);
+  }, [isDropdownOpen, isStatusDropdownOpen]);
 
   const handleXeroSync = async () => {
     setIsSyncing(true);
@@ -427,20 +433,45 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                   <option>Construction</option>
                 </select>
               </div>
-              <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
-                <select 
-                  className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+              <div className="relative status-dropdown">
+                <button 
+                  onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                  className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2 text-slate-700 text-sm font-medium tracking-wide outline-none flex items-center space-x-2 min-w-[120px]"
                 >
-                  <option>All Status</option>
-                  <option>Paid</option>
-                  <option>Authorised</option>
-                  <option>Sent</option>
-                  <option>Draft</option>
-                  <option>Overdue</option>
-                  <option>Deleted</option>
-                </select>
+                  <span>{statusFilter.length === 1 && statusFilter[0] === 'All Status' ? 'All Status' : `${statusFilter.length} selected`}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isStatusDropdownOpen && (
+                  <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[180px] max-h-60 overflow-y-auto">
+                    {['All Status', 'Paid', 'Authorised', 'Sent', 'Draft', 'Overdue', 'Deleted'].map((status) => (
+                      <label key={status} className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="mr-2 rounded border-gray-300"
+                          checked={statusFilter.includes(status)}
+                          onChange={(e) => {
+                            if (status === 'All Status') {
+                              if (e.target.checked) {
+                                setStatusFilter(['All Status']);
+                              } else {
+                                setStatusFilter([]);
+                              }
+                            } else {
+                              if (e.target.checked) {
+                                const newFilter = statusFilter.filter(s => s !== 'All Status');
+                                setStatusFilter([...newFilter, status]);
+                              } else {
+                                setStatusFilter(statusFilter.filter(s => s !== status));
+                              }
+                            }
+                          }}
+                        />
+                        <span className="text-sm text-slate-700">{status}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -538,8 +569,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
               <div className="text-sm text-slate-600/80 tracking-wide">
                 Showing {filteredInvoices.length} of {invoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''}
-                {statusFilter !== 'All Status' && (
-                  <span className="ml-2 text-blue-600">({statusFilter})</span>
+                {statusFilter.length > 0 && !statusFilter.includes('All Status') && (
+                  <span className="ml-2 text-blue-600">({statusFilter.join(', ')})</span>
                 )}
               </div>
               <div className="flex items-center space-x-6">
