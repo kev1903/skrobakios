@@ -27,6 +27,20 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     );
   }
 
+  // System page and home page with BusinessMapbox should take full screen like sales page
+  if (currentPage === "system" || currentPage === "home") {
+    return (
+      <ProtectedRoute 
+        onNavigate={onNavigate}
+        requireSuperAdmin={false}
+      >
+        <div className="w-full h-screen overflow-hidden">
+          {children}
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   if (currentPage === "auth") {
     return (
       <main className="flex-1 overflow-hidden w-full">
