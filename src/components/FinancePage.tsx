@@ -195,8 +195,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                   <p className="text-slate-500/80 font-light tracking-wide">Track and categorize your business revenue</p>
                 </div>
                 <Button className="bg-blue-600/90 backdrop-blur-xl text-white hover:bg-blue-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide">
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  Add Income
+                  +ADD
                 </Button>
               </div>
 
