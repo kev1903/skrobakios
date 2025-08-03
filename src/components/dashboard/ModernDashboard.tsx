@@ -144,7 +144,8 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
-      <div className="relative z-10 p-4 space-y-2">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <div className="flex-1 p-4 space-y-2">
         {/* Enhanced Header */}
         <div className="flex items-center justify-between mb-2">
           <div>
@@ -490,6 +491,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
               </CardContent>
             </Card>
           </div>
+        </div>
         </div>
       </div>
     </div>
