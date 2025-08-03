@@ -46,17 +46,22 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   const handleXeroConnect = async () => {
     setIsConnecting(true);
     try {
+      console.log('Starting Xero connection...');
       const { data, error } = await supabase.functions.invoke('xero-oauth', {
         body: { action: 'initiate' }
       });
       
+      console.log('Xero function response:', { data, error });
+      
       if (error) {
         console.error('Connect error:', error);
         toast.error('Failed to connect to Xero');
+        setIsConnecting(false);
         return;
       }
 
-      if (data.auth_url) {
+      if (data?.auth_url) {
+        console.log('Opening Xero auth window:', data.auth_url);
         // Open Xero auth in a new window
         const authWindow = window.open(
           data.auth_url, 
@@ -64,8 +69,15 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
           'width=600,height=700,scrollbars=yes,resizable=yes'
         );
 
+        if (!authWindow) {
+          toast.error('Popup blocked! Please allow popups for this site.');
+          setIsConnecting(false);
+          return;
+        }
+
         // Listen for auth completion
         const messageListener = (event: MessageEvent) => {
+          console.log('Received message:', event.data);
           if (event.data === 'xero-auth-success') {
             authWindow?.close();
             window.removeEventListener('message', messageListener);
@@ -88,8 +100,13 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
             clearInterval(checkClosed);
             window.removeEventListener('message', messageListener);
             setIsConnecting(false);
+            console.log('Auth window was closed manually');
           }
         }, 1000);
+      } else {
+        console.error('No auth_url in response:', data);
+        toast.error('Failed to get authorization URL');
+        setIsConnecting(false);
       }
     } catch (error) {
       console.error('Connect error:', error);
