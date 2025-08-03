@@ -49,31 +49,48 @@ export const BusinessMapbox = () => {
 
   // Function to geocode projects
   const geocodeProjects = async () => {
+    console.log('🔵 BUTTON CLICKED - Starting geocoding process');
     setGeocoding(true);
     try {
-      console.log('🌍 Starting geocoding process for projects...');
+      console.log('🌍 Calling geocode-projects function...');
       
       const geocodeResult = await supabase.functions.invoke('geocode-projects');
-      console.log('🔄 Geocoding result:', geocodeResult);
+      console.log('🔄 Raw geocoding result:', geocodeResult);
+      
+      if (geocodeResult.error) {
+        console.error('❌ Geocoding function error:', geocodeResult.error);
+        throw new Error(geocodeResult.error.message);
+      }
+      
+      console.log('✅ Geocoding function completed, data:', geocodeResult.data);
       
       // Wait for database updates to propagate
+      console.log('⏳ Waiting for database updates...');
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Fetch updated projects
+      console.log('📡 Fetching updated projects...');
       const { data, error } = await supabase
         .from('projects')
         .select('id, name, location, latitude, longitude, status');
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Database fetch error:', error);
+        throw error;
+      }
       
       console.log(`📍 Reloaded ${data?.length || 0} projects after geocoding`);
       const geocodedCount = data?.filter(p => p.latitude && p.longitude).length || 0;
       console.log(`✅ ${geocodedCount} projects now have coordinates`);
+      
       setProjects(data || []);
+      console.log('🎉 Projects state updated successfully');
       
     } catch (error) {
-      console.error('Error during geocoding:', error);
+      console.error('💥 Error during geocoding:', error);
+      alert(`Geocoding failed: ${error.message}`);
     } finally {
+      console.log('🔵 BUTTON FINISHED - Geocoding process complete');
       setGeocoding(false);
     }
   };
