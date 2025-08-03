@@ -61,7 +61,7 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import VictoriaProjectMap from "@/components/VictoriaProjectMap";
+import { VictoriaMetaVerse } from "@/components/metaverse/VictoriaMetaVerse";
 
 
 interface ContentRendererProps {
@@ -103,9 +103,9 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show blank page for company context, HomePage for other contexts
+      // Show MetaVerse for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        return <div className="w-full h-screen pt-[73px] bg-background"></div>;
+        return <VictoriaMetaVerse />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
@@ -246,7 +246,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "system":
-      return <VictoriaProjectMap className="w-full h-screen pt-[73px]" />;
+      return <VictoriaMetaVerse />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
