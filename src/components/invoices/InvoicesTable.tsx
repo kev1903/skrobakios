@@ -59,7 +59,7 @@ export const InvoicesTable = () => {
   const [invoices, setInvoices] = useState<XeroInvoice[]>([]);
   const [allocatedInvoices, setAllocatedInvoices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>(["PAID", "AUTHORISED", "SENT", "DRAFT", "OVERDUE"]); // Exclude DELETED by default
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -204,6 +204,10 @@ export const InvoicesTable = () => {
         variant = "destructive";
         className = "bg-red-100 text-red-800 border-red-300";
         break;
+      case 'deleted':
+        variant = "destructive";
+        className = "bg-red-100 text-red-800 border-red-300";
+        break;
       default:
         variant = "outline";
     }
@@ -257,7 +261,7 @@ export const InvoicesTable = () => {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuContent align="start" className="w-56 z-50 bg-white border shadow-lg">
               <div className="p-2">
                 <div className="text-sm font-medium mb-2">Filter by Status</div>
                 {availableStatuses.map((status) => (
