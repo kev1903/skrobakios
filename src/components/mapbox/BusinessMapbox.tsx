@@ -372,13 +372,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       
 
 
-      {/* Status Bar */}
-      <div className="absolute bottom-4 left-4 z-10">
-        <div className="bg-background/95 backdrop-blur border rounded-lg px-3 py-2 text-sm">
-          <span className="text-muted-foreground">Mapbox GL JS</span>
-          <span className="ml-2 text-green-600 font-medium">Connected</span>
-        </div>
-      </div>
     </div>
   );
 };
