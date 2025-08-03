@@ -108,13 +108,15 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const mapboxToken = Deno.env.get('MAPBOX_TOKEN')
+    let mapboxToken = Deno.env.get('MAPBOX_TOKEN')
     
+    // If no token from environment, this should not happen but let's log it
     if (!mapboxToken) {
-      console.error('❌ CRITICAL: Mapbox token not found in environment')
+      console.error('❌ CRITICAL: No MAPBOX_TOKEN found in environment variables')
+      console.log('🔍 Available env vars:', Object.keys(Deno.env.toObject()))
       return new Response(
         JSON.stringify({ 
-          error: 'Mapbox token not configured',
+          error: 'Mapbox token not found in environment variables',
           success: false 
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -122,6 +124,37 @@ serve(async (req) => {
     }
     
     console.log('✅ Mapbox token found, length:', mapboxToken.length)
+    console.log('🔑 Token starts with:', mapboxToken.substring(0, 10) + '...')
+    
+    // Test the token with a simple request first
+    console.log('🧪 Testing Mapbox token validity...')
+    const testUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/melbourne.json?access_token=${mapboxToken}&limit=1`
+    try {
+      const testResponse = await fetch(testUrl)
+      console.log(`🧪 Test response status: ${testResponse.status}`)
+      if (!testResponse.ok) {
+        const errorText = await testResponse.text()
+        console.error(`❌ Token test failed: ${testResponse.status} - ${errorText}`)
+        return new Response(
+          JSON.stringify({ 
+            error: `Invalid Mapbox token: ${testResponse.status} - ${errorText}`,
+            success: false 
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } else {
+        console.log('✅ Mapbox token is valid!')
+      }
+    } catch (testError) {
+      console.error('❌ Token test error:', testError)
+      return new Response(
+        JSON.stringify({ 
+          error: `Token test failed: ${testError.message}`,
+          success: false 
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
     
