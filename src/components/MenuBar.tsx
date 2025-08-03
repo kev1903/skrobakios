@@ -279,7 +279,17 @@ export const MenuBar = () => {
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
                 </span>
               </div>
-              <h1 className="text-sm font-bold text-foreground hidden sm:block">
+              <h1 
+                className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
+                onClick={() => {
+                  // Switch to personal context and navigate to profile (map)
+                  if (activeContext !== 'personal') {
+                    window.location.href = '/?page=profile&context=personal';
+                  } else {
+                    window.location.href = '/?page=profile';
+                  }
+                }}
+              >
                 {getCompanyDisplayText()}
               </h1>
             </div>
