@@ -46,22 +46,34 @@ export const BusinessMapbox = () => {
     fetchMapboxToken();
   }, []);
 
-  // Fetch projects data
+  // Fetch projects data and ensure they're geocoded
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchAndGeocodeProjects = async () => {
       try {
+        // First, try to geocode any projects that need it
+        console.log('🌍 Checking for projects that need geocoding...');
+        await supabase.functions.invoke('geocode-projects');
+        
+        // Then fetch all projects with their coordinates
         const { data, error } = await supabase
           .from('projects')
-          .select('id, name, location, status');
+          .select('id, name, location, latitude, longitude, status');
         
         if (error) throw error;
         setProjects(data || []);
+        
+        console.log(`📍 Loaded ${data?.length || 0} projects`);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching/geocoding projects:', error);
+        // Fallback: still fetch projects even if geocoding fails
+        const { data } = await supabase
+          .from('projects')
+          .select('id, name, location, latitude, longitude, status');
+        setProjects(data || []);
       }
     };
 
-    fetchProjects();
+    fetchAndGeocodeProjects();
   }, []);
 
   // Initialize map
@@ -145,8 +157,9 @@ export const BusinessMapbox = () => {
       );
     });
 
-    // Add project markers
+    // Add project markers with real coordinates
     projects.forEach((project, index) => {
+      // Use real coordinates if available, otherwise use fallback around Melbourne
       const lat = project.latitude || (-37.8136 + (Math.random() - 0.5) * 0.1);
       const lng = project.longitude || (144.9631 + (Math.random() - 0.5) * 0.1);
 

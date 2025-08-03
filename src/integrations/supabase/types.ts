@@ -1465,10 +1465,13 @@ export type Database = {
           deadline: string | null
           description: string | null
           digital_twin_events: Json | null
+          geocoded_at: string | null
           id: string
           iot_status: Json | null
           is_public: boolean | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
           name: string
           priority: string | null
           project_id: string
@@ -1485,10 +1488,13 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           digital_twin_events?: Json | null
+          geocoded_at?: string | null
           id?: string
           iot_status?: Json | null
           is_public?: boolean | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name: string
           priority?: string | null
           project_id: string
@@ -1505,10 +1511,13 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           digital_twin_events?: Json | null
+          geocoded_at?: string | null
           id?: string
           iot_status?: Json | null
           is_public?: boolean | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name?: string
           priority?: string | null
           project_id?: string
