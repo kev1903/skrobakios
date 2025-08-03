@@ -184,6 +184,185 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
           </TabsList>
         </div>
 
+        <TabsContent value="income" className="mt-6">
+          <div className="bg-white/30 backdrop-blur-2xl border border-white/30 rounded-2xl shadow-xl relative overflow-hidden animate-fade-in">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 to-indigo-50/10 rounded-2xl" />
+            <div className="relative p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-inter font-light text-slate-700/90 tracking-wide mb-2">Income Management</h2>
+                  <p className="text-slate-500/80 font-light tracking-wide">Track and categorize your business revenue</p>
+                </div>
+                <Button className="bg-blue-600/90 backdrop-blur-xl text-white hover:bg-blue-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide">
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Add Income
+                </Button>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
+                  <select className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none">
+                    <option>All Projects</option>
+                    <option>Collins St Renovation</option>
+                    <option>Martin Place Design</option>
+                    <option>Queen St Development</option>
+                  </select>
+                </div>
+                <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
+                  <select className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none">
+                    <option>All Clients</option>
+                    <option>ABC Construction</option>
+                    <option>Design Co Ltd</option>
+                    <option>Property Group</option>
+                  </select>
+                </div>
+                <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
+                  <select className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none">
+                    <option>All Categories</option>
+                    <option>Project Payment</option>
+                    <option>Consultation</option>
+                    <option>Design Services</option>
+                    <option>Construction</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Income Table */}
+              <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/20">
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Date</th>
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Description</th>
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Amount</th>
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Client</th>
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Project</th>
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Category</th>
+                        <th className="text-left py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Status</th>
+                        <th className="text-right py-4 px-6 text-sm font-medium text-slate-600/90 tracking-wide">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
+                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 15, 2024</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Design consultation payment</td>
+                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$12,500</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">ABC Construction</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Collins St Renovation</td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-blue-100/80 text-blue-700 text-xs font-medium rounded-lg tracking-wide">Design Services</span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-lg tracking-wide">Received</span>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <BarChart3 className="w-4 h-4 text-slate-600" />
+                            </button>
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <TrendingUp className="w-4 h-4 text-slate-600" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
+                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 12, 2024</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Project milestone payment</td>
+                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$8,750</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Design Co Ltd</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Martin Place Design</td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-purple-100/80 text-purple-700 text-xs font-medium rounded-lg tracking-wide">Project Payment</span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-lg tracking-wide">Received</span>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <BarChart3 className="w-4 h-4 text-slate-600" />
+                            </button>
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <TrendingUp className="w-4 h-4 text-slate-600" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
+                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 10, 2024</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Construction oversight fee</td>
+                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$15,200</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Property Group</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Queen St Development</td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-orange-100/80 text-orange-700 text-xs font-medium rounded-lg tracking-wide">Construction</span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-yellow-100/80 text-yellow-700 text-xs font-medium rounded-lg tracking-wide">Pending</span>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <BarChart3 className="w-4 h-4 text-slate-600" />
+                            </button>
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <TrendingUp className="w-4 h-4 text-slate-600" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
+                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 8, 2024</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Design consultation</td>
+                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$3,500</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">ABC Construction</td>
+                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">-</td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-indigo-100/80 text-indigo-700 text-xs font-medium rounded-lg tracking-wide">Consultation</span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="px-2 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-lg tracking-wide">Received</span>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <BarChart3 className="w-4 h-4 text-slate-600" />
+                            </button>
+                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
+                              <TrendingUp className="w-4 h-4 text-slate-600" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Summary Row */}
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
+                <div className="text-sm text-slate-600/80 tracking-wide">
+                  Showing 4 income entries
+                </div>
+                <div className="flex items-center space-x-6">
+                  <div className="text-right">
+                    <p className="text-sm text-slate-600/80 tracking-wide">Total Income</p>
+                    <p className="text-2xl font-inter font-light text-green-600 tracking-tight">$39,950</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-slate-600/80 tracking-wide">This Month</p>
+                    <p className="text-lg font-medium text-slate-700/90 tracking-wide">$39,950</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
         <TabsContent value="expenses">
           <div className="bg-white/30 backdrop-blur-2xl border border-white/30 rounded-2xl p-8 shadow-xl relative overflow-hidden animate-fade-in">
             <div className="absolute inset-0 bg-gradient-to-br from-red-50/20 to-orange-50/10 rounded-2xl" />
