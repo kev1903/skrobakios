@@ -58,13 +58,30 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const {
-          data,
-          error
-        } = await supabase.from('projects').select('*').or(`project_id.eq.${projectId.toUpperCase()},project_id.eq.SK_25008,id.eq.${projectId}`).single();
+        console.log('Fetching project with ID:', projectId);
+        // Try to find by ID first, then by project_id
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', projectId)
+          .single();
+        
         if (data && !error) {
           setProject(data);
           console.log('Found project:', data);
+        } else {
+          console.log('Project not found with ID, trying project_id lookup');
+          // Fallback: try by project_id if direct ID lookup fails
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('project_id', projectId.toUpperCase())
+            .single();
+          
+          if (fallbackData && !fallbackError) {
+            setProject(fallbackData);
+            console.log('Found project via project_id:', fallbackData);
+          }
         }
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -83,8 +100,13 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
         });
       }
     };
-    fetchProject();
-    fetchTasks();
+    
+    const fetchData = async () => {
+      await fetchProject();
+      await fetchTasks();
+    };
+    
+    fetchData();
   }, [projectId]);
 
   // Status helper functions for ProjectSidebar
