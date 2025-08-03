@@ -3007,8 +3007,10 @@ export type Database = {
           invoice_number: string | null
           reference: string | null
           status: string | null
+          sub_total: number | null
           sync_timestamp: string
           total: number | null
+          total_tax: number | null
           type: string | null
           updated_at: string
           user_id: string
@@ -3025,8 +3027,10 @@ export type Database = {
           invoice_number?: string | null
           reference?: string | null
           status?: string | null
+          sub_total?: number | null
           sync_timestamp: string
           total?: number | null
+          total_tax?: number | null
           type?: string | null
           updated_at?: string
           user_id: string
@@ -3043,8 +3047,10 @@ export type Database = {
           invoice_number?: string | null
           reference?: string | null
           status?: string | null
+          sub_total?: number | null
           sync_timestamp?: string
           total?: number | null
+          total_tax?: number | null
           type?: string | null
           updated_at?: string
           user_id?: string
