@@ -246,95 +246,14 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
-                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 15, 2024</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Design consultation payment</td>
-                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$12,500</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">ABC Construction</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Collins St Renovation</td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-blue-100/80 text-blue-700 text-xs font-medium rounded-lg tracking-wide">Design Services</span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-lg tracking-wide">Received</span>
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <BarChart3 className="w-4 h-4 text-slate-600" />
-                            </button>
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <TrendingUp className="w-4 h-4 text-slate-600" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
-                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 12, 2024</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Project milestone payment</td>
-                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$8,750</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Design Co Ltd</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Martin Place Design</td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-purple-100/80 text-purple-700 text-xs font-medium rounded-lg tracking-wide">Project Payment</span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-lg tracking-wide">Received</span>
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <BarChart3 className="w-4 h-4 text-slate-600" />
-                            </button>
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <TrendingUp className="w-4 h-4 text-slate-600" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
-                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 10, 2024</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Construction oversight fee</td>
-                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$15,200</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Property Group</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Queen St Development</td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-orange-100/80 text-orange-700 text-xs font-medium rounded-lg tracking-wide">Construction</span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-yellow-100/80 text-yellow-700 text-xs font-medium rounded-lg tracking-wide">Pending</span>
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <BarChart3 className="w-4 h-4 text-slate-600" />
-                            </button>
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <TrendingUp className="w-4 h-4 text-slate-600" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
-                        <td className="py-4 px-6 text-sm text-slate-700/90 font-medium tracking-wide">Dec 8, 2024</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">Design consultation</td>
-                        <td className="py-4 px-6 text-sm font-semibold text-green-600 tracking-wide">$3,500</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">ABC Construction</td>
-                        <td className="py-4 px-6 text-sm text-slate-700/90 tracking-wide">-</td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-indigo-100/80 text-indigo-700 text-xs font-medium rounded-lg tracking-wide">Consultation</span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="px-2 py-1 bg-green-100/80 text-green-700 text-xs font-medium rounded-lg tracking-wide">Received</span>
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <BarChart3 className="w-4 h-4 text-slate-600" />
-                            </button>
-                            <button className="p-2 hover:bg-white/40 rounded-lg transition-colors">
-                              <TrendingUp className="w-4 h-4 text-slate-600" />
-                            </button>
+                      <tr>
+                        <td colSpan={8} className="py-12 text-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <div className="p-4 bg-white/40 rounded-2xl backdrop-blur-sm border border-white/40">
+                              <DollarSign className="w-8 h-8 text-slate-400" />
+                            </div>
+                            <p className="text-slate-600 font-medium tracking-wide">No income entries yet</p>
+                            <p className="text-sm text-slate-500/80 tracking-wide">Start by adding your first income record</p>
                           </div>
                         </td>
                       </tr>
@@ -346,16 +265,16 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
               {/* Summary Row */}
               <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
                 <div className="text-sm text-slate-600/80 tracking-wide">
-                  Showing 4 income entries
+                  Showing 0 income entries
                 </div>
                 <div className="flex items-center space-x-6">
                   <div className="text-right">
                     <p className="text-sm text-slate-600/80 tracking-wide">Total Income</p>
-                    <p className="text-2xl font-inter font-light text-green-600 tracking-tight">$39,950</p>
+                    <p className="text-2xl font-inter font-light text-slate-400 tracking-tight">$0.00</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-slate-600/80 tracking-wide">This Month</p>
-                    <p className="text-lg font-medium text-slate-700/90 tracking-wide">$39,950</p>
+                    <p className="text-lg font-medium text-slate-400 tracking-wide">$0.00</p>
                   </div>
                 </div>
               </div>
