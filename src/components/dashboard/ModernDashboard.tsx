@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ModernDashboardProps {
   onNavigate: (page: string) => void;
@@ -231,6 +232,120 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           ))}
         </div>
+
+        {/* Financial Categories Tabs */}
+        <Tabs defaultValue="income" className="w-full">
+          <TabsList className="grid w-full grid-cols-6 bg-white/60 backdrop-blur-sm border-white/20">
+            <TabsTrigger value="income" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              Income
+            </TabsTrigger>
+            <TabsTrigger value="expenses" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              Expenses
+            </TabsTrigger>
+            <TabsTrigger value="debt" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              Debt Repayment
+            </TabsTrigger>
+            <TabsTrigger value="legal" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              Legal Obligations
+            </TabsTrigger>
+            <TabsTrigger value="assets" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs">
+              Assets & Improvements
+            </TabsTrigger>
+            <TabsTrigger value="investments" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              Investments
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="income" className="space-y-6 mt-6">
+            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">Income Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <DollarSign className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+                  <p className="text-slate-600">Income tracking and analytics</p>
+                  <p className="text-sm text-slate-500">Monitor revenue streams and earnings</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="expenses" className="space-y-6 mt-6">
+            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">Expenses Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <CreditCard className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                  <p className="text-slate-600">Track and categorize expenses</p>
+                  <p className="text-sm text-slate-500">Monitor spending patterns and budgets</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="debt" className="space-y-6 mt-6">
+            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">Debt Repayment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Target className="h-16 w-16 text-orange-600 mx-auto mb-4" />
+                  <p className="text-slate-600">Manage debt obligations</p>
+                  <p className="text-sm text-slate-500">Track repayment schedules and progress</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="legal" className="space-y-6 mt-6">
+            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">Legal Obligations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Activity className="h-16 w-16 text-purple-600 mx-auto mb-4" />
+                  <p className="text-slate-600">Compliance and legal requirements</p>
+                  <p className="text-sm text-slate-500">Track legal payments and obligations</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="assets" className="space-y-6 mt-6">
+            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">Assets & Business Improvements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <TrendingUp className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                  <p className="text-slate-600">Asset management and improvements</p>
+                  <p className="text-sm text-slate-500">Track capital investments and upgrades</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="investments" className="space-y-6 mt-6">
+            <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-800">Investments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <BarChart3 className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+                  <p className="text-slate-600">Investment portfolio tracking</p>
+                  <p className="text-sm text-slate-500">Monitor investment performance and returns</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Charts Section */}
