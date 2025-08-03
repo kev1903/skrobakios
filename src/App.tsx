@@ -122,6 +122,13 @@ const SubscriptionPageWrapper = () => {
   return <SubscriptionPage onNavigate={handleNavigate} />;
 };
 
+// Wrapper component for Project Dashboard with dynamic projectId
+const ProjectDashboardWrapper = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+
+  return <SK25008Dashboard projectId={projectId} />;
+};
+
 const App = () => {
   // Create QueryClient inside the component to ensure React is initialized
   const [queryClient] = React.useState(() => new QueryClient({
@@ -210,6 +217,9 @@ const AppContent = () => {
         
         {/* SK25008 Project Dashboard */}
         <Route path="/sk25008" element={<SK25008Dashboard />} />
+        
+        {/* Dynamic Project Dashboard */}
+        <Route path="/project-dashboard/:projectId" element={<ProjectDashboardWrapper />} />
       </Routes>
             </>
           </TimeTrackingProvider>
