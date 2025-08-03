@@ -61,7 +61,7 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import { MapboxTokenSetup } from "@/components/mapbox/MapboxTokenSetup";
+import { BusinessMapbox } from "@/components/mapbox/BusinessMapbox";
 
 
 interface ContentRendererProps {
@@ -105,7 +105,7 @@ export const ContentRenderer = ({
     case "home":
       // Show Mapbox for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        return <MapboxTokenSetup />;
+        return <BusinessMapbox />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
@@ -246,7 +246,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "system":
-      return <MapboxTokenSetup />;
+      return <BusinessMapbox />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
