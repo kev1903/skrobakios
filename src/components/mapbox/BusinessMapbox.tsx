@@ -164,6 +164,8 @@ export const BusinessMapbox = () => {
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.3s ease;
+        transform: scale(1);
       `;
       markerEl.innerHTML = `<div style="color: white; font-size: 12px; font-weight: bold;">${index + 1}</div>`;
 
@@ -172,21 +174,55 @@ export const BusinessMapbox = () => {
         .setLngLat([lng, lat])
         .addTo(map.current!);
 
-      // Add popup
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<div style="padding: 8px;">
-          <h3 style="margin: 0 0 4px 0; font-weight: bold; color: #1f2937;">${project.name}</h3>
-          <p style="margin: 0; font-size: 12px; color: #6b7280;">${project.location || 'Location not specified'}</p>
-          <p style="margin: 4px 0 0 0; font-size: 12px;">
-            <span style="padding: 2px 6px; background: #dbeafe; color: #1d4ed8; border-radius: 12px; font-size: 10px;">
-              ${project.status || 'Active'}
-            </span>
-          </p>
+      // Create hover popup
+      const hoverPopup = new mapboxgl.Popup({ 
+        offset: 25,
+        closeButton: false,
+        closeOnClick: false,
+        className: 'hover-popup'
+      }).setHTML(
+        `<div style="padding: 6px 8px; background: rgba(0,0,0,0.8); border-radius: 6px; color: white; font-size: 12px; backdrop-filter: blur(10px);">
+          <div style="font-weight: bold; margin-bottom: 2px;">${project.name}</div>
+          <div style="opacity: 0.9;">${project.location || 'Address not specified'}</div>
         </div>`
       );
 
+      // Create click popup (detailed)
+      const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+        `<div style="padding: 12px;">
+          <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937; font-size: 14px;">${project.name}</h3>
+          <div style="margin-bottom: 6px;">
+            <span style="font-size: 11px; color: #6b7280; font-weight: 500;">ADDRESS:</span>
+            <div style="font-size: 12px; color: #374151; margin-top: 2px;">${project.location || 'Location not specified'}</div>
+          </div>
+          <div style="margin-top: 8px;">
+            <span style="padding: 3px 8px; background: #dbeafe; color: #1d4ed8; border-radius: 12px; font-size: 10px; font-weight: 500;">
+              ${project.status || 'Active'}
+            </span>
+          </div>
+        </div>`
+      );
+
+      // Hover effects
+      markerEl.addEventListener('mouseenter', () => {
+        markerEl.style.transform = 'scale(1.2)';
+        markerEl.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.4)';
+        markerEl.style.background = '#2563eb';
+        hoverPopup.setLngLat([lng, lat]).addTo(map.current!);
+      });
+
+      markerEl.addEventListener('mouseleave', () => {
+        markerEl.style.transform = 'scale(1)';
+        markerEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+        markerEl.style.background = '#3b82f6';
+        hoverPopup.remove();
+      });
+
+      // Click effect
       markerEl.addEventListener('click', () => {
-        popup.addTo(map.current!);
+        // Remove hover popup when clicking
+        hoverPopup.remove();
+        clickPopup.setLngLat([lng, lat]).addTo(map.current!);
         map.current?.flyTo({
           center: [lng, lat],
           zoom: 15,
