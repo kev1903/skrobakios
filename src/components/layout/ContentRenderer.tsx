@@ -61,7 +61,7 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import { BusinessMapPage } from "@/components/BusinessMapPage";
+import VictoriaProjectMap from "@/components/VictoriaProjectMap";
 
 
 interface ContentRendererProps {
@@ -103,10 +103,10 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show BusinessMapPage for company context, HomePage for other contexts
+      // Show VictoriaProjectMap for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        console.log('🗺️ ContentRenderer: Showing BusinessMapPage for company context');
-        return <BusinessMapPage onNavigate={onNavigate} />;
+        console.log('🗺️ ContentRenderer: Showing VictoriaProjectMap for company context');
+        return <VictoriaProjectMap className="w-full h-screen pt-[73px]" />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
@@ -247,7 +247,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "system":
-      return <BusinessMapPage onNavigate={onNavigate} />;
+      return <VictoriaProjectMap className="w-full h-screen pt-[73px]" />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
