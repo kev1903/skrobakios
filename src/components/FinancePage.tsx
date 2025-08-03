@@ -184,27 +184,6 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
           </TabsList>
         </div>
 
-        <TabsContent value="income" className="mt-6">
-          <div className="bg-white/30 backdrop-blur-2xl border border-white/30 rounded-2xl p-8 shadow-xl relative overflow-hidden animate-fade-in">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 to-indigo-50/10 rounded-2xl" />
-            <div className="relative">
-              <div className="mb-6">
-                <h2 className="text-2xl font-inter font-light text-slate-700/90 tracking-wide mb-2">Income Overview</h2>
-                <p className="text-slate-500/80 font-light tracking-wide">Track revenue streams and monitor financial performance</p>
-              </div>
-              <div className="flex items-center justify-center h-32 relative">
-                <div className="p-8 bg-white/40 rounded-2xl backdrop-blur-sm border border-white/40 shadow-lg">
-                  <DollarSign className="w-16 h-16 text-blue-600/60" />
-                </div>
-              </div>
-              <div className="text-center mt-6">
-                <p className="text-slate-600 font-medium tracking-wide">Income tracking and analytics</p>
-                <p className="text-sm text-slate-500/80 mt-1 tracking-wide">Monitor revenue streams and earnings</p>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
         <TabsContent value="expenses">
           <div className="bg-white/30 backdrop-blur-2xl border border-white/30 rounded-2xl p-8 shadow-xl relative overflow-hidden animate-fade-in">
             <div className="absolute inset-0 bg-gradient-to-br from-red-50/20 to-orange-50/10 rounded-2xl" />
