@@ -307,7 +307,7 @@ export const ContentRenderer = ({
       console.log('🗺️ ContentRenderer: Profile page requested, activeContext:', activeContext);
       if (activeContext === 'personal') {
         console.log('🗺️ ContentRenderer: Showing MapComponent for personal context');
-        return <MapComponent className="w-full h-screen" />;
+        return <MapComponent className="w-full h-screen pt-[73px]" />; // Add padding-top for MenuBar height
       } else {
         console.log('📄 ContentRenderer: Showing PersonalPage for company context');
         return <PersonalPage onNavigate={onNavigate} />;
