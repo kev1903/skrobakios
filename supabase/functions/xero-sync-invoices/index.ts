@@ -31,6 +31,31 @@ interface XeroInvoice {
   CurrencyCode: string
 }
 
+// Helper function to parse Xero date format
+function parseXeroDate(xeroDateString: string): string | null {
+  if (!xeroDateString) return null;
+  
+  // Check if it's in Microsoft JSON date format: /Date(timestamp+timezone)/
+  const match = xeroDateString.match(/\/Date\((\d+)([+-]\d{4})?\)\//);
+  if (match) {
+    const timestamp = parseInt(match[1]);
+    const date = new Date(timestamp);
+    return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+  }
+  
+  // If it's already in ISO format or other standard format, try to parse it
+  try {
+    const date = new Date(xeroDateString);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+  } catch (e) {
+    console.error('Failed to parse date:', xeroDateString, e);
+  }
+  
+  return null;
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -148,6 +173,12 @@ Deno.serve(async (req) => {
             .single()
 
           if (!existingInvoice) {
+            // Parse dates properly
+            const parsedDate = parseXeroDate(invoice.Date);
+            const parsedDueDate = parseXeroDate(invoice.DueDate);
+            
+            console.log(`Processing invoice ${invoice.InvoiceNumber}: Date=${invoice.Date} -> ${parsedDate}, DueDate=${invoice.DueDate} -> ${parsedDueDate}`);
+            
             // Store the invoice in xero_invoices table
             const { error: invoiceError } = await supabase
               .from('xero_invoices')
@@ -156,8 +187,8 @@ Deno.serve(async (req) => {
                 xero_invoice_id: invoice.InvoiceID,
                 invoice_number: invoice.InvoiceNumber,
                 contact_name: invoice.Contact.Name,
-                date: invoice.Date,
-                due_date: invoice.DueDate,
+                date: parsedDate,
+                due_date: parsedDueDate,
                 status: invoice.Status,
                 sub_total: invoice.SubTotal,
                 total_tax: invoice.TotalTax,
