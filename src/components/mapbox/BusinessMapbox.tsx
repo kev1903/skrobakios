@@ -244,7 +244,6 @@ export const BusinessMapbox = () => {
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
         transform: scale(1);
         position: relative;
       `;
