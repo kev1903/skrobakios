@@ -83,12 +83,17 @@ serve(async (req) => {
         
         console.log(`🔧 Cleaned address: ${cleanAddress}`)
         
-        // Use Mapbox Geocoding API with better parameters
-        const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanAddress)}.json?access_token=${mapboxToken}&country=AU&proximity=144.9631,-37.8136&types=address,place&limit=1`
+        // Use Mapbox Geocoding API with simpler, more reliable parameters
+        const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanAddress)}.json?access_token=${mapboxToken}&country=au&limit=1&autocomplete=false`
         
         console.log(`🌐 Geocoding URL: ${geocodeUrl}`)
         
         const geocodeResponse = await fetch(geocodeUrl)
+        
+        if (!geocodeResponse.ok) {
+          console.error(`❌ HTTP Error ${geocodeResponse.status}: ${geocodeResponse.statusText}`)
+          continue
+        }
         const geocodeData = await geocodeResponse.json()
         
         console.log(`📍 Geocoding response:`, JSON.stringify(geocodeData, null, 2))
