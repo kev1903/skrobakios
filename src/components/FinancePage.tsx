@@ -220,10 +220,15 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
     );
   };
 
-  // Filter invoices based on status
+  // Filter invoices based on status - Updated for multi-select
   const filteredInvoices = invoices.filter(invoice => {
+    // If "All Status" is selected, show all invoices
     if (statusFilter.includes('All Status')) return true;
-    return statusFilter.some(status => invoice.status?.toUpperCase() === status.toUpperCase());
+    
+    // Check if invoice status matches any selected status
+    return statusFilter.some(selectedStatus => 
+      invoice.status?.toUpperCase() === selectedStatus.toUpperCase()
+    );
   });
 
   const totalIncome = filteredInvoices.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
