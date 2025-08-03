@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
@@ -75,9 +76,22 @@ export const ContentRenderer = ({
   selectedProject,
   currentProject
 }: ContentRendererProps) => {
+  const { isAuthenticated } = useAuth();
+  
   const renderProjectNotFound = () => <div className="flex items-center justify-center h-full">
       <p className="text-slate-500">Project not found</p>
     </div>;
+    
+  // CRITICAL: Prevent authenticated users from accessing public pages
+  const publicPages = ['landing', 'auth', 'platform-signup'];
+  if (isAuthenticated && publicPages.includes(currentPage)) {
+    console.log(`🚨 SECURITY: Authenticated user blocked from accessing public page: ${currentPage}`);
+    onNavigate('profile');
+    return <div className="flex items-center justify-center h-full">
+      <p className="text-slate-500">Redirecting to your profile...</p>
+    </div>;
+  }
+    
   switch (currentPage) {
     case "landing":
       return <LandingPage onNavigate={onNavigate} />;
@@ -282,6 +296,7 @@ export const ContentRenderer = ({
     case "subscription":
       window.location.href = "/subscription";
       return null;
+    case "profile":
     case "user-edit":
     case "existing-user-profile":
     case "user-profile":
