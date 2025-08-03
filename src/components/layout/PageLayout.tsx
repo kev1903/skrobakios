@@ -2,6 +2,7 @@
 import React from 'react';
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppSidebar } from "@/components/AppSidebar";
+import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 
 interface PageLayoutProps {
   currentPage: string;
@@ -10,6 +11,8 @@ interface PageLayoutProps {
 }
 
 export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
+  const { spacingClasses } = useMenuBarSpacing();
+
   // Sales page should take full screen without main navigation
   if (currentPage === "sales") {
     return (
@@ -32,14 +35,13 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     );
   }
 
-
   return (
     <ProtectedRoute 
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className="flex-1 overflow-hidden w-full">
+      <main className={`flex-1 overflow-hidden w-full ${spacingClasses}`}>
         {children}
       </main>
     </ProtectedRoute>

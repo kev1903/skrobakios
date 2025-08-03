@@ -46,7 +46,7 @@ export const CenteredCompanyName = ({ isSpeaking = false, onNavigate }: Centered
   };
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
+    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
       <div className="relative px-8 py-4 flex items-center gap-2">
         <h1 className="text-pure-white font-bold text-2xl tracking-wide text-center whitespace-nowrap heading-modern">
           {getDisplayText()}
