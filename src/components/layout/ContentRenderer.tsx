@@ -103,8 +103,12 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show HomePage for all contexts
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      // Show blank page for company context, HomePage for other contexts
+      if (activeContext === 'company') {
+        return <div className="w-full h-screen pt-[73px] bg-background"></div>;
+      } else {
+        return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      }
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
