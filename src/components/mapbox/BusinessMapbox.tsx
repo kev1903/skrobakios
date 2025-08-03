@@ -364,7 +364,7 @@ export const BusinessMapbox = () => {
   }
 
   return (
-    <div className="w-full h-screen pt-[73px] bg-background relative">
+    <div className="w-full h-screen bg-transparent relative">
       {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0 mt-[73px]" />
       
