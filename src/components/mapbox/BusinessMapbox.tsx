@@ -210,50 +210,67 @@ export const BusinessMapbox = () => {
       );
     });
 
-    // Add project markers with coordinates (real or fallback)
+    // Add project markers with PRECISE coordinates
+    let displayedCount = 0;
     projects.forEach((project, index) => {
-      // Use real coordinates if available, otherwise use fallback positions around Melbourne
-      const lat = project.latitude || (-37.8136 + (index * 0.01) - 0.05);
-      const lng = project.longitude || (144.9631 + (index * 0.01) - 0.05);
+      // Use REAL coordinates if available, otherwise use ORGANIZED fallback positions
+      const hasRealCoords = project.latitude && project.longitude;
+      const lat = hasRealCoords ? project.latitude : (-37.8136 + (displayedCount * 0.005));
+      const lng = hasRealCoords ? project.longitude : (144.9631 + (displayedCount * 0.005));
       
-      console.log(`📍 Project ${project.name}: ${lat}, ${lng} ${project.latitude ? '(real)' : '(fallback)'}`);
+      displayedCount++;
+      
+      console.log(`📍 Project "${project.name}": ${lat}, ${lng} ${hasRealCoords ? '(REAL COORDINATES)' : '(FALLBACK POSITION)'}`);
+      
+      // Create enhanced marker with coordinate status
+      const markerColor = hasRealCoords ? '#10b981' : '#3b82f6'; // Green for real, blue for fallback
 
-      // Create custom marker element
+      // Create enhanced marker with precise positioning
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker';
       markerEl.style.cssText = `
-        width: 30px;
-        height: 30px;
-        background: #3b82f6;
-        border: 2px solid white;
+        width: 32px;
+        height: 32px;
+        background: ${markerColor};
+        border: 3px solid white;
         border-radius: 50%;
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
         transform: scale(1);
+        position: relative;
       `;
-      markerEl.innerHTML = `<div style="color: white; font-size: 12px; font-weight: bold;">${index + 1}</div>`;
+      
+      // Add coordinate status indicator
+      if (hasRealCoords) {
+        markerEl.innerHTML = `
+          <div style="color: white; font-size: 11px; font-weight: bold;">${displayedCount}</div>
+          <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #22c55e; border: 1px solid white; border-radius: 50%;"></div>
+        `;
+      } else {
+        markerEl.innerHTML = `<div style="color: white; font-size: 11px; font-weight: bold;">${displayedCount}</div>`;
+      }
 
       // Add marker to map
       const marker = new mapboxgl.Marker(markerEl)
         .setLngLat([lng, lat])
         .addTo(map.current!);
 
-      // Create hover popup with coordinate status
+      // Create enhanced hover popup with coordinate accuracy
       const hoverPopup = new mapboxgl.Popup({ 
         offset: 25,
         closeButton: false,
         closeOnClick: false,
         className: 'hover-popup'
       }).setHTML(
-        `<div style="padding: 6px 8px; background: rgba(0,0,0,0.8); border-radius: 6px; color: white; font-size: 12px; backdrop-filter: blur(10px);">
-          <div style="font-weight: bold; margin-bottom: 2px;">${project.name}</div>
-          <div style="opacity: 0.9;">${project.location || 'Address not specified'}</div>
-          <div style="opacity: 0.7; font-size: 10px; margin-top: 2px;">
-            ${project.latitude ? '📍 Real coordinates' : '⚠️ Approximate location'}
+        `<div style="padding: 8px 10px; background: rgba(0,0,0,0.9); border-radius: 8px; color: white; font-size: 12px; backdrop-filter: blur(10px); min-width: 200px;">
+          <div style="font-weight: bold; margin-bottom: 4px; color: ${hasRealCoords ? '#22c55e' : '#fbbf24'};">${project.name}</div>
+          <div style="opacity: 0.9; margin-bottom: 4px;">${project.location || 'Address not specified'}</div>
+          <div style="opacity: 0.8; font-size: 10px; padding: 2px 6px; background: ${hasRealCoords ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'} ; border-radius: 4px; display: inline-block;">
+            ${hasRealCoords ? '📍 Precise Location' : '⚠️ Approximate Position'}
           </div>
         </div>`
       );
@@ -274,18 +291,20 @@ export const BusinessMapbox = () => {
         </div>`
       );
 
-      // Hover effects
+      // Enhanced hover effects with coordinate-based styling
       markerEl.addEventListener('mouseenter', () => {
-        markerEl.style.transform = 'scale(1.2)';
-        markerEl.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.4)';
-        markerEl.style.background = '#2563eb';
+        markerEl.style.transform = 'scale(1.3)';
+        markerEl.style.boxShadow = hasRealCoords ? 
+          '0 6px 20px rgba(34, 197, 94, 0.4)' : 
+          '0 6px 20px rgba(59, 130, 246, 0.4)';
+        markerEl.style.background = hasRealCoords ? '#16a34a' : '#2563eb';
         hoverPopup.setLngLat([lng, lat]).addTo(map.current!);
       });
 
       markerEl.addEventListener('mouseleave', () => {
         markerEl.style.transform = 'scale(1)';
-        markerEl.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
-        markerEl.style.background = '#3b82f6';
+        markerEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+        markerEl.style.background = markerColor;
         hoverPopup.remove();
       });
 

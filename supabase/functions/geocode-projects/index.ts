@@ -13,6 +13,89 @@ interface Project {
   longitude?: number;
 }
 
+interface GeocodeResult {
+  success: boolean;
+  latitude?: number;
+  longitude?: number;
+  formatted_address?: string;
+  error?: string;
+}
+
+// Enhanced address cleaning for Australian addresses
+function cleanAustralianAddress(address: string): string[] {
+  if (!address) return [];
+  
+  let cleaned = address
+    .trim()
+    .replace(/\s+/g, ' ')  // normalize spaces
+    .replace(/,+/g, ',')   // normalize commas
+    .replace(/^,|,$/g, '') // remove leading/trailing commas
+  
+  const variations = [
+    cleaned,
+    `${cleaned}, Australia`,
+    `${cleaned}, VIC, Australia`,
+    `${cleaned}, Victoria, Australia`
+  ];
+  
+  // If no state mentioned, add Victoria variations
+  if (!cleaned.toLowerCase().includes('vic') && 
+      !cleaned.toLowerCase().includes('victoria')) {
+    variations.push(`${cleaned}, VIC`);
+    variations.push(`${cleaned}, Victoria`);
+  }
+  
+  return variations;
+}
+
+// Geocode a single address with multiple attempts
+async function geocodeAddress(address: string, mapboxToken: string): Promise<GeocodeResult> {
+  const variations = cleanAustralianAddress(address);
+  
+  for (const variation of variations) {
+    try {
+      console.log(`🔍 Trying variation: "${variation}"`);
+      
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(variation)}.json?access_token=${mapboxToken}&country=au&limit=1&autocomplete=false`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.error(`❌ HTTP ${response.status}: ${response.statusText}`);
+        continue;
+      }
+      
+      const data = await response.json();
+      console.log(`📍 API Response for "${variation}":`, JSON.stringify(data, null, 2));
+      
+      if (data.features && data.features.length > 0) {
+        const feature = data.features[0];
+        const [longitude, latitude] = feature.center;
+        
+        console.log(`✅ SUCCESS: ${variation} → ${latitude}, ${longitude}`);
+        
+        return {
+          success: true,
+          latitude,
+          longitude,
+          formatted_address: feature.place_name
+        };
+      }
+      
+      // Small delay between attempts
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+    } catch (error) {
+      console.error(`❌ Error geocoding "${variation}":`, error);
+    }
+  }
+  
+  return {
+    success: false,
+    error: `Failed to geocode "${address}" with all variations`
+  };
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -20,7 +103,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🌍 Starting geocoding process...')
+    console.log('🌍 === STARTING PROFESSIONAL GEOCODING SERVICE ===')
     
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -28,133 +111,108 @@ serve(async (req) => {
     const mapboxToken = Deno.env.get('MAPBOX_TOKEN')
     
     if (!mapboxToken) {
-      console.error('❌ Mapbox token not found')
+      console.error('❌ CRITICAL: Mapbox token not found in environment')
       return new Response(
-        JSON.stringify({ error: 'Mapbox token not configured' }),
+        JSON.stringify({ 
+          error: 'Mapbox token not configured',
+          success: false 
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
-
+    
+    console.log('✅ Mapbox token found, length:', mapboxToken.length)
+    
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
     
-    // Get projects that need geocoding (have location but no coordinates)
+    // Get projects that need geocoding
     const { data: projects, error: projectsError } = await supabase
       .from('projects')
       .select('id, location, latitude, longitude')
       .not('location', 'is', null)
       .or('latitude.is.null,longitude.is.null')
-      .limit(10) // Process in batches to avoid rate limits
+      .limit(5) // Process fewer at a time for reliability
 
     if (projectsError) {
-      console.error('❌ Error fetching projects:', projectsError)
+      console.error('❌ Database error:', projectsError)
       throw projectsError
     }
 
     if (!projects || projects.length === 0) {
-      console.log('✅ No projects need geocoding')
+      console.log('✅ All projects already geocoded')
       return new Response(
-        JSON.stringify({ message: 'No projects need geocoding', geocoded: 0 }),
+        JSON.stringify({ 
+          message: 'All projects already have coordinates', 
+          geocoded: 0,
+          success: true 
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`🎯 Found ${projects.length} projects to geocode`)
-    let geocodedCount = 0
+    console.log(`🎯 Found ${projects.length} projects requiring geocoding`)
+    
+    let successCount = 0
     const results = []
 
-    // Geocode each project
+    // Process each project
     for (const project of projects) {
-      if (!project.location) continue
+      console.log(`\n🏗️ Processing project: ${project.id} - "${project.location}"`)
+      
+      const geocodeResult = await geocodeAddress(project.location, mapboxToken)
+      
+      if (geocodeResult.success && geocodeResult.latitude && geocodeResult.longitude) {
+        // Update project with coordinates
+        const { error: updateError } = await supabase
+          .from('projects')
+          .update({
+            latitude: geocodeResult.latitude,
+            longitude: geocodeResult.longitude,
+            geocoded_at: new Date().toISOString()
+          })
+          .eq('id', project.id)
 
-      try {
-        console.log(`🔍 Geocoding: ${project.location}`)
-        
-        // Clean and format the address for better geocoding
-        let cleanAddress = project.location
-          .replace(/\s+/g, ' ')  // normalize spaces
-          .trim()
-        
-        // Add Victoria/VIC if not present for Australian addresses
-        if (!cleanAddress.toLowerCase().includes('vic') && 
-            !cleanAddress.toLowerCase().includes('victoria') &&
-            !cleanAddress.toLowerCase().includes('australia')) {
-          cleanAddress += ', VIC, Australia'
-        }
-        
-        console.log(`🔧 Cleaned address: ${cleanAddress}`)
-        
-        // Use Mapbox Geocoding API with simpler, more reliable parameters
-        const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanAddress)}.json?access_token=${mapboxToken}&country=au&limit=1&autocomplete=false`
-        
-        console.log(`🌐 Geocoding URL: ${geocodeUrl}`)
-        
-        const geocodeResponse = await fetch(geocodeUrl)
-        
-        if (!geocodeResponse.ok) {
-          console.error(`❌ HTTP Error ${geocodeResponse.status}: ${geocodeResponse.statusText}`)
-          continue
-        }
-        const geocodeData = await geocodeResponse.json()
-        
-        console.log(`📍 Geocoding response:`, JSON.stringify(geocodeData, null, 2))
-        
-        if (geocodeData.features && geocodeData.features.length > 0) {
-          const [longitude, latitude] = geocodeData.features[0].center
-          const placeName = geocodeData.features[0].place_name
-          
-          console.log(`✅ Geocoded ${project.location} → ${latitude}, ${longitude} (${placeName})`)
-          
-          // Update project with coordinates
-          const { error: updateError } = await supabase
-            .from('projects')
-            .update({
-              latitude: latitude,
-              longitude: longitude,
-              geocoded_at: new Date().toISOString()
-            })
-            .eq('id', project.id)
-
-          if (updateError) {
-            console.error(`❌ Error updating project ${project.id}:`, updateError)
-          } else {
-            geocodedCount++
-            results.push({
-              id: project.id,
-              location: project.location,
-              latitude,
-              longitude,
-              placeName
-            })
-          }
+        if (updateError) {
+          console.error(`❌ Failed to update project ${project.id}:`, updateError)
         } else {
-          console.warn(`⚠️ No geocoding results for: ${project.location}`)
-          console.warn(`🔍 Tried with cleaned address: ${cleanAddress}`)
+          successCount++
+          results.push({
+            id: project.id,
+            original_address: project.location,
+            latitude: geocodeResult.latitude,
+            longitude: geocodeResult.longitude,
+            formatted_address: geocodeResult.formatted_address
+          })
+          console.log(`✅ Updated project ${project.id} in database`)
         }
-        
-        // Rate limiting - wait between requests
-        await new Promise(resolve => setTimeout(resolve, 200))
-        
-      } catch (error) {
-        console.error(`❌ Error geocoding ${project.location}:`, error)
+      } else {
+        console.error(`❌ Failed to geocode: ${project.location} - ${geocodeResult.error}`)
       }
+      
+      // Rate limiting between projects
+      await new Promise(resolve => setTimeout(resolve, 300))
     }
 
-    console.log(`🎉 Successfully geocoded ${geocodedCount} projects`)
+    console.log(`\n🎉 === GEOCODING COMPLETE ===`)
+    console.log(`✅ Successfully geocoded: ${successCount}/${projects.length} projects`)
     
     return new Response(
       JSON.stringify({
-        message: `Successfully geocoded ${geocodedCount} projects`,
-        geocoded: geocodedCount,
+        success: true,
+        message: `Successfully geocoded ${successCount} of ${projects.length} projects`,
+        geocoded: successCount,
+        total: projects.length,
         results
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('❌ Geocoding function error:', error)
+    console.error('💥 CRITICAL ERROR:', error)
     return new Response(
       JSON.stringify({ 
-        error: 'Internal server error',
+        success: false,
+        error: 'Geocoding service failed',
         message: error.message 
       }),
       { 
