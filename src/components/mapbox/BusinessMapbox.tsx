@@ -356,7 +356,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
   if (loading) {
     return (
-      <div className={`w-full ${fullHeightClasses} ${spacingClasses} bg-background flex items-center justify-center ${className}`}>
+      <div className={`w-full ${fullHeightClasses} bg-background flex items-center justify-center ${className}`}>
         <div className="text-center">
           <Globe className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
           <p className="text-muted-foreground">Loading Mapbox...</p>
@@ -366,7 +366,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   }
 
   return (
-    <div className={`w-full ${fullHeightClasses} ${spacingClasses} bg-transparent relative ${className}`}>
+    <div className={`w-full ${fullHeightClasses} bg-transparent relative ${className}`}>
       {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0" />
       
