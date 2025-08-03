@@ -291,13 +291,13 @@ export const MenuBar = () => {
                 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent event bubbling
-                  console.log('🖱️ MenuBar: Clicked company name, switching to personal context');
-                  console.log('🔄 MenuBar: Current context before switch:', activeContext);
-                  setActiveContext('personal');
-                  console.log('🔄 MenuBar: Context set to personal, navigating to profile');
-                  setTimeout(() => {
+                  if (activeContext === 'company') {
+                    // Navigate to business homepage with map
+                    window.location.href = '/?page=home';
+                  } else {
+                    // Navigate to personal profile with map
                     window.location.href = '/?page=profile';
-                  }, 100);
+                  }
                 }}
               >
                 {getCompanyDisplayText()}
