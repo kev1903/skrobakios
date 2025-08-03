@@ -188,8 +188,8 @@ export const BusinessMapbox = () => {
         console.warn(`⚠️ Project "${project.name}" has coordinates outside Melbourne area: ${lat}, ${lng}`);
       }
       
-      // Create enhanced marker with coordinate status
-      const markerColor = hasRealCoords ? '#10b981' : '#3b82f6'; // Green for real, blue for fallback
+      // Create enhanced marker with coordinate status using design system
+      const markerColor = hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--secondary))';
 
       // Create enhanced marker with precise positioning
       const markerEl = document.createElement('div');
@@ -198,10 +198,10 @@ export const BusinessMapbox = () => {
         width: 32px;
         height: 32px;
         background: ${markerColor};
-        border: 3px solid white;
+        border: 3px solid hsl(var(--background));
         border-radius: 50%;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: var(--shadow-md);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -213,11 +213,11 @@ export const BusinessMapbox = () => {
       // Add coordinate status indicator
       if (hasRealCoords) {
         markerEl.innerHTML = `
-          <div style="color: white; font-size: 11px; font-weight: bold;">${displayedCount}</div>
-          <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #22c55e; border: 1px solid white; border-radius: 50%;"></div>
+          <div style="color: hsl(var(--primary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>
+          <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: hsl(var(--success)); border: 1px solid hsl(var(--background)); border-radius: 50%;"></div>
         `;
       } else {
-        markerEl.innerHTML = `<div style="color: white; font-size: 11px; font-weight: bold;">${displayedCount}</div>`;
+        markerEl.innerHTML = `<div style="color: hsl(var(--secondary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>`;
       }
 
       // Add marker to map and store reference
@@ -235,10 +235,10 @@ export const BusinessMapbox = () => {
         closeOnClick: false,
         className: 'hover-popup'
       }).setHTML(
-        `<div style="padding: 8px 10px; background: rgba(0,0,0,0.9); border-radius: 8px; color: white; font-size: 12px; backdrop-filter: blur(10px); min-width: 200px;">
-          <div style="font-weight: bold; margin-bottom: 4px; color: ${hasRealCoords ? '#22c55e' : '#fbbf24'};">${project.name}</div>
-          <div style="opacity: 0.9; margin-bottom: 4px;">${project.location || 'Address not specified'}</div>
-          <div style="opacity: 0.8; font-size: 10px; padding: 2px 6px; background: ${hasRealCoords ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'} ; border-radius: 4px; display: inline-block;">
+        `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg min-w-[200px]">
+          <div class="font-semibold mb-2 text-foreground text-sm" style="color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}">${project.name}</div>
+          <div class="text-muted-foreground text-xs mb-2">${project.location || 'Address not specified'}</div>
+          <div class="text-xs px-2 py-1 rounded-md inline-block" style="background: ${hasRealCoords ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--warning) / 0.1)'}; color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}">
             ${hasRealCoords ? '📍 Precise Location' : '⚠️ Approximate Position'}
           </div>
         </div>`
@@ -246,14 +246,14 @@ export const BusinessMapbox = () => {
 
       // Create click popup (detailed)
       const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<div style="padding: 12px;">
-          <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937; font-size: 14px;">${project.name}</h3>
-          <div style="margin-bottom: 6px;">
-            <span style="font-size: 11px; color: #6b7280; font-weight: 500;">ADDRESS:</span>
-            <div style="font-size: 12px; color: #374151; margin-top: 2px;">${project.location || 'Location not specified'}</div>
+        `<div class="bg-popover border border-border rounded-lg p-4 shadow-xl">
+          <h3 class="font-semibold text-foreground text-sm mb-3">${project.name}</h3>
+          <div class="mb-3">
+            <span class="text-xs text-muted-foreground font-medium">ADDRESS:</span>
+            <div class="text-xs text-foreground mt-1">${project.location || 'Location not specified'}</div>
           </div>
-          <div style="margin-top: 8px;">
-            <span style="padding: 3px 8px; background: #dbeafe; color: #1d4ed8; border-radius: 12px; font-size: 10px; font-weight: 500;">
+          <div class="mt-3">
+            <span class="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
               ${project.status || 'Active'}
             </span>
           </div>
@@ -264,9 +264,9 @@ export const BusinessMapbox = () => {
       markerEl.addEventListener('mouseenter', () => {
         // Don't scale the marker - it causes positioning issues
         markerEl.style.boxShadow = hasRealCoords ? 
-          '0 6px 20px rgba(34, 197, 94, 0.4)' : 
-          '0 6px 20px rgba(59, 130, 246, 0.4)';
-        markerEl.style.background = hasRealCoords ? '#16a34a' : '#2563eb';
+          '0 6px 20px hsl(var(--primary) / 0.4)' : 
+          '0 6px 20px hsl(var(--secondary) / 0.4)';
+        markerEl.style.background = hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--secondary))';
         // Use the marker's position instead of manual coordinates
         hoverPopup.setLngLat(marker.getLngLat()).addTo(map.current!);
       });
