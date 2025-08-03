@@ -265,46 +265,6 @@ export const BusinessMapbox = () => {
       {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0 mt-[73px]" />
       
-      {/* Overlay Controls */}
-      <div className="absolute top-20 left-4 z-10">
-        <Card className="w-80 bg-background/95 backdrop-blur">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-primary" />
-              Business Locations
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Total Projects:</span>
-              <span className="font-semibold">{projects.length}</span>
-            </div>
-            
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">Recent Projects:</p>
-              {projects.slice(0, 3).map((project, index) => (
-                <div key={project.id} className="flex items-center gap-2 text-sm">
-                  <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center text-white text-xs">
-                    {index + 1}
-                  </div>
-                  <span className="truncate">{project.name}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2 pt-2">
-              <Button size="sm" variant="outline" className="flex-1">
-                <Building className="w-3 h-3 mr-1" />
-                Projects
-              </Button>
-              <Button size="sm" variant="outline" className="flex-1">
-                <Layers className="w-3 h-3 mr-1" />
-                Layers
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Status Bar */}
       <div className="absolute bottom-4 left-4 z-10">
