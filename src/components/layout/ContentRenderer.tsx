@@ -304,9 +304,14 @@ export const ContentRenderer = ({
     case "existing-user-profile":
     case "user-profile":
       // Show map for personal context, PersonalPage for company context
-      return activeContext === 'personal' ? 
-        <MapComponent className="w-full h-screen" /> : 
-        <PersonalPage onNavigate={onNavigate} />;
+      console.log('🗺️ ContentRenderer: Profile page requested, activeContext:', activeContext);
+      if (activeContext === 'personal') {
+        console.log('🗺️ ContentRenderer: Showing MapComponent for personal context');
+        return <MapComponent className="w-full h-screen" />;
+      } else {
+        console.log('📄 ContentRenderer: Showing PersonalPage for company context');
+        return <PersonalPage onNavigate={onNavigate} />;
+      }
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
     case "business":

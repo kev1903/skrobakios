@@ -270,21 +270,26 @@ export const MenuBar = () => {
             </button>
             
             {/* Company Logo */}
-            <div 
-              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-200" 
-              onClick={() => window.location.href = '/?page=home'}
-            >
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+            <div className="flex items-center space-x-2">
+              <div 
+                className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                onClick={() => window.location.href = '/?page=home'}
+              >
                 <span className="text-primary-foreground font-bold text-xs">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
                 </span>
               </div>
               <h1 
                 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
-                onClick={() => {
-                  // Switch to personal context and navigate to profile (map)
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent event bubbling
+                  console.log('🖱️ MenuBar: Clicked company name, switching to personal context');
+                  console.log('🔄 MenuBar: Current context before switch:', activeContext);
                   setActiveContext('personal');
-                  window.location.href = '/?page=profile';
+                  console.log('🔄 MenuBar: Context set to personal, navigating to profile');
+                  setTimeout(() => {
+                    window.location.href = '/?page=profile';
+                  }, 100);
                 }}
               >
                 {getCompanyDisplayText()}
