@@ -369,7 +369,7 @@ serve(async (req) => {
         console.log('✅ OAuth URL generated')
 
         return new Response(
-          JSON.stringify({ authUrl }),
+          JSON.stringify({ auth_url: authUrl }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200 

@@ -29,7 +29,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
         .from('xero_connections')
         .select('*')
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
+        .maybeSingle();
 
       return !error && data;
     } catch (error) {
