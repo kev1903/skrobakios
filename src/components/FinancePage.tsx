@@ -126,6 +126,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasXeroConnection, setHasXeroConnection] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('All Status');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -204,7 +205,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
     const statusStyles = {
       'PAID': 'bg-green-100 text-green-800',
       'AUTHORISED': 'bg-blue-100 text-blue-800',
+      'SENT': 'bg-blue-100 text-blue-800',
       'DRAFT': 'bg-gray-100 text-gray-800',
+      'OVERDUE': 'bg-red-100 text-red-800',
       'SUBMITTED': 'bg-yellow-100 text-yellow-800',
       'DELETED': 'bg-red-100 text-red-800'
     };
@@ -216,7 +219,13 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
     );
   };
 
-  const totalIncome = invoices.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
+  // Filter invoices based on status
+  const filteredInvoices = invoices.filter(invoice => {
+    if (statusFilter === 'All Status') return true;
+    return invoice.status?.toUpperCase() === statusFilter.toUpperCase();
+  });
+
+  const totalIncome = filteredInvoices.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
 
   const formatTime = (date: Date) => {
     return date.toLocaleString('en-US', {
@@ -416,7 +425,11 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                 </select>
               </div>
               <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
-                <select className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none">
+                <select 
+                  className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
                   <option>All Status</option>
                   <option>Paid</option>
                   <option>Authorised</option>
@@ -485,7 +498,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                         </td>
                       </tr>
                     ) : (
-                      invoices.map((invoice) => (
+                      filteredInvoices.map((invoice) => (
                         <tr key={invoice.id} className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{formatDate(invoice.date)}</td>
                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide font-medium">
@@ -514,7 +527,10 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
             {/* Summary Row */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
               <div className="text-sm text-slate-600/80 tracking-wide">
-                Showing {invoices.length} invoice{invoices.length !== 1 ? 's' : ''}
+                Showing {filteredInvoices.length} of {invoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''}
+                {statusFilter !== 'All Status' && (
+                  <span className="ml-2 text-blue-600">({statusFilter})</span>
+                )}
               </div>
               <div className="flex items-center space-x-6">
                 <div className="text-right">
@@ -524,9 +540,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-slate-600/80 tracking-wide">Paid Invoices</p>
+                  <p className="text-sm text-slate-600/80 tracking-wide">Filtered Invoices</p>
                   <p className="text-lg font-medium text-slate-600 tracking-wide">
-                    {invoices.filter(inv => inv.status === 'PAID').length}
+                    {filteredInvoices.length}
                   </p>
                 </div>
               </div>
