@@ -158,20 +158,20 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.1),transparent_50%)] -z-10" />
       
       {/* Navigation Dropdown - SkrobakiOS Style */}
-      <div className="relative">
-        <div className="bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl p-2 shadow-xl">
+      <div className="relative w-48">
+        <div className="bg-white/20 backdrop-blur-2xl border border-white/30 rounded-lg p-1 shadow-xl">
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full px-4 py-3 text-sm font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-xl backdrop-blur-sm transition-all duration-300 border-0 flex items-center justify-between"
+            className="w-full px-2 py-1.5 text-xs font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-lg backdrop-blur-sm transition-all duration-300 border-0 flex items-center justify-between"
           >
             <span>{getCurrentTabLabel()}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
         {/* Dropdown Menu */}
         {isDropdownOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white/90 backdrop-blur-2xl border border-white/40 rounded-2xl shadow-xl z-50 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-0.5 bg-white/90 backdrop-blur-2xl border border-white/40 rounded-lg shadow-xl z-50 overflow-hidden">
             {tabOptions.map((option) => (
               <button
                 key={option.value}
@@ -179,7 +179,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                   setSelectedTab(option.value);
                   setIsDropdownOpen(false);
                 }}
-                className={`w-full px-4 py-3 text-sm font-medium tracking-wide text-left transition-all duration-200 hover:bg-white/60 ${
+                className={`w-full px-2 py-1.5 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-white/60 ${
                   selectedTab === option.value 
                     ? 'bg-blue-50/80 text-blue-600' 
                     : 'text-slate-600'
