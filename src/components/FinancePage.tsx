@@ -176,7 +176,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-0.5 bg-white/90 backdrop-blur-2xl border border-white/40 rounded-lg shadow-xl z-50 overflow-hidden w-48">
+                <div className="absolute top-full left-0 mt-0.5 bg-white/90 backdrop-blur-2xl border border-white/40 rounded-lg shadow-xl z-[9999] overflow-hidden w-48">
                   {tabOptions.map((option) => (
                     <button
                       key={option.value}
