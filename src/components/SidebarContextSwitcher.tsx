@@ -68,6 +68,8 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
     // Navigate to appropriate page based on context
     if (contextType === 'personal') {
       onNavigate?.('profile');
+    } else if (contextType === 'company') {
+      onNavigate?.('home'); // Navigate to business homepage
     }
   };
 
