@@ -121,9 +121,9 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             </Button>
             <div className="h-6 w-px bg-slate-300" />
             <div>
-              <h1 className="text-3xl font-bold text-slate-800">Project Portfolio</h1>
+              <h1 className="text-3xl font-bold text-slate-800">Business Finance Page</h1>
               <p className="text-slate-600 mt-1">
-                {currentTime.toLocaleDateString('en-US', { 
+                Financial overview and project portfolio management • {currentTime.toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
@@ -162,7 +162,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
             <CardContent>
               <div className="text-2xl font-bold text-slate-800">{projectStats.total}</div>
               <p className="text-xs text-slate-500">
-                Active portfolio
+                Financial portfolio projects
               </p>
             </CardContent>
           </Card>
