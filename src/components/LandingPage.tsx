@@ -413,39 +413,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 </Button>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-6 sm:gap-8 lg:gap-10 text-muted-foreground">
-                <div className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
-                    <Award className="w-4 h-4 text-brand-gold" />
-                  </div>
-                  <span className="text-sm font-light tracking-wide">Registered Builder</span>
-                </div>
-                <div className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
-                    <CheckCircle className="w-4 h-4 text-brand-gold" />
-                  </div>
-                  <span className="text-sm font-light tracking-wide">BIM-Integrated</span>
-                </div>
-                <div className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
-                    <Star className="w-4 h-4 text-brand-gold" />
-                  </div>
-                  <span className="text-sm font-light tracking-wide">Award-Winning</span>
-                </div>
-              </div>
             </div>
           </div>
           
-          <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 left-4 sm:left-6 lg:left-8 text-muted-foreground">
-            <div className="text-xs font-light space-y-1 sm:space-y-2 tracking-wider">
-              <div className="flex items-center gap-2">
-                <Home className="w-3 h-3 text-brand-gold" />
-                <span>Melbourne</span>
-              </div>
-              <div className="text-xs">Victoria, Australia</div>
-            </div>
-          </div>
         </section>
 
         {/* Slide 2: Services Overview */}
