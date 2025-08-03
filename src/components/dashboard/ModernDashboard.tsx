@@ -144,12 +144,12 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
-      <div className="relative z-10 p-6 space-y-4">
+      <div className="relative z-10 p-4 space-y-2">
         {/* Enhanced Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-4xl font-bold text-slate-800">Business Finance Dashboard</h1>
-            <p className="text-slate-600 mt-2 text-lg">
+            <h1 className="text-3xl font-bold text-slate-800">Business Finance Dashboard</h1>
+            <p className="text-slate-600 mt-1 text-base">
               {currentTime.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -204,14 +204,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="income" className="space-y-6 mt-2">
+          <TabsContent value="income" className="space-y-4 mt-0">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Income Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <DollarSign className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+                <div className="text-center py-6">
+                  <DollarSign className="h-14 w-14 text-emerald-600 mx-auto mb-3" />
                   <p className="text-slate-600">Income tracking and analytics</p>
                   <p className="text-sm text-slate-500">Monitor revenue streams and earnings</p>
                 </div>
@@ -219,14 +219,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="expenses" className="space-y-6 mt-2">
+          <TabsContent value="expenses" className="space-y-4 mt-0">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Expenses Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <CreditCard className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                <div className="text-center py-6">
+                  <CreditCard className="h-14 w-14 text-red-500 mx-auto mb-3" />
                   <p className="text-slate-600">Track and categorize expenses</p>
                   <p className="text-sm text-slate-500">Monitor spending patterns and budgets</p>
                 </div>
@@ -234,14 +234,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="debt" className="space-y-6 mt-2">
+          <TabsContent value="debt" className="space-y-4 mt-0">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Debt Repayment</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Target className="h-16 w-16 text-orange-600 mx-auto mb-4" />
+                <div className="text-center py-6">
+                  <Target className="h-14 w-14 text-orange-600 mx-auto mb-3" />
                   <p className="text-slate-600">Manage debt obligations</p>
                   <p className="text-sm text-slate-500">Track repayment schedules and progress</p>
                 </div>
@@ -249,14 +249,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="legal" className="space-y-6 mt-2">
+          <TabsContent value="legal" className="space-y-4 mt-0">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Legal Obligations</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Activity className="h-16 w-16 text-purple-600 mx-auto mb-4" />
+                <div className="text-center py-6">
+                  <Activity className="h-14 w-14 text-purple-600 mx-auto mb-3" />
                   <p className="text-slate-600">Compliance and legal requirements</p>
                   <p className="text-sm text-slate-500">Track legal payments and obligations</p>
                 </div>
@@ -264,14 +264,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="assets" className="space-y-6 mt-2">
+          <TabsContent value="assets" className="space-y-4 mt-0">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Assets & Business Improvements</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <TrendingUp className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                <div className="text-center py-6">
+                  <TrendingUp className="h-14 w-14 text-blue-600 mx-auto mb-3" />
                   <p className="text-slate-600">Asset management and improvements</p>
                   <p className="text-sm text-slate-500">Track capital investments and upgrades</p>
                 </div>
@@ -279,14 +279,14 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="investments" className="space-y-6 mt-2">
+          <TabsContent value="investments" className="space-y-4 mt-0">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Investments</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <BarChart3 className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+                <div className="text-center py-6">
+                  <BarChart3 className="h-14 w-14 text-emerald-600 mx-auto mb-3" />
                   <p className="text-slate-600">Investment portfolio tracking</p>
                   <p className="text-sm text-slate-500">Monitor investment performance and returns</p>
                 </div>
