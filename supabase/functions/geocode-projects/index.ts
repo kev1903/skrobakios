@@ -69,16 +69,35 @@ serve(async (req) => {
       try {
         console.log(`🔍 Geocoding: ${project.location}`)
         
-        // Use Mapbox Geocoding API
-        const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(project.location)}.json?access_token=${mapboxToken}&country=AU&proximity=144.9631,-37.8136&limit=1`
+        // Clean and format the address for better geocoding
+        let cleanAddress = project.location
+          .replace(/\s+/g, ' ')  // normalize spaces
+          .trim()
+        
+        // Add Victoria/VIC if not present for Australian addresses
+        if (!cleanAddress.toLowerCase().includes('vic') && 
+            !cleanAddress.toLowerCase().includes('victoria') &&
+            !cleanAddress.toLowerCase().includes('australia')) {
+          cleanAddress += ', VIC, Australia'
+        }
+        
+        console.log(`🔧 Cleaned address: ${cleanAddress}`)
+        
+        // Use Mapbox Geocoding API with better parameters
+        const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanAddress)}.json?access_token=${mapboxToken}&country=AU&proximity=144.9631,-37.8136&types=address,place&limit=1`
+        
+        console.log(`🌐 Geocoding URL: ${geocodeUrl}`)
         
         const geocodeResponse = await fetch(geocodeUrl)
         const geocodeData = await geocodeResponse.json()
         
+        console.log(`📍 Geocoding response:`, JSON.stringify(geocodeData, null, 2))
+        
         if (geocodeData.features && geocodeData.features.length > 0) {
           const [longitude, latitude] = geocodeData.features[0].center
+          const placeName = geocodeData.features[0].place_name
           
-          console.log(`✅ Geocoded ${project.location} → ${latitude}, ${longitude}`)
+          console.log(`✅ Geocoded ${project.location} → ${latitude}, ${longitude} (${placeName})`)
           
           // Update project with coordinates
           const { error: updateError } = await supabase
@@ -98,15 +117,17 @@ serve(async (req) => {
               id: project.id,
               location: project.location,
               latitude,
-              longitude
+              longitude,
+              placeName
             })
           }
         } else {
           console.warn(`⚠️ No geocoding results for: ${project.location}`)
+          console.warn(`🔍 Tried with cleaned address: ${cleanAddress}`)
         }
         
         // Rate limiting - wait between requests
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, 200))
         
       } catch (error) {
         console.error(`❌ Error geocoding ${project.location}:`, error)

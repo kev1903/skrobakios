@@ -50,25 +50,34 @@ export const BusinessMapbox = () => {
   useEffect(() => {
     const fetchAndGeocodeProjects = async () => {
       try {
+        console.log('🌍 Starting geocoding process for projects...');
+        
         // First, try to geocode any projects that need it
-        console.log('🌍 Checking for projects that need geocoding...');
-        await supabase.functions.invoke('geocode-projects');
+        const geocodeResult = await supabase.functions.invoke('geocode-projects');
+        console.log('🔄 Geocoding result:', geocodeResult);
+        
+        // Wait a moment for database updates to propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Then fetch all projects with their coordinates
         const { data, error } = await supabase
           .from('projects')
-          .select('id, name, location, latitude, longitude, status');
+          .select('id, name, location, latitude, longitude, status')
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null);
         
         if (error) throw error;
+        
+        console.log(`📍 Loaded ${data?.length || 0} geocoded projects`);
         setProjects(data || []);
         
-        console.log(`📍 Loaded ${data?.length || 0} projects`);
       } catch (error) {
         console.error('Error fetching/geocoding projects:', error);
-        // Fallback: still fetch projects even if geocoding fails
+        // Fallback: fetch all projects (even without coordinates)
         const { data } = await supabase
           .from('projects')
           .select('id, name, location, latitude, longitude, status');
+        console.log('📍 Fallback: loaded all projects, some may not have coordinates');
         setProjects(data || []);
       }
     };
@@ -159,9 +168,14 @@ export const BusinessMapbox = () => {
 
     // Add project markers with real coordinates
     projects.forEach((project, index) => {
-      // Use real coordinates if available, otherwise use fallback around Melbourne
-      const lat = project.latitude || (-37.8136 + (Math.random() - 0.5) * 0.1);
-      const lng = project.longitude || (144.9631 + (Math.random() - 0.5) * 0.1);
+      // Only use real coordinates if they exist, otherwise skip this project
+      if (!project.latitude || !project.longitude) {
+        console.warn(`⚠️ Skipping project ${project.name} - no coordinates available`);
+        return;
+      }
+      
+      const lat = project.latitude;
+      const lng = project.longitude;
 
       // Create custom marker element
       const markerEl = document.createElement('div');
