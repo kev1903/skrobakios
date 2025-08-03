@@ -1,44 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { Users, DollarSign, TrendingUp, Calendar, Bell, Plus, Filter, MoreHorizontal, Download, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, Calendar, Bell, Plus, Filter, MoreHorizontal, Download, ArrowUpRight, ArrowDownRight, PieChart, BarChart3, CreditCard, Wallet, Target, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 
 interface ModernDashboardProps {
   onNavigate: (page: string) => void;
   isFinancePage?: boolean;
 }
 
-// Mock data - replace with real data from your backend
+// Enhanced financial dashboard stats
 const dashboardStats = [
   {
-    title: "Total Projects",
-    value: "24",
-    icon: Users,
-    change: "+12%",
-    changeType: "positive" as const
-  },
-  {
-    title: "Revenue",
+    title: "Total Revenue",
     value: "$127,340",
     icon: DollarSign,
     change: "+8.2%",
-    changeType: "positive" as const
+    changeType: "positive" as const,
+    description: "Monthly revenue growth",
+    color: "emerald"
   },
   {
-    title: "Active Tasks",
-    value: "89",
+    title: "Active Projects",
+    value: "24",
+    icon: Users,
+    change: "+12%",
+    changeType: "positive" as const,
+    description: "Currently in progress",
+    color: "blue"
+  },
+  {
+    title: "Profit Margin",
+    value: "32.4%",
     icon: TrendingUp,
-    change: "-2.1%",
-    changeType: "negative" as const
+    change: "+2.1%",
+    changeType: "positive" as const,
+    description: "Improved efficiency",
+    color: "purple"
   },
   {
-    title: "This Month",
+    title: "Monthly Target",
     value: "$12,450",
-    icon: Calendar,
+    icon: Target,
     change: "+15.3%",
-    changeType: "positive" as const
+    changeType: "positive" as const,
+    description: "85% of goal achieved",
+    color: "orange"
+  }
+];
+
+// Financial insights data
+const financialInsights = [
+  {
+    title: "Cash Flow",
+    amount: "+$45,230",
+    trend: "positive",
+    period: "This month"
+  },
+  {
+    title: "Expenses",
+    amount: "-$23,120",
+    trend: "negative",
+    period: "This month"
+  },
+  {
+    title: "Outstanding",
+    amount: "$8,900",
+    trend: "neutral",
+    period: "Pending invoices"
   }
 ];
 
@@ -113,65 +144,87 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
       <div className="relative z-10 p-6 space-y-6">
-        {/* Header */}
+        {/* Enhanced Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">Welcome back, Team!</h1>
-            <p className="text-slate-600 mt-1">
+            <h1 className="text-4xl font-bold text-slate-800">Business Finance Dashboard</h1>
+            <p className="text-slate-600 mt-2 text-lg">
               {currentTime.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
+              })} • {currentTime.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit'
               })}
             </p>
           </div>
           
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
+            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">
+              <PieChart className="h-4 w-4 mr-2" />
+              Analytics
             </Button>
-            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
+            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50 hover:bg-white/90 transition-all duration-200">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-              onClick={() => onNavigate('create-project')}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-600/25 transition-all duration-200"
+              onClick={() => onNavigate('finance')}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Project
+              <CreditCard className="h-4 w-4 mr-2" />
+              Finance Center
             </Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {dashboardStats.map((stat, index) => (
-            <Card key={index} className="glass-card bg-white/70 backdrop-blur-lg border-blue-200/30 hover:bg-white/80 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100/70 rounded-lg">
-                      <stat.icon className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <span className="text-sm font-medium text-slate-600">{stat.title}</span>
-                  </div>
-                  <MoreHorizontal className="h-4 w-4 text-slate-400" />
+            <Card key={index} className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 group">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-600">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg bg-${stat.color}-100/70 group-hover:bg-${stat.color}-200/70 transition-colors duration-200`}>
+                  <stat.icon className={`h-4 w-4 text-${stat.color}-600`} />
                 </div>
-                
-                <div className="flex items-end justify-between">
-                  <span className="text-2xl font-bold text-slate-800">{stat.value}</span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-slate-800 mb-1">{stat.value}</div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-500">{stat.description}</p>
                   <div className={`flex items-center gap-1 text-sm font-medium ${
                     stat.changeType === 'positive' ? 'text-emerald-600' : 'text-red-500'
                   }`}>
                     {stat.changeType === 'positive' ? (
-                      <ArrowUpRight className="h-4 w-4" />
+                      <ArrowUpRight className="h-3 w-3" />
                     ) : (
-                      <ArrowDownRight className="h-4 w-4" />
+                      <ArrowDownRight className="h-3 w-3" />
                     )}
                     {stat.change}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Financial Insights Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {financialInsights.map((insight, index) => (
+            <Card key={index} className="bg-white/40 backdrop-blur-sm border-white/20 shadow-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-600">{insight.title}</p>
+                    <p className="text-xs text-slate-500 mt-1">{insight.period}</p>
+                  </div>
+                  <div className={`text-lg font-bold ${
+                    insight.trend === 'positive' ? 'text-emerald-600' : 
+                    insight.trend === 'negative' ? 'text-red-500' : 'text-slate-700'
+                  }`}>
+                    {insight.amount}
                   </div>
                 </div>
               </CardContent>
