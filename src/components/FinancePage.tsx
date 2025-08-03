@@ -123,6 +123,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const dropdownButtonRef = useRef<HTMLButtonElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -131,6 +133,66 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const fetchInvoices = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('xero_invoices')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching invoices:', error);
+        toast.error('Failed to load invoices');
+        return;
+      }
+
+      setInvoices(data || []);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      toast.error('Failed to load invoices');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-AU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'AUD') => {
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: currency
+    }).format(amount);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusStyles = {
+      'PAID': 'bg-green-100 text-green-800',
+      'AUTHORISED': 'bg-blue-100 text-blue-800',
+      'DRAFT': 'bg-gray-100 text-gray-800',
+      'SUBMITTED': 'bg-yellow-100 text-yellow-800',
+      'DELETED': 'bg-red-100 text-red-800'
+    };
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[status as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800'}`}>
+        {status}
+      </span>
+    );
+  };
+
+  const totalIncome = invoices.reduce((sum, invoice) => sum + Number(invoice.total || 0), 0);
 
   const formatTime = (date: Date) => {
     return date.toLocaleString('en-US', {
@@ -196,6 +258,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
 
       if (data.success) {
         toast.success(data.message || 'Successfully synced with Xero');
+        // Refresh the invoices after successful sync
+        fetchInvoices();
       } else {
         toast.error(data.error || 'Failed to sync with Xero');
       }
@@ -336,17 +400,51 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td colSpan={8} className="py-12 text-center">
-                        <div className="flex flex-col items-center space-y-3">
-                          <div className="p-4 bg-white/40 rounded-2xl backdrop-blur-sm border border-white/40">
-                            <DollarSign className="w-8 h-8 text-slate-400" />
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={8} className="py-12 text-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <div className="p-4 bg-white/40 rounded-2xl backdrop-blur-sm border border-white/40">
+                              <DollarSign className="w-8 h-8 text-slate-400 animate-pulse" />
+                            </div>
+                            <p className="text-slate-600 font-medium tracking-wide">Loading invoices...</p>
                           </div>
-                          <p className="text-slate-600 font-medium tracking-wide">No income entries yet</p>
-                          <p className="text-sm text-slate-500/80 tracking-wide">Start by adding your first income record</p>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                    ) : invoices.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="py-12 text-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <div className="p-4 bg-white/40 rounded-2xl backdrop-blur-sm border border-white/40">
+                              <DollarSign className="w-8 h-8 text-slate-400" />
+                            </div>
+                            <p className="text-slate-600 font-medium tracking-wide">No invoices synced yet</p>
+                            <p className="text-sm text-slate-500/80 tracking-wide">Click SYNC to fetch your Xero invoices</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      invoices.map((invoice) => (
+                        <tr key={invoice.id} className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
+                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{formatDate(invoice.date)}</td>
+                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide font-medium">
+                            Invoice #{invoice.invoice_number}
+                          </td>
+                          <td className="py-4 px-6 text-sm font-medium text-green-600 tracking-wide">
+                            {formatCurrency(invoice.total, invoice.currency_code)}
+                          </td>
+                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{invoice.contact_name}</td>
+                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">-</td>
+                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">Invoice Payment</td>
+                          <td className="py-4 px-6">{getStatusBadge(invoice.status)}</td>
+                          <td className="py-4 px-6 text-right">
+                            <Button variant="ghost" size="sm" className="text-xs tracking-wide">
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -355,16 +453,20 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
             {/* Summary Row */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20">
               <div className="text-sm text-slate-600/80 tracking-wide">
-                Showing 0 income entries
+                Showing {invoices.length} invoice{invoices.length !== 1 ? 's' : ''}
               </div>
               <div className="flex items-center space-x-6">
                 <div className="text-right">
                   <p className="text-sm text-slate-600/80 tracking-wide">Total Income</p>
-                  <p className="text-2xl font-inter font-light text-slate-400 tracking-tight">$0.00</p>
+                  <p className="text-2xl font-inter font-light text-green-600 tracking-tight">
+                    {formatCurrency(totalIncome)}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-slate-600/80 tracking-wide">This Month</p>
-                  <p className="text-lg font-medium text-slate-400 tracking-wide">$0.00</p>
+                  <p className="text-sm text-slate-600/80 tracking-wide">Paid Invoices</p>
+                  <p className="text-lg font-medium text-slate-600 tracking-wide">
+                    {invoices.filter(inv => inv.status === 'PAID').length}
+                  </p>
                 </div>
               </div>
             </div>
