@@ -275,7 +275,15 @@ export const BusinessMapbox = () => {
       );
 
       // Enhanced hover effects with coordinate-based styling
+      let hideTimeout: NodeJS.Timeout | null = null;
+      
       markerEl.addEventListener('mouseenter', () => {
+        // Clear any pending hide timeout
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+        
         // Don't scale the marker - it causes positioning issues
         markerEl.style.boxShadow = hasRealCoords ? 
           '0 6px 20px hsl(var(--primary) / 0.4)' : 
@@ -283,17 +291,43 @@ export const BusinessMapbox = () => {
         markerEl.style.background = hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--secondary))';
         // Use the marker's position instead of manual coordinates
         hoverPopup.setLngLat(marker.getLngLat()).addTo(map.current!);
+        
+        // Keep popup open when hovering over it
+        const popupElement = document.querySelector('.hover-popup .mapboxgl-popup-content');
+        if (popupElement) {
+          popupElement.addEventListener('mouseenter', () => {
+            if (hideTimeout) {
+              clearTimeout(hideTimeout);
+              hideTimeout = null;
+            }
+          });
+          
+          popupElement.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+              markerEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+              markerEl.style.background = markerColor;
+              hoverPopup.remove();
+            }, 200);
+          });
+        }
       });
 
       markerEl.addEventListener('mouseleave', () => {
-        markerEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-        markerEl.style.background = markerColor;
-        hoverPopup.remove();
+        // Add delay before hiding popup
+        hideTimeout = setTimeout(() => {
+          markerEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+          markerEl.style.background = markerColor;
+          hoverPopup.remove();
+        }, 300); // 300ms delay
       });
 
       // Click effect
       markerEl.addEventListener('click', () => {
         // Remove hover popup when clicking
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
         hoverPopup.remove();
         const markerPosition = marker.getLngLat();
         clickPopup.setLngLat(markerPosition).addTo(map.current!);
