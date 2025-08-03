@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
+import { BusinessMapPage } from "@/components/BusinessMapPage";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 
@@ -103,9 +104,9 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show Mapbox for company context, HomePage for other contexts
+      // Show BusinessMapPage for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        return <BusinessMapbox />;
+        return <BusinessMapPage onNavigate={onNavigate} />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
