@@ -190,7 +190,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </div>
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
-        <div className="max-w-7xl mx-auto px-8 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-4 architectural-accent">
@@ -198,7 +198,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <img 
                   src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
                   alt="SKROBAKI"
-                  className="h-8 w-auto object-contain drop-shadow-lg cursor-pointer"
+                  className="h-6 sm:h-8 w-auto object-contain drop-shadow-lg cursor-pointer"
                   onClick={() => goToSlide(0)}
                 />
                 <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
@@ -206,7 +206,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
 
             {/* Centered Navigation */}
-            <nav className="hidden md:flex items-center justify-center space-x-8 flex-1">
+            <nav className="hidden lg:flex items-center justify-center space-x-6 xl:space-x-8 flex-1">
               <button 
                 onClick={() => onNavigate('services')}
                 className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
@@ -233,10 +233,20 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </button>
             </nav>
 
-            {/* Login Button */}
+            {/* Mobile Navigation Menu */}
+            <div className="lg:hidden flex items-center space-x-2">
+              <button 
+                onClick={() => onNavigate('auth')}
+                className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200 px-2 py-1"
+              >
+                Login
+              </button>
+            </div>
+
+            {/* Desktop Login Button */}
             <button 
               onClick={() => onNavigate('auth')}
-              className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              className="hidden lg:block text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
             >
               Login
             </button>
@@ -245,12 +255,12 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </header>
 
       {/* Slide Navigation */}
-      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-3">
+      <div className="fixed right-3 sm:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-2 sm:gap-3">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
               currentSlide === index 
                 ? 'bg-brand-gold scale-125' 
                 : 'bg-muted-foreground/30 hover:bg-brand-gold/50'
@@ -263,18 +273,18 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="fixed left-8 top-1/2 transform -translate-y-1/2 z-40 glass rounded-full p-3 hover:bg-brand-gold/20 transition-all duration-300"
+        className="fixed left-3 sm:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 z-40 glass rounded-full p-2 sm:p-3 hover:bg-brand-gold/20 transition-all duration-300"
         disabled={currentSlide === 0}
       >
-        <ChevronUp className="w-5 h-5 text-brand-gold" />
+        <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-brand-gold" />
       </button>
       
       <button
         onClick={nextSlide}
-        className="fixed left-8 top-1/2 transform translate-y-4 z-40 glass rounded-full p-3 hover:bg-brand-gold/20 transition-all duration-300"
+        className="fixed left-3 sm:left-6 lg:left-8 top-1/2 transform translate-y-3 sm:translate-y-4 z-40 glass rounded-full p-2 sm:p-3 hover:bg-brand-gold/20 transition-all duration-300"
         disabled={currentSlide === slides.length - 1}
       >
-        <ChevronDown className="w-5 h-5 text-brand-gold" />
+        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-brand-gold" />
       </button>
 
       {/* Slides Container */}
@@ -305,23 +315,23 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           {/* Overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-br from-background/98 via-background/95 to-background/98" />
           
-          <div className="relative z-10 max-w-7xl mx-auto px-8 py-24">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
             <div className="max-w-5xl">
               {/* Main content starts here */}
               
-              <h1 className="heading-xl text-foreground mb-12 max-w-4xl font-playfair">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-foreground mb-8 sm:mb-12 max-w-4xl font-playfair leading-tight">
                 The project <span className="text-gradient-gold italic font-light">itself</span><br />
                 <span className="text-muted-foreground">holds the key to inspiration.</span>
               </h1>
               
-              <p className="body-lg text-muted-foreground mb-16 max-w-2xl leading-relaxed">
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-12 sm:mb-16 max-w-2xl leading-relaxed">
                 Architectural excellence through sophisticated design philosophy and uncompromising attention to detail. 
                 We transform visions into extraordinary built environments.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-20">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-16 sm:mb-20">
                 <button 
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl w-full sm:w-auto"
                   style={{ 
                     backgroundColor: 'rgb(115,171,204)',
                     boxShadow: '0 4px 15px rgba(115, 171, 204, 0.2)',
@@ -346,7 +356,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 </button>
                 <Button 
                   variant="outline" 
-                  className="button-ghost px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
+                  className="button-ghost px-4 sm:px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2 w-full sm:w-auto justify-center"
                   onClick={() => goToSlide(5)}
                 >
                   <Calendar className="w-4 h-4" />
@@ -355,7 +365,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-wrap gap-10 text-muted-foreground">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-6 sm:gap-8 lg:gap-10 text-muted-foreground">
                 <div className="flex items-center gap-3 group">
                   <div className="w-8 h-8 bg-brand-gold/20 rounded-lg flex items-center justify-center group-hover:bg-brand-gold/30 transition-colors">
                     <Award className="w-4 h-4 text-brand-gold" />
@@ -378,8 +388,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
           </div>
           
-          <div className="absolute bottom-8 left-8 text-muted-foreground">
-            <div className="text-xs font-light space-y-2 tracking-wider">
+          <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 left-4 sm:left-6 lg:left-8 text-muted-foreground">
+            <div className="text-xs font-light space-y-1 sm:space-y-2 tracking-wider">
               <div className="flex items-center gap-2">
                 <Home className="w-3 h-3 text-brand-gold" />
                 <span>Melbourne</span>
@@ -391,32 +401,32 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
         {/* Slide 2: Services Overview */}
         <section className="min-h-screen flex items-center bg-background">
-          <div className="max-w-7xl mx-auto px-8 py-20">
-            <div className="mb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="heading-lg text-foreground mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-foreground mb-6 sm:mb-8">
                   Our Approach
                 </h2>
-                <p className="body-lg text-muted-foreground">
+                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">
                   Comprehensive architectural and construction services designed for clients who value precision, quality, and innovative solutions.
                 </p>
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {services.map((category, idx) => (
                 <div key={idx} className="interactive-minimal group architectural-accent">
                   <Card className="glass-card border-brand-gold/10 overflow-hidden h-full group-hover:border-brand-gold/20 transition-all duration-500">
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 sm:p-8">
                       <div className="flex items-center gap-3 mb-6">
                         <div className="w-2 h-8 bg-gradient-to-b from-brand-gold to-brand-gold-light rounded-full"></div>
-                        <h3 className="heading-md text-foreground font-playfair text-xl">
+                        <h3 className="text-lg sm:text-xl text-foreground font-playfair">
                           {category.category}
                         </h3>
                       </div>
-                      <div className="space-y-6">
+                      <div className="space-y-4 sm:space-y-6">
                         {category.items.map((item, itemIdx) => (
-                          <div key={itemIdx} className="flex items-start gap-4 group/item hover:translate-x-2 transition-transform duration-300">
+                          <div key={itemIdx} className="flex items-start gap-3 sm:gap-4 group/item hover:translate-x-2 transition-transform duration-300">
                             <div className="w-8 h-8 bg-brand-gold/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 group-hover/item:bg-brand-gold/30 transition-colors">
                               <item.icon className="w-4 h-4 text-brand-gold" />
                             </div>
@@ -437,28 +447,28 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
         {/* Slide 3: Project Lifecycle Timeline */}
         <section className="min-h-screen flex items-center bg-card/30">
-          <div className="max-w-7xl mx-auto px-8 py-20">
-            <div className="mb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="heading-lg text-card-foreground mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-card-foreground mb-6 sm:mb-8">
                   Project Lifecycle
                 </h2>
-                <p className="body-lg text-muted-foreground">
+                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">
                   A systematic seven-stage approach ensuring seamless execution from initial concept to final delivery.
                 </p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {projectLifecycle.map((stage, idx) => (
                 <div key={idx} className="interactive-minimal">
                   <Card className="glass-card border-border/10 h-full">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <div className="mb-4">
                         <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
                           <span className="text-foreground font-medium text-sm">{stage.stage}</span>
                         </div>
-                        <h3 className="heading-md text-card-foreground mb-3 text-lg">
+                        <h3 className="text-base sm:text-lg text-card-foreground mb-3">
                           {stage.title}
                         </h3>
                       </div>
@@ -473,23 +483,23 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
         {/* Slide 4: Featured Projects */}
         <section className="min-h-screen flex items-center bg-background">
-          <div className="max-w-7xl mx-auto px-8 py-20">
-            <div className="flex justify-between items-end mb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="flex justify-between items-end mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="heading-lg text-foreground mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-foreground mb-6 sm:mb-8">
                   Selected Works
                 </h2>
-                <p className="body-lg text-muted-foreground">
+                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">
                   A curated portfolio showcasing our commitment to architectural excellence and innovative design solutions.
                 </p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {featuredProjects.map((project, idx) => (
                 <div key={idx} className="interactive-minimal group">
                   <Card className="glass-card border-border/10 overflow-hidden h-full">
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-40 sm:h-48 overflow-hidden">
                       <img 
                         src={project.image} 
                         alt={project.title}
@@ -497,8 +507,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent"></div>
                     </div>
-                    <CardContent className="p-6">
-                      <h3 className="heading-md text-card-foreground mb-2 text-lg">
+                    <CardContent className="p-4 sm:p-6">
+                      <h3 className="text-base sm:text-lg text-card-foreground mb-2">
                         {project.title}
                       </h3>
                       <p className="text-muted-foreground text-sm font-light mb-3">{project.location}</p>
@@ -513,23 +523,23 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
         {/* Slide 5: Testimonials */}
         <section className="min-h-screen flex items-center bg-card/30">
-          <div className="max-w-6xl mx-auto px-8 py-20">
-            <div className="mb-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="heading-lg text-card-foreground mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-card-foreground mb-6 sm:mb-8">
                   Client Testimonials
                 </h2>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {testimonials.map((testimonial, idx) => (
                 <div key={idx} className="interactive-minimal">
                   <Card className="glass-card border-border/10 h-full">
-                    <CardContent className="p-8">
+                    <CardContent className="p-6 sm:p-8">
                       <div className="mb-6">
                         <Quote className="w-6 h-6 text-muted-foreground/30 mb-4" />
-                        <p className="text-card-foreground text-base leading-relaxed font-light italic">
+                        <p className="text-card-foreground text-sm sm:text-base leading-relaxed font-light italic">
                           "{testimonial.quote}"
                         </p>
                       </div>
@@ -547,28 +557,28 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
         {/* Slide 6: Contact Section */}
         <section className="min-h-screen flex items-center bg-background">
-          <div className="max-w-4xl mx-auto px-8 py-20 text-center">
-            <div className="mb-16">
-              <h2 className="heading-lg text-foreground mb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+            <div className="mb-12 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-foreground mb-6 sm:mb-8">
                 Start Your Project
               </h2>
-              <p className="body-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
                 Ready to transform your vision into reality? Contact us today to discuss your architectural project and discover how we can bring your dreams to life.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              <div className="glass-card p-8 rounded-2xl">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
+              <div className="glass-card p-6 sm:p-8 rounded-2xl">
                 <Phone className="w-8 h-8 text-brand-gold mx-auto mb-4" />
                 <h3 className="font-medium text-foreground mb-2">Phone</h3>
                 <p className="text-muted-foreground text-sm">+61 3 9xxx xxxx</p>
               </div>
-              <div className="glass-card p-8 rounded-2xl">
+              <div className="glass-card p-6 sm:p-8 rounded-2xl">
                 <Mail className="w-8 h-8 text-brand-gold mx-auto mb-4" />
                 <h3 className="font-medium text-foreground mb-2">Email</h3>
                 <p className="text-muted-foreground text-sm">hello@skrobaki.com</p>
               </div>
-              <div className="glass-card p-8 rounded-2xl">
+              <div className="glass-card p-6 sm:p-8 rounded-2xl sm:col-span-2 lg:col-span-1">
                 <MapPin className="w-8 h-8 text-brand-gold mx-auto mb-4" />
                 <h3 className="font-medium text-foreground mb-2">Location</h3>
                 <p className="text-muted-foreground text-sm">Melbourne, VIC</p>
@@ -576,7 +586,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
 
             <button 
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl w-full sm:w-auto"
               style={{ 
                 backgroundColor: 'rgb(54,119,159)',
                 boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
