@@ -205,8 +205,9 @@ export const BusinessMapbox = () => {
         display: flex;
         align-items: center;
         justify-content: center;
-        transform: scale(1);
-        position: relative;
+        transform: translate(-50%, -50%);
+        transition: none;
+        pointer-events: auto;
       `;
       
       // Add coordinate status indicator
