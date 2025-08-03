@@ -169,43 +169,31 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="px-3 py-1.5 text-xs font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-lg backdrop-blur-sm transition-all duration-300 border-0 flex items-center space-x-2 border border-white/40"
-                id="finance-dropdown-button"
               >
                 <span>{getCurrentTabLabel()}</span>
                 <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Menu with Fixed Positioning */}
+              {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <>
-                  {/* Backdrop to close dropdown */}
-                  <div 
-                    className="fixed inset-0 z-[999]" 
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
-                  <div className="fixed z-[9999] bg-white border border-gray-200 rounded-lg shadow-2xl w-48" 
-                       style={{
-                         top: '140px', // Adjust this value based on your toolbar position
-                         left: '340px'  // Adjust this value based on your dropdown position
-                       }}>
-                    {tabOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setSelectedTab(option.value);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full px-3 py-2 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg ${
-                          selectedTab === option.value 
-                            ? 'bg-blue-50 text-blue-600' 
-                            : 'text-slate-600'
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </>
+                <div className="absolute top-full left-0 mt-0.5 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden w-48" style={{ zIndex: 99999 }}>
+                  {tabOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSelectedTab(option.value);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full px-3 py-1.5 text-xs font-medium tracking-wide text-left transition-all duration-200 hover:bg-gray-50 ${
+                        selectedTab === option.value 
+                          ? 'bg-blue-50 text-blue-600' 
+                          : 'text-slate-600'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           </div>
