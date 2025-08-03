@@ -108,7 +108,12 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    let mapboxToken = Deno.env.get('MAPBOX_TOKEN')
+    
+    // Try different possible names for the Mapbox token
+    let mapboxToken = Deno.env.get('MAPBOX_TOKEN') || 
+                      Deno.env.get('Map_Box Token') || 
+                      Deno.env.get('MAPBOX_API_KEY') ||
+                      Deno.env.get('Map_Box_Token')
     
     // If no token from environment, this should not happen but let's log it
     if (!mapboxToken) {
