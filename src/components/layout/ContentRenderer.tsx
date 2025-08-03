@@ -61,7 +61,7 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import { VictoriaMetaVerse } from "@/components/metaverse/VictoriaMetaVerse";
+import { MapboxTokenSetup } from "@/components/mapbox/MapboxTokenSetup";
 
 
 interface ContentRendererProps {
@@ -103,24 +103,9 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show MetaVerse for company context with fallback, HomePage for other contexts
+      // Show Mapbox for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        try {
-          return <VictoriaMetaVerse />;
-        } catch (error) {
-          console.error('MetaVerse failed, showing fallback:', error);
-          return (
-            <div className="w-full h-screen pt-[73px] bg-background flex items-center justify-center">
-              <div className="text-center p-8">
-                <h2 className="text-2xl font-bold text-foreground mb-4">Business Dashboard</h2>
-                <p className="text-muted-foreground">MetaVerse loading... Please check console for errors.</p>
-                <div className="mt-4 p-4 bg-primary/10 rounded-lg">
-                  <p className="text-sm">Fallback mode active - 3D view temporarily unavailable</p>
-                </div>
-              </div>
-            </div>
-          );
-        }
+        return <MapboxTokenSetup />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
@@ -261,7 +246,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "system":
-      return <VictoriaMetaVerse />;
+      return <MapboxTokenSetup />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
