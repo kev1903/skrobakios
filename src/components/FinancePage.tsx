@@ -415,6 +415,17 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                   <option>Construction</option>
                 </select>
               </div>
+              <div className="bg-white/40 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-2">
+                <select className="bg-transparent text-slate-700 text-sm font-medium tracking-wide outline-none">
+                  <option>All Status</option>
+                  <option>Paid</option>
+                  <option>Authorised</option>
+                  <option>Sent</option>
+                  <option>Draft</option>
+                  <option>Overdue</option>
+                  <option>Deleted</option>
+                </select>
+              </div>
             </div>
 
             {/* Income Table */}
