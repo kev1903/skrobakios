@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Building, Globe, Layers } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
+import { useNavigate } from 'react-router-dom';
 
 interface Project {
   id: string;
@@ -25,10 +25,7 @@ export const BusinessMapbox = () => {
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   
-  const { navigateTo } = useNavigationWithHistory({
-    onNavigate: (page: string) => console.log('Navigating to:', page),
-    currentPage: 'business-mapbox'
-  });
+  const navigate = useNavigate();
   
 
   // Fetch Mapbox token from edge function
@@ -89,13 +86,13 @@ export const BusinessMapbox = () => {
   // Set up global navigation function for popup clicks
   useEffect(() => {
     (window as any).projectNavigate = (projectId: string) => {
-      navigateTo(`project-dashboard/${projectId}`);
+      navigate(`/project-dashboard/${projectId}`);
     };
 
     return () => {
       delete (window as any).projectNavigate;
     };
-  }, [navigateTo]);
+  }, [navigate]);
 
   // Initialize map
   useEffect(() => {
