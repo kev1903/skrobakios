@@ -212,10 +212,7 @@ export const BusinessMapbox = () => {
       
       // Add coordinate status indicator
       if (hasRealCoords) {
-        markerEl.innerHTML = `
-          <div style="color: hsl(var(--primary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>
-          <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: hsl(var(--success)); border: 1px solid hsl(var(--background)); border-radius: 50%;"></div>
-        `;
+        markerEl.innerHTML = `<div style="color: hsl(var(--primary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>`;
       } else {
         markerEl.innerHTML = `<div style="color: hsl(var(--secondary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>`;
       }
