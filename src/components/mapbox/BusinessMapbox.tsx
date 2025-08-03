@@ -219,13 +219,24 @@ export const BusinessMapbox = () => {
     let displayedCount = 0;
     projects.forEach((project, index) => {
       // Use REAL coordinates if available, otherwise use ORGANIZED fallback positions
-      const hasRealCoords = project.latitude && project.longitude;
-      const lat = hasRealCoords ? project.latitude : (-37.8136 + (displayedCount * 0.005));
-      const lng = hasRealCoords ? project.longitude : (144.9631 + (displayedCount * 0.005));
+      const hasRealCoords = project.latitude != null && project.longitude != null;
+      
+      // Ensure coordinates are properly parsed as numbers
+      const lat = hasRealCoords ? parseFloat(project.latitude.toString()) : (-37.8136 + (displayedCount * 0.005));
+      const lng = hasRealCoords ? parseFloat(project.longitude.toString()) : (144.9631 + (displayedCount * 0.005));
       
       displayedCount++;
       
-      console.log(`📍 Project "${project.name}": ${lat}, ${lng} ${hasRealCoords ? '(REAL COORDINATES)' : '(FALLBACK POSITION)'}`);
+      console.log(`📍 Project "${project.name}": lng=${lng}, lat=${lat} ${hasRealCoords ? '(REAL COORDINATES)' : '(FALLBACK POSITION)'}`);
+      
+      // Validate coordinates are within reasonable bounds for Melbourne area
+      const isValidMelbourneCoord = hasRealCoords && 
+        lat >= -39 && lat <= -36 && 
+        lng >= 143 && lng <= 147;
+      
+      if (hasRealCoords && !isValidMelbourneCoord) {
+        console.warn(`⚠️ Project "${project.name}" has coordinates outside Melbourne area: ${lat}, ${lng}`);
+      }
       
       // Create enhanced marker with coordinate status
       const markerColor = hasRealCoords ? '#10b981' : '#3b82f6'; // Green for real, blue for fallback
@@ -300,16 +311,16 @@ export const BusinessMapbox = () => {
 
       // Enhanced hover effects with coordinate-based styling
       markerEl.addEventListener('mouseenter', () => {
-        markerEl.style.transform = 'scale(1.3)';
+        // Don't scale the marker - it causes positioning issues
         markerEl.style.boxShadow = hasRealCoords ? 
           '0 6px 20px rgba(34, 197, 94, 0.4)' : 
           '0 6px 20px rgba(59, 130, 246, 0.4)';
         markerEl.style.background = hasRealCoords ? '#16a34a' : '#2563eb';
-        hoverPopup.setLngLat([lng, lat]).addTo(map.current!);
+        // Use the marker's position instead of manual coordinates
+        hoverPopup.setLngLat(marker.getLngLat()).addTo(map.current!);
       });
 
       markerEl.addEventListener('mouseleave', () => {
-        markerEl.style.transform = 'scale(1)';
         markerEl.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
         markerEl.style.background = markerColor;
         hoverPopup.remove();
@@ -319,9 +330,10 @@ export const BusinessMapbox = () => {
       markerEl.addEventListener('click', () => {
         // Remove hover popup when clicking
         hoverPopup.remove();
-        clickPopup.setLngLat([lng, lat]).addTo(map.current!);
+        const markerPosition = marker.getLngLat();
+        clickPopup.setLngLat(markerPosition).addTo(map.current!);
         map.current?.flyTo({
-          center: [lng, lat],
+          center: markerPosition,
           zoom: 15,
           duration: 2000
         });
