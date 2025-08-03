@@ -142,7 +142,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.1),transparent_50%)] -z-10" />
       
       {/* Navigation Tabs - SkrobakiOS Style */}
-      <Tabs defaultValue="income" className="mb-8">
+      <Tabs defaultValue="income">
         <div className="bg-white/20 backdrop-blur-2xl border border-white/30 rounded-2xl p-2 shadow-xl">
           <TabsList className="bg-transparent p-0 h-auto w-full grid grid-cols-6 gap-1">
             <TabsTrigger 
