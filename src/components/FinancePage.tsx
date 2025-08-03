@@ -135,7 +135,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   };
 
   return (
-    <div className="min-h-screen p-6 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* SkrobakiOS Background with Advanced Glass Morphism */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 -z-10" />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.03),transparent_50%)] -z-10" />
