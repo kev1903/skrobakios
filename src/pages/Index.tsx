@@ -14,9 +14,11 @@ import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { GlobalSidebar } from "@/components/GlobalSidebar";
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
+  const { isAuthenticated, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState(() => {
     // Initialize based on current route - if we're on root path, show landing page
     return window.location.pathname === "/" ? "landing" : "landing";
@@ -58,6 +60,17 @@ const Index = () => {
       setCurrentPage(pageParam);
     }
   }, [searchParams]); // Remove currentPage dependency to prevent infinite loops
+
+  // Redirect authenticated users away from public pages
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      const publicPages = ['landing', 'services', 'about', 'contact', 'signup'];
+      if (publicPages.includes(currentPage)) {
+        console.log(`🔐 Authenticated user on public page ${currentPage}, redirecting to profile`);
+        handleNavigate('profile');
+      }
+    }
+  }, [isAuthenticated, loading, currentPage]);
 
   const renderPage = () => {
     switch (currentPage) {
