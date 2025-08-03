@@ -165,7 +165,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
             <h2 className="text-xl font-inter font-light text-slate-700/90 tracking-wide">Income Management</h2>
             
             {/* Dropdown */}
-            <div className="relative">
+            <div className="relative z-[9999]">
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="px-3 py-1.5 text-xs font-medium tracking-wide text-slate-600 bg-white/80 text-blue-600 shadow-lg rounded-lg backdrop-blur-sm transition-all duration-300 border-0 flex items-center space-x-2 border border-white/40"
