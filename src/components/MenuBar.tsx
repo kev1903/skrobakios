@@ -256,7 +256,7 @@ export const MenuBar = () => {
   // Always render the top bar, but show different content based on timer state
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm border-b border-border/50">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center space-x-4">
