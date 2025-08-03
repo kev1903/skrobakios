@@ -18,6 +18,7 @@ interface Project {
 export const BusinessMapbox = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -132,6 +133,10 @@ export const BusinessMapbox = () => {
   // Initialize map
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
 
     mapboxgl.accessToken = mapboxToken;
     
@@ -254,10 +259,13 @@ export const BusinessMapbox = () => {
         markerEl.innerHTML = `<div style="color: white; font-size: 11px; font-weight: bold;">${displayedCount}</div>`;
       }
 
-      // Add marker to map
+      // Add marker to map and store reference
       const marker = new mapboxgl.Marker(markerEl)
         .setLngLat([lng, lat])
         .addTo(map.current!);
+      
+      // Store marker reference so it persists
+      markersRef.current.push(marker);
 
       // Create enhanced hover popup with coordinate accuracy
       const hoverPopup = new mapboxgl.Popup({ 
@@ -322,6 +330,10 @@ export const BusinessMapbox = () => {
     });
 
     return () => {
+      // Clean up markers
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
+      // Clean up map
       map.current?.remove();
     };
   }, [mapboxToken, projects]);
