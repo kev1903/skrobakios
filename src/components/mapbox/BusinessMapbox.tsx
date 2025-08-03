@@ -21,6 +21,7 @@ export const BusinessMapbox = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [geocoding, setGeocoding] = useState(false);
 
   // Fetch Mapbox token from edge function
   useEffect(() => {
@@ -46,20 +47,44 @@ export const BusinessMapbox = () => {
     fetchMapboxToken();
   }, []);
 
+  // Function to geocode projects
+  const geocodeProjects = async () => {
+    setGeocoding(true);
+    try {
+      console.log('🌍 Starting geocoding process for projects...');
+      
+      const geocodeResult = await supabase.functions.invoke('geocode-projects');
+      console.log('🔄 Geocoding result:', geocodeResult);
+      
+      // Wait for database updates to propagate
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Fetch updated projects
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, location, latitude, longitude, status');
+      
+      if (error) throw error;
+      
+      console.log(`📍 Reloaded ${data?.length || 0} projects after geocoding`);
+      const geocodedCount = data?.filter(p => p.latitude && p.longitude).length || 0;
+      console.log(`✅ ${geocodedCount} projects now have coordinates`);
+      setProjects(data || []);
+      
+    } catch (error) {
+      console.error('Error during geocoding:', error);
+    } finally {
+      setGeocoding(false);
+    }
+  };
+
   // Fetch projects data and ensure they're geocoded
   useEffect(() => {
     const fetchAndGeocodeProjects = async () => {
       try {
-        console.log('🌍 Starting geocoding process for projects...');
+        console.log('🌍 Initial load - checking for projects that need geocoding...');
         
-        // First, try to geocode any projects that need it
-        const geocodeResult = await supabase.functions.invoke('geocode-projects');
-        console.log('🔄 Geocoding result:', geocodeResult);
-        
-        // Wait a moment for database updates to propagate
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Then fetch all projects (including those without coordinates)
+        // First load all projects
         const { data, error } = await supabase
           .from('projects')
           .select('id, name, location, latitude, longitude, status');
@@ -71,14 +96,16 @@ export const BusinessMapbox = () => {
         console.log(`✅ ${geocodedCount} projects have coordinates, ${(data?.length || 0) - geocodedCount} using fallback`);
         setProjects(data || []);
         
+        // Try to geocode if needed
+        if (geocodedCount < (data?.length || 0)) {
+          console.log('🔄 Some projects need geocoding, triggering geocoding process...');
+          setTimeout(() => geocodeProjects(), 1000);
+        }
+        
       } catch (error) {
-        console.error('Error fetching/geocoding projects:', error);
-        // Fallback: fetch all projects (even without coordinates)
-        const { data } = await supabase
-          .from('projects')
-          .select('id, name, location, latitude, longitude, status');
-        console.log('📍 Fallback: loaded all projects, some may not have coordinates');
-        setProjects(data || []);
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -279,6 +306,33 @@ export const BusinessMapbox = () => {
       {/* Map Container */}
       <div ref={mapContainer} className="absolute inset-0 mt-[73px]" />
       
+
+      {/* Geocoding Controls */}
+      <div className="absolute top-20 right-4 z-10">
+        <div className="bg-background/95 backdrop-blur border rounded-lg p-3">
+          <Button 
+            onClick={geocodeProjects}
+            disabled={geocoding}
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            {geocoding ? (
+              <>
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                Geocoding...
+              </>
+            ) : (
+              <>
+                <MapPin className="w-4 h-4" />
+                Fix Pin Locations
+              </>
+            )}
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2 max-w-32">
+            Click to move pins to real addresses
+          </p>
+        </div>
+      </div>
 
       {/* Status Bar */}
       <div className="absolute bottom-4 left-4 z-10">
