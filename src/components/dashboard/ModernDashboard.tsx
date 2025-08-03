@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface ModernDashboardProps {
   onNavigate: (page: string) => void;
+  isFinancePage?: boolean;
 }
 
 // Mock data - replace with real data from your backend
@@ -98,7 +99,7 @@ const recentTransactions = [
   }
 ];
 
-export const ModernDashboard = ({ onNavigate }: ModernDashboardProps) => {
+export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDashboardProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
