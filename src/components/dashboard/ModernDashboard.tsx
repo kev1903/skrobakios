@@ -144,7 +144,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
-      <div className="relative z-10 p-6 space-y-6">
+      <div className="relative z-10 p-6 space-y-4">
         {/* Enhanced Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -204,7 +204,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="income" className="space-y-6 mt-6">
+          <TabsContent value="income" className="space-y-6 mt-2">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Income Overview</CardTitle>
@@ -219,7 +219,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="expenses" className="space-y-6 mt-6">
+          <TabsContent value="expenses" className="space-y-6 mt-2">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Expenses Management</CardTitle>
@@ -234,7 +234,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="debt" className="space-y-6 mt-6">
+          <TabsContent value="debt" className="space-y-6 mt-2">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Debt Repayment</CardTitle>
@@ -249,7 +249,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="legal" className="space-y-6 mt-6">
+          <TabsContent value="legal" className="space-y-6 mt-2">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Legal Obligations</CardTitle>
@@ -264,7 +264,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="assets" className="space-y-6 mt-6">
+          <TabsContent value="assets" className="space-y-6 mt-2">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Assets & Business Improvements</CardTitle>
@@ -279,7 +279,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
             </Card>
           </TabsContent>
 
-          <TabsContent value="investments" className="space-y-6 mt-6">
+          <TabsContent value="investments" className="space-y-6 mt-2">
             <Card className="bg-white/70 backdrop-blur-lg border-blue-200/30">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-800">Investments</CardTitle>
