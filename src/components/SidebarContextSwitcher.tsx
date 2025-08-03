@@ -64,6 +64,11 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
     if (contextType === 'company' && companyId && companyId !== currentCompany?.id) {
       switchCompany(companyId);
     }
+    
+    // Navigate to appropriate page based on context
+    if (contextType === 'personal') {
+      onNavigate?.('profile');
+    }
   };
 
   const displayText = activeContext === 'personal' ? getUserName() : getBusinessName();
