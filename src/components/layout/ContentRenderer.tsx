@@ -103,7 +103,13 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      // Show BusinessMapPage for company context, HomePage for other contexts
+      if (activeContext === 'company') {
+        console.log('🗺️ ContentRenderer: Showing BusinessMapPage for company context');
+        return <BusinessMapPage onNavigate={onNavigate} />;
+      } else {
+        return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      }
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
