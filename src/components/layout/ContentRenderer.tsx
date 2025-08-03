@@ -309,14 +309,15 @@ export const ContentRenderer = ({
     case "user-edit":
     case "existing-user-profile":
     case "user-profile":
-      // Show map for personal context, PersonalPage for company context
+      // Show profile page only for personal context, redirect to home for company context
       console.log('🗺️ ContentRenderer: Profile page requested, activeContext:', activeContext);
       if (activeContext === 'personal') {
-        console.log('🗺️ ContentRenderer: Showing MapComponent for personal context');
-        return <MapComponent className="w-full h-screen pt-[73px]" />; // Add padding-top for MenuBar height
-      } else {
-        console.log('📄 ContentRenderer: Showing PersonalPage for company context');
+        console.log('📄 ContentRenderer: Showing PersonalPage for personal context');
         return <PersonalPage onNavigate={onNavigate} />;
+      } else {
+        console.log('🗺️ ContentRenderer: Redirecting to home for company context');
+        onNavigate("home");
+        return null;
       }
     case "company-settings":
       return <CompanySettingsPage onNavigate={onNavigate} />;
