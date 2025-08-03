@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Building, Globe, Layers } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
 
 interface Project {
   id: string;
@@ -23,6 +24,11 @@ export const BusinessMapbox = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const { navigateTo } = useNavigationWithHistory({
+    onNavigate: (page: string) => console.log('Navigating to:', page),
+    currentPage: 'business-mapbox'
+  });
   
 
   // Fetch Mapbox token from edge function
@@ -79,6 +85,17 @@ export const BusinessMapbox = () => {
 
     fetchAndGeocodeProjects();
   }, []);
+
+  // Set up global navigation function for popup clicks
+  useEffect(() => {
+    (window as any).projectNavigate = (projectId: string) => {
+      navigateTo(`project-dashboard/${projectId}`);
+    };
+
+    return () => {
+      delete (window as any).projectNavigate;
+    };
+  }, [navigateTo]);
 
   // Initialize map
   useEffect(() => {
@@ -233,7 +250,7 @@ export const BusinessMapbox = () => {
         className: 'hover-popup'
       }).setHTML(
         `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg min-w-[200px]">
-          <div class="font-semibold mb-2 text-foreground text-sm" style="color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}">${project.name}</div>
+          <div class="font-semibold mb-2 text-foreground text-sm cursor-pointer hover:underline" style="color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}; cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
           <div class="text-muted-foreground text-xs mb-2">${project.location || 'Address not specified'}</div>
           <div class="text-xs px-2 py-1 rounded-md inline-block" style="background: ${hasRealCoords ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--warning) / 0.1)'}; color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}">
             ${hasRealCoords ? '📍 Precise Location' : '⚠️ Approximate Position'}
@@ -244,7 +261,7 @@ export const BusinessMapbox = () => {
       // Create click popup (detailed)
       const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
         `<div class="bg-popover border border-border rounded-lg p-4 shadow-xl">
-          <h3 class="font-semibold text-foreground text-sm mb-3">${project.name}</h3>
+          <h3 class="font-semibold text-foreground text-sm mb-3 cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
           <div class="mb-3">
             <span class="text-xs text-muted-foreground font-medium">ADDRESS:</span>
             <div class="text-xs text-foreground mt-1">${project.location || 'Location not specified'}</div>
