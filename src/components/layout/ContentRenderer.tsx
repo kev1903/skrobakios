@@ -103,13 +103,8 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show VictoriaProjectMap for company context, HomePage for other contexts
-      if (activeContext === 'company') {
-        console.log('🗺️ ContentRenderer: Showing VictoriaProjectMap for company context');
-        return <VictoriaProjectMap className="w-full h-screen pt-[73px]" />;
-      } else {
-        return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
-      }
+      // Show HomePage for all contexts
+      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
