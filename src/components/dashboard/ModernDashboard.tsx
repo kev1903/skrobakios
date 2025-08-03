@@ -139,7 +139,7 @@ export const ModernDashboard = ({ onNavigate, isFinancePage = false }: ModernDas
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100/50 to-blue-200/30 relative">
+    <div className="min-h-screen bg-white relative">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
       
