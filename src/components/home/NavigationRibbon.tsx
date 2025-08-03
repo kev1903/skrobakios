@@ -40,9 +40,7 @@ export const NavigationRibbon = ({
 
   // Business navigation items mapped to their required subscription features
   const businessNavigationItems = [
-    { id: "files", label: "Files", icon: File, requiredFeature: "basic_files" },
     { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "projects" },
-    { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign, requiredFeature: "cost_contracts" },
     { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "sales_management" },
     { id: "system", label: "SYSTEM", icon: Database }, // System should always be available
     { id: "settings", label: "Settings", icon: Settings }, // Settings should always be available
@@ -112,7 +110,7 @@ export const NavigationRibbon = ({
         {/* Show Profile Navigation when in personal context, otherwise show business sections */}
         {activeContext === 'personal' ? (
           <div className="space-y-1">
-            <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+            <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
               {!isCollapsed && "Profile Navigation"}
             </div>
             {personalProfileNavigation.map(item => {
@@ -125,10 +123,10 @@ export const NavigationRibbon = ({
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                     isActive 
                       ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                      : "text-white hover:bg-white/30"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                  <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                   {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                 </button>
               );
@@ -138,7 +136,7 @@ export const NavigationRibbon = ({
           <>
             {/* Core Business Modules (replacing General section) */}
             <div className="space-y-1">
-              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
                 {!isCollapsed && "Business Modules"}
               </div>
               {coreBusinessModules.map(item => {
@@ -158,10 +156,10 @@ export const NavigationRibbon = ({
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
                         ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-white hover:bg-white/30"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                     {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                   </button>
                 );
@@ -170,7 +168,7 @@ export const NavigationRibbon = ({
 
             {/* Additional Business Features (subscription-based) */}
             <div className="space-y-1">
-              <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+              <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
                 {!isCollapsed && "Additional Features"}
               </div>
               {businessNavigation.filter(item => item.id !== "projects" && item.id !== "sales" && item.id !== "system").map(item => {
@@ -183,23 +181,14 @@ export const NavigationRibbon = ({
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
                         ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-white hover:bg-white/30"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-white/80"}`} />
+                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                     {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                   </button>
                 );
               })}
-              
-              {/* Direct link to My Tasks page */}
-              <Link 
-                to="/tasks"
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-white hover:bg-white/30"
-              >
-                <CheckSquare className="w-4 h-4 transition-all duration-200 text-white/80" />
-                {!isCollapsed && <span className="text-sm font-medium">My Tasks</span>}
-              </Link>
             </div>
           </>
         )}
@@ -208,7 +197,7 @@ export const NavigationRibbon = ({
       {/* Support Section */}
       {filteredSupportNavigation.length > 0 && (
         <div className={`border-t border-white/20 space-y-1 ${isFloatingMode ? 'px-3 py-4' : 'p-4'}`}>
-          <div className="text-xs font-medium text-white/60 uppercase tracking-wider px-3 py-2">
+          <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
             {!isCollapsed && "Support"}
           </div>
           {filteredSupportNavigation.map(item => {
@@ -221,10 +210,10 @@ export const NavigationRibbon = ({
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                   isActive 
                     ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                    : "text-white hover:bg-white/30"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                 {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
               </button>
             );
