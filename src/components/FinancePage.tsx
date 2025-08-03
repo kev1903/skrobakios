@@ -125,7 +125,6 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isConnecting, setIsConnecting] = useState(false);
   const [hasXeroConnection, setHasXeroConnection] = useState(false);
 
   useEffect(() => {
@@ -305,60 +304,6 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
     }
   };
 
-  const handleXeroConnect = async () => {
-    setIsConnecting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('xero-oauth', {
-        body: { action: 'connect' }
-      });
-      
-      if (error) {
-        console.error('Connect error:', error);
-        toast.error('Failed to connect to Xero');
-        return;
-      }
-
-      if (data.auth_url) {
-        // Open Xero auth in a new window
-        const authWindow = window.open(
-          data.auth_url, 
-          'xero-auth', 
-          'width=600,height=700,scrollbars=yes,resizable=yes'
-        );
-
-        // Listen for auth completion
-        const messageListener = (event: MessageEvent) => {
-          if (event.data === 'xero-auth-success') {
-            authWindow?.close();
-            window.removeEventListener('message', messageListener);
-            toast.success('Successfully connected to Xero!');
-            checkXeroConnectionStatus();
-            setIsConnecting(false);
-          } else if (event.data === 'xero-auth-error') {
-            authWindow?.close();
-            window.removeEventListener('message', messageListener);
-            toast.error('Failed to connect to Xero');
-            setIsConnecting(false);
-          }
-        };
-
-        window.addEventListener('message', messageListener);
-        
-        // Check if window was closed manually
-        const checkClosed = setInterval(() => {
-          if (authWindow?.closed) {
-            clearInterval(checkClosed);
-            window.removeEventListener('message', messageListener);
-            setIsConnecting(false);
-          }
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('Connect error:', error);
-      toast.error('Failed to connect to Xero');
-      setIsConnecting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -508,24 +453,23 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                               <DollarSign className="w-8 h-8 text-slate-400" />
                             </div>
                             <p className="text-slate-600 font-medium tracking-wide">No invoices synced yet</p>
-                            {!hasXeroConnection ? (
-                              <>
-                                <p className="text-sm text-slate-500/80 tracking-wide">
-                                  Connect to Xero to sync your invoices
-                                </p>
-                                <Button 
-                                  onClick={handleXeroConnect}
-                                  disabled={isConnecting}
-                                  className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide text-sm px-6 py-2"
-                                >
-                                  {isConnecting ? 'CONNECTING...' : 'Connect to Xero'}
-                                </Button>
-                              </>
-                            ) : (
-                              <p className="text-sm text-slate-500/80 tracking-wide">
-                                Click SYNC to fetch your Xero invoices
-                              </p>
-                            )}
+                             {!hasXeroConnection ? (
+                               <>
+                                 <p className="text-sm text-slate-500/80 tracking-wide">
+                                   Connect to Xero to sync your invoices
+                                 </p>
+                                 <Button 
+                                   onClick={() => onNavigate?.('business-settings')}
+                                   className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide text-sm px-6 py-2"
+                                 >
+                                   Go to Settings
+                                 </Button>
+                               </>
+                             ) : (
+                               <p className="text-sm text-slate-500/80 tracking-wide">
+                                 Click SYNC to fetch your Xero invoices
+                               </p>
+                             )}
                           </div>
                         </td>
                       </tr>
