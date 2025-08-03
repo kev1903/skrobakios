@@ -141,6 +141,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const fetchInvoices = async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching invoices from database...');
+      
       const { data, error } = await supabase
         .from('xero_invoices')
         .select('*')
@@ -152,12 +154,27 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         return;
       }
 
+      console.log(`Found ${data?.length || 0} invoices in database`);
       setInvoices(data || []);
     } catch (error) {
       console.error('Error fetching invoices:', error);
       toast.error('Failed to load invoices');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const checkXeroConnection = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('xero_connections')
+        .select('*')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      return !error && data;
+    } catch (error) {
+      return false;
     }
   };
 
@@ -248,6 +265,15 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
   const handleXeroSync = async () => {
     setIsSyncing(true);
     try {
+      // First check if user has Xero connection
+      const hasConnection = await checkXeroConnection();
+      
+      if (!hasConnection) {
+        toast.error('No Xero connection found. Please set up Xero integration first.');
+        setIsSyncing(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('xero-sync-invoices');
       
       if (error) {
@@ -419,7 +445,15 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                               <DollarSign className="w-8 h-8 text-slate-400" />
                             </div>
                             <p className="text-slate-600 font-medium tracking-wide">No invoices synced yet</p>
-                            <p className="text-sm text-slate-500/80 tracking-wide">Click SYNC to fetch your Xero invoices</p>
+                            <p className="text-sm text-slate-500/80 tracking-wide">
+                              Set up Xero integration first, then click SYNC to fetch your invoices
+                            </p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <span className="text-xs text-slate-400">💡</span>
+                              <p className="text-xs text-slate-500/70 tracking-wide">
+                                Need help? Contact support to set up Xero integration
+                              </p>
+                            </div>
                           </div>
                         </td>
                       </tr>
