@@ -33,8 +33,12 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
   useEffect(() => {
     const fetchMapboxToken = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        // Add timestamp to force refresh
+        const { data, error } = await supabase.functions.invoke('get-mapbox-token', {
+          body: { timestamp: Date.now() }
+        });
         if (!error && data?.token) {
+          console.log('🗺️ VictoriaProjectMap: New Mapbox token fetched:', data.token.substring(0, 20) + '...');
           setMapboxToken(data.token);
         } else {
           console.warn('Mapbox token not configured in secrets');
