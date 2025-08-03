@@ -59,16 +59,16 @@ export const BusinessMapbox = () => {
         // Wait a moment for database updates to propagate
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Then fetch all projects with their coordinates
+        // Then fetch all projects (including those without coordinates)
         const { data, error } = await supabase
           .from('projects')
-          .select('id, name, location, latitude, longitude, status')
-          .not('latitude', 'is', null)
-          .not('longitude', 'is', null);
+          .select('id, name, location, latitude, longitude, status');
         
         if (error) throw error;
         
-        console.log(`📍 Loaded ${data?.length || 0} geocoded projects`);
+        console.log(`📍 Loaded ${data?.length || 0} total projects`);
+        const geocodedCount = data?.filter(p => p.latitude && p.longitude).length || 0;
+        console.log(`✅ ${geocodedCount} projects have coordinates, ${(data?.length || 0) - geocodedCount} using fallback`);
         setProjects(data || []);
         
       } catch (error) {
@@ -166,16 +166,13 @@ export const BusinessMapbox = () => {
       );
     });
 
-    // Add project markers with real coordinates
+    // Add project markers with coordinates (real or fallback)
     projects.forEach((project, index) => {
-      // Only use real coordinates if they exist, otherwise skip this project
-      if (!project.latitude || !project.longitude) {
-        console.warn(`⚠️ Skipping project ${project.name} - no coordinates available`);
-        return;
-      }
+      // Use real coordinates if available, otherwise use fallback positions around Melbourne
+      const lat = project.latitude || (-37.8136 + (index * 0.01) - 0.05);
+      const lng = project.longitude || (144.9631 + (index * 0.01) - 0.05);
       
-      const lat = project.latitude;
-      const lng = project.longitude;
+      console.log(`📍 Project ${project.name}: ${lat}, ${lng} ${project.latitude ? '(real)' : '(fallback)'}`);
 
       // Create custom marker element
       const markerEl = document.createElement('div');
@@ -201,7 +198,7 @@ export const BusinessMapbox = () => {
         .setLngLat([lng, lat])
         .addTo(map.current!);
 
-      // Create hover popup
+      // Create hover popup with coordinate status
       const hoverPopup = new mapboxgl.Popup({ 
         offset: 25,
         closeButton: false,
@@ -211,6 +208,9 @@ export const BusinessMapbox = () => {
         `<div style="padding: 6px 8px; background: rgba(0,0,0,0.8); border-radius: 6px; color: white; font-size: 12px; backdrop-filter: blur(10px);">
           <div style="font-weight: bold; margin-bottom: 2px;">${project.name}</div>
           <div style="opacity: 0.9;">${project.location || 'Address not specified'}</div>
+          <div style="opacity: 0.7; font-size: 10px; margin-top: 2px;">
+            ${project.latitude ? '📍 Real coordinates' : '⚠️ Approximate location'}
+          </div>
         </div>`
       );
 
