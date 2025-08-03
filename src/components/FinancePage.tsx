@@ -243,7 +243,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
               <BarChart3 className="w-3 h-3 mr-1.5" />
               Export
             </Button>
-            <Button className="bg-green-600/90 backdrop-blur-xl text-white hover:bg-green-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide text-xs px-3 py-1.5">
+            <Button variant="outline" className="bg-white/40 backdrop-blur-xl border-white/20 text-slate-700 hover:bg-white/60 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-xl font-medium tracking-wide text-xs px-3 py-1.5">
               SYNC
             </Button>
             <Button className="bg-blue-600/90 backdrop-blur-xl text-white hover:bg-blue-700/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 font-medium tracking-wide text-xs px-3 py-1.5">
