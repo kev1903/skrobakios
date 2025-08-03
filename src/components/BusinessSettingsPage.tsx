@@ -47,7 +47,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     setIsConnecting(true);
     try {
       const { data, error } = await supabase.functions.invoke('xero-oauth', {
-        body: { action: 'connect' }
+        body: { action: 'initiate' }
       });
       
       if (error) {
