@@ -61,7 +61,7 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import VictoriaProjectMap from "@/components/VictoriaProjectMap";
+import { BusinessMapPage } from "@/components/BusinessMapPage";
 
 
 interface ContentRendererProps {
@@ -106,7 +106,7 @@ export const ContentRenderer = ({
       // Show BusinessMapPage for company context, HomePage for other contexts
       if (activeContext === 'company') {
         console.log('🗺️ ContentRenderer: Showing BusinessMapPage for company context');
-        return <VictoriaProjectMap className="w-full h-screen pt-[73px]" />;
+        return <BusinessMapPage onNavigate={onNavigate} />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
@@ -247,7 +247,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "system":
-      return <VictoriaProjectMap className="w-full h-screen pt-[73px]" />;
+      return <BusinessMapPage onNavigate={onNavigate} />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
