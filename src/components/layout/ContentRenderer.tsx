@@ -5,6 +5,7 @@ import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
 import { HomePage } from "@/components/HomePage";
 import { BusinessMapPage } from "@/components/BusinessMapPage";
 import { ProjectDetail } from "@/components/ProjectDetail";
+import { BusinessMapbox } from "@/components/mapbox/BusinessMapbox";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
@@ -62,7 +63,6 @@ import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import { BusinessMapbox } from "@/components/mapbox/BusinessMapbox";
 
 
 interface ContentRendererProps {
@@ -104,9 +104,9 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show BusinessMapPage for company context, HomePage for other contexts
+      // Show BusinessMapbox for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        return <BusinessMapPage onNavigate={onNavigate} />;
+        return <BusinessMapbox />;
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }
@@ -247,7 +247,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "system":
-      return <BusinessMapbox />;
+      return <BusinessMapPage onNavigate={onNavigate} />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
