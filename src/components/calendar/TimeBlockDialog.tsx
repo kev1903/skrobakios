@@ -29,17 +29,17 @@ const colorOptions = [
   { name: 'Gentle Olive', value: '80 15% 70%', hex: '#b8bfa8' }
 ];
 
-// Auto-assign colors to categories - Bright and contrasted
+// Auto-assign colors to categories - Lighter and smoother
 const categoryColors = {
-  work: '210 100% 65%',         // Bright Blue
-  personal: '150 100% 60%',     // Bright Green
-  meeting: '280 100% 70%',      // Bright Purple
-  break: '30 100% 70%',         // Bright Orange
-  family: '340 100% 75%',       // Bright Pink
-  site_visit: '190 100% 65%',   // Bright Cyan
-  church: '260 100% 75%',       // Bright Violet
-  rest: '240 100% 80%',         // Bright Light Blue
-  exercise: '120 100% 50%'      // Bright Forest Green
+  work: '210 60% 75%',          // Soft Blue
+  personal: '150 55% 70%',      // Soft Green
+  meeting: '280 50% 80%',       // Soft Purple
+  break: '30 65% 75%',          // Soft Orange
+  family: '340 50% 80%',        // Soft Pink
+  site_visit: '190 55% 75%',    // Soft Cyan
+  church: '260 45% 80%',        // Soft Violet
+  rest: '240 40% 85%',          // Soft Light Blue
+  exercise: '120 60% 65%'       // Soft Forest Green
 };
 
 interface TimeBlockDialogProps {
