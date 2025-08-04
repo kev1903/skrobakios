@@ -10,30 +10,7 @@ export const categoryColors = {
   family: '340 50% 65%',        // Pink
   site_visit: '190 40% 60%',    // Cyan
   church: '260 40% 70%',        // Violet
-  rest: '100 30% 65%',          // Olive Green
-  
-  // Additional categories with distinct colors
-  sleep: '240 35% 65%',         // Indigo
-  devotion: '45 50% 65%',       // Gold
-  'get ready': '320 40% 70%',   // Rose
-  'site visit': '190 40% 60%',  // Cyan (same as site_visit)
-  'deep work': '160 40% 50%',   // Dark Green
-  lunch: '15 50% 70%',          // Coral
-  
-  // Case variations for consistency
-  Sleep: '240 35% 65%',
-  Devotion: '45 50% 65%',
-  'Get Ready': '320 40% 70%',
-  'Site Visit': '190 40% 60%',
-  'Deep Work': '160 40% 50%',
-  Lunch: '15 50% 70%',
-  Church: '260 40% 70%',
-  Work: '220 50% 60%',
-  Personal: '140 45% 55%',
-  Meeting: '280 45% 65%',
-  Break: '25 55% 70%',
-  Family: '340 50% 65%',
-  Rest: '100 30% 65%'
+  rest: '100 30% 65%'           // Olive Green
 };
 
 export const colorOptions = [
