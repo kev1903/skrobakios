@@ -36,6 +36,7 @@ const TasksPage = () => {
   const [selectedTaskForEdit, setSelectedTaskForEdit] = useState<Task | null>(null);
   const [isTaskEditOpen, setIsTaskEditOpen] = useState(false);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Live time updater
   useEffect(() => {
@@ -85,15 +86,30 @@ const TasksPage = () => {
     };
   }, []);
 
+  // Filter tasks based on search term
+  const getFilteredTasks = (tasks: Task[]) => {
+    if (!searchTerm.trim()) return tasks;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return tasks.filter(task => 
+      task.taskName.toLowerCase().includes(searchLower) ||
+      (task.projectName && task.projectName.toLowerCase().includes(searchLower)) ||
+      (task.description && task.description.toLowerCase().includes(searchLower)) ||
+      task.status.toLowerCase().includes(searchLower) ||
+      task.priority.toLowerCase().includes(searchLower)
+    );
+  };
+
   const getTasksForDate = (date: Date | null) => {
     if (!date) return [];
     const dateString = date.toISOString().split('T')[0];
-    return userTasks.filter(task => {
+    const tasksForDate = userTasks.filter(task => {
       if (!task.dueDate) return false;
       // Handle both old date format (YYYY-MM-DD) and new datetime format (ISO string)
       const taskDate = task.dueDate.split('T')[0]; // Extract date part from datetime
       return taskDate === dateString;
     });
+    return getFilteredTasks(tasksForDate);
   };
 
   const getWeekDays = (date: Date) => {
@@ -403,7 +419,12 @@ const TasksPage = () => {
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input placeholder="Type here to search" className="pl-10 bg-gray-50/50 border-gray-200/50 rounded-xl h-11 text-sm placeholder:text-gray-400" />
+            <Input 
+              placeholder="Type here to search" 
+              className="pl-10 bg-gray-50/50 border-gray-200/50 rounded-xl h-11 text-sm placeholder:text-gray-400" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
           {/* Task Backlog */}
@@ -515,7 +536,7 @@ const TasksPage = () => {
                         <div className="text-sm text-gray-500">No tasks assigned to you</div>
                       </div>
                     ) : (
-                      userTasks.filter(task => {
+                      getFilteredTasks(userTasks).filter(task => {
                         // First filter by task type
                         const matchesType = activeTab === 'All' || task.taskType === activeTab;
                         if (!matchesType) return false;
