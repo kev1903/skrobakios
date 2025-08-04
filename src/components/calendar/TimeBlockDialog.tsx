@@ -38,7 +38,23 @@ const categoryColors = {
   family: '340 25% 82%',        // Dusty Rose
   site_visit: '180 25% 72%',    // Soft Teal
   church: '270 20% 78%',        // Gentle Purple
-  rest: '220 15% 75%'           // Warm Gray
+  rest: '220 15% 75%',          // Warm Gray
+  // Additional categories from your calendar
+  sleep: '220 15% 75%',         // Warm Gray
+  devotion: '45 25% 75%',       // Muted Gold
+  'get ready': '340 25% 82%',   // Dusty Rose
+  'site visit': '180 25% 72%',  // Soft Teal
+  'deep work': '160 25% 70%',   // Muted Mint
+  lunch: '25 35% 80%',          // Soft Peach
+  // Case variations
+  Sleep: '220 15% 75%',
+  Devotion: '45 25% 75%',
+  'Get Ready': '340 25% 82%',
+  'Site Visit': '180 25% 72%',
+  'Deep Work': '160 25% 70%',
+  Lunch: '25 35% 80%',
+  Church: '270 20% 78%',
+  Work: '200 30% 75%'
 };
 
 interface TimeBlockDialogProps {
