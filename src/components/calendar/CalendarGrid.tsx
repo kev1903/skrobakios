@@ -77,7 +77,12 @@ export const CalendarGrid = ({
             
             {/* Day Columns */}
             {weekDays.map(day => {
-              const dayBlocks = getBlocksForDay(day, timeBlocks);
+              const dayBlocks = getBlocksForDay(day, timeBlocks)
+                .sort((a, b) => {
+                  const aStart = parseInt(a.startTime.split(':')[0]) * 60 + parseInt(a.startTime.split(':')[1]);
+                  const bStart = parseInt(b.startTime.split(':')[0]) * 60 + parseInt(b.startTime.split(':')[1]);
+                  return aStart - bStart;
+                });
               const isDayToday = isToday(day);
               
               return (
@@ -114,8 +119,9 @@ export const CalendarGrid = ({
                       const blockStartTime = startHour * 60 + startMinute;
                       const blockEndTime = endHour * 60 + endMinute;
                       
-                      const overlappingBlocks = dayBlocks.filter((otherBlock, otherIndex) => {
-                        if (otherIndex >= blockIndex) return false; // Only check previous blocks
+                      // Find all blocks that overlap with this block
+                      const allOverlappingBlocks = dayBlocks.filter((otherBlock) => {
+                        if (otherBlock.id === block.id) return false; // Don't include self
                         const otherStartHour = parseInt(otherBlock.startTime.split(':')[0]);
                         const otherStartMinute = parseInt(otherBlock.startTime.split(':')[1]);
                         const otherEndHour = parseInt(otherBlock.endTime.split(':')[0]);
@@ -123,15 +129,24 @@ export const CalendarGrid = ({
                         const otherStartTime = otherStartHour * 60 + otherStartMinute;
                         const otherEndTime = otherEndHour * 60 + otherEndMinute;
                         
-                        // Check if blocks overlap
+                        // Check if blocks overlap (overlap if one starts before the other ends)
                         return blockStartTime < otherEndTime && blockEndTime > otherStartTime;
                       });
                       
-                      // Calculate horizontal offset based on number of overlapping blocks
-                      const overlapIndex = overlappingBlocks.length;
-                      const totalOverlapping = overlappingBlocks.length + 1;
-                      const blockWidth = totalOverlapping > 1 ? `${95 / totalOverlapping}%` : 'calc(100% - 8px)';
-                      const leftOffset = totalOverlapping > 1 ? `${(overlapIndex * 95) / totalOverlapping}%` : '4px';
+                      // Create a group of all overlapping blocks including current block
+                      const overlapGroup = [block, ...allOverlappingBlocks].sort((a, b) => {
+                        const aStart = parseInt(a.startTime.split(':')[0]) * 60 + parseInt(a.startTime.split(':')[1]);
+                        const bStart = parseInt(b.startTime.split(':')[0]) * 60 + parseInt(b.startTime.split(':')[1]);
+                        return aStart - bStart;
+                      });
+                      
+                      // Find current block's position in the sorted overlap group
+                      const overlapIndex = overlapGroup.findIndex(b => b.id === block.id);
+                      const totalOverlapping = overlapGroup.length;
+                      
+                      // Calculate width and position
+                      const blockWidth = totalOverlapping > 1 ? `${90 / totalOverlapping}%` : 'calc(100% - 8px)';
+                      const leftOffset = totalOverlapping > 1 ? `${(overlapIndex * 90) / totalOverlapping + 5}%` : '4px';
                       
                       // Always use category color for consistency with case-insensitive matching
                       const getCategoryColor = (category: string) => {
