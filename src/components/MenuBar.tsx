@@ -480,7 +480,6 @@ export const MenuBar = () => {
                 >
                   <Play className="h-4 w-4" />
                   <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
-                  <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
                 </Button>
               </div>
             )}
