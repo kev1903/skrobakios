@@ -109,8 +109,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     try {
       const { data: user } = await supabase.auth.getUser();
       
-      if (!user.user || !currentCompany) {
-        throw new Error('User not authenticated or no company selected');
+      if (!user.user) {
+        throw new Error('User not authenticated');
       }
 
       const { data, error } = await supabase
@@ -123,8 +123,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
           end_time: newBlock.endTime,
           category: newBlock.category,
           color: newBlock.color,
-          user_id: user.user.id,
-          company_id: currentCompany.id
+          user_id: user.user.id
         })
         .select()
         .single();
