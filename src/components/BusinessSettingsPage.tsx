@@ -31,7 +31,20 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .maybeSingle();
 
-      return !error && data;
+      if (error || !data) {
+        return false;
+      }
+
+      // Check if token is expired
+      const now = new Date();
+      const expiresAt = new Date(data.expires_at);
+      
+      if (now >= expiresAt) {
+        console.log('Xero token has expired');
+        return false; // Treat expired token as no connection
+      }
+
+      return data;
     } catch (error) {
       return false;
     }
