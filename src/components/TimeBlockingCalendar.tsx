@@ -7,7 +7,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
 import { useCompany } from '@/contexts/CompanyContext';
-import { Button } from '@/components/ui/button';
 
 interface TimeBlockingCalendarProps {
   currentDate: Date;
@@ -268,97 +267,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     setNewBlock(prev => ({ ...prev, ...changes }));
   }, []);
 
-  const handleCopyMondayBlocks = useCallback(async () => {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      
-      if (!user.user) {
-        throw new Error('User not authenticated');
-      }
-
-      // Get Monday blocks (day_of_week = 1)
-      const { data: mondayBlocks, error: fetchError } = await supabase
-        .from('time_blocks')
-        .select('*')
-        .eq('user_id', user.user.id)
-        .eq('day_of_week', 1);
-
-      if (fetchError) throw fetchError;
-
-      if (!mondayBlocks || mondayBlocks.length === 0) {
-        toast({
-          title: "No Monday blocks",
-          description: "Create some Monday time blocks first to copy them",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Delete existing blocks for Tuesday-Friday (days 2-5)
-      const { error: deleteError } = await supabase
-        .from('time_blocks')
-        .delete()
-        .eq('user_id', user.user.id)
-        .in('day_of_week', [2, 3, 4, 5]);
-
-      if (deleteError) throw deleteError;
-
-      // Create new blocks for Tuesday-Friday
-      const newBlocks = [];
-      for (const mondayBlock of mondayBlocks) {
-        for (const dayOfWeek of [2, 3, 4, 5]) { // Tuesday to Friday
-          newBlocks.push({
-            title: mondayBlock.title,
-            description: mondayBlock.description,
-            day_of_week: dayOfWeek,
-            start_time: mondayBlock.start_time,
-            end_time: mondayBlock.end_time,
-            category: mondayBlock.category,
-            color: mondayBlock.color,
-            user_id: user.user.id
-          });
-        }
-      }
-
-      const { error: insertError } = await supabase
-        .from('time_blocks')
-        .insert(newBlocks);
-
-      if (insertError) throw insertError;
-      
-      // Reload time blocks to show the copied blocks
-      await loadTimeBlocks();
-      
-      toast({
-        title: "Success",
-        description: "Monday time blocks copied to Tuesday-Friday"
-      });
-    } catch (error) {
-      console.error('Error copying Monday blocks:', error);
-      toast({
-        title: "Error",
-        description: "Failed to copy Monday blocks",
-        variant: "destructive"
-      });
-    }
-  }, [loadTimeBlocks, toast]);
-
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-          Time Blocking Calendar
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={handleCopyMondayBlocks}
-          className="text-xs"
-        >
-          Copy Monday to Weekdays
-        </Button>
-      </div>
-      
+    <>
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">Loading time blocks...</div>
@@ -386,6 +296,6 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
         onUpdateBlock={handleUpdateTimeBlock}
         onDeleteBlock={handleDeleteTimeBlock}
       />
-    </div>
+    </>
   );
 };
