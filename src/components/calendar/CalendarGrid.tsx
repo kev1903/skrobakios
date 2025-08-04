@@ -100,7 +100,7 @@ export const CalendarGrid = ({
                   
                   {/* Time Blocks Overlay */}
                   <div className="absolute inset-0 pointer-events-none">
-                    {dayBlocks.map(block => {
+                    {dayBlocks.map((block, blockIndex) => {
                       const startHour = parseInt(block.startTime.split(':')[0]);
                       const startMinute = parseInt(block.startTime.split(':')[1]);
                       const endHour = parseInt(block.endTime.split(':')[0]);
@@ -109,6 +109,29 @@ export const CalendarGrid = ({
                       // Calculate position (30-minute intervals, 24px per 30min slot)
                       const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
                       const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
+                      
+                      // Check for overlapping blocks to position them side by side
+                      const blockStartTime = startHour * 60 + startMinute;
+                      const blockEndTime = endHour * 60 + endMinute;
+                      
+                      const overlappingBlocks = dayBlocks.filter((otherBlock, otherIndex) => {
+                        if (otherIndex >= blockIndex) return false; // Only check previous blocks
+                        const otherStartHour = parseInt(otherBlock.startTime.split(':')[0]);
+                        const otherStartMinute = parseInt(otherBlock.startTime.split(':')[1]);
+                        const otherEndHour = parseInt(otherBlock.endTime.split(':')[0]);
+                        const otherEndMinute = parseInt(otherBlock.endTime.split(':')[1]);
+                        const otherStartTime = otherStartHour * 60 + otherStartMinute;
+                        const otherEndTime = otherEndHour * 60 + otherEndMinute;
+                        
+                        // Check if blocks overlap
+                        return blockStartTime < otherEndTime && blockEndTime > otherStartTime;
+                      });
+                      
+                      // Calculate horizontal offset based on number of overlapping blocks
+                      const overlapIndex = overlappingBlocks.length;
+                      const totalOverlapping = overlappingBlocks.length + 1;
+                      const blockWidth = totalOverlapping > 1 ? `${95 / totalOverlapping}%` : 'calc(100% - 8px)';
+                      const leftOffset = totalOverlapping > 1 ? `${(overlapIndex * 95) / totalOverlapping}%` : '4px';
                       
                       // Always use category color for consistency with case-insensitive matching
                       const getCategoryColor = (category: string) => {
@@ -145,12 +168,14 @@ export const CalendarGrid = ({
                       return (
                         <div
                           key={block.id}
-                          className="backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute left-1 right-1 cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center"
+                          className="backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center"
                           style={{
                             backgroundColor: `hsl(${bgColor})`,
                             borderColor: `hsl(${bgColor})`,
                             top: `${startPosition + 2}px`,
-                            height: `${Math.max(duration - 2, 20)}px` // Minimum height of 20px to show title
+                            height: `${Math.max(duration - 2, 20)}px`, // Minimum height of 20px to show title
+                            width: blockWidth,
+                            left: leftOffset
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
