@@ -110,8 +110,35 @@ export const CalendarGrid = ({
                       const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
                       const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                       
-                      // Always use category color for consistency
-                      const bgColor = categoryColors[block.category] || '220 15% 75%'; // Warm Gray as fallback
+                      // Always use category color for consistency with case-insensitive matching
+                      const getCategoryColor = (category: string) => {
+                        // Try exact match first
+                        if (categoryColors[category]) return categoryColors[category];
+                        
+                        // Try lowercase match
+                        const lowerCategory = category.toLowerCase();
+                        if (categoryColors[lowerCategory]) return categoryColors[lowerCategory];
+                        
+                        // Try to find a match ignoring case
+                        const colorKey = Object.keys(categoryColors).find(key => 
+                          key.toLowerCase() === lowerCategory
+                        );
+                        if (colorKey) return categoryColors[colorKey];
+                        
+                        // Default color mappings for common categories
+                        switch (lowerCategory) {
+                          case 'sleep': return '220 15% 75%';  // Warm Gray
+                          case 'devotion': return '45 25% 75%'; // Muted Gold
+                          case 'get ready': return '340 25% 82%'; // Dusty Rose
+                          case 'site visit': return '180 25% 72%'; // Soft Teal
+                          case 'deep work': return '160 25% 70%'; // Muted Mint
+                          case 'lunch': return '25 35% 80%'; // Soft Peach
+                          case 'church': return '270 20% 78%'; // Gentle Purple
+                          case 'work': return '200 30% 75%'; // Soft Blue-Gray
+                          default: return '220 15% 75%'; // Warm Gray fallback
+                        }
+                      };
+                      const bgColor = getCategoryColor(block.category);
                       
                       return (
                         <div
@@ -181,8 +208,35 @@ export const CalendarGrid = ({
               
               <div className="flex-1 space-y-1 overflow-y-auto">
                 {dayBlocks.map(block => {
-                  // Always use category color for consistency
-                  const bgColor = categoryColors[block.category] || '220 15% 75%'; // Warm Gray as fallback
+                  // Always use category color for consistency with case-insensitive matching
+                  const getCategoryColor = (category: string) => {
+                    // Try exact match first
+                    if (categoryColors[category]) return categoryColors[category];
+                    
+                    // Try lowercase match
+                    const lowerCategory = category.toLowerCase();
+                    if (categoryColors[lowerCategory]) return categoryColors[lowerCategory];
+                    
+                    // Try to find a match ignoring case
+                    const colorKey = Object.keys(categoryColors).find(key => 
+                      key.toLowerCase() === lowerCategory
+                    );
+                    if (colorKey) return categoryColors[colorKey];
+                    
+                    // Default color mappings for common categories
+                    switch (lowerCategory) {
+                      case 'sleep': return '220 15% 75%';  // Warm Gray
+                      case 'devotion': return '45 25% 75%'; // Muted Gold
+                      case 'get ready': return '340 25% 82%'; // Dusty Rose
+                      case 'site visit': return '180 25% 72%'; // Soft Teal
+                      case 'deep work': return '160 25% 70%'; // Muted Mint
+                      case 'lunch': return '25 35% 80%'; // Soft Peach
+                      case 'church': return '270 20% 78%'; // Gentle Purple
+                      case 'work': return '200 30% 75%'; // Soft Blue-Gray
+                      default: return '220 15% 75%'; // Warm Gray fallback
+                    }
+                  };
+                  const bgColor = getCategoryColor(block.category);
                   
                   return (
                     <div
