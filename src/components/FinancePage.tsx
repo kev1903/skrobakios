@@ -308,16 +308,30 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       
       if (error) {
         console.error('Sync error:', error);
-        toast.error(error.message || 'Failed to sync with Xero');
+        // Try to get the actual error message from the function response
+        let errorMessage = 'Failed to sync with Xero';
+        
+        if (error.message?.includes('Edge Function returned a non-2xx status code')) {
+          // For non-2xx responses, try to get the error from the data if available
+          if (data && typeof data === 'object' && data.error) {
+            errorMessage = data.error;
+          } else {
+            errorMessage = 'Xero sync failed. Please check your Xero connection and try again.';
+          }
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
+        
+        toast.error(errorMessage);
         return;
       }
 
-      if (data.success) {
+      if (data && data.success) {
         toast.success(`${data.message} (${data.new_entries} new invoices imported)`);
         // Refresh the invoices after successful sync
         fetchInvoices();
       } else {
-        toast.error(data.error || 'Failed to sync with Xero');
+        toast.error(data?.error || 'Failed to sync with Xero');
       }
     } catch (error) {
       console.error('Sync error:', error);
