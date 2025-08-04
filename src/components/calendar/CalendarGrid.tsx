@@ -110,8 +110,8 @@ export const CalendarGrid = ({
                       const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
                       const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
                       
-                      // Get color from category mapping or fallback to stored color (now HSL format)
-                      const bgColor = categoryColors[block.category] || block.color || '217 33% 47%';
+                      // Always use category color for consistency
+                      const bgColor = categoryColors[block.category] || '220 15% 75%'; // Warm Gray as fallback
                       
                       return (
                         <div
@@ -181,8 +181,8 @@ export const CalendarGrid = ({
               
               <div className="flex-1 space-y-1 overflow-y-auto">
                 {dayBlocks.map(block => {
-                  // Get color from category mapping or fallback to stored color (now HSL format)
-                  const bgColor = categoryColors[block.category] || block.color || '217 33% 47%';
+                  // Always use category color for consistency
+                  const bgColor = categoryColors[block.category] || '220 15% 75%'; // Warm Gray as fallback
                   
                   return (
                     <div
