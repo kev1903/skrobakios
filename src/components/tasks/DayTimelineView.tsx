@@ -515,25 +515,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     const endHour = parseInt(block.endTime.split(':')[0]);
                     const endMinute = parseInt(block.endTime.split(':')[1]);
                     
-                    let startPosition: number;
-                    let endPosition: number;
+                    // Calculate position based on 30-minute slots (each slot is 24px high)
+                    const startTotalMinutes = startHour * 60 + startMinute;
+                    const endTotalMinutes = endHour * 60 + endMinute;
                     
-                    if (startHour >= 0 && startHour < 5) {
-                      startPosition = 0;
-                    } else {
-                      const startTotalMinutes = startHour * 60 + startMinute;
-                      const startSlotIndex = Math.floor((startTotalMinutes - 300) / 30);
-                      startPosition = 24 + (startSlotIndex * 24);
-                    }
+                    // Convert to slot indices (each slot is 30 minutes)
+                    const startSlotIndex = Math.floor(startTotalMinutes / 30);
+                    const endSlotIndex = Math.ceil(endTotalMinutes / 30);
                     
-                    if (endHour >= 0 && endHour < 5) {
-                      endPosition = 24;
-                    } else {
-                      const endTotalMinutes = endHour * 60 + endMinute;
-                      const endSlotIndex = Math.floor((endTotalMinutes - 300) / 30);
-                      endPosition = 24 + (endSlotIndex * 24);
-                    }
-                    
+                    // Calculate pixel positions (each slot is 24px)
+                    const startPosition = startSlotIndex * 24;
+                    const endPosition = endSlotIndex * 24;
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
                     // Use category colors from time tracking settings - now in HSL format
@@ -552,8 +544,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                           right: '2px',
                         }}
                       >
-                        {/* Remove colored line indicator since we have border */}
-                        
                         <div className="p-1 h-full flex flex-col justify-center pl-3">
                           <div 
                             className="text-xs font-semibold text-center drop-shadow-sm text-foreground" 
