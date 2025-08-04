@@ -13,6 +13,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
 import { DayTimelineView } from '@/components/tasks/DayTimelineView';
 import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
+import { MonthTimelineView } from '@/components/tasks/MonthTimelineView';
 import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
 import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
@@ -196,8 +197,8 @@ const TasksPage = () => {
       return;
     }
 
-    // Handle timeline drops (works for all droppableIds that start with 'timeline-' or 'week-timeline-')
-    if (destination.droppableId.startsWith('timeline-') || destination.droppableId.startsWith('week-timeline-')) {
+    // Handle timeline drops (works for all droppableIds that start with 'timeline-', 'week-timeline-', or 'month-day-')
+    if (destination.droppableId.startsWith('timeline-') || destination.droppableId.startsWith('week-timeline-') || destination.droppableId.startsWith('month-day-')) {
       console.log('📅 Dropping on timeline slot:', destination.droppableId);
       
       // Extract task ID from draggableId (handle prefixed IDs)
@@ -206,6 +207,8 @@ const TasksPage = () => {
         taskId = draggableId.replace('backlog-', '');
       } else if (draggableId.startsWith('week-timeline-')) {
         taskId = draggableId.replace('week-timeline-', '');
+      } else if (draggableId.startsWith('month-')) {
+        taskId = draggableId.replace('month-', '');
       }
       
       const task = userTasks.find(t => t.id === taskId);
@@ -235,36 +238,43 @@ const TasksPage = () => {
               console.error('❌ Invalid week timeline droppable ID format');
               return;
             }
-          } else {
-            // Handle day timeline format (existing logic)
-            const slotHour = destination.droppableId.replace('timeline-', '');
-            newDate = new Date(currentDate);
-            
-            if (slotHour === '-1') {
-              // Combined night slot (00:00-05:00), default to 02:30 local time
-              newDate.setHours(2, 30, 0, 0);
-              console.log('🌙 Setting night slot time to 02:30 local time');
-            } else {
-              // slotHour is actually the slot index from the timeline
-              // Timeline structure: slot 10-47 represents 05:00-24:00 in 30-min intervals
-              const slotIndex = parseInt(slotHour);
-              
-              if (slotIndex < 10) {
-                // Should not happen based on timeline structure, but handle gracefully
-                const hour = Math.floor(slotIndex / 2);
-                const minutes = (slotIndex % 2) * 30;
-                newDate.setHours(hour, minutes, 0, 0);
-                console.log(`🌅 Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
-              } else {
-                // Regular slots: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
-                const adjustedSlot = slotIndex - 10; // Convert to 0-based from 05:00
-                const hour = 5 + Math.floor(adjustedSlot / 2); // Start from hour 5
-                const minutes = (adjustedSlot % 2) * 30;
-                newDate.setHours(hour, minutes, 0, 0);
-                console.log(`⏰ Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex}, adjusted ${adjustedSlot})`);
-              }
-            }
-          }
+           } else if (destination.droppableId.startsWith('month-day-')) {
+             // Handle month timeline format: "month-day-{dayISO}"
+             const dayISO = destination.droppableId.replace('month-day-', '');
+             newDate = new Date(dayISO);
+             // Set to noon for tasks dropped on month view (reasonable default time)
+             newDate.setHours(12, 0, 0, 0);
+             console.log(`📅 Month timeline: Moving to ${dayISO} at noon`);
+           } else {
+             // Handle day timeline format (existing logic)
+             const slotHour = destination.droppableId.replace('timeline-', '');
+             newDate = new Date(currentDate);
+             
+             if (slotHour === '-1') {
+               // Combined night slot (00:00-05:00), default to 02:30 local time
+               newDate.setHours(2, 30, 0, 0);
+               console.log('🌙 Setting night slot time to 02:30 local time');
+             } else {
+               // slotHour is actually the slot index from the timeline
+               // Timeline structure: slot 10-47 represents 05:00-24:00 in 30-min intervals
+               const slotIndex = parseInt(slotHour);
+               
+               if (slotIndex < 10) {
+                 // Should not happen based on timeline structure, but handle gracefully
+                 const hour = Math.floor(slotIndex / 2);
+                 const minutes = (slotIndex % 2) * 30;
+                 newDate.setHours(hour, minutes, 0, 0);
+                 console.log(`🌅 Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex})`);
+               } else {
+                 // Regular slots: slot 10 = 05:00, slot 11 = 05:30, slot 12 = 06:00, etc.
+                 const adjustedSlot = slotIndex - 10; // Convert to 0-based from 05:00
+                 const hour = 5 + Math.floor(adjustedSlot / 2); // Start from hour 5
+                 const minutes = (adjustedSlot % 2) * 30;
+                 newDate.setHours(hour, minutes, 0, 0);
+                 console.log(`⏰ Setting local time to ${hour}:${minutes.toString().padStart(2, '0')} (slot ${slotIndex}, adjusted ${adjustedSlot})`);
+               }
+             }
+           }
           
           console.log('📝 Updating task with new date:', newDate.toISOString());
           console.log('🕐 Local time set:', newDate.toString());
@@ -312,80 +322,24 @@ const TasksPage = () => {
     }
   }} />;
 
-  const renderMonthView = () => {
-    const days = getDaysInMonth(currentDate);
-    const weekHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    return (
-      <>
-        {/* Week Headers */}
-        <div className="grid grid-cols-7 gap-1 mb-4">
-          {weekHeaders.map(day => (
-            <div key={day} className="text-center py-3 text-sm font-semibold text-muted-foreground">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-1">
-          {days.map((day, index) => {
-            const dayTasks = getTasksForDate(day);
-            const isToday = day && isSameDay(day, new Date());
-            return (
-              <div key={index} className="aspect-square">
-                {day && (
-                  <div 
-                    className={cn(
-                      "h-full min-h-[120px] p-3 rounded-xl border hover:border-gray-200 transition-all cursor-pointer", 
-                      isToday ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-card hover:bg-muted/30 border-border"
-                    )} 
-                    onClick={() => {
-                      setCurrentDate(day);
-                      setViewMode('day'); // Switch to day view when clicking a day
-                    }}
-                  >
-                    <div className={cn("text-sm font-semibold mb-2", isToday ? "text-primary" : "text-foreground")}>
-                      {day.getDate()}
-                    </div>
-                    
-                    <div className="space-y-1">
-                      {dayTasks.slice(0, 2).map(task => {
-                        const taskTime = new Date(task.dueDate);
-                        const hasSpecificTime = !(taskTime.getUTCHours() === 0 && taskTime.getUTCMinutes() === 0);
-                        return (
-                          <div 
-                            key={task.id} 
-                            className="text-xs p-1.5 rounded border bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer" 
-                            title={`${task.taskName} - ${task.projectName || 'No Project'}${hasSpecificTime ? ` at ${format(taskTime, 'HH:mm')}` : ''}`} 
-                            onClick={e => {
-                              e.stopPropagation();
-                              // Could add task click handler here
-                            }}
-                          >
-                            <div className="font-medium truncate">{task.taskName}</div>
-                            {hasSpecificTime && (
-                              <div className="text-xs opacity-75">
-                                {format(taskTime, 'HH:mm')}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {dayTasks.length > 2 && (
-                        <div className="text-xs text-muted-foreground bg-muted/30 rounded p-1 text-center">
-                          +{dayTasks.length - 2} more
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </>
-    );
-  };
+  const renderMonthView = () => <MonthTimelineView 
+    currentDate={currentDate} 
+    tasks={userTasks}
+    onTaskUpdate={async (taskId, updates) => {
+      try {
+        await taskService.updateTask(taskId, updates, userProfile);
+        // Reload tasks to reflect changes
+        const updatedTasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(updatedTasks);
+      } catch (error) {
+        console.error('Failed to update task:', error);
+      }
+    }}
+    onDayClick={(day) => {
+      setCurrentDate(day);
+      setViewMode('day');
+    }}
+  />;
 
   const renderCalendarView = () => {
     switch (viewMode) {
