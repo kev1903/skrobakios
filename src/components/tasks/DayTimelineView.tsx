@@ -62,19 +62,29 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     rest: '217 33% 47%'         // Gray
   };
 
-  // Load time blocks from database
+  // Load time blocks from database for current user
   const loadTimeBlocks = useCallback(async () => {
     try {
+      const { data: user } = await supabase.auth.getUser();
+      
+      if (!user.user) {
+        setTimeBlocks([]);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('time_blocks')
-        .select('*');
+        .select('*')
+        .eq('user_id', user.user.id)
+        .order('day_of_week', { ascending: true })
+        .order('start_time', { ascending: true });
 
       if (error) throw error;
 
       const formattedBlocks: TimeBlock[] = data?.map(block => ({
         id: block.id,
         title: block.title,
-        description: block.description,
+        description: block.description || '',
         dayOfWeek: block.day_of_week,
         startTime: block.start_time,
         endTime: block.end_time,
