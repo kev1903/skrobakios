@@ -2,16 +2,15 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, startOfWeek, 
 import { TimeBlock, CalendarViewData } from './types';
 
 export const categoryColors = {
-  // Primary categories with distinct hues spread across the color wheel
-  work: '220 50% 60%',          // Blue
-  personal: '140 45% 55%',      // Forest Green  
-  meeting: '280 45% 65%',       // Purple
-  break: '25 55% 70%',          // Orange
-  family: '340 50% 65%',        // Pink
-  site_visit: '190 40% 60%',    // Cyan
-  church: '260 40% 70%',        // Violet
-  rest: '100 30% 65%',          // Olive Green
-  exercise: '170 45% 55%'       // Teal
+  work: '220 70% 70%',          // Steel Blue
+  personal: '160 65% 65%',      // Emerald Green
+  meeting: '300 60% 75%',       // Magenta
+  break: '45 70% 70%',          // Golden Yellow
+  family: '10 65% 75%',         // Coral Red
+  site_visit: '180 60% 70%',    // Teal
+  church: '270 55% 75%',        // Royal Purple
+  rest: '200 50% 80%',          // Sky Blue
+  exercise: '90 60% 65%'        // Lime Green
 };
 
 export const colorOptions = [

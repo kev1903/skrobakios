@@ -24,26 +24,8 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
   const { settings } = useTimeTracking();
   const { currentCompany } = useCompany();
   
-  // Get category colors from time tracking settings
-  const categoryColors = settings?.category_colors || {
-    'Design': '#3B82F6',
-    'Admin': '#10B981', 
-    'Calls': '#F59E0B',
-    'Break': '#EF4444',
-    'Browsing': '#8B5CF6',
-    'Site Visit': '#06B6D4',
-    'Deep Work': '#059669',
-    'Other': '#6B7280',
-    // Legacy categories for backward compatibility
-    work: '#3B82F6',
-    personal: '#10B981',
-    meeting: '#F59E0B',
-    break: '#EF4444',
-    family: '#ec4899',
-    site_visit: '#06B6D4',
-    church: '#8B5CF6',
-    rest: '#6B7280'
-  };
+  // Use consistent category colors from utils
+  const calendarCategoryColors = categoryColors;
   
   const [newBlock, setNewBlock] = useState<NewTimeBlock>({
     title: '',
@@ -300,7 +282,7 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
           timeBlocks={timeBlocks}
           onDayClick={handleDayClick}
           onBlockEdit={handleEditTimeBlock}
-          categoryColors={categoryColors}
+          categoryColors={calendarCategoryColors}
         />
       )}
 
