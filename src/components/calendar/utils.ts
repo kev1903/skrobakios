@@ -2,33 +2,33 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, startOfWeek, 
 import { TimeBlock, CalendarViewData } from './types';
 
 export const categoryColors = {
-  work: '217 91% 60%',        // Blue  
-  personal: '159 61% 51%',    // Green
-  meeting: '263 69% 69%',     // Purple
-  break: '43 96% 56%',        // Amber
-  family: '327 73% 97%',      // Pink
-  site_visit: '231 48% 48%',  // Indigo
-  church: '262 83% 58%',      // Violet
-  rest: '215 28% 60%'         // Slate
+  work: '213 40% 75%',          // Soft Blue  
+  personal: '145 35% 70%',      // Soft Green
+  meeting: '260 30% 75%',       // Soft Purple
+  break: '35 45% 75%',          // Soft Orange
+  family: '330 35% 80%',        // Soft Pink
+  site_visit: '225 25% 70%',    // Soft Indigo
+  church: '270 25% 75%',        // Soft Lavender
+  rest: '210 15% 70%'           // Soft Gray
 };
 
 export const colorOptions = [
-  { name: 'Blue', value: '217 91% 60%', hex: '#60a5fa' },
-  { name: 'Green', value: '134 61% 52%', hex: '#4ade80' },
-  { name: 'Purple', value: '263 69% 69%', hex: '#a78bfa' },
-  { name: 'Amber', value: '43 96% 56%', hex: '#fbbf24' },
-  { name: 'Pink', value: '327 73% 97%', hex: '#f472b6' },
-  { name: 'Indigo', value: '231 48% 48%', hex: '#818cf8' },
-  { name: 'Violet', value: '262 83% 58%', hex: '#a78bfa' },
-  { name: 'Slate', value: '215 28% 60%', hex: '#94a3b8' },
-  { name: 'Red', value: '0 85% 70%', hex: '#f87171' },
-  { name: 'Orange', value: '20 91% 62%', hex: '#fb923c' },
-  { name: 'Yellow', value: '54 92% 53%', hex: '#facc15' },
-  { name: 'Emerald', value: '159 64% 52%', hex: '#34d399' },
-  { name: 'Teal', value: '172 66% 51%', hex: '#2dd4bf' },
-  { name: 'Cyan', value: '188 86% 53%', hex: '#22d3ee' },
-  { name: 'Sky', value: '198 93% 60%', hex: '#38bdf8' },
-  { name: 'Rose', value: '351 83% 75%', hex: '#fb7185' }
+  { name: 'Soft Blue', value: '213 40% 75%', hex: '#a5c5e3' },
+  { name: 'Soft Green', value: '145 35% 70%', hex: '#9bcfa6' },
+  { name: 'Soft Purple', value: '260 30% 75%', hex: '#b5a8d9' },
+  { name: 'Soft Orange', value: '35 45% 75%', hex: '#e6b88a' },
+  { name: 'Soft Pink', value: '330 35% 80%', hex: '#e8b4cb' },
+  { name: 'Soft Indigo', value: '225 25% 70%', hex: '#a5b4d1' },
+  { name: 'Soft Lavender', value: '270 25% 75%', hex: '#c4b5d9' },
+  { name: 'Soft Gray', value: '210 15% 70%', hex: '#adb5bd' },
+  { name: 'Soft Coral', value: '10 40% 75%', hex: '#e3a5a5' },
+  { name: 'Soft Peach', value: '25 45% 75%', hex: '#e6c49b' },
+  { name: 'Soft Yellow', value: '50 35% 75%', hex: '#ddd19b' },
+  { name: 'Soft Mint', value: '160 30% 75%', hex: '#a5d9c4' },
+  { name: 'Soft Teal', value: '180 30% 70%', hex: '#9bcfcf' },
+  { name: 'Soft Sky', value: '200 35% 75%', hex: '#a5c8e3' },
+  { name: 'Soft Azure', value: '195 40% 75%', hex: '#9bc9e3' },
+  { name: 'Soft Rose', value: '340 30% 75%', hex: '#e3b4c4' }
 ];
 
 export const getCalendarData = (currentDate: Date, viewMode: 'week' | 'month'): CalendarViewData => {
