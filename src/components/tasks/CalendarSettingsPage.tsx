@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { calendarIntegrationService, CalendarIntegration } from '@/services/calendarIntegrationService';
 import { useToast } from '@/hooks/use-toast';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 interface CalendarSettingsPageProps {
   onBack: () => void;
@@ -26,6 +27,7 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
   const [isConnecting, setIsConnecting] = useState(false);
   const [integrations, setIntegrations] = useState<CalendarIntegration[]>([]);
   const { toast } = useToast();
+  const { spacingClasses, minHeightClasses } = useMenuBarSpacing();
   
   const [settings, setSettings] = useState({
     timeFormat: '24h',
@@ -120,7 +122,7 @@ export const CalendarSettingsPage: React.FC<CalendarSettingsPageProps> = ({ onBa
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-6">
+    <div className={`${minHeightClasses} ${spacingClasses} bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-6`}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
