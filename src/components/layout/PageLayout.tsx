@@ -27,8 +27,8 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     );
   }
 
-  // System page and home page with BusinessMapbox should take full screen like sales page
-  if (currentPage === "system" || currentPage === "home") {
+  // System page, home page, and tasks page should take full screen like sales page
+  if (currentPage === "system" || currentPage === "home" || currentPage === "tasks") {
     return (
       <ProtectedRoute 
         onNavigate={onNavigate}
