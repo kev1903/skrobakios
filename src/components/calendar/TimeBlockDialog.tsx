@@ -8,7 +8,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Clock, Trash2, Palette } from 'lucide-react';
 import { TimeBlock, NewTimeBlock } from './types';
-import { colorOptions } from './utils';
+
+// Muted color palette for time blocks
+const colorOptions = [
+  { name: 'Dusty Blue', value: '200 30% 75%', hex: '#b3c5d1' },
+  { name: 'Muted Mint', value: '160 25% 70%', hex: '#a8c5b5' },
+  { name: 'Pale Lavender', value: '280 20% 75%', hex: '#c4b8d1' },
+  { name: 'Soft Peach', value: '25 35% 80%', hex: '#e6c4a8' },
+  { name: 'Dusty Rose', value: '340 25% 82%', hex: '#e0c0c8' },
+  { name: 'Soft Teal', value: '180 25% 72%', hex: '#a8c5c5' },
+  { name: 'Gentle Purple', value: '270 20% 78%', hex: '#c8bdd6' },
+  { name: 'Warm Gray', value: '220 15% 75%', hex: '#bdc0c7' },
+  { name: 'Sage Green', value: '140 20% 70%', hex: '#a8bfad' },
+  { name: 'Soft Coral', value: '15 30% 78%', hex: '#d9b8a8' },
+  { name: 'Muted Gold', value: '45 25% 75%', hex: '#cfc4a8' },
+  { name: 'Powder Blue', value: '190 25% 78%', hex: '#b3cdd6' },
+  { name: 'Blush Pink', value: '350 20% 80%', hex: '#d6c0c4' },
+  { name: 'Seafoam', value: '170 20% 72%', hex: '#a8c7c0' },
+  { name: 'Soft Mauve', value: '320 18% 75%', hex: '#d1bcc4' },
+  { name: 'Gentle Olive', value: '80 15% 70%', hex: '#b8bfa8' }
+];
 
 interface TimeBlockDialogProps {
   isOpen: boolean;
