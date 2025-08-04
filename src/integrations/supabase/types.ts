@@ -3099,6 +3099,14 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: boolean
       }
+      copy_monday_blocks_to_weekdays: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
+      copy_my_monday_blocks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       delete_company_completely: {
         Args: { target_company_id: string }
         Returns: Json

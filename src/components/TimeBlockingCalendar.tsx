@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
 import { useCompany } from '@/contexts/CompanyContext';
+import { Button } from '@/components/ui/button';
 
 interface TimeBlockingCalendarProps {
   currentDate: Date;
@@ -267,8 +268,45 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
     setNewBlock(prev => ({ ...prev, ...changes }));
   }, []);
 
+  const handleCopyMondayBlocks = useCallback(async () => {
+    try {
+      const { error } = await supabase.rpc('copy_my_monday_blocks');
+      
+      if (error) throw error;
+      
+      // Reload time blocks to show the copied blocks
+      await loadTimeBlocks();
+      
+      toast({
+        title: "Success",
+        description: "Monday time blocks copied to Tuesday-Friday"
+      });
+    } catch (error) {
+      console.error('Error copying Monday blocks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to copy Monday blocks",
+        variant: "destructive"
+      });
+    }
+  }, [loadTimeBlocks, toast]);
+
   return (
-    <>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-muted-foreground">
+          Time Blocking Calendar
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleCopyMondayBlocks}
+          className="text-xs"
+        >
+          Copy Monday to Weekdays
+        </Button>
+      </div>
+      
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground">Loading time blocks...</div>
@@ -296,6 +334,6 @@ export const TimeBlockingCalendar = ({ currentDate, viewMode, onMonthChange }: T
         onUpdateBlock={handleUpdateTimeBlock}
         onDeleteBlock={handleDeleteTimeBlock}
       />
-    </>
+    </div>
   );
 };
