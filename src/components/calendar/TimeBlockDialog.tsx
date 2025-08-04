@@ -136,15 +136,60 @@ export const TimeBlockDialog = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="glass-card bg-card border border-border z-50">
-                <SelectItem value="work">Work</SelectItem>
-                <SelectItem value="personal">Personal</SelectItem>
-                <SelectItem value="meeting">Meeting</SelectItem>
-                <SelectItem value="break">Break</SelectItem>
-                <SelectItem value="family">Family</SelectItem>
-                <SelectItem value="site_visit">Site Visit</SelectItem>
-                <SelectItem value="church">Church</SelectItem>
-                <SelectItem value="rest">Rest</SelectItem>
-                <SelectItem value="exercise">Exercise</SelectItem>
+                <SelectItem value="work">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.work})` }}></div>
+                    Work
+                  </div>
+                </SelectItem>
+                <SelectItem value="personal">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.personal})` }}></div>
+                    Personal
+                  </div>
+                </SelectItem>
+                <SelectItem value="meeting">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.meeting})` }}></div>
+                    Meeting
+                  </div>
+                </SelectItem>
+                <SelectItem value="break">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.break})` }}></div>
+                    Break
+                  </div>
+                </SelectItem>
+                <SelectItem value="family">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.family})` }}></div>
+                    Family
+                  </div>
+                </SelectItem>
+                <SelectItem value="site_visit">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.site_visit})` }}></div>
+                    Site Visit
+                  </div>
+                </SelectItem>
+                <SelectItem value="church">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.church})` }}></div>
+                    Church
+                  </div>
+                </SelectItem>
+                <SelectItem value="rest">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.rest})` }}></div>
+                    Rest
+                  </div>
+                </SelectItem>
+                <SelectItem value="exercise">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: `hsl(${categoryColors.exercise})` }}></div>
+                    Exercise
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
