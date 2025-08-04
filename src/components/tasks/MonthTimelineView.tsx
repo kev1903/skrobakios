@@ -32,11 +32,25 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
 
   const calendarDays = getCalendarDays();
 
-  // Get tasks for a specific day
+  // Get tasks for a specific day (only scheduled tasks, not backlog tasks)
   const getTasksForDay = (day: Date) => {
     return tasks.filter(task => {
-      const taskDate = new Date(task.dueDate);
-      return isSameDay(taskDate, day);
+      if (!task.dueDate) return false; // No due date = backlog task
+      
+      try {
+        const taskDate = new Date(task.dueDate);
+        if (!isSameDay(taskDate, day)) return false; // Must be same day
+        
+        // Only show tasks that have specific time (not midnight = 00:00)
+        const hours = taskDate.getHours();
+        const minutes = taskDate.getMinutes();
+        const isScheduledTask = !(hours === 0 && minutes === 0); // Exclude backlog tasks (midnight)
+        
+        return isScheduledTask;
+      } catch (error) {
+        console.error('Error parsing task date for calendar filter:', task.dueDate, error);
+        return false; // Don't show tasks with invalid dates
+      }
     });
   };
 
