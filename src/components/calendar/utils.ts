@@ -3,37 +3,37 @@ import { TimeBlock, CalendarViewData } from './types';
 
 export const categoryColors = {
   // Primary categories with distinct hues spread across the color wheel
-  work: '210 40% 65%',          // Blue
-  personal: '160 35% 65%',      // Green  
-  meeting: '280 35% 70%',       // Purple
-  break: '30 40% 75%',          // Orange
-  family: '340 35% 70%',        // Pink
-  site_visit: '180 35% 65%',    // Teal
-  church: '260 30% 72%',        // Violet
-  rest: '120 25% 70%',          // Sage Green
+  work: '220 50% 60%',          // Blue
+  personal: '140 45% 55%',      // Forest Green  
+  meeting: '280 45% 65%',       // Purple
+  break: '25 55% 70%',          // Orange
+  family: '340 50% 65%',        // Pink
+  site_visit: '190 40% 60%',    // Cyan
+  church: '260 40% 70%',        // Violet
+  rest: '100 30% 65%',          // Olive Green
   
   // Additional categories with distinct colors
-  sleep: '240 30% 68%',         // Indigo
-  devotion: '50 35% 70%',       // Gold
-  'get ready': '320 30% 75%',   // Rose
-  'site visit': '180 35% 65%',  // Teal (same as site_visit)
-  'deep work': '140 30% 65%',   // Forest Green
-  lunch: '15 40% 75%',          // Coral
+  sleep: '240 35% 65%',         // Indigo
+  devotion: '45 50% 65%',       // Gold
+  'get ready': '320 40% 70%',   // Rose
+  'site visit': '190 40% 60%',  // Cyan (same as site_visit)
+  'deep work': '160 40% 50%',   // Dark Green
+  lunch: '15 50% 70%',          // Coral
   
   // Case variations for consistency
-  Sleep: '240 30% 68%',
-  Devotion: '50 35% 70%',
-  'Get Ready': '320 30% 75%',
-  'Site Visit': '180 35% 65%',
-  'Deep Work': '140 30% 65%',
-  Lunch: '15 40% 75%',
-  Church: '260 30% 72%',
-  Work: '210 40% 65%',
-  Personal: '160 35% 65%',
-  Meeting: '280 35% 70%',
-  Break: '30 40% 75%',
-  Family: '340 35% 70%',
-  Rest: '120 25% 70%'
+  Sleep: '240 35% 65%',
+  Devotion: '45 50% 65%',
+  'Get Ready': '320 40% 70%',
+  'Site Visit': '190 40% 60%',
+  'Deep Work': '160 40% 50%',
+  Lunch: '15 50% 70%',
+  Church: '260 40% 70%',
+  Work: '220 50% 60%',
+  Personal: '140 45% 55%',
+  Meeting: '280 45% 65%',
+  Break: '25 55% 70%',
+  Family: '340 50% 65%',
+  Rest: '100 30% 65%'
 };
 
 export const colorOptions = [

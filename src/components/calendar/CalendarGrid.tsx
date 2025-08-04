@@ -127,15 +127,16 @@ export const CalendarGrid = ({
                         
                         // Default color mappings for common categories
                         switch (lowerCategory) {
-                          case 'sleep': return '240 30% 68%'; // Indigo
-                          case 'devotion': return '50 35% 70%'; // Gold
-                          case 'get ready': return '320 30% 75%'; // Rose
-                          case 'site visit': return '180 35% 65%'; // Teal
-                          case 'deep work': return '140 30% 65%'; // Forest Green
-                          case 'lunch': return '15 40% 75%'; // Coral
-                          case 'church': return '260 30% 72%'; // Violet
-                          case 'work': return '210 40% 65%'; // Blue
-                          case 'rest': return '120 25% 70%'; // Sage Green
+                          case 'sleep': return '240 35% 65%'; // Indigo
+                          case 'devotion': return '45 50% 65%'; // Gold
+                          case 'get ready': return '320 40% 70%'; // Rose
+                          case 'site visit': return '190 40% 60%'; // Cyan
+                          case 'deep work': return '160 40% 50%'; // Dark Green
+                          case 'lunch': return '15 50% 70%'; // Coral
+                          case 'church': return '260 40% 70%'; // Violet
+                          case 'work': return '220 50% 60%'; // Blue
+                          case 'personal': return '140 45% 55%'; // Forest Green
+                          case 'rest': return '100 30% 65%'; // Olive Green
                           default: return '220 15% 75%'; // Warm Gray fallback
                         }
                       };
@@ -226,15 +227,16 @@ export const CalendarGrid = ({
                     
                       // Default color mappings for common categories
                       switch (lowerCategory) {
-                        case 'sleep': return '240 30% 68%'; // Indigo
-                        case 'devotion': return '50 35% 70%'; // Gold
-                        case 'get ready': return '320 30% 75%'; // Rose
-                        case 'site visit': return '180 35% 65%'; // Teal
-                        case 'deep work': return '140 30% 65%'; // Forest Green
-                        case 'lunch': return '15 40% 75%'; // Coral
-                        case 'church': return '260 30% 72%'; // Violet
-                        case 'work': return '210 40% 65%'; // Blue
-                        case 'rest': return '120 25% 70%'; // Sage Green
+                        case 'sleep': return '240 35% 65%'; // Indigo
+                        case 'devotion': return '45 50% 65%'; // Gold
+                        case 'get ready': return '320 40% 70%'; // Rose
+                        case 'site visit': return '190 40% 60%'; // Cyan
+                        case 'deep work': return '160 40% 50%'; // Dark Green
+                        case 'lunch': return '15 50% 70%'; // Coral
+                        case 'church': return '260 40% 70%'; // Violet
+                        case 'work': return '220 50% 60%'; // Blue
+                        case 'personal': return '140 45% 55%'; // Forest Green
+                        case 'rest': return '100 30% 65%'; // Olive Green
                         default: return '220 15% 75%'; // Warm Gray fallback
                       }
                   };
