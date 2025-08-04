@@ -10,7 +10,8 @@ export const categoryColors = {
   family: '340 50% 65%',        // Pink
   site_visit: '190 40% 60%',    // Cyan
   church: '260 40% 70%',        // Violet
-  rest: '100 30% 65%'           // Olive Green
+  rest: '100 30% 65%',          // Olive Green
+  exercise: '170 45% 55%'       // Teal
 };
 
 export const colorOptions = [

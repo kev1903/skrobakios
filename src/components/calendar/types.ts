@@ -5,7 +5,7 @@ export interface TimeBlock {
   dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
   startTime: string;
   endTime: string;
-  category: 'work' | 'personal' | 'meeting' | 'break' | 'family' | 'site_visit' | 'church' | 'rest';
+  category: 'work' | 'personal' | 'meeting' | 'break' | 'family' | 'site_visit' | 'church' | 'rest' | 'exercise';
   color: string;
 }
 
