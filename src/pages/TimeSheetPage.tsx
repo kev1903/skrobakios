@@ -5,21 +5,208 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useTimeTracking } from '@/contexts/TimeTrackingContext';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
+import { useToast } from '@/hooks/use-toast';
+import { TimeEntry } from '@/hooks/useTimeTracking';
+
+interface ManualTimeEntryDialogProps {
+  categories: string[];
+  onSave: (entry: Partial<TimeEntry>) => Promise<any>;
+  onClose: () => void;
+}
+
+const ManualTimeEntryDialog = ({ categories, onSave, onClose }: ManualTimeEntryDialogProps) => {
+  const [formData, setFormData] = useState({
+    task_activity: '',
+    category: '',
+    project_name: '',
+    notes: '',
+    start_time: '',
+    end_time: '',
+    duration: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    if (!formData.task_activity) {
+      toast({
+        title: "Error",
+        description: "Task activity is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.start_time && !formData.duration) {
+      toast({
+        title: "Error", 
+        description: "Either start time or duration is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const entry: Partial<TimeEntry> = {
+        task_activity: formData.task_activity,
+        category: formData.category || null,
+        project_name: formData.project_name || null,
+        notes: formData.notes || null,
+      };
+
+      // Handle time inputs
+      if (formData.start_time && formData.end_time) {
+        entry.start_time = formData.start_time;
+        entry.end_time = formData.end_time;
+      } else if (formData.duration) {
+        // If only duration is provided, use current time as start
+        const now = new Date();
+        const durationMinutes = parseInt(formData.duration);
+        entry.start_time = now.toISOString();
+        entry.end_time = new Date(now.getTime() + durationMinutes * 60 * 1000).toISOString();
+        entry.duration = durationMinutes * 60; // Convert to seconds
+      }
+
+      await onSave(entry);
+      onClose();
+      
+      // Reset form
+      setFormData({
+        task_activity: '',
+        category: '',
+        project_name: '',
+        notes: '',
+        start_time: '',
+        end_time: '',
+        duration: ''
+      });
+    } catch (error) {
+      console.error('Error saving time entry:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <DialogContent className="sm:max-w-md">
+      <DialogHeader>
+        <DialogTitle>Add Time Entry</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="task_activity">Task Activity *</Label>
+          <Input
+            id="task_activity"
+            value={formData.task_activity}
+            onChange={(e) => setFormData(prev => ({ ...prev, task_activity: e.target.value }))}
+            placeholder="What did you work on?"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="project_name">Project</Label>
+          <Input
+            id="project_name"
+            value={formData.project_name}
+            onChange={(e) => setFormData(prev => ({ ...prev, project_name: e.target.value }))}
+            placeholder="Project name (optional)"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="start_time">Start Time</Label>
+            <Input
+              id="start_time"
+              type="datetime-local"
+              value={formData.start_time}
+              onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="end_time">End Time</Label>
+            <Input
+              id="end_time"
+              type="datetime-local"
+              value={formData.end_time}
+              onChange={(e) => setFormData(prev => ({ ...prev, end_time: e.target.value }))}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="duration">Or Duration (minutes)</Label>
+          <Input
+            id="duration"
+            type="number"
+            value={formData.duration}
+            onChange={(e) => setFormData(prev => ({ ...prev, duration: e.target.value }))}
+            placeholder="e.g. 60 for 1 hour"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
+            id="notes"
+            value={formData.notes}
+            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+            placeholder="Additional notes (optional)"
+            rows={3}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={loading}>
+            {loading ? 'Saving...' : 'Save Entry'}
+          </Button>
+        </div>
+      </div>
+    </DialogContent>
+  );
+};
 
 const TimeSheetPage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedEmployee, setSelectedEmployee] = useState('me');
+  const [showAddEntryDialog, setShowAddEntryDialog] = useState(false);
   const { spacingClasses, minHeightClasses } = useMenuBarSpacing();
   
   const {
     timeEntries,
     settings,
+    categories,
     loadTimeEntries,
     getDailyStats,
+    createTimeEntry,
     loading
   } = useTimeTracking();
 
@@ -168,6 +355,19 @@ const TimeSheetPage = () => {
                 <SelectItem value="me">My Timesheet</SelectItem>
               </SelectContent>
             </Select>
+            <Dialog open={showAddEntryDialog} onOpenChange={setShowAddEntryDialog}>
+              <DialogTrigger asChild>
+                <Button variant="default" size="sm" className="gap-1 h-8 text-xs">
+                  <Plus className="w-3 h-3" />
+                  Add Entry
+                </Button>
+              </DialogTrigger>
+              <ManualTimeEntryDialog 
+                categories={categories}
+                onSave={createTimeEntry}
+                onClose={() => setShowAddEntryDialog(false)}
+              />
+            </Dialog>
             <Button variant="outline" size="sm" className="gap-1 h-8 text-xs">
               <Filter className="w-3 h-3" />
               Filter
