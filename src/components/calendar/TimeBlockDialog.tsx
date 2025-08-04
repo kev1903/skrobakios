@@ -29,6 +29,18 @@ const colorOptions = [
   { name: 'Gentle Olive', value: '80 15% 70%', hex: '#b8bfa8' }
 ];
 
+// Auto-assign colors to categories
+const categoryColors = {
+  work: '200 30% 75%',          // Soft Blue-Gray  
+  personal: '160 25% 70%',      // Muted Mint
+  meeting: '280 20% 75%',       // Pale Lavender
+  break: '25 35% 80%',          // Soft Peach
+  family: '340 25% 82%',        // Dusty Rose
+  site_visit: '180 25% 72%',    // Soft Teal
+  church: '270 20% 78%',        // Gentle Purple
+  rest: '220 15% 75%'           // Warm Gray
+};
+
 interface TimeBlockDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -114,7 +126,10 @@ export const TimeBlockDialog = ({
           <div>
             <Label htmlFor="category">Category</Label>
             <Select value={newBlock.category} onValueChange={(value: TimeBlock['category']) => 
-              onBlockChange({ category: value })
+              onBlockChange({ 
+                category: value,
+                color: categoryColors[value]
+              })
             }>
               <SelectTrigger className="input-glass">
                 <SelectValue />
