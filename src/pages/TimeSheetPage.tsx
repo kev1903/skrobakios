@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 import { useToast } from '@/hooks/use-toast';
 import { TimeEntry } from '@/hooks/useTimeTracking';
+import { Project, useProjects } from '@/hooks/useProjects';
 
 interface ManualTimeEntryDialogProps {
   categories: string[];
@@ -26,6 +27,7 @@ const ManualTimeEntryDialog = ({ categories, onSave, onClose }: ManualTimeEntryD
   const [formData, setFormData] = useState({
     task_activity: '',
     category: '',
+    project_id: '',
     project_name: '',
     notes: '',
     start_time: '',
@@ -33,7 +35,27 @@ const ManualTimeEntryDialog = ({ categories, onSave, onClose }: ManualTimeEntryD
     duration: ''
   });
   const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
   const { toast } = useToast();
+  const { getProjects } = useProjects();
+
+  // Load projects when component mounts
+  useEffect(() => {
+    const loadProjects = async () => {
+      setLoadingProjects(true);
+      try {
+        const projectList = await getProjects();
+        setProjects(projectList);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+    
+    loadProjects();
+  }, [getProjects]);
 
   const handleSave = async () => {
     if (!formData.task_activity) {
@@ -56,10 +78,13 @@ const ManualTimeEntryDialog = ({ categories, onSave, onClose }: ManualTimeEntryD
 
     setLoading(true);
     try {
+      const selectedProject = projects.find(p => p.id === formData.project_id);
+      
       const entry: Partial<TimeEntry> = {
         task_activity: formData.task_activity,
         category: formData.category || null,
-        project_name: formData.project_name || null,
+        project_id: formData.project_id || null,
+        project_name: selectedProject?.name || formData.project_name || null,
         notes: formData.notes || null,
       };
 
@@ -83,6 +108,7 @@ const ManualTimeEntryDialog = ({ categories, onSave, onClose }: ManualTimeEntryD
       setFormData({
         task_activity: '',
         category: '',
+        project_id: '',
         project_name: '',
         notes: '',
         start_time: '',
@@ -129,13 +155,30 @@ const ManualTimeEntryDialog = ({ categories, onSave, onClose }: ManualTimeEntryD
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="project_name">Project</Label>
-          <Input
-            id="project_name"
-            value={formData.project_name}
-            onChange={(e) => setFormData(prev => ({ ...prev, project_name: e.target.value }))}
-            placeholder="Project name (optional)"
-          />
+          <Label htmlFor="project">Project</Label>
+          <Select 
+            value={formData.project_id} 
+            onValueChange={(value) => {
+              const selectedProject = projects.find(p => p.id === value);
+              setFormData(prev => ({ 
+                ...prev, 
+                project_id: value,
+                project_name: selectedProject?.name || ''
+              }));
+            }}
+            disabled={loadingProjects}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={loadingProjects ? "Loading projects..." : "Select project (optional)"} />
+            </SelectTrigger>
+            <SelectContent>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
