@@ -358,7 +358,7 @@ const TimeSheetPage = () => {
 
   if (loading) {
     return (
-      <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center", minHeightClasses, spacingClasses)}>
+      <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center", minHeightClasses)}>
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading timesheet...</p>
@@ -368,7 +368,7 @@ const TimeSheetPage = () => {
   }
 
   return (
-    <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100", minHeightClasses, spacingClasses)}>
+    <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100", minHeightClasses)}>
       <div className="flex h-full">
         {/* Main Content Area */}
         <div className="flex-1 p-4">
