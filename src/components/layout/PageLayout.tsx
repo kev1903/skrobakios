@@ -11,7 +11,7 @@ interface PageLayoutProps {
 }
 
 export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
-  const { spacingClasses } = useMenuBarSpacing();
+  const { spacingClasses } = useMenuBarSpacing(currentPage);
 
   // Sales page should take full screen without main navigation
   if (currentPage === "sales") {
