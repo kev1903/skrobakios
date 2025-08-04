@@ -147,26 +147,6 @@ export const TimeBlockDialog = ({
             </Select>
           </div>
 
-          <div>
-            <Label htmlFor="color">Color</Label>
-            <div className="grid grid-cols-8 gap-2 mt-2">
-              {colorOptions.map((color) => (
-                <button
-                  key={color.value}
-                  type="button"
-                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
-                    newBlock.color === color.value 
-                      ? 'border-primary ring-2 ring-primary/50' 
-                      : 'border-border hover:border-primary'
-                  }`}
-                  style={{ backgroundColor: `hsl(${color.value})` }}
-                  onClick={() => onBlockChange({ color: color.value })}
-                  title={color.name}
-                />
-              ))}
-            </div>
-          </div>
-
           <div className="flex gap-3 pt-4">
             <Button 
               onClick={editingBlock ? onUpdateBlock : onCreateBlock}
