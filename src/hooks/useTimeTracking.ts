@@ -37,14 +37,14 @@ export const DEFAULT_CATEGORIES = [
 ];
 
 export const DEFAULT_CATEGORY_COLORS = {
-  'Design': '217 91% 60%',     // hsl(217, 91%, 60%) - Blue
-  'Admin': '159 61% 51%',      // hsl(159, 61%, 51%) - Green  
-  'Calls': '43 96% 56%',       // hsl(43, 96%, 56%) - Amber
-  'Break': '0 84% 60%',        // hsl(0, 84%, 60%) - Red
-  'Browsing': '263 69% 69%',   // hsl(263, 69%, 69%) - Purple
-  'Site Visit': '188 94% 43%', // hsl(188, 94%, 43%) - Cyan
-  'Deep Work': '160 84% 39%',  // hsl(160, 84%, 39%) - Emerald
-  'Other': '217 33% 47%'       // hsl(217, 33%, 47%) - Gray
+  'Design': '200 30% 75%',        // Dusty Blue
+  'Admin': '160 25% 70%',         // Muted Mint  
+  'Calls': '25 35% 80%',          // Soft Peach
+  'Break': '340 25% 82%',         // Dusty Rose
+  'Browsing': '280 20% 75%',      // Pale Lavender
+  'Site Visit': '180 25% 72%',    // Soft Teal
+  'Deep Work': '140 20% 70%',     // Sage Green
+  'Other': '220 15% 75%'          // Warm Gray
 };
 
 export const useTimeTracking = () => {
