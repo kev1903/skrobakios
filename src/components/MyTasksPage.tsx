@@ -93,7 +93,30 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
       }
     };
 
+    // Initial load
     fetchMyTasks();
+
+    // Set up real-time subscription for task changes
+    const channel = supabase
+      .channel('my-tasks-realtime-sync')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          console.log('MyTasks: Task change detected:', payload);
+          // Refetch tasks when any task changes
+          fetchMyTasks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userProfile, toast]);
 
   const handleSort = (field: SortField) => {

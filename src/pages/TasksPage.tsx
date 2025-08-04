@@ -7,6 +7,7 @@ import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
@@ -44,7 +45,7 @@ const TasksPage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Load tasks assigned to the current user
+  // Load tasks assigned to the current user with real-time sync
   useEffect(() => {
     const loadUserTasks = async () => {
       try {
@@ -57,7 +58,31 @@ const TasksPage = () => {
         setLoading(false);
       }
     };
+
+    // Initial load
     loadUserTasks();
+
+    // Set up real-time subscription for task changes
+    const channel = supabase
+      .channel('tasks-realtime-sync')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          console.log('Task change detected:', payload);
+          // Refetch tasks when any task changes
+          loadUserTasks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const getTasksForDate = (date: Date | null) => {
