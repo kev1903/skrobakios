@@ -612,12 +612,6 @@ const TasksPage = () => {
 
         {/* Main Content - Calendar View */}
         <div className="flex-1 p-8 ml-80">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            {/* Empty div to maintain spacing */}
-            <div></div>
-          </div>
-
           {/* Calendar Navigation */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
