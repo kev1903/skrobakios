@@ -39,7 +39,7 @@ const categoryColors = {
   site_visit: '180 25% 72%',    // Soft Teal
   church: '270 20% 78%',        // Gentle Purple
   rest: '220 15% 75%',          // Warm Gray
-  exercise: '170 20% 72%'       // Seafoam
+  exercise: '120 30% 65%'       // Forest Green
 };
 
 interface TimeBlockDialogProps {
