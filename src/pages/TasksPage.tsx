@@ -7,7 +7,7 @@ import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import natureAbstractBg from '@/assets/nature-abstract-bg.jpg';
+import desertDunesBg from '@/assets/desert-dunes-bg.jpg';
 import { supabase } from '@/integrations/supabase/client';
 import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
@@ -365,7 +365,7 @@ const TasksPage = () => {
       <div 
         className="min-h-screen relative overflow-hidden"
         style={{
-          backgroundImage: `url(${natureAbstractBg})`,
+          backgroundImage: `url(${desertDunesBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed'
