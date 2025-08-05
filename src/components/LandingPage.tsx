@@ -383,14 +383,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </section>
 
         {/* Slide 2: Services Overview */}
-        <section className="min-h-screen flex items-center bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <section className="min-h-screen flex items-center overflow-hidden relative">
+          {/* Background Image for Services */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+            }}
+          >
+            <div className="absolute inset-0 bg-black/60"></div>
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
             <div className="mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-foreground mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-white mb-6 sm:mb-8 font-playfair">
                   Our Approach
                 </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">
+                <p className="text-base sm:text-lg lg:text-xl text-white/90">
                   Comprehensive architectural and construction services designed for clients who value precision, quality, and innovative solutions.
                 </p>
               </div>
@@ -399,23 +409,23 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {services.map((category, idx) => (
                 <div key={idx} className="interactive-minimal group architectural-accent">
-                  <Card className="glass-card border-brand-gold/10 overflow-hidden h-full group-hover:border-brand-gold/20 transition-all duration-500">
+                  <Card className="glass-card border-white/10 overflow-hidden h-full group-hover:border-white/20 transition-all duration-500 bg-white/5 backdrop-blur-xl">
                     <CardContent className="p-6 sm:p-8">
                       <div className="flex items-center gap-3 mb-6">
-                        <div className="w-2 h-8 bg-gradient-to-b from-brand-gold to-brand-gold-light rounded-full"></div>
-                        <h3 className="text-lg sm:text-xl text-foreground font-playfair">
+                        <div className="w-2 h-8 bg-gradient-to-b from-white/60 to-white/30 rounded-full"></div>
+                        <h3 className="text-lg sm:text-xl text-white font-playfair">
                           {category.category}
                         </h3>
                       </div>
                       <div className="space-y-4 sm:space-y-6">
                         {category.items.map((item, itemIdx) => (
                           <div key={itemIdx} className="flex items-start gap-3 sm:gap-4 group/item hover:translate-x-2 transition-transform duration-300">
-                            <div className="w-8 h-8 bg-brand-gold/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 group-hover/item:bg-brand-gold/30 transition-colors">
-                              <item.icon className="w-4 h-4 text-brand-gold" />
+                            <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 group-hover/item:bg-white/30 transition-colors">
+                              <item.icon className="w-4 h-4 text-white" />
                             </div>
                             <div className="space-y-2">
-                              <h4 className="font-medium text-foreground text-sm tracking-wide">{item.name}</h4>
-                              <p className="text-muted-foreground text-xs font-light leading-relaxed">{item.description}</p>
+                              <h4 className="font-medium text-white text-sm tracking-wide">{item.name}</h4>
+                              <p className="text-white/80 text-xs font-light leading-relaxed">{item.description}</p>
                             </div>
                           </div>
                         ))}
@@ -429,14 +439,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </section>
 
         {/* Slide 3: Project Lifecycle Timeline */}
-        <section className="min-h-screen flex items-center bg-card/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <section className="min-h-screen flex items-center overflow-hidden relative">
+          {/* Background Image for Process */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+            }}
+          >
+            <div className="absolute inset-0 bg-black/65"></div>
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
             <div className="mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-card-foreground mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-white mb-6 sm:mb-8 font-playfair">
                   Project Lifecycle
                 </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">
+                <p className="text-base sm:text-lg lg:text-xl text-white/90">
                   A systematic seven-stage approach ensuring seamless execution from initial concept to final delivery.
                 </p>
               </div>
@@ -445,17 +465,17 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {projectLifecycle.map((stage, idx) => (
                 <div key={idx} className="interactive-minimal">
-                  <Card className="glass-card border-border/10 h-full">
+                  <Card className="glass-card border-white/10 h-full bg-white/5 backdrop-blur-xl">
                     <CardContent className="p-4 sm:p-6">
                       <div className="mb-4">
-                        <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center mb-4">
-                          <span className="text-foreground font-medium text-sm">{stage.stage}</span>
+                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+                          <span className="text-white font-medium text-sm">{stage.stage}</span>
                         </div>
-                        <h3 className="text-base sm:text-lg text-card-foreground mb-3">
+                        <h3 className="text-base sm:text-lg text-white mb-3">
                           {stage.title}
                         </h3>
                       </div>
-                      <p className="text-muted-foreground text-sm font-light leading-relaxed">{stage.description}</p>
+                      <p className="text-white/80 text-sm font-light leading-relaxed">{stage.description}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -465,14 +485,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </section>
 
         {/* Slide 4: Featured Projects */}
-        <section className="min-h-screen flex items-center bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <section className="min-h-screen flex items-center overflow-hidden relative">
+          {/* Background Image for Projects */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1545558014-8692077e9b5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+            }}
+          >
+            <div className="absolute inset-0 bg-black/55"></div>
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
             <div className="flex justify-between items-end mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-foreground mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-white mb-6 sm:mb-8 font-playfair">
                   Selected Works
                 </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-muted-foreground">
+                <p className="text-base sm:text-lg lg:text-xl text-white/90">
                   A curated portfolio showcasing our commitment to architectural excellence and innovative design solutions.
                 </p>
               </div>
@@ -481,21 +511,21 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {featuredProjects.map((project, idx) => (
                 <div key={idx} className="interactive-minimal group">
-                  <Card className="glass-card border-border/10 overflow-hidden h-full">
+                  <Card className="glass-card border-white/10 overflow-hidden h-full bg-white/5 backdrop-blur-xl">
                     <div className="relative h-40 sm:h-48 overflow-hidden">
                       <img 
                         src={project.image} 
                         alt={project.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                     </div>
                     <CardContent className="p-4 sm:p-6">
-                      <h3 className="text-base sm:text-lg text-card-foreground mb-2">
+                      <h3 className="text-base sm:text-lg text-white mb-2">
                         {project.title}
                       </h3>
-                      <p className="text-muted-foreground text-sm font-light mb-3">{project.location}</p>
-                      <p className="text-muted-foreground text-sm font-light leading-relaxed">{project.description}</p>
+                      <p className="text-white/80 text-sm font-light mb-3">{project.location}</p>
+                      <p className="text-white/70 text-sm font-light leading-relaxed">{project.description}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -505,11 +535,21 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </section>
 
         {/* Slide 5: Testimonials */}
-        <section className="min-h-screen flex items-center bg-card/30">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <section className="min-h-screen flex items-center overflow-hidden relative">
+          {/* Background Image for Testimonials */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+            }}
+          >
+            <div className="absolute inset-0 bg-black/70"></div>
+          </div>
+
+          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
             <div className="mb-12 sm:mb-16">
               <div className="max-w-3xl">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-card-foreground mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl text-white mb-6 sm:mb-8 font-playfair">
                   Client Testimonials
                 </h2>
               </div>
@@ -518,17 +558,17 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {testimonials.map((testimonial, idx) => (
                 <div key={idx} className="interactive-minimal">
-                  <Card className="glass-card border-border/10 h-full">
+                  <Card className="glass-card border-white/10 h-full bg-white/5 backdrop-blur-xl">
                     <CardContent className="p-6 sm:p-8">
                       <div className="mb-6">
-                        <Quote className="w-6 h-6 text-muted-foreground/30 mb-4" />
-                        <p className="text-card-foreground text-sm sm:text-base leading-relaxed font-light italic">
+                        <Quote className="w-6 h-6 text-white/30 mb-4" />
+                        <p className="text-white text-sm sm:text-base leading-relaxed font-light italic">
                           "{testimonial.quote}"
                         </p>
                       </div>
-                      <div className="border-t border-border/20 pt-6">
-                        <p className="font-medium text-card-foreground text-sm mb-1">{testimonial.author}</p>
-                        <p className="text-muted-foreground text-xs font-light">{testimonial.project}</p>
+                      <div className="border-t border-white/20 pt-6">
+                        <p className="font-medium text-white text-sm mb-1">{testimonial.author}</p>
+                        <p className="text-white/70 text-xs font-light">{testimonial.project}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -539,54 +579,51 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </section>
 
         {/* Slide 6: Contact Section */}
-        <section className="min-h-screen flex items-center bg-background">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+        <section className="min-h-screen flex items-center overflow-hidden relative">
+          {/* Background Image for Contact */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+            }}
+          >
+            <div className="absolute inset-0 bg-black/65"></div>
+          </div>
+
+          <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
             <div className="mb-12 sm:mb-16">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-foreground mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl text-white mb-6 sm:mb-8 font-playfair">
                 Start Your Project
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-2xl mx-auto">
                 Ready to transform your vision into reality? Contact us today to discuss your architectural project and discover how we can bring your dreams to life.
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
-              <div className="glass-card p-6 sm:p-8 rounded-2xl">
-                <Phone className="w-8 h-8 text-brand-gold mx-auto mb-4" />
-                <h3 className="font-medium text-foreground mb-2">Phone</h3>
-                <p className="text-muted-foreground text-sm">+61 3 9xxx xxxx</p>
+              <div className="glass-card p-6 sm:p-8 rounded-2xl bg-white/5 backdrop-blur-xl border-white/10">
+                <Phone className="w-8 h-8 text-white mx-auto mb-4" />
+                <h3 className="font-medium text-white mb-2">Phone</h3>
+                <p className="text-white/80 text-sm">+61 3 9xxx xxxx</p>
               </div>
-              <div className="glass-card p-6 sm:p-8 rounded-2xl">
-                <Mail className="w-8 h-8 text-brand-gold mx-auto mb-4" />
-                <h3 className="font-medium text-foreground mb-2">Email</h3>
-                <p className="text-muted-foreground text-sm">hello@skrobaki.com</p>
+              <div className="glass-card p-6 sm:p-8 rounded-2xl bg-white/5 backdrop-blur-xl border-white/10">
+                <Mail className="w-8 h-8 text-white mx-auto mb-4" />
+                <h3 className="font-medium text-white mb-2">Email</h3>
+                <p className="text-white/80 text-sm">hello@skrobaki.com</p>
               </div>
-              <div className="glass-card p-6 sm:p-8 rounded-2xl sm:col-span-2 lg:col-span-1">
-                <MapPin className="w-8 h-8 text-brand-gold mx-auto mb-4" />
-                <h3 className="font-medium text-foreground mb-2">Location</h3>
-                <p className="text-muted-foreground text-sm">Melbourne, VIC</p>
+              <div className="glass-card p-6 sm:p-8 rounded-2xl sm:col-span-2 lg:col-span-1 bg-white/5 backdrop-blur-xl border-white/10">
+                <MapPin className="w-8 h-8 text-white mx-auto mb-4" />
+                <h3 className="font-medium text-white mb-2">Location</h3>
+                <p className="text-white/80 text-sm">Melbourne, VIC</p>
               </div>
             </div>
 
             <button 
-              className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl w-full sm:w-auto"
-              style={{ 
-                backgroundColor: 'rgb(54,119,159)',
-                boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
-                border: 'none'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgb(44,99,139)';
-                e.currentTarget.style.boxShadow = '0 6px 25px rgba(54, 119, 159, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgb(54,119,159)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(54, 119, 159, 0.2)';
-              }}
               onClick={() => onNavigate('auth')}
+              className="px-8 py-4 text-base font-medium text-white/90 hover:text-white border border-white/30 rounded-full hover:border-white/60 hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
             >
               Get Started Today
-              <ArrowRight className="ml-2 w-5 h-5" />
+              <ArrowRight className="ml-2 w-5 h-5 inline" />
             </button>
           </div>
         </section>
