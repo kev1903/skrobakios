@@ -105,102 +105,140 @@ export const CalendarGrid = ({
                   
                   {/* Time Blocks Overlay */}
                   <div className="absolute inset-0 pointer-events-none">
-                    {dayBlocks.map((block, blockIndex) => {
-                      const startHour = parseInt(block.startTime.split(':')[0]);
-                      const startMinute = parseInt(block.startTime.split(':')[1]);
-                      const endHour = parseInt(block.endTime.split(':')[0]);
-                      const endMinute = parseInt(block.endTime.split(':')[1]);
+                    {(() => {
+                      // Process blocks to handle overlaps properly
+                      const processedBlocks = new Set<string>();
+                      const blockLayouts: Array<{block: TimeBlock, width: string, left: string}> = [];
                       
-                      // Calculate position (30-minute intervals, 24px per 30min slot)
-                      const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
-                      const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
+                      // Find all overlap groups first
+                      const overlapGroups: TimeBlock[][] = [];
                       
-                      // Check for overlapping blocks to position them side by side
-                      const blockStartTime = startHour * 60 + startMinute;
-                      const blockEndTime = endHour * 60 + endMinute;
-                      
-                      // Find all blocks that overlap with this block
-                      const allOverlappingBlocks = dayBlocks.filter((otherBlock) => {
-                        if (otherBlock.id === block.id) return false; // Don't include self
-                        const otherStartHour = parseInt(otherBlock.startTime.split(':')[0]);
-                        const otherStartMinute = parseInt(otherBlock.startTime.split(':')[1]);
-                        const otherEndHour = parseInt(otherBlock.endTime.split(':')[0]);
-                        const otherEndMinute = parseInt(otherBlock.endTime.split(':')[1]);
-                        const otherStartTime = otherStartHour * 60 + otherStartMinute;
-                        const otherEndTime = otherEndHour * 60 + otherEndMinute;
+                      dayBlocks.forEach(block => {
+                        if (processedBlocks.has(block.id)) return;
                         
-                        // Check if blocks overlap (overlap if one starts before the other ends)
-                        return blockStartTime < otherEndTime && blockEndTime > otherStartTime;
+                        const startHour = parseInt(block.startTime.split(':')[0]);
+                        const startMinute = parseInt(block.startTime.split(':')[1]);
+                        const endHour = parseInt(block.endTime.split(':')[0]);
+                        const endMinute = parseInt(block.endTime.split(':')[1]);
+                        const blockStartTime = startHour * 60 + startMinute;
+                        const blockEndTime = endHour * 60 + endMinute;
+                        
+                        // Find all blocks that overlap with this block
+                        const overlapGroup = dayBlocks.filter((otherBlock) => {
+                          const otherStartHour = parseInt(otherBlock.startTime.split(':')[0]);
+                          const otherStartMinute = parseInt(otherBlock.startTime.split(':')[1]);
+                          const otherEndHour = parseInt(otherBlock.endTime.split(':')[0]);
+                          const otherEndMinute = parseInt(otherBlock.endTime.split(':')[1]);
+                          const otherStartTime = otherStartHour * 60 + otherStartMinute;
+                          const otherEndTime = otherEndHour * 60 + otherEndMinute;
+                          
+                          // Check if blocks overlap (overlap if one starts before the other ends)
+                          return blockStartTime < otherEndTime && blockEndTime > otherStartTime;
+                        });
+                        
+                        // Sort the group by start time, then by duration (longer blocks first)
+                        overlapGroup.sort((a, b) => {
+                          const aStart = parseInt(a.startTime.split(':')[0]) * 60 + parseInt(a.startTime.split(':')[1]);
+                          const bStart = parseInt(b.startTime.split(':')[0]) * 60 + parseInt(b.startTime.split(':')[1]);
+                          if (aStart !== bStart) return aStart - bStart;
+                          
+                          // If start times are the same, prioritize longer blocks
+                          const aEnd = parseInt(a.endTime.split(':')[0]) * 60 + parseInt(a.endTime.split(':')[1]);
+                          const bEnd = parseInt(b.endTime.split(':')[0]) * 60 + parseInt(b.endTime.split(':')[1]);
+                          return (bEnd - bStart) - (aEnd - aStart);
+                        });
+                        
+                        overlapGroups.push(overlapGroup);
+                        overlapGroup.forEach(b => processedBlocks.add(b.id));
                       });
                       
-                      // Create a group of all overlapping blocks including current block
-                      const overlapGroup = [block, ...allOverlappingBlocks].sort((a, b) => {
-                        const aStart = parseInt(a.startTime.split(':')[0]) * 60 + parseInt(a.startTime.split(':')[1]);
-                        const bStart = parseInt(b.startTime.split(':')[0]) * 60 + parseInt(b.startTime.split(':')[1]);
-                        return aStart - bStart;
+                      // Calculate layouts for each group
+                      overlapGroups.forEach(group => {
+                        const groupSize = group.length;
+                        group.forEach((block, index) => {
+                          if (groupSize === 1) {
+                            blockLayouts.push({
+                              block,
+                              width: 'calc(100% - 8px)',
+                              left: '4px'
+                            });
+                          } else {
+                            // For overlapping blocks, use equal width distribution
+                            const blockWidth = Math.floor(85 / groupSize);
+                            const leftOffset = 4 + (index * blockWidth) + (index * 2); // 2px gap between blocks
+                            blockLayouts.push({
+                              block,
+                              width: `${blockWidth}%`,
+                              left: `${leftOffset}%`
+                            });
+                          }
+                        });
                       });
                       
-                      // Find current block's position in the sorted overlap group
-                      const overlapIndex = overlapGroup.findIndex(b => b.id === block.id);
-                      const totalOverlapping = overlapGroup.length;
-                      
-                      // Calculate width and position
-                      const blockWidth = totalOverlapping > 1 ? `${90 / totalOverlapping}%` : 'calc(100% - 8px)';
-                      const leftOffset = totalOverlapping > 1 ? `${(overlapIndex * 90) / totalOverlapping + 5}%` : '4px';
-                      
-                      // Always use category color for consistency with case-insensitive matching
-                      const getCategoryColor = (category: string) => {
-                        // Try exact match first
-                        if (categoryColors[category]) return categoryColors[category];
+                      return blockLayouts.map(({block, width, left}) => {
+                        const startHour = parseInt(block.startTime.split(':')[0]);
+                        const startMinute = parseInt(block.startTime.split(':')[1]);
+                        const endHour = parseInt(block.endTime.split(':')[0]);
+                        const endMinute = parseInt(block.endTime.split(':')[1]);
                         
-                        // Try lowercase match
-                        const lowerCategory = category.toLowerCase();
-                        if (categoryColors[lowerCategory]) return categoryColors[lowerCategory];
+                        // Calculate position (30-minute intervals, 24px per 30min slot)
+                        const startPosition = (startHour * 2 + startMinute / 30) * 24; // 24px per 30min
+                        const duration = ((endHour - startHour) * 2 + (endMinute - startMinute) / 30) * 24;
+                      
+                        // Always use category color for consistency with case-insensitive matching
+                        const getCategoryColor = (category: string) => {
+                          // Try exact match first
+                          if (categoryColors[category]) return categoryColors[category];
+                          
+                          // Try lowercase match
+                          const lowerCategory = category.toLowerCase();
+                          if (categoryColors[lowerCategory]) return categoryColors[lowerCategory];
+                          
+                          // Try to find a match ignoring case
+                          const colorKey = Object.keys(categoryColors).find(key => 
+                            key.toLowerCase() === lowerCategory
+                          );
+                          if (colorKey) return categoryColors[colorKey];
+                          
+                          // Default color mappings for common categories
+                          switch (lowerCategory) {
+                            case 'sleep': return '240 35% 65%'; // Indigo
+                            case 'devotion': return '45 50% 65%'; // Gold
+                            case 'get ready': return '320 40% 70%'; // Rose
+                            case 'site visit': return '190 40% 60%'; // Cyan
+                            case 'deep work': return '160 40% 50%'; // Dark Green
+                            case 'lunch': return '15 50% 70%'; // Coral
+                            case 'church': return '260 40% 70%'; // Violet
+                            case 'work': return '220 50% 60%'; // Blue
+                            case 'personal': return '140 45% 55%'; // Forest Green
+                            case 'rest': return '100 30% 65%'; // Olive Green
+                            default: return '220 15% 75%'; // Warm Gray fallback
+                          }
+                        };
+                        const bgColor = getCategoryColor(block.category);
                         
-                        // Try to find a match ignoring case
-                        const colorKey = Object.keys(categoryColors).find(key => 
-                          key.toLowerCase() === lowerCategory
+                        return (
+                          <div
+                            key={block.id}
+                            className="backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center"
+                            style={{
+                              backgroundColor: `hsl(${bgColor})`,
+                              borderColor: `hsl(${bgColor})`,
+                              top: `${startPosition + 2}px`,
+                              height: `${Math.max(duration - 2, 20)}px`, // Minimum height of 20px to show title
+                              width: width,
+                              left: left
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onBlockEdit(block);
+                            }}
+                          >
+                            <div className="font-semibold text-xs leading-tight truncate text-white drop-shadow-sm">{block.title}</div>
+                          </div>
                         );
-                        if (colorKey) return categoryColors[colorKey];
-                        
-                        // Default color mappings for common categories
-                        switch (lowerCategory) {
-                          case 'sleep': return '240 35% 65%'; // Indigo
-                          case 'devotion': return '45 50% 65%'; // Gold
-                          case 'get ready': return '320 40% 70%'; // Rose
-                          case 'site visit': return '190 40% 60%'; // Cyan
-                          case 'deep work': return '160 40% 50%'; // Dark Green
-                          case 'lunch': return '15 50% 70%'; // Coral
-                          case 'church': return '260 40% 70%'; // Violet
-                          case 'work': return '220 50% 60%'; // Blue
-                          case 'personal': return '140 45% 55%'; // Forest Green
-                          case 'rest': return '100 30% 65%'; // Olive Green
-                          default: return '220 15% 75%'; // Warm Gray fallback
-                        }
-                      };
-                      const bgColor = getCategoryColor(block.category);
-                      
-                      return (
-                        <div
-                          key={block.id}
-                          className="backdrop-blur-sm text-white text-xs p-1.5 rounded-md absolute cursor-pointer hover:opacity-80 transition-all shadow-sm border-2 pointer-events-auto overflow-hidden flex items-center justify-center"
-                          style={{
-                            backgroundColor: `hsl(${bgColor})`,
-                            borderColor: `hsl(${bgColor})`,
-                            top: `${startPosition + 2}px`,
-                            height: `${Math.max(duration - 2, 20)}px`, // Minimum height of 20px to show title
-                            width: blockWidth,
-                            left: leftOffset
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onBlockEdit(block);
-                          }}
-                        >
-                          <div className="font-semibold text-xs leading-tight truncate text-white drop-shadow-sm">{block.title}</div>
-                        </div>
-                      );
-                    })}
+                      });
+                    })()}
                   </div>
                 </div>
               );
