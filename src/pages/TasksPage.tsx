@@ -518,8 +518,8 @@ const TasksPage = () => {
 
           {/* Main Content - Calendar View */}
           <div className="flex-1 p-8 ml-80">
-            {/* Calendar Navigation - Glass Morphism */}
-            <div className="glass-card p-6 mb-6">
+            {/* Calendar Navigation */}
+            <div className="p-6 mb-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {/* Dashboard Button */}
