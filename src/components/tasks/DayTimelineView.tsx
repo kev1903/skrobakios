@@ -650,22 +650,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    return (
                      <div
                        key={`timeline-${task.id}`}
-                       className="absolute z-20 cursor-pointer rounded-lg group hover:scale-[1.02] transition-transform duration-200"
+                       className="absolute z-20 cursor-pointer group"
                        style={{
                          top: `${topOffset}px`,
-                         left: '200px', // Start after Time column (60px) + Blocks column (200px)
-                         right: '0px', // Extend to the end of the grid
+                         left: '260px', // Start after Time (60px) + Blocks (200px) columns
+                         right: '0px', // Extend to the very end of the grid
                          height: `${heightInPixels}px`,
                          minHeight: '20px'
                        }}
                        onClick={(e) => handleEdgeClick(e, task.id)}
                      >
-                       {/* Task spanning all columns with responsive layout */}
-                       <div className="h-full w-full bg-white/95 backdrop-blur-sm border border-gray-400 shadow-xl rounded-lg overflow-hidden hover:bg-white transition-all duration-300 group">
-                         {/* Responsive Task Content using CSS Grid to match parent columns */}
-                         <div className="h-full w-full grid" style={{ gridTemplateColumns: '1fr 120px 80px 80px' }}>
-                           {/* Task Name Column - Responsive */}
-                           <div className="px-3 py-2 border-r border-gray-300 flex flex-col justify-center min-w-0 overflow-hidden">
+                       {/* Task container filling exact column widths */}
+                       <div className="h-full w-full bg-white/95 backdrop-blur-sm border border-gray-400 shadow-xl rounded-lg overflow-hidden hover:bg-white transition-all duration-300">
+                         {/* Internal grid matching parent exactly: 1fr_120px_80px_80px */}
+                         <div className="h-full w-full grid gap-0" style={{ gridTemplateColumns: '1fr 120px 80px 80px' }}>
+                           {/* Task Name Column - Must fill exactly */}
+                           <div className="px-3 py-2 border-r border-gray-300 flex flex-col justify-center min-w-0 overflow-hidden h-full">
                              <div className="font-bold text-sm text-black truncate leading-tight">
                                {task.taskName}
                              </div>
@@ -674,22 +674,22 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                              </div>
                            </div>
                            
-                           {/* Project Column - Fixed width 120px */}
-                           <div className="px-2 py-2 border-r border-gray-300 flex items-center justify-center min-w-0 overflow-hidden">
-                             <div className="text-sm text-black truncate text-center font-medium">
+                           {/* Project Column - Exactly 120px */}
+                           <div className="px-2 py-2 border-r border-gray-300 flex items-center justify-center min-w-0 overflow-hidden h-full w-[120px]">
+                             <div className="text-sm text-black truncate text-center font-medium w-full">
                                {task.projectName || 'No Project'}
                              </div>
                            </div>
                            
-                           {/* Duration Column - Fixed width 80px */}
-                           <div className="px-2 py-2 border-r border-gray-300 flex items-center justify-center overflow-hidden">
+                           {/* Duration Column - Exactly 80px */}
+                           <div className="px-2 py-2 border-r border-gray-300 flex items-center justify-center overflow-hidden h-full w-[80px]">
                              <div className="text-sm text-black font-bold">
                                {task.duration || 30}min
                              </div>
                            </div>
                            
-                           {/* Priority Column - Fixed width 80px */}
-                           <div className="px-2 py-2 flex items-center justify-center overflow-hidden">
+                           {/* Priority Column - Exactly 80px */}
+                           <div className="px-2 py-2 flex items-center justify-center overflow-hidden h-full w-[80px]">
                              <div className={`text-xs px-2 py-1 rounded-full font-bold border whitespace-nowrap ${
                                task.priority?.toLowerCase() === 'high' ? 'bg-red-200 text-red-900 border-red-600' :
                                task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-200 text-yellow-900 border-yellow-600' :
@@ -710,8 +710,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                            className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-3 cursor-s-resize opacity-0 group-hover:opacity-100 bg-blue-600 border border-blue-800 rounded transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
                          />
-                        </div>
-                      </div>
+                       </div>
+                     </div>
                     );
                   })}
               </div>
