@@ -235,12 +235,6 @@ const TasksPage = () => {
     }
   };
 
-  // Handle drag and drop for timeline views
-  const handleTimelineDragEnd = (result: DropResult) => {
-    // This handles drag and drop operations in timeline views
-    // For now, we'll just log the action
-    console.log('Timeline drag ended:', result);
-  };
 
 
   const renderDayView = () => <DayTimelineView 
@@ -258,46 +252,38 @@ const TasksPage = () => {
       }
     }} />;
 
-  const renderWeekView = () => (
-    <DragDropContext onDragEnd={handleTimelineDragEnd}>
-      <WeekTimelineView 
-        currentDate={currentDate} 
-        tasks={userTasks} 
-        onTaskUpdate={async (taskId, updates) => {
-          try {
-            await taskService.updateTask(taskId, updates, userProfile);
-            const updatedTasks = await taskService.loadTasksAssignedToUser();
-            setUserTasks(updatedTasks);
-          } catch (error) {
-            console.error('Failed to update task:', error);
-          }
-        }} 
-      />
-    </DragDropContext>
-  );
+  const renderWeekView = () => <WeekTimelineView 
+    currentDate={currentDate} 
+    tasks={userTasks} 
+    onTaskUpdate={async (taskId, updates) => {
+      try {
+        await taskService.updateTask(taskId, updates, userProfile);
+        const updatedTasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(updatedTasks);
+      } catch (error) {
+        console.error('Failed to update task:', error);
+      }
+    }} 
+  />;
 
-  const renderMonthView = () => (
-    <DragDropContext onDragEnd={handleTimelineDragEnd}>
-      <MonthTimelineView 
-        currentDate={currentDate} 
-        tasks={userTasks}
-        onTaskUpdate={async (taskId, updates) => {
-          try {
-            await taskService.updateTask(taskId, updates, userProfile);
-            // Reload tasks to reflect changes
-            const updatedTasks = await taskService.loadTasksAssignedToUser();
-            setUserTasks(updatedTasks);
-          } catch (error) {
-            console.error('Failed to update task:', error);
-          }
-        }}
-        onDayClick={(day) => {
-          setCurrentDate(day);
-          setViewMode('day');
-        }}
-      />
-    </DragDropContext>
-  );
+  const renderMonthView = () => <MonthTimelineView 
+    currentDate={currentDate} 
+    tasks={userTasks}
+    onTaskUpdate={async (taskId, updates) => {
+      try {
+        await taskService.updateTask(taskId, updates, userProfile);
+        // Reload tasks to reflect changes
+        const updatedTasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(updatedTasks);
+      } catch (error) {
+        console.error('Failed to update task:', error);
+      }
+    }}
+    onDayClick={(day) => {
+      setCurrentDate(day);
+      setViewMode('day');
+    }}
+  />;
 
   const renderCalendarView = () => {
     switch (viewMode) {
