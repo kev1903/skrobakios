@@ -532,9 +532,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     <div key={slot.hour} className={`h-6 border-b flex items-center justify-start pl-3 transition-colors hover:bg-white/[0.05] ${
                       isFullHour ? 'border-b-white/[0.08] bg-white/[0.02]' : 'border-b-white/[0.05] bg-transparent'
                     } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
-                      <span className={`font-inter leading-tight ${
-                        isFullHour ? 'text-xs font-medium text-white/80' : 'text-[10px] font-normal text-white/60'
-                      } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
+                       <span className={`font-inter leading-tight ${
+                         isFullHour ? 'text-xs font-medium text-white' : 'text-[10px] font-normal text-white'
+                       } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                         {slot.label}
                       </span>
                     </div>
