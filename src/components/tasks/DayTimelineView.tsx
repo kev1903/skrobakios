@@ -133,10 +133,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const duration = task.duration || 30;
       const endMinutes = startMinutes + duration;
       
-      const startSlot = Math.floor(startMinutes / 30);
-      const endSlot = Math.ceil(endMinutes / 30);
-      const topPosition = startSlot * 24;
-      const height = Math.max(20, (endSlot - startSlot) * 24 - 4); // Minimum height with gap
+      // Calculate exact slot alignment - each slot is 30 minutes and 24px high
+      const startSlot = startMinutes / 30; // Exact slot position (can be fractional)
+      const endSlot = endMinutes / 30;
+      const topPosition = startSlot * 24; // 24px per slot
+      const height = Math.max(20, (endSlot - startSlot) * 24); // No gap reduction for exact alignment
 
       return {
         id: `task-${task.id}`,
@@ -145,7 +146,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         startMinutes,
         endMinutes,
         duration,
-        topPosition: topPosition + 2, // Add small vertical offset
+        topPosition: topPosition, // Remove offset for exact alignment
         height,
         column: 0,
         columnWidth: 100,
@@ -160,10 +161,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const startMinutes = parseInt(startTime[0]) * 60 + parseInt(startTime[1]);
       const endMinutes = parseInt(endTime[0]) * 60 + parseInt(endTime[1]);
       
-      const startSlot = Math.floor(startMinutes / 30);
-      const endSlot = Math.ceil(endMinutes / 30);
-      const topPosition = startSlot * 24;
-      const height = Math.max(20, (endSlot - startSlot) * 24 - 4); // Minimum height with gap
+      // Calculate exact slot alignment - each slot is 30 minutes and 24px high
+      const startSlot = startMinutes / 30; // Exact slot position (can be fractional)
+      const endSlot = endMinutes / 30;
+      const topPosition = startSlot * 24; // 24px per slot
+      const height = Math.max(20, (endSlot - startSlot) * 24); // No gap reduction for exact alignment
 
       return {
         id: `block-${block.id}`,
@@ -172,7 +174,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         startMinutes,
         endMinutes,
         duration: endMinutes - startMinutes,
-        topPosition: topPosition + 2, // Add small vertical offset
+        topPosition: topPosition, // Remove offset for exact alignment
         height,
         column: 0,
         columnWidth: 100,
@@ -553,9 +555,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               )}
 
               {/* Time Blocks Column */}
-              <div className="border-r border-border/30 bg-gradient-to-b from-card/60 to-card/40 backdrop-blur-sm relative">
+              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm relative">
                 {timeSlots.map((slot, index) => (
-                  <div key={`timeblock-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                  <div key={`timeblock-${slot.hour}`} className="h-6 border-b border-white/[0.05] relative">
                   </div>
                 ))}
                 
