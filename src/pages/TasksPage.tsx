@@ -537,7 +537,7 @@ const TasksPage = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="bg-blue-500/20 border-blue-400/30 hover:bg-blue-400/30 text-blue-300 hover:text-blue-200 font-medium backdrop-blur-sm font-inter"
+                    className="bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter"
                     onClick={() => {
                       // Navigate to timesheet page
                       window.location.href = '/timesheet';
