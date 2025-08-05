@@ -527,7 +527,7 @@ const TasksPage = () => {
                     onClick={() => window.location.href = '/dashboard'}
                     variant="outline"
                     size="sm"
-                    className="bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter"
+                    className="h-9 bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter text-sm px-3"
                   >
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Dashboard
@@ -537,7 +537,7 @@ const TasksPage = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter"
+                    className="h-9 bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter text-sm px-3"
                     onClick={() => {
                       // Navigate to timesheet page
                       window.location.href = '/timesheet';
@@ -551,9 +551,9 @@ const TasksPage = () => {
                 <div className="flex items-center space-x-4">
                   {/* Date and Time - Moved to Right Side */}
                   <div className="flex items-center gap-3">
-                    <h2 className="text-base font-medium text-white flex items-center gap-3 font-inter">
+                    <h2 className="text-sm font-medium text-white flex items-center gap-3 font-inter">
                       {formatDate(currentDate)}
-                      <span className="flex items-center gap-1 text-base text-blue-300 font-inter">
+                      <span className="flex items-center gap-1 text-sm text-blue-300 font-inter">
                         🕒 {format(currentTime, 'HH:mm')}
                       </span>
                     </h2>
@@ -563,7 +563,7 @@ const TasksPage = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="w-9 h-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm"
+                    className="h-9 w-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm"
                     onClick={() => setShowCalendarSettings(true)}
                   >
                     <Settings className="w-4 h-4" />
@@ -571,15 +571,15 @@ const TasksPage = () => {
                   
                   {/* View Mode Toggle */}
                   <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
-                    <ToggleGroupItem value="day" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
+                    <ToggleGroupItem value="day" size="sm" className="h-9 flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm px-3">
                       <CalendarDays className="w-4 h-4" />
                       Day
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="week" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
+                    <ToggleGroupItem value="week" size="sm" className="h-9 flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm px-3">
                       <Calendar className="w-4 h-4" />
                       Week
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="month" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
+                    <ToggleGroupItem value="month" size="sm" className="h-9 flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm px-3">
                       <Calendar className="w-4 h-4" />
                       Month
                     </ToggleGroupItem>
@@ -587,10 +587,10 @@ const TasksPage = () => {
                   
                   {/* Navigation */}
                   <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm" className="w-9 h-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm" onClick={() => navigate('prev')}>
+                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm" onClick={() => navigate('prev')}>
                       <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="w-9 h-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm" onClick={() => navigate('next')}>
+                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm" onClick={() => navigate('next')}>
                       <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
