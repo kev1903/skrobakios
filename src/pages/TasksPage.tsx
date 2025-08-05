@@ -290,10 +290,12 @@ const TasksPage = () => {
       case 'day':
         return renderDayView();
       case 'week':
-        return renderWeekView();
+        // Temporarily disabled for debugging
+        return <div className="text-white">Week view temporarily disabled</div>;
       case 'month':
       default:
-        return renderMonthView();
+        // Temporarily disabled for debugging
+        return <div className="text-white">Month view temporarily disabled</div>;
     }
   };
 
