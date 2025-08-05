@@ -238,7 +238,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         <div className="absolute inset-0 bg-black/50"></div>
       </div>
       
-      {/* Minimal Fixed Header */}
+      {/* Fixed Header with Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -250,6 +250,52 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 className="h-8 w-auto object-contain cursor-pointer"
                 onClick={() => goToSlide(0)}
               />
+            </div>
+
+            {/* Centered Navigation */}
+            <nav className="hidden lg:flex items-center justify-center space-x-8 flex-1">
+              <button 
+                onClick={() => onNavigate('services')}
+                className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
+              >
+                Services
+              </button>
+              <button 
+                onClick={() => onNavigate('projects')}
+                className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
+              >
+                Projects
+              </button>
+              <button 
+                onClick={() => onNavigate('about')}
+                className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => onNavigate('contact')}
+                className="text-sm font-medium text-white/90 hover:text-white transition-colors duration-200"
+              >
+                Contact
+              </button>
+            </nav>
+
+            {/* Mobile Navigation Menu */}
+            <div className="lg:hidden flex items-center space-x-4">
+              <nav className="flex items-center space-x-4">
+                <button 
+                  onClick={() => onNavigate('services')}
+                  className="text-xs font-medium text-white/90 hover:text-white transition-colors duration-200"
+                >
+                  Services
+                </button>
+                <button 
+                  onClick={() => onNavigate('projects')}
+                  className="text-xs font-medium text-white/90 hover:text-white transition-colors duration-200"
+                >
+                  Projects
+                </button>
+              </nav>
             </div>
 
             {/* Login Button */}
