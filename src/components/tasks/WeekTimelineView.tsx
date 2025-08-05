@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
+// import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,7 +15,7 @@ interface WeekTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
-  onDragStart?: (start: DragStart) => void;
+  onDragStart?: (start: any) => void;
 }
 
 interface TimeSlot {
@@ -156,7 +156,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
     return slots;
   }, [tasks, weekDays]);
 
-  const handleDragStart = useCallback((start: DragStart) => {
+  const handleDragStart = useCallback((start: any) => {
     setIsDragging(true);
     onDragStart?.(start);
   }, [onDragStart]);
@@ -253,62 +253,29 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                 const dayTasks = slot.dayTasks[dayIndex] || [];
                 
                 return (
-                  <Droppable key={`${slot.hour}-${dayIndex}`} droppableId={`week-timeline-${slot.hour}-${dayIndex}`}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`h-6 border-b border-white/[0.05] cursor-pointer transition-colors relative p-1 ${
-                          snapshot.isDraggingOver
-                            ? 'bg-primary/10 border-primary/30'
-                            : 'hover:bg-white/[0.05]'
-                        }`}
-                      >
-                        <div className="flex gap-1 h-full overflow-hidden">
-                          {dayTasks.map((task, taskIndex) => {
-                            const taskDate = new Date(task.dueDate);
-                            
-                            // Task colors - transparent background to match other columns
-                            const getTaskColor = () => {
-                              return 'bg-transparent border-border/30';
-                            };
-                            
-                            return (
-                              <Draggable key={task.id} draggableId={`week-timeline-${task.id}`} index={taskIndex}>
-                                {(provided, snapshot) => (
-                                   <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                      className={`${getTaskColor()} backdrop-blur-sm text-foreground text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border flex-1 min-w-0 ${
-                                        snapshot.isDragging ? 'scale-105 shadow-lg !z-[9999] backdrop-blur-none' : 'z-10'
-                                      }`}
-                                    style={{
-                                      ...provided.draggableProps.style,
-                                    }}
-                                   >
-                                     <div className="flex items-center justify-center gap-1 h-full">
-                                       <GripVertical className="w-2 h-2 text-gray-500/60 flex-shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                          <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
-                                        </div>
-                                     </div>
-                                  </div>
-                                )}
-                              </Draggable>
-                            );
-                          })}
-                          {provided.placeholder}
-                        </div>
-                        
-                        {dayTasks.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="flex items-center justify-center h-full text-[10px] text-muted-foreground opacity-0 hover:opacity-100 transition-opacity z-10">
-                            Drop
+                  <div key={`${slot.hour}-${dayIndex}`} className="h-6 border-b border-white/[0.05] cursor-pointer transition-colors relative p-1 hover:bg-white/[0.05]">
+                    <div className="flex gap-1 h-full overflow-hidden">
+                      {dayTasks.map((task, taskIndex) => (
+                        <div
+                          key={task.id}
+                          className="bg-transparent border-border/30 backdrop-blur-sm text-foreground text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border flex-1 min-w-0 z-10"
+                        >
+                          <div className="flex items-center justify-center gap-1 h-full">
+                            <GripVertical className="w-2 h-2 text-gray-500/60 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
+                            </div>
                           </div>
-                        )}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {dayTasks.length === 0 && (
+                      <div className="flex items-center justify-center h-full text-[10px] text-muted-foreground opacity-0 hover:opacity-100 transition-opacity z-10">
+                        Drop
                       </div>
                     )}
-                  </Droppable>
+                  </div>
                 );
               })}
               
