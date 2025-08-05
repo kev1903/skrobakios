@@ -562,20 +562,25 @@ const TimeSheetPage = () => {
                             {slotEntries.map((entry, entryIndex) => (
                               <div
                                 key={entryIndex}
-                                className="draggable-task-element absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-grab hover:cursor-grab"
+                                className="draggable-task-element absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-grab hover:cursor-grab min-h-[32px] flex items-center"
                                 style={{
                                   backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
                                   borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb'
                                 }}
                               >
-                                 <div className="px-1 py-0.5 text-xs truncate h-full flex items-center">
-                                   <div className="font-medium text-foreground/90 truncate flex items-center gap-1 h-full">
-                                     <GripVertical className="w-3 h-3 text-gray-800 flex-shrink-0 cursor-grab hover:cursor-grab transition-colors bg-gray-200 rounded-sm p-0.5" style={{ backgroundColor: '#f3f4f6' }} />
-                                     <span className="flex-1 truncate">{entry.task_activity}</span>
-                                     <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 bg-green-100 text-green-700 border-green-200">
-                                       ✓
-                                     </Badge>
-                                   </div>
+                                {/* Drag Handle - Left Side */}
+                                <div className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0">
+                                  <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                                </div>
+                                
+                                {/* Task Content */}
+                                <div className="flex-1 px-2 py-1 text-xs truncate">
+                                  <div className="font-medium text-foreground/90 truncate flex items-center justify-between">
+                                    <span className="flex-1 truncate">{entry.task_activity}</span>
+                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 bg-green-100 text-green-700 border-green-200">
+                                      ✓
+                                    </Badge>
+                                  </div>
                                   <div className="text-[10px] text-muted-foreground flex items-center justify-between">
                                     <span>
                                       {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
