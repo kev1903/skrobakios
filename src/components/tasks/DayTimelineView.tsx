@@ -52,6 +52,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [priorityChecked, setPriorityChecked] = useState<boolean[]>([false, false, false]);
   const [notes, setNotes] = useState<string>('');
   const [dailyRecordId, setDailyRecordId] = useState<string | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const {
     settings
   } = useTimeTracking();
@@ -148,7 +149,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, [currentDate]);
 
-  // Save daily priorities and notes to database
+  // Save daily priorities and notes to database with debouncing
   const saveDailyData = useCallback(async (updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
     try {
       const { data: user } = await supabase.auth.getUser();
@@ -193,10 +194,30 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, [currentDate, priorities, priorityChecked, notes, dailyRecordId]);
 
+  // Debounced save function
+  const debouncedSave = useCallback((updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    saveTimeoutRef.current = setTimeout(() => {
+      saveDailyData(updatedPriorities, updatedChecked, updatedNotes);
+    }, 500);
+  }, [saveDailyData]);
+
   // Load daily data when component mounts or currentDate changes
   React.useEffect(() => {
     loadDailyData();
   }, [loadDailyData]);
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
   // Improved layout engine with proper cross-type overlap detection
   const calculateLayout = useCallback((): {
     tasks: LayoutItem[];
@@ -948,20 +969,25 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             <div className="space-y-2">
               {priorities.map((priority, index) => <div key={index} className="flex items-center gap-2">
                   <span className="text-sm font-medium text-white/70 w-4">{index + 1}.</span>
-                  <Input value={priority} onChange={e => {
-              const newPriorities = [...priorities];
-              newPriorities[index] = e.target.value;
-              setPriorities(newPriorities);
-              // Auto-save when priorities change
-              saveDailyData(newPriorities, priorityChecked, notes);
-            }} placeholder={`Priority ${index + 1}`} className="text-sm h-8 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 flex-1" />
+                  <Input 
+                    value={priority} 
+                    onChange={e => {
+                      const newPriorities = [...priorities];
+                      newPriorities[index] = e.target.value;
+                      setPriorities(newPriorities);
+                      // Debounced auto-save when priorities change
+                      debouncedSave(newPriorities, priorityChecked, notes);
+                    }} 
+                    placeholder={`Priority ${index + 1}`} 
+                    className="text-sm h-8 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 flex-1" 
+                  />
                   <Checkbox 
                     checked={priorityChecked[index]} 
                     onCheckedChange={(checked) => {
                       const newChecked = [...priorityChecked];
                       newChecked[index] = checked as boolean;
                       setPriorityChecked(newChecked);
-                      // Auto-save when checkbox changes
+                      // Immediate save for checkbox changes
                       saveDailyData(priorities, newChecked, notes);
                     }}
                     className="data-[state=checked]:bg-white/20 data-[state=checked]:border-white/30 border-white/20 bg-white/10"
@@ -980,8 +1006,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               value={notes}
               onChange={(e) => {
                 setNotes(e.target.value);
-                // Auto-save when notes change (with debounce)
-                saveDailyData(priorities, priorityChecked, e.target.value);
+                // Debounced auto-save when notes change
+                debouncedSave(priorities, priorityChecked, e.target.value);
               }}
               placeholder="Add your notes here..."
               className="w-full flex-1 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
