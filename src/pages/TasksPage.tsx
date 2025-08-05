@@ -313,16 +313,19 @@ const TasksPage = () => {
       }
     }} />;
 
-  const renderWeekView = () => <WeekTimelineView currentDate={currentDate} tasks={userTasks} onTaskUpdate={async (taskId, updates) => {
-    try {
-      await taskService.updateTask(taskId, updates, userProfile);
-      // Reload tasks to reflect changes
-      const updatedTasks = await taskService.loadTasksAssignedToUser();
-      setUserTasks(updatedTasks);
-    } catch (error) {
-      console.error('Failed to update task:', error);
-    }
-  }} />;
+  const renderWeekView = () => <WeekTimelineView 
+    currentDate={currentDate} 
+    tasks={userTasks} 
+    onTaskUpdate={async (taskId, updates) => {
+      try {
+        await taskService.updateTask(taskId, updates, userProfile);
+        const updatedTasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(updatedTasks);
+      } catch (error) {
+        console.error('Failed to update task:', error);
+      }
+    }} 
+  />;
 
   const renderMonthView = () => <MonthTimelineView 
     currentDate={currentDate} 

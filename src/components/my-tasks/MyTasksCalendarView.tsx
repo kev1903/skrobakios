@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+// Removed DragDropContext import since it's now handled by parent component
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -99,103 +99,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     }
   };
 
-  // Handle drag start
-  const handleDragStart = useCallback((start: any) => {
-    let taskId = start.draggableId;
-    if (taskId.startsWith('backlog-')) {
-      taskId = taskId.replace('backlog-', '');
-    }
-    const task = tasks.find(t => t.id === taskId);
-    setDraggedTask(task || null);
-  }, [tasks]);
-
-  // Handle drag end
-  const handleDragEnd = useCallback(async (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    setDraggedTask(null);
-
-    if (!destination) return;
-
-    // Extract task ID from draggableId (handle prefixed IDs)
-    let taskId = draggableId;
-    if (draggableId.startsWith('backlog-')) {
-      taskId = draggableId.replace('backlog-', '');
-    }
-    if (draggableId.startsWith('week-timeline-')) {
-      taskId = draggableId.replace('week-timeline-', '');
-    }
-    if (draggableId.startsWith('month-')) {
-      taskId = draggableId.replace('month-', '');
-    }
-
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || !onTaskUpdate) return;
-
-    // Handle drop back to backlog
-    if (destination.droppableId === 'backlog') {
-      try {
-        // Reset task to midnight (unscheduled)
-        const resetDate = new Date(task.dueDate);
-        resetDate.setHours(0, 0, 0, 0);
-        
-        await onTaskUpdate(task.id, {
-          dueDate: resetDate.toISOString()
-        });
-      } catch (error) {
-        console.error('Failed to move task to backlog:', error);
-      }
-      return;
-    }
-
-    // Handle timeline drops (works for all droppableIds that start with 'timeline-' or 'week-timeline-')
-    if (destination.droppableId.startsWith('timeline-') || destination.droppableId.startsWith('week-timeline-')) {
-      let slotHour: string;
-      let targetDate = new Date(currentDate);
-      
-      // Parse different droppableId formats
-      if (destination.droppableId.startsWith('week-timeline-')) {
-        // Format: week-timeline-{slotIndex}-{dayIndex}
-        const parts = destination.droppableId.split('-');
-        if (parts.length >= 4) {
-          const slotIndex = parseInt(parts[2]);
-          const dayIndex = parseInt(parts[3]);
-          
-          // Calculate the target date based on dayIndex (0=Sunday, 1=Monday, etc.)
-          const weekStart = new Date(currentDate);
-          weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Start of week (Sunday)
-          targetDate = new Date(weekStart);
-          targetDate.setDate(weekStart.getDate() + dayIndex);
-          
-          // Calculate hour and minutes from slot index
-          const hour = Math.floor(slotIndex / 2);
-          const minutes = (slotIndex % 2) * 30;
-          targetDate.setHours(hour, minutes, 0, 0);
-        }
-      } else {
-        // Format: timeline-{slot.hour}
-        slotHour = destination.droppableId.replace('timeline-', '');
-        
-        if (slotHour === '-1') {
-          // Combined night slot (00:00-05:00), default to 02:30
-          targetDate.setHours(2, 30, 0, 0);
-        } else {
-          // Calculate hour and minutes from slot index (consistent across all views)
-          const slotIndex = parseInt(slotHour);
-          const hour = Math.floor(slotIndex / 2);
-          const minutes = (slotIndex % 2) * 30;
-          targetDate.setHours(hour, minutes, 0, 0);
-        }
-      }
-      
-      try {
-        await onTaskUpdate(task.id, {
-          dueDate: targetDate.toISOString()
-        });
-      } catch (error) {
-        console.error('Failed to update task:', error);
-      }
-    }
-  }, [currentDate, tasks, onTaskUpdate]);
+  // Note: Drag and drop functionality now handled by parent component
 
   const getTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
@@ -320,50 +224,30 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
             {/* Task List - Scrollable */}
             <div className="flex-1 overflow-hidden">
-              <Droppable droppableId="backlog">
-                {(provided) => (
+              <div className="space-y-3 overflow-y-auto h-full pr-2">
+                {backlogTasks.map((task, index) => (
                   <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="space-y-3 overflow-y-auto h-full pr-2"
+                    key={task.id}
+                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-pointer transition-all"
+                    onClick={() => onTaskClick(task)}
                   >
-                    {backlogTasks.map((task, index) => (
-                      <Draggable key={task.id} draggableId={`backlog-${task.id}`} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all ${
-                              snapshot.isDragging ? 'shadow-lg opacity-80 z-50' : ''
-                            }`}
-                            style={{
-                              ...provided.draggableProps.style,
-                            }}
-                            onClick={() => onTaskClick(task)}
-                          >
-                            <div className="space-y-2">
-                              <h4 className="font-medium text-sm">{task.taskName}</h4>
-                              <p className="text-xs text-muted-foreground">
-                                {task.projectName}
-                              </p>
-                              <div className="flex gap-2">
-                                <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                                  {task.taskType}
-                                </Badge>
-                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                  {task.priority}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">{task.taskName}</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {task.projectName}
+                      </p>
+                      <div className="flex gap-2">
+                        <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                          {task.taskType}
+                        </Badge>
+                        <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                          {task.priority}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </Droppable>
+                ))}
+              </div>
 
               {backlogTasks.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
