@@ -494,24 +494,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       <div className={`flex flex-col overflow-hidden transition-all duration-200 ${isDragActive ? 'w-full' : 'flex-1'}`}>
         {/* Column Headers */}
         <div className="border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm">
-          <div className="grid grid-cols-[60px_200px_1fr_120px_80px_80px] h-10">
+          <div className="grid grid-cols-[60px_200px_1fr] h-10">
             <div className="border-r border-white/[0.08] flex items-center justify-center">
               <span className="text-xs font-medium text-white/60">Time</span>
             </div>
             <div className="border-r border-white/[0.08] flex items-center justify-center">
               <span className="text-xs font-medium text-white/60">Blocks</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
-              <span className="text-xs font-medium text-white/60">Task Name</span>
-            </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
-              <span className="text-xs font-medium text-white/60">Project</span>
-            </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
-              <span className="text-xs font-medium text-white/60">Duration</span>
-            </div>
             <div className="flex items-center justify-center">
-              <span className="text-xs font-medium text-white/60">Priority</span>
+              <span className="text-xs font-medium text-white/60">Task Name</span>
             </div>
           </div>
         </div>
@@ -519,7 +510,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden relative">
           <div className="h-full overflow-auto">
-            <div className="grid grid-cols-[60px_200px_1fr_120px_80px_80px] min-h-full">
+            <div className="grid grid-cols-[60px_200px_1fr] min-h-full">
               {/* Time Column */}
               <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm min-w-[60px] shadow-inner relative">
                 {timeSlots.map((slot, index) => {
@@ -650,7 +641,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    return (
                      <div
                        key={`taskname-${task.id}`}
-                       className="absolute px-3 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex flex-col justify-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300"
+                       className="absolute px-3 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-r-md flex flex-col justify-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300"
                        style={{
                          top: `${topOffset}px`,
                          left: '0px',
@@ -681,136 +672,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                  })}
               </div>
 
-              {/* Project Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`project-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                  </div>
-                ))}
-                
-                {/* Render project parts in this column */}
-                {layout.tasks.map((item) => {
-                  const task = item.data as Task;
-                  let heightInPixels = item.height;
-                  let topOffset = item.topPosition;
-                  
-                  if (dragState.isDragging && dragState.taskId === task.id) {
-                    if (dragState.previewHeight !== null) {
-                      heightInPixels = dragState.previewHeight;
-                    }
-                    if (dragState.previewTop !== null) {
-                      topOffset = item.topPosition + dragState.previewTop;
-                    }
-                  }
-                  
-                  return (
-                    <div
-                      key={`project-${task.id}`}
-                      className="absolute px-2 py-2 bg-white/90 backdrop-blur-sm border border-white/30 border-l-0 shadow-lg flex items-center justify-center z-20 hover:bg-white/95 transition-all duration-300"
-                      style={{
-                        top: `${topOffset}px`,
-                        left: '0px',
-                        right: '0px',
-                        height: `${heightInPixels}px`,
-                        minHeight: '20px'
-                      }}
-                    >
-                      <div className="text-sm text-gray-900 truncate text-center font-medium">
-                        {task.projectName || 'No Project'}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Duration Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`duration-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                  </div>
-                ))}
-                
-                {/* Render duration parts in this column */}
-                {layout.tasks.map((item) => {
-                  const task = item.data as Task;
-                  let heightInPixels = item.height;
-                  let topOffset = item.topPosition;
-                  
-                  if (dragState.isDragging && dragState.taskId === task.id) {
-                    if (dragState.previewHeight !== null) {
-                      heightInPixels = dragState.previewHeight;
-                    }
-                    if (dragState.previewTop !== null) {
-                      topOffset = item.topPosition + dragState.previewTop;
-                    }
-                  }
-                  
-                  return (
-                    <div
-                      key={`duration-${task.id}`}
-                      className="absolute px-2 py-2 bg-white/90 backdrop-blur-sm border border-white/30 border-l-0 shadow-lg flex items-center justify-center z-20 hover:bg-white/95 transition-all duration-300"
-                      style={{
-                        top: `${topOffset}px`,
-                        left: '0px',
-                        right: '0px',
-                        height: `${heightInPixels}px`,
-                        minHeight: '20px'
-                      }}
-                    >
-                      <div className="text-sm text-gray-900 font-semibold">
-                        {task.duration || 30}min
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Priority Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
-                {timeSlots.map((slot) => (
-                  <div key={`priority-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                  </div>
-                ))}
-                
-                {/* Render priority parts in this column */}
-                {layout.tasks.map((item) => {
-                  const task = item.data as Task;
-                  let heightInPixels = item.height;
-                  let topOffset = item.topPosition;
-                  
-                  if (dragState.isDragging && dragState.taskId === task.id) {
-                    if (dragState.previewHeight !== null) {
-                      heightInPixels = dragState.previewHeight;
-                    }
-                    if (dragState.previewTop !== null) {
-                      topOffset = item.topPosition + dragState.previewTop;
-                    }
-                  }
-                  
-                  return (
-                    <div
-                      key={`priority-${task.id}`}
-                      className="absolute px-2 py-2 bg-white/90 backdrop-blur-sm border border-white/30 border-l-0 rounded-r-md shadow-lg flex items-center justify-center z-20 hover:bg-white/95 transition-all duration-300"
-                      style={{
-                        top: `${topOffset}px`,
-                        left: '0px',
-                        right: '0px',
-                        height: `${heightInPixels}px`,
-                        minHeight: '20px'
-                      }}
-                    >
-                      <div className={`text-xs px-2 py-1 rounded-full font-semibold border ${
-                        task.priority?.toLowerCase() === 'high' ? 'bg-red-100 text-red-800 border-red-300' :
-                        task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
-                        task.priority?.toLowerCase() === 'low' ? 'bg-green-100 text-green-800 border-green-300' :
-                        'bg-gray-100 text-gray-800 border-gray-300'
-                      }`}>
-                        {task.priority || 'medium'}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           </div>
         </div>
