@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-// import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
+import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -251,9 +251,23 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
             <div key={dayIndex} className="bg-white/[0.01] border-r border-white/[0.05] relative last:border-r-0">
               {timeSlots.map(slot => {
                 const dayTasks = slot.dayTasks[dayIndex] || [];
-                
+                const slotHour = Math.floor(slot.hour / 2);
+                const slotMinutes = (slot.hour % 2) * 30;
+                const currentDateStr = format(day, 'yyyy-MM-dd');
+                const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
+
                 return (
-                  <div key={`${slot.hour}-${dayIndex}`} className="h-6 border-b border-white/[0.05] cursor-pointer transition-colors relative p-1 hover:bg-white/[0.05]">
+                  <Droppable key={`${slot.hour}-${dayIndex}`} droppableId={droppableId}>
+                    {(provided, snapshot) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`h-6 border-b border-white/[0.05] cursor-pointer transition-colors relative p-1 ${
+                          snapshot.isDraggingOver 
+                            ? 'bg-blue-500/20 border-blue-400/50' 
+                            : 'hover:bg-white/[0.05]'
+                        }`}
+                      >
                     <div className="flex gap-1 h-full overflow-hidden">
                       {dayTasks.map((task, taskIndex) => (
                         <div
@@ -270,12 +284,15 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       ))}
                     </div>
                     
-                    {dayTasks.length === 0 && (
-                      <div className="flex items-center justify-center h-full text-[10px] text-muted-foreground opacity-0 hover:opacity-100 transition-opacity z-10">
-                        Drop
+                    {dayTasks.length === 0 && snapshot.isDraggingOver && (
+                      <div className="flex items-center justify-center h-full text-[10px] text-blue-300 font-medium z-10">
+                        Drop here for {slot.label}
                       </div>
                     )}
-                  </div>
+                    {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
                 );
               })}
               

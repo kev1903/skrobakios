@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-// import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -598,17 +598,34 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               {/* Task Name Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
                 {timeSlots.map((slot, index) => {
-                  const droppableId = slot.hour === -1 ? `timeline--1` : `timeline-${slot.hour}`;
+                  const slotHour = Math.floor(slot.hour / 2);
+                  const slotMinutes = (slot.hour % 2) * 30;
+                  const currentDateStr = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
+                  const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
                   
                    return (
-                     <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                       {/* Removed drag and drop functionality - now static */}
-                       <div
-                         className="absolute inset-0 transition-colors hover:bg-muted/10"
-                       >
-                         {/* No drag and drop functionality */}
-                       </div>
-                     </div>
+                     <Droppable key={`taskname-${slot.hour}`} droppableId={droppableId}>
+                       {(provided, snapshot) => (
+                         <div 
+                           ref={provided.innerRef}
+                           {...provided.droppableProps}
+                           className={`h-6 border-b border-border/10 relative transition-colors ${
+                             snapshot.isDraggingOver 
+                               ? 'bg-blue-500/20 border-blue-400/50' 
+                               : 'hover:bg-muted/10'
+                           }`}
+                         >
+                           {snapshot.isDraggingOver && (
+                             <div className="absolute inset-0 flex items-center justify-center">
+                               <span className="text-xs text-blue-300 font-medium">
+                                 Drop here for {slot.label}
+                               </span>
+                             </div>
+                           )}
+                           {provided.placeholder}
+                         </div>
+                       )}
+                     </Droppable>
                    );
                 })}
                 
