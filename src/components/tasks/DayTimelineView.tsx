@@ -47,6 +47,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   isDragActive = false,
   enableDragDrop = false
 }) => {
+  console.log('🎯 DayTimelineView rendering with enableDragDrop:', enableDragDrop);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [priorities, setPriorities] = useState<string[]>(['', '', '']);
