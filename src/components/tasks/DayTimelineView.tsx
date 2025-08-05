@@ -801,14 +801,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         minHeight: '20px'
                       }}
                     >
-                       <div className={`text-xs px-3 py-2 rounded-full font-semibold border backdrop-blur-md shadow-lg ${
-                         task.priority?.toLowerCase() === 'high' ? 'bg-red-500/30 text-red-200 border-red-400/50 shadow-red-500/30' :
-                         task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-500/30 text-yellow-200 border-yellow-400/50 shadow-yellow-500/30' :
-                         task.priority?.toLowerCase() === 'low' ? 'bg-green-500/30 text-green-200 border-green-400/50 shadow-green-500/30' :
-                         'bg-gray-500/30 text-gray-200 border-gray-400/50 shadow-gray-500/30'
-                       }`}>
-                         {task.priority || 'medium'}
-                       </div>
+                       <div className="text-xs text-gray-900 font-medium">
+                          {task.priority || 'Medium'}
+                        </div>
                     </div>
                   );
                 })}
