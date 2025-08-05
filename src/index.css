@@ -76,13 +76,13 @@ div[data-rbd-drag-handle-draggable-id] {
 
     --radius: 0.75rem;
 
-    /* Enhanced Blue Glassmorphism Theme */
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-bg-light: rgba(255, 255, 255, 0.85);
-    --glass-bg-hover: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(59, 130, 246, 0.2);
-    --glass-shadow: rgba(59, 130, 246, 0.08);
-    --glass-shadow-hover: rgba(59, 130, 246, 0.15);
+    /* Enhanced Blue Glassmorphism Theme - Ultra Transparent */
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg-light: rgba(255, 255, 255, 0.08);
+    --glass-bg-hover: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: rgba(0, 0, 0, 0.05);
+    --glass-shadow-hover: rgba(0, 0, 0, 0.08);
     --glass-backdrop: blur(20px);
     
     /* Blue Gradient Brand Colors */
@@ -107,14 +107,14 @@ div[data-rbd-drag-handle-draggable-id] {
     --neutral-900: 220 20% 10%;
     --neutral-950: 220 20% 5%;
     
-    /* Sidebar Variables - Blue Theme */
-    --sidebar-background: rgba(255, 255, 255, 0.9);
-    --sidebar-foreground: 220 20% 10%;
+    /* Sidebar Variables - Ultra Transparent Glass */
+    --sidebar-background: rgba(255, 255, 255, 0.02);
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: rgba(59, 130, 246, 0.1);
-    --sidebar-accent-foreground: 220 20% 10%;
-    --sidebar-border: rgba(59, 130, 246, 0.15);
+    --sidebar-accent: rgba(255, 255, 255, 0.05);
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: rgba(255, 255, 255, 0.08);
     --sidebar-ring: 217 91% 60%;
   }
 
@@ -153,15 +153,15 @@ div[data-rbd-drag-handle-draggable-id] {
     --input: 217.2 32.6% 17.5%;
     --ring: 210 40% 90%;
     
-    /* Dark Mode Enhanced Glassmorphism */
-    --glass-bg: rgba(15, 23, 42, 0.4);
-    --glass-bg-light: rgba(15, 23, 42, 0.6);
-    --glass-bg-hover: rgba(15, 23, 42, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: rgba(0, 0, 0, 0.4);
-    --glass-shadow-hover: rgba(0, 0, 0, 0.6);
+    /* Dark Mode Enhanced Glassmorphism - Ultra Transparent */
+    --glass-bg: rgba(0, 0, 0, 0.05);
+    --glass-bg-light: rgba(0, 0, 0, 0.08);
+    --glass-bg-hover: rgba(0, 0, 0, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: rgba(0, 0, 0, 0.1);
+    --glass-shadow-hover: rgba(0, 0, 0, 0.15);
     
-    --sidebar-background: rgba(15, 23, 42, 0.8);
+    --sidebar-background: rgba(0, 0, 0, 0.02);
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 210 40% 90%;
     --sidebar-primary-foreground: 0 0% 100%;
