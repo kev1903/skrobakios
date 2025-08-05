@@ -12,6 +12,7 @@ import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { PriorityInput } from './PriorityInput';
 interface DayTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
@@ -967,32 +968,28 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               <h4 className="font-medium text-white">Top 3 Priorities</h4>
             </div>
             <div className="space-y-2">
-              {priorities.map((priority, index) => <div key={index} className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white/70 w-4">{index + 1}.</span>
-                  <Input 
-                    value={priority} 
-                    onChange={e => {
-                      const newPriorities = [...priorities];
-                      newPriorities[index] = e.target.value;
-                      setPriorities(newPriorities);
-                      // Debounced auto-save when priorities change
-                      debouncedSave(newPriorities, priorityChecked, notes);
-                    }} 
-                    placeholder={`Priority ${index + 1}`} 
-                    className="text-sm h-8 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 flex-1" 
-                  />
-                  <Checkbox 
-                    checked={priorityChecked[index]} 
-                    onCheckedChange={(checked) => {
-                      const newChecked = [...priorityChecked];
-                      newChecked[index] = checked as boolean;
-                      setPriorityChecked(newChecked);
-                      // Immediate save for checkbox changes
-                      saveDailyData(priorities, newChecked, notes);
-                    }}
-                    className="data-[state=checked]:bg-white/20 data-[state=checked]:border-white/30 border-white/20 bg-white/10"
-                  />
-                </div>)}
+              {priorities.map((priority, index) => 
+                <PriorityInput
+                  key={`priority-${index}`}
+                  index={index}
+                  value={priority}
+                  checked={priorityChecked[index]}
+                  onValueChange={(value) => {
+                    const newPriorities = [...priorities];
+                    newPriorities[index] = value;
+                    setPriorities(newPriorities);
+                    // Debounced auto-save when priorities change
+                    debouncedSave(newPriorities, priorityChecked, notes);
+                  }}
+                  onCheckedChange={(checked) => {
+                    const newChecked = [...priorityChecked];
+                    newChecked[index] = checked;
+                    setPriorityChecked(newChecked);
+                    // Immediate save for checkbox changes
+                    saveDailyData(priorities, newChecked, notes);
+                  }}
+                />
+              )}
             </div>
           </div>
 
