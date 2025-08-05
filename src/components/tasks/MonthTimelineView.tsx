@@ -74,11 +74,11 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
   return (
     <div className="h-full flex flex-col">
       {/* Month Grid */}
-      <div className="flex-1 overflow-hidden border border-border/20 rounded-lg bg-background">
+      <div className="flex-1 overflow-hidden border border-white/[0.08] rounded-lg backdrop-blur-xl bg-white/[0.02]">
         {/* Week Headers */}
-        <div className="grid grid-cols-7 gap-0 border-b border-border/20 bg-muted/10">
+        <div className="grid grid-cols-7 gap-0 border-b border-white/[0.08] bg-white/[0.05]">
           {weekHeaders.map(day => (
-            <div key={day} className="p-3 text-center text-muted-foreground font-medium text-sm border-r border-border/20 last:border-r-0">
+            <div key={day} className="p-3 text-center text-white/60 font-medium text-sm border-r border-white/[0.08] last:border-r-0">
               {day}
             </div>
           ))}
@@ -94,14 +94,14 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
             return (
               <div
                 key={day.toISOString()}
-                className={`min-h-[120px] border-r border-border/20 border-b border-border/10 cursor-pointer transition-colors relative p-2 last:border-r-0 hover:bg-accent/30 ${!isCurrentMonthDay ? 'opacity-40 bg-muted/5' : ''} ${
+                className={`min-h-[120px] border-r border-white/[0.08] border-b border-white/[0.05] cursor-pointer transition-colors relative p-2 last:border-r-0 hover:bg-white/[0.05] ${!isCurrentMonthDay ? 'opacity-40 bg-white/[0.01]' : ''} ${
                   isToday ? 'bg-primary/5 border-primary/20' : ''
                 }`}
                 onClick={() => onDayClick?.(day)}
               >
                 {/* Day Number */}
                 <div className={`text-sm font-medium mb-2 ${
-                  isToday ? 'text-primary font-bold' : isCurrentMonthDay ? 'text-foreground' : 'text-muted-foreground'
+                  isToday ? 'text-primary font-bold' : isCurrentMonthDay ? 'text-white/90' : 'text-white/40'
                 }`}>
                   {format(day, 'd')}
                 </div>

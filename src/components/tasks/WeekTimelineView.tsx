@@ -179,12 +179,12 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
+    <div className="h-full flex flex-col backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
       {/* Week Grid with Time Slots */}
       <div className="flex-1 overflow-hidden">
         {/* Day Headers Row */}
-        <div className="grid grid-cols-8 gap-1 border-b border-border/30 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm p-2">
-          <div className="p-3 text-center text-muted-foreground font-medium text-sm min-w-[100px] bg-card/50 rounded-lg border border-border/20">
+        <div className="grid grid-cols-8 gap-1 border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm p-2">
+          <div className="p-3 text-center text-white/60 font-medium text-sm min-w-[100px] bg-white/[0.02] rounded-lg border border-white/[0.08]">
             Time
           </div>
           {weekHeaders.map((dayName, index) => {
@@ -195,10 +195,10 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
               <div key={dayName} className={`p-3 text-center transition-all duration-200 rounded-lg border ${
                 isToday 
                   ? 'bg-gradient-to-b from-primary/20 to-primary/10 border-primary/30 shadow-md' 
-                  : 'bg-card/50 border-border/20 hover:bg-card/70'
+                  : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05]'
               }`}>
                 <div className={`font-medium text-sm uppercase ${
-                  isToday ? 'text-primary font-bold' : 'text-muted-foreground'
+                  isToday ? 'text-primary font-bold' : 'text-white/60'
                 }`}>
                   {dayName} {day.getDate()}
                 </div>
@@ -209,7 +209,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
         
         <div className="grid grid-cols-8 gap-0 min-h-full relative">
           {/* Time Column */}
-          <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner relative">
+          <div className="bg-white/[0.02] backdrop-blur-sm border-r border-white/[0.08] min-w-[100px] shadow-inner relative">
             {timeSlots.map((slot, index) => {
               const isFullHour = slot.hour % 2 === 0; // Every even slot is a full hour
               const currentHour = currentTime.getHours();
@@ -221,11 +221,11 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                     (slotMinutes === 30 && currentMinutes >= 30 && currentMinutes < 60));
               
               return (
-                <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
-                  isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-white/[0.05] ${
+                  isFullHour ? 'border-b-white/[0.08] bg-white/[0.02]' : 'border-b-white/[0.05] bg-transparent'
                 } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
                   <span className={`font-inter leading-tight ${
-                    isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
+                    isFullHour ? 'text-xs font-medium text-white/80' : 'text-[10px] font-normal text-white/60'
                   } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                     {slot.label}
                   </span>
@@ -248,7 +248,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
           
           {/* Day Columns */}
           {weekDays.map((day, dayIndex) => (
-            <div key={dayIndex} className="bg-background border-r border-border/20 relative last:border-r-0">
+            <div key={dayIndex} className="bg-white/[0.01] border-r border-white/[0.05] relative last:border-r-0">
               {timeSlots.map(slot => {
                 const dayTasks = slot.dayTasks[dayIndex] || [];
                 
@@ -258,10 +258,10 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`h-6 border-b border-border/10 cursor-pointer transition-colors relative p-1 ${
+                        className={`h-6 border-b border-white/[0.05] cursor-pointer transition-colors relative p-1 ${
                           snapshot.isDraggingOver
                             ? 'bg-primary/10 border-primary/30'
-                            : 'hover:bg-accent/30'
+                            : 'hover:bg-white/[0.05]'
                         }`}
                       >
                         <div className="flex gap-1 h-full overflow-hidden">

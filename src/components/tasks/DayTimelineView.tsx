@@ -483,29 +483,29 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const layout = calculateLayout();
 
   return (
-    <div className="h-full flex bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
+    <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
       {/* Main Timeline Area */}
       <div className={`flex flex-col overflow-hidden transition-all duration-200 ${isDragActive ? 'w-full' : 'flex-1'}`}>
         {/* Column Headers */}
-        <div className="border-b border-border/30 bg-gradient-to-r from-card/90 to-card/70 backdrop-blur-sm">
+        <div className="border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm">
           <div className="grid grid-cols-[60px_200px_1fr_120px_80px_80px] h-10">
-            <div className="border-r border-border/30 flex items-center justify-center">
-              <span className="text-xs font-medium text-muted-foreground">Time</span>
+            <div className="border-r border-white/[0.08] flex items-center justify-center">
+              <span className="text-xs font-medium text-white/60">Time</span>
             </div>
-            <div className="border-r border-border/30 flex items-center justify-center">
-              <span className="text-xs font-medium text-muted-foreground">Blocks</span>
+            <div className="border-r border-white/[0.08] flex items-center justify-center">
+              <span className="text-xs font-medium text-white/60">Blocks</span>
             </div>
-            <div className="border-r border-border/30 flex items-center justify-center">
-              <span className="text-xs font-medium text-muted-foreground">Task Name</span>
+            <div className="border-r border-white/[0.08] flex items-center justify-center">
+              <span className="text-xs font-medium text-white/60">Task Name</span>
             </div>
-            <div className="border-r border-border/30 flex items-center justify-center">
-              <span className="text-xs font-medium text-muted-foreground">Project</span>
+            <div className="border-r border-white/[0.08] flex items-center justify-center">
+              <span className="text-xs font-medium text-white/60">Project</span>
             </div>
-            <div className="border-r border-border/30 flex items-center justify-center">
-              <span className="text-xs font-medium text-muted-foreground">Duration</span>
+            <div className="border-r border-white/[0.08] flex items-center justify-center">
+              <span className="text-xs font-medium text-white/60">Duration</span>
             </div>
             <div className="flex items-center justify-center">
-              <span className="text-xs font-medium text-muted-foreground">Priority</span>
+              <span className="text-xs font-medium text-white/60">Priority</span>
             </div>
           </div>
         </div>
@@ -515,7 +515,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           <div className="h-full overflow-auto">
             <div className="grid grid-cols-[60px_200px_1fr_120px_80px_80px] min-h-full">
               {/* Time Column */}
-              <div className="border-r border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm min-w-[60px] shadow-inner relative">
+              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm min-w-[60px] shadow-inner relative">
                 {timeSlots.map((slot, index) => {
                   const isFullHour = slot.hour % 2 === 0;
                   const currentHour = currentTime.getHours();
@@ -527,11 +527,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                         (slotMinutes === 30 && currentMinutes >= 30 && currentMinutes < 60));
                   
                   return (
-                    <div key={slot.hour} className={`h-6 border-b flex items-center justify-start pl-3 transition-colors hover:bg-accent/20 ${
-                      isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                    <div key={slot.hour} className={`h-6 border-b flex items-center justify-start pl-3 transition-colors hover:bg-white/[0.05] ${
+                      isFullHour ? 'border-b-white/[0.08] bg-white/[0.02]' : 'border-b-white/[0.05] bg-transparent'
                     } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
                       <span className={`font-inter leading-tight ${
-                        isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
+                        isFullHour ? 'text-xs font-medium text-white/80' : 'text-[10px] font-normal text-white/60'
                       } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                         {slot.label}
                       </span>
