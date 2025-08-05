@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+// import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -602,27 +602,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   
                    return (
                      <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                       {enableDragDrop ? (
-                         <Droppable droppableId={droppableId} direction="vertical">
-                           {(provided, snapshot) => (
-                             <div
-                               ref={provided.innerRef}
-                               {...provided.droppableProps}
-                               className={`absolute inset-0 transition-colors ${
-                                 snapshot.isDraggingOver ? 'bg-primary/10' : 'hover:bg-muted/10'
-                               }`}
-                             >
-                               {provided.placeholder}
-                             </div>
-                           )}
-                         </Droppable>
-                       ) : (
-                         <div
-                           className="absolute inset-0 transition-colors hover:bg-muted/10"
-                         >
-                           {/* No drag and drop functionality */}
-                         </div>
-                       )}
+                       {/* Removed drag and drop functionality - now static */}
+                       <div
+                         className="absolute inset-0 transition-colors hover:bg-muted/10"
+                       >
+                         {/* No drag and drop functionality */}
+                       </div>
                      </div>
                    );
                 })}
@@ -642,75 +627,33 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     }
                   }
                   
-                  if (enableDragDrop) {
-                    return (
-                      <Draggable key={task.id} draggableId={task.id} index={0}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`absolute flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer ${
-                              snapshot.isDragging ? 'shadow-lg opacity-80 z-50 cursor-grabbing' : 'cursor-grab'
-                            }`}
-                            style={{
-                              ...provided.draggableProps.style,
-                              ...(snapshot.isDragging ? {} : {
-                                top: `${topOffset}px`,
-                                left: `${item.leftOffset}%`,
-                                width: `${item.columnWidth}%`,
-                              }),
-                              height: `${heightInPixels}px`,
-                              minHeight: '20px'
-                            }}
-                            onClick={(e) => handleEdgeClick(e, task.id)}
-                          >
-                            <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground flex items-center gap-1">
-                              <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
-                              <span className="font-medium truncate flex-1">{task.taskName}</span>
-                              
-                              <div 
-                                className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                              />
-                              <div 
-                                className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    );
-                  } else {
-                    return (
-                      <div
-                        key={`timeline-${task.id}`}
-                        className="absolute px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer"
-                        style={{
-                          top: `${topOffset}px`,
-                          left: `${item.leftOffset}%`,
-                          width: `${item.columnWidth}%`,
-                          height: `${heightInPixels}px`,
-                          minHeight: '20px'
-                        }}
-                        onClick={(e) => handleEdgeClick(e, task.id)}
-                      >
-                        <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground">
-                          <span className="font-medium truncate block">{task.taskName}</span>
-                          
-                          <div 
-                            className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                          />
-                          <div 
-                            className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                          />
-                        </div>
+                  return (
+                    <div
+                      key={`timeline-${task.id}`}
+                      className="absolute px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer"
+                      style={{
+                        top: `${topOffset}px`,
+                        left: `${item.leftOffset}%`,
+                        width: `${item.columnWidth}%`,
+                        height: `${heightInPixels}px`,
+                        minHeight: '20px'
+                      }}
+                      onClick={(e) => handleEdgeClick(e, task.id)}
+                    >
+                      <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground">
+                        <span className="font-medium truncate block">{task.taskName}</span>
+                        
+                        <div 
+                          className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                          onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                        />
+                        <div 
+                          className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                          onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                        />
                       </div>
-                    );
-                  }
+                    </div>
+                  );
                 })}
               </div>
 
