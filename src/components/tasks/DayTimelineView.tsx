@@ -48,6 +48,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [priorities, setPriorities] = useState<string[]>(['', '', '']);
   const [priorityChecked, setPriorityChecked] = useState<boolean[]>([false, false, false]);
+  const [notes, setNotes] = useState<string>('');
+  const [dailyRecordId, setDailyRecordId] = useState<string | null>(null);
   const {
     settings
   } = useTimeTracking();
@@ -107,6 +109,92 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, []);
 
+  // Load daily priorities and notes for the current date
+  const loadDailyData = useCallback(async () => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+
+      const dateString = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
+      
+      const { data, error } = await supabase
+        .from('daily_priorities_notes')
+        .select('*')
+        .eq('user_id', user.user.id)
+        .eq('date', dateString)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading daily data:', error);
+        return;
+      }
+
+      if (data) {
+        setPriorities(data.priorities || ['', '', '']);
+        setPriorityChecked(data.priority_checked || [false, false, false]);
+        setNotes(data.notes || '');
+        setDailyRecordId(data.id);
+      } else {
+        // Reset to defaults if no data for this date
+        setPriorities(['', '', '']);
+        setPriorityChecked([false, false, false]);
+        setNotes('');
+        setDailyRecordId(null);
+      }
+    } catch (error) {
+      console.error('Error loading daily data:', error);
+    }
+  }, [currentDate]);
+
+  // Save daily priorities and notes to database
+  const saveDailyData = useCallback(async (updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+
+      const dateString = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
+      
+      const dataToSave = {
+        user_id: user.user.id,
+        date: dateString,
+        priorities: updatedPriorities || priorities,
+        priority_checked: updatedChecked || priorityChecked,
+        notes: updatedNotes || notes
+      };
+
+      if (dailyRecordId) {
+        // Update existing record
+        const { error } = await supabase
+          .from('daily_priorities_notes')
+          .update(dataToSave)
+          .eq('id', dailyRecordId);
+        
+        if (error) {
+          console.error('Error updating daily data:', error);
+        }
+      } else {
+        // Create new record
+        const { data, error } = await supabase
+          .from('daily_priorities_notes')
+          .insert(dataToSave)
+          .select('id')
+          .single();
+        
+        if (error) {
+          console.error('Error creating daily data:', error);
+        } else if (data) {
+          setDailyRecordId(data.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving daily data:', error);
+    }
+  }, [currentDate, priorities, priorityChecked, notes, dailyRecordId]);
+
+  // Load daily data when component mounts or currentDate changes
+  React.useEffect(() => {
+    loadDailyData();
+  }, [loadDailyData]);
   // Improved layout engine with proper cross-type overlap detection
   const calculateLayout = useCallback((): {
     tasks: LayoutItem[];
@@ -753,6 +841,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               const newPriorities = [...priorities];
               newPriorities[index] = e.target.value;
               setPriorities(newPriorities);
+              // Auto-save when priorities change
+              saveDailyData(newPriorities, priorityChecked, notes);
             }} placeholder={`Priority ${index + 1}`} className="text-sm h-8 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 flex-1" />
                   <Checkbox 
                     checked={priorityChecked[index]} 
@@ -760,6 +850,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                       const newChecked = [...priorityChecked];
                       newChecked[index] = checked as boolean;
                       setPriorityChecked(newChecked);
+                      // Auto-save when checkbox changes
+                      saveDailyData(priorities, newChecked, notes);
                     }}
                     className="data-[state=checked]:bg-white/20 data-[state=checked]:border-white/30 border-white/20 bg-white/10"
                   />
@@ -774,6 +866,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               <h4 className="font-medium text-white">Notes</h4>
             </div>
             <textarea 
+              value={notes}
+              onChange={(e) => {
+                setNotes(e.target.value);
+                // Auto-save when notes change (with debounce)
+                saveDailyData(priorities, priorityChecked, e.target.value);
+              }}
               placeholder="Add your notes here..."
               className="w-full flex-1 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
             />
