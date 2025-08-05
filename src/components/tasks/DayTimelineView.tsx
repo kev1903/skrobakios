@@ -661,32 +661,32 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                        onClick={(e) => handleEdgeClick(e, task.id)}
                      >
                        {/* Task spanning all columns with individual sections */}
-                       <div className="h-full grid grid-cols-[1fr_120px_80px_80px] gap-0 glass-card border border-white/30 text-white shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-lg overflow-hidden">
+                       <div className="h-full grid grid-cols-[1fr_120px_80px_80px] gap-0 bg-white/90 backdrop-blur-xl border border-white/50 text-gray-900 shadow-xl rounded-lg overflow-hidden hover:bg-white/95 transition-all duration-300">
                          {/* Task Name Column */}
-                         <div className="px-3 py-2 border-r border-white/20 flex flex-col justify-center min-w-0">
-                           <div className="font-medium text-sm text-white drop-shadow-sm truncate leading-tight">{task.taskName}</div>
-                           <div className="text-xs text-white/80 drop-shadow-sm leading-tight">
+                         <div className="px-3 py-2 border-r border-gray-300/50 flex flex-col justify-center min-w-0">
+                           <div className="font-semibold text-sm text-gray-900 truncate leading-tight">{task.taskName}</div>
+                           <div className="text-xs text-gray-700 leading-tight">
                              {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                            </div>
                          </div>
                          
                          {/* Project Column */}
-                         <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center min-w-0">
-                           <div className="text-xs text-white/90 truncate text-center">{task.projectName || 'No Project'}</div>
+                         <div className="px-2 py-2 border-r border-gray-300/50 flex items-center justify-center min-w-0">
+                           <div className="text-xs text-gray-800 truncate text-center font-medium">{task.projectName || 'No Project'}</div>
                          </div>
                          
                          {/* Duration Column */}
-                         <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center">
-                           <div className="text-xs text-white/90 font-medium">{task.duration || 30}min</div>
+                         <div className="px-2 py-2 border-r border-gray-300/50 flex items-center justify-center">
+                           <div className="text-xs text-gray-800 font-semibold">{task.duration || 30}min</div>
                          </div>
                          
                          {/* Priority Column */}
                          <div className="px-2 py-2 flex items-center justify-center">
-                           <div className={`text-xs px-2 py-1 rounded-full font-medium ${
-                             task.priority?.toLowerCase() === 'high' ? 'bg-red-500/30 text-red-200 border border-red-400/30' :
-                             task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-500/30 text-yellow-200 border border-yellow-400/30' :
-                             task.priority?.toLowerCase() === 'low' ? 'bg-green-500/30 text-green-200 border border-green-400/30' :
-                             'bg-white/20 text-white/80 border border-white/30'
+                           <div className={`text-xs px-2 py-1 rounded-full font-semibold border ${
+                             task.priority?.toLowerCase() === 'high' ? 'bg-red-100 text-red-800 border-red-300' :
+                             task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
+                             task.priority?.toLowerCase() === 'low' ? 'bg-green-100 text-green-800 border-green-300' :
+                             'bg-gray-100 text-gray-800 border-gray-300'
                            }`}>
                              {task.priority || 'medium'}
                            </div>
@@ -694,11 +694,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                          
                          {/* Resize handles */}
                          <div 
-                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
+                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-gray-400 rounded-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
                          />
                          <div 
-                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
+                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-gray-400 rounded-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
                          />
                        </div>
