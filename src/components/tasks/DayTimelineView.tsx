@@ -632,52 +632,79 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    );
                 })}
                 
-                {/* Render tasks with layout engine */}
-                {layout.tasks.map((item) => {
-                  const task = item.data as Task;
-                  let heightInPixels = item.height;
-                  let topOffset = item.topPosition;
-                  
-                  if (dragState.isDragging && dragState.taskId === task.id) {
-                    if (dragState.previewHeight !== null) {
-                      heightInPixels = dragState.previewHeight;
-                    }
-                    if (dragState.previewTop !== null) {
-                      topOffset = item.topPosition + dragState.previewTop;
-                    }
-                  }
-                  
+                 {/* Render tasks with layout engine - spanning across all task columns */}
+                 {layout.tasks.map((item) => {
+                   const task = item.data as Task;
+                   let heightInPixels = item.height;
+                   let topOffset = item.topPosition;
+                   
+                   if (dragState.isDragging && dragState.taskId === task.id) {
+                     if (dragState.previewHeight !== null) {
+                       heightInPixels = dragState.previewHeight;
+                     }
+                     if (dragState.previewTop !== null) {
+                       topOffset = item.topPosition + dragState.previewTop;
+                     }
+                   }
+                   
                    return (
                      <div
                        key={`timeline-${task.id}`}
-                       className="absolute px-1 py-1 flex items-center z-20 cursor-pointer rounded-lg group hover:scale-105 transition-transform duration-200"
+                       className="absolute z-20 cursor-pointer rounded-lg group hover:scale-[1.02] transition-transform duration-200"
                        style={{
                          top: `${topOffset}px`,
-                         left: `${item.leftOffset}%`,
-                         width: `${item.columnWidth}%`,
+                         left: '200px', // Start after Time column (60px) + Blocks column (200px)
+                         right: '0px', // Extend to the end of the grid
                          height: `${heightInPixels}px`,
                          minHeight: '20px'
                        }}
                        onClick={(e) => handleEdgeClick(e, task.id)}
                      >
-                       <div className="rounded-lg px-2 py-1 text-xs w-full glass-card border border-white/30 text-white shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-all duration-300">
-                         <span className="font-medium truncate block text-white drop-shadow-sm">{task.taskName}</span>
-                         <div className="text-[10px] text-white/80 drop-shadow-sm">
-                           {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
+                       {/* Task spanning all columns with individual sections */}
+                       <div className="h-full grid grid-cols-[1fr_120px_80px_80px] gap-0 glass-card border border-white/30 text-white shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-lg overflow-hidden">
+                         {/* Task Name Column */}
+                         <div className="px-3 py-2 border-r border-white/20 flex flex-col justify-center">
+                           <span className="font-medium text-sm text-white drop-shadow-sm truncate">{task.taskName}</span>
+                           <div className="text-xs text-white/80 drop-shadow-sm">
+                             {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
+                           </div>
                          </div>
                          
+                         {/* Project Column */}
+                         <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center">
+                           <span className="text-xs text-white/90 truncate">{task.projectName || 'No Project'}</span>
+                         </div>
+                         
+                         {/* Duration Column */}
+                         <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center">
+                           <span className="text-xs text-white/90">{task.duration || 30}min</span>
+                         </div>
+                         
+                         {/* Priority Column */}
+                         <div className="px-2 py-2 flex items-center justify-center">
+                           <span className={`text-xs px-2 py-1 rounded-full ${
+                             task.priority?.toLowerCase() === 'high' ? 'bg-red-500/30 text-red-200' :
+                             task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-500/30 text-yellow-200' :
+                             task.priority?.toLowerCase() === 'low' ? 'bg-green-500/30 text-green-200' :
+                             'bg-white/20 text-white/80'
+                           }`}>
+                             {task.priority || 'Medium'}
+                           </span>
+                         </div>
+                         
+                         {/* Resize handles */}
                          <div 
-                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
+                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
                          />
                          <div 
-                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
+                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
                          />
                        </div>
                      </div>
                    );
-                })}
+                 })}
               </div>
 
               {/* Project Column */}
