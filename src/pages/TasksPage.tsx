@@ -210,7 +210,8 @@ const TasksPage = () => {
           );
 
           await taskService.updateTask(taskId, {
-            dueDate: newDateTime.toISOString()
+            dueDate: newDateTime.toISOString(),
+            duration: 30 // Set default 30 minutes duration
           }, userProfile);
 
           // Reload tasks to reflect changes

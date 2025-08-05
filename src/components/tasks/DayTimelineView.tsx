@@ -110,29 +110,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
   // Improved layout engine with proper cross-type overlap detection
   const calculateLayout = useCallback((): { tasks: LayoutItem[], timeBlocks: LayoutItem[] } => {
-    console.log('🔍 All tasks passed to calculateLayout:', tasks.length);
-    
     const dayTasks = tasks.filter(task => {
-      if (!task.dueDate) {
-        console.log('❌ Task without dueDate:', task.taskName);
-        return false;
-      }
+      if (!task.dueDate) return false;
       const taskDate = new Date(task.dueDate);
       const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
-      if (!isSameDay(taskDate, dateObj)) {
-        console.log('❌ Task not on current day:', task.taskName, 'Task date:', taskDate, 'Current date:', dateObj);
-        return false;
-      }
+      if (!isSameDay(taskDate, dateObj)) return false;
       
       // Only show tasks with specific times (not at midnight)
       const hours = taskDate.getHours();
       const minutes = taskDate.getMinutes();
-      const isBacklogTask = hours === 0 && minutes === 0;
-      console.log(`🔍 Task: ${task.taskName}, Time: ${hours}:${minutes}, IsBacklog: ${isBacklogTask}`);
-      return !isBacklogTask;
+      return !(hours === 0 && minutes === 0);
     });
-
-    console.log('✅ Filtered dayTasks for timeline:', dayTasks.length, dayTasks.map(t => ({ name: t.taskName, time: new Date(t.dueDate) })));
 
     const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
     const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
@@ -662,7 +650,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    return (
                      <div
                        key={`timeline-${task.id}`}
-                       className="absolute px-1 py-1 flex items-center bg-white/10 backdrop-blur-sm border border-white/20 hover:shadow-md z-20 cursor-pointer rounded-md"
+                       className="absolute px-1 py-1 flex items-center z-20 cursor-pointer rounded-lg group hover:scale-105 transition-transform duration-200"
                        style={{
                          top: `${topOffset}px`,
                          left: `${item.leftOffset}%`,
@@ -672,18 +660,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                        }}
                        onClick={(e) => handleEdgeClick(e, task.id)}
                      >
-                       <div className="rounded px-2 py-1 text-xs w-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 text-white">
-                         <span className="font-medium truncate block">{task.taskName}</span>
-                         <div className="text-[10px] opacity-80">
+                       <div className="rounded-lg px-2 py-1 text-xs w-full glass-card border border-white/30 text-white shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-all duration-300">
+                         <span className="font-medium truncate block text-white drop-shadow-sm">{task.taskName}</span>
+                         <div className="text-[10px] text-white/80 drop-shadow-sm">
                            {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                          </div>
                          
                          <div 
-                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
                          />
                          <div 
-                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/30 rounded-sm backdrop-blur-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
                          />
                        </div>

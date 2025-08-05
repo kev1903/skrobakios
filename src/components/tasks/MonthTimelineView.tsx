@@ -125,17 +125,17 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
                     return (
                       <div
                         key={task.id}
-                        className={`${getTaskColor(task)} text-xs p-1.5 rounded border cursor-pointer hover:opacity-80 transition-all`}
+                        className={`glass-card border border-white/30 text-white text-xs p-1.5 rounded-lg cursor-pointer hover:scale-105 transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 ${getTaskColor(task)}`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center gap-1">
-                          <GripVertical className="w-3 h-3 opacity-50 flex-shrink-0" />
+                          <GripVertical className="w-3 h-3 text-white/60 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium leading-tight truncate">
+                            <div className="font-medium leading-tight truncate text-white drop-shadow-sm">
                               {task.taskName}
                             </div>
                             {hasSpecificTime && (
-                              <div className="text-xs opacity-75 leading-tight">
+                              <div className="text-xs text-white/80 leading-tight drop-shadow-sm">
                                 {format(taskDate, 'HH:mm')}
                               </div>
                             )}

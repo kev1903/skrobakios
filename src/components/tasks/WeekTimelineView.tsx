@@ -268,21 +268,24 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                             : 'hover:bg-white/[0.05]'
                         }`}
                       >
-                    <div className="flex gap-1 h-full overflow-hidden">
-                      {dayTasks.map((task, taskIndex) => (
-                        <div
-                          key={task.id}
-                          className="bg-transparent border-border/30 backdrop-blur-sm text-foreground text-[10px] p-1 rounded-sm cursor-pointer hover:opacity-80 transition-all shadow-sm border flex-1 min-w-0 z-10"
-                        >
-                          <div className="flex items-center justify-center gap-1 h-full">
-                            <GripVertical className="w-2 h-2 text-gray-500/60 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-[10px] leading-tight truncate">{task.taskName}</div>
+                        <div className="flex gap-1 h-full overflow-hidden">
+                          {dayTasks.map((task, taskIndex) => (
+                            <div
+                              key={task.id}
+                              className="glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg cursor-pointer hover:scale-105 transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10"
+                            >
+                              <div className="flex items-center justify-center gap-1 h-full">
+                                <GripVertical className="w-2 h-2 text-white/60 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-[10px] leading-tight truncate text-white drop-shadow-sm">{task.taskName}</div>
+                                  <div className="text-[8px] text-white/80 drop-shadow-sm">
+                                    {format(new Date(task.dueDate), 'HH:mm')}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
                     
                     {dayTasks.length === 0 && snapshot.isDraggingOver && (
                       <div className="flex items-center justify-center h-full text-[10px] text-blue-300 font-medium z-10">
