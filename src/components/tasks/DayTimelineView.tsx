@@ -648,24 +648,24 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    }
                    
                    return (
-                     <div
-                       key={`taskname-${task.id}`}
-                       className="absolute px-3 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex flex-col justify-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300"
-                       style={{
-                         top: `${topOffset}px`,
-                         left: '0px',
-                         right: '0px',
-                         height: `${heightInPixels}px`,
-                         minHeight: '20px'
-                       }}
-                       onClick={(e) => handleEdgeClick(e, task.id)}
-                     >
-                       <div className="font-semibold text-sm text-gray-900 truncate leading-tight">
-                         {task.taskName}
-                       </div>
-                       <div className="text-xs text-gray-700 leading-tight">
-                         {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
-                       </div>
+                      <div
+                        key={`taskname-${task.id}`}
+                        className="absolute px-3 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex flex-col justify-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300"
+                        style={{
+                          top: `${topOffset}px`,
+                          left: '0px',
+                          right: '0px',
+                          height: `${heightInPixels}px`,
+                          minHeight: '20px'
+                        }}
+                        onClick={(e) => handleEdgeClick(e, task.id)}
+                      >
+                        <div className="font-semibold text-sm text-gray-900 truncate leading-tight">
+                          {task.taskName}
+                        </div>
+                        <div className="text-xs text-gray-700 leading-tight">
+                          {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
+                        </div>
                        
                        {/* Resize handles */}
                        <div 
@@ -799,14 +799,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         minHeight: '20px'
                       }}
                     >
-                      <div className={`text-xs px-2 py-1 rounded-full font-semibold border ${
-                        task.priority?.toLowerCase() === 'high' ? 'bg-red-100 text-red-800 border-red-300' :
-                        task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
-                        task.priority?.toLowerCase() === 'low' ? 'bg-green-100 text-green-800 border-green-300' :
-                        'bg-gray-100 text-gray-800 border-gray-300'
-                      }`}>
-                        {task.priority || 'medium'}
-                      </div>
+                       <div className={`text-xs px-3 py-2 rounded-full font-semibold border backdrop-blur-sm shadow-lg ${
+                         task.priority?.toLowerCase() === 'high' ? 'bg-red-500/20 text-red-100 border-red-400/30 shadow-red-500/25' :
+                         task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-500/20 text-yellow-100 border-yellow-400/30 shadow-yellow-500/25' :
+                         task.priority?.toLowerCase() === 'low' ? 'bg-green-500/20 text-green-100 border-green-400/30 shadow-green-500/25' :
+                         'bg-gray-500/20 text-gray-100 border-gray-400/30 shadow-gray-500/25'
+                       }`}>
+                         {task.priority || 'medium'}
+                       </div>
                     </div>
                   );
                 })}
