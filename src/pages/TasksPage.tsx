@@ -375,7 +375,7 @@ const TasksPage = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30 backdrop-blur-[2px]" />
         
         {/* Main Content Container */}
-        <div className={cn("relative z-10 flex font-sans", minHeightClasses, spacingClasses)}>
+        <div className={cn("relative z-10 flex font-inter", minHeightClasses, spacingClasses)}>
           {/* Left Sidebar - Glass Morphism */}
           <div className={cn(
             "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300",
@@ -383,7 +383,7 @@ const TasksPage = () => {
             spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
           )}>
             {/* Return to Home Button */}
-            <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors group">
+            <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors group font-inter">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium text-sm">Return to Home</span>
             </Link>
@@ -393,7 +393,7 @@ const TasksPage = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               <Input 
                 placeholder="Type here to search" 
-                className="pl-10 bg-white/10 border-white/20 rounded-xl h-11 text-sm placeholder:text-white/50 text-white backdrop-blur-sm focus:bg-white/15 focus:border-white/30" 
+                className="pl-10 bg-white/10 border-white/20 rounded-xl h-11 text-sm placeholder:text-white/50 text-white backdrop-blur-sm focus:bg-white/15 focus:border-white/30 font-inter" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -402,7 +402,7 @@ const TasksPage = () => {
             {/* Task Backlog */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-white text-sm">Task Backlog</h3>
+                <h3 className="font-semibold text-white text-sm font-inter">Task Backlog</h3>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={async () => {
@@ -459,11 +459,11 @@ const TasksPage = () => {
                         });
                       }
                     }}
-                    className="text-orange-400 text-sm font-medium hover:text-orange-300 transition-colors"
+                    className="text-orange-400 text-sm font-medium hover:text-orange-300 transition-colors font-inter"
                   >
                     RESET
                   </button>
-                  <Link to="/tasks/new" className="text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors">
+                  <Link to="/tasks/new" className="text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors font-inter">
                     ADD TASK
                   </Link>
                 </div>
@@ -471,19 +471,19 @@ const TasksPage = () => {
 
               {/* Task Type Filter */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <button onClick={() => setActiveTab('All')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm", activeTab === 'All' ? 'bg-blue-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('All')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'All' ? 'bg-blue-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
                   All
                 </button>
-                <button onClick={() => setActiveTab('Task')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm", activeTab === 'Task' ? 'bg-green-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Task')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Task' ? 'bg-green-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
                   Tasks
                 </button>
-                <button onClick={() => setActiveTab('Issue')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm", activeTab === 'Issue' ? 'bg-orange-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Issue')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Issue' ? 'bg-orange-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
                   Issues
                 </button>
-                <button onClick={() => setActiveTab('Bug')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm", activeTab === 'Bug' ? 'bg-red-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Bug')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Bug' ? 'bg-red-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
                   Bugs
                 </button>
-                <button onClick={() => setActiveTab('Feature')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm", activeTab === 'Feature' ? 'bg-purple-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Feature')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Feature' ? 'bg-purple-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
                   Features
                 </button>
               </div>
@@ -501,11 +501,11 @@ const TasksPage = () => {
                     >
                       {loading ? (
                         <div className="text-center py-4">
-                          <div className="text-sm text-white/60">Loading tasks...</div>
+                          <div className="text-sm text-white/60 font-inter">Loading tasks...</div>
                         </div>
                       ) : userTasks.length === 0 ? (
                         <div className="text-center py-4">
-                          <div className="text-sm text-white/60">No tasks assigned to you</div>
+                          <div className="text-sm text-white/60 font-inter">No tasks assigned to you</div>
                         </div>
                       ) : (
                         getFilteredTasks(userTasks).filter(task => {
@@ -546,8 +546,8 @@ const TasksPage = () => {
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1 min-w-0">
-                                    <h4 
-                                      className="text-sm font-semibold text-white truncate mb-1 cursor-pointer hover:text-blue-300 transition-colors"
+                                     <h4 
+                                       className="text-sm font-semibold text-white truncate mb-1 cursor-pointer hover:text-blue-300 transition-colors font-inter"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedTaskForEdit(task);
@@ -557,13 +557,13 @@ const TasksPage = () => {
                                       {task.taskName}
                                     </h4>
                                     <div className="flex items-center gap-2">
-                                      <p className="text-xs text-white/70 font-medium truncate">
-                                        {task.projectName || 'No Project'}
-                                      </p>
-                                      <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 backdrop-blur-sm", task.taskType === 'Task' ? 'bg-green-400/20 text-green-300 border border-green-400/30' : task.taskType === 'Issue' ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30' : task.taskType === 'Bug' ? 'bg-red-400/20 text-red-300 border border-red-400/30' : task.taskType === 'Feature' ? 'bg-purple-400/20 text-purple-300 border border-purple-400/30' : 'bg-white/10 text-white/70 border border-white/20')}>
-                                        {task.taskType}
-                                      </span>
-                                      <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-400/20 text-blue-300 border border-blue-400/30 backdrop-blur-sm">
+                                       <p className="text-xs text-white/70 font-medium truncate font-inter">
+                                         {task.projectName || 'No Project'}
+                                       </p>
+                                       <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 backdrop-blur-sm font-inter", task.taskType === 'Task' ? 'bg-green-400/20 text-green-300 border border-green-400/30' : task.taskType === 'Issue' ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30' : task.taskType === 'Bug' ? 'bg-red-400/20 text-red-300 border border-red-400/30' : task.taskType === 'Feature' ? 'bg-purple-400/20 text-purple-300 border border-purple-400/30' : 'bg-white/10 text-white/70 border border-white/20')}>
+                                         {task.taskType}
+                                       </span>
+                                       <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-400/20 text-blue-300 border border-blue-400/30 backdrop-blur-sm font-inter">
                                         {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'No due date'}
                                       </span>
                                     </div>
@@ -593,7 +593,7 @@ const TasksPage = () => {
                     onClick={() => window.location.href = '/dashboard'}
                     variant="outline"
                     size="sm"
-                    className="bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm"
+                    className="bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter"
                   >
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Dashboard
@@ -603,7 +603,7 @@ const TasksPage = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="bg-blue-500/20 border-blue-400/30 hover:bg-blue-400/30 text-blue-300 hover:text-blue-200 font-medium backdrop-blur-sm"
+                    className="bg-blue-500/20 border-blue-400/30 hover:bg-blue-400/30 text-blue-300 hover:text-blue-200 font-medium backdrop-blur-sm font-inter"
                     onClick={() => {
                       // Navigate to timesheet page
                       window.location.href = '/timesheet';
@@ -617,9 +617,9 @@ const TasksPage = () => {
                 <div className="flex items-center space-x-4">
                   {/* Date and Time - Moved to Right Side */}
                   <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-3">
+                    <h2 className="text-lg font-bold text-white flex items-center gap-3 font-inter">
                       {formatDate(currentDate)}
-                      <span className="flex items-center gap-1 text-lg text-blue-300">
+                      <span className="flex items-center gap-1 text-lg text-blue-300 font-inter">
                         🕒 {format(currentTime, 'HH:mm:ss')}
                       </span>
                     </h2>
@@ -638,15 +638,15 @@ const TasksPage = () => {
                   {/* View Mode Toggle */}
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20">
                     <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
-                      <ToggleGroupItem value="day" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10">
+                      <ToggleGroupItem value="day" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-inter">
                         <CalendarDays className="w-4 h-4" />
                         Day
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="week" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10">
+                      <ToggleGroupItem value="week" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-inter">
                         <Calendar className="w-4 h-4" />
                         Week
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="month" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10">
+                      <ToggleGroupItem value="month" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-inter">
                         <Calendar className="w-4 h-4" />
                         Month
                       </ToggleGroupItem>
@@ -710,7 +710,7 @@ const TasksPage = () => {
           {draggedTask && (
             <div className="fixed bottom-4 right-4 z-50">
               <div className="bg-blue-500/90 backdrop-blur-sm text-white p-3 rounded-lg shadow-2xl border border-blue-400/30">
-                <div className="text-sm font-medium">
+                <div className="text-sm font-medium font-inter">
                   Moving: {draggedTask.taskName}
                 </div>
               </div>
