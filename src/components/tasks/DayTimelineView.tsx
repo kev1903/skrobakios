@@ -3,6 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addMinutes, subMinutes } from 'date-fns';
 import { Clock, Plus, ChevronUp, ChevronDown, Target, GripVertical, FileText } from 'lucide-react';
@@ -46,6 +47,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [priorities, setPriorities] = useState<string[]>(['', '', '']);
+  const [priorityChecked, setPriorityChecked] = useState<boolean[]>([false, false, false]);
   const {
     settings
   } = useTimeTracking();
@@ -746,6 +748,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             </div>
             <div className="space-y-2">
               {priorities.map((priority, index) => <div key={index} className="flex items-center gap-2">
+                  <Checkbox 
+                    checked={priorityChecked[index]} 
+                    onCheckedChange={(checked) => {
+                      const newChecked = [...priorityChecked];
+                      newChecked[index] = checked as boolean;
+                      setPriorityChecked(newChecked);
+                    }}
+                    className="data-[state=checked]:bg-white/20 data-[state=checked]:border-white/30 border-white/20 bg-white/10"
+                  />
                   <span className="text-sm font-medium text-white/70 w-4">{index + 1}.</span>
                   <Input value={priority} onChange={e => {
               const newPriorities = [...priorities];
