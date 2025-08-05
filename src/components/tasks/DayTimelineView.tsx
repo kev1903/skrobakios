@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addMinutes, subMinutes } from 'date-fns';
-import { Clock, Plus, ChevronUp, ChevronDown, Target, GripVertical } from 'lucide-react';
+import { Clock, Plus, ChevronUp, ChevronDown, Target, GripVertical, FileText } from 'lucide-react';
 import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
@@ -732,40 +732,40 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       </div>
 
       {/* Right Sidebar */}
-      {!isDragActive && <div className="w-80 border-l border-border/30 bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm flex flex-col overflow-hidden">
+      {!isDragActive && <div className="w-80 border-l border-white/20 glass-card flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="p-4 border-b border-border/30">
-            
-            
-          </div>
-
-          {/* Task Summary */}
-          <div className="p-4 border-b border-border/30">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center p-3 rounded-lg bg-primary/10">
-                <div className="text-2xl font-bold text-primary">{layout.tasks.length}</div>
-                <div className="text-xs text-muted-foreground">Tasks</div>
-              </div>
-              
-            </div>
+          <div className="p-4 border-b border-white/20">
+            <h3 className="text-lg font-semibold text-white font-playfair">Today's Overview</h3>
           </div>
 
           {/* Top 3 Priorities */}
-          <div className="p-4 flex-1">
+          <div className="p-4 border-b border-white/20">
             <div className="flex items-center gap-2 mb-3">
               <Target className="h-4 w-4 text-accent" />
-              <h4 className="font-medium text-foreground">Top 3 Priorities</h4>
+              <h4 className="font-medium text-white">Top 3 Priorities</h4>
             </div>
             <div className="space-y-2">
               {priorities.map((priority, index) => <div key={index} className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground w-4">{index + 1}.</span>
+                  <span className="text-sm font-medium text-white/70 w-4">{index + 1}.</span>
                   <Input value={priority} onChange={e => {
               const newPriorities = [...priorities];
               newPriorities[index] = e.target.value;
               setPriorities(newPriorities);
-            }} placeholder={`Priority ${index + 1}`} className="text-sm h-8" />
+            }} placeholder={`Priority ${index + 1}`} className="text-sm h-8 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30" />
                 </div>)}
             </div>
+          </div>
+
+          {/* Notes Section */}
+          <div className="p-4 flex-1">
+            <div className="flex items-center gap-2 mb-3">
+              <FileText className="h-4 w-4 text-accent" />
+              <h4 className="font-medium text-white">Notes</h4>
+            </div>
+            <textarea 
+              placeholder="Add your notes here..."
+              className="w-full h-32 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
+            />
           </div>
         </div>}
     </div>;
