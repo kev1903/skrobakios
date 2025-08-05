@@ -12,6 +12,29 @@ body.react-beautiful-dnd-dragging * {
   cursor: grabbing !important;
 }
 
+/* Additional cursor fixes for draggable elements */
+[data-rbd-drag-handle-draggable-id] {
+  cursor: grab !important;
+}
+
+[data-rbd-drag-handle-draggable-id]:active {
+  cursor: grabbing !important;
+}
+
+/* Force cursor on all draggable task elements */
+.draggable-task-element {
+  cursor: grab !important;
+}
+
+.draggable-task-element:active {
+  cursor: grabbing !important;
+}
+
+/* Override any conflicting cursor styles */
+.draggable-task-element * {
+  cursor: inherit !important;
+}
+
 /* Ensure dragged items render above everything */
 div[data-rbd-drag-handle-draggable-id] {
   z-index: 9999 !important;

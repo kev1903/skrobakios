@@ -285,12 +285,17 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                             ref={providedDrag.innerRef}
                             {...providedDrag.draggableProps}
                             {...providedDrag.dragHandleProps}
-                            className={`p-3 rounded-lg border bg-card transition-all ${
+                            style={{
+                              ...providedDrag.draggableProps.style,
+                              cursor: snapshot.isDragging ? 'grabbing' : 'grab'
+                            }}
+                            className={`draggable-task-element p-3 rounded-lg border bg-card transition-all ${
                               snapshot.isDragging 
-                                ? 'scale-105 rotate-1 shadow-xl bg-primary/10 border-primary/30 cursor-grabbing' 
-                                : 'hover:bg-muted/50 cursor-grab'
+                                ? 'scale-105 rotate-1 shadow-xl bg-primary/10 border-primary/30' 
+                                : 'hover:bg-muted/50'
                             }`}
                             onClick={() => !snapshot.isDragging && onTaskClick(task)}
+                            onMouseEnter={() => console.log('Hovering task with cursor:', snapshot.isDragging ? 'grabbing' : 'grab')}
                           >
                             <div className="space-y-2">
                               <h4 className="font-medium text-sm">{task.taskName}</h4>
