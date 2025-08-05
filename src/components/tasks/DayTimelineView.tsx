@@ -494,7 +494,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       <div className={`flex flex-col overflow-hidden transition-all duration-200 ${isDragActive ? 'w-full' : 'flex-1'}`}>
         {/* Column Headers */}
         <div className="border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm">
-          <div className="grid grid-cols-[60px_200px_1fr_120px_80px_80px] h-10">
+          <div className="grid h-10" style={{ gridTemplateColumns: '60px 200px 1fr 120px 80px 80px' }}>
             <div className="border-r border-white/[0.08] flex items-center justify-center">
               <span className="text-xs font-medium text-white/60">Time</span>
             </div>
@@ -519,7 +519,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden relative">
           <div className="h-full overflow-auto">
-            <div className="grid grid-cols-[60px_200px_1fr_120px_80px_80px] min-h-full">
+            <div className="grid min-h-full" style={{ gridTemplateColumns: '60px 200px 1fr 120px 80px 80px' }}>
               {/* Time Column */}
               <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm min-w-[60px] shadow-inner relative">
                 {timeSlots.map((slot, index) => {
