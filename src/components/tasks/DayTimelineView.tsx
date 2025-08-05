@@ -653,61 +653,62 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                        className="absolute z-20 cursor-pointer group"
                        style={{
                          top: `${topOffset}px`,
-                         left: '260px', // Start after Time (60px) + Blocks (200px) columns
-                         right: '0px', // Extend to the very end of the grid
+                         left: '260px', // Exactly after Time (60px) + Blocks (200px)
+                         right: '0px', // Extend to the end
                          height: `${heightInPixels}px`,
                          minHeight: '20px'
                        }}
                        onClick={(e) => handleEdgeClick(e, task.id)}
                      >
-                       {/* Task container filling exact column widths */}
-                       <div className="h-full w-full bg-white/95 backdrop-blur-sm border border-gray-400 shadow-xl rounded-lg overflow-hidden hover:bg-white transition-all duration-300">
-                         {/* Internal grid matching parent exactly: 1fr_120px_80px_80px */}
+                       {/* Task container with exact column matching */}
+                       <div className="h-full w-full bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-md overflow-hidden hover:bg-white/95 transition-all duration-300">
+                         {/* Grid matching parent exactly: [1fr_120px_80px_80px] for Task Name, Project, Duration, Priority */}
                          <div className="h-full w-full grid gap-0" style={{ gridTemplateColumns: '1fr 120px 80px 80px' }}>
-                           {/* Task Name Column - Must fill exactly */}
-                           <div className="px-3 py-2 border-r border-gray-300 flex flex-col justify-center min-w-0 overflow-hidden h-full">
-                             <div className="font-bold text-sm text-black truncate leading-tight">
+                           
+                           {/* Task Name Column - Flexible width (1fr) */}
+                           <div className="px-3 py-2 border-r border-white/30 flex flex-col justify-center min-w-0 overflow-hidden h-full">
+                             <div className="font-semibold text-sm text-gray-900 truncate leading-tight">
                                {task.taskName}
                              </div>
-                             <div className="text-xs text-gray-700 leading-tight font-medium">
+                             <div className="text-xs text-gray-700 leading-tight">
                                {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                              </div>
                            </div>
                            
                            {/* Project Column - Exactly 120px */}
-                           <div className="px-2 py-2 border-r border-gray-300 flex items-center justify-center min-w-0 overflow-hidden h-full w-[120px]">
-                             <div className="text-sm text-black truncate text-center font-medium w-full">
+                           <div className="px-2 py-2 border-r border-white/30 flex items-center justify-center min-w-0 overflow-hidden h-full">
+                             <div className="text-sm text-gray-900 truncate text-center font-medium">
                                {task.projectName || 'No Project'}
                              </div>
                            </div>
                            
                            {/* Duration Column - Exactly 80px */}
-                           <div className="px-2 py-2 border-r border-gray-300 flex items-center justify-center overflow-hidden h-full w-[80px]">
-                             <div className="text-sm text-black font-bold">
+                           <div className="px-2 py-2 border-r border-white/30 flex items-center justify-center overflow-hidden h-full">
+                             <div className="text-sm text-gray-900 font-semibold">
                                {task.duration || 30}min
                              </div>
                            </div>
                            
                            {/* Priority Column - Exactly 80px */}
-                           <div className="px-2 py-2 flex items-center justify-center overflow-hidden h-full w-[80px]">
-                             <div className={`text-xs px-2 py-1 rounded-full font-bold border whitespace-nowrap ${
-                               task.priority?.toLowerCase() === 'high' ? 'bg-red-200 text-red-900 border-red-600' :
-                               task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-200 text-yellow-900 border-yellow-600' :
-                               task.priority?.toLowerCase() === 'low' ? 'bg-green-200 text-green-900 border-green-600' :
-                               'bg-gray-200 text-gray-900 border-gray-600'
+                           <div className="px-2 py-2 flex items-center justify-center overflow-hidden h-full">
+                             <div className={`text-xs px-2 py-1 rounded-full font-semibold border ${
+                               task.priority?.toLowerCase() === 'high' ? 'bg-red-100 text-red-800 border-red-300' :
+                               task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
+                               task.priority?.toLowerCase() === 'low' ? 'bg-green-100 text-green-800 border-green-300' :
+                               'bg-gray-100 text-gray-800 border-gray-300'
                              }`}>
                                {task.priority || 'medium'}
                              </div>
                            </div>
                          </div>
                          
-                         {/* Resize handles */}
+                         {/* Resize handles - subtle and integrated */}
                          <div 
-                           className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-12 h-3 cursor-n-resize opacity-0 group-hover:opacity-100 bg-blue-600 border border-blue-800 rounded transition-opacity duration-200"
+                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
                          />
                          <div 
-                           className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-3 cursor-s-resize opacity-0 group-hover:opacity-100 bg-blue-600 border border-blue-800 rounded transition-opacity duration-200"
+                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200"
                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
                          />
                        </div>
