@@ -661,10 +661,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         onClick={(e) => handleEdgeClick(e, task.id)}
                       >
                         <div className="flex justify-between items-center h-full">
-                          <div className="text-sm text-gray-900 font-medium truncate leading-tight">
+                          <div className="text-xs text-gray-900 font-medium truncate leading-tight">
                             {task.taskName}
                           </div>
-                          <div className="text-sm text-gray-900 font-medium leading-tight ml-2 whitespace-nowrap">
+                          <div className="text-xs text-gray-900 font-medium leading-tight ml-2 whitespace-nowrap">
                             {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                           </div>
                         </div>
@@ -717,7 +717,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         minHeight: '20px'
                       }}
                     >
-                       <div className="text-sm text-gray-900 font-medium truncate text-center">
+                       <div className="text-xs text-gray-900 font-medium truncate text-center">
                          {task.projectName || 'No Project'}
                        </div>
                     </div>
@@ -759,7 +759,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         minHeight: '20px'
                       }}
                     >
-                       <div className="text-sm text-gray-900 font-medium">
+                       <div className="text-xs text-gray-900 font-medium">
                          {task.duration || 30}min
                        </div>
                     </div>
