@@ -660,11 +660,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         }}
                         onClick={(e) => handleEdgeClick(e, task.id)}
                       >
-                        <div className="font-semibold text-sm text-gray-900 truncate leading-tight">
-                          {task.taskName}
-                        </div>
-                        <div className="text-xs text-gray-700 leading-tight">
-                          {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
+                        <div className="flex flex-col justify-center h-full">
+                          <div className="font-bold text-base text-gray-900 truncate leading-tight mb-1">
+                            {task.taskName}
+                          </div>
+                          <div className="text-sm text-gray-700 leading-tight">
+                            {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
+                          </div>
                         </div>
                        
                        {/* Resize handles */}
