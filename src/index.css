@@ -21,7 +21,7 @@ body.react-beautiful-dnd-dragging * {
   cursor: grabbing !important;
 }
 
-/* Force cursor on all draggable task elements */
+/* Force cursor on all draggable task elements and ALL their children */
 .draggable-task-element {
   cursor: grab !important;
 }
@@ -30,9 +30,25 @@ body.react-beautiful-dnd-dragging * {
   cursor: grabbing !important;
 }
 
-/* Override any conflicting cursor styles */
-.draggable-task-element * {
-  cursor: inherit !important;
+.draggable-task-element:active * {
+  cursor: grabbing !important;
+}
+
+/* Override any conflicting cursor styles on ALL child elements */
+.draggable-task-element *, 
+.draggable-task-element *:hover,
+.draggable-task-element h4,
+.draggable-task-element p,
+.draggable-task-element div,
+.draggable-task-element span,
+.draggable-task-element [class*="badge"] {
+  cursor: grab !important;
+  pointer-events: none;
+}
+
+/* Ensure the main draggable element captures all mouse events */
+.draggable-task-element {
+  pointer-events: auto !important;
 }
 
 /* Ensure dragged items render above everything */
