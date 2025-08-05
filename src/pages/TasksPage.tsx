@@ -24,7 +24,6 @@ import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
-  console.log('🚀 TasksPage: Component is rendering');
   const { userProfile } = useUser();
   const { toast } = useToast();
   const { spacingClasses, minHeightClasses, fullHeightClasses } = useMenuBarSpacing();
@@ -41,11 +40,11 @@ const TasksPage = () => {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Live time updater
+  // Live time updater - optimized to prevent excessive re-renders
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 60000); // Update every minute instead of every second
     return () => clearInterval(timer);
   }, []);
 
@@ -554,7 +553,7 @@ const TasksPage = () => {
                     <h2 className="text-lg font-bold text-white flex items-center gap-3 font-inter">
                       {formatDate(currentDate)}
                       <span className="flex items-center gap-1 text-lg text-blue-300 font-inter">
-                        🕒 {format(currentTime, 'HH:mm:ss')}
+                        🕒 {format(currentTime, 'HH:mm')}
                       </span>
                     </h2>
                   </div>

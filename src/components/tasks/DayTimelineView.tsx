@@ -47,13 +47,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   isDragActive = false,
   enableDragDrop = false
 }) => {
-  console.log('🎯 DayTimelineView rendering with enableDragDrop:', enableDragDrop);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const [priorities, setPriorities] = useState<string[]>(['', '', '']);
   const { settings } = useTimeTracking();
-  
-  console.log('🎯 DayTimelineView isDragActive:', isDragActive);
   
   // Get category colors from time tracking settings - now in HSL format
   const categoryColors = settings?.category_colors || {
@@ -114,9 +111,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Improved layout engine with proper cross-type overlap detection
   const calculateLayout = useCallback((): { tasks: LayoutItem[], timeBlocks: LayoutItem[] } => {
     const dayTasks = tasks.filter(task => {
+      if (!task.dueDate) return false;
       const taskDate = new Date(task.dueDate);
       const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
-      return isSameDay(taskDate, dateObj) && !(taskDate.getHours() === 0 && taskDate.getMinutes() === 0);
+      if (!isSameDay(taskDate, dateObj)) return false;
+      
+      // Only show tasks with specific times (not at midnight)
+      const hours = taskDate.getHours();
+      const minutes = taskDate.getMinutes();
+      return !(hours === 0 && minutes === 0);
     });
 
     const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
@@ -127,18 +130,18 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       return start1 < end2 && start2 < end1;
     };
 
-    // Process tasks into layout items
+    // Process tasks into layout items with precise positioning
     const taskItems: LayoutItem[] = dayTasks.map(task => {
       const taskDateTime = new Date(task.dueDate);
       const startMinutes = taskDateTime.getHours() * 60 + taskDateTime.getMinutes();
       const duration = task.duration || 30;
       const endMinutes = startMinutes + duration;
       
-      // Calculate exact slot alignment - each slot is 30 minutes and 24px high
-      const startSlot = startMinutes / 30; // Exact slot position (can be fractional)
+      // Calculate exact slot alignment - each 30-min slot is 24px high
+      const startSlot = startMinutes / 30; // Exact slot position
       const endSlot = endMinutes / 30;
-      const topPosition = startSlot * 24; // 24px per slot
-      const height = Math.max(20, (endSlot - startSlot) * 24); // No gap reduction for exact alignment
+      const topPosition = startSlot * 24; // 24px per 30-min slot
+      const height = Math.max(20, (endSlot - startSlot) * 24);
 
       return {
         id: `task-${task.id}`,
@@ -147,7 +150,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         startMinutes,
         endMinutes,
         duration,
-        topPosition: topPosition, // Remove offset for exact alignment
+        topPosition,
         height,
         column: 0,
         columnWidth: 100,
@@ -476,7 +479,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 60000); // Update every minute instead of every second
 
     return () => clearInterval(timer);
   }, []);

@@ -56,11 +56,11 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
     rest: '217 33% 47%'         // Gray
   };
 
-  // Update current time every minute
+  // Update current time every minute - optimized for performance
   React.useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // Update every minute
+    }, 60000); // Update every minute instead of every minute
 
     return () => clearInterval(timer);
   }, []);
@@ -312,7 +312,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                   const startPosition = startSlotIndex * 24;
                   const duration = (endSlotIndex - startSlotIndex) * 24;
                   
-                  console.log(`Week Time block: ${block.title}, Category: ${block.category}, Start: ${startHour}:${startMinute}, End: ${endHour}:${endMinute}`);
+                  
                   
                   // Use category colors from time tracking settings
                   const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
