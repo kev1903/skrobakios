@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Download, Filter, Plus, Clock, BarChart3, Users, Settings } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Filter, Plus, Clock, BarChart3, Users, Settings, GripVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -562,7 +562,7 @@ const TimeSheetPage = () => {
                             {slotEntries.map((entry, entryIndex) => (
                               <div
                                 key={entryIndex}
-                                className="absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+                                className="draggable-task-element absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-grab hover:cursor-grab"
                                 style={{
                                   backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
                                   borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb'
@@ -570,7 +570,8 @@ const TimeSheetPage = () => {
                               >
                                 <div className="px-2 py-1 text-xs truncate">
                                   <div className="font-medium text-foreground/90 truncate flex items-center gap-1">
-                                    {entry.task_activity}
+                                    <GripVertical className="w-3 h-3 text-muted-foreground/60 hover:text-muted-foreground flex-shrink-0 cursor-grab hover:cursor-grab transition-colors" />
+                                    <span className="flex-1 truncate">{entry.task_activity}</span>
                                     <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 bg-green-100 text-green-700 border-green-200">
                                       ✓
                                     </Badge>
