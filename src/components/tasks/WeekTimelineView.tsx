@@ -10,12 +10,14 @@ import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useToast } from "@/hooks/use-toast";
 
 interface WeekTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
   onDragStart?: (start: any) => void;
+  onDragEnd?: (result: DropResult) => Promise<void>;
 }
 
 interface TimeSlot {
@@ -28,12 +30,14 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   currentDate, 
   tasks = [], 
   onTaskUpdate,
-  onDragStart 
+  onDragStart,
+  onDragEnd 
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const { settings } = useTimeTracking();
+  const { toast } = useToast();
   
   // Get category colors from time tracking settings - now in HSL format
   const categoryColors = settings?.category_colors || {
@@ -161,9 +165,53 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
     onDragStart?.(start);
   }, [onDragStart]);
 
-  const handleDragEnd = useCallback(() => {
+  const handleDragEnd = useCallback(async (result: DropResult) => {
     setIsDragging(false);
-  }, []);
+    
+    if (!result.destination || !onTaskUpdate) return;
+    
+    const { draggableId, destination } = result;
+    const taskId = draggableId.replace('calendar-task-', '');
+    const task = tasks.find(t => t.id === taskId);
+    
+    if (!task) return;
+
+    try {
+      // Parse the destination droppable ID to get date and time
+      // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
+      if (destination.droppableId.startsWith('calendar-slot-')) {
+        const parts = destination.droppableId.replace('calendar-slot-', '').split('-');
+        if (parts.length === 5) {
+          const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
+          
+          // Create new date with the target time
+          const newDate = new Date(year, month - 1, day, hour, minute);
+          
+          // Update the task
+          await onTaskUpdate(taskId, { dueDate: newDate.toISOString() });
+          
+          toast({
+            title: "Task moved",
+            description: `"${task.taskName}" moved to ${format(newDate, 'MMM dd, HH:mm')}`,
+            duration: 3000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error moving task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to move task. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+
+    // Call the parent's onDragEnd if provided
+    if (onDragEnd) {
+      await onDragEnd(result);
+    }
+  }, [tasks, onTaskUpdate, onDragEnd, toast]);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -270,20 +318,30 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                       >
                         <div className="flex gap-1 h-full overflow-hidden">
                           {dayTasks.map((task, taskIndex) => (
-                            <div
-                              key={task.id}
-                              className="glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg cursor-pointer hover:scale-105 transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10"
-                            >
-                              <div className="flex items-center justify-center gap-1 h-full">
-                                <GripVertical className="w-2 h-2 text-white/60 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-[10px] leading-tight truncate text-white drop-shadow-sm">{task.taskName}</div>
-                                  <div className="text-[8px] text-white/80 drop-shadow-sm">
-                                    {format(new Date(task.dueDate), 'HH:mm')}
+                            <Draggable key={task.id} draggableId={`calendar-task-${task.id}`} index={taskIndex}>
+                              {(providedDrag, snapshotDrag) => (
+                                <div
+                                  ref={providedDrag.innerRef}
+                                  {...providedDrag.draggableProps}
+                                  {...providedDrag.dragHandleProps}
+                                  className={`glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg cursor-pointer transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 ${
+                                    snapshotDrag.isDragging 
+                                      ? 'scale-105 rotate-2 shadow-2xl bg-primary/30 border-primary/50' 
+                                      : 'hover:scale-105'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-center gap-1 h-full">
+                                    <GripVertical className="w-2 h-2 text-white/60 flex-shrink-0" />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-medium text-[10px] leading-tight truncate text-white drop-shadow-sm">{task.taskName}</div>
+                                      <div className="text-[8px] text-white/80 drop-shadow-sm">
+                                        {format(new Date(task.dueDate), 'HH:mm')}
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </div>
+                              )}
+                            </Draggable>
                           ))}
                         </div>
                     

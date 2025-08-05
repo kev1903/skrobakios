@@ -7,6 +7,7 @@ import { taskService } from './tasks/taskService';
 import { Task } from './tasks/types';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 import { MyTasksHeader } from './my-tasks/MyTasksHeader';
 import { MyTasksGridView } from './my-tasks/MyTasksGridView';
 import { MyTasksTableView } from './my-tasks/MyTasksTableView';
@@ -32,69 +33,65 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const { userProfile } = useUser();
   const { toast } = useToast();
 
+  // Function to refresh tasks
+  const refreshTasks = async () => {
+    if (!userProfile.firstName && !userProfile.lastName) {
+      return;
+    }
+
+    try {
+      const fullName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      const { data: allTasks, error } = await supabase
+        .from('tasks')
+        .select(`
+          *,
+          projects (
+            id,
+            name,
+            project_id
+          )
+        `)
+        .or(`assigned_to_name.ilike.%${fullName}%,assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const mappedTasks: Task[] = (allTasks || []).map(task => ({
+        id: task.id,
+        project_id: task.project_id,
+        projectName: task.projects?.name || 'Unknown Project',
+        taskName: task.task_name,
+        taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
+        priority: task.priority as 'High' | 'Medium' | 'Low',
+        assignedTo: {
+          name: task.assigned_to_name || '',
+          avatar: task.assigned_to_avatar || ''
+        },
+        dueDate: task.due_date || '',
+        status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+        progress: task.progress,
+        description: task.description,
+        duration: task.estimated_duration,
+        is_milestone: task.is_milestone,
+        is_critical_path: task.is_critical_path,
+        created_at: task.created_at,
+        updated_at: task.updated_at
+      }));
+
+      setTasks(mappedTasks);
+    } catch (error) {
+      console.error('Error refreshing tasks:', error);
+    }
+  };
+
   useEffect(() => {
+    // Initial load
     const fetchMyTasks = async () => {
-      if (!userProfile.firstName && !userProfile.lastName) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        // Get all tasks from all projects and filter by assigned user
-        const fullName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
-        const { data: allTasks, error } = await supabase
-          .from('tasks')
-          .select(`
-            *,
-            projects (
-              id,
-              name,
-              project_id
-            )
-          `)
-          .or(`assigned_to_name.ilike.%${fullName}%,assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        // Map database fields to component interface
-        const mappedTasks: Task[] = (allTasks || []).map(task => ({
-          id: task.id,
-          project_id: task.project_id,
-          projectName: task.projects?.name || 'Unknown Project',
-          taskName: task.task_name,
-          taskType: (task.task_type as 'Task' | 'Issue') || 'Task',
-          priority: task.priority as 'High' | 'Medium' | 'Low',
-          assignedTo: {
-            name: task.assigned_to_name || '',
-            avatar: task.assigned_to_avatar || ''
-          },
-          dueDate: task.due_date || '',
-          status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
-          progress: task.progress,
-          description: task.description,
-          duration: task.estimated_duration,
-          is_milestone: task.is_milestone,
-          is_critical_path: task.is_critical_path,
-          created_at: task.created_at,
-          updated_at: task.updated_at
-        }));
-
-        setTasks(mappedTasks);
-      } catch (error) {
-        console.error('Error fetching my tasks:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load your tasks. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      await refreshTasks();
+      setLoading(false);
     };
 
-    // Initial load
     fetchMyTasks();
 
     // Set up real-time subscription for task changes
@@ -110,7 +107,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         (payload) => {
           console.log('MyTasks: Task change detected:', payload);
           // Refetch tasks when any task changes
-          fetchMyTasks();
+          refreshTasks();
         }
       )
       .subscribe();
@@ -181,10 +178,62 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     setSelectedTask(null);
   };
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     console.log('🔄 MyTasksPage: Drag ended:', result);
-    // Add your drag handling logic here if needed
-    // For now, we'll just log it to avoid conflicts
+    
+    const { destination, source, draggableId } = result;
+    
+    // If no destination or dragged to same position, do nothing
+    if (!destination || 
+        (destination.droppableId === source.droppableId && destination.index === source.index)) {
+      return;
+    }
+
+    // Extract task ID from draggableId
+    const taskId = draggableId.replace('calendar-task-', '').replace('task-', '');
+    const task = tasks.find(t => t.id === taskId);
+    
+    if (!task) return;
+
+    try {
+      // Handle dropping to calendar time slots
+      if (destination.droppableId.startsWith('calendar-slot-')) {
+        // Extract date and time from droppableId
+        // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
+        const parts = destination.droppableId.replace('calendar-slot-', '').split('-');
+        if (parts.length === 5) {
+          const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
+          
+          // Create new date with the target time
+          const newDate = new Date(year, month - 1, day, hour, minute);
+          
+          // Update the task in the database
+          const { error } = await supabase
+            .from('tasks')
+            .update({ due_date: newDate.toISOString() })
+            .eq('id', taskId);
+
+          if (error) throw error;
+          
+          // Refresh the tasks
+          await refreshTasks();
+          
+          toast({
+            title: "Task scheduled",
+            description: `"${task.taskName}" scheduled for ${format(newDate, 'MMM dd, HH:mm')}`,
+            duration: 3000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error moving task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to move task. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   if (loading) {
@@ -227,6 +276,29 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
                   <MyTasksCalendarView
                     tasks={getSortedTasks()}
                     onTaskClick={handleTaskClick}
+                    onTaskUpdate={async (taskId, updates) => {
+                      try {
+                        // Update the task in the database
+                        const { error } = await supabase
+                          .from('tasks')
+                          .update({
+                            ...(updates.dueDate && { due_date: updates.dueDate }),
+                            ...(updates.taskName && { task_name: updates.taskName }),
+                            ...(updates.status && { status: updates.status }),
+                            ...(updates.priority && { priority: updates.priority }),
+                            ...(updates.progress !== undefined && { progress: updates.progress }),
+                          })
+                          .eq('id', taskId);
+
+                        if (error) throw error;
+                        
+                        // Refresh the tasks
+                        await refreshTasks();
+                      } catch (error) {
+                        console.error('Error updating task:', error);
+                        throw error;
+                      }
+                    }}
                   />
                 )}
               </div>

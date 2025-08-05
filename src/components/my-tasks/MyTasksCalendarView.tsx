@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-// Removed DragDropContext import since it's now handled by parent component
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -224,37 +224,56 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
             {/* Task List - Scrollable */}
             <div className="flex-1 overflow-hidden">
-              <div className="space-y-3 overflow-y-auto h-full pr-2">
-                {backlogTasks.map((task, index) => (
+              <Droppable droppableId="task-backlog">
+                {(provided) => (
                   <div
-                    key={task.id}
-                    className="p-3 rounded-lg border bg-card hover:bg-muted/50 cursor-pointer transition-all"
-                    onClick={() => onTaskClick(task)}
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-3 overflow-y-auto h-full pr-2"
                   >
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm">{task.taskName}</h4>
-                      <p className="text-xs text-muted-foreground">
-                        {task.projectName}
-                      </p>
-                      <div className="flex gap-2">
-                        <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                          {task.taskType}
-                        </Badge>
-                        <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
-                      </div>
-                    </div>
+                    {backlogTasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={`task-${task.id}`} index={index}>
+                        {(providedDrag, snapshot) => (
+                          <div
+                            ref={providedDrag.innerRef}
+                            {...providedDrag.draggableProps}
+                            {...providedDrag.dragHandleProps}
+                            className={`p-3 rounded-lg border bg-card cursor-pointer transition-all ${
+                              snapshot.isDragging 
+                                ? 'scale-105 rotate-1 shadow-xl bg-primary/10 border-primary/30' 
+                                : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => !snapshot.isDragging && onTaskClick(task)}
+                          >
+                            <div className="space-y-2">
+                              <h4 className="font-medium text-sm">{task.taskName}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {task.projectName}
+                              </p>
+                              <div className="flex gap-2">
+                                <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                                  {task.taskType}
+                                </Badge>
+                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                                  {task.priority}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
                   </div>
-                ))}
-              </div>
-
-              {backlogTasks.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-sm">No tasks found</p>
-                </div>
-              )}
+                )}
+              </Droppable>
             </div>
+
+            {backlogTasks.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <p className="text-sm">No tasks found</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
