@@ -663,33 +663,33 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                        {/* Task spanning all columns with individual sections */}
                        <div className="h-full grid grid-cols-[1fr_120px_80px_80px] gap-0 glass-card border border-white/30 text-white shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-lg overflow-hidden">
                          {/* Task Name Column */}
-                         <div className="px-3 py-2 border-r border-white/20 flex flex-col justify-center">
-                           <span className="font-medium text-sm text-white drop-shadow-sm truncate">{task.taskName}</span>
-                           <div className="text-xs text-white/80 drop-shadow-sm">
+                         <div className="px-3 py-2 border-r border-white/20 flex flex-col justify-center min-w-0">
+                           <div className="font-medium text-sm text-white drop-shadow-sm truncate leading-tight">{task.taskName}</div>
+                           <div className="text-xs text-white/80 drop-shadow-sm leading-tight">
                              {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                            </div>
                          </div>
                          
                          {/* Project Column */}
-                         <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center">
-                           <span className="text-xs text-white/90 truncate">{task.projectName || 'No Project'}</span>
+                         <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center min-w-0">
+                           <div className="text-xs text-white/90 truncate text-center">{task.projectName || 'No Project'}</div>
                          </div>
                          
                          {/* Duration Column */}
                          <div className="px-2 py-2 border-r border-white/20 flex items-center justify-center">
-                           <span className="text-xs text-white/90">{task.duration || 30}min</span>
+                           <div className="text-xs text-white/90 font-medium">{task.duration || 30}min</div>
                          </div>
                          
                          {/* Priority Column */}
                          <div className="px-2 py-2 flex items-center justify-center">
-                           <span className={`text-xs px-2 py-1 rounded-full ${
-                             task.priority?.toLowerCase() === 'high' ? 'bg-red-500/30 text-red-200' :
-                             task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-500/30 text-yellow-200' :
-                             task.priority?.toLowerCase() === 'low' ? 'bg-green-500/30 text-green-200' :
-                             'bg-white/20 text-white/80'
+                           <div className={`text-xs px-2 py-1 rounded-full font-medium ${
+                             task.priority?.toLowerCase() === 'high' ? 'bg-red-500/30 text-red-200 border border-red-400/30' :
+                             task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-500/30 text-yellow-200 border border-yellow-400/30' :
+                             task.priority?.toLowerCase() === 'low' ? 'bg-green-500/30 text-green-200 border border-green-400/30' :
+                             'bg-white/20 text-white/80 border border-white/30'
                            }`}>
-                             {task.priority || 'Medium'}
-                           </span>
+                             {task.priority || 'medium'}
+                           </div>
                          </div>
                          
                          {/* Resize handles */}
