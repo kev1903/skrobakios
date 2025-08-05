@@ -491,26 +491,26 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   return (
     <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
       {/* Main Timeline Area */}
-      <div className={`flex flex-col overflow-hidden transition-all duration-200 ${isDragActive ? 'w-full' : 'flex-1'}`}>
+      <div className="flex flex-col overflow-hidden" style={{ width: isDragActive ? '100%' : 'calc(100% - 320px)' }}>
         {/* Column Headers */}
         <div className="border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm">
-          <div className="grid h-10" style={{ gridTemplateColumns: '60px 200px 1fr 120px 80px 80px' }}>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
+          <div className="flex h-10">
+            <div className="border-r border-white/[0.08] flex items-center justify-center bg-white/[0.02]" style={{ width: '60px', minWidth: '60px', maxWidth: '60px' }}>
               <span className="text-xs font-medium text-white/60">Time</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
+            <div className="border-r border-white/[0.08] flex items-center justify-center bg-white/[0.02]" style={{ width: '200px', minWidth: '200px', maxWidth: '200px' }}>
               <span className="text-xs font-medium text-white/60">Blocks</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
+            <div className="border-r border-white/[0.08] flex items-center justify-center flex-1">
               <span className="text-xs font-medium text-white/60">Task Name</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
+            <div className="border-r border-white/[0.08] flex items-center justify-center" style={{ width: '120px', minWidth: '120px', maxWidth: '120px' }}>
               <span className="text-xs font-medium text-white/60">Project</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center">
+            <div className="border-r border-white/[0.08] flex items-center justify-center" style={{ width: '80px', minWidth: '80px', maxWidth: '80px' }}>
               <span className="text-xs font-medium text-white/60">Duration</span>
             </div>
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center" style={{ width: '80px', minWidth: '80px', maxWidth: '80px' }}>
               <span className="text-xs font-medium text-white/60">Priority</span>
             </div>
           </div>
@@ -519,9 +519,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         {/* Timeline Grid */}
         <div className="flex-1 overflow-hidden relative">
           <div className="h-full overflow-auto">
-            <div className="grid min-h-full" style={{ gridTemplateColumns: '60px 200px 1fr 120px 80px 80px' }}>
+            <div className="flex min-h-full">
               {/* Time Column */}
-              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm min-w-[60px] shadow-inner relative">
+              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm shadow-inner relative" style={{ width: '60px', minWidth: '60px', maxWidth: '60px' }}>
                 {timeSlots.map((slot, index) => {
                   const isFullHour = slot.hour % 2 === 0;
                   const currentHour = currentTime.getHours();
@@ -559,7 +559,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               )}
 
               {/* Time Blocks Column */}
-              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm relative">
+              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm relative" style={{ width: '200px', minWidth: '200px', maxWidth: '200px' }}>
                 {timeSlots.map((slot, index) => (
                   <div key={`timeblock-${slot.hour}`} className="h-6 border-b border-white/[0.05] relative">
                   </div>
@@ -599,7 +599,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
 
               {/* Task Name Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10 flex-1">
                 {timeSlots.map((slot, index) => {
                   const slotHour = Math.floor(slot.hour / 2);
                   const slotMinutes = (slot.hour % 2) * 30;
@@ -684,7 +684,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
 
               {/* Project Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10" style={{ width: '120px', minWidth: '120px', maxWidth: '120px' }}>
                 {timeSlots.map((slot) => (
                   <div key={`project-${slot.hour}`} className="h-6 border-b border-border/10 relative">
                   </div>
@@ -726,7 +726,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
 
               {/* Duration Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10" style={{ width: '80px', minWidth: '80px', maxWidth: '80px' }}>
                 {timeSlots.map((slot) => (
                   <div key={`duration-${slot.hour}`} className="h-6 border-b border-border/10 relative">
                   </div>
@@ -768,7 +768,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
 
               {/* Priority Column */}
-              <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+              <div className="relative bg-gradient-to-b from-background/50 to-muted/10" style={{ width: '80px', minWidth: '80px', maxWidth: '80px' }}>
                 {timeSlots.map((slot) => (
                   <div key={`priority-${slot.hour}`} className="h-6 border-b border-border/10 relative">
                   </div>
