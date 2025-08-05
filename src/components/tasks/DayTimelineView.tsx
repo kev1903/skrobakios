@@ -599,41 +599,31 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 {timeSlots.map((slot, index) => {
                   const droppableId = slot.hour === -1 ? `timeline--1` : `timeline-${slot.hour}`;
                   
-                  return (
-                    <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                      {enableDragDrop ? (
-                        <Droppable droppableId={droppableId} direction="vertical">
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.droppableProps}
-                              className={`absolute inset-0 transition-colors ${
-                                snapshot.isDraggingOver ? 'bg-primary/10' : 'hover:bg-muted/10'
-                              }`}
-                            >
-                              {provided.placeholder}
-                            </div>
-                          )}
-                        </Droppable>
-                      ) : (
-                        <Droppable droppableId={droppableId}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.droppableProps}
-                              className={`absolute inset-0 transition-colors ${
-                                snapshot.isDraggingOver
-                                  ? 'bg-primary/5 border-l-2 border-primary/30'
-                                  : 'hover:bg-muted/10'
-                              }`}
-                            >
-                              {provided.placeholder}
-                            </div>
-                          )}
-                        </Droppable>
-                      )}
-                    </div>
-                  );
+                   return (
+                     <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative">
+                       {enableDragDrop ? (
+                         <Droppable droppableId={droppableId} direction="vertical">
+                           {(provided, snapshot) => (
+                             <div
+                               ref={provided.innerRef}
+                               {...provided.droppableProps}
+                               className={`absolute inset-0 transition-colors ${
+                                 snapshot.isDraggingOver ? 'bg-primary/10' : 'hover:bg-muted/10'
+                               }`}
+                             >
+                               {provided.placeholder}
+                             </div>
+                           )}
+                         </Droppable>
+                       ) : (
+                         <div
+                           className="absolute inset-0 transition-colors hover:bg-muted/10"
+                         >
+                           {/* No drag and drop functionality */}
+                         </div>
+                       )}
+                     </div>
+                   );
                 })}
                 
                 {/* Render tasks with layout engine */}

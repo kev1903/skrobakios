@@ -24,6 +24,7 @@ import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 type ViewMode = 'day' | 'week' | 'month';
 
 const TasksPage = () => {
+  console.log('🚀 TasksPage: Component is rendering');
   const { userProfile } = useUser();
   const { toast } = useToast();
   const { spacingClasses, minHeightClasses, fullHeightClasses } = useMenuBarSpacing();

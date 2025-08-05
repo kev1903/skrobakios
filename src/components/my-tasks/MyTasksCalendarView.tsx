@@ -24,6 +24,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   onTaskClick,
   onTaskUpdate 
 }) => {
+  console.log('🚀 MyTasksCalendarView: Component is rendering');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentTime, setCurrentTime] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
@@ -269,7 +270,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const dayTasks = getDayTasks();
 
   return (
-    <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
     <div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
       <div className="absolute left-0 top-0 w-80 h-full z-10">
@@ -504,6 +504,5 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         </div>
       )}
     </div>
-    </DragDropContext>
   );
 };

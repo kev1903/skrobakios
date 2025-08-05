@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
@@ -180,6 +181,12 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     setSelectedTask(null);
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    console.log('🔄 MyTasksPage: Drag ended:', result);
+    // Add your drag handling logic here if needed
+    // For now, we'll just log it to avoid conflicts
+  };
+
   if (loading) {
     return <MyTasksLoadingState />;
   }
@@ -212,16 +219,18 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         {/* Content Layout - Full width for calendar, two-column for others */}
         <div className="flex-1 overflow-hidden p-6 pt-6">
           {viewMode === 'calendar' ? (
-            <div className="h-full">
-              {tasks.length === 0 ? (
-                <MyTasksEmptyState onNavigate={onNavigate} />
-              ) : (
-                <MyTasksCalendarView
-                  tasks={getSortedTasks()}
-                  onTaskClick={handleTaskClick}
-                />
-              )}
-            </div>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <div className="h-full">
+                {tasks.length === 0 ? (
+                  <MyTasksEmptyState onNavigate={onNavigate} />
+                ) : (
+                  <MyTasksCalendarView
+                    tasks={getSortedTasks()}
+                    onTaskClick={handleTaskClick}
+                  />
+                )}
+              </div>
+            </DragDropContext>
           ) : (
             <div className="mt-6 flex gap-6">
               {/* Left Column - Tasks Content */}
