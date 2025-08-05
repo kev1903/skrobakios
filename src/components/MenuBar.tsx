@@ -256,14 +256,14 @@ export const MenuBar = () => {
   // Always render the top bar, but show different content based on timer state
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
+      <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/[0.02] border-b border-white/[0.08] shadow-lg">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
             <button 
               onClick={toggleSidebar}
-              className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
+              className="w-8 h-8 bg-white/[0.05] backdrop-blur-sm rounded-md border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.12] transition-colors duration-200 text-white/80"
               aria-label="Toggle main navigation sidebar"
             >
               <Menu className="w-4 h-4" />
@@ -288,7 +288,7 @@ export const MenuBar = () => {
                 </span>
               </div>
               <h1 
-                className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
+                className="text-sm font-bold text-white/90 hidden sm:block cursor-pointer hover:text-white transition-colors"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent event bubbling
                   if (activeContext === 'company') {
@@ -311,23 +311,23 @@ export const MenuBar = () => {
               <>
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-orange-500' : 'bg-green-500'} animate-pulse`} />
-                  <span className="text-2xl font-mono font-semibold">
+                  <span className="text-2xl font-mono font-semibold text-white/90">
                     {formatDuration(currentDuration)}
                   </span>
                 </div>
                 
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/60">
                   {activeTimer.task_activity || 'No description'}
                 </div>
                 
                 {activeTimer.category && (
-                  <span className="px-2 py-1 text-xs bg-muted rounded-md">
+                  <span className="px-2 py-1 text-xs bg-white/[0.05] text-white/80 rounded-md border border-white/[0.08]">
                     {activeTimer.category}
                   </span>
                 )}
                 
                 {activeTimer.project_name && (
-                  <span className="px-2 py-1 text-xs bg-muted rounded-md">
+                  <span className="px-2 py-1 text-xs bg-white/[0.05] text-white/80 rounded-md border border-white/[0.08]">
                     {activeTimer.project_name}
                   </span>
                 )}
@@ -343,7 +343,7 @@ export const MenuBar = () => {
                 {/* Tasks Icon */}
                 <Link 
                   to="/tasks"
-                  className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
+                  className="w-8 h-8 bg-white/[0.05] backdrop-blur-sm rounded-md border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.12] transition-colors duration-200 text-white/80"
                 >
                   <ClipboardList className="w-4 h-4" />
                 </Link>
@@ -351,7 +351,7 @@ export const MenuBar = () => {
                 {/* Notifications */}
                 <NotificationDropdown>
                   <NotificationBadge count={unreadCount}>
-                    <button className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200">
+                    <button className="w-8 h-8 bg-white/[0.05] backdrop-blur-sm rounded-md border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.12] transition-colors duration-200 text-white/80">
                       <Bell className="w-4 h-4" />
                     </button>
                   </NotificationBadge>
@@ -360,7 +360,7 @@ export const MenuBar = () => {
                 {/* Inbox Icon */}
                 <button 
                   onClick={() => window.location.href = '/?page=inbox'} 
-                  className="w-8 h-8 bg-background/20 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-background/30 transition-colors duration-200"
+                  className="w-8 h-8 bg-white/[0.05] backdrop-blur-sm rounded-md border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.12] transition-colors duration-200 text-white/80"
                 >
                   <Inbox className="w-4 h-4" />
                 </button>
@@ -368,7 +368,7 @@ export const MenuBar = () => {
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
                   <div 
-                    className="flex items-center gap-2 px-2 py-1 bg-background/20 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-background/30 transition-colors duration-200"
+                    className="flex items-center gap-2 px-2 py-1 bg-white/[0.05] backdrop-blur-sm rounded-full border border-white/[0.08] cursor-pointer hover:bg-white/[0.12] transition-colors duration-200"
                     onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                   >
                     <Avatar className="w-6 h-6">
@@ -379,7 +379,7 @@ export const MenuBar = () => {
                           e.currentTarget.style.display = 'none';
                         }}
                       />
-                      <AvatarFallback className="bg-background/40 text-xs">
+                      <AvatarFallback className="bg-white/[0.08] text-white/80 text-xs">
                         {userProfile?.firstName && userProfile?.lastName 
                           ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
                           : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'
