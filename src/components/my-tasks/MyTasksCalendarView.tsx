@@ -446,6 +446,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               tasks={tasks}
               onTaskUpdate={onTaskUpdate}
               enableDragDrop={true}
+              useOwnDragContext={false}
             />
           )}
         </div>

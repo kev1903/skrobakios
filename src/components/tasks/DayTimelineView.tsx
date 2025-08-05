@@ -18,6 +18,7 @@ interface DayTimelineViewProps {
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
   isDragActive?: boolean;
   enableDragDrop?: boolean;
+  useOwnDragContext?: boolean; // New prop to control whether to wrap with own DragDropContext
 }
 interface TimeSlot {
   hour: number;
@@ -42,7 +43,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   tasks = [],
   onTaskUpdate,
   isDragActive = false,
-  enableDragDrop = false
+  enableDragDrop = false,
+  useOwnDragContext = false
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
@@ -584,9 +586,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, [tasks, onTaskUpdate]);
 
-  return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
+  const TimelineContent = () => (
+    <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
       {/* Main Timeline Area */}
       <div className="flex flex-col overflow-hidden" style={{
       width: isDragActive ? '100%' : 'calc(100% - 320px)'
@@ -987,7 +988,15 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             />
           </div>
         </div>}
-      </div>
+    </div>
+  );
+
+  // Conditionally wrap with DragDropContext or return content directly
+  return useOwnDragContext ? (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <TimelineContent />
     </DragDropContext>
+  ) : (
+    <TimelineContent />
   );
 };

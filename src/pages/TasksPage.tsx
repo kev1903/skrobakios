@@ -184,6 +184,7 @@ const TasksPage = () => {
     currentDate={currentDate} 
     tasks={userTasks} 
     enableDragDrop={true}
+    useOwnDragContext={true}
     onTaskUpdate={async (taskId, updates) => {
       try {
         await taskService.updateTask(taskId, updates, userProfile);
