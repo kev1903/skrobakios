@@ -660,11 +660,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         }}
                         onClick={(e) => handleEdgeClick(e, task.id)}
                       >
-                        <div className="flex flex-col justify-center h-full">
-                          <div className="font-bold text-base text-gray-900 truncate leading-tight mb-1">
+                        <div className="flex justify-between items-center h-full">
+                          <div className="font-bold text-base text-gray-900 truncate leading-tight">
                             {task.taskName}
                           </div>
-                          <div className="text-sm text-gray-700 leading-tight">
+                          <div className="text-sm text-gray-700 leading-tight ml-2 whitespace-nowrap">
                             {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                           </div>
                         </div>
