@@ -632,7 +632,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    );
                 })}
                 
-                 {/* Render tasks with layout engine - spanning across all task columns */}
+                 {/* Render task name parts in this column */}
                  {layout.tasks.map((item) => {
                    const task = item.data as Task;
                    let heightInPixels = item.height;
@@ -649,72 +649,36 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    
                    return (
                      <div
-                       key={`timeline-${task.id}`}
-                       className="absolute z-20 cursor-pointer group"
+                       key={`taskname-${task.id}`}
+                       className="absolute px-3 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex flex-col justify-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300"
                        style={{
                          top: `${topOffset}px`,
-                         left: '260px', // Exactly after Time (60px) + Blocks (200px)
-                         right: '0px', // Extend to the end
+                         left: '0px',
+                         right: '0px',
                          height: `${heightInPixels}px`,
                          minHeight: '20px'
                        }}
                        onClick={(e) => handleEdgeClick(e, task.id)}
                      >
-                       {/* Task container with exact column matching */}
-                       <div className="h-full w-full bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-md overflow-hidden hover:bg-white/95 transition-all duration-300">
-                         {/* Grid matching parent exactly: [1fr_120px_80px_80px] for Task Name, Project, Duration, Priority */}
-                         <div className="h-full w-full grid gap-0" style={{ gridTemplateColumns: '1fr 120px 80px 80px' }}>
-                           
-                           {/* Task Name Column - Flexible width (1fr) */}
-                           <div className="px-3 py-2 border-r border-white/30 flex flex-col justify-center min-w-0 overflow-hidden h-full">
-                             <div className="font-semibold text-sm text-gray-900 truncate leading-tight">
-                               {task.taskName}
-                             </div>
-                             <div className="text-xs text-gray-700 leading-tight">
-                               {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
-                             </div>
-                           </div>
-                           
-                           {/* Project Column - Exactly 120px */}
-                           <div className="px-2 py-2 border-r border-white/30 flex items-center justify-center min-w-0 overflow-hidden h-full">
-                             <div className="text-sm text-gray-900 truncate text-center font-medium">
-                               {task.projectName || 'No Project'}
-                             </div>
-                           </div>
-                           
-                           {/* Duration Column - Exactly 80px */}
-                           <div className="px-2 py-2 border-r border-white/30 flex items-center justify-center overflow-hidden h-full">
-                             <div className="text-sm text-gray-900 font-semibold">
-                               {task.duration || 30}min
-                             </div>
-                           </div>
-                           
-                           {/* Priority Column - Exactly 80px */}
-                           <div className="px-2 py-2 flex items-center justify-center overflow-hidden h-full">
-                             <div className={`text-xs px-2 py-1 rounded-full font-semibold border ${
-                               task.priority?.toLowerCase() === 'high' ? 'bg-red-100 text-red-800 border-red-300' :
-                               task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
-                               task.priority?.toLowerCase() === 'low' ? 'bg-green-100 text-green-800 border-green-300' :
-                               'bg-gray-100 text-gray-800 border-gray-300'
-                             }`}>
-                               {task.priority || 'medium'}
-                             </div>
-                           </div>
-                         </div>
-                         
-                         {/* Resize handles - subtle and integrated */}
-                         <div 
-                           className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200"
-                           onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                         />
-                         <div 
-                           className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200"
-                           onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                         />
+                       <div className="font-semibold text-sm text-gray-900 truncate leading-tight">
+                         {task.taskName}
                        </div>
+                       <div className="text-xs text-gray-700 leading-tight">
+                         {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
+                       </div>
+                       
+                       {/* Resize handles */}
+                       <div 
+                         className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200"
+                         onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                       />
+                       <div 
+                         className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200"
+                         onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                       />
                      </div>
-                    );
-                  })}
+                   );
+                 })}
               </div>
 
               {/* Project Column */}
@@ -724,6 +688,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   </div>
                 ))}
                 
+                {/* Render project parts in this column */}
                 {layout.tasks.map((item) => {
                   const task = item.data as Task;
                   let heightInPixels = item.height;
@@ -741,17 +706,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   return (
                     <div
                       key={`project-${task.id}`}
-                      className="absolute px-1 py-1 flex items-center bg-background/60 backdrop-blur-sm border-r border-border/30"
+                      className="absolute px-2 py-2 bg-white/90 backdrop-blur-sm border border-white/30 border-l-0 shadow-lg flex items-center justify-center z-20 hover:bg-white/95 transition-all duration-300"
                       style={{
                         top: `${topOffset}px`,
-                        left: `${item.leftOffset}%`,
-                        width: `${item.columnWidth}%`,
+                        left: '0px',
+                        right: '0px',
                         height: `${heightInPixels}px`,
                         minHeight: '20px'
                       }}
                     >
-                      <div className="rounded px-2 py-1 text-xs w-full bg-muted/20 border border-border/30">
-                        <span className="text-foreground/80 truncate block font-medium">{task.projectName || 'No Project'}</span>
+                      <div className="text-sm text-gray-900 truncate text-center font-medium">
+                        {task.projectName || 'No Project'}
                       </div>
                     </div>
                   );
@@ -765,6 +730,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   </div>
                 ))}
                 
+                {/* Render duration parts in this column */}
                 {layout.tasks.map((item) => {
                   const task = item.data as Task;
                   let heightInPixels = item.height;
@@ -782,17 +748,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   return (
                     <div
                       key={`duration-${task.id}`}
-                      className="absolute px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm border-r border-border/30"
+                      className="absolute px-2 py-2 bg-white/90 backdrop-blur-sm border border-white/30 border-l-0 shadow-lg flex items-center justify-center z-20 hover:bg-white/95 transition-all duration-300"
                       style={{
                         top: `${topOffset}px`,
-                        left: `${item.leftOffset}%`,
-                        width: `${item.columnWidth}%`,
+                        left: '0px',
+                        right: '0px',
                         height: `${heightInPixels}px`,
                         minHeight: '20px'
                       }}
                     >
-                      <div className="rounded px-2 py-1 text-xs bg-accent/20 border border-border/30">
-                        <span className="font-medium text-foreground/90">{task.duration || 30}min</span>
+                      <div className="text-sm text-gray-900 font-semibold">
+                        {task.duration || 30}min
                       </div>
                     </div>
                   );
@@ -806,6 +772,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   </div>
                 ))}
                 
+                {/* Render priority parts in this column */}
                 {layout.tasks.map((item) => {
                   const task = item.data as Task;
                   let heightInPixels = item.height;
@@ -823,18 +790,23 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   return (
                     <div
                       key={`priority-${task.id}`}
-                      className="absolute px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm"
+                      className="absolute px-2 py-2 bg-white/90 backdrop-blur-sm border border-white/30 border-l-0 rounded-r-md shadow-lg flex items-center justify-center z-20 hover:bg-white/95 transition-all duration-300"
                       style={{
                         top: `${topOffset}px`,
-                        left: `${item.leftOffset}%`,
-                        width: `${item.columnWidth}%`,
+                        left: '0px',
+                        right: '0px',
                         height: `${heightInPixels}px`,
                         minHeight: '20px'
                       }}
                     >
-                      <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </Badge>
+                      <div className={`text-xs px-2 py-1 rounded-full font-semibold border ${
+                        task.priority?.toLowerCase() === 'high' ? 'bg-red-100 text-red-800 border-red-300' :
+                        task.priority?.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
+                        task.priority?.toLowerCase() === 'low' ? 'bg-green-100 text-green-800 border-green-300' :
+                        'bg-gray-100 text-gray-800 border-gray-300'
+                      }`}>
+                        {task.priority || 'medium'}
+                      </div>
                     </div>
                   );
                 })}
