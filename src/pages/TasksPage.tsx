@@ -570,22 +570,20 @@ const TasksPage = () => {
                   </Button>
                   
                   {/* View Mode Toggle */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-1 border border-white/20">
-                    <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
-                      <ToggleGroupItem value="day" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
-                        <CalendarDays className="w-4 h-4" />
-                        Day
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="week" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
-                        <Calendar className="w-4 h-4" />
-                        Week
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="month" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
-                        <Calendar className="w-4 h-4" />
-                        Month
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
+                  <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
+                    <ToggleGroupItem value="day" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
+                      <CalendarDays className="w-4 h-4" />
+                      Day
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="week" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
+                      <Calendar className="w-4 h-4" />
+                      Week
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="month" size="sm" className="flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm">
+                      <Calendar className="w-4 h-4" />
+                      Month
+                    </ToggleGroupItem>
+                  </ToggleGroup>
                   
                   {/* Navigation */}
                   <div className="flex items-center space-x-2">
