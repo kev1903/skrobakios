@@ -112,6 +112,60 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     return () => clearInterval(timer);
   }, []);
 
+  // Helper function to detect task overlaps and arrange them
+  const arrangeTasksWithOverlapDetection = useCallback((allTasks: Task[]) => {
+    // Add positioning info to tasks
+    const tasksWithPositions = allTasks.map(task => {
+      const taskDateTime = new Date(task.dueDate);
+      const taskDuration = task.duration || 30;
+      const startTotalMinutes = taskDateTime.getHours() * 60 + taskDateTime.getMinutes();
+      const endTotalMinutes = startTotalMinutes + taskDuration;
+      
+      return {
+        ...task,
+        startTotalMinutes,
+        endTotalMinutes,
+        taskDuration
+      };
+    });
+
+    // Group overlapping tasks
+    const groupedTasks: Array<Array<typeof tasksWithPositions[0]>> = [];
+    const processedTasks = [...tasksWithPositions];
+
+    processedTasks.forEach(task => {
+      let addedToGroup = false;
+      
+      for (const group of groupedTasks) {
+        const hasOverlap = group.some(groupTask => 
+          !(task.endTotalMinutes <= groupTask.startTotalMinutes || 
+            task.startTotalMinutes >= groupTask.endTotalMinutes)
+        );
+        
+        if (hasOverlap) {
+          group.push(task);
+          addedToGroup = true;
+          break;
+        }
+      }
+      
+      if (!addedToGroup) {
+        groupedTasks.push([task]);
+      }
+    });
+
+    // Assign position indices within each group
+    const tasksWithLayout = groupedTasks.flatMap(group => 
+      group.map((task, index) => ({
+        ...task,
+        groupSize: group.length,
+        positionIndex: index
+      }))
+    );
+
+    return tasksWithLayout;
+  }, []);
+
   // Generate 24-hour time slots (48 30-minute slots)
   const generateTimeSlots = useCallback((): TimeSlot[] => {
     const slots: TimeSlot[] = [];
@@ -509,7 +563,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   const currentDay = currentDate instanceof Date ? currentDate : new Date(currentDate);
                   const blocksForDay = getBlocksForDay(currentDay, timeBlocks);
                   
-                  return blocksForDay.map((block) => {
+                  // Add overlap detection and positioning
+                  const processedBlocks = blocksForDay.map((block) => {
                     const startHour = parseInt(block.startTime.split(':')[0]);
                     const startMinute = parseInt(block.startTime.split(':')[1]);
                     const endHour = parseInt(block.endTime.split(':')[0]);
@@ -528,55 +583,126 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     const endPosition = endSlotIndex * 24;
                     const heightPixels = Math.max(24, endPosition - startPosition);
                     
-                    // Use category colors from time tracking settings - now in HSL format
-                    const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
+                    return {
+                      ...block,
+                      startPosition,
+                      endPosition,
+                      heightPixels,
+                      startTotalMinutes,
+                      endTotalMinutes
+                    };
+                  });
+
+                  // Group overlapping blocks
+                  const groupedBlocks: Array<Array<typeof processedBlocks[0]>> = [];
+                  const processedBlocksCopy = [...processedBlocks];
+
+                  processedBlocksCopy.forEach(block => {
+                    let addedToGroup = false;
                     
-                    return (
-                      <div
-                        key={block.id}
-                        className="absolute rounded-md backdrop-blur-sm pointer-events-none z-10 border-2 shadow-sm"
-                        style={{
-                          top: `${startPosition}px`,
-                          height: `${heightPixels}px`,
-                          backgroundColor: 'transparent',
-                          borderColor: `hsl(${actualColor})`,
-                          left: '2px',
-                          right: '2px',
-                        }}
-                      >
-                        <div className="p-1 h-full flex flex-col justify-center pl-3">
-                          <div 
-                            className="text-xs font-semibold text-center drop-shadow-sm text-foreground" 
-                          >
-                            {block.title}
-                          </div>
-                          {block.description && heightPixels > 30 && (
+                    for (const group of groupedBlocks) {
+                      const hasOverlap = group.some(groupBlock => 
+                        !(block.endTotalMinutes <= groupBlock.startTotalMinutes || 
+                          block.startTotalMinutes >= groupBlock.endTotalMinutes)
+                      );
+                      
+                      if (hasOverlap) {
+                        group.push(block);
+                        addedToGroup = true;
+                        break;
+                      }
+                    }
+                    
+                    if (!addedToGroup) {
+                      groupedBlocks.push([block]);
+                    }
+                  });
+
+                  return groupedBlocks.flatMap((group) => {
+                    if (group.length === 1) {
+                      const block = group[0];
+                      const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
+                      
+                      return (
+                        <div
+                          key={block.id}
+                          className="absolute rounded-md backdrop-blur-sm pointer-events-none z-10 border-2 shadow-sm"
+                          style={{
+                            top: `${block.startPosition}px`,
+                            height: `${block.heightPixels}px`,
+                            backgroundColor: 'transparent',
+                            borderColor: `hsl(${actualColor})`,
+                            left: '2px',
+                            right: '2px',
+                          }}
+                        >
+                          <div className="p-1 h-full flex flex-col justify-center pl-3">
                             <div 
-                              className="text-[10px] text-center opacity-80 mt-1 text-muted-foreground" 
+                              className="text-xs font-semibold text-center drop-shadow-sm text-foreground" 
                             >
-                              {block.description}
+                              {block.title}
                             </div>
-                          )}
+                            {block.description && block.heightPixels > 30 && (
+                              <div 
+                                className="text-[10px] text-center opacity-80 mt-1 text-muted-foreground" 
+                              >
+                                {block.description}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
+                      );
+                    } else {
+                      // Handle overlapping blocks by positioning them side by side
+                      const columnWidth = 100 / group.length; // Distribute width equally
+                      
+                      return group.map((block, index) => {
+                        const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
+                        
+                        return (
+                          <div
+                            key={block.id}
+                            className="absolute rounded-md backdrop-blur-sm pointer-events-none z-10 border-2 shadow-sm"
+                            style={{
+                              top: `${block.startPosition}px`,
+                              height: `${block.heightPixels}px`,
+                              backgroundColor: 'transparent',
+                              borderColor: `hsl(${actualColor})`,
+                              left: `${2 + (index * columnWidth * 0.96)}%`,
+                              width: `${columnWidth * 0.96}%`,
+                            }}
+                          >
+                            <div className="p-1 h-full flex flex-col justify-center">
+                              <div 
+                                className="text-xs font-semibold text-center drop-shadow-sm text-foreground" 
+                              >
+                                {block.title}
+                              </div>
+                              {block.description && block.heightPixels > 30 && (
+                                <div 
+                                  className="text-[10px] text-center opacity-80 mt-1 text-muted-foreground" 
+                                >
+                                  {block.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      });
+                    }
                   });
                 })()}
               </div>
 
               {/* Task Name Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {/* Create droppable slots for each time slot */}
                 {timeSlots.map((slot, index) => {
-                  // Create droppable area for each hour slot
-                  // For TasksPage compatibility, we need to create droppable based on slot.hour
-                  // which represents slot index (not actual hour for combined slots)
                   let droppableId: string;
                   
                   if (slot.hour === -1) {
-                    // Night slot, use a special identifier
                     droppableId = `timeline--1`;
                   } else {
-                    // Use the slot.hour which is actually the slot index
                     droppableId = `timeline-${slot.hour}`;
                   }
                   
@@ -592,67 +718,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                 snapshot.isDraggingOver ? 'bg-primary/10' : 'hover:bg-muted/10'
                               }`}
                             >
-                              {/* Tasks in this slot - Now draggable */}
-                              {slot.tasks.map((task, index) => {
-                                const taskDuration = task.duration || 30;
-                                const slotsSpanned = Math.ceil(taskDuration / 30);
-                                let heightInPixels = (slotsSpanned * 24) - 4;
-                                let topOffset = 0;
-                                
-                                if (dragState.isDragging && dragState.taskId === task.id) {
-                                  if (dragState.previewHeight !== null) {
-                                    heightInPixels = dragState.previewHeight;
-                                  }
-                                  if (dragState.previewTop !== null) {
-                                    topOffset = dragState.previewTop;
-                                  }
-                                }
-                                
-                                return (
-                                  <Draggable key={task.id} draggableId={task.id} index={index}>
-                                    {(provided, snapshot) => (
-                                       <div
-                                         ref={provided.innerRef}
-                                         {...provided.draggableProps}
-                                         {...provided.dragHandleProps}
-                                         className={`absolute inset-x-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer ${
-                                           snapshot.isDragging ? 'shadow-lg opacity-80 z-50 cursor-grabbing' : 'cursor-grab'
-                                         }`}
-                                         style={{
-                                           ...provided.draggableProps.style,
-                                           ...(snapshot.isDragging ? {} : {
-                                             top: `${topOffset}px`,
-                                           }),
-                                           height: `${heightInPixels}px`,
-                                           minHeight: '20px'
-                                         }}
-                                         onClick={(e) => handleEdgeClick(e, task.id)}
-                                       >
-                                        <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground flex items-center gap-1">
-                                          <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
-                                          <span className="font-medium truncate flex-1">{task.taskName}</span>
-                                          
-                                          {/* Resize handles */}
-                                          <div 
-                                            className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                                          />
-                                          <div 
-                                            className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                            onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                                          />
-                                        </div>
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                );
-                              })}
                               {provided.placeholder}
                             </div>
                           )}
                         </Droppable>
                       ) : (
-                        <Droppable droppableId={`timeline-${slot.hour}`}>
+                        <Droppable droppableId={droppableId}>
                           {(provided, snapshot) => (
                             <div
                               ref={provided.innerRef}
@@ -663,49 +734,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                                   : 'hover:bg-muted/10'
                               }`}
                             >
-                              {/* Tasks in this slot */}
-                              {slot.tasks.map((task, index) => {
-                                const taskDuration = task.duration || 30;
-                                const slotsSpanned = Math.ceil(taskDuration / 30);
-                                let heightInPixels = (slotsSpanned * 24) - 4;
-                                let topOffset = 0;
-                                
-                                if (dragState.isDragging && dragState.taskId === task.id) {
-                                  if (dragState.previewHeight !== null) {
-                                    heightInPixels = dragState.previewHeight;
-                                  }
-                                  if (dragState.previewTop !== null) {
-                                    topOffset = dragState.previewTop;
-                                  }
-                                }
-                                
-                                return (
-                                  <div
-                                    key={`timeline-${task.id}`}
-                                    className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer"
-                                    style={{
-                                      top: `${topOffset}px`,
-                                      height: `${heightInPixels}px`,
-                                      minHeight: '20px'
-                                    }}
-                                    onClick={(e) => handleEdgeClick(e, task.id)}
-                                  >
-                                    <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground">
-                                      <span className="font-medium truncate block">{task.taskName}</span>
-                                      
-                                      {/* Resize handles */}
-                                      <div 
-                                        className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                        onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
-                                      />
-                                       <div 
-                                         className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
-                                         onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
-                                       />
-                                    </div>
-                                  </div>
-                                );
-                              })}
                               {provided.placeholder}
                             </div>
                           )}
@@ -714,129 +742,320 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     </div>
                   );
                 })}
+                
+                {/* Render all tasks with overlap detection */}
+                {(() => {
+                  const dayTasks = tasks.filter(task => {
+                    const taskDate = new Date(task.dueDate);
+                    const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                    return isSameDay(taskDate, dateObj) && !(taskDate.getHours() === 0 && taskDate.getMinutes() === 0);
+                  });
+                  
+                  const arrangedTasks = arrangeTasksWithOverlapDetection(dayTasks);
+                  
+                  return arrangedTasks.map((task) => {
+                    const taskDateTime = new Date(task.dueDate);
+                    const taskDuration = task.taskDuration;
+                    const slotsSpanned = Math.ceil(taskDuration / 30);
+                    let heightInPixels = (slotsSpanned * 24) - 4;
+                    
+                    // Calculate position in the timeline
+                    const startSlotIndex = Math.floor(task.startTotalMinutes / 30);
+                    const topPosition = startSlotIndex * 24;
+                    
+                    let topOffset = topPosition;
+                    let columnWidth = 100;
+                    let leftOffset = 0;
+                    
+                    // Apply overlap positioning
+                    if (task.groupSize > 1) {
+                      columnWidth = 100 / task.groupSize;
+                      leftOffset = task.positionIndex * columnWidth;
+                    }
+                    
+                    if (dragState.isDragging && dragState.taskId === task.id) {
+                      if (dragState.previewHeight !== null) {
+                        heightInPixels = dragState.previewHeight;
+                      }
+                      if (dragState.previewTop !== null) {
+                        topOffset = topPosition + dragState.previewTop;
+                      }
+                    }
+                    
+                    if (enableDragDrop) {
+                      return (
+                        <Draggable key={task.id} draggableId={task.id} index={0}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`absolute flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer ${
+                                snapshot.isDragging ? 'shadow-lg opacity-80 z-50 cursor-grabbing' : 'cursor-grab'
+                              }`}
+                              style={{
+                                ...provided.draggableProps.style,
+                                ...(snapshot.isDragging ? {} : {
+                                  top: `${topOffset}px`,
+                                  left: `${leftOffset}%`,
+                                  width: `${columnWidth}%`,
+                                }),
+                                height: `${heightInPixels}px`,
+                                minHeight: '20px'
+                              }}
+                              onClick={(e) => handleEdgeClick(e, task.id)}
+                            >
+                              <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground flex items-center gap-1">
+                                <GripVertical className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
+                                <span className="font-medium truncate flex-1">{task.taskName}</span>
+                                
+                                {/* Resize handles */}
+                                <div 
+                                  className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                  onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                                />
+                                <div 
+                                  className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                                  onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    } else {
+                      return (
+                        <div
+                          key={`timeline-${task.id}`}
+                          className="absolute px-1 py-1 flex items-center bg-background/80 backdrop-blur-sm border-r border-border/30 hover:shadow-md z-10 cursor-pointer"
+                          style={{
+                            top: `${topOffset}px`,
+                            left: `${leftOffset}%`,
+                            width: `${columnWidth}%`,
+                            height: `${heightInPixels}px`,
+                            minHeight: '20px'
+                          }}
+                          onClick={(e) => handleEdgeClick(e, task.id)}
+                        >
+                          <div className="rounded px-2 py-1 text-xs w-full border bg-transparent border-border/30 text-foreground">
+                            <span className="font-medium truncate block">{task.taskName}</span>
+                            
+                            {/* Resize handles */}
+                            <div 
+                              className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-n-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                              onMouseDown={(e) => handleResizeStart(e, task.id, 'top')}
+                            />
+                            <div 
+                              className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-2 cursor-s-resize opacity-0 hover:opacity-100 bg-primary/30 rounded-sm"
+                              onMouseDown={(e) => handleResizeStart(e, task.id, 'bottom')}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                  });
+                })()}
               </div>
 
               {/* Project Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {/* Create slots for each time slot */}
                 {timeSlots.map((slot) => (
                   <div key={`project-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    <div className="absolute inset-0">
-                      {slot.tasks.map((task, index) => {
-                        const taskDuration = task.duration || 30;
-                        const slotsSpanned = Math.ceil(taskDuration / 30);
-                        let heightInPixels = (slotsSpanned * 24) - 4;
-                        let topOffset = 0;
-                        
-                        if (dragState.isDragging && dragState.taskId === task.id) {
-                          if (dragState.previewHeight !== null) {
-                            heightInPixels = dragState.previewHeight;
-                          }
-                          if (dragState.previewTop !== null) {
-                            topOffset = dragState.previewTop;
-                          }
-                        }
-                        
-                        return (
-                          <div
-                            key={`project-${task.id}`}
-                            className="absolute left-0 right-0 px-1 py-1 flex items-center bg-background/60 backdrop-blur-sm border-r border-border/30"
-                            style={{
-                              top: `${topOffset}px`,
-                              height: `${heightInPixels}px`,
-                              minHeight: '20px'
-                            }}
-                          >
-                            <div className="rounded px-2 py-1 text-xs w-full bg-muted/20 border border-border/30">
-                              <span className="text-foreground/80 truncate block font-medium">{task.projectName || 'No Project'}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
                   </div>
                 ))}
+                
+                {/* Render all tasks with overlap detection */}
+                {(() => {
+                  const dayTasks = tasks.filter(task => {
+                    const taskDate = new Date(task.dueDate);
+                    const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                    return isSameDay(taskDate, dateObj) && !(taskDate.getHours() === 0 && taskDate.getMinutes() === 0);
+                  });
+                  
+                  const arrangedTasks = arrangeTasksWithOverlapDetection(dayTasks);
+                  
+                  return arrangedTasks.map((task) => {
+                    const taskDuration = task.taskDuration;
+                    const slotsSpanned = Math.ceil(taskDuration / 30);
+                    let heightInPixels = (slotsSpanned * 24) - 4;
+                    
+                    // Calculate position in the timeline
+                    const startSlotIndex = Math.floor(task.startTotalMinutes / 30);
+                    const topPosition = startSlotIndex * 24;
+                    
+                    let topOffset = topPosition;
+                    let columnWidth = 100;
+                    let leftOffset = 0;
+                    
+                    // Apply overlap positioning
+                    if (task.groupSize > 1) {
+                      columnWidth = 100 / task.groupSize;
+                      leftOffset = task.positionIndex * columnWidth;
+                    }
+                    
+                    if (dragState.isDragging && dragState.taskId === task.id) {
+                      if (dragState.previewHeight !== null) {
+                        heightInPixels = dragState.previewHeight;
+                      }
+                      if (dragState.previewTop !== null) {
+                        topOffset = topPosition + dragState.previewTop;
+                      }
+                    }
+                    
+                    return (
+                      <div
+                        key={`project-${task.id}`}
+                        className="absolute px-1 py-1 flex items-center bg-background/60 backdrop-blur-sm border-r border-border/30"
+                        style={{
+                          top: `${topOffset}px`,
+                          left: `${leftOffset}%`,
+                          width: `${columnWidth}%`,
+                          height: `${heightInPixels}px`,
+                          minHeight: '20px'
+                        }}
+                      >
+                        <div className="rounded px-2 py-1 text-xs w-full bg-muted/20 border border-border/30">
+                          <span className="text-foreground/80 truncate block font-medium">{task.projectName || 'No Project'}</span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Duration Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {/* Create slots for each time slot */}
                 {timeSlots.map((slot) => (
                   <div key={`duration-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    <div className="absolute inset-0">
-                      {slot.tasks.map((task, index) => {
-                        const taskDuration = task.duration || 30;
-                        const slotsSpanned = Math.ceil(taskDuration / 30);
-                        let heightInPixels = (slotsSpanned * 24) - 4;
-                        let topOffset = 0;
-                        
-                        if (dragState.isDragging && dragState.taskId === task.id) {
-                          if (dragState.previewHeight !== null) {
-                            heightInPixels = dragState.previewHeight;
-                          }
-                          if (dragState.previewTop !== null) {
-                            topOffset = dragState.previewTop;
-                          }
-                        }
-                        
-                        return (
-                          <div
-                            key={`duration-${task.id}`}
-                            className="absolute left-0 right-0 px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm border-r border-border/30"
-                            style={{
-                              top: `${topOffset}px`,
-                              height: `${heightInPixels}px`,
-                              minHeight: '20px'
-                            }}
-                          >
-                            <div className="rounded px-2 py-1 text-xs bg-accent/20 border border-border/30">
-                              <span className="font-medium text-foreground/90">{taskDuration}min</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
                   </div>
                 ))}
+                
+                {/* Render all tasks with overlap detection */}
+                {(() => {
+                  const dayTasks = tasks.filter(task => {
+                    const taskDate = new Date(task.dueDate);
+                    const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                    return isSameDay(taskDate, dateObj) && !(taskDate.getHours() === 0 && taskDate.getMinutes() === 0);
+                  });
+                  
+                  const arrangedTasks = arrangeTasksWithOverlapDetection(dayTasks);
+                  
+                  return arrangedTasks.map((task) => {
+                    const taskDuration = task.taskDuration;
+                    const slotsSpanned = Math.ceil(taskDuration / 30);
+                    let heightInPixels = (slotsSpanned * 24) - 4;
+                    
+                    // Calculate position in the timeline
+                    const startSlotIndex = Math.floor(task.startTotalMinutes / 30);
+                    const topPosition = startSlotIndex * 24;
+                    
+                    let topOffset = topPosition;
+                    let columnWidth = 100;
+                    let leftOffset = 0;
+                    
+                    // Apply overlap positioning
+                    if (task.groupSize > 1) {
+                      columnWidth = 100 / task.groupSize;
+                      leftOffset = task.positionIndex * columnWidth;
+                    }
+                    
+                    if (dragState.isDragging && dragState.taskId === task.id) {
+                      if (dragState.previewHeight !== null) {
+                        heightInPixels = dragState.previewHeight;
+                      }
+                      if (dragState.previewTop !== null) {
+                        topOffset = topPosition + dragState.previewTop;
+                      }
+                    }
+                    
+                    return (
+                      <div
+                        key={`duration-${task.id}`}
+                        className="absolute px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm border-r border-border/30"
+                        style={{
+                          top: `${topOffset}px`,
+                          left: `${leftOffset}%`,
+                          width: `${columnWidth}%`,
+                          height: `${heightInPixels}px`,
+                          minHeight: '20px'
+                        }}
+                      >
+                        <div className="rounded px-2 py-1 text-xs bg-accent/20 border border-border/30">
+                          <span className="font-medium text-foreground/90">{taskDuration}min</span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Priority Column */}
               <div className="relative bg-gradient-to-b from-background/50 to-muted/10">
+                {/* Create slots for each time slot */}
                 {timeSlots.map((slot) => (
                   <div key={`priority-${slot.hour}`} className="h-6 border-b border-border/10 relative">
-                    <div className="absolute inset-0">
-                      {slot.tasks.map((task, index) => {
-                        const taskDuration = task.duration || 30;
-                        const slotsSpanned = Math.ceil(taskDuration / 30);
-                        let heightInPixels = (slotsSpanned * 24) - 4;
-                        let topOffset = 0;
-                        
-                        if (dragState.isDragging && dragState.taskId === task.id) {
-                          if (dragState.previewHeight !== null) {
-                            heightInPixels = dragState.previewHeight;
-                          }
-                          if (dragState.previewTop !== null) {
-                            topOffset = dragState.previewTop;
-                          }
-                        }
-                        
-                        return (
-                          <div
-                            key={`priority-${task.id}`}
-                            className="absolute left-0 right-0 px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm"
-                            style={{
-                              top: `${topOffset}px`,
-                              height: `${heightInPixels}px`,
-                              minHeight: '20px'
-                            }}
-                          >
-                            <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
-                              {task.priority}
-                            </Badge>
-                          </div>
-                        );
-                      })}
-                    </div>
                   </div>
                 ))}
+                
+                {/* Render all tasks with overlap detection */}
+                {(() => {
+                  const dayTasks = tasks.filter(task => {
+                    const taskDate = new Date(task.dueDate);
+                    const dateObj = currentDate instanceof Date ? currentDate : new Date(currentDate);
+                    return isSameDay(taskDate, dateObj) && !(taskDate.getHours() === 0 && taskDate.getMinutes() === 0);
+                  });
+                  
+                  const arrangedTasks = arrangeTasksWithOverlapDetection(dayTasks);
+                  
+                  return arrangedTasks.map((task) => {
+                    const taskDuration = task.taskDuration;
+                    const slotsSpanned = Math.ceil(taskDuration / 30);
+                    let heightInPixels = (slotsSpanned * 24) - 4;
+                    
+                    // Calculate position in the timeline
+                    const startSlotIndex = Math.floor(task.startTotalMinutes / 30);
+                    const topPosition = startSlotIndex * 24;
+                    
+                    let topOffset = topPosition;
+                    let columnWidth = 100;
+                    let leftOffset = 0;
+                    
+                    // Apply overlap positioning
+                    if (task.groupSize > 1) {
+                      columnWidth = 100 / task.groupSize;
+                      leftOffset = task.positionIndex * columnWidth;
+                    }
+                    
+                    if (dragState.isDragging && dragState.taskId === task.id) {
+                      if (dragState.previewHeight !== null) {
+                        heightInPixels = dragState.previewHeight;
+                      }
+                      if (dragState.previewTop !== null) {
+                        topOffset = topPosition + dragState.previewTop;
+                      }
+                    }
+                    
+                    return (
+                      <div
+                        key={`priority-${task.id}`}
+                        className="absolute px-1 py-1 flex items-center justify-center bg-background/60 backdrop-blur-sm"
+                        style={{
+                          top: `${topOffset}px`,
+                          left: `${leftOffset}%`,
+                          width: `${columnWidth}%`,
+                          height: `${heightInPixels}px`,
+                          minHeight: '20px'
+                        }}
+                      >
+                        <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getPriorityColor(task.priority)}`}>
+                          {task.priority}
+                        </Badge>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
 
