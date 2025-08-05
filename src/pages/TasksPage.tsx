@@ -303,8 +303,9 @@ const TasksPage = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
+      {/* Glass Morphism Background Container */}
       <div 
-        className="min-h-screen"
+        className="min-h-screen relative overflow-hidden"
         style={{
           backgroundImage: `url(${desertDunesBg})`,
           backgroundSize: 'cover',
@@ -312,7 +313,11 @@ const TasksPage = () => {
           backgroundAttachment: 'fixed'
         }}
       >
-        <div className={cn("flex font-inter", minHeightClasses, spacingClasses)}>
+        {/* Background Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30 backdrop-blur-[2px]" />
+        
+        {/* Main Content Container */}
+        <div className={cn("relative z-10 flex font-inter", minHeightClasses, spacingClasses)}>
           {/* Left Sidebar - Glass Morphism */}
           <div className={cn(
             "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300",
