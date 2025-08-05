@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ArrowLeft, Calendar, Download, Filter, Plus, Clock, BarChart3, Users, Settings, GripVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -356,6 +357,32 @@ const TimeSheetPage = () => {
 
   const getCurrentTime = () => new Date();
 
+  // Handle drag and drop
+  const handleDragEnd = (result: any) => {
+    const { source, destination, draggableId } = result;
+    
+    if (!destination) return;
+
+    // Parse the draggable ID to get the entry ID
+    const entryId = draggableId.replace('time-entry-', '');
+    
+    // Parse destination to get new time slot
+    const destinationParts = destination.droppableId.split('-');
+    if (destinationParts.length < 6) return;
+    
+    const newDate = destinationParts[2]; // YYYY-MM-DD
+    const newHour = parseInt(destinationParts[3]);
+    const newMinutes = parseInt(destinationParts[4]);
+    
+    // Create new datetime
+    const newDateTime = new Date(`${newDate}T${newHour.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}:00`);
+    
+    console.log(`Moving entry ${entryId} to ${newDateTime.toISOString()}`);
+    
+    // Here you would update the time entry in your backend
+    // For now, we'll just log the action
+  };
+
   if (loading) {
     return (
       <div className={cn("bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center", minHeightClasses)}>
@@ -470,151 +497,179 @@ const TimeSheetPage = () => {
         </Card>
 
         {/* Weekly Calendar Grid with Time Column */}
-        <Card className="border-0 bg-white/70 backdrop-blur-sm shadow-lg">
-          <CardContent className="p-6">
-            <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
-              {/* Day Headers Row */}
-              <div className="grid grid-cols-8 gap-1 border-b border-border/30 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm p-2">
-                <div className="p-3 text-center text-muted-foreground font-medium text-sm min-w-[100px] bg-card/50 rounded-lg border border-border/20">
-                  Time
-                </div>
-                {weekDays.map((day, index) => {
-                  const dayEntries = getEntriesForDay(day);
-                  const dayTotal = calculateDayTotal(dayEntries);
-                  const isToday = isSameDay(day, new Date());
-                  
-                  return (
-                    <div key={index} className={`p-3 text-center transition-all duration-200 rounded-lg border ${
-                      isToday 
-                        ? 'bg-gradient-to-b from-primary/20 to-primary/10 border-primary/30 shadow-md' 
-                        : 'bg-card/50 border-border/20 hover:bg-card/70'
-                    }`}>
-                      <div className={`font-medium text-sm uppercase ${
-                        isToday ? 'text-primary font-bold' : 'text-muted-foreground'
-                      }`}>
-                        {format(day, 'EEE')} {day.getDate()}
-                      </div>
-                      <div className={`text-xs mt-1 ${
-                        isToday ? 'text-primary/80' : 'text-muted-foreground'
-                      }`}>
-                        {formatDuration(dayTotal)}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              {/* Time Grid */}
-              <div className="grid grid-cols-8 gap-0 min-h-[800px] relative overflow-auto max-h-[800px]">
-                {/* Time Column */}
-                <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner relative">
-                  {timeSlots.map((slot, index) => {
-                    const isFullHour = slot.hour % 2 === 0;
-                    const currentTime = getCurrentTime();
-                    const isCurrentSlot = isSameDay(currentTime, currentWeek) &&
-                                          slot.actualHour === currentTime.getHours() && 
-                                          ((slot.actualMinutes === 0 && currentTime.getMinutes() >= 0 && currentTime.getMinutes() < 30) ||
-                                           (slot.actualMinutes === 30 && currentTime.getMinutes() >= 30 && currentTime.getMinutes() < 60));
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Card className="border-0 bg-white/70 backdrop-blur-sm shadow-lg">
+            <CardContent className="p-6">
+              <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg overflow-hidden">
+                {/* Day Headers Row */}
+                <div className="grid grid-cols-8 gap-1 border-b border-border/30 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm p-2">
+                  <div className="p-3 text-center text-muted-foreground font-medium text-sm min-w-[100px] bg-card/50 rounded-lg border border-border/20">
+                    Time
+                  </div>
+                  {weekDays.map((day, index) => {
+                    const dayEntries = getEntriesForDay(day);
+                    const dayTotal = calculateDayTotal(dayEntries);
+                    const isToday = isSameDay(day, new Date());
                     
                     return (
-                      <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
-                        isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
-                      } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
-                        <span className={`font-inter leading-tight ${
-                          isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
-                        } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
-                          {slot.label}
-                        </span>
+                      <div key={index} className={`p-3 text-center transition-all duration-200 rounded-lg border ${
+                        isToday 
+                          ? 'bg-gradient-to-b from-primary/20 to-primary/10 border-primary/30 shadow-md' 
+                          : 'bg-card/50 border-border/20 hover:bg-card/70'
+                      }`}>
+                        <div className={`font-medium text-sm uppercase ${
+                          isToday ? 'text-primary font-bold' : 'text-muted-foreground'
+                        }`}>
+                          {format(day, 'EEE')} {day.getDate()}
+                        </div>
+                        <div className={`text-xs mt-1 ${
+                          isToday ? 'text-primary/80' : 'text-muted-foreground'
+                        }`}>
+                          {formatDuration(dayTotal)}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
                 
-                {/* Day Columns */}
-                {weekDays.map((day, dayIndex) => {
-                  const dayEntries = getEntriesForDay(day);
-                  const hasLoggedEntries = dayEntries.length > 0;
-                  
-                  return (
-                    <div key={dayIndex} className="border-r border-border/20 last:border-r-0 bg-background/30 relative">
-                      {/* No entries message */}
-                      {!hasLoggedEntries && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center text-muted-foreground">
-                            <Clock className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                            <div className="text-xs">No logged entries</div>
-                            <div className="text-[10px] opacity-60">Start tracking time to see entries here</div>
-                          </div>
-                        </div>
-                      )}
+                {/* Time Grid */}
+                <div className="grid grid-cols-8 gap-0 min-h-[800px] relative overflow-auto max-h-[800px]">
+                  {/* Time Column */}
+                  <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 min-w-[100px] shadow-inner relative">
+                    {timeSlots.map((slot, index) => {
+                      const isFullHour = slot.hour % 2 === 0;
+                      const currentTime = getCurrentTime();
+                      const isCurrentSlot = isSameDay(currentTime, currentWeek) &&
+                                            slot.actualHour === currentTime.getHours() && 
+                                            ((slot.actualMinutes === 0 && currentTime.getMinutes() >= 0 && currentTime.getMinutes() < 30) ||
+                                             (slot.actualMinutes === 30 && currentTime.getMinutes() >= 30 && currentTime.getMinutes() < 60));
                       
-                      {timeSlots.map((slot, slotIndex) => {
-                        const slotEntries = getEntriesForTimeSlot(day, slot.actualHour, slot.actualMinutes);
-                        const isFullHour = slot.hour % 2 === 0;
-                        
-                        return (
-                          <div 
-                            key={slotIndex} 
-                            className={`h-6 border-b relative ${
-                              isFullHour ? 'border-b-border/30' : 'border-b-border/10'
-                            } hover:bg-accent/10 transition-colors`}
-                          >
-                            {slotEntries.map((entry, entryIndex) => (
-                              <div
-                                key={entryIndex}
-                                className="draggable-task-element absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow cursor-grab hover:cursor-grab min-h-[32px] flex items-center"
-                                style={{
-                                  backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
-                                  borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb'
-                                }}
-                              >
-                                {/* Drag Handle - Left Side */}
-                                <div className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0">
-                                  <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
-                                </div>
-                                
-                                {/* Task Content */}
-                                <div className="flex-1 px-2 py-1 text-xs truncate">
-                                  <div className="font-medium text-foreground/90 truncate flex items-center justify-between">
-                                    <span className="flex-1 truncate">{entry.task_activity}</span>
-                                    <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 bg-green-100 text-green-700 border-green-200">
-                                      ✓
-                                    </Badge>
-                                  </div>
-                                  <div className="text-[10px] text-muted-foreground flex items-center justify-between">
-                                    <span>
-                                      {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
-                                      {entry.end_time && ` - ${format(parseISO(entry.end_time), 'HH:mm')}`}
-                                    </span>
-                                    <span className="font-medium">
-                                      {formatDuration(entry.duration || 0)}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-                
-                {/* Current Time Indicator */}
-                {isSameDay(getCurrentTime(), currentWeek) && (
-                  <div 
-                    className="absolute left-0 right-0 h-0.5 border-t-2 border-dotted border-blue-500 z-[1000] pointer-events-none"
-                    style={{
-                      top: `${(getCurrentTime().getHours() * 2 + getCurrentTime().getMinutes() / 30) * 24 + (getCurrentTime().getMinutes() % 30) / 30 * 24}px`
-                    }}
-                  >
-                    <div className="absolute -left-2 -top-1 w-4 h-2 bg-blue-500 rounded-full"></div>
+                      return (
+                        <div key={slot.hour} className={`h-6 border-b flex items-start justify-end pr-4 pt-1 transition-colors hover:bg-accent/20 ${
+                          isFullHour ? 'border-b-border/30 bg-card/30' : 'border-b-border/10 bg-transparent'
+                        } ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
+                          <span className={`font-inter leading-tight ${
+                            isFullHour ? 'text-xs font-medium text-foreground/80' : 'text-[10px] font-normal text-muted-foreground/70'
+                          } ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
+                            {slot.label}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                )}
+                  
+                  {/* Day Columns */}
+                  {weekDays.map((day, dayIndex) => {
+                    const dayEntries = getEntriesForDay(day);
+                    const hasLoggedEntries = dayEntries.length > 0;
+                    
+                    return (
+                      <div key={dayIndex} className="border-r border-border/20 last:border-r-0 bg-background/30 relative">
+                        {/* No entries message */}
+                        {!hasLoggedEntries && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-center text-muted-foreground">
+                              <Clock className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                              <div className="text-xs">No logged entries</div>
+                              <div className="text-[10px] opacity-60">Start tracking time to see entries here</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {timeSlots.map((slot, slotIndex) => {
+                          const slotEntries = getEntriesForTimeSlot(day, slot.actualHour, slot.actualMinutes);
+                          const isFullHour = slot.hour % 2 === 0;
+                          const dateString = format(day, 'yyyy-MM-dd');
+                          const droppableId = `time-slot-${dateString}-${slot.actualHour.toString().padStart(2, '0')}-${slot.actualMinutes.toString().padStart(2, '0')}`;
+                          
+                          return (
+                            <Droppable key={slotIndex} droppableId={droppableId}>
+                              {(provided, snapshot) => (
+                                <div 
+                                  ref={provided.innerRef}
+                                  {...provided.droppableProps}
+                                  className={`h-6 border-b relative ${
+                                    isFullHour ? 'border-b-border/30' : 'border-b-border/10'
+                                  } transition-colors ${
+                                    snapshot.isDraggingOver ? 'bg-blue-100 border-blue-300' : 'hover:bg-accent/10'
+                                  }`}
+                                >
+                                  {slotEntries.map((entry, entryIndex) => (
+                                    <Draggable key={entry.id} draggableId={`time-entry-${entry.id}`} index={entryIndex}>
+                                      {(provided, snapshot) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          className={`absolute inset-x-1 top-0.5 bottom-0.5 bg-white rounded shadow-sm border hover:shadow-md transition-shadow min-h-[32px] flex items-center ${
+                                            snapshot.isDragging ? 'rotate-2 shadow-xl z-50' : 'cursor-grab hover:cursor-grab'
+                                          }`}
+                                          style={{
+                                            backgroundColor: entry.category ? `${getCategoryColor(entry.category)}20` : 'rgba(255, 255, 255, 0.9)',
+                                            borderColor: entry.category ? getCategoryColor(entry.category) : '#e5e7eb',
+                                            ...provided.draggableProps.style
+                                          }}
+                                        >
+                                          {/* Drag Handle - Left Side */}
+                                          <div 
+                                            {...provided.dragHandleProps}
+                                            className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0"
+                                          >
+                                            <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                                          </div>
+                                          
+                                          {/* Task Content */}
+                                          <div className="flex-1 px-2 py-1 text-xs truncate">
+                                            <div className="font-medium text-foreground/90 truncate flex items-center justify-between">
+                                              <span className="flex-1 truncate">{entry.task_activity}</span>
+                                              <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3 bg-green-100 text-green-700 border-green-200">
+                                                ✓
+                                              </Badge>
+                                            </div>
+                                            <div className="text-[10px] text-muted-foreground flex items-center justify-between">
+                                              <span>
+                                                {entry.start_time && format(parseISO(entry.start_time), 'HH:mm')}
+                                                {entry.end_time && ` - ${format(parseISO(entry.end_time), 'HH:mm')}`}
+                                              </span>
+                                              <span className="font-medium">
+                                                {formatDuration(entry.duration || 0)}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                  {snapshot.isDraggingOver && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-blue-50 border-2 border-dashed border-blue-300 rounded">
+                                      <span className="text-xs text-blue-600 font-medium">Drop here for {slot.label}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </Droppable>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Current Time Indicator */}
+                  {isSameDay(getCurrentTime(), currentWeek) && (
+                    <div 
+                      className="absolute left-0 right-0 h-0.5 border-t-2 border-dotted border-blue-500 z-[1000] pointer-events-none"
+                      style={{
+                        top: `${(getCurrentTime().getHours() * 2 + getCurrentTime().getMinutes() / 30) * 24 + (getCurrentTime().getMinutes() % 30) / 30 * 24}px`
+                      }}
+                    >
+                      <div className="absolute -left-2 -top-1 w-4 h-2 bg-blue-500 rounded-full"></div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </DragDropContext>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

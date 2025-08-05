@@ -674,7 +674,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               })}
                 
                  {/* Render task name parts in this column */}
-                 {layout.tasks.map(item => {
+                 {layout.tasks.map((item, index) => {
                 const task = item.data as Task;
                 let heightInPixels = item.height;
                 let topOffset = item.topPosition;
@@ -686,15 +686,30 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     topOffset = item.topPosition + dragState.previewTop;
                   }
                 }
-                return <div key={`taskname-${task.id}`} className="absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px]" style={{
-                  top: `${topOffset}px`,
-                  left: '0px',
-                  right: '0px',
-                  height: `${heightInPixels}px`,
-                  minHeight: '20px'
-                }} onClick={e => handleEdgeClick(e, task.id)}>
+                return (
+                  <Draggable key={`taskname-${task.id}`} draggableId={`task-${task.id}`} index={index}>
+                    {(provided, snapshot) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px] ${
+                          snapshot.isDragging ? 'rotate-2 shadow-xl z-50' : ''
+                        }`} 
+                        style={{
+                          top: `${topOffset}px`,
+                          left: '0px',
+                          right: '0px',
+                          height: `${heightInPixels}px`,
+                          minHeight: '20px',
+                          ...provided.draggableProps.style
+                        }} 
+                        onClick={e => handleEdgeClick(e, task.id)}
+                      >
                         {/* Drag Handle - Left Side */}
-                        <div className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0">
+                        <div 
+                          {...provided.dragHandleProps}
+                          className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0"
+                        >
                           <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
                         </div>
                         
@@ -711,7 +726,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                        {/* Resize handles */}
                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'top')} />
                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'bottom')} />
-                     </div>;
+                     </div>
+                    )}
+                  </Draggable>
+                );
               })}
               </div>
 
