@@ -49,11 +49,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   ];
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setCurrentSlide((prev) => prev < slides.length - 1 ? prev + 1 : prev);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrentSlide((prev) => prev > 0 ? prev - 1 : prev);
   };
 
   const goToSlide = (index: number) => {
