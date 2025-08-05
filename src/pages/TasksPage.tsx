@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+
 import { Link } from 'react-router-dom';
 import { Search, Plus, Edit2, MoreHorizontal, ArrowLeft, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Volume2, ChevronLeft, ChevronRight, Calendar, Home, DollarSign, Monitor, Download, Book, ChevronDown, Clock, MapPin, CheckCircle2, Circle, Settings, CalendarDays, BarChart3 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -177,63 +177,6 @@ const TasksPage = () => {
     });
   };
 
-  // Drag and drop handlers
-  const handleDragEnd = async (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-
-    // If no destination or dragged to same position, do nothing
-    if (!destination || 
-        (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return;
-    }
-
-    // Extract task ID from draggableId (format: "task-{taskId}")
-    const taskId = draggableId.replace('task-', '');
-    const task = userTasks.find(t => t.id === taskId);
-    
-    if (!task) return;
-
-    try {
-      // Handle dropping to calendar time slots
-      if (destination.droppableId.startsWith('calendar-slot-')) {
-        // Extract date and time from droppableId
-        // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
-        const slotParts = destination.droppableId.replace('calendar-slot-', '').split('-');
-        if (slotParts.length >= 5) {
-          const [year, month, day, hour, minute] = slotParts;
-          const newDateTime = new Date(
-            parseInt(year),
-            parseInt(month) - 1, // Month is 0-indexed
-            parseInt(day),
-            parseInt(hour),
-            parseInt(minute)
-          );
-
-          await taskService.updateTask(taskId, {
-            dueDate: newDateTime.toISOString(),
-            duration: 30 // Set default 30 minutes duration
-          }, userProfile);
-
-          // Reload tasks to reflect changes
-          const updatedTasks = await taskService.loadTasksAssignedToUser();
-          setUserTasks(updatedTasks);
-
-          toast({
-            title: "Task scheduled",
-            description: `"${task.taskName}" moved to ${format(newDateTime, 'MMM d, yyyy HH:mm')}`,
-            variant: "default",
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to update task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to move task. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
 
 
@@ -305,7 +248,7 @@ const TasksPage = () => {
   }
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+    <>
       {/* Glass Morphism Background Container */}
       <div 
         className="h-screen relative overflow-hidden"
@@ -434,17 +377,8 @@ const TasksPage = () => {
               </div>
 
               <div className="space-y-2 min-h-[100px] p-2 rounded-lg">
-                <Droppable droppableId="task-backlog">
-                  {(provided, snapshot) => (
-                    <div 
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`space-y-2 min-h-[100px] transition-all rounded-xl border-2 ${
-                        snapshot.isDraggingOver 
-                          ? 'border-blue-400/50 bg-blue-500/10' 
-                          : 'border-transparent'
-                      }`}
-                    >
+                    <div className="space-y-2 min-h-[100px] transition-all rounded-xl border-2 border-transparent">
+                    
                   {loading ? (
                     <div className="text-center py-4">
                       <div className="text-sm text-white/60 font-inter">Loading tasks...</div>
@@ -469,17 +403,9 @@ const TasksPage = () => {
                         return true;
                       }
                     }).map((task, index) => (
-                      <Draggable key={task.id} draggableId={`task-${task.id}`} index={index}>
-                        {(provided, snapshot) => (
                           <div 
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`px-3 py-2 rounded-lg cursor-pointer transition-all group backdrop-blur-sm border ${
-                              snapshot.isDragging 
-                                ? 'bg-blue-500/20 border-blue-400/50 shadow-xl rotate-3 scale-105' 
-                                : 'bg-white/10 border-white/20 hover:bg-white/20'
-                            }`}
+                            key={task.id}
+                            className="px-3 py-2 rounded-lg cursor-pointer transition-all group backdrop-blur-sm border bg-white/10 border-white/20 hover:bg-white/20"
                           >
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
@@ -506,15 +432,10 @@ const TasksPage = () => {
                             </div>
                           </div>
                           </div>
-                        </div>
-                        )}
-                      </Draggable>
+                          </div>
                     ))
                   )}
-                      {provided.placeholder}
                     </div>
-                  )}
-                </Droppable>
               </div>
             </div>
           </div>
@@ -655,7 +576,7 @@ const TasksPage = () => {
           {/* Timer functionality now handled by MenuBar */}
         </div>
       </div>
-    </DragDropContext>
+    </>
   );
 };
 

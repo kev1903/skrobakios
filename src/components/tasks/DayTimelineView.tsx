@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -540,7 +540,53 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
   // Calculate layout with built-in overlap detection
   const layout = calculateLayout();
-  return <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
+
+  // Handle drag and drop for task scheduling
+  const handleDragEnd = useCallback(async (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+
+    // If no destination or dragged to same position, do nothing
+    if (!destination || 
+        (destination.droppableId === source.droppableId && destination.index === source.index)) {
+      return;
+    }
+
+    // Extract task ID from draggableId (format: "task-{taskId}")
+    const taskId = draggableId.replace('task-', '');
+    const task = tasks.find(t => t.id === taskId);
+    
+    if (!task || !onTaskUpdate) return;
+
+    try {
+      // Handle dropping to calendar time slots
+      if (destination.droppableId.startsWith('calendar-slot-')) {
+        // Extract date and time from droppableId
+        // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
+        const slotParts = destination.droppableId.replace('calendar-slot-', '').split('-');
+        if (slotParts.length >= 5) {
+          const [year, month, day, hour, minute] = slotParts;
+          const newDateTime = new Date(
+            parseInt(year),
+            parseInt(month) - 1, // Month is 0-indexed
+            parseInt(day),
+            parseInt(hour),
+            parseInt(minute)
+          );
+
+          await onTaskUpdate(taskId, {
+            dueDate: newDateTime.toISOString(),
+            duration: task.duration || 30 // Keep existing duration or default to 30
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  }, [tasks, onTaskUpdate]);
+
+  return (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
       {/* Main Timeline Area */}
       <div className="flex flex-col overflow-hidden" style={{
       width: isDragActive ? '100%' : 'calc(100% - 320px)'
@@ -661,21 +707,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 const slotMinutes = slot.hour % 2 * 30;
                 const currentDateStr = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
                 const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
-                // TEMPORARILY DISABLED DROPPABLE FOR DEBUGGING
-                // return <Droppable key={`taskname-${slot.hour}`} droppableId={droppableId}>
-                //        {(provided, snapshot) => <div ref={provided.innerRef} {...provided.droppableProps} className={`h-6 border-b border-border/10 relative transition-colors ${snapshot.isDraggingOver ? 'bg-blue-500/20 border-blue-400/50' : 'hover:bg-muted/10'}`}>
-                //            {snapshot.isDraggingOver && <div className="absolute inset-0 flex items-center justify-center">
-                //                <span className="text-xs text-blue-300 font-medium">
-                //                  Drop here for {slot.label}
-                //                </span>
-                //              </div>}
-                //            {provided.placeholder}
-                //          </div>}
-                //      </Droppable>;
-                
-                // Render simple div without Droppable for debugging
-                return <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10">
-                  </div>;
+                return <Droppable key={`taskname-${slot.hour}`} droppableId={droppableId}>
+                       {(provided, snapshot) => <div ref={provided.innerRef} {...provided.droppableProps} className={`h-6 border-b border-border/10 relative transition-colors ${snapshot.isDraggingOver ? 'bg-blue-500/20 border-blue-400/50' : 'hover:bg-muted/10'}`}>
+                           {snapshot.isDraggingOver && <div className="absolute inset-0 flex items-center justify-center">
+                               <span className="text-xs text-blue-300 font-medium">
+                                 Drop here for {slot.label}
+                               </span>
+                             </div>}
+                           {provided.placeholder}
+                         </div>}
+                     </Droppable>;
               })}
                 
                  {/* Render task name parts in this column */}
@@ -946,5 +987,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             />
           </div>
         </div>}
-    </div>;
+      </div>
+    </DragDropContext>
+  );
 };
