@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { format, isSameDay, addDays } from 'date-fns';
-import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw, GripVertical } from 'lucide-react';
 import { Task } from '../tasks/types';
 import { DayTimelineView } from '../tasks/DayTimelineView';
 import { WeekTimelineView } from '../tasks/WeekTimelineView';
@@ -297,18 +297,23 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                             onClick={() => !snapshot.isDragging && onTaskClick(task)}
                             onMouseEnter={() => console.log('Hovering task with cursor:', snapshot.isDragging ? 'grabbing' : 'grab')}
                           >
-                            <div className="space-y-2">
-                              <h4 className="font-medium text-sm">{task.taskName}</h4>
-                              <p className="text-xs text-muted-foreground">
-                                {task.projectName}
-                              </p>
-                              <div className="flex gap-2">
-                                <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                                  {task.taskType}
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 pt-1">
+                                <GripVertical className="w-4 h-4 text-muted-foreground/60 hover:text-muted-foreground transition-colors" />
+                              </div>
+                              <div className="flex-1 space-y-2">
+                                <h4 className="font-medium text-sm">{task.taskName}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {task.projectName}
+                                </p>
+                                <div className="flex gap-2">
+                                  <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                                    {task.taskType}
+                                  </Badge>
+                                  <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                                    {task.priority}
                                 </Badge>
-                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                  {task.priority}
-                                </Badge>
+                              </div>
                               </div>
                             </div>
                           </div>

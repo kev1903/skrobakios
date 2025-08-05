@@ -336,7 +336,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                   onMouseEnter={() => console.log('WeekView: Hovering task with cursor:', snapshotDrag.isDragging ? 'grabbing' : 'grab')}
                                 >
                                   <div className="flex items-center justify-center gap-1 h-full">
-                                    <GripVertical className="w-2 h-2 text-white/60 flex-shrink-0" />
+                                    <GripVertical className="w-3 h-3 text-white/80 hover:text-white flex-shrink-0 transition-colors drop-shadow-sm" />
                                     <div className="flex-1 min-w-0">
                                       <div className="font-medium text-[10px] leading-tight truncate text-white drop-shadow-sm">{task.taskName}</div>
                                       <div className="text-[8px] text-white/80 drop-shadow-sm">
