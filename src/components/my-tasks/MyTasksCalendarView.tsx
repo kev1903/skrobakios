@@ -285,10 +285,10 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                             ref={providedDrag.innerRef}
                             {...providedDrag.draggableProps}
                             {...providedDrag.dragHandleProps}
-                            className={`p-3 rounded-lg border bg-card cursor-pointer transition-all ${
+                            className={`p-3 rounded-lg border bg-card transition-all ${
                               snapshot.isDragging 
-                                ? 'scale-105 rotate-1 shadow-xl bg-primary/10 border-primary/30' 
-                                : 'hover:bg-muted/50'
+                                ? 'scale-105 rotate-1 shadow-xl bg-primary/10 border-primary/30 cursor-grabbing' 
+                                : 'hover:bg-muted/50 cursor-grab'
                             }`}
                             onClick={() => !snapshot.isDragging && onTaskClick(task)}
                           >

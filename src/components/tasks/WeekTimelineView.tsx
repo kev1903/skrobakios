@@ -324,10 +324,10 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                                   ref={providedDrag.innerRef}
                                   {...providedDrag.draggableProps}
                                   {...providedDrag.dragHandleProps}
-                                  className={`glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg cursor-pointer transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 ${
+                                  className={`glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 ${
                                     snapshotDrag.isDragging 
-                                      ? 'scale-105 rotate-2 shadow-2xl bg-primary/30 border-primary/50' 
-                                      : 'hover:scale-105'
+                                      ? 'scale-105 rotate-2 shadow-2xl bg-primary/30 border-primary/50 cursor-grabbing' 
+                                      : 'hover:scale-105 cursor-grab'
                                   }`}
                                 >
                                   <div className="flex items-center justify-center gap-1 h-full">
