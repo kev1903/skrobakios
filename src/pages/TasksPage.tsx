@@ -320,7 +320,7 @@ const TasksPage = () => {
         <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
           {/* Left Sidebar - Glass Morphism */}
           <div className={cn(
-            "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300",
+            "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300 scrollbar-glass",
             fullHeightClasses, 
             spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
           )}>
@@ -601,7 +601,7 @@ const TasksPage = () => {
             </div>
 
             {/* Large Calendar Grid - Scrollable */}
-            <div className="glass-card p-6 flex-1 overflow-y-auto">
+            <div className="glass-card p-6 flex-1 overflow-y-auto scrollbar-glass">
               {renderCalendarView()}
             </div>
           </div>
