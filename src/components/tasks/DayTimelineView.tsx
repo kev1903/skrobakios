@@ -661,10 +661,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         onClick={(e) => handleEdgeClick(e, task.id)}
                       >
                         <div className="flex justify-between items-center h-full">
-                          <div className="font-bold text-base text-gray-900 truncate leading-tight">
+                          <div className="text-sm text-gray-900 font-medium truncate leading-tight">
                             {task.taskName}
                           </div>
-                          <div className="text-sm text-gray-700 leading-tight ml-2 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 font-medium leading-tight ml-2 whitespace-nowrap">
                             {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                           </div>
                         </div>
@@ -717,9 +717,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         minHeight: '20px'
                       }}
                     >
-                      <div className="text-sm text-gray-900 truncate text-center font-medium">
-                        {task.projectName || 'No Project'}
-                      </div>
+                       <div className="text-sm text-gray-900 font-medium truncate text-center">
+                         {task.projectName || 'No Project'}
+                       </div>
                     </div>
                   );
                 })}
@@ -759,9 +759,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                         minHeight: '20px'
                       }}
                     >
-                      <div className="text-sm text-gray-900 font-semibold">
-                        {task.duration || 30}min
-                      </div>
+                       <div className="text-sm text-gray-900 font-medium">
+                         {task.duration || 30}min
+                       </div>
                     </div>
                   );
                 })}
