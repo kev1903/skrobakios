@@ -232,70 +232,30 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1493397212122-2b85dda8106b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+          backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
         }}
       >
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
       </div>
-      {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      
+      {/* Minimal Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center space-x-4 architectural-accent">
-              <div className="relative">
-                <img 
-                  src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
-                  alt="SKROBAKI"
-                  className="h-6 sm:h-8 w-auto object-contain drop-shadow-lg cursor-pointer"
-                  onClick={() => goToSlide(0)}
-                />
-                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
-              </div>
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+                alt="SKROBAKI"
+                className="h-8 w-auto object-contain cursor-pointer"
+                onClick={() => goToSlide(0)}
+              />
             </div>
 
-            {/* Centered Navigation */}
-            <nav className="hidden lg:flex items-center justify-center space-x-6 xl:space-x-8 flex-1">
-              <button 
-                onClick={() => onNavigate('services')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
-              >
-                Services
-              </button>
-              <button 
-                onClick={() => onNavigate('projects')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
-              >
-                Projects
-              </button>
-              <button 
-                onClick={() => onNavigate('about')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
-              >
-                About
-              </button>
-              <button 
-                onClick={() => onNavigate('contact')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
-              >
-                Contact
-              </button>
-            </nav>
-
-            {/* Mobile Navigation Menu */}
-            <div className="lg:hidden flex items-center space-x-2">
-              <button 
-                onClick={() => onNavigate('auth')}
-                className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200 px-2 py-1"
-              >
-                Login
-              </button>
-            </div>
-
-            {/* Desktop Login Button */}
+            {/* Login Button */}
             <button 
               onClick={() => onNavigate('auth')}
-              className="hidden lg:block text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              className="px-4 py-2 text-sm font-medium text-white/90 hover:text-white border border-white/20 rounded-full hover:border-white/40 transition-all duration-200"
             >
               Login
             </button>
@@ -342,80 +302,38 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         style={{ transform: `translateY(-${currentSlide * 100}vh)` }}
       >
         {/* Slide 1: Hero Section */}
-        <section className="min-h-screen flex items-center justify-start overflow-hidden relative">
-          {/* Enhanced background with architectural elements */}
-          <div className="absolute inset-0">
-            <div className="w-full h-full bg-gradient-to-br from-background via-background/90 to-background" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(200,145,70,0.05)_0%,transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(200,145,70,0.02)_0%,transparent_50%)]" />
+        <section className="min-h-screen flex items-center justify-center overflow-hidden relative">
+          {/* Main Content - Centered on Background */}
+          <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-playfair font-light text-white mb-6 leading-tight">
+              Transform your<br />
+              <span className="italic font-normal">digital presence.</span>
+            </h1>
+            
+            {/* Subtitle */}
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed font-inter font-light">
+              From zero to extraordinary. Let's create your digital reality.
+            </p>
+            
+            {/* CTA Button */}
+            <button 
+              onClick={() => onNavigate('auth')}
+              className="px-8 py-4 text-base font-medium text-white/90 hover:text-white border border-white/30 rounded-full hover:border-white/60 hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+            >
+              Send a message
+            </button>
           </div>
           
-          {/* Architectural grid overlay */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="w-full h-full" style={{
-              backgroundImage: `
-                linear-gradient(rgba(200,145,70,0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(200,145,70,0.3) 1px, transparent 1px)
-              `,
-              backgroundSize: '60px 60px'
-            }} />
+          {/* Bottom Tagline */}
+          <div className="absolute bottom-8 left-8 z-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-playfair font-light text-white mb-4">
+              Work fast. Live slow.
+            </h2>
+            <p className="text-white/70 font-inter text-sm tracking-wide">
+              skrobaki.design • web • product • brand
+            </p>
           </div>
-          
-          {/* Overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-br from-background/98 via-background/95 to-background/98" />
-          
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-            <div className="max-w-5xl">
-              {/* Main content starts here */}
-              
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-foreground mb-8 sm:mb-12 max-w-4xl font-playfair leading-tight">
-                The project <span className="text-gradient-gold italic font-light">itself</span><br />
-                <span className="text-muted-foreground">holds the key to inspiration.</span>
-              </h1>
-              
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-12 sm:mb-16 max-w-2xl leading-relaxed">
-                Architectural excellence through sophisticated design philosophy and uncompromising attention to detail. 
-                We transform visions into extraordinary built environments.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-16 sm:mb-20">
-                <button 
-                  className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl w-full sm:w-auto"
-                  style={{ 
-                    backgroundColor: 'rgb(115,171,204)',
-                    boxShadow: '0 4px 15px rgba(115, 171, 204, 0.2)',
-                    border: 'none'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgb(95,151,184)';
-                    e.currentTarget.style.boxShadow = '0 6px 25px rgba(115, 171, 204, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgb(115,171,204)';
-                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(115, 171, 204, 0.2)';
-                  }}
-                  onClick={() => {
-                    console.log('Custom blue button clicked - color should be rgb(54,119,159)');
-                    goToSlide(1);
-                  }}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Explore Services
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <Button 
-                  variant="outline" 
-                  className="button-ghost px-4 sm:px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2 w-full sm:w-auto justify-center"
-                  onClick={() => goToSlide(5)}
-                >
-                  <Calendar className="w-4 h-4" />
-                  Book Consultation
-                </Button>
-              </div>
-
-            </div>
-          </div>
-          
         </section>
 
         {/* Slide 2: Services Overview */}
