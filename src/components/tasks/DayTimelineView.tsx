@@ -735,7 +735,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       {!isDragActive && <div className="w-80 border-l border-white/20 glass-card flex flex-col overflow-hidden">
           {/* Header */}
           <div className="p-4 border-b border-white/20">
-            <h3 className="text-lg font-semibold text-white font-playfair">Today's Overview</h3>
+            <h3 className="text-lg font-semibold text-white font-inter">Today's Overview</h3>
           </div>
 
           {/* Top 3 Priorities */}
@@ -757,14 +757,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           </div>
 
           {/* Notes Section */}
-          <div className="p-4 flex-1">
+          <div className="p-4 flex-1 flex flex-col">
             <div className="flex items-center gap-2 mb-3">
               <FileText className="h-4 w-4 text-accent" />
               <h4 className="font-medium text-white">Notes</h4>
             </div>
             <textarea 
               placeholder="Add your notes here..."
-              className="w-full h-32 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
+              className="w-full flex-1 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
             />
           </div>
         </div>}
