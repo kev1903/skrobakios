@@ -39,8 +39,8 @@ export const CalendarGrid = ({
     return (
       <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/20 rounded-xl border border-border/30 shadow-lg">
         {/* Week Header */}
-        <div className="grid grid-cols-8 gap-1 mb-4 p-4 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm rounded-t-xl border-b border-border/20">
-          <div className="p-3 text-center text-muted-foreground font-medium text-sm bg-card/50 rounded-lg border border-border/20">
+        <div className="grid gap-1 mb-4 p-4 bg-gradient-to-r from-muted/30 to-muted/10 backdrop-blur-sm rounded-t-xl border-b border-border/20" style={{ gridTemplateColumns: '100px 1fr 1fr 1fr 1fr 1fr 1fr 1fr' }}>
+          <div className="p-3 text-center text-muted-foreground font-medium text-sm bg-card/50 rounded-lg border border-border/20 w-[100px]">
             Time
           </div>
           {weekDays.map(day => {
@@ -63,9 +63,9 @@ export const CalendarGrid = ({
 
         {/* Week Grid with Time Slots */}
         <div className="flex-1 overflow-auto mx-4 mb-4 rounded-lg border border-border/30 shadow-inner bg-gradient-to-b from-background to-muted/10">
-          <div className="grid grid-cols-8 gap-0 min-h-full">
+          <div className="grid gap-0 min-h-full" style={{ gridTemplateColumns: '100px 1fr 1fr 1fr 1fr 1fr 1fr 1fr' }}>
             {/* Time Column */}
-            <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30">
+            <div className="bg-gradient-to-b from-card/80 to-card/60 backdrop-blur-sm border-r border-border/30 w-[100px]">
               {timeSlots.map((time, index) => (
                 <div key={time} className={`h-6 p-1 border-b border-border/20 text-xs font-medium flex items-start transition-colors hover:bg-accent/20 ${
                   index % 2 === 0 ? 'text-muted-foreground bg-card/30' : 'text-muted-foreground/60 bg-transparent'
