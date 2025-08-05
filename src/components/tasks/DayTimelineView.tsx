@@ -580,11 +580,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                       }}
                     >
                       <div className="p-1 h-full flex flex-col justify-center">
-                        <div className="text-xs font-semibold text-center drop-shadow-sm text-foreground">
+                        <div className="text-xs font-semibold text-center drop-shadow-sm text-white font-inter">
                           {block.title}
                         </div>
                         {block.description && item.height > 30 && (
-                          <div className="text-[10px] text-center opacity-80 mt-1 text-muted-foreground">
+                          <div className="text-[10px] text-center opacity-80 mt-1 text-white font-inter">
                             {block.description}
                           </div>
                         )}
