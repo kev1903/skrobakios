@@ -110,7 +110,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, []);
 
-  // Improved layout engine with proper overlap detection
+  // Improved layout engine with proper cross-type overlap detection
   const calculateLayout = useCallback((): { tasks: LayoutItem[], timeBlocks: LayoutItem[] } => {
     const dayTasks = tasks.filter(task => {
       const taskDate = new Date(task.dueDate);
@@ -124,48 +124,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     // Helper function to check if two time ranges overlap
     const doTimesOverlap = (start1: number, end1: number, start2: number, end2: number): boolean => {
       return start1 < end2 && start2 < end1;
-    };
-
-    // Helper function to group overlapping items and assign columns
-    const resolveOverlaps = <T extends LayoutItem>(items: T[]): T[] => {
-      if (items.length === 0) return items;
-      
-      // Sort by start time
-      const sortedItems = [...items].sort((a, b) => a.startMinutes - b.startMinutes);
-      const result: T[] = [];
-      
-      for (const item of sortedItems) {
-        // Find all items that overlap with this one
-        const overlappingItems = sortedItems.filter(other => 
-          doTimesOverlap(item.startMinutes, item.endMinutes, other.startMinutes, other.endMinutes)
-        );
-        
-        if (overlappingItems.length === 1) {
-          // No overlaps - use full width
-          result.push({
-            ...item,
-            column: 0,
-            columnWidth: 100,
-            leftOffset: 0
-          } as T);
-        } else {
-          // Has overlaps - assign column based on start time order
-          const sortedOverlapping = overlappingItems.sort((a, b) => a.startMinutes - b.startMinutes);
-          const columnIndex = sortedOverlapping.findIndex(other => other.id === item.id);
-          const totalColumns = overlappingItems.length;
-          const columnWidth = 96 / totalColumns; // Leave 4% margin
-          const leftOffset = (columnIndex * columnWidth) + 1; // 1% left margin
-          
-          result.push({
-            ...item,
-            column: columnIndex,
-            columnWidth,
-            leftOffset
-          } as T);
-        }
-      }
-      
-      return result;
     };
 
     // Process tasks into layout items
@@ -222,9 +180,57 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       };
     });
 
-    // Apply overlap resolution
-    const resolvedTasks = resolveOverlaps(taskItems);
-    const resolvedBlocks = resolveOverlaps(blockItems);
+    // CRITICAL FIX: Combine all items for unified overlap resolution
+    const allItems = [...taskItems, ...blockItems];
+    
+    // Unified overlap resolution for all items regardless of type
+    const resolveAllOverlaps = (items: LayoutItem[]): LayoutItem[] => {
+      if (items.length === 0) return items;
+      
+      // Sort by start time
+      const sortedItems = [...items].sort((a, b) => a.startMinutes - b.startMinutes);
+      const result: LayoutItem[] = [];
+      
+      for (const item of sortedItems) {
+        // Find all items that overlap with this one
+        const overlappingItems = sortedItems.filter(other => 
+          doTimesOverlap(item.startMinutes, item.endMinutes, other.startMinutes, other.endMinutes)
+        );
+        
+        if (overlappingItems.length === 1) {
+          // No overlaps - use full width
+          result.push({
+            ...item,
+            column: 0,
+            columnWidth: 100,
+            leftOffset: 0
+          });
+        } else {
+          // Has overlaps - assign column based on start time order
+          const sortedOverlapping = overlappingItems.sort((a, b) => a.startMinutes - b.startMinutes);
+          const columnIndex = sortedOverlapping.findIndex(other => other.id === item.id);
+          const totalColumns = overlappingItems.length;
+          const columnWidth = 94 / totalColumns; // Leave 6% margin for better spacing
+          const leftOffset = (columnIndex * columnWidth) + 2; // 2% left margin
+          
+          result.push({
+            ...item,
+            column: columnIndex,
+            columnWidth,
+            leftOffset
+          });
+        }
+      }
+      
+      return result;
+    };
+
+    // Apply unified overlap resolution to all items
+    const resolvedItems = resolveAllOverlaps(allItems);
+    
+    // Separate resolved items back into tasks and blocks
+    const resolvedTasks = resolvedItems.filter(item => item.type === 'task');
+    const resolvedBlocks = resolvedItems.filter(item => item.type === 'timeblock');
 
     return { tasks: resolvedTasks, timeBlocks: resolvedBlocks };
   }, [tasks, currentDate, timeBlocks]);
