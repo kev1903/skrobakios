@@ -305,7 +305,7 @@ const TasksPage = () => {
     <DragDropContext onDragEnd={handleDragEnd}>
       {/* Glass Morphism Background Container */}
       <div 
-        className="min-h-screen relative overflow-hidden"
+        className="h-screen relative overflow-hidden"
         style={{
           backgroundImage: `url(${desertDunesBg})`,
           backgroundSize: 'cover',
@@ -317,7 +317,7 @@ const TasksPage = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30 backdrop-blur-[2px]" />
         
         {/* Main Content Container */}
-        <div className={cn("relative z-10 flex font-inter", minHeightClasses, spacingClasses)}>
+        <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
           {/* Left Sidebar - Glass Morphism */}
           <div className={cn(
             "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300",
@@ -517,7 +517,7 @@ const TasksPage = () => {
           </div>
 
           {/* Main Content - Calendar View */}
-          <div className="flex-1 p-4 ml-80">
+          <div className="flex-1 flex flex-col p-4 ml-80 overflow-hidden">
             {/* Calendar Navigation */}
             <div className="mb-2">
               <div className="flex items-center justify-between">
@@ -600,8 +600,8 @@ const TasksPage = () => {
               </div>
             </div>
 
-            {/* Large Calendar Grid - Glass Morphism */}
-            <div className="glass-card p-6">
+            {/* Large Calendar Grid - Scrollable */}
+            <div className="glass-card p-6 flex-1 overflow-y-auto">
               {renderCalendarView()}
             </div>
           </div>
