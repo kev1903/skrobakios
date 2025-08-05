@@ -466,6 +466,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   }, []);
 
   const isCurrentDay = isSameDay(currentDate instanceof Date ? currentDate : new Date(currentDate), new Date());
+  // Calculate layout with built-in overlap detection
   const layout = calculateLayout();
 
   return (
