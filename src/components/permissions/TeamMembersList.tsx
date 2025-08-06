@@ -495,7 +495,7 @@ export const TeamMembersList: React.FC = () => {
                              <MoreHorizontal className="h-4 w-4" />
                            </Button>
                          </DropdownMenuTrigger>
-                           <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                           <DropdownMenuContent align="end" className="bg-card border border-border shadow-lg z-50 min-w-[160px]">
                              {(() => {
                                console.log(`Dropdown for ${member.email}: can_manage_roles=${member.can_manage_roles}, isSuperAdmin=${isSuperAdmin}, user_id=${member.user_id}, status=${member.status}`);
                                return null;
