@@ -12,7 +12,7 @@ import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
-import { PriorityInput } from './PriorityInput';
+import { TodaysOverview } from './TodaysOverview';
 interface DayTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
@@ -49,29 +49,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
-  const [priorities, setPriorities] = useState<string[]>(['', '', '']);
-  const [priorityChecked, setPriorityChecked] = useState<boolean[]>([false, false, false]);
-  const [notes, setNotes] = useState<string>('');
-  const [dailyRecordId, setDailyRecordId] = useState<string | null>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Use refs to track current values for debounced saves
-  const prioritiesRef = useRef(priorities);
-  const priorityCheckedRef = useRef(priorityChecked);
-  const notesRef = useRef(notes);
-
-  // Keep refs synchronized with state
-  React.useEffect(() => {
-    prioritiesRef.current = priorities;
-  }, [priorities]);
-
-  React.useEffect(() => {
-    priorityCheckedRef.current = priorityChecked;
-  }, [priorityChecked]);
-
-  React.useEffect(() => {
-    notesRef.current = notes;
-  }, [notes]);
   const {
     settings
   } = useTimeTracking();
@@ -131,112 +108,6 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, []);
 
-  // Load daily priorities and notes for the current date
-  const loadDailyData = useCallback(async () => {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) return;
-
-      const dateString = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
-      
-      const { data, error } = await supabase
-        .from('daily_priorities_notes')
-        .select('*')
-        .eq('user_id', user.user.id)
-        .eq('date', dateString)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading daily data:', error);
-        return;
-      }
-
-      if (data) {
-        setPriorities(data.priorities || ['', '', '']);
-        setPriorityChecked(data.priority_checked || [false, false, false]);
-        setNotes(data.notes || '');
-        setDailyRecordId(data.id);
-      } else {
-        // Reset to defaults if no data for this date
-        setPriorities(['', '', '']);
-        setPriorityChecked([false, false, false]);
-        setNotes('');
-        setDailyRecordId(null);
-      }
-    } catch (error) {
-      console.error('Error loading daily data:', error);
-    }
-  }, [currentDate]);
-
-  // Save daily priorities and notes to database - stable version
-  const saveDailyData = useCallback(async (updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) return;
-
-      const dateString = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
-      
-      const dataToSave = {
-        user_id: user.user.id,
-        date: dateString,
-        priorities: updatedPriorities || prioritiesRef.current,
-        priority_checked: updatedChecked || priorityCheckedRef.current,
-        notes: updatedNotes || notesRef.current
-      };
-
-      if (dailyRecordId) {
-        // Update existing record
-        const { error } = await supabase
-          .from('daily_priorities_notes')
-          .update(dataToSave)
-          .eq('id', dailyRecordId);
-        
-        if (error) {
-          console.error('Error updating daily data:', error);
-        }
-      } else {
-        // Create new record
-        const { data, error } = await supabase
-          .from('daily_priorities_notes')
-          .insert(dataToSave)
-          .select('id')
-          .single();
-        
-        if (error) {
-          console.error('Error creating daily data:', error);
-        } else if (data) {
-          setDailyRecordId(data.id);
-        }
-      }
-    } catch (error) {
-      console.error('Error saving daily data:', error);
-    }
-  }, [currentDate, dailyRecordId]);
-
-  // Stable debounced save function 
-  const debouncedSave = useCallback((updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    
-    saveTimeoutRef.current = setTimeout(() => {
-      saveDailyData(updatedPriorities, updatedChecked, updatedNotes);
-    }, 500);
-  }, [saveDailyData]);
-
-  // Load daily data when component mounts or currentDate changes
-  React.useEffect(() => {
-    loadDailyData();
-  }, [loadDailyData]);
-
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, []);
   // Improved layout engine with proper cross-type overlap detection
   const calculateLayout = useCallback((): {
     tasks: LayoutItem[];
@@ -973,74 +844,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       </div>
 
       {/* Right Sidebar */}
-      {!isDragActive && <div className="w-80 border-l border-white/20 glass-card flex flex-col overflow-hidden">
-          {/* Header */}
-          <div className="p-4 border-b border-white/20">
-            <h3 className="text-lg font-semibold text-white font-inter">Today's Overview</h3>
-          </div>
-
-          {/* Top 3 Priorities */}
-          <div className="p-4 border-b border-white/20">
-            <div className="flex items-center gap-2 mb-3">
-              <Target className="h-4 w-4 text-accent" />
-              <h4 className="font-medium text-white">Top 3 Priorities</h4>
-            </div>
-            <div className="space-y-2">
-              {[0, 1, 2].map((index) => 
-                <PriorityInput
-                  key={`priority-${index}`}
-                  index={index}
-                  value={priorities[index] || ''}
-                  checked={priorityChecked[index] || false}
-                  onValueChange={(value: string) => {
-                    // Update state immediately
-                    const newPriorities = [...prioritiesRef.current];
-                    newPriorities[index] = value;
-                    setPriorities(newPriorities);
-                    
-                    // Update ref immediately for debounced save
-                    prioritiesRef.current = newPriorities;
-                    
-                    // Debounced save with refs to avoid stale closure
-                    debouncedSave(newPriorities, priorityCheckedRef.current, notesRef.current);
-                  }}
-                  onCheckedChange={(checked: boolean) => {
-                    // Update state immediately  
-                    const newChecked = [...priorityCheckedRef.current];
-                    newChecked[index] = checked;
-                    setPriorityChecked(newChecked);
-                    
-                    // Update ref immediately for immediate save
-                    priorityCheckedRef.current = newChecked;
-                    
-                    // Immediate save for checkbox changes using refs
-                    saveDailyData(prioritiesRef.current, newChecked, notesRef.current);
-                  }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Notes Section */}
-          <div className="p-4 flex-1 flex flex-col">
-            <div className="flex items-center gap-2 mb-3">
-              <FileText className="h-4 w-4 text-accent" />
-              <h4 className="font-medium text-white">Notes</h4>
-            </div>
-            <textarea 
-              value={notes}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setNotes(newValue);
-                notesRef.current = newValue;
-                // Debounced auto-save when notes change using refs
-                debouncedSave(prioritiesRef.current, priorityCheckedRef.current, newValue);
-              }}
-              placeholder="Add your notes here..."
-              className="w-full flex-1 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
-            />
-          </div>
-        </div>}
+      {!isDragActive && <TodaysOverview currentDate={currentDate} />}
     </div>
   );
 

@@ -512,6 +512,39 @@ export type Database = {
           },
         ]
       }
+      daily_data: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          priorities: string[] | null
+          priority_checked: boolean[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          priorities?: string[] | null
+          priority_checked?: boolean[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          priorities?: string[] | null
+          priority_checked?: boolean[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_priorities_notes: {
         Row: {
           created_at: string

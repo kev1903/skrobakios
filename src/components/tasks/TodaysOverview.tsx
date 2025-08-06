@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Target, FileText, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,68 +20,84 @@ export const TodaysOverview = ({ currentDate }: TodaysOverviewProps) => {
     notes: ''
   });
   const [recordId, setRecordId] = useState<string | null>(null);
+  
+  // Use refs to avoid stale closures
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dataRef = useRef(data);
+  
+  // Update ref when data changes
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   const dateString = currentDate.toISOString().split('T')[0];
 
-  // Load data on date change
-  useEffect(() => {
-    loadDailyData();
-  }, [currentDate]);
-
-  const loadDailyData = async () => {
+  const loadDailyData = useCallback(async () => {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const { data: existingData } = await supabase
+      const { data: existingData, error } = await supabase
         .from('daily_data')
         .select('*')
         .eq('user_id', user.user.id)
         .eq('date', dateString)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading daily data:', error);
+        return;
+      }
 
       if (existingData) {
-        setData({
+        const newData = {
           priorities: existingData.priorities || ['', '', ''],
           priority_checked: existingData.priority_checked || [false, false, false],
           notes: existingData.notes || ''
-        });
+        };
+        setData(newData);
         setRecordId(existingData.id);
       } else {
-        setData({
+        const newData = {
           priorities: ['', '', ''],
           priority_checked: [false, false, false],
           notes: ''
-        });
+        };
+        setData(newData);
         setRecordId(null);
       }
     } catch (error) {
       console.error('Error loading daily data:', error);
     }
-  };
+  }, [dateString]);
 
-  const saveData = async (newData: DailyData) => {
+  // Load data on date change
+  useEffect(() => {
+    loadDailyData();
+  }, [loadDailyData]);
+
+  const saveData = useCallback(async (dataToSave: DailyData) => {
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      const dataToSave = {
+      const payload = {
         user_id: user.user.id,
         date: dateString,
-        priorities: newData.priorities,
-        priority_checked: newData.priority_checked,
-        notes: newData.notes
+        priorities: dataToSave.priorities,
+        priority_checked: dataToSave.priority_checked,
+        notes: dataToSave.notes
       };
 
       if (recordId) {
         await supabase
           .from('daily_data')
-          .update(dataToSave)
+          .update(payload)
           .eq('id', recordId);
       } else {
         const { data: insertedData } = await supabase
           .from('daily_data')
-          .insert(dataToSave)
+          .insert(payload)
           .select()
           .single();
         
@@ -92,33 +108,47 @@ export const TodaysOverview = ({ currentDate }: TodaysOverviewProps) => {
     } catch (error) {
       console.error('Error saving daily data:', error);
     }
-  };
+  }, [dateString, recordId]);
 
-  const updatePriority = (index: number, value: string) => {
-    const newPriorities = [...data.priorities];
+  const debouncedSave = useCallback((dataToSave: DailyData) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      saveData(dataToSave);
+    }, 500);
+  }, [saveData]);
+
+  const updatePriority = useCallback((index: number, value: string) => {
+    const newPriorities = [...dataRef.current.priorities];
     newPriorities[index] = value;
-    const newData = { ...data, priorities: newPriorities };
+    const newData = { ...dataRef.current, priorities: newPriorities };
     setData(newData);
-    
-    // Save with a short delay to batch rapid changes
-    setTimeout(() => saveData(newData), 500);
-  };
+    debouncedSave(newData);
+  }, [debouncedSave]);
 
-  const togglePriorityCheck = (index: number) => {
-    const newChecked = [...data.priority_checked];
+  const togglePriorityCheck = useCallback((index: number) => {
+    const newChecked = [...dataRef.current.priority_checked];
     newChecked[index] = !newChecked[index];
-    const newData = { ...data, priority_checked: newChecked };
+    const newData = { ...dataRef.current, priority_checked: newChecked };
     setData(newData);
     saveData(newData); // Save immediately for checkbox changes
-  };
+  }, [saveData]);
 
-  const updateNotes = (value: string) => {
-    const newData = { ...data, notes: value };
+  const updateNotes = useCallback((value: string) => {
+    const newData = { ...dataRef.current, notes: value };
     setData(newData);
-    
-    // Save with a short delay to batch rapid changes
-    setTimeout(() => saveData(newData), 500);
-  };
+    debouncedSave(newData);
+  }, [debouncedSave]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="w-80 border-l border-white/20 glass-card flex flex-col overflow-hidden">
