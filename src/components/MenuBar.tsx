@@ -270,7 +270,7 @@ export const MenuBar = () => {
 
   // Always render the top bar, but show different content based on timer state
   return <>
-      <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-[60] backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center space-x-4">
@@ -298,15 +298,23 @@ export const MenuBar = () => {
             <div className="flex items-center space-x-2">
             
               <h1 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors" onClick={e => {
-              e.stopPropagation(); // Prevent event bubbling
-              if (activeContext === 'company') {
-                // Navigate to business homepage with map
-                window.location.href = '/?page=home';
-              } else {
-                // Navigate to personal profile with map
-                window.location.href = '/?page=profile';
-              }
-            }}>
+                console.log('Logo clicked, activeContext:', activeContext);
+                e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
+                try {
+                  if (activeContext === 'company') {
+                    // Navigate to business homepage with map
+                    console.log('Navigating to business homepage');
+                    window.location.href = '/?page=home';
+                  } else {
+                    // Navigate to personal profile with map
+                    console.log('Navigating to personal profile');
+                    window.location.href = '/?page=profile';
+                  }
+                } catch (error) {
+                  console.error('Error navigating from logo click:', error);
+                }
+              }}>
                 {getCompanyDisplayText()}
               </h1>
             </div>
