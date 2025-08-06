@@ -19,7 +19,7 @@ import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from "@/hooks/use-toast";
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -176,6 +176,51 @@ const TasksPage = () => {
     });
   };
 
+  // Handle HTML5 drag API for calendar drops
+  const handleCalendarDrop = async (e: React.DragEvent, slotId: string) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    
+    if (!taskId) return;
+    
+    const task = userTasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+      // Extract date and time from slotId
+      const parts = slotId.replace('calendar-slot-', '').split('-');
+      if (parts.length === 5) {
+        const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
+        const newDate = new Date(year, month - 1, day, hour, minute);
+        
+        await taskService.updateTask(taskId, {
+          dueDate: newDate.toISOString()
+        }, userProfile);
+        
+        const updatedTasks = await taskService.loadTasksAssignedToUser();
+        setUserTasks(updatedTasks);
+        
+        toast({
+          title: "Task scheduled",
+          description: `"${task.taskName}" scheduled for ${format(newDate, 'MMM dd, HH:mm')}`,
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Error moving task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to move task. Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleCalendarDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   const renderDayView = () => <DayTimelineView 
     currentDate={currentDate} 
     tasks={userTasks} 
@@ -184,13 +229,15 @@ const TasksPage = () => {
     onTaskUpdate={async (taskId, updates) => {
       try {
         await taskService.updateTask(taskId, updates, userProfile);
-        // Reload tasks to reflect changes
         const updatedTasks = await taskService.loadTasksAssignedToUser();
         setUserTasks(updatedTasks);
       } catch (error) {
         console.error('Failed to update task:', error);
       }
-    }} />;
+    }}
+    onCalendarDrop={handleCalendarDrop}
+    onCalendarDragOver={handleCalendarDragOver}
+  />;
 
   const renderWeekView = () => <WeekTimelineView 
     currentDate={currentDate} 
@@ -238,91 +285,30 @@ const TasksPage = () => {
     }
   };
 
-  // Handle drag end - move tasks from backlog to calendar
-  const handleDragEnd = async (result: DropResult) => {
-    console.log('🔄 TasksPage: Drag ended:', result);
-    
-    const { destination, source, draggableId } = result;
-    
-    // If no destination or dragged to same position, do nothing
-    if (!destination || 
-        (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return;
-    }
-
-    // Extract task ID from draggableId
-    const taskId = draggableId.replace('backlog-task-', '').replace('task-', '');
-    const task = userTasks.find(t => t.id === taskId);
-    
-    if (!task) return;
-
-    try {
-      // Handle dropping to calendar time slots
-      if (destination.droppableId.startsWith('calendar-slot-')) {
-        // Extract date and time from droppableId
-        // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
-        const parts = destination.droppableId.replace('calendar-slot-', '').split('-');
-        if (parts.length === 5) {
-          const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
-          
-          // Create new date with the target time
-          const newDate = new Date(year, month - 1, day, hour, minute);
-          
-          // Update the task in the database
-          await taskService.updateTask(taskId, {
-            dueDate: newDate.toISOString()
-          }, userProfile);
-          
-          // Reload tasks to reflect changes
-          const updatedTasks = await taskService.loadTasksAssignedToUser();
-          setUserTasks(updatedTasks);
-          
-          toast({
-            title: "Task scheduled",
-            description: `"${task.taskName}" scheduled for ${format(newDate, 'MMM dd, HH:mm')}`,
-            duration: 3000,
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error moving task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to move task. Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-  };
-
-  // Conditionally render Calendar Settings or main Tasks page
-  if (showCalendarSettings) {
-    return <CalendarSettingsPage onBack={() => setShowCalendarSettings(false)} />;
-  }
 
   return (
     <div>
-      {/* Glass Morphism Background Container */}
-      <div 
-        className="h-screen relative overflow-hidden"
-        style={{
-          backgroundImage: `url(${desertDunesBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
-        }}
-      >
-        {/* Background Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30 backdrop-blur-[2px]" />
-        
-        {/* Main Content Container */}
-        <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
-          {/* Left Sidebar - Glass Morphism */}
-          <div className={cn(
-            "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300 scrollbar-glass",
-            fullHeightClasses, 
-            spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
-          )}>
+        {/* Glass Morphism Background Container */}
+        <div 
+          className="h-screen relative overflow-hidden"
+          style={{
+            backgroundImage: `url(${desertDunesBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
+          {/* Background Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30 backdrop-blur-[2px]" />
+          
+          {/* Main Content Container */}
+          <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
+            {/* Left Sidebar - Glass Morphism */}
+            <div className={cn(
+              "fixed left-0 w-80 glass-sidebar p-6 space-y-6 overflow-y-auto transition-all duration-300 scrollbar-glass",
+              fullHeightClasses, 
+              spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
+            )}>
             {/* Return to Home Button */}
             <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors group font-inter">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -429,86 +415,70 @@ const TasksPage = () => {
                 </button>
               </div>
 
-              <Droppable droppableId="task-backlog">
-                {(provided) => (
-                  <div 
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="space-y-2 min-h-[100px] p-2 rounded-lg"
-                  >
-                    {loading ? (
-                      <div className="text-center py-4">
-                        <div className="text-sm text-white/60 font-inter">Loading tasks...</div>
-                      </div>
-                    ) : userTasks.length === 0 ? (
-                      <div className="text-center py-4">
-                        <div className="text-sm text-white/60 font-inter">No tasks assigned to you</div>
-                      </div>
-                    ) : (
-                      getFilteredTasks(userTasks).filter(task => {
-                        const matchesType = activeTab === 'All' || task.taskType === activeTab;
-                        if (!matchesType) return false;
-                        if (!task.dueDate) return true;
-                        try {
-                          const taskDateTime = new Date(task.dueDate);
-                          const hours = taskDateTime.getHours();
-                          const minutes = taskDateTime.getMinutes();
-                          const isBacklogTask = hours === 0 && minutes === 0;
-                          return isBacklogTask;
-                        } catch (error) {
-                          console.error('Error parsing task date for backlog filter:', task.dueDate, error);
-                          return true;
-                        }
-                      }).map((task, index) => (
-                        <Draggable key={task.id} draggableId={`backlog-task-${task.id}`} index={index}>
-                          {(provided, snapshot) => (
-                            <div 
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={cn(
-                                "draggable-task-element px-3 py-2 rounded-lg cursor-pointer transition-all group backdrop-blur-sm border bg-white/10 border-white/20 hover:bg-white/20",
-                                snapshot.isDragging && "opacity-50 scale-105 shadow-xl"
-                              )}
-                              onClick={() => {
-                                if (!snapshot.isDragging) {
-                                  setSelectedTaskForEdit(task);
-                                  setIsTaskEditOpen(true);
-                                }
-                              }}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="flex-shrink-0 pt-1">
-                                  <GripVertical className="w-4 h-4 text-white/60" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 
-                                    className="text-sm font-semibold text-white truncate mb-1 cursor-pointer hover:text-blue-300 transition-colors font-inter"
-                                  >
-                                    {task.taskName}
-                                  </h4>
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-xs text-white/70 font-medium truncate font-inter">
-                                      {task.projectName || 'No Project'}
-                                    </p>
-                                    <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 backdrop-blur-sm font-inter", task.taskType === 'Task' ? 'bg-green-400/20 text-green-300 border border-green-400/30' : task.taskType === 'Issue' ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30' : task.taskType === 'Bug' ? 'bg-red-400/20 text-red-300 border border-red-400/30' : task.taskType === 'Feature' ? 'bg-purple-400/20 text-purple-300 border border-purple-400/30' : 'bg-white/10 text-white/70 border border-white/20')}>
-                                      {task.taskType}
-                                    </span>
-                                    <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-400/20 text-blue-300 border border-blue-400/30 backdrop-blur-sm font-inter">
-                                      {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'No due date'}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))
-                    )}
-                    {provided.placeholder}
+              <div className="space-y-2 min-h-[100px] p-2 rounded-lg">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-white/60 font-inter">Loading tasks...</div>
                   </div>
-                )}
-              </Droppable>
+                ) : userTasks.length === 0 ? (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-white/60 font-inter">No tasks assigned to you</div>
+                  </div>
+                ) : (
+                  getFilteredTasks(userTasks).filter(task => {
+                    const matchesType = activeTab === 'All' || task.taskType === activeTab;
+                    if (!matchesType) return false;
+                    if (!task.dueDate) return true;
+                    try {
+                      const taskDateTime = new Date(task.dueDate);
+                      const hours = taskDateTime.getHours();
+                      const minutes = taskDateTime.getMinutes();
+                      const isBacklogTask = hours === 0 && minutes === 0;
+                      return isBacklogTask;
+                    } catch (error) {
+                      console.error('Error parsing task date for backlog filter:', task.dueDate, error);
+                      return true;
+                    }
+                  }).map((task) => (
+                    <div 
+                      key={task.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/plain', task.id);
+                      }}
+                      className="draggable-task-element px-3 py-2 rounded-lg cursor-pointer transition-all group backdrop-blur-sm border bg-white/10 border-white/20 hover:bg-white/20"
+                      onClick={() => {
+                        setSelectedTaskForEdit(task);
+                        setIsTaskEditOpen(true);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 pt-1">
+                          <GripVertical className="w-4 h-4 text-white/60" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 
+                            className="text-sm font-semibold text-white truncate mb-1 cursor-pointer hover:text-blue-300 transition-colors font-inter"
+                          >
+                            {task.taskName}
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-white/70 font-medium truncate font-inter">
+                              {task.projectName || 'No Project'}
+                            </p>
+                            <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 backdrop-blur-sm font-inter", task.taskType === 'Task' ? 'bg-green-400/20 text-green-300 border border-green-400/30' : task.taskType === 'Issue' ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30' : task.taskType === 'Bug' ? 'bg-red-400/20 text-red-300 border border-red-400/30' : task.taskType === 'Feature' ? 'bg-purple-400/20 text-purple-300 border border-purple-400/30' : 'bg-white/10 text-white/70 border border-white/20')}>
+                              {task.taskType}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-400/20 text-blue-300 border border-blue-400/30 backdrop-blur-sm font-inter">
+                              {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'No due date'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                 )}
+              </div>
             </div>
           </div>
 
@@ -596,9 +566,7 @@ const TasksPage = () => {
 
             {/* Large Calendar Grid - Scrollable */}
             <div className="glass-card p-6 flex-1 overflow-y-auto scrollbar-glass">
-              <DragDropContext onDragEnd={handleDragEnd}>
-                {renderCalendarView()}
-              </DragDropContext>
+              {renderCalendarView()}
             </div>
           </div>
 

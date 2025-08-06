@@ -12,7 +12,7 @@ import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
 import { TodaysOverview } from './TodaysOverview';
-import { Droppable } from 'react-beautiful-dnd';
+
 interface DayTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
@@ -20,6 +20,8 @@ interface DayTimelineViewProps {
   isDragActive?: boolean;
   enableDragDrop?: boolean;
   useOwnDragContext?: boolean; // New prop to control whether to wrap with own DragDropContext
+  onCalendarDrop?: (e: React.DragEvent, slotId: string) => Promise<void>;
+  onCalendarDragOver?: (e: React.DragEvent) => void;
 }
 interface TimeSlot {
   hour: number;
@@ -45,7 +47,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   onTaskUpdate,
   isDragActive = false,
   enableDragDrop = false,
-  useOwnDragContext = false
+  useOwnDragContext = false,
+  onCalendarDrop,
+  onCalendarDragOver
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
@@ -579,19 +583,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 const currentDateStr = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
                 const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
                  return (
-                   <Droppable key={`taskname-${slot.hour}`} droppableId={droppableId}>
-                     {(provided, snapshot) => (
-                       <div 
-                         ref={provided.innerRef}
-                         {...provided.droppableProps}
-                         className={`h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10 ${
-                           snapshot.isDraggingOver ? 'bg-primary/20 border-primary/50' : ''
-                         }`}
-                       >
-                         {provided.placeholder}
-                       </div>
-                     )}
-                   </Droppable>
+                   <div 
+                     key={`taskname-${slot.hour}`} 
+                     className="h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10"
+                     data-droppable-id={droppableId}
+                     onDrop={(e) => onCalendarDrop && onCalendarDrop(e, droppableId)}
+                     onDragOver={(e) => onCalendarDragOver && onCalendarDragOver(e)}
+                   >
+                   </div>
                  );
               })}
                 
