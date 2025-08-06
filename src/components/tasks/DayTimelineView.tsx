@@ -168,7 +168,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, [currentDate]);
 
-  // Save daily priorities and notes to database with debouncing
+  // Save daily priorities and notes to database - stable version
   const saveDailyData = useCallback(async (updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
     try {
       const { data: user } = await supabase.auth.getUser();
@@ -179,9 +179,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       const dataToSave = {
         user_id: user.user.id,
         date: dateString,
-        priorities: updatedPriorities || priorities,
-        priority_checked: updatedChecked || priorityChecked,
-        notes: updatedNotes || notes
+        priorities: updatedPriorities || prioritiesRef.current,
+        priority_checked: updatedChecked || priorityCheckedRef.current,
+        notes: updatedNotes || notesRef.current
       };
 
       if (dailyRecordId) {
@@ -211,9 +211,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     } catch (error) {
       console.error('Error saving daily data:', error);
     }
-  }, [currentDate, priorities, priorityChecked, notes, dailyRecordId]);
+  }, [currentDate, dailyRecordId]);
 
-  // Debounced save function
+  // Stable debounced save function 
   const debouncedSave = useCallback((updatedPriorities?: string[], updatedChecked?: boolean[], updatedNotes?: string) => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -1030,9 +1030,11 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
             <textarea 
               value={notes}
               onChange={(e) => {
-                setNotes(e.target.value);
-                // Debounced auto-save when notes change
-                debouncedSave(priorities, priorityChecked, e.target.value);
+                const newValue = e.target.value;
+                setNotes(newValue);
+                notesRef.current = newValue;
+                // Debounced auto-save when notes change using refs
+                debouncedSave(prioritiesRef.current, priorityCheckedRef.current, newValue);
               }}
               placeholder="Add your notes here..."
               className="w-full flex-1 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
