@@ -61,7 +61,15 @@ export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Function error:', error);
+        throw error;
+      }
+
+      // Check if the function returned an error in the data
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       if (data?.success) {
         // Send credentials to the new user
@@ -101,9 +109,21 @@ export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
       }
     } catch (error: any) {
       console.error('Error creating user:', error);
+      
+      let errorMessage = error.message || "Failed to create user";
+      
+      // Handle specific error cases with more helpful messages
+      if (errorMessage.includes('already exists') || errorMessage.includes('already been registered')) {
+        errorMessage = "This email address is already registered. Please use a different email address.";
+      } else if (errorMessage.includes('Insufficient permissions')) {
+        errorMessage = "You don't have permission to create users. Contact your administrator.";
+      } else if (errorMessage.includes('FunctionsHttpError') || errorMessage.includes('non-2xx status code')) {
+        errorMessage = "Failed to create user. The email may already be in use or there was a server error.";
+      }
+      
       toast({
-        title: "Error",
-        description: error.message || "Failed to create user",
+        title: "Error Creating User",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
