@@ -149,7 +149,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center pt-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading company details...</p>
@@ -160,11 +160,11 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
 
   if (!currentCompany) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center pt-20">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <CardTitle>No Company Selected</CardTitle>
+            <CardTitle className="text-slate-700">No Company Selected</CardTitle>
             <CardDescription>
               Please select a company to view and edit details
             </CardDescription>
@@ -183,20 +183,24 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background pt-20">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={formData.logo_url} alt={formData.name} />
-              <AvatarFallback className="text-lg font-semibold">
+            <Avatar className="h-16 w-16 ring-2 ring-primary/20">
+              <AvatarImage 
+                src={formData.logo_url} 
+                alt={formData.name} 
+                className="object-contain"
+              />
+              <AvatarFallback className="text-lg font-semibold text-slate-700 bg-gradient-to-br from-primary/10 to-primary/20">
                 {formData.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{formData.name || 'Company Details'}</h1>
-              <p className="text-muted-foreground">{formData.slogan || 'Manage your company information'}</p>
+              <h1 className="text-3xl font-bold text-slate-800">{formData.name || 'Company Details'}</h1>
+              <p className="text-slate-600">{formData.slogan || 'Manage your company information'}</p>
             </div>
           </div>
         </div>
@@ -207,7 +211,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
             {/* Basic Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
                   <Building2 className="h-5 w-5" />
                   Basic Information
                 </CardTitle>
@@ -278,7 +282,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
             {/* Contact Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
                   <Phone className="h-5 w-5" />
                   Contact Information
                 </CardTitle>
@@ -333,7 +337,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
             {/* Business Details */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
                   <Briefcase className="h-5 w-5" />
                   Business Details
                 </CardTitle>
@@ -422,7 +426,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
             {/* Company Logo */}
             <Card>
               <CardHeader>
-                <CardTitle>Company Logo</CardTitle>
+                <CardTitle className="text-slate-800">Company Logo</CardTitle>
                 <CardDescription>
                   Upload your company logo for branding
                 </CardDescription>
@@ -439,14 +443,14 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
             {/* Quick Stats */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-slate-800">
                   <Award className="h-5 w-5" />
                   Profile Status
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Company Name</span>
+                  <span className="text-sm text-slate-700">Company Name</span>
                   {formData.name ? (
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   ) : (
@@ -454,7 +458,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Logo</span>
+                  <span className="text-sm text-slate-700">Logo</span>
                   {formData.logo_url ? (
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   ) : (
@@ -462,7 +466,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Address</span>
+                  <span className="text-sm text-slate-700">Address</span>
                   {formData.address ? (
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   ) : (
@@ -470,7 +474,7 @@ export const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = ({ onNaviga
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">ABN</span>
+                  <span className="text-sm text-slate-700">ABN</span>
                   {formData.abn ? (
                     <CheckCircle className="h-4 w-4 text-green-500" />
                   ) : (
