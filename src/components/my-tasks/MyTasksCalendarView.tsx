@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,7 +29,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
-  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
@@ -225,59 +223,35 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
             {/* Task List - Scrollable */}
             <div className="flex-1 overflow-hidden">
-              <Droppable droppableId="task-backlog">
-                {(provided) => (
+              <div className="space-y-3 overflow-y-auto h-full pr-2">
+                {backlogTasks.map((task) => (
                   <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="space-y-3 overflow-y-auto h-full pr-2"
+                    key={task.id}
+                    className="draggable-task-element p-3 rounded-lg border bg-card transition-all hover:bg-muted/50 cursor-pointer"
+                    onClick={() => onTaskClick(task)}
                   >
-                    {backlogTasks.map((task, index) => (
-                      <Draggable key={task.id} draggableId={`task-${task.id}`} index={index}>
-                        {(providedDrag, snapshot) => (
-                          <div
-                            ref={providedDrag.innerRef}
-                            {...providedDrag.draggableProps}
-                            {...providedDrag.dragHandleProps}
-                            style={{
-                              ...providedDrag.draggableProps.style,
-                              cursor: snapshot.isDragging ? 'grabbing' : 'grab'
-                            }}
-                            className={`draggable-task-element p-3 rounded-lg border bg-card transition-all ${
-                              snapshot.isDragging 
-                                ? 'scale-105 rotate-1 shadow-xl bg-primary/10 border-primary/30' 
-                                : 'hover:bg-muted/50'
-                            }`}
-                            onClick={() => !snapshot.isDragging && onTaskClick(task)}
-                            onMouseEnter={() => console.log('Hovering task with cursor:', snapshot.isDragging ? 'grabbing' : 'grab')}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 pt-1">
-                                <GripVertical className="w-4 h-4 text-muted-foreground/60 hover:text-muted-foreground transition-colors" />
-                              </div>
-                              <div className="flex-1 space-y-2">
-                                <h4 className="font-medium text-sm">{task.taskName}</h4>
-                                <p className="text-xs text-muted-foreground">
-                                  {task.projectName}
-                                </p>
-                                <div className="flex gap-2">
-                                  <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                                    {task.taskType}
-                                  </Badge>
-                                  <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                    {task.priority}
-                                </Badge>
-                              </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 pt-1">
+                        <div className="w-4 h-4 text-muted-foreground/60" />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <h4 className="font-medium text-sm">{task.taskName}</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {task.projectName}
+                        </p>
+                        <div className="flex gap-2">
+                          <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                            {task.taskType}
+                          </Badge>
+                          <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                            {task.priority}
+                        </Badge>
+                      </div>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </Droppable>
+                ))}
+              </div>
             </div>
 
             {backlogTasks.length === 0 && (
@@ -406,18 +380,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         </div>
       </div>
 
-      {/* Drag Feedback */}
-      {draggedTask && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <Card className="bg-primary text-primary-foreground">
-            <CardContent className="p-3">
-              <div className="text-sm font-medium">
-                Moving: {draggedTask.taskName}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        )}
       </div>
     </div>
   );

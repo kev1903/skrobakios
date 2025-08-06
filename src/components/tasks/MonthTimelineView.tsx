@@ -1,5 +1,4 @@
-import React, { useCallback } from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import React, { useState, useCallback } from 'react';
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { GripVertical } from 'lucide-react';
@@ -92,23 +91,13 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
             const isCurrentMonthDay = isCurrentMonth(day);
 
             return (
-              <Droppable 
-                key={day.toISOString()} 
-                droppableId={`calendar-slot-${format(day, 'yyyy-MM-dd')}-09-00`}
+              <div
+                key={day.toISOString()}
+                className={`min-h-[120px] border-r border-white/[0.08] border-b border-white/[0.05] cursor-pointer transition-colors relative p-2 last:border-r-0 hover:bg-white/[0.05] ${!isCurrentMonthDay ? 'opacity-40 bg-white/[0.01]' : ''} ${
+                  isToday ? 'bg-primary/5 border-primary/20' : ''
+                }`}
+                onClick={() => onDayClick?.(day)}
               >
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`min-h-[120px] border-r border-white/[0.08] border-b border-white/[0.05] cursor-pointer transition-colors relative p-2 last:border-r-0 ${
-                      snapshot.isDraggingOver 
-                        ? 'bg-blue-500/20 border-blue-400/50' 
-                        : 'hover:bg-white/[0.05]'
-                    } ${!isCurrentMonthDay ? 'opacity-40 bg-white/[0.01]' : ''} ${
-                      isToday ? 'bg-primary/5 border-primary/20' : ''
-                    }`}
-                    onClick={() => onDayClick?.(day)}
-                  >
                 {/* Day Number */}
                 <div className={`text-sm font-medium mb-2 ${
                   isToday ? 'text-primary font-bold' : isCurrentMonthDay ? 'text-white/90' : 'text-white/40'
@@ -118,7 +107,7 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
 
                 {/* Tasks */}
                 <div className="space-y-1 overflow-hidden">
-                  {dayTasks.slice(0, 3).map((task, taskIndex) => {
+                  {dayTasks.slice(0, 3).map((task) => {
                     const taskDate = new Date(task.dueDate);
                     const hasSpecificTime = !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
 
@@ -129,7 +118,7 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center gap-1">
-                          <GripVertical className="w-3 h-3 text-white/60 flex-shrink-0" />
+                          <div className="w-3 h-3 text-white/60 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
                             <div className="font-medium leading-tight truncate text-white drop-shadow-sm">
                               {task.taskName}
@@ -150,17 +139,8 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
                       +{dayTasks.length - 3} more
                     </div>
                   )}
-                  
-                  {dayTasks.length === 0 && snapshot.isDraggingOver && (
-                    <div className="text-xs text-blue-300 font-medium text-center py-2">
-                      Drop here for 9:00 AM
-                    </div>
-                  )}
-                  {provided.placeholder}
                 </div>
-                  </div>
-                )}
-              </Droppable>
+              </div>
             );
           })}
         </div>

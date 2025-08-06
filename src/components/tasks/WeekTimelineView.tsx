@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Droppable, Draggable, DragStart, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,8 +15,6 @@ interface WeekTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
-  onDragStart?: (start: any) => void;
-  onDragEnd?: (result: DropResult) => Promise<void>;
 }
 
 interface TimeSlot {
@@ -29,11 +26,8 @@ interface TimeSlot {
 export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({ 
   currentDate, 
   tasks = [], 
-  onTaskUpdate,
-  onDragStart,
-  onDragEnd 
+  onTaskUpdate
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([]);
   const { settings } = useTimeTracking();
@@ -160,58 +154,7 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
     return slots;
   }, [tasks, weekDays]);
 
-  const handleDragStart = useCallback((start: any) => {
-    setIsDragging(true);
-    onDragStart?.(start);
-  }, [onDragStart]);
-
-  const handleDragEnd = useCallback(async (result: DropResult) => {
-    setIsDragging(false);
-    
-    if (!result.destination || !onTaskUpdate) return;
-    
-    const { draggableId, destination } = result;
-    const taskId = draggableId.replace('calendar-task-', '');
-    const task = tasks.find(t => t.id === taskId);
-    
-    if (!task) return;
-
-    try {
-      // Parse the destination droppable ID to get date and time
-      // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
-      if (destination.droppableId.startsWith('calendar-slot-')) {
-        const parts = destination.droppableId.replace('calendar-slot-', '').split('-');
-        if (parts.length === 5) {
-          const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
-          
-          // Create new date with the target time
-          const newDate = new Date(year, month - 1, day, hour, minute);
-          
-          // Update the task
-          await onTaskUpdate(taskId, { dueDate: newDate.toISOString() });
-          
-          toast({
-            title: "Task moved",
-            description: `"${task.taskName}" moved to ${format(newDate, 'MMM dd, HH:mm')}`,
-            duration: 3000,
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error moving task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to move task. Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-
-    // Call the parent's onDragEnd if provided
-    if (onDragEnd) {
-      await onDragEnd(result);
-    }
-  }, [tasks, onTaskUpdate, onDragEnd, toast]);
+  // Removed drag and drop functionality - keeping all other features
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -305,60 +248,26 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                 const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
 
                 return (
-                  <Droppable key={`${slot.hour}-${dayIndex}`} droppableId={droppableId}>
-                    {(provided, snapshot) => (
-                      <div 
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`h-6 border-b border-white/[0.05] cursor-pointer transition-colors relative p-1 ${
-                          snapshot.isDraggingOver 
-                            ? 'bg-blue-500/20 border-blue-400/50' 
-                            : 'hover:bg-white/[0.05]'
-                        }`}
-                      >
-                        <div className="flex gap-1 h-full overflow-hidden">
-                          {dayTasks.map((task, taskIndex) => (
-                            <Draggable key={task.id} draggableId={`calendar-task-${task.id}`} index={taskIndex}>
-                              {(providedDrag, snapshotDrag) => (
-                                <div
-                                  ref={providedDrag.innerRef}
-                                  {...providedDrag.draggableProps}
-                                  {...providedDrag.dragHandleProps}
-                                  style={{
-                                    ...providedDrag.draggableProps.style,
-                                    cursor: snapshotDrag.isDragging ? 'grabbing' : 'grab'
-                                  }}
-                                  className={`draggable-task-element glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 ${
-                                    snapshotDrag.isDragging 
-                                      ? 'scale-105 rotate-2 shadow-2xl bg-primary/30 border-primary/50' 
-                                      : 'hover:scale-105'
-                                  }`}
-                                  onMouseEnter={() => console.log('WeekView: Hovering task with cursor:', snapshotDrag.isDragging ? 'grabbing' : 'grab')}
-                                >
-                                  <div className="flex items-center justify-center gap-1 h-full">
-                                    <GripVertical className="w-3 h-3 text-white/80 hover:text-white flex-shrink-0 transition-colors drop-shadow-sm" />
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-medium text-[10px] leading-tight truncate text-white drop-shadow-sm">{task.taskName}</div>
-                                      <div className="text-[8px] text-white/80 drop-shadow-sm">
-                                        {format(new Date(task.dueDate), 'HH:mm')}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
+                  <div key={`${slot.hour}-${dayIndex}`} className="h-6 border-b border-white/[0.05] relative p-1">
+                    <div className="flex gap-1 h-full overflow-hidden">
+                      {dayTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className="draggable-task-element glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 hover:scale-105"
+                        >
+                          <div className="flex items-center justify-center gap-1 h-full">
+                            <div className="w-3 h-3 text-white/80 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-[10px] leading-tight truncate text-white drop-shadow-sm">{task.taskName}</div>
+                              <div className="text-[8px] text-white/80 drop-shadow-sm">
+                                {format(new Date(task.dueDate), 'HH:mm')}
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                    
-                    {dayTasks.length === 0 && snapshot.isDraggingOver && (
-                      <div className="flex items-center justify-center h-full text-[10px] text-blue-300 font-medium z-10">
-                        Drop here for {slot.label}
-                      </div>
-                    )}
-                    {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
+                      ))}
+                    </div>
+                  </div>
                 );
               })}
               

@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -454,48 +453,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Calculate layout with built-in overlap detection
   const layout = calculateLayout();
 
-  // Handle drag and drop for task scheduling
-  const handleDragEnd = useCallback(async (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-
-    // If no destination or dragged to same position, do nothing
-    if (!destination || 
-        (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return;
-    }
-
-    // Extract task ID from draggableId (format: "task-{taskId}")
-    const taskId = draggableId.replace('task-', '');
-    const task = tasks.find(t => t.id === taskId);
-    
-    if (!task || !onTaskUpdate) return;
-
-    try {
-      // Handle dropping to calendar time slots
-      if (destination.droppableId.startsWith('calendar-slot-')) {
-        // Extract date and time from droppableId
-        // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
-        const slotParts = destination.droppableId.replace('calendar-slot-', '').split('-');
-        if (slotParts.length >= 5) {
-          const [year, month, day, hour, minute] = slotParts;
-          const newDateTime = new Date(
-            parseInt(year),
-            parseInt(month) - 1, // Month is 0-indexed
-            parseInt(day),
-            parseInt(hour),
-            parseInt(minute)
-          );
-
-          await onTaskUpdate(taskId, {
-            dueDate: newDateTime.toISOString(),
-            duration: task.duration || 30 // Keep existing duration or default to 30
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Failed to update task:', error);
-    }
-  }, [tasks, onTaskUpdate]);
+  // Removed drag and drop functionality - keeping all other features
 
   const TimelineContent = () => (
     <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
@@ -619,16 +577,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 const slotMinutes = slot.hour % 2 * 30;
                 const currentDateStr = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
                 const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
-                return <Droppable key={`taskname-${slot.hour}`} droppableId={droppableId}>
-                       {(provided, snapshot) => <div ref={provided.innerRef} {...provided.droppableProps} className={`h-6 border-b border-border/10 relative transition-colors ${snapshot.isDraggingOver ? 'bg-blue-500/20 border-blue-400/50' : 'hover:bg-muted/10'}`}>
-                           {snapshot.isDraggingOver && <div className="absolute inset-0 flex items-center justify-center">
-                               <span className="text-xs text-blue-300 font-medium">
-                                 Drop here for {slot.label}
-                               </span>
-                             </div>}
-                           {provided.placeholder}
-                         </div>}
-                     </Droppable>;
+                return <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10">
+                  </div>;
               })}
                 
                  {/* Render task name parts in this column */}
@@ -645,88 +595,40 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                   }
                 }
 
-                // Conditionally render with or without Draggable based on enableDragDrop
-                if (enableDragDrop) {
-                  return (
-                    <Draggable key={`taskname-${task.id}`} draggableId={`task-${task.id}`} index={index}>
-                      {(provided, snapshot) => (
-                        <div 
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px] ${
-                            snapshot.isDragging ? 'rotate-2 shadow-xl z-50' : ''
-                          }`} 
-                          style={{
-                            top: `${topOffset}px`,
-                            left: '0px',
-                            right: '0px',
-                            height: `${heightInPixels}px`,
-                            minHeight: '20px',
-                            ...provided.draggableProps.style
-                          }} 
-                          onClick={e => handleEdgeClick(e, task.id)}
-                        >
-                          {/* Drag Handle - Left Side */}
-                          <div 
-                            {...provided.dragHandleProps}
-                            className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0"
-                          >
-                            <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
-                          </div>
-                          
-                          {/* Task Content */}
-                          <div className="flex-1 px-3 flex justify-between items-center h-full">
-                            <div className="text-xs text-gray-900 font-medium truncate leading-tight">
-                              {task.taskName}
-                            </div>
-                            <div className="text-xs text-gray-900 font-medium leading-tight ml-2 whitespace-nowrap">
-                              {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
-                            </div>
-                          </div>
-                         
-                         {/* Resize handles */}
-                         <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'top')} />
-                         <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'bottom')} />
-                       </div>
-                      )}
-                    </Draggable>
-                  );
-                } else {
-                  // Render without Draggable when enableDragDrop is false
-                  return (
-                    <div 
-                      key={`taskname-${task.id}`}
-                      className="absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px]" 
-                      style={{
-                        top: `${topOffset}px`,
-                        left: '0px',
-                        right: '0px',
-                        height: `${heightInPixels}px`,
-                        minHeight: '20px'
-                      }} 
-                      onClick={e => handleEdgeClick(e, task.id)}
-                    >
-                      {/* Drag Handle - Left Side (visual only when not draggable) */}
-                      <div className="w-6 h-full bg-gray-300 hover:bg-gray-400 cursor-grab flex items-center justify-center border-r border-gray-200 flex-shrink-0">
-                        <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                // Render task without drag functionality
+                return (
+                  <div 
+                    key={`taskname-${task.id}`}
+                    className="absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px]" 
+                    style={{
+                      top: `${topOffset}px`,
+                      left: '0px',
+                      right: '0px',
+                      height: `${heightInPixels}px`,
+                      minHeight: '20px'
+                    }} 
+                    onClick={e => handleEdgeClick(e, task.id)}
+                  >
+                    {/* Visual handle (no drag functionality) */}
+                    <div className="w-6 h-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center border-r border-gray-200 flex-shrink-0">
+                      <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                    </div>
+                    
+                    {/* Task Content */}
+                    <div className="flex-1 px-3 flex justify-between items-center h-full">
+                      <div className="text-xs text-gray-900 font-medium truncate leading-tight">
+                        {task.taskName}
                       </div>
-                      
-                      {/* Task Content */}
-                      <div className="flex-1 px-3 flex justify-between items-center h-full">
-                        <div className="text-xs text-gray-900 font-medium truncate leading-tight">
-                          {task.taskName}
-                        </div>
-                        <div className="text-xs text-gray-900 font-medium leading-tight ml-2 whitespace-nowrap">
-                          {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
-                        </div>
+                      <div className="text-xs text-gray-900 font-medium leading-tight ml-2 whitespace-nowrap">
+                        {format(new Date(task.dueDate), 'HH:mm')} - {task.duration || 30}min
                       </div>
-                     
-                     {/* Resize handles */}
-                     <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'top')} />
-                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'bottom')} />
-                   </div>
-                  );
-                }
+                    </div>
+                   
+                   {/* Resize handles */}
+                   <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'top')} />
+                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'bottom')} />
+                 </div>
+                );
               })}
               </div>
 
