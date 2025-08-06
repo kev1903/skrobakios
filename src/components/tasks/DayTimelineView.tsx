@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, isSameDay, setHours, setMinutes, addMinutes, subMinutes } from 'date-fns';
 import { Clock, Plus, ChevronUp, ChevronDown, Target, GripVertical, FileText } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Task } from './types';
 import { TimeBlock } from '../calendar/types';
 import { getBlocksForDay } from '../calendar/utils';
@@ -282,6 +283,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [expandedTasks, setExpandedTasks] = useState<{
     [taskId: string]: number;
   }>({});
+  const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
   const isEdgeClick = (e: React.MouseEvent, element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -582,14 +584,39 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 const slotMinutes = slot.hour % 2 * 30;
                 const currentDateStr = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
                 const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
-                 return (
+                  return (
                    <div 
                      key={`taskname-${slot.hour}`} 
-                     className="h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10"
+                     className={cn(
+                       "h-6 border-b border-border/10 relative transition-all duration-200",
+                       dragOverSlot === droppableId 
+                         ? "bg-primary/20 border-primary/40 shadow-sm" 
+                         : "hover:bg-muted/10"
+                     )}
                      data-droppable-id={droppableId}
-                     onDrop={(e) => onCalendarDrop && onCalendarDrop(e, droppableId)}
-                     onDragOver={(e) => onCalendarDragOver && onCalendarDragOver(e)}
+                     onDrop={(e) => {
+                       setDragOverSlot(null);
+                       onCalendarDrop && onCalendarDrop(e, droppableId);
+                     }}
+                     onDragOver={(e) => {
+                       e.preventDefault();
+                       setDragOverSlot(droppableId);
+                       onCalendarDragOver && onCalendarDragOver(e);
+                     }}
+                     onDragLeave={(e) => {
+                       // Only clear drag over if we're leaving the slot (not moving to child element)
+                       if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                         setDragOverSlot(null);
+                       }
+                     }}
                    >
+                     {dragOverSlot === droppableId && (
+                       <div className="absolute inset-0 border-2 border-dashed border-primary/60 bg-primary/10 rounded-sm flex items-center justify-center">
+                         <span className="text-xs font-medium text-primary px-2 py-1 bg-primary/20 rounded">
+                           Drop task here
+                         </span>
+                       </div>
+                     )}
                    </div>
                  );
               })}
