@@ -83,11 +83,55 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (createError) {
+      console.error('Supabase Auth error:', createError);
+      
       // Check if it's a duplicate email error
-      if (createError.message.includes('already been registered') || createError.message.includes('User already registered')) {
-        throw new Error(`A user with email ${email} already exists. Please use a different email address.`);
+      if (createError.message.includes('already been registered') || 
+          createError.message.includes('User already registered') ||
+          createError.message.includes('already exists')) {
+        
+        // Try to find if this user exists in auth but not in profiles
+        const { data: existingAuthUser } = await supabaseAdmin.auth.admin.listUsers();
+        const authUser = existingAuthUser.users.find(u => u.email === email);
+        
+        if (authUser) {
+          // Check if profile exists
+          const { data: existingProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('user_id', authUser.id)
+            .maybeSingle();
+          
+          if (!existingProfile) {
+            // User exists in auth but not in profiles - delete from auth and retry
+            console.log('Found orphaned auth user, cleaning up and retrying...');
+            await supabaseAdmin.auth.admin.deleteUser(authUser.id);
+            
+            // Retry user creation
+            const { data: retryUser, error: retryError } = await supabaseAdmin.auth.admin.createUser({
+              email,
+              password,
+              user_metadata: {
+                first_name: firstName,
+                last_name: lastName
+              },
+              email_confirm: true
+            });
+            
+            if (retryError) {
+              throw new Error(`Failed to create user after cleanup: ${retryError.message}`);
+            }
+            
+            newUser.user = retryUser.user;
+          } else {
+            throw new Error(`A user with email ${email} already exists. Please use a different email address.`);
+          }
+        } else {
+          throw new Error(`Email ${email} appears to be in use. Please try a different email address.`);
+        }
+      } else {
+        throw new Error(`Failed to create user: ${createError.message}`);
       }
-      throw new Error(`Failed to create user: ${createError.message}`);
     }
 
     if (!newUser.user) {
