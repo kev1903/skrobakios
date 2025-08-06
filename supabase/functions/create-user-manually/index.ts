@@ -65,6 +65,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Creating user with data:', { firstName, lastName, email, companyId, companyRole, platformRole });
 
+    // First, let's check if there are any orphaned users in auth.users and clean them up
+    console.log('Checking for orphaned auth users...');
+    const { data: allAuthUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (!listError && allAuthUsers?.users) {
+      for (const authUser of allAuthUsers.users) {
+        if (authUser.email === email) {
+          console.log(`Found existing auth user with email ${email}, checking if orphaned...`);
+          
+          // Check if this user has a profile
+          const { data: existingProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('user_id', authUser.id)
+            .maybeSingle();
+          
+          if (!existingProfile) {
+            console.log(`Deleting orphaned auth user: ${email} (${authUser.id})`);
+            await supabaseAdmin.auth.admin.deleteUser(authUser.id);
+          }
+        }
+      }
+    }
+
     // Validation
     if (!firstName || !lastName || !email || !password) {
       console.error('Missing required fields');
