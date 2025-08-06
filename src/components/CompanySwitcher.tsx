@@ -19,7 +19,7 @@ export const CompanySwitcher = ({
   } = useCompany();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   if (loading) {
-    return <Button variant="ghost" className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5" disabled>
+    return <Button variant="ghost" className="w-full justify-between text-muted-foreground hover:bg-white/20 hover:text-white border border-white/20 bg-white/5" disabled>
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4" />
           <span>Loading...</span>
@@ -28,7 +28,7 @@ export const CompanySwitcher = ({
       </Button>;
   }
   if (!currentCompany) {
-    return <Button variant="ghost" className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5">
+    return <Button variant="ghost" className="w-full justify-between text-muted-foreground hover:bg-white/20 hover:text-white border border-white/20 bg-white/5">
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4" />
           <span>No Company</span>
@@ -38,17 +38,17 @@ export const CompanySwitcher = ({
   }
   return <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5">
+        <Button variant="ghost" className="w-full justify-between text-muted-foreground hover:bg-white/20 hover:text-white border border-white/20 bg-white/5">
           <div className="flex items-center space-x-2 truncate">
             <Avatar className="h-5 w-5 flex-shrink-0">
               <AvatarImage src={currentCompany.logo_url} />
-              <AvatarFallback className="text-xs bg-white/20 text-white">
+              <AvatarFallback className="text-xs bg-white/20 text-muted-foreground">
                 {currentCompany.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span className="truncate text-white">{currentCompany.name}</span>
+            <span className="truncate text-muted-foreground">{currentCompany.name}</span>
           </div>
-          <ChevronDown className="h-4 w-4 text-white flex-shrink-0" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[200px] bg-white/95 backdrop-blur-sm border border-white/20 shadow-xl z-50" align="start">
