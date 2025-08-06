@@ -99,53 +99,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     }
   };
 
-  // Handle drag and drop
-  const handleDragEnd = useCallback(async (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    
-    if (!destination || !onTaskUpdate) return;
-    
-    // Handle drag from backlog to calendar
-    if (source.droppableId === 'task-backlog' && destination.droppableId.startsWith('calendar-slot-')) {
-      const taskId = draggableId.replace('task-', '');
-      
-      // Parse the destination droppable ID to get date and time
-      // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
-      const parts = destination.droppableId.replace('calendar-slot-', '').split('-');
-      if (parts.length === 5) {
-        const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
-        
-        // Create new date with the target time
-        const newDate = new Date(year, month - 1, day, hour, minute);
-        
-        try {
-          await onTaskUpdate(taskId, { dueDate: newDate.toISOString() });
-          
-          toast({
-            title: "Task scheduled",
-            description: `Task scheduled for ${format(newDate, 'MMM dd, HH:mm')}`,
-            duration: 3000,
-          });
-        } catch (error) {
-          console.error('Error scheduling task:', error);
-          toast({
-            title: "Error",
-            description: "Failed to schedule task. Please try again.",
-            variant: "destructive",
-            duration: 3000,
-          });
-        }
-      }
-    }
-    
-    setDraggedTask(null);
-  }, [onTaskUpdate, toast]);
-
-  const handleDragStart = useCallback((start: any) => {
-    const taskId = start.draggableId.replace('task-', '');
-    const task = tasks.find(t => t.id === taskId);
-    setDraggedTask(task || null);
-  }, [tasks]);
+  // Drag handlers removed - parent TasksPage handles all drag operations
 
   const getTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
@@ -220,7 +174,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const dayTasks = getDayTasks();
 
   return (
-    <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <div className="drag-drop-wrapper">
       <div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
       <div className="absolute left-0 top-0 w-80 h-full z-10">
@@ -463,8 +417,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
             </CardContent>
           </Card>
         </div>
-      )}
+        )}
+      </div>
     </div>
-    </DragDropContext>
   );
 };

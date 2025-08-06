@@ -204,7 +204,8 @@ const TasksPage = () => {
       } catch (error) {
         console.error('Failed to update task:', error);
       }
-    }} 
+    }}
+    onDragEnd={handleDragEnd}
   />;
 
   const renderMonthView = () => <MonthTimelineView 
