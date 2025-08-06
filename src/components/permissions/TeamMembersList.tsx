@@ -486,75 +486,100 @@ export const TeamMembersList: React.FC = () => {
                        <Copy className="h-4 w-4" />
                      </Button>
                    </TableCell>
-                    <TableCell>
-                      {/* Hide the actions dropdown for Super Admin users */}
-                      {member.app_role !== 'superadmin' ? (
-                        <DropdownMenu>
-                         <DropdownMenuTrigger asChild>
-                           <Button variant="ghost" size="sm">
-                             <MoreHorizontal className="h-4 w-4" />
-                           </Button>
-                         </DropdownMenuTrigger>
-                           <DropdownMenuContent align="end" className="bg-card border border-border shadow-lg z-50 min-w-[160px]">
-                             {(() => {
-                               console.log(`Dropdown for ${member.email}: can_manage_roles=${member.can_manage_roles}, isSuperAdmin=${isSuperAdmin}, user_id=${member.user_id}, status=${member.status}`);
-                               return null;
-                             })()}
-                             
-                             {/* Show Edit Roles if user can manage roles OR if current user is superadmin */}
-                             {(member.can_manage_roles || isSuperAdmin) && member.user_id && member.user_id !== 'null' && (
-                              <DropdownMenuItem onClick={() => handleEditRole(member)}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit Roles
-                              </DropdownMenuItem>
-                            )}
-                            {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
-                              <DropdownMenuItem onClick={() => handleEditProjects(member)}>
-                                <FolderEdit className="h-4 w-4 mr-2" />
-                                Edit Projects
-                              </DropdownMenuItem>
-                            )}
-                            {isSuperAdmin && member.user_id && member.user_id !== 'null' && (
-                            <DropdownMenuItem 
-                              onClick={() => handleDeleteUser(member.user_id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete User
-                            </DropdownMenuItem>
-                          )}
-                          {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
-                            <>
-                              <DropdownMenuItem 
-                                onClick={() => handleResendInvitation(member)}
-                                className="text-blue-600"
-                              >
-                                <Mail className="h-4 w-4 mr-2" />
-                                Resend Invitation
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleRevokeInvitation(member.email)}
-                                className="text-orange-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Revoke Invitation
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                          
-                          {/* Always show at least the copy link option for active users */}
-                          {member.user_id && member.user_id !== 'null' && member.status !== 'invited' && (
-                            <DropdownMenuItem onClick={() => handleCopyInvitationLink(member)}>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy Profile Link
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Protected</span>
-                    )}
-                   </TableCell>
+                     <TableCell>
+                       {/* Hide the actions dropdown for Super Admin users */}
+                       {member.app_role !== 'superadmin' ? (
+                         <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-card border border-border shadow-lg z-50 min-w-[160px]">
+                              {/* For active users with user_id */}
+                              {member.user_id && member.user_id !== 'null' && member.status === 'active' && (
+                                <>
+                                  {(member.can_manage_roles || isSuperAdmin) && (
+                                    <DropdownMenuItem onClick={() => handleEditRole(member)}>
+                                      <Edit className="h-4 w-4 mr-2" />
+                                      Edit Roles
+                                    </DropdownMenuItem>
+                                  )}
+                                  {isSuperAdmin && (
+                                    <DropdownMenuItem onClick={() => handleEditProjects(member)}>
+                                      <FolderEdit className="h-4 w-4 mr-2" />
+                                      Edit Projects
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuItem onClick={() => handleCopyInvitationLink(member)}>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Copy Profile Link
+                                  </DropdownMenuItem>
+                                  {isSuperAdmin && (
+                                    <DropdownMenuItem 
+                                      onClick={() => handleDeleteUser(member.user_id)}
+                                      className="text-destructive"
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Delete User
+                                    </DropdownMenuItem>
+                                  )}
+                                </>
+                              )}
+                              
+                              {/* For invited users (pending signup) */}
+                              {(!member.user_id || member.user_id === 'null') && member.status === 'invited' && (
+                                <>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleResendInvitation(member)}
+                                    className="text-blue-600"
+                                  >
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    Resend Invitation
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleCopyInvitationLink(member)}>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Copy Invitation Link
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleRevokeInvitation(member.email)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Revoke Invitation
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              
+                              {/* For revoked users */}
+                              {(!member.user_id || member.user_id === 'null') && member.status === 'revoked' && isSuperAdmin && (
+                                <>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleResendInvitation(member)}
+                                    className="text-blue-600"
+                                  >
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    Re-invite User
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleCopyInvitationLink(member)}>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Copy Invitation Link
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteUser(member.email)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Remove User
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                         </DropdownMenuContent>
+                       </DropdownMenu>
+                     ) : (
+                       <span className="text-muted-foreground text-sm">Protected</span>
+                     )}
+                    </TableCell>
                  </TableRow>
                  );
                })}
