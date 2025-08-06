@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Get target user ID from request
+    // Get target user ID or email from request
     let requestBody;
     try {
       requestBody = await req.json();
@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Target user ID is required and cannot be null. This might be an invited user who hasn\'t completed signup.', 
+          error: 'Target user ID is required and cannot be null.', 
           receivedBody: requestBody 
         }),
         { 
@@ -146,6 +146,45 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
+    }
+
+    // Check if targetUserId is a UUID or an email address
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetUserId);
+    
+    if (!isUuid) {
+      // Handle invited/revoked users who only have email records but no auth user
+      console.log('Handling deletion for invited/revoked user with email:', targetUserId);
+      
+      // Delete profile record by email
+      const { error: profileDeleteError } = await supabaseAdmin
+        .from('profiles')
+        .delete()
+        .eq('email', targetUserId);
+
+      console.log('Profile deletion result for email:', { profileDeleteError });
+
+      if (profileDeleteError) {
+        console.error('Error deleting profile by email:', profileDeleteError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to delete user profile', details: profileDeleteError.message }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Invited/revoked user successfully removed',
+          deletedEmail: targetUserId
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     // Prevent self-deletion
