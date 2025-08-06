@@ -31,6 +31,7 @@ import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
+import { CompanyDetailsPage } from "./components/company/CompanyDetailsPage";
 import { MenuBar } from "./components/MenuBar";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
@@ -185,7 +186,7 @@ const AppContent = () => {
               {(user && !isLandingPage && !isAuthPage && !isSignUpPage) || isHomePage ? <MenuBar /> : null}
             <Routes>
         <Route path="/" element={
-          <Index />
+          <CompanyDetailsPage onNavigate={(page) => {}} />
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
