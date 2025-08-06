@@ -374,6 +374,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     e.stopPropagation();
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
+    
     setDragState({
       isDragging: true,
       taskId,
@@ -386,31 +387,42 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   }, [tasks]);
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!dragState.isDragging || !dragState.taskId || !dragState.startTime) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
     const deltaY = e.clientY - dragState.startY;
     const slotsChanged = Math.round(deltaY / 24);
     const task = tasks.find(t => t.id === dragState.taskId);
     if (!task) return;
+    
     const currentDuration = task.duration || 30;
     let newHeight: number;
     let newTop: number = 0;
+    
     if (dragState.handle === 'top') {
-      const newDuration = currentDuration + -slotsChanged * 30;
+      const newDuration = currentDuration + (-slotsChanged * 30);
       if (newDuration < 30) return;
       newHeight = Math.ceil(newDuration / 30) * 24 - 8;
       newTop = slotsChanged * 24;
     } else {
-      const newDuration = currentDuration + slotsChanged * 30;
+      const newDuration = currentDuration + (slotsChanged * 30);
       if (newDuration < 30) return;
       newHeight = Math.ceil(newDuration / 30) * 24 - 8;
       newTop = 0;
     }
+    
     setDragState(prev => ({
       ...prev,
       previewHeight: newHeight,
       previewTop: newTop
     }));
-  }, [dragState, tasks]);
-  const handleResizeEnd = useCallback(async () => {
+  }, [dragState.isDragging, dragState.taskId, dragState.startTime, dragState.startY, dragState.handle, tasks]);
+
+  const handleResizeEnd = useCallback(async (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!dragState.isDragging || !dragState.taskId || !dragState.startTime || !onTaskUpdate) {
       setDragState({
         isDragging: false,
@@ -423,29 +435,51 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       });
       return;
     }
+    
     const task = tasks.find(t => t.id === dragState.taskId);
-    if (!task) return;
-    const currentDuration = task.duration || 30;
-    if (dragState.handle === 'top') {
-      const slotsChanged = Math.round((dragState.previewTop || 0) / 24);
-      const newStartTime = subMinutes(dragState.startTime, slotsChanged * 30);
-      const newDuration = currentDuration + -slotsChanged * 30;
-      if (newDuration >= 30) {
-        await onTaskUpdate(dragState.taskId, {
-          dueDate: newStartTime.toISOString(),
-          duration: newDuration
-        });
-      }
-    } else {
-      const heightDiff = (dragState.previewHeight || 0) - ((task.duration || 30) / 30 * 24 - 8);
-      const slotsChanged = Math.round(heightDiff / 24);
-      const newDuration = currentDuration + slotsChanged * 30;
-      if (newDuration >= 30) {
-        await onTaskUpdate(dragState.taskId, {
-          duration: newDuration
-        });
-      }
+    if (!task) {
+      setDragState({
+        isDragging: false,
+        taskId: null,
+        handle: null,
+        startY: 0,
+        startTime: null,
+        previewHeight: null,
+        previewTop: null
+      });
+      return;
     }
+    
+    const currentDuration = task.duration || 30;
+    
+    try {
+      if (dragState.handle === 'top') {
+        const slotsChanged = Math.round((dragState.previewTop || 0) / 24);
+        const newStartTime = subMinutes(dragState.startTime, slotsChanged * 30);
+        const newDuration = currentDuration + (-slotsChanged * 30);
+        
+        if (newDuration >= 30) {
+          await onTaskUpdate(dragState.taskId, {
+            dueDate: newStartTime.toISOString(),
+            duration: newDuration
+          });
+        }
+      } else {
+        const heightDiff = (dragState.previewHeight || 0) - ((task.duration || 30) / 30 * 24 - 8);
+        const slotsChanged = Math.round(heightDiff / 24);
+        const newDuration = currentDuration + (slotsChanged * 30);
+        
+        if (newDuration >= 30) {
+          await onTaskUpdate(dragState.taskId, {
+            duration: newDuration
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating task during resize:', error);
+    }
+    
+    // Always reset drag state
     setDragState({
       isDragging: false,
       taskId: null,
@@ -456,14 +490,20 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       previewTop: null
     });
   }, [dragState, tasks, onTaskUpdate]);
+
   React.useEffect(() => {
     if (dragState.isDragging) {
-      document.addEventListener('mousemove', handleResizeMove);
-      document.addEventListener('mouseup', handleResizeEnd);
-      return () => {
+      const cleanup = () => {
         document.removeEventListener('mousemove', handleResizeMove);
         document.removeEventListener('mouseup', handleResizeEnd);
+        document.removeEventListener('mouseleave', handleResizeEnd);
       };
+      
+      document.addEventListener('mousemove', handleResizeMove, { passive: false });
+      document.addEventListener('mouseup', handleResizeEnd, { passive: false });
+      document.addEventListener('mouseleave', handleResizeEnd, { passive: false });
+      
+      return cleanup;
     }
   }, [dragState.isDragging, handleResizeMove, handleResizeEnd]);
   const getPriorityColor = (priority: string) => {
