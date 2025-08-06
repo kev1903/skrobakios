@@ -262,7 +262,19 @@ export const MenuBar = () => {
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
             <button 
-              onClick={toggleSidebar}
+              onClick={() => {
+                try {
+                  console.log('Menu button clicked, toggling sidebar');
+                  toggleSidebar();
+                } catch (error) {
+                  console.error('Error toggling sidebar:', error);
+                  toast({
+                    title: "Error",
+                    description: "Unable to toggle sidebar. Please try again.",
+                    variant: "destructive",
+                  });
+                }
+              }}
               className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
               aria-label="Toggle main navigation sidebar"
             >
