@@ -54,6 +54,24 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   const [notes, setNotes] = useState<string>('');
   const [dailyRecordId, setDailyRecordId] = useState<string | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Use refs to track current values for debounced saves
+  const prioritiesRef = useRef(priorities);
+  const priorityCheckedRef = useRef(priorityChecked);
+  const notesRef = useRef(notes);
+
+  // Keep refs synchronized with state
+  React.useEffect(() => {
+    prioritiesRef.current = priorities;
+  }, [priorities]);
+
+  React.useEffect(() => {
+    priorityCheckedRef.current = priorityChecked;
+  }, [priorityChecked]);
+
+  React.useEffect(() => {
+    notesRef.current = notes;
+  }, [notes]);
   const {
     settings
   } = useTimeTracking();
@@ -968,25 +986,35 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               <h4 className="font-medium text-white">Top 3 Priorities</h4>
             </div>
             <div className="space-y-2">
-              {priorities.map((priority, index) => 
+              {[0, 1, 2].map((index) => 
                 <PriorityInput
                   key={`priority-${index}`}
                   index={index}
-                  value={priority}
-                  checked={priorityChecked[index]}
-                  onValueChange={(value) => {
-                    const newPriorities = [...priorities];
+                  value={priorities[index] || ''}
+                  checked={priorityChecked[index] || false}
+                  onValueChange={(value: string) => {
+                    // Update state immediately
+                    const newPriorities = [...prioritiesRef.current];
                     newPriorities[index] = value;
                     setPriorities(newPriorities);
-                    // Debounced auto-save when priorities change
-                    debouncedSave(newPriorities, priorityChecked, notes);
+                    
+                    // Update ref immediately for debounced save
+                    prioritiesRef.current = newPriorities;
+                    
+                    // Debounced save with refs to avoid stale closure
+                    debouncedSave(newPriorities, priorityCheckedRef.current, notesRef.current);
                   }}
-                  onCheckedChange={(checked) => {
-                    const newChecked = [...priorityChecked];
+                  onCheckedChange={(checked: boolean) => {
+                    // Update state immediately  
+                    const newChecked = [...priorityCheckedRef.current];
                     newChecked[index] = checked;
                     setPriorityChecked(newChecked);
-                    // Immediate save for checkbox changes
-                    saveDailyData(priorities, newChecked, notes);
+                    
+                    // Update ref immediately for immediate save
+                    priorityCheckedRef.current = newChecked;
+                    
+                    // Immediate save for checkbox changes using refs
+                    saveDailyData(prioritiesRef.current, newChecked, notesRef.current);
                   }}
                 />
               )}
