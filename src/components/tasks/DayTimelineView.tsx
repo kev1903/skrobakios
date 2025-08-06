@@ -12,6 +12,7 @@ import { getBlocksForDay } from '../calendar/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
 import { TodaysOverview } from './TodaysOverview';
+import { Droppable } from 'react-beautiful-dnd';
 interface DayTimelineViewProps {
   currentDate: Date;
   tasks?: Task[];
@@ -577,8 +578,21 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 const slotMinutes = slot.hour % 2 * 30;
                 const currentDateStr = format(currentDate instanceof Date ? currentDate : new Date(currentDate), 'yyyy-MM-dd');
                 const droppableId = `calendar-slot-${currentDateStr}-${slotHour.toString().padStart(2, '0')}-${slotMinutes.toString().padStart(2, '0')}`;
-                return <div key={`taskname-${slot.hour}`} className="h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10">
-                  </div>;
+                 return (
+                   <Droppable key={`taskname-${slot.hour}`} droppableId={droppableId}>
+                     {(provided, snapshot) => (
+                       <div 
+                         ref={provided.innerRef}
+                         {...provided.droppableProps}
+                         className={`h-6 border-b border-border/10 relative transition-colors hover:bg-muted/10 ${
+                           snapshot.isDraggingOver ? 'bg-primary/20 border-primary/50' : ''
+                         }`}
+                       >
+                         {provided.placeholder}
+                       </div>
+                     )}
+                   </Droppable>
+                 );
               })}
                 
                  {/* Render task name parts in this column */}
