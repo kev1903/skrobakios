@@ -275,7 +275,16 @@ export const MenuBar = () => {
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
-            <button onClick={toggleSidebar} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" aria-label="Toggle main navigation sidebar">
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Sidebar toggle clicked');
+                toggleSidebar();
+              }} 
+              className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" 
+              aria-label="Toggle main navigation sidebar"
+            >
               <Menu className="w-4 h-4" />
             </button>
             
