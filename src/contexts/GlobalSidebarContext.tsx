@@ -24,21 +24,9 @@ interface GlobalSidebarProviderProps {
 export const GlobalSidebarProvider = ({ children }: GlobalSidebarProviderProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    console.log('GlobalSidebar: toggleSidebar called, current isOpen:', isOpen);
-    setIsOpen(prev => {
-      console.log('GlobalSidebar: setting isOpen to:', !prev);
-      return !prev;
-    });
-  };
-  const openSidebar = () => {
-    console.log('GlobalSidebar: openSidebar called');
-    setIsOpen(true);
-  };
-  const closeSidebar = () => {
-    console.log('GlobalSidebar: closeSidebar called');
-    setIsOpen(false);
-  };
+  const toggleSidebar = () => setIsOpen(prev => !prev);
+  const openSidebar = () => setIsOpen(true);
+  const closeSidebar = () => setIsOpen(false);
 
   return (
     <GlobalSidebarContext.Provider value={{

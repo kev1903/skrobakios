@@ -10,12 +10,7 @@ interface GlobalSidebarProps {
 export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) => {
   const { isOpen, closeSidebar } = useGlobalSidebar();
 
-  console.log('GlobalSidebar render: isOpen =', isOpen);
-
-  if (!isOpen) {
-    console.log('GlobalSidebar: not open, returning null');
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
     <>
@@ -26,7 +21,7 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
       />
       
       {/* Sidebar */}
-      <div className="fixed left-0 top-0 bottom-0 z-[55] w-80">
+      <div className="fixed left-0 top-0 bottom-0 z-50 w-80">
         <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
           <></>
         </AppSidebar>
