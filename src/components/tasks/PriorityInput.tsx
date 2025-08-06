@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -17,33 +17,10 @@ export const PriorityInput = ({
   onValueChange,
   onCheckedChange
 }: PriorityInputProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const previousValue = useRef(value);
-
-  // Maintain focus when value changes from external source
-  useEffect(() => {
-    if (value !== previousValue.current && document.activeElement === inputRef.current) {
-      // Keep focus if this input is currently focused
-      const selection = {
-        start: inputRef.current?.selectionStart || 0,
-        end: inputRef.current?.selectionEnd || 0
-      };
-      
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          inputRef.current.setSelectionRange(selection.start, selection.end);
-        }
-      }, 0);
-    }
-    previousValue.current = value;
-  }, [value]);
-
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-medium text-white/70 w-4">{index + 1}.</span>
       <Input 
-        ref={inputRef}
         value={value} 
         onChange={(e) => onValueChange(e.target.value)}
         placeholder={`Priority ${index + 1}`} 
