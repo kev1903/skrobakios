@@ -279,11 +279,17 @@ export const MenuBar = () => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Sidebar toggle clicked');
-                toggleSidebar();
+                console.log('Sidebar toggle clicked, isOpen before:', toggleSidebar);
+                try {
+                  toggleSidebar();
+                  console.log('Sidebar toggle executed successfully');
+                } catch (error) {
+                  console.error('Error toggling sidebar:', error);
+                }
               }} 
               className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" 
               aria-label="Toggle main navigation sidebar"
+              type="button"
             >
               <Menu className="w-4 h-4" />
             </button>
