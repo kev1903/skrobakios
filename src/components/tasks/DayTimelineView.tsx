@@ -312,9 +312,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
         const newDate = new Date(year, month - 1, day, hour, minute);
         
-        await onTaskUpdate(taskId, {
-          dueDate: newDate.toISOString()
-        });
+        // Set default 30-minute duration when dropping task onto calendar
+        const updates: Partial<Task> = {
+          dueDate: newDate.toISOString(),
+          duration: task.duration || 30 // Set 30min default if no duration exists
+        };
+        
+        await onTaskUpdate(taskId, updates);
       }
     } catch (error) {
       console.error('Error moving task:', error);
