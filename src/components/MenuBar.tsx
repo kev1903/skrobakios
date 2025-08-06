@@ -276,46 +276,29 @@ export const MenuBar = () => {
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
             <button 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Sidebar toggle clicked, isOpen before:', toggleSidebar);
-                try {
-                  toggleSidebar();
-                  console.log('Sidebar toggle executed successfully');
-                } catch (error) {
-                  console.error('Error toggling sidebar:', error);
-                }
-              }} 
-              className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" 
+              onClick={() => {
+                alert('Hamburger clicked!'); // Visual test
+                console.log('Hamburger clicked - visual test');
+              }}
+              style={{ backgroundColor: 'red', border: '2px solid yellow' }} // Make it very visible
+              className="w-8 h-8 rounded-md flex items-center justify-center text-white font-bold" 
               aria-label="Toggle main navigation sidebar"
-              type="button"
             >
-              <Menu className="w-4 h-4" />
+              MENU
             </button>
             
             {/* Company Logo */}
             <div className="flex items-center space-x-2">
             
-              <h1 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors" onClick={e => {
-                console.log('Logo clicked, activeContext:', activeContext);
-                e.preventDefault();
-                e.stopPropagation(); // Prevent event bubbling
-                try {
-                  if (activeContext === 'company') {
-                    // Navigate to business homepage with map
-                    console.log('Navigating to business homepage');
-                    window.location.href = '/?page=home';
-                  } else {
-                    // Navigate to personal profile with map
-                    console.log('Navigating to personal profile');
-                    window.location.href = '/?page=profile';
-                  }
-                } catch (error) {
-                  console.error('Error navigating from logo click:', error);
-                }
-              }}>
-                {getCompanyDisplayText()}
+              <h1 
+                className="text-sm font-bold cursor-pointer"
+                style={{ backgroundColor: 'blue', color: 'white', padding: '4px' }} // Make it very visible
+                onClick={() => {
+                  alert('Logo clicked!'); // Visual test
+                  console.log('Logo clicked - visual test');
+                }}
+              >
+                LOGO-TEST
               </h1>
             </div>
           </div>
