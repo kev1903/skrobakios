@@ -277,28 +277,32 @@ export const MenuBar = () => {
             {/* Hamburger Menu Icon */}
             <button 
               onClick={() => {
-                alert('Hamburger clicked!'); // Visual test
-                console.log('Hamburger clicked - visual test');
+                console.log('Hamburger clicked, calling toggleSidebar');
+                toggleSidebar();
               }}
-              style={{ backgroundColor: 'red', border: '2px solid yellow' }} // Make it very visible
-              className="w-8 h-8 rounded-md flex items-center justify-center text-white font-bold" 
+              className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" 
               aria-label="Toggle main navigation sidebar"
             >
-              MENU
+              <Menu className="w-4 h-4" />
             </button>
             
             {/* Company Logo */}
             <div className="flex items-center space-x-2">
             
               <h1 
-                className="text-sm font-bold cursor-pointer"
-                style={{ backgroundColor: 'blue', color: 'white', padding: '4px' }} // Make it very visible
+                className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors" 
                 onClick={() => {
-                  alert('Logo clicked!'); // Visual test
-                  console.log('Logo clicked - visual test');
+                  console.log('Logo clicked, activeContext:', activeContext);
+                  if (activeContext === 'company') {
+                    console.log('Navigating to business homepage');
+                    window.location.href = '/?page=home';
+                  } else {
+                    console.log('Navigating to personal profile');
+                    window.location.href = '/?page=profile';
+                  }
                 }}
               >
-                LOGO-TEST
+                {getCompanyDisplayText()}
               </h1>
             </div>
           </div>
