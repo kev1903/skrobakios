@@ -172,13 +172,15 @@ export const TodaysOverview = ({ currentDate }: TodaysOverviewProps) => {
                 value={data.priorities[index]}
                 onChange={(e) => updatePriority(index, e.target.value)}
                 placeholder={`Priority ${index + 1}`}
-                className="flex-1 h-8 px-3 text-sm bg-white/10 border border-white/20 rounded-md text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 focus:outline-none"
+                className={`flex-1 h-8 px-3 text-sm bg-white/10 border border-white/20 rounded-md text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 focus:outline-none ${
+                  data.priority_checked[index] ? 'line-through' : ''
+                }`}
               />
               <button
                 onClick={() => togglePriorityCheck(index)}
                 className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                   data.priority_checked[index]
-                    ? 'bg-white/20 border-white/30'
+                    ? 'bg-green-500/80 border-green-400'
                     : 'bg-white/10 border-white/20 hover:bg-white/15'
                 }`}
               >
