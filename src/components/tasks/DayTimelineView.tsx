@@ -284,6 +284,49 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     [taskId: string]: number;
   }>({});
   const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+
+  // Handler for task drag start
+  const handleTaskDragStart = useCallback((e: React.DragEvent, taskId: string) => {
+    e.dataTransfer.setData('text/plain', taskId);
+    setDraggedTaskId(taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  // Handler for task drop onto calendar slots
+  const handleTaskDrop = useCallback(async (e: React.DragEvent, slotId: string) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    setDragOverSlot(null);
+    setDraggedTaskId(null);
+    
+    if (!taskId || !onTaskUpdate) return;
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+      // Extract date and time from slotId (format: calendar-slot-YYYY-MM-DD-HH-MM)
+      const parts = slotId.replace('calendar-slot-', '').split('-');
+      if (parts.length === 5) {
+        const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
+        const newDate = new Date(year, month - 1, day, hour, minute);
+        
+        await onTaskUpdate(taskId, {
+          dueDate: newDate.toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error moving task:', error);
+    }
+  }, [tasks, onTaskUpdate]);
+
+  // Enhanced drag over handler
+  const handleTaskDragOver = useCallback((e: React.DragEvent, slotId: string) => {
+    e.preventDefault();
+    setDragOverSlot(slotId);
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
   const isEdgeClick = (e: React.MouseEvent, element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -594,65 +637,73 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                          : "hover:bg-muted/10"
                      )}
                      data-droppable-id={droppableId}
-                     onDrop={(e) => {
-                       setDragOverSlot(null);
-                       onCalendarDrop && onCalendarDrop(e, droppableId);
-                     }}
-                     onDragOver={(e) => {
-                       e.preventDefault();
-                       setDragOverSlot(droppableId);
-                       onCalendarDragOver && onCalendarDragOver(e);
-                     }}
-                     onDragLeave={(e) => {
-                       // Only clear drag over if we're leaving the slot (not moving to child element)
-                       if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                         setDragOverSlot(null);
-                       }
-                     }}
-                   >
-                     {dragOverSlot === droppableId && (
-                       <div className="absolute inset-0 border-2 border-dashed border-primary/60 bg-primary/10 rounded-sm flex items-center justify-center">
-                         <span className="text-xs font-medium text-primary px-2 py-1 bg-primary/20 rounded">
-                           Drop task here
-                         </span>
-                       </div>
-                     )}
-                   </div>
-                 );
-              })}
-                
-                 {/* Render task name parts in this column */}
-                 {layout.tasks.map((item, index) => {
-                const task = item.data as Task;
-                let heightInPixels = item.height;
-                let topOffset = item.topPosition;
-                if (dragState.isDragging && dragState.taskId === task.id) {
-                  if (dragState.previewHeight !== null) {
-                    heightInPixels = dragState.previewHeight;
-                  }
-                  if (dragState.previewTop !== null) {
-                    topOffset = item.topPosition + dragState.previewTop;
-                  }
-                }
-
-                // Render task without drag functionality
-                return (
-                  <div 
-                    key={`taskname-${task.id}`}
-                    className="absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px]" 
-                    style={{
-                      top: `${topOffset}px`,
-                      left: '0px',
-                      right: '0px',
-                      height: `${heightInPixels}px`,
-                      minHeight: '20px'
-                    }} 
-                    onClick={e => handleEdgeClick(e, task.id)}
-                  >
-                    {/* Visual handle (no drag functionality) */}
-                    <div className="w-6 h-full bg-gray-300 hover:bg-gray-400 flex items-center justify-center border-r border-gray-200 flex-shrink-0">
-                      <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                      onDrop={(e) => {
+                        handleTaskDrop(e, droppableId);
+                      }}
+                      onDragOver={(e) => {
+                        handleTaskDragOver(e, droppableId);
+                      }}
+                      onDragLeave={(e) => {
+                        // Only clear drag over if we're leaving the slot (not moving to child element)
+                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                          setDragOverSlot(null);
+                        }
+                      }}
+                    >
+                      {dragOverSlot === droppableId && (
+                        <div className="absolute inset-0 border-2 border-dashed border-primary/60 bg-primary/10 rounded-sm flex items-center justify-center">
+                          <span className="text-xs font-medium text-primary px-2 py-1 bg-primary/20 rounded">
+                            Drop task here
+                          </span>
+                        </div>
+                      )}
                     </div>
+                  );
+               })}
+                 
+                  {/* Render task name parts in this column */}
+                  {layout.tasks.map((item, index) => {
+                 const task = item.data as Task;
+                 let heightInPixels = item.height;
+                 let topOffset = item.topPosition;
+                 if (dragState.isDragging && dragState.taskId === task.id) {
+                   if (dragState.previewHeight !== null) {
+                     heightInPixels = dragState.previewHeight;
+                   }
+                   if (dragState.previewTop !== null) {
+                     topOffset = item.topPosition + dragState.previewTop;
+                   }
+                 }
+
+                 const isDraggedTask = draggedTaskId === task.id;
+
+                 // Render task with drag functionality
+                 return (
+                   <div 
+                     key={`taskname-${task.id}`}
+                     className={cn(
+                       "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
+                       isDraggedTask && "opacity-50"
+                     )} 
+                     style={{
+                       top: `${topOffset}px`,
+                       left: '0px',
+                       right: '0px',
+                       height: `${heightInPixels}px`,
+                       minHeight: '20px'
+                     }} 
+                     onClick={e => handleEdgeClick(e, task.id)}
+                   >
+                     {/* Draggable grip handle */}
+                     <div 
+                       draggable
+                       onDragStart={(e) => handleTaskDragStart(e, task.id)}
+                       onDragEnd={() => setDraggedTaskId(null)}
+                       className="w-6 h-full bg-gray-300 hover:bg-primary/30 flex items-center justify-center border-r border-gray-200 flex-shrink-0 cursor-grab active:cursor-grabbing transition-colors"
+                       onClick={(e) => e.stopPropagation()}
+                     >
+                       <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                     </div>
                     
                     {/* Task Content */}
                     <div className="flex-1 px-3 flex justify-between items-center h-full">
