@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { InviteUserDialog } from "./InviteUserDialog";
+import { CreateUserDialog } from "./CreateUserDialog";
 import { EditUserRoleDialog } from "./EditUserRoleDialog";
 import { UserProjectManager } from "./UserProjectManager";
 
@@ -387,7 +387,7 @@ export const TeamMembersList: React.FC = () => {
             {isSuperAdmin && (
               <Button onClick={() => setShowInviteDialog(true)}>
                 <UserPlus className="h-4 w-4 mr-2" />
-                Invite User
+                Create User
               </Button>
             )}
           </div>
@@ -580,10 +580,10 @@ export const TeamMembersList: React.FC = () => {
         />
       ) : (
         <>
-          <InviteUserDialog
+          <CreateUserDialog
             open={showInviteDialog}
             onOpenChange={setShowInviteDialog}
-            onInviteSent={fetchTeamMembers}
+            onUserCreated={fetchTeamMembers}
           />
           
           {selectedUser && (
