@@ -162,7 +162,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
         >
           <div className="flex flex-col items-start min-w-0 flex-1">
             <span className="font-medium text-sm truncate w-full text-left">{displayText}</span>
-            <span className="text-xs text-white/70 truncate w-full text-left">{contextType}</span>
+            <span className="text-xs text-muted-foreground/70 truncate w-full text-left">{contextType}</span>
           </div>
           <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
         </Button>
