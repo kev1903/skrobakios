@@ -682,32 +682,32 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                  const isDraggedTask = draggedTaskId === task.id;
 
                  // Render task with drag functionality
-                 return (
-                   <div 
-                     key={`taskname-${task.id}`}
-                     className={cn(
-                       "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-pointer group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
-                       isDraggedTask && "opacity-50"
-                     )} 
-                     style={{
-                       top: `${topOffset}px`,
-                       left: '0px',
-                       right: '0px',
-                       height: `${heightInPixels}px`,
-                       minHeight: '20px'
-                     }} 
-                     onClick={e => handleEdgeClick(e, task.id)}
-                   >
-                     {/* Draggable grip handle */}
-                     <div 
-                       draggable
-                       onDragStart={(e) => handleTaskDragStart(e, task.id)}
-                       onDragEnd={() => setDraggedTaskId(null)}
-                       className="w-6 h-full bg-gray-300 hover:bg-primary/30 flex items-center justify-center border-r border-gray-200 flex-shrink-0 cursor-grab active:cursor-grabbing transition-colors"
-                       onClick={(e) => e.stopPropagation()}
-                     >
-                       <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
-                     </div>
+                  return (
+                    <div 
+                      key={`taskname-${task.id}`}
+                      draggable
+                      onDragStart={(e) => handleTaskDragStart(e, task.id)}
+                      onDragEnd={() => setDraggedTaskId(null)}
+                      className={cn(
+                        "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-grab active:cursor-grabbing group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
+                        isDraggedTask && "opacity-50"
+                      )} 
+                      style={{
+                        top: `${topOffset}px`,
+                        left: '0px',
+                        right: '0px',
+                        height: `${heightInPixels}px`,
+                        minHeight: '20px'
+                      }} 
+                      onClick={e => handleEdgeClick(e, task.id)}
+                    >
+                      {/* Visual grip handle */}
+                      <div 
+                        className="w-6 h-full bg-gray-300 hover:bg-primary/30 flex items-center justify-center border-r border-gray-200 flex-shrink-0 cursor-grab active:cursor-grabbing transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
+                      </div>
                     
                     {/* Task Content */}
                     <div className="flex-1 px-3 flex justify-between items-center h-full">
