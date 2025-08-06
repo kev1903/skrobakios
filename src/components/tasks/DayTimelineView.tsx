@@ -703,7 +703,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                     >
                       {/* Visual grip handle */}
                       <div 
-                        className="w-6 h-full bg-gray-300 hover:bg-primary/30 flex items-center justify-center border-r border-gray-200 flex-shrink-0 cursor-grab active:cursor-grabbing transition-colors"
+                        className="w-6 h-full bg-transparent hover:bg-primary/30 flex items-center justify-center border-r border-gray-200 flex-shrink-0 cursor-grab active:cursor-grabbing transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="text-gray-600 text-xs font-bold">⋮⋮</div>
