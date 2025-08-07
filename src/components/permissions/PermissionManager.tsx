@@ -6,6 +6,7 @@ import { TeamMembersList } from './TeamMembersList';
 import { RolePermissionsMatrix } from './RolePermissionsMatrix';
 import { PermissionAuditLog } from './PermissionAuditLog';
 import { UserCleanupButton } from '../admin/UserCleanupButton';
+import { PlatformAdministration } from '../admin/PlatformAdministration';
 import { useUserRole } from '@/hooks/useUserRole';
 
 interface PermissionManagerProps {
@@ -14,6 +15,11 @@ interface PermissionManagerProps {
 
 export const PermissionManager: React.FC<PermissionManagerProps> = ({ onNavigate }) => {
   const { isSuperAdmin } = useUserRole();
+
+  // If navigating to platform admin, show that component
+  if (onNavigate === 'platform-admin') {
+    return <PlatformAdministration onNavigate={onNavigate} />;
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">

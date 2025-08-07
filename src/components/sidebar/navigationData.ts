@@ -45,6 +45,7 @@ export const businessNavigation: NavigationItem[] = [
   { id: "cost-contracts", label: "Cost & Contracts", icon: DollarSign },
   { id: "sales", label: "Sales", icon: TrendingUp },
   { id: "system", label: "SYSTEM", icon: Database },
+  { id: "platform-admin", label: "Platform Admin", icon: Shield },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
