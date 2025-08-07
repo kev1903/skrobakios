@@ -75,6 +75,8 @@ export const TeamMembersList: React.FC = () => {
       setMembers(data || []);
       console.log('Team members data:', data);
       console.log('isSuperAdmin status:', hasSuperAdminRole);
+      console.log('User roles from database:', roles);
+      console.log('Current user ID:', user.id);
     } catch (error: any) {
       console.error('Error fetching team members:', error);
       toast({
@@ -395,12 +397,10 @@ export const TeamMembersList: React.FC = () => {
                 className="pl-8 w-64"
               />
             </div>
-            {isSuperAdmin && (
-              <Button onClick={() => setShowInviteDialog(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Create User
-              </Button>
-            )}
+            <Button onClick={() => setShowInviteDialog(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Create User
+            </Button>
           </div>
         </div>
       </CardHeader>
