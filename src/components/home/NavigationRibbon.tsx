@@ -43,6 +43,7 @@ export const NavigationRibbon = ({
     { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "projects" },
     { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "sales_management" },
     { id: "system", label: "SYSTEM", icon: Database }, // System should always be available
+    { id: "platform-admin", label: "Platform Admin", icon: Shield, requiresSuperAdmin: true }, // Only for superadmins
     { id: "settings", label: "Settings", icon: Settings }, // Settings should always be available
   ];
 
@@ -51,6 +52,11 @@ export const NavigationRibbon = ({
     // Settings and System should always be visible regardless of subscription
     if (item.id === "settings" || item.id === "system") {
       return true;
+    }
+    
+    // Check superadmin requirement
+    if (item.requiresSuperAdmin) {
+      return isSuperAdmin();
     }
     
     // Check if the required feature is included in subscription
