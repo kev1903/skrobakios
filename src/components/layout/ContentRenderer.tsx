@@ -253,7 +253,9 @@ export const ContentRenderer = ({
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "team-management":
-      return <PermissionManager onNavigate={onNavigate} />;
+      return <PermissionManager onNavigate={onNavigate} currentPage={currentPage} />;
+    case "platform-admin":
+      return <PermissionManager onNavigate={onNavigate} currentPage={currentPage} />;
     case "invitation-acceptance":
       // Invitation acceptance removed - redirect to home
       onNavigate("home");

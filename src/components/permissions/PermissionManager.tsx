@@ -11,13 +11,14 @@ import { useUserRole } from '@/hooks/useUserRole';
 
 interface PermissionManagerProps {
   onNavigate: (page: string) => void;
+  currentPage?: string;
 }
 
-export const PermissionManager: React.FC<PermissionManagerProps> = ({ onNavigate }) => {
+export const PermissionManager: React.FC<PermissionManagerProps> = ({ onNavigate, currentPage }) => {
   const { isSuperAdmin } = useUserRole();
 
-  // If navigating to platform admin, show that component
-  if (onNavigate === 'platform-admin') {
+  // If current page is platform admin, show that component
+  if (currentPage === 'platform-admin') {
     return <PlatformAdministration onNavigate={onNavigate} />;
   }
 

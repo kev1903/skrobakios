@@ -243,7 +243,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
         );
 
       case 'members-permissions':
-        return <PermissionManager onNavigate={onNavigate} />;
+        return <PermissionManager onNavigate={onNavigate} currentPage="members-permissions" />;
 
       case 'connected-services':
         return (
