@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Shield, Building2, Users } from 'lucide-react';
 import { PlatformUserManagement } from './PlatformUserManagement';
 import { UserManagement } from './UserManagement';
+import { UserCleanupButton } from './UserCleanupButton';
 import { useUserRole } from '@/hooks/useUserRole';
 
 // Mock companies data - in real app, this would come from a hook
@@ -63,6 +64,15 @@ export const EnhancedUserManagement = () => {
                   Use this interface to assign users as company owners who can then manage their own teams.
                 </CardDescription>
               </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between p-4 border border-destructive/20 rounded-lg bg-destructive/5">
+                  <div>
+                    <h3 className="font-semibold text-destructive">System Cleanup</h3>
+                    <p className="text-sm text-muted-foreground">Remove all users except superadmin to fix orphaned auth records</p>
+                  </div>
+                  <UserCleanupButton />
+                </div>
+              </CardContent>
             </Card>
             <PlatformUserManagement companies={mockCompanies} />
           </TabsContent>
