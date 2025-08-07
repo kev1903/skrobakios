@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { CreateUserDialog } from "./CreateUserDialog";
+import { ManualUserCreateDialog } from "../admin/ManualUserCreateDialog";
 import { EditUserRoleDialog } from "./EditUserRoleDialog";
 import { UserProjectManager } from "./UserProjectManager";
 
@@ -40,6 +40,7 @@ export const TeamMembersList: React.FC = () => {
   const [showEditRoleDialog, setShowEditRoleDialog] = useState(false);
   const [showProjectManager, setShowProjectManager] = useState(false);
   const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null);
+  const [companies, setCompanies] = useState<Array<{ id: string; name: string }>>([]);
   const { toast } = useToast();
 
   const fetchTeamMembers = async () => {
@@ -55,6 +56,16 @@ export const TeamMembersList: React.FC = () => {
       
       const hasSuperAdminRole = roles?.some(r => r.role === 'superadmin') || false;
       setIsSuperAdmin(hasSuperAdminRole);
+
+      // Fetch companies if superadmin
+      if (hasSuperAdminRole) {
+        const { data: companiesData } = await supabase
+          .from('companies')
+          .select('id, name')
+          .order('name');
+        
+        setCompanies(companiesData || []);
+      }
 
       const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
         requesting_user_id: user.id
@@ -605,7 +616,8 @@ export const TeamMembersList: React.FC = () => {
         />
       ) : (
         <>
-          <CreateUserDialog
+          <ManualUserCreateDialog
+            companies={companies}
             open={showInviteDialog}
             onOpenChange={setShowInviteDialog}
             onUserCreated={fetchTeamMembers}
