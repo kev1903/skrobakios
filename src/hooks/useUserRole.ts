@@ -22,36 +22,52 @@ export const useUserRole = () => {
       try {
         console.log('Fetching user roles for user:', user.id);
         
-        // Fetch all roles for the user
-        const { data: rolesData, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .order('role');
+        // Use the secure function instead of direct table query to avoid recursion
+        const { data: hasSuper, error: superError } = await supabase
+          .rpc('has_role_secure', { _user_id: user.id, _role: 'superadmin' });
+          
+        const { data: hasBusiness, error: businessError } = await supabase
+          .rpc('has_role_secure', { _user_id: user.id, _role: 'business_admin' });
+          
+        const { data: hasProject, error: projectError } = await supabase
+          .rpc('has_role_secure', { _user_id: user.id, _role: 'project_admin' });
+          
+        const { data: hasUser, error: userError } = await supabase
+          .rpc('has_role_secure', { _user_id: user.id, _role: 'user' });
+          
+        const { data: hasClient, error: clientError } = await supabase
+          .rpc('has_role_secure', { _user_id: user.id, _role: 'client' });
 
-        console.log('User roles query result (fixed - should only see this once per user):', { rolesData, error });
-
-        if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user roles:', error);
-        setRole('user');
-        setRoles(['user']);
-        } else if (rolesData && rolesData.length > 0) {
-          const userRoles = rolesData.map(r => r.role as UserRole);
+        if (superError || businessError || projectError || userError || clientError) {
+          console.error('Error checking user roles:', { superError, businessError, projectError, userError, clientError });
+          setRole('user');
+          setRoles(['user']);
+        } else {
+          // Build roles array based on function results
+          const userRoles: UserRole[] = [];
+          if (hasSuper) userRoles.push('superadmin');
+          if (hasBusiness) userRoles.push('business_admin');
+          if (hasProject) userRoles.push('project_admin');
+          if (hasUser) userRoles.push('user');
+          if (hasClient) userRoles.push('client');
+          
           console.log('User roles found:', userRoles);
           setRoles(userRoles);
           
-          // Set primary role (highest priority)
-          const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
-          const primaryRole = userRoles.reduce((highest, current) => 
-            roleHierarchy[current] > roleHierarchy[highest] ? current : highest
-          );
-          console.log('Primary role set to:', primaryRole);
-          setRole(primaryRole);
-        } else {
-          // No roles found, default to user
-          console.log('No roles found, defaulting to user');
-          setRole('user');
-          setRoles(['user']);
+          if (userRoles.length > 0) {
+            // Set primary role (highest priority)
+            const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
+            const primaryRole = userRoles.reduce((highest, current) => 
+              roleHierarchy[current] > roleHierarchy[highest] ? current : highest
+            );
+            console.log('Primary role set to:', primaryRole);
+            setRole(primaryRole);
+          } else {
+            // No roles found, default to user
+            console.log('No roles found, defaulting to user');
+            setRole('user');
+            setRoles(['user']);
+          }
         }
       } catch (error) {
         console.error('Error fetching user roles:', error);

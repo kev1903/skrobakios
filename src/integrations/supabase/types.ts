@@ -3525,6 +3525,13 @@ export type Database = {
           | { _user_id: string; _role: string }
         Returns: boolean
       }
+      has_role_secure: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
       initialize_company_modules: {
         Args: { target_company_id: string }
         Returns: undefined
