@@ -1,17 +1,11 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Settings, User, Bell, Palette, Plug, Shield, Users } from 'lucide-react';
+import React from 'react';
+import { ArrowLeft, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/hooks/useTheme';
-import { useUserRole } from '@/hooks/useUserRole';
-import { IntegrationsTab } from './integrations/IntegrationsTab';
-import { EnhancedUserManagement } from './admin/EnhancedUserManagement';
-import { RolesTab } from './settings/RolesTab';
 
 interface SettingsPageProps {
   onNavigate: (page: string) => void;
@@ -19,19 +13,10 @@ interface SettingsPageProps {
 
 export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
   const { user } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const { isSuperAdmin } = useUserRole();
-  const [activeTab, setActiveTab] = useState('general');
 
   if (!user) {
     return <div>Please log in to access settings</div>;
   }
-
-  // Deprecated: This component is now replaced by CompanySettingsPage
-  // Redirect to company settings
-  React.useEffect(() => {
-    onNavigate('company-settings');
-  }, [onNavigate]);
 
   return (
     <div className="h-full flex flex-col">
@@ -51,9 +36,9 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
               </Button>
               <div>
                 <h1 className="text-xl md:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">
-                  Settings
+                  Business Settings
                 </h1>
-                <p className="text-xs md:text-sm text-slate-500 mt-1">Manage your account and application preferences</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1">Manage your business information and preferences</p>
               </div>
             </div>
           </div>
@@ -62,153 +47,95 @@ export const SettingsPage = ({ onNavigate }: SettingsPageProps) => {
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
-            {/* Tab List */}
-            <div className="w-full overflow-x-auto">
-              <TabsList className={`flex w-full min-w-fit ${isSuperAdmin() ? 'grid-cols-6' : 'grid-cols-5'} md:grid backdrop-blur-sm bg-white/60 p-1`}>
-                <TabsTrigger value="general" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Settings className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">General</span>
-                </TabsTrigger>
-                <TabsTrigger value="notifications" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Bell className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Notifications</span>
-                </TabsTrigger>
-                <TabsTrigger value="appearance" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Palette className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Appearance</span>
-                </TabsTrigger>
-                <TabsTrigger value="roles" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Users className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Roles</span>
-                </TabsTrigger>
-                <TabsTrigger value="integrations" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                  <Plug className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-xs md:text-sm">Integrations</span>
-                </TabsTrigger>
-                {isSuperAdmin() && (
-                  <TabsTrigger value="admin" className="flex items-center justify-center space-x-1 md:space-x-2 px-2 md:px-3 py-2 whitespace-nowrap">
-                    <Shield className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs md:text-sm">Admin</span>
-                  </TabsTrigger>
-                )}
-              </TabsList>
-            </div>
+        <div className="max-w-4xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
+          
+          {/* Business Information */}
+          <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                Business Information
+              </CardTitle>
+              <CardDescription>
+                Update your business details and contact information
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="company-name">Company Name</Label>
+                  <Input id="company-name" placeholder="Your Company Name" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="abn">ABN</Label>
+                  <Input id="abn" placeholder="Your ABN" />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input id="phone" placeholder="Phone Number" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input id="website" placeholder="https://yourwebsite.com" />
+                </div>
+              </div>
 
-            <TabsContent value="general" className="space-y-4 md:space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                <CardHeader className="pb-4 md:pb-6">
-                  <CardTitle className="text-lg md:text-xl">General Settings</CardTitle>
-                  <CardDescription className="text-sm md:text-base">
-                    Configure your general application preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 md:space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
-                      <h4 className="text-sm font-medium">Language</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Choose your preferred language</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">English</Button>
-                  </div>
-                  <Separator />
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
-                      <h4 className="text-sm font-medium">Time Zone</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Set your local time zone</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">UTC+0</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+              <div className="space-y-2">
+                <Label htmlFor="address">Business Address</Label>
+                <Textarea id="address" placeholder="Your business address" />
+              </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="description">Business Description</Label>
+                <Textarea id="description" placeholder="Describe your business" />
+              </div>
 
-            <TabsContent value="notifications" className="space-y-4 md:space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                <CardHeader className="pb-4 md:pb-6">
-                  <CardTitle className="text-lg md:text-xl">Notification Settings</CardTitle>
-                  <CardDescription className="text-sm md:text-base">
-                    Configure your notification preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 md:space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
-                      <h4 className="text-sm font-medium">Email Notifications</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Receive email updates</p>
-                    </div>
-                    <Switch />
-                  </div>
-                  <Separator />
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
-                      <h4 className="text-sm font-medium">Push Notifications</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Receive browser notifications</p>
-                    </div>
-                    <Switch />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+              <Button className="w-full md:w-auto">
+                Save Changes
+              </Button>
+            </CardContent>
+          </Card>
 
-            <TabsContent value="appearance" className="space-y-4 md:space-y-6">
-              <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                <CardHeader className="pb-4 md:pb-6">
-                  <CardTitle className="text-lg md:text-xl">Appearance Settings</CardTitle>
-                  <CardDescription className="text-sm md:text-base">
-                    Customize the look and feel of the application
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 md:space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
-                      <h4 className="text-sm font-medium">Dark Mode</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Switch between light and dark themes</p>
-                    </div>
-                    <Switch />
-                  </div>
-                  <Separator />
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                    <div>
-                      <h4 className="text-sm font-medium">Compact Layout</h4>
-                      <p className="text-xs md:text-sm text-slate-500">Use a more compact interface</p>
-                    </div>
-                    <Switch />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+          {/* Business Preferences */}
+          <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+            <CardHeader>
+              <CardTitle>Business Preferences</CardTitle>
+              <CardDescription>
+                Configure your business operating preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="industry">Industry</Label>
+                  <Input id="industry" placeholder="e.g., Construction" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company-size">Company Size</Label>
+                  <Input id="company-size" placeholder="e.g., 1-10 employees" />
+                </div>
+              </div>
 
-            <TabsContent value="roles" className="space-y-4 md:space-y-6">
-              <RolesTab />
-            </TabsContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">Time Zone</Label>
+                  <Input id="timezone" placeholder="UTC+10 (Sydney)" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="currency">Currency</Label>
+                  <Input id="currency" placeholder="AUD" />
+                </div>
+              </div>
 
-            <TabsContent value="integrations" className="space-y-4 md:space-y-6">
-              <IntegrationsTab />
-            </TabsContent>
+              <Button className="w-full md:w-auto">
+                Update Preferences
+              </Button>
+            </CardContent>
+          </Card>
 
-            {isSuperAdmin() && (
-              <TabsContent value="admin" className="space-y-4 md:space-y-6">
-                <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-                  <CardHeader className="pb-4 md:pb-6">
-                    <CardTitle className="text-lg md:text-xl flex items-center gap-2">
-                      <Shield className="w-5 h-5" />
-                      Admin Panel
-                      <Badge variant="destructive" className="text-xs">Super Admin</Badge>
-                    </CardTitle>
-                    <CardDescription className="text-sm md:text-base">
-                      Manage platform users, roles, and system administration
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <EnhancedUserManagement />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            )}
-          </Tabs>
         </div>
       </div>
     </div>
