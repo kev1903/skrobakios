@@ -10,6 +10,7 @@ export interface NavigationItem {
   requiredCompanyRole?: 'owner' | 'admin' | 'member';
   requiresCompany?: boolean;
   isPremium?: boolean;
+  requiresSuperAdmin?: boolean;
 }
 
 export interface ResponsiveSidebarProps {

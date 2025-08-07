@@ -43,7 +43,6 @@ export const NavigationRibbon = ({
     { id: "projects", label: "Projects", icon: Briefcase, requiredFeature: "projects" },
     { id: "sales", label: "Sales", icon: TrendingUp, requiredFeature: "sales_management" },
     { id: "system", label: "SYSTEM", icon: Database }, // System should always be available
-    { id: "platform-admin", label: "Platform Admin", icon: Shield, requiresSuperAdmin: true }, // Only for superadmins
     { id: "settings", label: "Settings", icon: Settings }, // Settings should always be available
   ];
 
@@ -54,13 +53,8 @@ export const NavigationRibbon = ({
       return true;
     }
     
-    // Check superadmin requirement
-    if (item.requiresSuperAdmin) {
-      return isSuperAdmin();
-    }
-    
     // Check if the required feature is included in subscription
-    if (item.requiredFeature) {
+    if ('requiredFeature' in item && item.requiredFeature) {
       return hasFeature(item.requiredFeature);
     }
     
@@ -119,7 +113,15 @@ export const NavigationRibbon = ({
             <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
               {!isCollapsed && "Profile Navigation"}
             </div>
-            {personalProfileNavigation.map(item => {
+            {personalProfileNavigation
+              .filter(item => {
+                // Filter Platform Admin based on superadmin role
+                if (item.requiresSuperAdmin) {
+                  return isSuperAdmin();
+                }
+                return true;
+              })
+              .map(item => {
               const Icon = item.icon;
               const isActive = item.active || currentPage === item.id;
               return (
