@@ -12,8 +12,8 @@ interface CreateUserRequest {
   email: string;
   password: string;
   companyId?: string;
-  companyRole: 'owner' | 'admin' | 'member';
-  platformRole: 'superadmin' | 'platform_admin' | 'company_admin';
+  companyRole?: 'owner' | 'admin' | 'member';
+  platformRole: 'superadmin' | 'platform_admin' | 'business_admin' | 'company_admin' | 'project_admin' | 'user' | 'client';
 }
 
 const handler = async (req: Request): Promise<Response> => {

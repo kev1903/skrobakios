@@ -3347,6 +3347,8 @@ export type Database = {
         | "project_admin"
         | "user"
         | "client"
+        | "platform_admin"
+        | "company_admin"
       business_type: "sole_trader" | "partnership" | "company" | "trust"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
     }
@@ -3483,6 +3485,8 @@ export const Constants = {
         "project_admin",
         "user",
         "client",
+        "platform_admin",
+        "company_admin",
       ],
       business_type: ["sole_trader", "partnership", "company", "trust"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
