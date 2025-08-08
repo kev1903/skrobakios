@@ -31,26 +31,6 @@ export const PermissionManager: React.FC<PermissionManagerProps> = ({ onNavigate
         </div>
       </div>
 
-      {/* System Cleanup Section - Only for Superadmins */}
-      {isSuperAdmin() && (
-        <Card className="border-destructive/20 bg-destructive/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <Trash2 className="h-5 w-5" />
-              System Cleanup
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-destructive">User Data Cleanup</h3>
-                <p className="text-sm text-muted-foreground">Remove all users except superadmin to fix orphaned auth records</p>
-              </div>
-              <UserCleanupButton />
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <Tabs defaultValue="members" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
