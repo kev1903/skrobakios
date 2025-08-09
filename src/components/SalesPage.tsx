@@ -85,7 +85,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
       
       <div className="relative z-10 flex min-h-screen">
         {/* Sales Ribbon - Fixed sidebar */}
-        <div className="fixed left-0 top-0 h-screen z-50">
+        <div className="fixed left-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] z-50">
           <SalesRibbon activeTab={activeTab} onTabChange={handleTabChange} onBack={handleBack} />
         </div>
         
