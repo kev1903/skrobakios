@@ -208,7 +208,7 @@ const {
     e.preventDefault();
   };
 
-  return <div className="flex h-full bg-background">
+  return <div className="flex flex-col mt-[var(--header-height)] lg:ml-64 min-h-[calc(100vh-var(--header-height))] bg-background overflow-auto">
       {/* Hidden file input for PDF upload */}
       <input
         ref={fileInputRef}
