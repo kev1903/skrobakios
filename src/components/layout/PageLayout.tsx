@@ -20,9 +20,9 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <div className="w-full h-screen overflow-y-auto">
-          {children}
-        </div>
+          <div className="w-full mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] overflow-y-auto min-h-0">
+            {children}
+          </div>
       </ProtectedRoute>
     );
   }
