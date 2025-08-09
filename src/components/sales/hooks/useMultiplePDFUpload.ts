@@ -15,20 +15,21 @@ export const useMultiplePDFUpload = () => {
   const [drawings, setDrawings] = useState<DrawingFile[]>([]);
   const [activeDrawingId, setActiveDrawingId] = useState<string | null>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
+  const addFiles = (filesInput: FileList | File[]) => {
+    let files: File[] = [];
+    if (filesInput instanceof FileList) {
+      files = Array.from(filesInput);
+    } else {
+      files = Array.from(filesInput as File[]);
+    }
 
     const newDrawings: DrawingFile[] = [];
 
-    Array.from(files).forEach((file) => {
+    files.forEach((file: File) => {
       if (file.type === 'application/pdf') {
         const id = `drawing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const url = URL.createObjectURL(file);
-        
-        // For now, we'll set pages to 1 as a default
-        // In a real implementation, you'd use a PDF library to get the actual page count
-        const pages = 1;
+        const url = URL.createObjectURL(file as Blob);
+        const pages = 1; // default; replace with real count if using a PDF lib
 
         const drawing: DrawingFile = {
           id,
@@ -47,15 +48,17 @@ export const useMultiplePDFUpload = () => {
 
     if (newDrawings.length > 0) {
       setDrawings(prev => [...prev, ...newDrawings]);
-      
-      // Set the first uploaded drawing as active if none is currently active
-      if (!activeDrawingId && newDrawings.length > 0) {
+      if (!activeDrawingId) {
         setActiveDrawingId(newDrawings[0].id);
       }
-
       toast.success(`${newDrawings.length} PDF${newDrawings.length > 1 ? 's' : ''} uploaded successfully`);
     }
+  };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+    addFiles(files);
     // Reset the input
     event.target.value = '';
   };
@@ -103,6 +106,7 @@ export const useMultiplePDFUpload = () => {
     activeDrawingId,
     activeDrawing: getActiveDrawing(),
     handleFileUpload,
+    addFiles,
     removeDrawing,
     setActiveDrawing,
     clearAllDrawings
