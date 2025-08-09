@@ -217,12 +217,6 @@ const {
         {/* Progressive Step Timeline */}
         <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
 
-        {/* Measurement Tools Toolbar */}
-        <MeasurementToolbar 
-          currentTool={currentTool} 
-          onToolSelect={selectTool}
-          onUploadClick={() => fileInputRef.current?.click()}
-        />
 
         {/* Main Tabs Content */}
         <div className="flex-1 overflow-hidden">
@@ -235,8 +229,15 @@ const {
               </TabsList>
             </div>
 
-            {/* PDF Viewer Tab */}
+            {/* Take-Off (Drawings) Tab */}
             <TabsContent value="drawings" className="flex-1 p-6 overflow-hidden">
+              <div className="mb-3">
+                <MeasurementToolbar 
+                  currentTool={currentTool} 
+                  onToolSelect={selectTool}
+                  onUploadClick={() => fileInputRef.current?.click()}
+                />
+              </div>
               <PDFViewer 
                 pdfUrl={activeDrawing?.url || null} 
                 canvasRef={canvasRef} 
