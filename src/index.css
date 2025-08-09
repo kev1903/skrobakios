@@ -115,6 +115,9 @@ div[data-rbd-drag-handle-draggable-id] {
 
     --radius: 0.75rem;
 
+    /* Header height used for fixed menu spacing */
+    --header-height: 56px;
+
     /* Enhanced Blue Glassmorphism Theme - Ultra Transparent */
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-bg-light: rgba(255, 255, 255, 0.08);
@@ -191,6 +194,9 @@ div[data-rbd-drag-handle-draggable-id] {
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 210 40% 90%;
+    
+    /* Header height used for fixed menu spacing */
+    --header-height: 56px;
     
     /* Dark Mode Enhanced Glassmorphism - Ultra Transparent */
     --glass-bg: rgba(0, 0, 0, 0.05);
