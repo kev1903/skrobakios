@@ -19,6 +19,7 @@ import { AppContextProvider } from "./contexts/AppContextProvider";
 
 import { InvoicesPage } from "./components/InvoicesPage";
 import { EstimatesPage } from "./components/EstimatesPage";
+import { EstimationLibraryPage } from "./components/EstimationLibraryPage";
 import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
 import { CompanyEditPage } from "./components/CompanyEditPage";
@@ -86,6 +87,23 @@ const EstimateCreationPageWrapper = () => {
 
   return (
     <EstimateCreationPage onNavigate={handleNavigate} />
+  );
+};
+
+// Wrapper component for EstimationLibraryPage with proper navigation
+const EstimationLibraryPageWrapper = () => {
+  const navigate = useNavigate();
+  
+  const handleNavigate = (page: string) => {
+    if (page === 'sales') {
+      navigate('/?page=sales');
+    } else {
+      navigate(`/?page=${page}`);
+    }
+  };
+
+  return (
+    <EstimationLibraryPage onNavigate={handleNavigate} />
   );
 };
 
@@ -215,6 +233,7 @@ const AppContent = () => {
         
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
+        <Route path="/estimates/library" element={<EstimationLibraryPageWrapper />} />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
         {/* Profile edit route removed */}
         <Route path="/impersonate" element={<Index />} />

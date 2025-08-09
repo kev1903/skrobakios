@@ -11,13 +11,14 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
+import {
   ArrowLeft, 
   Search, 
   Plus, 
   Eye,
   Edit,
   Settings,
+  BookOpen,
   MoreVertical
 } from 'lucide-react';
 import {
@@ -156,6 +157,15 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => (window.location.href = '/estimates/library')}
+              className="flex items-center space-x-2 glass-light border-white/20"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Library</span>
+            </Button>
             <Button 
               onClick={handleNewEstimate}
               className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground"
