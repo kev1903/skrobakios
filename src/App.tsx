@@ -38,6 +38,7 @@ import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
 import { GlobalSidebarProvider } from "./contexts/GlobalSidebarContext";
 import { GlobalSidebar } from "./components/GlobalSidebar";
+import { EstimationPage } from "./components/sales/EstimationPage";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -88,6 +89,14 @@ const EstimateCreationPageWrapper = () => {
   return (
     <EstimateCreationPage onNavigate={handleNavigate} />
   );
+};
+
+// Wrapper for editing existing estimate
+const EstimateEditPageWrapper = () => {
+  const navigate = useNavigate();
+  const { estimateId } = useParams<{ estimateId: string }>();
+  const handleBack = () => navigate('/estimates');
+  return <EstimationPage onBack={handleBack} estimateId={estimateId} />;
 };
 
 // Wrapper component for EstimationLibraryPage with proper navigation
@@ -233,6 +242,7 @@ const AppContent = () => {
         
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
+        <Route path="/estimates/edit/:estimateId" element={<EstimateEditPageWrapper />} />
         <Route path="/estimates/library" element={<EstimationLibraryPageWrapper />} />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
         {/* Profile edit route removed */}

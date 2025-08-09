@@ -233,9 +233,13 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
                       <TableCell className="font-medium text-foreground">
                         {estimate.estimate_number}
                       </TableCell>
-                      <TableCell>
-                        <div className="font-medium text-foreground">{estimate.estimate_name}</div>
-                      </TableCell>
+                       <TableCell>
+                         <div className="font-medium text-foreground">
+                           <button onClick={() => navigate(`/estimates/edit/${estimate.id}`)} className="font-medium text-primary hover:underline">
+                             {estimate.estimate_name}
+                           </button>
+                         </div>
+                       </TableCell>
                       <TableCell>
                         <div>
                           <div className="font-medium text-foreground">{estimate.client_name}</div>
@@ -267,11 +271,11 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="glass-light border-white/20 backdrop-blur-xl">
-                            <DropdownMenuItem className="hover:bg-white/10">
+                            <DropdownMenuItem className="hover:bg-white/10" onClick={() => navigate(`/estimates/edit/${estimate.id}`)}>
                               <Eye className="w-4 h-4 mr-2" />
                               View
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-white/10">
+                            <DropdownMenuItem className="hover:bg-white/10" onClick={() => navigate(`/estimates/edit/${estimate.id}`)}>
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>

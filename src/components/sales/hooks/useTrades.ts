@@ -109,6 +109,7 @@ export const useTrades = () => {
     addMeasurement,
     updateMeasurement,
     removeMeasurement,
-    updateTradeName
+    updateTradeName,
+    setTradesData: setTrades
   };
 };

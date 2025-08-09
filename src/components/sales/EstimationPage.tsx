@@ -15,9 +15,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 interface EstimationPageProps {
   onBack?: () => void;
+  estimateId?: string;
 }
 export const EstimationPage = ({
-  onBack
+  onBack,
+  estimateId
 }: EstimationPageProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -41,8 +43,9 @@ export const EstimationPage = ({
     addMeasurement: addTradeMeasurement,
     updateMeasurement,
     removeMeasurement,
-    updateTradeName
-  } = useTrades();
+    updateTradeName,
+    setTradesData
+  } = useTrades(); // includes setTradesData for loading existing
 const {
   fileInputRef,
   drawings,
@@ -165,6 +168,27 @@ const {
     if (activeTab === 'quantities') setCurrentStep((prev) => (prev < 5 && prev >= 3 ? prev : 4));
     if (activeTab === 'summary') setCurrentStep(5);
   }, [activeTab]);
+
+  // Auto-load estimate when estimateId prop is provided
+  useEffect(() => {
+    if (!estimateId) return;
+    (async () => {
+      try {
+        const { estimate, trades: loadedTrades } = await loadEstimate(estimateId);
+        setCurrentEstimateId(estimate.id);
+        setEstimateTitle(estimate.estimate_name);
+        setEstimateNumber(estimate.estimate_number);
+        setProjectType(estimate.notes || '');
+        // @ts-ignore: setTradesData is exposed by useTrades
+        if (typeof (setTradesData as any) === 'function') {
+          // @ts-ignore
+          setTradesData(loadedTrades);
+        }
+      } catch (e) {
+        console.error('Auto-load estimate failed:', e);
+      }
+    })();
+  }, [estimateId]);
 
   const handleStepChange = (s: number) => {
     setCurrentStep(s);

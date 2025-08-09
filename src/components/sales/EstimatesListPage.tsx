@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign, MapPin, ArrowLeft, BookOpen } from 'lucide-react';
+import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign, MapPin, ArrowLeft, BookOpen, Trash } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -39,12 +39,10 @@ export const EstimatesListPage = ({
   }, []);
   const fetchEstimates = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('estimates').select('*').order('created_at', {
-        ascending: false
-      });
+      const { data, error } = await supabase
+        .from('estimates')
+        .select('*')
+        .order('created_at', { ascending: false });
       if (error) {
         console.error('Error fetching estimates:', error);
       } else {
@@ -55,6 +53,16 @@ export const EstimatesListPage = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const deleteEstimate = async (id: string) => {
+    if (!confirm('Delete this estimate? This cannot be undone.')) return;
+    const { error } = await supabase.from('estimates').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting estimate:', error);
+      return;
+    }
+    setEstimates(prev => prev.filter(e => e.id !== id));
   };
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -250,7 +258,9 @@ export const EstimatesListPage = ({
                       </span>
                     </TableCell>
                     <TableCell className="px-6 py-4">
-                      <span className="font-medium">{estimate.estimate_name}</span>
+                      <button onClick={() => navigate(`/estimates/edit/${estimate.id}`)} className="font-medium text-primary hover:underline">
+                        {estimate.estimate_name}
+                      </button>
                     </TableCell>
                     <TableCell className="px-6 py-4">
                       <span className="font-medium text-foreground">{estimate.client_name}</span>
@@ -291,17 +301,17 @@ export const EstimatesListPage = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48 z-50 bg-background border shadow-lg">
-                          <DropdownMenuItem className="cursor-pointer">
+                          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(`/estimates/edit/${estimate.id}`)}>
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer">
+                          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(`/estimates/edit/${estimate.id}`)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Estimate
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer">
-                            <FileText className="w-4 h-4 mr-2" />
-                            Generate PDF
+                          <DropdownMenuItem className="cursor-pointer text-destructive" onClick={() => deleteEstimate(estimate.id)}>
+                            <Trash className="w-4 h-4 mr-2" />
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
