@@ -4,7 +4,7 @@ export const useMenuBarSpacing = (currentPage?: string) => {
   // Use dynamic CSS variable set by MenuBar to avoid gaps
   const getSpacingClasses = () => {
     if (currentPage === 'tasks') return '';
-    return 'pt-[var(--header-height)]';
+    return 'mt-[var(--header-height)]';
   };
 
   const getMinHeightClasses = () => {

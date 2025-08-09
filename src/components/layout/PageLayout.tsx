@@ -33,9 +33,9 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <div className="w-full h-[calc(100vh-var(--header-height))] overflow-hidden min-h-0">
-          {children}
-        </div>
+          <div className="w-full mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] overflow-hidden min-h-0">
+            {children}
+          </div>
       </ProtectedRoute>
     );
   }
@@ -54,7 +54,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className={`flex-1 overflow-hidden w-full pt-[var(--header-height)] h-[calc(100vh-var(--header-height))] min-h-0`}>
+      <main className={`flex-1 overflow-hidden w-full mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] min-h-0`}>
         {children}
       </main>
     </ProtectedRoute>
