@@ -2,36 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Search, 
-  Plus, 
-  Eye,
-  Edit,
-  MoreVertical,
-  Calculator,
-  FileText,
-  DollarSign,
-  MapPin,
-  ArrowLeft
-} from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign, MapPin, ArrowLeft } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-
 interface Estimate {
   id: string;
   estimate_number: string;
@@ -45,28 +21,28 @@ interface Estimate {
   created_at: string;
   project_address?: string;
 }
-
 interface EstimatesListPageProps {
   onNavigate?: (page: string) => void;
   onCreateEstimate?: () => void;
 }
-
-export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesListPageProps) => {
+export const EstimatesListPage = ({
+  onNavigate,
+  onCreateEstimate
+}: EstimatesListPageProps) => {
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-
   useEffect(() => {
     fetchEstimates();
   }, []);
-
   const fetchEstimates = async () => {
     try {
-      const { data, error } = await supabase
-        .from('estimates')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('estimates').select('*').order('created_at', {
+        ascending: false
+      });
       if (error) {
         console.error('Error fetching estimates:', error);
       } else {
@@ -78,35 +54,39 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
       setLoading(false);
     }
   };
-
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'draft': return 'secondary';
-      case 'sent': return 'outline';
-      case 'accepted': return 'default';
-      case 'rejected': return 'destructive';
-      case 'expired': return 'secondary';
-      default: return 'secondary';
+      case 'draft':
+        return 'secondary';
+      case 'sent':
+        return 'outline';
+      case 'accepted':
+        return 'default';
+      case 'rejected':
+        return 'destructive';
+      case 'expired':
+        return 'secondary';
+      default:
+        return 'secondary';
     }
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'draft': return 'text-yellow-600';
-      case 'sent': return 'text-blue-600';
-      case 'accepted': return 'text-green-600';
-      case 'rejected': return 'text-red-600';
-      case 'expired': return 'text-gray-600';
-      default: return 'text-gray-600';
+      case 'draft':
+        return 'text-yellow-600';
+      case 'sent':
+        return 'text-blue-600';
+      case 'accepted':
+        return 'text-green-600';
+      case 'rejected':
+        return 'text-red-600';
+      case 'expired':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
     }
   };
-
-  const filteredEstimates = estimates.filter(estimate =>
-    estimate.estimate_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    estimate.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    estimate.estimate_number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const filteredEstimates = estimates.filter(estimate => estimate.estimate_name.toLowerCase().includes(searchTerm.toLowerCase()) || estimate.client_name.toLowerCase().includes(searchTerm.toLowerCase()) || estimate.estimate_number.toLowerCase().includes(searchTerm.toLowerCase()));
   const handleNewEstimate = () => {
     if (onCreateEstimate) {
       onCreateEstimate();
@@ -114,46 +94,30 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
       window.location.href = '/estimates/new';
     }
   };
-
   const handleBackToSales = () => {
     if (onNavigate) {
       onNavigate('sales');
     }
   };
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
+    return <div className="flex items-center justify-center h-64">
         <div className="text-lg">Loading estimates...</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-8 p-6">
+  return <div className="space-y-8 p-6">
       {/* Header Section */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          {onNavigate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToSales}
-              className="flex items-center gap-2 mt-1 hover:bg-muted"
-            >
+          {onNavigate && <Button variant="ghost" size="sm" onClick={handleBackToSales} className="flex items-center gap-2 mt-1 hover:bg-muted">
               <ArrowLeft className="w-4 h-4" />
               Back to Sales
-            </Button>
-          )}
+            </Button>}
           <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">Construction Estimates</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Estimates</h2>
             <p className="text-lg text-muted-foreground">Manage your project estimates and client quotes</p>
           </div>
         </div>
-        <Button 
-          onClick={handleNewEstimate}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm"
-        >
+        <Button onClick={handleNewEstimate} className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm">
           <Plus className="w-4 h-4" />
           <span>New Estimate</span>
         </Button>
@@ -224,12 +188,7 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
       <div className="flex items-center justify-between gap-4 p-4 bg-muted/30 rounded-xl border">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Search by estimate name, number, or client..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 border-0 bg-background shadow-sm"
-          />
+          <Input placeholder="Search by estimate name, number, or client..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 border-0 bg-background shadow-sm" />
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="bg-background shadow-sm">
@@ -257,8 +216,7 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredEstimates.length === 0 ? (
-                <TableRow>
+              {filteredEstimates.length === 0 ? <TableRow>
                   <TableCell colSpan={9} className="text-center py-12">
                     <div className="flex flex-col items-center gap-4">
                       <div className="p-4 bg-muted/50 rounded-full">
@@ -268,19 +226,13 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
                         <p className="text-lg font-medium text-muted-foreground">No estimates found</p>
                         <p className="text-sm text-muted-foreground">Get started by creating your first estimate</p>
                       </div>
-                      <Button 
-                        onClick={handleNewEstimate}
-                        className="mt-2"
-                      >
+                      <Button onClick={handleNewEstimate} className="mt-2">
                         <Plus className="w-4 h-4 mr-2" />
                         Create your first estimate
                       </Button>
                     </div>
                   </TableCell>
-                </TableRow>
-              ) : (
-                filteredEstimates.map((estimate) => (
-                  <TableRow key={estimate.id} className="hover:bg-muted/50 transition-colors">
+                </TableRow> : filteredEstimates.map(estimate => <TableRow key={estimate.id} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="px-6 py-4">
                       <span className="font-mono font-medium text-primary">
                         {estimate.estimate_number}
@@ -311,10 +263,7 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
                       </span>
                     </TableCell>
                     <TableCell className="px-6 py-4">
-                      <Badge 
-                        variant={getStatusBadgeVariant(estimate.status)}
-                        className="font-medium capitalize"
-                      >
+                      <Badge variant={getStatusBadgeVariant(estimate.status)} className="font-medium capitalize">
                         {estimate.status}
                       </Badge>
                     </TableCell>
@@ -326,11 +275,7 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
                     <TableCell className="px-6 py-4 text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0 hover:bg-muted"
-                          >
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-muted">
                             <MoreVertical className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -350,13 +295,10 @@ export const EstimatesListPage = ({ onNavigate, onCreateEstimate }: EstimatesLis
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                  </TableRow>
-                ))
-              )}
+                  </TableRow>)}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
