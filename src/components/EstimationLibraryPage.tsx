@@ -25,7 +25,7 @@ export const EstimationLibraryPage = ({ onNavigate }: EstimationLibraryPageProps
   const handleBack = () => onNavigate?.('sales');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] overflow-y-auto">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
 

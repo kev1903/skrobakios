@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ export const EstimatesListPage = ({
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   useEffect(() => {
     fetchEstimates();
   }, []);
@@ -122,7 +124,7 @@ export const EstimatesListPage = ({
             variant="outline"
             size="sm"
             className="flex items-center gap-2 bg-background shadow-sm"
-            onClick={() => (window.location.href = '/estimates/library')}
+            onClick={() => navigate('/estimates/library')}
           >
             <BookOpen className="w-4 h-4" />
             <span>Library</span>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +52,7 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEstimates();
@@ -160,7 +162,7 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => (window.location.href = '/estimates/library')}
+              onClick={() => navigate('/estimates/library')}
               className="flex items-center space-x-2 glass-light border-white/20"
             >
               <BookOpen className="w-4 h-4" />
