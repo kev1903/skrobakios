@@ -243,76 +243,59 @@ const {
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
           <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6 pt-4">
-            {/* Red section: Input Data table form */}
+            {/* Red section: Uploaded PDFs table */}
             <div className="overflow-auto">
               <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-56">Field</TableHead>
-                      <TableHead>Value</TableHead>
-                      <TableHead className="w-64">Notes</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Estimate Title</TableCell>
-                      <TableCell>
-                        <Input value={estimateTitle} onChange={(e) => setEstimateTitle(e.target.value)} placeholder="Enter estimate title" />
-                      </TableCell>
-                      <TableCell>
-                        <Input placeholder="Notes (optional)" />
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Project Type</TableCell>
-                      <TableCell>
-                        <Select value={projectType} onValueChange={setProjectType}>
-                          <SelectTrigger id="projectTypeRow">
-                            <SelectValue placeholder="Select project type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="residential">Residential</SelectItem>
-                            <SelectItem value="commercial">Commercial</SelectItem>
-                            <SelectItem value="industrial">Industrial</SelectItem>
-                            <SelectItem value="renovation">Renovation</SelectItem>
-                            <SelectItem value="new-construction">New Construction</SelectItem>
-                            <SelectItem value="extension">Extension</SelectItem>
-                            <SelectItem value="fitout">Fitout</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <Input placeholder="Notes (optional)" />
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Markup (%)</TableCell>
-                      <TableCell>
-                        <Input type="number" min={0} max={100} value={markupPercentage} onChange={(e) => setMarkupPercentage(Number(e.target.value))} />
-                      </TableCell>
-                      <TableCell>
-                        <Input placeholder="Notes (optional)" />
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Tax (%)</TableCell>
-                      <TableCell>
-                        <Input type="number" min={0} max={100} value={taxPercentage} onChange={(e) => setTaxPercentage(Number(e.target.value))} />
-                      </TableCell>
-                      <TableCell>
-                        <Input placeholder="Notes (optional)" />
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Estimate #</TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">{estimateNumber ? `#${estimateNumber}` : 'Will be generated on first save'}</span>
-                      </TableCell>
-                      <TableCell />
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                {drawings.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="h-8">
+                        <TableHead className="text-xs font-medium">Name</TableHead>
+                        <TableHead className="w-48 text-xs font-medium">Type</TableHead>
+                        <TableHead className="w-20 text-xs font-medium">Pages</TableHead>
+                        <TableHead className="w-56 text-xs font-medium">Uploaded</TableHead>
+                        <TableHead className="w-40 text-right text-xs font-medium">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {drawings.map((d) => (
+                        <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-8'}>
+                          <TableCell className="font-medium py-1">
+                            {d.name}
+                            {d.id === activeDrawingId ? ' (Active)' : ''}
+                          </TableCell>
+                          <TableCell className="py-1">
+                            <Select
+                              defaultValue={docTypes[d.id]}
+                              onValueChange={(val) => setDocTypes((prev) => ({ ...prev, [d.id]: val }))}
+                            >
+                              <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent className="z-50 bg-popover">
+                                {documentTypeOptions.map((opt) => (
+                                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="py-1">{d.pages}</TableCell>
+                          <TableCell className="py-1">{new Date(d.uploadedAt).toLocaleString()}</TableCell>
+                          <TableCell className="text-right space-x-2 py-1">
+                            <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
+                              View
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => removeDrawing(d.id)}>
+                              Remove
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="p-6 text-sm text-muted-foreground">No drawings uploaded yet.</div>
+                )}
               </div>
             </div>
 
