@@ -14,6 +14,7 @@ import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 import { toast } from 'sonner';
 interface EstimationPageProps {
@@ -243,6 +244,43 @@ const {
                   onUploadClick={() => fileInputRef.current?.click()}
                 />
               </div>
+
+              {drawings.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium mb-2">Uploaded Documents</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead className="w-24">Pages</TableHead>
+                        <TableHead className="w-56">Uploaded</TableHead>
+                        <TableHead className="w-48 text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {drawings.map((d) => (
+                        <TableRow key={d.id} className={d.id === activeDrawingId ? 'bg-muted/40' : ''}>
+                          <TableCell className="font-medium">
+                            {d.name}
+                            {d.id === activeDrawingId ? ' (Active)' : ''}
+                          </TableCell>
+                          <TableCell>{d.pages}</TableCell>
+                          <TableCell>{new Date(d.uploadedAt).toLocaleString()}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                            <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
+                              View
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => removeDrawing(d.id)}>
+                              Remove
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+
               <PDFViewer 
                 pdfUrl={activeDrawing?.url || null} 
                 canvasRef={canvasRef} 
