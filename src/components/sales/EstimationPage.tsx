@@ -73,7 +73,19 @@ const {
   // Document type state for drawings
   const [docTypes, setDocTypes] = useState<Record<string, string>>({});
   const documentTypeOptions = [
-    'Floor Plan', 'Site Plan', 'Elevation', 'Section', 'Detail', 'Specification', 'Schedule', 'Addendum', 'Other'
+    'Architectural',
+    'Structural',
+    'Civil',
+    'Electrical',
+    'HVAC',
+    'Plumbing',
+    'Landscaping',
+    'FF&E',
+    'Colour Selection',
+    'Finishes',
+    'Interior Design',
+    'Energy Report',
+    'Soil Report',
   ];
 
   // Estimate state
