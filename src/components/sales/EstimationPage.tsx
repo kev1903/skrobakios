@@ -5,8 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, ArrowLeft } from 'lucide-react';
 
-import { MeasurementToolbar } from './components/MeasurementToolbar';
-import { PDFViewer } from './components/PDFViewer';
 import { QuantitiesTable } from './components/QuantitiesTable';
 import { SummaryTab } from './components/SummaryTab';
 import { StepTimeline } from '@/components/ui/step-timeline';
@@ -237,17 +235,15 @@ const {
 
             {/* Take-Off (Drawings) Tab */}
             <TabsContent value="drawings" className="flex-1 p-6 overflow-auto">
-              <div className="mb-3">
-                <MeasurementToolbar 
-                  currentTool={currentTool} 
-                  onToolSelect={selectTool}
-                  onUploadClick={() => fileInputRef.current?.click()}
-                />
+              <div className="mb-3 flex items-center justify-between">
+                <h4 className="text-sm font-medium">Uploaded Documents</h4>
+                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                  Upload PDF
+                </Button>
               </div>
 
-              {drawings.length > 0 && (
+              {drawings.length > 0 ? (
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium mb-2">Uploaded Documents</h4>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -279,18 +275,9 @@ const {
                     </TableBody>
                   </Table>
                 </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No drawings uploaded yet.</p>
               )}
-
-              <PDFViewer 
-                pdfUrl={activeDrawing?.url || null} 
-                canvasRef={canvasRef} 
-                currentTool={currentTool} 
-                fileInputRef={fileInputRef}
-                onMeasurementAdd={addMeasurement}
-                onMeasurementUpdate={updateTakeoffMeasurement}
-                onMeasurementDelete={deleteMeasurement}
-                measurements={measurements}
-              />
             </TabsContent>
 
             {/* Quantities and Rates Tab */}
