@@ -23,7 +23,7 @@ const Index = () => {
     // Initialize based on current route - if we're on root path, show landing page
     return window.location.pathname === "/" ? "landing" : "landing";
   });
-  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
+  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
 
