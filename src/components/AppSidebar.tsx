@@ -17,7 +17,7 @@ export const AppSidebar = ({
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="h-full min-h-0 flex w-full">
         <ResponsiveSidebar currentPage={currentPage} onNavigate={onNavigate} />
       </div>
     </SidebarProvider>

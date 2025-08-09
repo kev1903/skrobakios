@@ -32,6 +32,7 @@ export const MenuBar = () => {
   const { currentCompany } = useCompany();
   const { activeContext, setActiveContext } = useAppContext();
   const { toggleSidebar } = useGlobalSidebar();
+  const barRef = useRef<HTMLDivElement>(null);
   
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
@@ -253,10 +254,28 @@ export const MenuBar = () => {
     }
   };
 
+  // Keep --header-height in sync with actual bar height to prevent gaps
+  React.useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const setVar = () => {
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      document.documentElement.style.setProperty('--header-height', `${h}px`);
+    };
+    setVar();
+    const ro = new ResizeObserver(() => setVar());
+    ro.observe(el);
+    window.addEventListener('resize', setVar);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', setVar);
+    };
+  }, [isFormExpanded, activeTimer]);
+
   // Always render the top bar, but show different content based on timer state
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
+      <div ref={barRef} className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center space-x-4">

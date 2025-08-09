@@ -33,7 +33,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <div className="w-full h-[calc(100vh-var(--header-height))] pt-[var(--header-height)] overflow-hidden min-h-0">
+        <div className="w-full h-[calc(100vh-var(--header-height))] overflow-hidden min-h-0">
           {children}
         </div>
       </ProtectedRoute>

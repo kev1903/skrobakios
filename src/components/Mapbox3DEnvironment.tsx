@@ -48,7 +48,7 @@ export const Mapbox3DEnvironment = ({
   const error = modelError || mapError;
 
   return (
-    <div className={`relative w-full h-screen ${className}`}>
+    <div className={`relative w-full h-full min-h-0 ${className}`}>
       {/* Map Container - Full viewport height */}
       <div ref={mapContainer} className="absolute inset-0" />
       

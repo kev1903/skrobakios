@@ -1,26 +1,20 @@
-import { useTimeTracking } from '@/contexts/TimeTrackingContext';
+
 
 export const useMenuBarSpacing = (currentPage?: string) => {
-  // For tasks page, don't apply any spacing since it's handled as full screen
+  // Use dynamic CSS variable set by MenuBar to avoid gaps
   const getSpacingClasses = () => {
-    if (currentPage === 'tasks') {
-      return '';
-    }
-    return 'pt-[73px]';
+    if (currentPage === 'tasks') return '';
+    return 'pt-[var(--header-height)]';
   };
 
   const getMinHeightClasses = () => {
-    if (currentPage === 'tasks') {
-      return 'min-h-screen';
-    }
-    return 'min-h-[calc(100vh-73px)]';
+    if (currentPage === 'tasks') return 'min-h-screen';
+    return 'min-h-[calc(100vh-var(--header-height))]';
   };
 
   const getFullHeightClasses = () => {
-    if (currentPage === 'tasks') {
-      return 'h-screen';
-    }
-    return 'h-[calc(100vh-73px)]';
+    if (currentPage === 'tasks') return 'h-screen';
+    return 'h-[calc(100vh-var(--header-height))]';
   };
 
   return {
