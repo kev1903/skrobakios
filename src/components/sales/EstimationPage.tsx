@@ -1,19 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, ArrowLeft } from 'lucide-react';
-
+import { Save, FileDown } from 'lucide-react';
+import { DrawingSidebar } from './components/DrawingSidebar';
+import { MeasurementToolbar } from './components/MeasurementToolbar';
+import { PDFViewer } from './components/PDFViewer';
 import { QuantitiesTable } from './components/QuantitiesTable';
 import { SummaryTab } from './components/SummaryTab';
-import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
 import { toast } from 'sonner';
 interface EstimationPageProps {
   onBack?: () => void;
@@ -45,15 +44,15 @@ export const EstimationPage = ({
     removeMeasurement,
     updateTradeName
   } = useTrades();
-const {
-  fileInputRef,
-  drawings,
-  activeDrawingId,
-  activeDrawing,
-  handleFileUpload,
-  removeDrawing,
-  setActiveDrawing
-} = useMultiplePDFUpload();
+  const {
+    fileInputRef,
+    drawings,
+    activeDrawingId,
+    activeDrawing,
+    handleFileUpload,
+    removeDrawing,
+    setActiveDrawing
+  } = useMultiplePDFUpload();
   const {
     saveEstimate,
     updateEstimate,
@@ -64,12 +63,17 @@ const {
   } = useEstimate();
 
   // Takeoff measurements system
-const {
-  measurements,
-  addMeasurement,
-  updateMeasurement: updateTakeoffMeasurement,
-  deleteMeasurement
-} = useTakeoffMeasurements();
+  const {
+    takeoffs,
+    measurements,
+    addMeasurement,
+    updateMeasurement: updateTakeoffMeasurement,
+    deleteMeasurement,
+    createTakeoff,
+    updateTakeoff,
+    deleteTakeoff,
+    addMeasurementToTakeoff
+  } = useTakeoffMeasurements();
 
   // Estimate state
   const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(null);
@@ -92,7 +96,6 @@ const {
       toast.error('Please enter an estimate title');
       return;
     }
-
     try {
       const estimateData = {
         estimate_name: estimateTitle,
@@ -101,7 +104,6 @@ const {
         status: 'draft' as const,
         estimate_date: new Date().toISOString().split('T')[0]
       };
-
       if (currentEstimateId) {
         await updateEstimate(currentEstimateId, estimateData, trades);
         toast.success('Estimate updated successfully');
@@ -116,70 +118,37 @@ const {
       console.error('Save error:', error);
     }
   };
-
   const handleLoadEstimate = async (estimateId: string) => {
     try {
-      const { estimate, trades: loadedTrades } = await loadEstimate(estimateId);
+      const {
+        estimate,
+        trades: loadedTrades
+      } = await loadEstimate(estimateId);
       setCurrentEstimateId(estimate.id);
       setEstimateTitle(estimate.estimate_name);
       setEstimateNumber(estimate.estimate_number);
-      setProjectType(estimate.notes || '');
-      // Note: integrate with trades hook to set the loaded trades
+      setProjectType(estimate.notes || ''); // Project type stored in notes
+      // Note: This would need to integrate with the trades hook to set the loaded trades
       toast.success('Estimate loaded successfully');
     } catch (error) {
       toast.error('Failed to load estimate');
       console.error('Load error:', error);
     }
   };
-  // Progressive steps definition
-  const steps = [
-    { id: 1, title: 'Step 1: Input Data' },
-    { id: 2, title: 'Step 2: Take-Off' },
-    { id: 3, title: 'Step 3: Cost Database' },
-    { id: 4, title: 'Step 4: Estimation Process' },
-    { id: 5, title: 'Step 5: Output & Integration' },
-  ];
-  const [currentStep, setCurrentStep] = useState<number>(1);
-
-  // Sync step with tabs roughly
-  useEffect(() => {
-    // Map tab to a step index for visual context only
-    if (activeTab === 'drawings') setCurrentStep((prev) => (prev < 3 ? prev : 1));
-    if (activeTab === 'quantities') setCurrentStep((prev) => (prev < 5 && prev >= 3 ? prev : 4));
-    if (activeTab === 'summary') setCurrentStep(5);
-  }, [activeTab]);
-
-  const handleStepChange = (s: number) => {
-    setCurrentStep(s);
-    // Optionally navigate key tabs for better UX
-    if (s <= 2) setActiveTab('drawings');
-    else if (s <= 4) setActiveTab('quantities');
-    else setActiveTab('summary');
-  };
-
-  return <div className="flex h-full bg-background">
+  return <div className="flex h-screen bg-background">
       {/* Hidden file input for PDF upload */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf"
-        multiple
-        style={{ display: 'none' }}
-        onChange={handleFileUpload}
-      />
+      <input ref={fileInputRef} type="file" accept=".pdf" multiple style={{
+      display: 'none'
+    }} onChange={handleFileUpload} />
       
+      {/* Left Sidebar - Drawings Section */}
+      <DrawingSidebar onBack={onBack} fileInputRef={fileInputRef} handleFileUpload={handleFileUpload} drawings={drawings} activeDrawingId={activeDrawingId} onSetActiveDrawing={setActiveDrawing} onRemoveDrawing={removeDrawing} takeoffs={takeoffs} onCreateTakeoff={createTakeoff} onDeleteTakeoff={deleteTakeoff} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-4">
-            {onBack && (
-              <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Back</span>
-              </Button>
-            )}
             <div className="flex-1">
               <Input id="estimateTitle" value={estimateTitle} onChange={e => setEstimateTitle(e.target.value)} placeholder="Enter estimate title..." className="text-lg font-semibold" />
             </div>
@@ -200,27 +169,19 @@ const {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button 
-                onClick={handleSaveEstimate} 
-                disabled={isSaving}
-                variant="default"
-                size="sm"
-              >
+              <Button onClick={handleSaveEstimate} disabled={isSaving} variant="default" size="sm">
                 <Save className="w-4 h-4 mr-2" />
                 {isSaving ? 'Saving...' : 'Save'}
               </Button>
-              {estimateNumber && (
-                <span className="text-sm text-muted-foreground self-center">
+              {estimateNumber && <span className="text-sm text-muted-foreground self-center">
                   #{estimateNumber}
-                </span>
-              )}
+                </span>}
             </div>
           </div>
         </div>
 
-        {/* Progressive Step Timeline */}
-        <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
-
+        {/* Measurement Tools Toolbar */}
+        <MeasurementToolbar currentTool={currentTool} onToolSelect={selectTool} onUploadClick={() => fileInputRef.current?.click()} />
 
         {/* Main Tabs Content */}
         <div className="flex-1 overflow-hidden">
@@ -233,57 +194,13 @@ const {
               </TabsList>
             </div>
 
-            {/* Take-Off (Drawings) Tab */}
-            <TabsContent value="drawings" className="flex-1 p-6 overflow-auto">
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="text-sm font-medium">Uploaded Documents</h4>
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                  Upload PDF
-                </Button>
-              </div>
-
-              {drawings.length > 0 ? (
-                <div className="mb-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead className="w-24">Pages</TableHead>
-                        <TableHead className="w-56">Uploaded</TableHead>
-                        <TableHead className="w-48 text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {drawings.map((d) => (
-                        <TableRow key={d.id} className={d.id === activeDrawingId ? 'bg-muted/40' : ''}>
-                          <TableCell className="font-medium">
-                            {d.name}
-                            {d.id === activeDrawingId ? ' (Active)' : ''}
-                          </TableCell>
-                          <TableCell>{d.pages}</TableCell>
-                          <TableCell>{new Date(d.uploadedAt).toLocaleString()}</TableCell>
-                          <TableCell className="text-right space-x-2">
-                            <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
-                              View
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => removeDrawing(d.id)}>
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No drawings uploaded yet.</p>
-              )}
+            {/* PDF Viewer Tab */}
+            <TabsContent value="drawings" className="flex-1 p-6 overflow-hidden">
+              <PDFViewer pdfUrl={activeDrawing?.url || null} canvasRef={canvasRef} currentTool={currentTool} fileInputRef={fileInputRef} onMeasurementAdd={addMeasurement} onMeasurementUpdate={updateTakeoffMeasurement} onMeasurementDelete={deleteMeasurement} measurements={measurements} />
             </TabsContent>
 
             {/* Quantities and Rates Tab */}
-            <TabsContent value="quantities" className="flex-1 p-6 overflow-auto">
-              <QuantitiesTable trades={trades} onAddTrade={addTrade} onAddMeasurement={addTradeMeasurement} onUpdateMeasurement={updateMeasurement} onRemoveMeasurement={removeMeasurement} onUpdateTradeName={updateTradeName} />
-            </TabsContent>
+            
 
             {/* Summary and Totals Tab */}
             <TabsContent value="summary" className="flex-1 p-6 overflow-auto">
