@@ -14,7 +14,7 @@ import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
-import { InputDataUpload } from './components/InputDataUpload';
+
 import { toast } from 'sonner';
 interface EstimationPageProps {
   onBack?: () => void;
@@ -236,36 +236,23 @@ const {
 
             {/* Take-Off (Drawings) Tab */}
             <TabsContent value="drawings" className="flex-1 p-6 overflow-hidden">
-              {currentStep === 1 ? (
-                <InputDataUpload
-                  fileInputRef={fileInputRef}
+              <div className="mb-3">
+                <MeasurementToolbar 
+                  currentTool={currentTool} 
+                  onToolSelect={selectTool}
                   onUploadClick={() => fileInputRef.current?.click()}
-                  drawings={drawings}
-                  activeDrawingId={activeDrawingId}
-                  onSetActiveDrawing={setActiveDrawing}
-                  onRemoveDrawing={removeDrawing}
                 />
-              ) : (
-                <>
-                  <div className="mb-3">
-                    <MeasurementToolbar 
-                      currentTool={currentTool} 
-                      onToolSelect={selectTool}
-                      onUploadClick={() => fileInputRef.current?.click()}
-                    />
-                  </div>
-                  <PDFViewer 
-                    pdfUrl={activeDrawing?.url || null} 
-                    canvasRef={canvasRef} 
-                    currentTool={currentTool} 
-                    fileInputRef={fileInputRef}
-                    onMeasurementAdd={addMeasurement}
-                    onMeasurementUpdate={updateTakeoffMeasurement}
-                    onMeasurementDelete={deleteMeasurement}
-                    measurements={measurements}
-                  />
-                </>
-              )}
+              </div>
+              <PDFViewer 
+                pdfUrl={activeDrawing?.url || null} 
+                canvasRef={canvasRef} 
+                currentTool={currentTool} 
+                fileInputRef={fileInputRef}
+                onMeasurementAdd={addMeasurement}
+                onMeasurementUpdate={updateTakeoffMeasurement}
+                onMeasurementDelete={deleteMeasurement}
+                measurements={measurements}
+              />
             </TabsContent>
 
             {/* Quantities and Rates Tab */}
