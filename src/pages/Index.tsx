@@ -104,7 +104,7 @@ const Index = () => {
         {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0">
-            <div className="flex-1 transition-all duration-300">
+            <div className={`flex-1 transition-all duration-300 ${currentPage !== "landing" && currentPage !== "auth" ? (isChatCollapsed ? "mr-16" : "mr-96") : ""}`}>
               <ContentRenderer 
                 currentPage={currentPage}
                 onNavigate={handleNavigate}
@@ -113,6 +113,14 @@ const Index = () => {
                 currentProject={currentProject}
               />
             </div>
+            {/* AI Chat sidebar on all pages except landing/auth */}
+            {currentPage !== "landing" && currentPage !== "auth" && (
+              <AiChatSidebar 
+                isCollapsed={isChatCollapsed} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                onNavigate={handleNavigate}
+              />
+            )}
             {/* Global sidebar available on all pages */}
             <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
           </div>
@@ -123,9 +131,7 @@ const Index = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
             <div className="relative z-10 flex h-screen min-h-0">
-              <div className={`flex-1 transition-all duration-300 ${
-                currentPage === "system" ? (isChatCollapsed ? "mr-16" : "mr-96") : ""
-              }`}>
+              <div className={`flex-1 transition-all duration-300 ${isChatCollapsed ? "mr-16" : "mr-96"}`}>
                 <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
                   <ContentRenderer 
                     currentPage={currentPage}
@@ -137,14 +143,12 @@ const Index = () => {
                 </PageLayout>
               </div>
               
-              {/* AI Chat sidebar appears only on Business Map page */}
-              {currentPage === "system" && (
-                <AiChatSidebar 
-                  isCollapsed={isChatCollapsed} 
-                  onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                  onNavigate={handleNavigate}
-                />
-              )}
+              {/* AI Chat sidebar appears on all pages */}
+              <AiChatSidebar 
+                isCollapsed={isChatCollapsed} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                onNavigate={handleNavigate}
+              />
               
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
