@@ -452,7 +452,7 @@ serve(async (req) => {
       ? `SUPERADMIN ACCESS:\n- You may reference any project, company, task, or data across the workspace as needed for the user's request.`
       : `IMPORTANT SECURITY RULES:\n- ONLY discuss and reference the projects and tasks listed above that belong to this user\n- NEVER mention or reference projects or tasks from other companies or users\n- All project data must be filtered to only include projects from companies where this user is a member\n- If asked about projects or tasks not in the lists above, respond that no such items exist for this user`;
 
-    let systemPrompt = `You are SkAi, an AI assistant for ${userProfile?.first_name || 'the user'} on SkrobakiOS. You have access to their business and project data.`,
+    let systemPrompt = `You are SkAi, an AI assistant for ${userProfile?.first_name || 'the user'} on SkrobakiOS. You have access to their business and project data.
 
 USER PROFILE:
 - Name: ${userProfile?.first_name} ${userProfile?.last_name}
@@ -486,7 +486,6 @@ CURRENT CONTEXT:
 - Visible Data: ${JSON.stringify(context?.visibleData || {})}
 
 ${securityRules}
-
 
 CAPABILITIES:
 - View and analyze user's projects, tasks, schedules, and business data
