@@ -268,6 +268,20 @@ serve(async (req) => {
       }
       
       user = authenticatedUser;
+
+      // Determine user role (superadmin) and select proper client
+      let isSuperadmin = false;
+      try {
+        const { data: userRoles } = await serviceClient
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        isSuperadmin = !!userRoles?.some((r: any) => r.role === 'superadmin');
+      } catch (roleErr) {
+        console.error('Failed to fetch user roles:', roleErr);
+      }
+      console.log('isSuperadmin:', isSuperadmin);
+      const dataClient = isSuperadmin ? serviceClient : supabaseClient;
     } catch (jwtError) {
       console.error('Failed to verify JWT token:', jwtError);
       return new Response(JSON.stringify({ 
@@ -321,7 +335,7 @@ serve(async (req) => {
     
     try {
       // Get user's companies
-      const { data: companies, error: companiesError } = await supabaseClient
+      const { data: companies, error: companiesError } = await dataClient
         .from('companies')
         .select(`
           id, name, slug,
@@ -339,7 +353,7 @@ serve(async (req) => {
       // Get user's projects from their companies
       if (userCompanies.length > 0) {
         const companyIds = userCompanies.map(c => c.id);
-        const { data: projects, error: projectsError } = await supabaseClient
+        const { data: projects, error: projectsError } = await dataClient
           .from('projects')
           .select('id, name, project_id, description, status, priority, location, company_id')
           .in('company_id', companyIds);
@@ -356,7 +370,7 @@ serve(async (req) => {
       if (currentProjectId) {
         // Try to fetch from sk_25008_design table first for the current project
         if (currentProjectId === '736d0991-6261-4884-8353-3522a7a98720' || currentProjectId?.toLowerCase().includes('sk')) {
-          const { data: sk25008Tasks, error: sk25008Error } = await supabaseClient
+          const { data: sk25008Tasks, error: sk25008Error } = await dataClient
             .from('sk_25008_design')
             .select('*')
             .order('start_date', { ascending: true });
@@ -386,7 +400,7 @@ serve(async (req) => {
         
         // If no sk_25008_design tasks found, try general tasks table
         if (userTasks.length === 0) {
-          const { data: generalTasks, error: generalError } = await supabaseClient
+          const { data: generalTasks, error: generalError } = await dataClient
             .from('tasks')
             .select('*')
             .eq('project_id', currentProjectId)
@@ -402,7 +416,7 @@ serve(async (req) => {
       } else if (userProjects.length > 0) {
         // Get tasks for all user projects
         const projectIds = userProjects.map(p => p.id);
-        const { data: allTasks, error: tasksError } = await supabaseClient
+        const { data: allTasks, error: tasksError } = await dataClient
           .from('tasks')
           .select('*')
           .in('project_id', projectIds)
@@ -417,7 +431,7 @@ serve(async (req) => {
       }
       
       // Get user profile
-      const { data: profile, error: profileError } = await supabaseClient
+      const { data: profile, error: profileError } = await dataClient
         .from('profiles')
         .select('first_name, last_name, email, company, job_title')
         .eq('user_id', user.id)
@@ -434,7 +448,11 @@ serve(async (req) => {
     }
 
     // Build context-aware system prompt with actual user data
-    let systemPrompt = `You are SkAi, an AI assistant for ${userProfile?.first_name || 'the user'} on SkrobakiOS. You have access to their business and project data.
+    const securityRules = isSuperadmin
+      ? `SUPERADMIN ACCESS:\n- You may reference any project, company, task, or data across the workspace as needed for the user's request.`
+      : `IMPORTANT SECURITY RULES:\n- ONLY discuss and reference the projects and tasks listed above that belong to this user\n- NEVER mention or reference projects or tasks from other companies or users\n- All project data must be filtered to only include projects from companies where this user is a member\n- If asked about projects or tasks not in the lists above, respond that no such items exist for this user`;
+
+    let systemPrompt = `You are SkAi, an AI assistant for ${userProfile?.first_name || 'the user'} on SkrobakiOS. You have access to their business and project data.`,
 
 USER PROFILE:
 - Name: ${userProfile?.first_name} ${userProfile?.last_name}
@@ -467,11 +485,8 @@ CURRENT CONTEXT:
 - Project ID: ${context?.projectId || 'None'}
 - Visible Data: ${JSON.stringify(context?.visibleData || {})}
 
-IMPORTANT SECURITY RULES:
-- ONLY discuss and reference the projects and tasks listed above that belong to this user
-- NEVER mention or reference projects or tasks from other companies or users
-- All project data must be filtered to only include projects from companies where this user is a member
-- If asked about projects or tasks not in the lists above, respond that no such items exist for this user
+${securityRules}
+
 
 CAPABILITIES:
 - View and analyze user's projects, tasks, schedules, and business data
@@ -567,7 +582,7 @@ RESPONSE GUIDELINES:
           console.log('AI command detected:', commandData);
           
           // Execute the command
-          const commandResult = await executeAiCommand(commandData, supabaseClient, context?.projectId);
+          const commandResult = await executeAiCommand(commandData, dataClient, context?.projectId);
           
           if (commandResult.success) {
             console.log('AI command executed successfully:', commandResult);
