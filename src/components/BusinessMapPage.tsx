@@ -958,7 +958,7 @@ export const BusinessMapPage = ({
       </div>;
   }
   return (
-    <div className="h-full bg-background flex flex-col">
+    <div className="h-full min-h-0 bg-background flex flex-col">
       {/* Header with Back Button, Title, and Search */}
       <div className="bg-card/50 backdrop-blur-sm border-b p-4">
         <div className="flex items-center justify-between gap-4">
@@ -1010,7 +1010,7 @@ export const BusinessMapPage = ({
           onConnect={onConnect} 
           nodeTypes={nodeTypes} 
           fitView 
-          className="bg-background" 
+          className="bg-background h-full" 
           nodesDraggable={!isMapLocked} 
           nodesConnectable={!isMapLocked} 
           elementsSelectable={!isMapLocked} 
