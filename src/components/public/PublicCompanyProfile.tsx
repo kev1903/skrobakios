@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Building2, MapPin, Globe, Phone, Mail, Users, Star, ExternalLink, Calendar } from 'lucide-react';
 import { ReviewList } from '@/components/review/ReviewList';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -340,12 +340,12 @@ export const PublicCompanyProfile = () => {
                           <div className="flex items-center space-x-2">
                             <h4 className="font-semibold truncate">
                               {member.slug ? (
-                                <a 
-                                  href={`/profile/${member.slug}`}
+                                <Link 
+                                  to={`/profile/${member.slug}`}
                                   className="text-primary hover:underline"
                                 >
                                   {member.first_name} {member.last_name}
-                                </a>
+                                </Link>
                               ) : (
                                 `${member.first_name} ${member.last_name}`
                               )}
@@ -478,9 +478,9 @@ export const PublicCompanyProfile = () => {
                 )}
                 
                 <Button variant="outline" className="w-full" asChild>
-                  <a href="/directory">
+                  <Link to="/directory">
                     Write a Review
-                  </a>
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Building2, Users, Home, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
+import { Link } from 'react-router-dom';
 interface PublicNavbarProps {
   currentPage?: 'directory' | 'profile' | 'company';
 }
@@ -23,50 +23,50 @@ export const PublicNavbar = ({ currentPage }: PublicNavbarProps) => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
-            <a 
-              href="/"
+            <Link 
+              to="/"
               className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary ${
                 currentPage === undefined ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Home className="h-4 w-4" />
               <span>Home</span>
-            </a>
+            </Link>
             
-            <a 
-              href="/directory"
+            <Link 
+              to="/directory"
               className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary ${
                 currentPage === 'directory' ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Search className="h-4 w-4" />
               <span>Browse Directory</span>
-            </a>
+            </Link>
             
-            <a 
-              href="/directory"
+            <Link 
+              to="/directory"
               className="flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               <Users className="h-4 w-4" />
               <span>Professionals</span>
-            </a>
+            </Link>
             
-            <a 
-              href="/directory"
+            <Link 
+              to="/directory"
               className="flex items-center space-x-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               <Building2 className="h-4 w-4" />
               <span>Companies</span>
-            </a>
+            </Link>
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
             <Button variant="outline" size="sm" asChild>
-              <a href="/?page=auth">Sign In</a>
+              <Link to="/?page=auth">Sign In</Link>
             </Button>
             <Button size="sm" asChild>
-              <a href="/?page=auth">Join Directory</a>
+              <Link to="/?page=auth">Join Directory</Link>
             </Button>
           </div>
 

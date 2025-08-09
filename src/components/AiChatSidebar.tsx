@@ -38,7 +38,18 @@ export function AiChatSidebar({
   onToggleCollapse,
   onNavigate
 }: AiChatSidebarProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const raw = localStorage.getItem('aiChatMessages');
+      if (raw) {
+        const parsed = JSON.parse(raw) as Array<{ id: string; content: string; role: 'user' | 'assistant'; timestamp: string | Date }>;
+        return parsed.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
+      }
+    } catch (e) {
+      console.error('Failed to load chat history', e);
+    }
+    return [];
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -86,6 +97,15 @@ export function AiChatSidebar({
   };
   useEffect(() => {
     scrollToBottom();
+  }, [messages]);
+
+  // Persist chat messages to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('aiChatMessages', JSON.stringify(messages));
+    } catch (e) {
+      console.error('Failed to persist chat history', e);
+    }
   }, [messages]);
 
   // Fetch user profile when authenticated
