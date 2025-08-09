@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-import { ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
 
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
@@ -102,44 +102,6 @@ const {
 
   // Debug logging
   console.log('Active drawing:', activeDrawing);
-
-  // Autosave setup
-  const autosaveTimerRef = useRef<number | null>(null);
-
-  const triggerAutosave = () => {
-    if (autosaveTimerRef.current) {
-      window.clearTimeout(autosaveTimerRef.current);
-    }
-    autosaveTimerRef.current = window.setTimeout(async () => {
-      const estimateData = {
-        estimate_name: estimateTitle || undefined,
-        estimate_number: estimateNumber || generateEstimateNumber(),
-        project_type: projectType,
-        status: 'draft' as const,
-        estimate_date: new Date().toISOString().split('T')[0]
-      };
-      try {
-        if (currentEstimateId) {
-          await updateEstimate(currentEstimateId, estimateData, trades);
-        } else {
-          const saved = await saveEstimate(estimateData, trades);
-          setCurrentEstimateId(saved.id);
-          setEstimateNumber(saved.estimate_number);
-        }
-      } catch (err) {
-        console.error('Autosave error:', err);
-      }
-    }, 800);
-  };
-
-  useEffect(() => {
-    // Trigger autosave when user edits title/type, uploads/removes files, or edits trades/types
-    triggerAutosave();
-    return () => {
-      if (autosaveTimerRef.current) window.clearTimeout(autosaveTimerRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estimateTitle, projectType, trades, drawings, docTypes]);
 
   // Save/Load functions
   const handleSaveEstimate = async () => {
@@ -267,6 +229,15 @@ const {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                 Upload PDF
+              </Button>
+              <Button 
+                onClick={handleSaveEstimate} 
+                disabled={isSaving}
+                variant="default"
+                size="sm"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? 'Saving...' : 'Save'}
               </Button>
               {estimateNumber && (
                 <span className="text-sm text-muted-foreground self-center">
