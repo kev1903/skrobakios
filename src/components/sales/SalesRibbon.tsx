@@ -66,10 +66,10 @@ export const SalesRibbon = ({
       {/* Navigation */}
       <div className="flex-1 p-4">
         <div className="space-y-2">
-          {menuItems.map(item => <Button key={item.id} variant={activeTab === item.id ? 'secondary' : 'ghost'} className={`w-full justify-start text-left font-inter ${activeTab === item.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-foreground hover:bg-muted hover:text-foreground'}`} onClick={() => onTabChange(item.id)}>
+          {menuItems.map(item => <Button key={item.id} variant={activeTab === item.id ? 'secondary' : 'ghost'} className={`w-full justify-start text-left font-inter ${activeTab === item.id ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`} onClick={() => onTabChange(item.id)}>
               <item.icon className="w-4 h-4 mr-3" />
               <span className="flex-1">{item.label}</span>
-              {item.badge && <Badge variant="secondary" className="ml-auto text-xs bg-primary/20 text-primary-foreground">
+              {item.badge && <Badge variant="secondary" className="ml-auto text-xs bg-primary/20 text-primary">
                   {item.badge}
                 </Badge>}
             </Button>)}
