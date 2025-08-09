@@ -2,11 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Save, ArrowLeft } from 'lucide-react';
 
-import { QuantitiesTable } from './components/QuantitiesTable';
-import { SummaryTab } from './components/SummaryTab';
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
@@ -206,6 +204,9 @@ const {
               </Select>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                Upload PDF
+              </Button>
               <Button 
                 onClick={handleSaveEstimate} 
                 disabled={isSaving}
@@ -230,87 +231,61 @@ const {
 
         {/* Main Tabs Content */}
         <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <div className="px-6 pt-4">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="drawings">Drawings</TabsTrigger>
-                <TabsTrigger value="quantities">Quantities & Rates</TabsTrigger>
-                <TabsTrigger value="summary">Summary & Totals</TabsTrigger>
-              </TabsList>
-            </div>
-
-            {/* Take-Off (Drawings) Tab */}
-            <TabsContent value="drawings" className="flex-1 p-6 overflow-auto">
-              <div className="mb-3 flex items-center justify-end">
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                  Upload PDF
-                </Button>
-              </div>
-
-              {drawings.length > 0 ? (
-                <div className="mb-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="h-9">
-                        <TableHead className="text-xs font-medium">Name</TableHead>
-                        <TableHead className="w-48 text-xs font-medium">Type</TableHead>
-                        <TableHead className="w-24 text-xs font-medium">Pages</TableHead>
-                        <TableHead className="w-56 text-xs font-medium">Uploaded</TableHead>
-                        <TableHead className="w-48 text-right text-xs font-medium">Actions</TableHead>
+          {/* Main Content */}
+          <div className="flex-1 p-6 overflow-auto">
+            {drawings.length > 0 ? (
+              <div className="mb-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="h-9">
+                      <TableHead className="text-xs font-medium">Name</TableHead>
+                      <TableHead className="w-48 text-xs font-medium">Type</TableHead>
+                      <TableHead className="w-24 text-xs font-medium">Pages</TableHead>
+                      <TableHead className="w-56 text-xs font-medium">Uploaded</TableHead>
+                      <TableHead className="w-48 text-right text-xs font-medium">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {drawings.map((d) => (
+                      <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-9'}>
+                        <TableCell className="font-medium py-1">
+                          {d.name}
+                          {d.id === activeDrawingId ? ' (Active)' : ''}
+                        </TableCell>
+                        <TableCell className="py-1">
+                          <Select
+                            defaultValue={docTypes[d.id]}
+                            onValueChange={(val) => setDocTypes((prev) => ({ ...prev, [d.id]: val }))}
+                          >
+                            <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent className="z-50 bg-popover">
+                              {documentTypeOptions.map((opt) => (
+                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="py-1">{d.pages}</TableCell>
+                        <TableCell className="py-1">{new Date(d.uploadedAt).toLocaleString()}</TableCell>
+                        <TableCell className="text-right space-x-2 py-1">
+                          <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
+                            View
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => removeDrawing(d.id)}>
+                            Remove
+                          </Button>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {drawings.map((d) => (
-                        <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-9'}>
-                          <TableCell className="font-medium py-1">
-                            {d.name}
-                            {d.id === activeDrawingId ? ' (Active)' : ''}
-                          </TableCell>
-                          <TableCell className="py-1">
-                            <Select
-                              defaultValue={docTypes[d.id]}
-                              onValueChange={(val) => setDocTypes((prev) => ({ ...prev, [d.id]: val }))}
-                            >
-                              <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent className="z-50 bg-popover">
-                                {documentTypeOptions.map((opt) => (
-                                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell className="py-1">{d.pages}</TableCell>
-                          <TableCell className="py-1">{new Date(d.uploadedAt).toLocaleString()}</TableCell>
-                          <TableCell className="text-right space-x-2 py-1">
-                            <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
-                              View
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => removeDrawing(d.id)}>
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No drawings uploaded yet.</p>
-              )}
-            </TabsContent>
-
-            {/* Quantities and Rates Tab */}
-            <TabsContent value="quantities" className="flex-1 p-6 overflow-auto">
-              <QuantitiesTable trades={trades} onAddTrade={addTrade} onAddMeasurement={addTradeMeasurement} onUpdateMeasurement={updateMeasurement} onRemoveMeasurement={removeMeasurement} onUpdateTradeName={updateTradeName} />
-            </TabsContent>
-
-            {/* Summary and Totals Tab */}
-            <TabsContent value="summary" className="flex-1 p-6 overflow-auto">
-              <SummaryTab trades={trades} markupPercentage={markupPercentage} taxPercentage={taxPercentage} onMarkupChange={setMarkupPercentage} onTaxChange={setTaxPercentage} />
-            </TabsContent>
-          </Tabs>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No drawings uploaded yet.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>;
