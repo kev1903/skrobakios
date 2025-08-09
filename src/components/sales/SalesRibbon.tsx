@@ -52,7 +52,7 @@ export const SalesRibbon = ({
       {/* Header */}
       <div className="p-4 border-b border-white/20">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 w-8 p-0 hover:bg-white/10 text-sidebar-foreground">
+          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 w-8 p-0 hover:bg-white/10 text-foreground">
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -66,7 +66,7 @@ export const SalesRibbon = ({
       {/* Navigation */}
       <div className="flex-1 p-4">
         <div className="space-y-2">
-          {menuItems.map(item => <Button key={item.id} variant={activeTab === item.id ? 'secondary' : 'ghost'} className={`w-full justify-start text-left font-inter ${activeTab === item.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-white/10 hover:text-sidebar-accent-foreground'}`} onClick={() => onTabChange(item.id)}>
+          {menuItems.map(item => <Button key={item.id} variant={activeTab === item.id ? 'secondary' : 'ghost'} className={`w-full justify-start text-left font-inter ${activeTab === item.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-foreground hover:bg-muted hover:text-foreground'}`} onClick={() => onTabChange(item.id)}>
               <item.icon className="w-4 h-4 mr-3" />
               <span className="flex-1">{item.label}</span>
               {item.badge && <Badge variant="secondary" className="ml-auto text-xs bg-primary/20 text-primary-foreground">
