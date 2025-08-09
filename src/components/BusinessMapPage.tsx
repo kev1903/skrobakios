@@ -13,7 +13,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useUser } from '@/contexts/UserContext';
 import { ModuleSidePopup } from './ModuleSidePopup';
-import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 interface BusinessMapPageProps {
   onNavigate: (page: string) => void;
 }
@@ -97,12 +96,12 @@ const ModuleNode = ({
         border: '2px solid white'
       }} />
       
-      <div className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] transition-all duration-300 cursor-pointer
-        ${isSelected ? 'border-primary shadow-primary/20 scale-105' : 'border-border hover:shadow-xl hover:scale-102'}
-        ${isConnecting ? 'ring-2 ring-primary/50 animate-pulse' : ''}
+      <div className={`bg-white/90 backdrop-blur-sm border rounded-xl shadow-lg p-4 min-w-[200px] cursor-pointer
+        ${isSelected ? 'border-primary shadow-primary/20' : 'border-border'}
+        ${isConnecting ? 'ring-2 ring-primary/50' : ''}
       `} onClick={() => data.onClick?.(data.id)} onMouseEnter={() => data.onHover?.(data.id)} onMouseLeave={() => data.onHover?.(null)}>
         <div className="flex items-center gap-3 mb-3">
-          <div className={`p-2 rounded-lg ${data.color} transition-all duration-200 ${isSelected ? 'scale-110' : ''}`}>
+          <div className={`p-2 rounded-lg ${data.color}`}>
             <Icon className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -130,7 +129,7 @@ const ModuleNode = ({
                 {data.recent.map((project: any, index: number) => (
                   <div 
                     key={index} 
-                    className="text-xs text-muted-foreground truncate cursor-pointer hover:text-primary hover:bg-primary/5 p-1 rounded transition-colors"
+                    className="text-xs text-muted-foreground truncate cursor-pointer p-1 rounded"
                     onClick={(e) => {
                       e.stopPropagation();
                       data.onProjectClick?.(project.id, project.name);
@@ -201,12 +200,12 @@ const CompanyCenterNode = ({
       border: '2px solid white'
     }} />
       
-      <div className={`bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 rounded-2xl shadow-xl p-6 min-w-[250px] transition-all duration-300 cursor-pointer
-        ${isSelected ? 'border-primary scale-105 shadow-primary/30' : 'border-primary/40'}
-        ${isConnecting ? 'ring-4 ring-primary/30 animate-pulse' : ''}
+      <div className={`bg-gradient-to-br from-primary/20 to-primary/30 backdrop-blur-sm border-2 rounded-2xl shadow-xl p-6 min-w-[250px] cursor-pointer
+        ${isSelected ? 'border-primary shadow-primary/30' : 'border-primary/40'}
+        ${isConnecting ? 'ring-4 ring-primary/30' : ''}
       `} onClick={() => data.onClick?.(data.id)} onMouseEnter={() => data.onHover?.(data.id)} onMouseLeave={() => data.onHover?.(null)}>
         <div className="flex items-center gap-4 mb-4">
-          <div className={`p-3 bg-primary/20 rounded-xl transition-all duration-200 ${isSelected ? 'scale-110 bg-primary/30' : ''}`}>
+          <div className={`p-3 bg-primary/20 rounded-xl`}>
             <Building2 className="w-8 h-8 text-primary" />
           </div>
           <div>
@@ -218,11 +217,11 @@ const CompanyCenterNode = ({
         </div>
         
         <div className="grid grid-cols-2 gap-3">
-          <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
+          <div className={`text-center p-2 bg-white/20 rounded-lg`}>
             <div className="text-lg font-bold text-primary">{data.moduleCount}</div>
             <div className="text-xs text-muted-foreground">Active Modules</div>
           </div>
-          <div className={`text-center p-2 bg-white/20 rounded-lg transition-all duration-200 ${isSelected ? 'bg-white/30' : ''}`}>
+          <div className={`text-center p-2 bg-white/20 rounded-lg`}>
             <div className="text-lg font-bold text-primary">{data.projectCount || 0}</div>
             <div className="text-xs text-muted-foreground">Projects</div>
           </div>
@@ -419,7 +418,7 @@ export const BusinessMapPage = ({
 }: BusinessMapPageProps) => {
   const { userProfile } = useUser();
   const { currentCompany } = useCompany();
-  const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
+  
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [companyModules, setCompanyModules] = useState<CompanyModule[]>([]);
@@ -959,7 +958,7 @@ export const BusinessMapPage = ({
       </div>;
   }
   return (
-    <div className={`${fullHeightClasses} ${spacingClasses} bg-background flex flex-col`}>
+    <div className="h-full bg-background flex flex-col">
       {/* Header with Back Button, Title, and Search */}
       <div className="bg-card/50 backdrop-blur-sm border-b p-4">
         <div className="flex items-center justify-between gap-4">
