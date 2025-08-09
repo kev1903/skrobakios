@@ -313,6 +313,20 @@ export function AiChatSidebar({
         )}
       </div>
 
+      {/* Floating collapse control (always visible when expanded) */}
+      {!isCollapsed && (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={onToggleCollapse}
+          aria-label="Collapse chat"
+          className="absolute -left-10 top-1/2 -translate-y-1/2 rounded-full h-9 w-9 shadow-md border border-border"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      )}
+
       {/* Collapsed state */}
       {isCollapsed && <div className="flex-1 flex flex-col items-center pt-4">
           <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-12 w-12 p-0 mb-4">
@@ -414,19 +428,5 @@ export function AiChatSidebar({
               </div>
             </>}
         </>}
-
-      {/* Floating collapse control (always visible when expanded) */}
-      {!isCollapsed && (
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={onToggleCollapse}
-          aria-label="Collapse chat"
-          className="absolute -left-10 top-1/2 -translate-y-1/2 rounded-full h-9 w-9 shadow-md border border-border"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      )}
     </div>;
 }
