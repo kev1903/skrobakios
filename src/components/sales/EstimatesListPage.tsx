@@ -9,6 +9,7 @@ import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { PageShell } from '@/components/layout/PageShell';
 interface Estimate {
   id: string;
   estimate_number: string;
