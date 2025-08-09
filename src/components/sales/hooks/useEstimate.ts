@@ -48,14 +48,12 @@ export const useEstimate = () => {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
-      const { data: companyData, error: companyError } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', userData.user.id)
-        .eq('status', 'active')
-        .single();
+      const { data: companyId, error: companyError } = await supabase
+        .rpc('get_user_current_company_id');
       
-      if (companyError) throw companyError;
+      if (companyError || !companyId) {
+        throw companyError ?? new Error('No active company found for current user');
+      }
 
       // Prepare estimate data
       const estimate = {
@@ -69,7 +67,7 @@ export const useEstimate = () => {
         total_amount: totalAmount,
         client_name: estimateData.client_name,
         client_email: estimateData.client_email,
-        company_id: companyData.company_id,
+        company_id: companyId,
         created_by: userData.user.id,
         last_modified_by: userData.user.id
       };
