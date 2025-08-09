@@ -126,9 +126,9 @@ export function AiChatSidebar({
   // Add welcome message for authenticated users (only when first time or no messages)
   useEffect(() => {
     if (isAuthenticated && user && messages.length === 0) {
-      const userName = userProfile?.first_name && userProfile?.last_name 
-        ? `${userProfile.first_name} ${userProfile.last_name}`
-        : user.email;
+      const userName = (userProfile?.first_name && userProfile.first_name.trim().length > 0)
+        ? userProfile.first_name
+        : (user.email || 'there');
       
       const welcomeMessage: ChatMessage = {
         id: 'welcome',
