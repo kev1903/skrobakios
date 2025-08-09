@@ -27,14 +27,13 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
     );
   }
 
-  // System page, home page, and tasks page should take full screen like sales page
   if (currentPage === "system" || currentPage === "home" || currentPage === "tasks") {
     return (
       <ProtectedRoute 
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <div className="w-full h-screen overflow-hidden">
+        <div className="w-full h-[calc(100vh-73px)] pt-[73px] overflow-hidden">
           {children}
         </div>
       </ProtectedRoute>

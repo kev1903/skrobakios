@@ -958,7 +958,7 @@ export const BusinessMapPage = ({
       </div>;
   }
   return (
-    <div className="h-[calc(100vh-73px)] pt-[73px] bg-background flex flex-col">
+    <div className="h-full bg-background flex flex-col">
       {/* Header with Back Button, Title, and Search */}
       <div className="bg-card/50 backdrop-blur-sm border-b p-4">
         <div className="flex items-center justify-between gap-4">
