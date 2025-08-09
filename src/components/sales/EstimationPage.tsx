@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
 
 import { MeasurementToolbar } from './components/MeasurementToolbar';
 import { PDFViewer } from './components/PDFViewer';
@@ -19,7 +19,7 @@ interface EstimationPageProps {
   onBack?: () => void;
 }
 export const EstimationPage = ({
-  onBack: _onBack
+  onBack
 }: EstimationPageProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -170,6 +170,12 @@ const {
         {/* Header */}
         <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-4">
+            {onBack && (
+              <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Back</span>
+              </Button>
+            )}
             <div className="flex-1">
               <Input id="estimateTitle" value={estimateTitle} onChange={e => setEstimateTitle(e.target.value)} placeholder="Enter estimate title..." className="text-lg font-semibold" />
             </div>
