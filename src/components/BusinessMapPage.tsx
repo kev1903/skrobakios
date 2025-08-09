@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState, addEdge, Connection, Edge, Node, BackgroundVariant, MarkerType, NodeTypes, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter, Lock, Unlock, User } from 'lucide-react';
+import { ArrowLeft, Database, Building2, Users, FileText, TrendingUp, DollarSign, Calendar, Briefcase, RefreshCw, Plus, Settings, FolderOpen, CheckSquare, BarChart3, MapPin, Search, Filter, Lock, Unlock, User, Megaphone, ShieldAlert, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -277,6 +277,30 @@ const moduleConfig = {
     title: 'Team',
     subtitle: 'Team Management',
     table: 'company_members',
+    category: 'business'
+  },
+  marketing: {
+    icon: Megaphone,
+    color: 'bg-sky-500',
+    title: 'Marketing',
+    subtitle: 'Marketing & Growth',
+    table: null,
+    category: 'business'
+  },
+  risk: {
+    icon: ShieldAlert,
+    color: 'bg-rose-500',
+    title: 'Risk',
+    subtitle: 'Risk & Compliance',
+    table: null,
+    category: 'business'
+  },
+  'ai-operations': {
+    icon: Bot,
+    color: 'bg-fuchsia-500',
+    title: 'AI Operations',
+    subtitle: 'Automation & AI Ops',
+    table: null,
     category: 'business'
   },
   // Project Modules
@@ -766,10 +790,17 @@ export const BusinessMapPage = ({
       return config?.category === 'project';
     });
 
-    // Position business modules on the left side with increased spacing
-    const businessNodes: Node[] = businessModules.map((module, index) => {
+    // Force second row order: Sales, Marketing, Risk, Ai Operations
+    const desiredBusinessOrder = ['sales', 'marketing', 'risk', 'ai-operations'] as const;
+    const orderedBusinessModules: CompanyModule[] = desiredBusinessOrder.map((name) => {
+      const found = businessModules.find(m => m.module_name === name);
+      return found ?? ({ id: `virtual-${name}`, module_name: name, enabled: true } as CompanyModule);
+    });
+
+    // Position business modules on the second row with even spacing
+    const businessNodes: Node[] = orderedBusinessModules.map((module, index) => {
       const colSpacing = 300;
-      const count = businessModules.length;
+      const count = orderedBusinessModules.length;
       const defaultX = centerX - 100 + (index - (count - 1) / 2) * colSpacing;
       const defaultY = secondRowY;
       
@@ -832,21 +863,16 @@ export const BusinessMapPage = ({
       };
     });
 
-    // Create dynamic edges based on data relationships with shortest distance connections
+    // Create edges from company center to all visible modules (business + project)
     const allNodes = [...businessNodes, ...projectNodes, companyNode];
-    const moduleEdges: Edge[] = enabledModules.map(module => {
-      const sourceNode = allNodes.find(n => n.id === 'company-center');
-      const targetNode = allNodes.find(n => n.id === module.id);
-      
-      if (!sourceNode || !targetNode) return null;
-      
+    const moduleEdges: Edge[] = [...businessNodes, ...projectNodes].map((targetNode) => {
+      const sourceNode = companyNode;
       const { sourceHandle, targetHandle } = calculateShortestConnection(sourceNode, targetNode);
-      
       return {
-        id: `company-${module.id}`,
+        id: `company-${targetNode.id}`,
         source: 'company-center',
         sourceHandle,
-        target: module.id,
+        target: targetNode.id,
         targetHandle,
         type: 'smoothstep', // Use smoothstep for better curved connections
         animated: true,
@@ -862,7 +888,7 @@ export const BusinessMapPage = ({
           height: 15
         }
       };
-    }).filter(Boolean) as Edge[];
+    });
 
     // Add smart interconnections based on business logic
     const additionalEdges: Edge[] = [];
