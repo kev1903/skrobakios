@@ -71,6 +71,12 @@ const {
   deleteMeasurement
 } = useTakeoffMeasurements();
 
+  // Document type state for drawings
+  const [docTypes, setDocTypes] = useState<Record<string, string>>({});
+  const documentTypeOptions = [
+    'Floor Plan', 'Site Plan', 'Elevation', 'Section', 'Detail', 'Specification', 'Schedule', 'Addendum', 'Other'
+  ];
+
   // Estimate state
   const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(null);
   const [estimateNumber, setEstimateNumber] = useState('');
@@ -235,8 +241,7 @@ const {
 
             {/* Take-Off (Drawings) Tab */}
             <TabsContent value="drawings" className="flex-1 p-6 overflow-auto">
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="text-sm font-medium">Uploaded Documents</h4>
+              <div className="mb-3 flex items-center justify-end">
                 <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                   Upload PDF
                 </Button>
@@ -246,23 +251,39 @@ const {
                 <div className="mb-4">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead className="w-24">Pages</TableHead>
-                        <TableHead className="w-56">Uploaded</TableHead>
-                        <TableHead className="w-48 text-right">Actions</TableHead>
+                      <TableRow className="h-9">
+                        <TableHead className="text-xs font-medium">Name</TableHead>
+                        <TableHead className="w-48 text-xs font-medium">Type</TableHead>
+                        <TableHead className="w-24 text-xs font-medium">Pages</TableHead>
+                        <TableHead className="w-56 text-xs font-medium">Uploaded</TableHead>
+                        <TableHead className="w-48 text-right text-xs font-medium">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {drawings.map((d) => (
-                        <TableRow key={d.id} className={d.id === activeDrawingId ? 'bg-muted/40' : ''}>
-                          <TableCell className="font-medium">
+                        <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-9'}>
+                          <TableCell className="font-medium py-1">
                             {d.name}
                             {d.id === activeDrawingId ? ' (Active)' : ''}
                           </TableCell>
-                          <TableCell>{d.pages}</TableCell>
-                          <TableCell>{new Date(d.uploadedAt).toLocaleString()}</TableCell>
-                          <TableCell className="text-right space-x-2">
+                          <TableCell className="py-1">
+                            <Select
+                              defaultValue={docTypes[d.id]}
+                              onValueChange={(val) => setDocTypes((prev) => ({ ...prev, [d.id]: val }))}
+                            >
+                              <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent className="z-50 bg-popover">
+                                {documentTypeOptions.map((opt) => (
+                                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="py-1">{d.pages}</TableCell>
+                          <TableCell className="py-1">{new Date(d.uploadedAt).toLocaleString()}</TableCell>
+                          <TableCell className="text-right space-x-2 py-1">
                             <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
                               View
                             </Button>
