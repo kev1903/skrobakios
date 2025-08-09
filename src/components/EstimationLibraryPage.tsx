@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,7 +23,8 @@ export const EstimationLibraryPage = ({ onNavigate }: EstimationLibraryPageProps
     if (!existing) document.head.appendChild(meta);
   }, []);
 
-  const handleBack = () => onNavigate?.('sales');
+  const navigate = useNavigate();
+  const handleBack = () => navigate('/?page=sales');
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] overflow-y-auto">

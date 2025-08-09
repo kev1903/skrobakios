@@ -97,9 +97,7 @@ export const EstimatesListPage = ({
     }
   };
   const handleBackToSales = () => {
-    if (onNavigate) {
-      onNavigate('sales');
-    }
+    navigate('/?page=sales');
   };
   if (loading) {
     return <div className="flex items-center justify-center h-64">
@@ -110,10 +108,10 @@ export const EstimatesListPage = ({
       {/* Header Section */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          {onNavigate && <Button variant="ghost" size="sm" onClick={handleBackToSales} className="flex items-center gap-2 mt-1 hover:bg-muted">
+          <Button variant="ghost" size="sm" onClick={handleBackToSales} className="flex items-center gap-2 mt-1 hover:bg-muted">
               <ArrowLeft className="w-4 h-4" />
               Back to Sales
-            </Button>}
+            </Button>
           <div className="space-y-1">
             <h2 className="text-3xl font-bold tracking-tight text-foreground">Estimates</h2>
             <p className="text-lg text-muted-foreground">Manage your project estimates and client quotes</p>

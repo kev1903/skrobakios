@@ -129,7 +129,7 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => onNavigate('sales')}
+              onClick={() => navigate('/?page=sales')}
               className="flex items-center space-x-2 hover:bg-white/20 backdrop-blur-sm"
             >
               <ArrowLeft className="w-4 h-4" />
