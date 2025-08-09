@@ -274,7 +274,7 @@ export function AiChatSidebar({
       minute: '2-digit'
     });
   };
-  return <div className={cn("fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
+  return <div className={cn("fixed right-0 top-[73px] h-[calc(100vh-73px)] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2 overflow-hidden">
