@@ -274,7 +274,7 @@ export function AiChatSidebar({
       minute: '2-digit'
     });
   };
-  return <div className={cn("fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col relative", isCollapsed ? "w-16" : "w-96")}>
+  return <div className={cn("fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2 overflow-hidden">
@@ -289,43 +289,10 @@ export function AiChatSidebar({
               <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
             </div>}
         </div>
-{!isCollapsed ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCollapse}
-            className="h-8 px-2 gap-1 flex-shrink-0"
-            aria-label="Collapse chat"
-          >
-            <ChevronRight className="h-4 w-4" />
-            <span className="hidden sm:inline">Collapse</span>
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCollapse}
-            className="h-8 w-8 p-0 flex-shrink-0"
-            aria-label="Expand chat"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-
-      {/* Floating collapse control (always visible when expanded) */}
-      {!isCollapsed && (
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={onToggleCollapse}
-          aria-label="Collapse chat"
-          className="absolute -left-10 top-1/2 -translate-y-1/2 rounded-full h-9 w-9 shadow-md border border-border"
-        >
-          <ChevronRight className="h-4 w-4" />
+        <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-8 w-8 p-0 flex-shrink-0">
+          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
-      )}
+      </div>
 
       {/* Collapsed state */}
       {isCollapsed && <div className="flex-1 flex flex-col items-center pt-4">

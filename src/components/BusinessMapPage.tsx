@@ -1068,7 +1068,29 @@ export const BusinessMapPage = ({
           </div>
         )}
 
+        {/* Connection Status Indicator */}
+        <div className="absolute top-4 left-4 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <h4 className="font-semibold text-sm">Live Connections</h4>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            <div>Active Modules: {nodes.length - 1}</div>
+            <div>Total Connections: {edges.length}</div>
+          </div>
+        </div>
 
+        {/* Interactive Instructions */}
+        {!interactionState.connectionMode && (
+          <div className="absolute bottom-6 left-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
+            <h4 className="font-semibold text-sm mb-2">How to Use</h4>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Click company center to activate connection mode</li>
+              <li>• Click modules to view details</li>
+              <li>• Drag modules to reorganize layout</li>
+            </ul>
+          </div>
+        )}
         
       </div>
 
