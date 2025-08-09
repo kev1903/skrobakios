@@ -36,6 +36,7 @@ import { MenuBar } from "./components/MenuBar";
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
 import { GlobalSidebarProvider } from "./contexts/GlobalSidebarContext";
+import { GlobalSidebar } from "./components/GlobalSidebar";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -172,6 +173,28 @@ const AppContent = () => {
   // Check if we're on the home page (authenticated users on "/" or "/?page=home")
   const isHomePage = location.pathname === "/" && (searchParams.get('page') === 'home' || (!searchParams.get('page') && user));
 
+  // Derive a currentPage identifier for GlobalSidebar on non-root routes
+  const navigateRouter = useNavigate();
+  const currentPageForSidebar = React.useMemo(() => {
+    if (location.pathname === "/tasks") return "tasks";
+    if (location.pathname === "/dashboard") return "system";
+    if (location.pathname.startsWith("/estimates")) return "sales";
+    if (location.pathname === "/invoices") return "finance";
+    if (location.pathname === "/") return searchParams.get('page') || (user ? 'home' : 'landing');
+    return "home";
+  }, [location.pathname, searchParams, user]);
+
+  const handleSidebarNavigate = (page: string) => {
+    switch (page) {
+      case "tasks":
+        navigateRouter("/tasks");
+        break;
+      default:
+        navigateRouter(`/?page=${page}`);
+        break;
+    }
+  };
+
   return (
     <GlobalSidebarProvider>
       <AppContextProvider>
@@ -221,6 +244,9 @@ const AppContent = () => {
         {/* Dynamic Project Dashboard */}
         <Route path="/project-dashboard/:projectId" element={<ProjectDashboardWrapper />} />
       </Routes>
+      {location.pathname !== "/" && (
+        <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
+      )}
             </>
           </TimeTrackingProvider>
         </CompanyProvider>
