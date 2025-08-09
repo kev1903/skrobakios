@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,6 +9,7 @@ import { MeasurementToolbar } from './components/MeasurementToolbar';
 import { PDFViewer } from './components/PDFViewer';
 import { QuantitiesTable } from './components/QuantitiesTable';
 import { SummaryTab } from './components/SummaryTab';
+import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
@@ -127,15 +128,41 @@ export const EstimationPage = ({
       setCurrentEstimateId(estimate.id);
       setEstimateTitle(estimate.estimate_name);
       setEstimateNumber(estimate.estimate_number);
-      setProjectType(estimate.notes || ''); // Project type stored in notes
-      // Note: This would need to integrate with the trades hook to set the loaded trades
+      setProjectType(estimate.notes || '');
+      // Note: integrate with trades hook to set the loaded trades
       toast.success('Estimate loaded successfully');
     } catch (error) {
       toast.error('Failed to load estimate');
       console.error('Load error:', error);
     }
   };
-  return <div className="flex h-screen bg-background">
+  // Progressive steps definition
+  const steps = [
+    { id: 1, title: 'Step 1: Input Data' },
+    { id: 2, title: 'Step 2: Data Extraction' },
+    { id: 3, title: 'Step 3: Cost Database' },
+    { id: 4, title: 'Step 4: Estimation Process' },
+    { id: 5, title: 'Step 5: Output & Integration' },
+  ];
+  const [currentStep, setCurrentStep] = useState<number>(1);
+
+  // Sync step with tabs roughly
+  useEffect(() => {
+    // Map tab to a step index for visual context only
+    if (activeTab === 'drawings') setCurrentStep((prev) => (prev < 3 ? prev : 1));
+    if (activeTab === 'quantities') setCurrentStep((prev) => (prev < 5 && prev >= 3 ? prev : 4));
+    if (activeTab === 'summary') setCurrentStep(5);
+  }, [activeTab]);
+
+  const handleStepChange = (s: number) => {
+    setCurrentStep(s);
+    // Optionally navigate key tabs for better UX
+    if (s <= 2) setActiveTab('drawings');
+    else if (s <= 4) setActiveTab('quantities');
+    else setActiveTab('summary');
+  };
+
+  return <div className="flex h-full bg-background">
       {/* Hidden file input for PDF upload */}
       <input
         ref={fileInputRef}
@@ -202,6 +229,9 @@ export const EstimationPage = ({
             </div>
           </div>
         </div>
+
+        {/* Progressive Step Timeline */}
+        <StepTimeline steps={steps} current={currentStep} onChange={handleStepChange} />
 
         {/* Measurement Tools Toolbar */}
         <MeasurementToolbar 
