@@ -21,9 +21,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
         requireSuperAdmin={false}
       >
         <div className="w-full h-screen overflow-hidden">
-          <div className={`w-full h-screen overflow-hidden ${spacingClasses}`}>
-            {children}
-          </div>
+          {children}
         </div>
       </ProtectedRoute>
     );
@@ -36,7 +34,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <div className={`w-full h-screen overflow-hidden ${spacingClasses}`}>
+        <div className="w-full h-screen overflow-hidden">
           {children}
         </div>
       </ProtectedRoute>
