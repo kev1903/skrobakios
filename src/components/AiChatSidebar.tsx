@@ -289,9 +289,28 @@ export function AiChatSidebar({
               <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
             </div>}
         </div>
-        <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-8 w-8 p-0 flex-shrink-0">
-          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        </Button>
+{!isCollapsed ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCollapse}
+            className="h-8 px-2 gap-1 flex-shrink-0"
+            aria-label="Collapse chat"
+          >
+            <ChevronRight className="h-4 w-4" />
+            <span className="hidden sm:inline">Collapse</span>
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCollapse}
+            className="h-8 w-8 p-0 flex-shrink-0"
+            aria-label="Expand chat"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       {/* Collapsed state */}
