@@ -236,7 +236,7 @@ const {
             </div>
 
             {/* Take-Off (Drawings) Tab */}
-            <TabsContent value="drawings" className="flex-1 p-6 overflow-hidden">
+            <TabsContent value="drawings" className="flex-1 p-6 overflow-auto">
               <div className="mb-3">
                 <MeasurementToolbar 
                   currentTool={currentTool} 
