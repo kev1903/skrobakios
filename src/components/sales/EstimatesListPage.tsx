@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign, MapPin, ArrowLeft } from 'lucide-react';
+import { Search, Plus, Eye, Edit, MoreVertical, Calculator, FileText, DollarSign, MapPin, ArrowLeft, BookOpen } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -117,10 +117,21 @@ export const EstimatesListPage = ({
             <p className="text-lg text-muted-foreground">Manage your project estimates and client quotes</p>
           </div>
         </div>
-        <Button onClick={handleNewEstimate} className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm">
-          <Plus className="w-4 h-4" />
-          <span>New Estimate</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 bg-background shadow-sm"
+            onClick={() => (window.location.href = '/estimates/library')}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Library</span>
+          </Button>
+          <Button onClick={handleNewEstimate} className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-sm">
+            <Plus className="w-4 h-4" />
+            <span>New Estimate</span>
+          </Button>
+        </div>
       </div>
 
       {/* Quick Stats Cards */}
