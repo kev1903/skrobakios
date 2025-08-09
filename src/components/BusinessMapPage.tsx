@@ -731,7 +731,7 @@ export const BusinessMapPage = ({
     // Create a more mind-map style layout instead of radial
     const centerX = 500;
     const topY = 60;
-    const rowSpacing = 220;
+    const rowSpacing = 260;
     const secondRowY = topY + rowSpacing;
     const thirdRowY = topY + rowSpacing * 2;
 
@@ -768,7 +768,7 @@ export const BusinessMapPage = ({
 
     // Position business modules on the left side with increased spacing
     const businessNodes: Node[] = businessModules.map((module, index) => {
-      const colSpacing = 260;
+      const colSpacing = 300;
       const count = businessModules.length;
       const defaultX = centerX - 100 + (index - (count - 1) / 2) * colSpacing;
       const defaultY = secondRowY;
@@ -801,7 +801,7 @@ export const BusinessMapPage = ({
 
     // Position project modules on the right side with increased spacing
     const projectNodes: Node[] = projectModules.map((module, index) => {
-      const colSpacing = 260;
+      const colSpacing = 300;
       const count = projectModules.length;
       const defaultX = centerX - 100 + (index - (count - 1) / 2) * colSpacing;
       const defaultY = thirdRowY;
