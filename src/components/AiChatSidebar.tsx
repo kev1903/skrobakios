@@ -132,7 +132,7 @@ export function AiChatSidebar({
       
       const welcomeMessage: ChatMessage = {
         id: 'welcome',
-        content: `Welcome back, ${userName}! I'm Skai, your AI assistant. How can I help you with your construction projects today?`,
+        content: `Hello, ${userName}! How can I assist you today?`,
         role: 'assistant',
         timestamp: new Date()
       };
