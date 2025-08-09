@@ -11,7 +11,8 @@ import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
+import { PageShell } from '@/components/layout/PageShell';
+ 
 import { toast } from 'sonner';
 interface EstimationPageProps {
   onBack?: () => void;
@@ -208,7 +209,7 @@ const {
     e.preventDefault();
   };
 
-  return <div className="flex flex-col mt-[var(--header-height)] lg:ml-64 min-h-[calc(100vh-var(--header-height))] bg-background overflow-auto">
+  return <PageShell withPattern>
       {/* Hidden file input for PDF upload */}
       <input
         ref={fileInputRef}
@@ -364,5 +365,5 @@ const {
           </div>
         </div>
       </div>
-    </div>;
+    </PageShell>;
 };

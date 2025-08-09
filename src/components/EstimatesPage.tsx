@@ -22,6 +22,7 @@ import {
   BookOpen,
   MoreVertical
 } from 'lucide-react';
+import { PageShell } from '@/components/layout/PageShell';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -118,11 +119,8 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-      
-      <div className="relative z-10 p-6 space-y-6">
+    <PageShell withPattern>
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -290,6 +288,6 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageShell>
   );
 };

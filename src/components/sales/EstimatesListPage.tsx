@@ -112,7 +112,8 @@ export const EstimatesListPage = ({
         
       </div>;
   }
-  return <div className="space-y-8 p-6">
+  return <PageShell withPattern>
+    <div className="space-y-8 p-6">
       {/* Header Section */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
@@ -321,5 +322,6 @@ export const EstimatesListPage = ({
           </Table>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  </PageShell>;
 };
