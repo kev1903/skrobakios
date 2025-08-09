@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useUser } from '@/contexts/UserContext';
 import { ModuleSidePopup } from './ModuleSidePopup';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 interface BusinessMapPageProps {
   onNavigate: (page: string) => void;
 }
@@ -417,9 +418,8 @@ export const BusinessMapPage = ({
   onNavigate
 }: BusinessMapPageProps) => {
   const { userProfile } = useUser();
-  const {
-    currentCompany
-  } = useCompany();
+  const { currentCompany } = useCompany();
+  const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [companyModules, setCompanyModules] = useState<CompanyModule[]>([]);
@@ -959,7 +959,7 @@ export const BusinessMapPage = ({
       </div>;
   }
   return (
-    <div className="h-[calc(100vh-73px)] pt-[73px] bg-background flex flex-col">
+    <div className={`${fullHeightClasses} ${spacingClasses} bg-background flex flex-col`}>
       {/* Header with Back Button, Title, and Search */}
       <div className="bg-card/50 backdrop-blur-sm border-b p-4">
         <div className="flex items-center justify-between gap-4">
@@ -1002,7 +1002,7 @@ export const BusinessMapPage = ({
       </div>
 
       {/* Main Canvas */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         <ReactFlow 
           nodes={nodes} 
           edges={edges} 
