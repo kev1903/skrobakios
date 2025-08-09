@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 
-const xaiApiKey = Deno.env.get('xAi'); // Use the correct secret name
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -500,47 +500,47 @@ RESPONSE GUIDELINES:
       { role: 'user', content: message }
     ];
 
-    console.log('Prepared messages for xAI API:', messages.length, 'messages');
+    console.log('Prepared messages for OpenAI API:', messages.length, 'messages');
 
-    // Check if xAI API key is available
-    if (!xaiApiKey) {
-      console.error('xAI API key is not configured');
+    // Check if OpenAI API key is available
+    if (!openAIApiKey) {
+      console.error('OpenAI API key is not configured');
       return new Response(JSON.stringify({ 
         error: 'AI service is not configured',
-        details: 'Please configure the xAI API key in the environment settings'
+        details: 'Please configure the OPENAI_API_KEY secret in Supabase'
       }), {
         status: 500, // Use proper error status
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('xAI API key present, making API call...');
+    console.log('OpenAI API key present, making API call...');
 
     // Make xAI API call with retry logic
     let aiResponse;
     try {
       const apiCall = async () => {
-        const response = await fetch('https://api.x.ai/v1/chat/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${xaiApiKey}`,
+            'Authorization': `Bearer ${openAIApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'grok-2-1212',
+            model: 'gpt-4o-mini',
             messages: messages,
             max_tokens: 1000,
             temperature: 0.7,
           }),
         });
 
-        console.log('xAI API response status:', response.status);
-        console.log('xAI API response headers:', Object.fromEntries(response.headers.entries()));
+        console.log('OpenAI API response status:', response.status);
+        console.log('OpenAI API response headers:', Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('xAI API error response:', errorText);
-          throw new Error(`xAI API error: ${response.status} - ${errorText}`);
+          console.error('OpenAI API error response:', errorText);
+          throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
         }
 
         return response;
@@ -549,11 +549,11 @@ RESPONSE GUIDELINES:
       const response = await withRetry(apiCall);
       const data = await response.json();
       
-      console.log('xAI API response data keys:', Object.keys(data));
+      console.log('OpenAI API response data keys:', Object.keys(data));
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        console.error('Invalid xAI API response structure:', data);
-        throw new Error('Invalid response structure from xAI API');
+        console.error('Invalid OpenAI API response structure:', data);
+        throw new Error('Invalid response structure from OpenAI API');
       }
 
       aiResponse = data.choices[0].message.content;
@@ -584,7 +584,7 @@ RESPONSE GUIDELINES:
       }
 
     } catch (apiError) {
-      console.error('xAI API call failed after retries:', apiError);
+      console.error('OpenAI API call failed after retries:', apiError);
       console.error('Error details:', {
         message: apiError.message,
         stack: apiError.stack,
