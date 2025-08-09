@@ -23,18 +23,18 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
         className
       )}
     >
-      <ol className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-x-auto">
+      <ol className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-hidden">
         {steps.map((step, idx) => {
           const stepIndex = idx + 1;
           const isCompleted = stepIndex < current;
           const isActive = stepIndex === current;
           return (
-            <li key={step.id} className="flex items-center gap-3 whitespace-nowrap">
+            <li key={step.id} className="flex items-center gap-3 min-w-0 flex-1">
               {/* Node */}
               <button
                 onClick={() => onChange?.(stepIndex)}
                 className={cn(
-                  'relative inline-flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors',
+                  'relative inline-flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors shrink-0',
                   isActive && 'bg-primary text-primary-foreground border-transparent shadow-sm',
                   !isActive && 'bg-muted text-foreground border-border hover:bg-muted/70'
                 )}
@@ -48,7 +48,7 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
                 >
                   {stepIndex}
                 </span>
-                <span className="text-sm font-medium">{step.title}</span>
+                <span className="text-sm font-medium truncate">{step.title}</span>
               </button>
 
               {/* Connector */}
@@ -56,7 +56,7 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
                 <span
                   aria-hidden
                   className={cn(
-                    'h-px w-8 sm:w-12 lg:w-16',
+                    'h-px flex-1',
                     isCompleted ? 'bg-primary' : 'bg-border'
                   )}
                 />
