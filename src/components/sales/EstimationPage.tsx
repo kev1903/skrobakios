@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, FileDown } from 'lucide-react';
-import { DrawingSidebar } from './components/DrawingSidebar';
+import { Save } from 'lucide-react';
+
 import { MeasurementToolbar } from './components/MeasurementToolbar';
 import { PDFViewer } from './components/PDFViewer';
 import { QuantitiesTable } from './components/QuantitiesTable';
@@ -19,7 +19,7 @@ interface EstimationPageProps {
   onBack?: () => void;
 }
 export const EstimationPage = ({
-  onBack
+  onBack: _onBack
 }: EstimationPageProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -45,15 +45,11 @@ export const EstimationPage = ({
     removeMeasurement,
     updateTradeName
   } = useTrades();
-  const {
-    fileInputRef,
-    drawings,
-    activeDrawingId,
-    activeDrawing,
-    handleFileUpload,
-    removeDrawing,
-    setActiveDrawing
-  } = useMultiplePDFUpload();
+const {
+  fileInputRef,
+  activeDrawing,
+  handleFileUpload
+} = useMultiplePDFUpload();
   const {
     saveEstimate,
     updateEstimate,
@@ -64,17 +60,12 @@ export const EstimationPage = ({
   } = useEstimate();
 
   // Takeoff measurements system
-  const {
-    takeoffs,
-    measurements,
-    addMeasurement,
-    updateMeasurement: updateTakeoffMeasurement,
-    deleteMeasurement,
-    createTakeoff,
-    updateTakeoff,
-    deleteTakeoff,
-    addMeasurementToTakeoff
-  } = useTakeoffMeasurements();
+const {
+  measurements,
+  addMeasurement,
+  updateMeasurement: updateTakeoffMeasurement,
+  deleteMeasurement
+} = useTakeoffMeasurements();
 
   // Estimate state
   const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(null);
@@ -173,19 +164,6 @@ export const EstimationPage = ({
         onChange={handleFileUpload}
       />
       
-      {/* Left Sidebar - Drawings Section */}
-      <DrawingSidebar 
-        onBack={onBack} 
-        fileInputRef={fileInputRef} 
-        handleFileUpload={handleFileUpload} 
-        drawings={drawings}
-        activeDrawingId={activeDrawingId}
-        onSetActiveDrawing={setActiveDrawing}
-        onRemoveDrawing={removeDrawing}
-        takeoffs={takeoffs}
-        onCreateTakeoff={createTakeoff}
-        onDeleteTakeoff={deleteTakeoff}
-      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
