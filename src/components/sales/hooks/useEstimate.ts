@@ -92,7 +92,6 @@ export const useEstimate = () => {
             item_description: `${trade.name}: ${measurement.description}`,
             quantity: measurement.quantity,
             unit_price: measurement.rate,
-            line_total: measurement.amount,
             sort_order: sortOrder++
           });
         }
@@ -175,7 +174,6 @@ export const useEstimate = () => {
             item_description: `${trade.name}: ${measurement.description}`,
             quantity: measurement.quantity,
             unit_price: measurement.rate,
-            line_total: measurement.amount,
             sort_order: sortOrder++
           });
         }
