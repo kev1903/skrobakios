@@ -46,11 +46,9 @@ const classifyFromName = (name: string): string | undefined => {
 // Parse PDF text to improve classification (first 1-2 pages)
 const classifyFromPDF = async (file: File): Promise<string | undefined> => {
   try {
-    const [{ default: workerSrc }, pdfjs]: any = await Promise.all([
-      import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
-      import('pdfjs-dist')
-    ]);
-    pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+const pdfjs: any = await import('pdfjs-dist');
+const version = (pdfjs as any).version || '4.10.38';
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
 
     const data = await file.arrayBuffer();
     const loadingTask = pdfjs.getDocument({ data });

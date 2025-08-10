@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
+import * as pdfjsLib from 'pdfjs-dist';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Configure PDF.js worker (local, v5)
-pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+
+// Configure PDF.js worker using version-matched CDN (prevents API/worker mismatches)
+const pdfjsVersion = (pdfjsLib as any).version || (pdfjs as any).version || '4.10.38';
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsVersion}/build/pdf.worker.min.mjs`;
 
 interface ReactPDFViewerProps {
   pdfUrl: string;
