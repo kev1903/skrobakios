@@ -1625,6 +1625,87 @@ export type Database = {
           },
         ]
       }
+      project_documents: {
+        Row: {
+          ai_confidence: number | null
+          ai_rationale: string | null
+          ai_summary: string | null
+          content_type: string | null
+          created_at: string
+          created_by: string | null
+          document_type: string | null
+          error_message: string | null
+          estimate_id: string | null
+          extracted_text: string | null
+          file_size: number | null
+          file_url: string
+          id: string
+          image_only: boolean | null
+          metadata: Json | null
+          name: string
+          processing_status: string | null
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_rationale?: string | null
+          ai_summary?: string | null
+          content_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_type?: string | null
+          error_message?: string | null
+          estimate_id?: string | null
+          extracted_text?: string | null
+          file_size?: number | null
+          file_url: string
+          id?: string
+          image_only?: boolean | null
+          metadata?: Json | null
+          name: string
+          processing_status?: string | null
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_rationale?: string | null
+          ai_summary?: string | null
+          content_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_type?: string | null
+          error_message?: string | null
+          estimate_id?: string | null
+          extracted_text?: string | null
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          image_only?: boolean | null
+          metadata?: Json | null
+          name?: string
+          processing_status?: string | null
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_documents_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_invitations: {
         Row: {
           accepted_at: string | null

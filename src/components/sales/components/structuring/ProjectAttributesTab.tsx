@@ -9,13 +9,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { FileText, MapPin, User, Building, Calculator, Calendar, Search, ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DocumentExtractorTab } from './DocumentExtractorTab';
 
 interface ProjectAttributesTabProps {
   onDataChange?: (data: any) => void;
   uploadedPDFs?: any[];
+  estimateId?: string;
+  projectId?: string;
 }
 
-export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttributesTabProps) => {
+export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs, estimateId, projectId }: ProjectAttributesTabProps) => {
   const [extracting, setExtracting] = useState(false);
   const { toast } = useToast();
   const [expandedSections, setExpandedSections] = useState({
