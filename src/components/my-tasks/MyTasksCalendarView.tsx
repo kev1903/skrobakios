@@ -29,6 +29,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all');
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
@@ -67,12 +68,23 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            task.projectName?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      if (selectedFilter === 'all') return matchesSearch;
-      if (selectedFilter === 'tasks') return matchesSearch && task.taskType === 'Task';
-      if (selectedFilter === 'issues') return matchesSearch && task.taskType === 'Issue';
-      if (selectedFilter === 'bugs') return matchesSearch && task.taskType === 'Bug';
-      if (selectedFilter === 'features') return matchesSearch && task.taskType === 'Feature';
-      return matchesSearch;
+      // Apply type filter
+      let matchesTypeFilter = false;
+      if (selectedFilter === 'all') matchesTypeFilter = true;
+      if (selectedFilter === 'tasks') matchesTypeFilter = task.taskType === 'Task';
+      if (selectedFilter === 'issues') matchesTypeFilter = task.taskType === 'Issue';
+      if (selectedFilter === 'bugs') matchesTypeFilter = task.taskType === 'Bug';
+      if (selectedFilter === 'features') matchesTypeFilter = task.taskType === 'Feature';
+      
+      // Apply status filter
+      let matchesStatusFilter = false;
+      if (selectedStatusFilter === 'all') matchesStatusFilter = true;
+      if (selectedStatusFilter === 'completed') matchesStatusFilter = task.status === 'Completed';
+      if (selectedStatusFilter === 'in-progress') matchesStatusFilter = task.status === 'In Progress';
+      if (selectedStatusFilter === 'pending') matchesStatusFilter = task.status === 'Pending';
+      if (selectedStatusFilter === 'not-started') matchesStatusFilter = task.status === 'Not Started';
+      
+      return matchesSearch && matchesTypeFilter && matchesStatusFilter;
     });
   };
 
@@ -153,6 +165,21 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
       default:
         return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+        return "bg-success/10 text-success border-success/20";
+      case "in progress":
+        return "bg-primary/10 text-primary border-primary/20";
+      case "pending":
+        return "bg-warning/10 text-warning border-warning/20";
+      case "not started":
+        return "bg-muted/10 text-muted-foreground border-muted/20";
+      default:
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -247,24 +274,54 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-1 flex-shrink-0">
-              {[
-                { key: 'all', label: 'All' },
-                { key: 'tasks', label: 'Tasks' },
-                { key: 'issues', label: 'Issues' },
-                { key: 'bugs', label: 'Bugs' },
-                { key: 'features', label: 'Features' }
-              ].map((filter) => (
-                <Button
-                  key={filter.key}
-                  variant={selectedFilter === filter.key ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setSelectedFilter(filter.key as any)}
-                  className="text-xs"
-                >
-                  {filter.label}
-                </Button>
-              ))}
+            <div className="space-y-3 flex-shrink-0">
+              {/* Type Filter */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">Type</label>
+                <div className="flex gap-1 flex-wrap">
+                  {[
+                    { key: 'all', label: 'All' },
+                    { key: 'tasks', label: 'Tasks' },
+                    { key: 'issues', label: 'Issues' },
+                    { key: 'bugs', label: 'Bugs' },
+                    { key: 'features', label: 'Features' }
+                  ].map((filter) => (
+                    <Button
+                      key={filter.key}
+                      variant={selectedFilter === filter.key ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setSelectedFilter(filter.key as any)}
+                      className="text-xs"
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">Status</label>
+                <div className="flex gap-1 flex-wrap">
+                  {[
+                    { key: 'all', label: 'All', icon: null },
+                    { key: 'completed', label: 'Completed', icon: 'CheckCircle' },
+                    { key: 'in-progress', label: 'In Progress', icon: 'Clock' },
+                    { key: 'pending', label: 'Pending', icon: 'Circle' },
+                    { key: 'not-started', label: 'Not Started', icon: 'Pause' }
+                  ].map((filter) => (
+                    <Button
+                      key={filter.key}
+                      variant={selectedStatusFilter === filter.key ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setSelectedStatusFilter(filter.key as any)}
+                      className="text-xs"
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Task List - Scrollable */}
@@ -285,14 +342,17 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                         <p className="text-xs text-muted-foreground">
                           {task.projectName}
                         </p>
-                        <div className="flex gap-2">
-                          <Badge variant="outline" className={getTypeColor(task.taskType)}>
-                            {task.taskType}
-                          </Badge>
-                          <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                            {task.priority}
-                        </Badge>
-                      </div>
+                         <div className="flex gap-2 flex-wrap">
+                           <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                             {task.taskType}
+                           </Badge>
+                           <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                             {task.priority}
+                           </Badge>
+                           <Badge variant="outline" className={getStatusColor(task.status)}>
+                             {task.status}
+                           </Badge>
+                         </div>
                       </div>
                     </div>
                   </div>
