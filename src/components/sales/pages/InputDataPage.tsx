@@ -197,7 +197,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
   }, [activeTab]);
 
   // Use context data instead of loading separately
-  const { estimateTitle: contextTitle, projectType: contextProjectType, estimate } = useEstimateContext();
+  const { estimateTitle: contextTitle, projectType: contextProjectType, estimate, drawings: contextDrawings } = useEstimateContext();
   
   useEffect(() => {
     if (estimate) {
@@ -207,6 +207,16 @@ const [estimateNumber, setEstimateNumber] = useState('');
       setProjectType(estimate.notes || '');
     }
   }, [estimate]);
+
+  // Sync context drawings with local drawings state
+  useEffect(() => {
+    if (contextDrawings && contextDrawings.length > 0) {
+      if (typeof (setDrawingsData as any) === 'function') {
+        // @ts-ignore
+        setDrawingsData(contextDrawings);
+      }
+    }
+  }, [contextDrawings]);
 
   const handleStepChange = (s: number) => {
     setCurrentStep(s);
