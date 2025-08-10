@@ -54,6 +54,11 @@ serve(async (req) => {
           TMP_DIR: tmpDir,
           FORCE_OCR: forceOcr
         },
+        secrets: {
+          has_openai: !!openAIApiKey,
+          has_supabase_url: !!supabaseUrl,
+          has_service_role_key: !!supabaseServiceKey
+        },
         time: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
