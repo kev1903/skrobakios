@@ -1,37 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
-import * as pdfjsLib from 'pdfjs-dist';
+
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 
-// Configure PDF.js worker using version-matched CDN (prevents API/worker mismatches)
-const pdfjsVersion = (pdfjsLib as any).version || (pdfjs as any).version || '4.10.38';
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsVersion}/build/pdf.worker.min.mjs`;
+// Configure PDF.js worker for pdf.js v5.3.31 (react-pdf 7.x)
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.3.31/pdf.worker.min.js';
 
 interface ReactPDFViewerProps {
-  pdfUrl: string;
+  fileUrl?: string; // preferred
+  pdfUrl?: string;  // backward-compat
   className?: string;
   style?: React.CSSProperties;
 }
 
-export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps) => {
+export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log('ReactPDFViewer received URL:', pdfUrl);
+  const sourceUrl = fileUrl || pdfUrl || '';
+  console.log('ReactPDFViewer received URL:', sourceUrl);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
     setNumPages(null);
     setPageNumber(1);
-  }, [pdfUrl]);
+  }, [sourceUrl]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('PDF loaded successfully with', numPages, 'pages');
@@ -88,7 +89,7 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm text-muted-foreground min-w-20 text-center">
-            Page {pageNumber} of {numPages}
+            Pages: {numPages ?? '-'}
           </span>
           <Button variant="outline" size="sm" onClick={goToNextPage} disabled={!numPages || pageNumber >= numPages}>
             <ChevronRight className="h-4 w-4" />
@@ -112,17 +113,21 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
       <div className="flex-1 overflow-auto bg-gray-100 p-4 max-h-full">
         <div className="flex justify-center">
           <Document
-            file={pdfUrl}
+            file={sourceUrl}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
             loading={<div>Loading document...</div>}
           >
-            <Page
-              pageNumber={pageNumber}
-              scale={scale}
-              loading={<div>Loading page...</div>}
-              className="shadow-lg"
-            />
+            {numPages ? Array.from({ length: numPages }, (_, i) => (
+              <Page
+                key={`page_${i + 1}`}
+                pageNumber={i + 1}
+                scale={scale}
+                renderMode="canvas"
+                loading={<div>Loading page...</div>}
+                className="shadow-lg my-2"
+              />
+            )) : null}
           </Document>
         </div>
       </div>
