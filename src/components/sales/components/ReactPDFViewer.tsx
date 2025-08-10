@@ -26,6 +26,7 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const sourceUrl = fileUrl || pdfUrl || '';
   console.log('ReactPDFViewer received URL:', sourceUrl);
@@ -74,6 +75,25 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
     // Initialize
     setContainerWidth(Math.max(300, Math.floor(el.clientWidth)));
     return () => ro.disconnect();
+  }, []);
+
+  // Enable Ctrl + Scroll zoom on the PDF area only
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      const delta = e.deltaY;
+      setScale(prev => {
+        const next = delta > 0 ? Math.max(0.5, prev - 0.15) : Math.min(3, prev + 0.15);
+        return Number(next.toFixed(3));
+      });
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel as unknown as EventListener);
   }, []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -152,7 +172,7 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
       </div>
 
       {/* PDF Document */}
-      <div className="flex-1 overflow-auto bg-gray-100 p-4 h-[85vh]">
+      <div className="flex-1 overflow-auto bg-gray-100 p-4 h-[85vh]" ref={scrollRef}>
         <div className="flex justify-center w-full" ref={containerRef}>
           <Document
             file={blobUrl ?? sourceUrl}
