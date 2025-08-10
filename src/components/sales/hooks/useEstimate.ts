@@ -310,9 +310,49 @@ export const useEstimate = () => {
 
       const trades = Array.from(tradesMap.values());
 
+      // Load drawings metadata and build accessible URLs
+      const { data: drawingRows, error: drawingsError } = await supabase
+        .from('estimate_drawings')
+        .select('*')
+        .eq('estimate_id', estimateId)
+        .order('uploaded_at', { ascending: true });
+
+      if (drawingsError) throw drawingsError;
+
+      const drawings: DrawingFile[] = [];
+      if (drawingRows && drawingRows.length > 0) {
+        for (const row of drawingRows) {
+          let url = '';
+          // Try to generate a signed URL (works even if bucket is private)
+          const { data: signed, error: signedErr } = await supabase
+            .storage
+            .from('estimate-drawings')
+            .createSignedUrl(row.file_path, 60 * 60);
+          if (!signedErr && signed?.signedUrl) {
+            url = signed.signedUrl;
+          } else {
+            // Fallback to public URL if bucket is public
+            const { data: pub } = supabase.storage
+              .from('estimate-drawings')
+              .getPublicUrl(row.file_path);
+            url = pub.publicUrl;
+          }
+
+          drawings.push({
+            id: row.id,
+            name: row.name,
+            url,
+            pages: row.pages ?? 1,
+            uploadedAt: new Date(row.uploaded_at),
+            storagePath: row.file_path,
+          });
+        }
+      }
+
       return {
         estimate,
-        trades
+        trades,
+        drawings,
       };
     } catch (error) {
       console.error('Error loading estimate:', error);

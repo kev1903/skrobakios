@@ -145,12 +145,21 @@ const {
 
   const handleLoadEstimate = async (estimateId: string) => {
     try {
-      const { estimate, trades: loadedTrades } = await loadEstimate(estimateId);
+      const { estimate, trades: loadedTrades, drawings: loadedDrawings } = await loadEstimate(estimateId);
       setCurrentEstimateId(estimate.id);
       setEstimateTitle(estimate.estimate_name);
       setEstimateNumber(estimate.estimate_number);
       setProjectType(estimate.notes || '');
-      // Note: integrate with trades hook to set the loaded trades
+      // sync trades
+      if (typeof (setTradesData as any) === 'function') {
+        // @ts-ignore
+        setTradesData(loadedTrades);
+      }
+      // sync drawings
+      if (typeof (setDrawingsData as any) === 'function') {
+        // @ts-ignore
+        setDrawingsData(loadedDrawings || []);
+      }
       toast.success('Estimate loaded successfully');
     } catch (error) {
       toast.error('Failed to load estimate');
@@ -180,7 +189,7 @@ const {
     if (!estimateId) return;
     (async () => {
       try {
-        const { estimate, trades: loadedTrades } = await loadEstimate(estimateId);
+        const { estimate, trades: loadedTrades, drawings: loadedDrawings } = await loadEstimate(estimateId);
         setCurrentEstimateId(estimate.id);
         setEstimateTitle(estimate.estimate_name);
         setEstimateNumber(estimate.estimate_number);
@@ -189,6 +198,11 @@ const {
         if (typeof (setTradesData as any) === 'function') {
           // @ts-ignore
           setTradesData(loadedTrades);
+        }
+        // Sync drawings into uploader state
+        if (typeof (setDrawingsData as any) === 'function') {
+          // @ts-ignore
+          setDrawingsData(loadedDrawings || []);
         }
       } catch (e) {
         console.error('Auto-load estimate failed:', e);
