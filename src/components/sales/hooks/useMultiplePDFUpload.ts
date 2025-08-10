@@ -15,8 +15,14 @@ export interface DrawingFile {
 // Simple filename-based classifier to auto-detect drawing type
 const classifyFromName = (name: string): string | undefined => {
   const n = name.toLowerCase().replace(/[_.-]+/g, ' ');
+  const has = (kw: string) => {
+    if (kw.length <= 3) {
+      return new RegExp(`\\b${kw}\\b`).test(n);
+    }
+    return n.includes(kw);
+  };
   const rules: { type: string; keywords: string[] }[] = [
-    { type: 'Architectural', keywords: ['arch', 'architect', 'floor plan', 'site plan', 'ga', 'general arrangement', 'elev', 'elevation', 'section', 'plan'] },
+    { type: 'Architectural', keywords: ['arch', 'architect', 'floor plan', 'site plan', 'ga', 'general arrangement', 'elev', 'elevation', 'section', 'plan', 'bl', 'building', 'permit', 'bp'] },
     { type: 'Structural', keywords: ['struct', 'structural', 'beam', 'column', 'rebar', 'steel', 'rc', 'slab', 'foundation', 'footing'] },
     { type: 'Electrical', keywords: ['elect', 'electrical', 'lighting', 'power', 'elv', 'single line', 'cable'] },
     { type: 'Mechanical', keywords: ['mech', 'mechanical', 'hvac', 'duct', 'chiller', 'ahu'] },
@@ -28,7 +34,7 @@ const classifyFromName = (name: string): string | undefined => {
     { type: 'Schedule', keywords: ['schedule', 'door schedule', 'window schedule'] },
   ];
   for (const r of rules) {
-    if (r.keywords.some(k => n.includes(k))) return r.type;
+    if (r.keywords.some(k => has(k))) return r.type;
   }
   return undefined;
 }
