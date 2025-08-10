@@ -140,7 +140,7 @@ serve(async (req) => {
   }
 
   // Main extract endpoint
-  if (req.method === 'POST' && (path === '/extract' || path === '/')) {
+  if (req.method === 'POST') {
     let document_id: string | undefined;
     
     try {
