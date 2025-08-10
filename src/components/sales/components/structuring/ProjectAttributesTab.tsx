@@ -85,8 +85,8 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
         <Card>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center justify-between text-base text-foreground">
+                <div className="flex items-center gap-2 text-foreground">
                   <Search className="w-4 h-4" />
                   Auto-Extract from PDFs
                 </div>
@@ -126,8 +126,8 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
         <Card>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center justify-between text-base text-foreground">
+                <div className="flex items-center gap-2 text-foreground">
                   <Building className="w-4 h-4" />
                   Project Information
                 </div>
@@ -190,8 +190,8 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
         <Card>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center justify-between text-base text-foreground">
+                <div className="flex items-center gap-2 text-foreground">
                   <User className="w-4 h-4" />
                   Client & Design Team
                 </div>
@@ -261,8 +261,8 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
         <Card>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center justify-between text-base text-foreground">
+                <div className="flex items-center gap-2 text-foreground">
                   <Calculator className="w-4 h-4" />
                   Area Calculations
                 </div>
@@ -387,8 +387,8 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
         <Card>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-              <CardTitle className="flex items-center justify-between text-base">
-                <div className="flex items-center gap-2">
+              <CardTitle className="flex items-center justify-between text-base text-foreground">
+                <div className="flex items-center gap-2 text-foreground">
                   <Calendar className="w-4 h-4" />
                   Drawing Information
                 </div>
