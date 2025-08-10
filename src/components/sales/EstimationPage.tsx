@@ -13,8 +13,9 @@ import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { PageShell } from '@/components/layout/PageShell';
+import { QuantitiesTable } from './components/QuantitiesTable';
  
 import { toast } from 'sonner';
 interface EstimationPageProps {
@@ -311,50 +312,42 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6 pt-4">
-            {/* Red section: Uploaded PDFs table */}
-            <div className="overflow-auto">
-              <div className="rounded-lg border">
-                {drawings.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="h-8">
-                        <TableHead className="text-xs font-medium">Name</TableHead>
-                        <TableHead className="w-48 text-xs font-medium">Type</TableHead>
-                        <TableHead className="w-40 text-right text-xs font-medium">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+          <div className="h-full grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4 p-4 pt-4">
+            {/* Left pane: Drawings List (top) + Quantities (bottom) */}
+            <div className="flex flex-col min-h-0 gap-4">
+              {/* Drawings List */}
+              <section
+                className="rounded-lg border bg-card flex flex-col min-h-[220px] max-h-[50%]"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              >
+                <div className="flex items-center justify-between px-3 py-2 border-b">
+                  <h3 className="text-sm font-medium">Drawings List</h3>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                      Browse files
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-auto">
+                  {drawings.length ? (
+                    <ul className="divide-y">
                       {drawings.map((d) => (
-                        <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-8'}>
-                          <TableCell className="font-medium py-1">
+                        <li
+                          key={d.id}
+                          className={`px-3 py-2 hover:bg-muted/40 ${d.id === activeDrawingId ? 'bg-muted/40' : ''}`}
+                        >
+                          <div className="flex items-start gap-2">
                             <button
                               type="button"
-                              onClick={() => openPreview(d)}
-                              className="text-primary hover:underline underline-offset-2 focus:underline focus:outline-none"
+                              onClick={() => setActiveDrawing(d.id)}
+                              className="text-left flex-1 focus:outline-none"
                             >
-                              {d.name}
+                              <div className="text-sm font-medium text-primary">
+                                {d.name}{d.id === activeDrawingId ? ' (Active)' : ''}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">{d.url}</div>
                             </button>
-                            {d.id === activeDrawingId ? ' (Active)' : ''}
-                          </TableCell>
-                          <TableCell className="py-1">
-                            <Select
-                              value={d.type}
-                              onValueChange={(val) =>
-                                setDrawingsData(drawings.map(dd => dd.id === d.id ? { ...dd, type: val } : dd))
-                              }
-                            >
-                              <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent className="z-50 bg-popover">
-                                {documentTypeOptions.map((opt) => (
-                                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell className="text-right py-1">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -370,33 +363,82 @@ const [estimateNumber, setEstimateNumber] = useState('');
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
+                          </div>
+                          <div className="mt-2">
+                            <Select
+                              value={d.type}
+                              onValueChange={(val) =>
+                                setDrawingsData(drawings.map(dd => dd.id === d.id ? { ...dd, type: val } : dd))
+                              }
+                            >
+                              <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent className="z-50 bg-popover">
+                                {documentTypeOptions.map((opt) => (
+                                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </li>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </ul>
+                  ) : (
+                    <div className="p-6 text-sm text-muted-foreground text-center">
+                      Drag & drop PDFs here or use “Browse files”
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Quantities Section */}
+              <section className="rounded-lg border bg-card flex-1 min-h-[260px] overflow-hidden">
+                <div className="px-3 py-2 border-b">
+                  <h3 className="text-sm font-medium">Quantities</h3>
+                </div>
+                <div className="h-full overflow-auto p-2">
+                  <QuantitiesTable
+                    trades={trades}
+                    onAddTrade={addTrade}
+                    onAddMeasurement={addTradeMeasurement}
+                    onUpdateMeasurement={updateMeasurement}
+                    onRemoveMeasurement={removeMeasurement}
+                    onUpdateTradeName={updateTradeName}
+                  />
+                </div>
+              </section>
+            </div>
+
+            {/* Right pane: Big PDF Preview */}
+            <div className="rounded-lg border bg-card min-h-[60vh] h-full flex flex-col">
+              <div className="flex items-center justify-between px-3 py-2 border-b">
+                <div className="text-sm font-medium truncate">
+                  {activeDrawing?.name || 'No drawing selected'}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => activeDrawing && openPreview(activeDrawing)}
+                    disabled={!activeDrawing}
+                  >
+                    Fullscreen
+                  </Button>
+                </div>
+              </div>
+              <div className="flex-1 h-full">
+                {activeDrawing?.url ? (
+                  <ReactPDFViewer fileUrl={activeDrawing.url} className="h-full" />
                 ) : (
-                  <div className="p-6 text-sm text-muted-foreground">No drawings uploaded yet.</div>
+                  <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                    Select a drawing from the list to preview
+                  </div>
                 )}
               </div>
             </div>
-
-            {/* Blue section: Drag & drop uploader */}
-            <div>
-              <div
-                className="rounded-lg border border-dashed bg-muted/30 p-6 text-center"
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-              >
-                <p className="font-medium mb-2">Drag & Drop PDFs here</p>
-                <p className="text-sm text-muted-foreground mb-4">or</p>
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>Browse files</Button>
-              </div>
-
-            </div>
           </div>
         </div>
-      </div>
 
       {/* Fullscreen PDF Preview */}
       <Dialog open={previewOpen} onOpenChange={(o) => { setPreviewOpen(o); if (!o) setPreviewDoc(null); }}>
