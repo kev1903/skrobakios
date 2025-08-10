@@ -275,11 +275,11 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
             </div>
 
             {/* Filter Tabs */}
-            <div className="space-y-2 flex-shrink-0">{/* Reduced space-y from 3 to 2 */}
+            <div className="space-y-1 flex-shrink-0">
               {/* Type Filter */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Type</label>{/* Reduced margin-bottom */}
-                <div className="flex gap-1 flex-wrap">
+                <label className="text-xs font-medium text-muted-foreground block">Type</label>
+                <div className="flex gap-1 flex-wrap mt-1">
                   {[
                     { key: 'all', label: 'All' },
                     { key: 'tasks', label: 'Tasks' },
@@ -292,7 +292,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                       variant={selectedFilter === filter.key ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setSelectedFilter(filter.key as any)}
-                      className="text-xs"
+                      className="text-xs px-2 py-1 h-auto"
                     >
                       {filter.label}
                     </Button>
@@ -302,22 +302,22 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
               {/* Status Filter */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1 block">Status</label>{/* Reduced margin-bottom */}
-                <div className="flex gap-1 flex-wrap">
+                <label className="text-xs font-medium text-muted-foreground block">Status</label>
+                <div className="flex gap-1 flex-wrap mt-1">
                   {[
-                    { key: 'all', label: 'All', icon: null },
-                    { key: 'incomplete', label: 'Incomplete', icon: 'Circle' },
-                    { key: 'completed', label: 'Completed', icon: 'CheckCircle' },
-                    { key: 'in-progress', label: 'In Progress', icon: 'Clock' },
-                    { key: 'pending', label: 'Pending', icon: 'Circle' },
-                    { key: 'not-started', label: 'Not Started', icon: 'Pause' }
+                    { key: 'all', label: 'All' },
+                    { key: 'incomplete', label: 'Incomplete' },
+                    { key: 'completed', label: 'Completed' },
+                    { key: 'in-progress', label: 'In Progress' },
+                    { key: 'pending', label: 'Pending' },
+                    { key: 'not-started', label: 'Not Started' }
                   ].map((filter) => (
                     <Button
                       key={filter.key}
                       variant={selectedStatusFilter === filter.key ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setSelectedStatusFilter(filter.key as any)}
-                      className="text-xs"
+                      className="text-xs px-2 py-1 h-auto"
                     >
                       {filter.label}
                     </Button>
