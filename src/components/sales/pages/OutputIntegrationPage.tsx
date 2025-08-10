@@ -35,17 +35,14 @@ export const OutputIntegrationPage = () => {
   return (
     <PageShell withPattern>
       {/* Header */}
-      <div className={`p-4 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
-        <div className="flex items-center gap-4">
+      <div className={`px-4 py-2 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
             <ArrowLeft className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Button>
           <div className="flex-1">
             <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
-          </div>
-          <div className="w-64">
-            <div className="text-sm text-muted-foreground">{projectType || 'Project type not set'}</div>
           </div>
           <Button variant="default" size="sm">
             <Save className="w-4 h-4 mr-2" />
