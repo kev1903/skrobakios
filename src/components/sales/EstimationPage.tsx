@@ -119,18 +119,22 @@ const {
         estimate_name: estimateTitle,
         estimate_number: estimateNumber || generateEstimateNumber(),
         project_type: projectType,
+        notes: projectType, // store selected type in notes for now
         status: 'draft' as const,
         estimate_date: new Date().toISOString().split('T')[0]
       };
 
-      if (currentEstimateId) {
-        await updateEstimate(currentEstimateId, estimateData, trades);
-        toast.success('Estimate updated successfully');
+      const targetId = currentEstimateId || estimateId || null;
+
+      if (targetId) {
+        await updateEstimate(targetId, estimateData, trades);
+        setCurrentEstimateId(targetId);
+        toast.success('Estimate updated');
       } else {
         const savedEstimate = await saveEstimate(estimateData, trades);
         setCurrentEstimateId(savedEstimate.id);
         setEstimateNumber(savedEstimate.estimate_number);
-        toast.success('Estimate saved successfully');
+        toast.success('Estimate created');
       }
     } catch (error) {
       toast.error('Failed to save estimate');
