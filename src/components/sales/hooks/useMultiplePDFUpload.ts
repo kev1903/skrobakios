@@ -29,8 +29,8 @@ const classifyFromName = (name: string): string | undefined => {
     { type: 'Plumbing', keywords: ['plumb', 'plumbing', 'pipe', 'sanitary', 'water', 'drainage'] },
     { type: 'Civil', keywords: ['civil', 'road', 'grading', 'earthwork', 'stormwater'] },
     { type: 'Landscape', keywords: ['landscape', 'planting', 'hardscape'] },
-    { type: 'Interior', keywords: ['interior', 'internal', 'internals', 'fitout', 'fit-out', 'finishes', 'finish', 'joinery', 'ffe', 'f.f.e', 'f-f-e'] },
-    { type: 'Specification', keywords: ['spec', 'specification'] },
+    { type: 'Interior', keywords: ['interior', 'internal', 'internals', 'fitout', 'fit-out', 'finishes', 'finish', 'joinery', 'ffe', 'f.f.e', 'f-f-e', 'bi'] },
+    { type: 'Specification', keywords: ['spec', 'specification', 'covernote', 'cover note'] },
     { type: 'Schedule', keywords: ['schedule', 'door schedule', 'window schedule'] },
   ];
   for (const r of rules) {
@@ -45,8 +45,12 @@ export const useMultiplePDFUpload = () => {
   const [activeDrawingId, setActiveDrawingId] = useState<string | null>(null);
 
   const setDrawingsData = (items: DrawingFile[]) => {
-    setDrawings(items || []);
-    setActiveDrawingId(items?.[0]?.id ?? null);
+    const normalized = (items || []).map(it => ({
+      ...it,
+      type: it.type ?? classifyFromName(it.name),
+    }));
+    setDrawings(normalized);
+    setActiveDrawingId(normalized?.[0]?.id ?? null);
   };
 
   const addFiles = (filesInput: FileList | File[]) => {
