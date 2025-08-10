@@ -13,6 +13,7 @@ interface NavigationRibbonProps {
   onSidePageSelect?: (page: string) => void;
   onNavigate: (page: string) => void;
   onClose?: () => void;
+  onCollapse?: () => void;
   currentPage?: string;
   isCollapsed?: boolean;
 }
@@ -22,6 +23,7 @@ export const NavigationRibbon = ({
   onSidePageSelect,
   onNavigate,
   onClose,
+  onCollapse,
   currentPage = "",
   isCollapsed = false
 }: NavigationRibbonProps) => {
@@ -86,10 +88,11 @@ export const NavigationRibbon = ({
     });
   }, [currentSubscription, businessNavigation.length, businessNavigationItems, hasFeature]);
 
-  const handleNavigateAndClose = (page: string) => {
-    onNavigate(page);
-    if (onClose) onClose();
-  };
+const handleNavigateAndClose = (page: string) => {
+  onNavigate(page);
+  if (onClose) onClose();
+  else onCollapse?.();
+};
 
   // If not open and onClose function exists, don't render (floating mode)
   if (!isOpen && onClose) return null;

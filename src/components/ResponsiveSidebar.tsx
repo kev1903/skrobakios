@@ -12,7 +12,7 @@ import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebarProps) => {
-  const { state } = useSidebar();
+  const { state, setOpen, isMobile, setOpenMobile } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const { spacingClasses } = useMenuBarSpacing();
 
@@ -27,8 +27,14 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
       
       <NavigationRibbon 
         currentPage={currentPage}
-        onNavigate={onNavigate}
+        onNavigate={(page) => {
+          onNavigate(page);
+        }}
         isCollapsed={isCollapsed}
+        onCollapse={() => {
+          if (isMobile) setOpenMobile(false);
+          else setOpen(false);
+        }}
       />
 
       <SidebarFooter isCollapsed={isCollapsed} onNavigate={onNavigate} />
