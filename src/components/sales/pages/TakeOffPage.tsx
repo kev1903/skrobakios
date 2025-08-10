@@ -89,19 +89,10 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
               <span className="hidden sm:inline">Back</span>
             </Button>
           <div className="flex-1">
-            <Input value={estimateTitle} onChange={(e) => setEstimateTitle(e.target.value)} placeholder="Estimate title" className="text-lg font-semibold" />
+            <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
           </div>
           <div className="w-64">
-            <Select value={projectType} onValueChange={setProjectType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select project type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="residential">Residential</SelectItem>
-                <SelectItem value="commercial">Commercial</SelectItem>
-                <SelectItem value="industrial">Industrial</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="text-sm text-muted-foreground">{projectType || 'Project type not set'}</div>
           </div>
           <Button variant="default" size="sm" disabled={isSaving}>
             <Save className="w-4 h-4 mr-2" />
