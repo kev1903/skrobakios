@@ -270,9 +270,6 @@ const {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                Upload PDF
-              </Button>
               <Button 
                 onClick={handleSaveEstimate} 
                 disabled={isSaving}
@@ -307,8 +304,6 @@ const {
                       <TableRow className="h-8">
                         <TableHead className="text-xs font-medium">Name</TableHead>
                         <TableHead className="w-48 text-xs font-medium">Type</TableHead>
-                        <TableHead className="w-20 text-xs font-medium">Pages</TableHead>
-                        <TableHead className="w-56 text-xs font-medium">Uploaded</TableHead>
                         <TableHead className="w-40 text-right text-xs font-medium">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -336,8 +331,6 @@ const {
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell className="py-1">{d.pages}</TableCell>
-                          <TableCell className="py-1">{new Date(d.uploadedAt).toLocaleString()}</TableCell>
                           <TableCell className="text-right space-x-2 py-1">
                             <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
                               View
@@ -368,19 +361,6 @@ const {
                 <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>Browse files</Button>
               </div>
 
-              {drawings.length > 0 && (
-                <div className="mt-4 text-left">
-                  <p className="text-sm text-muted-foreground mb-2">Uploaded files</p>
-                  <ul className="text-sm space-y-1">
-                    {drawings.map((d) => (
-                      <li key={d.id} className="flex items-center justify-between">
-                        <span className="truncate mr-2">{d.name}</span>
-                        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => removeDrawing(d.id)}>Remove</Button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           </div>
         </div>
