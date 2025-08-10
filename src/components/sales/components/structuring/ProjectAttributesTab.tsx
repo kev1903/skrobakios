@@ -26,6 +26,19 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
     drawingInfo: true
   });
   
+  // AI Extraction Progress State
+  const [aiProgress, setAiProgress] = useState({
+    currentFile: '',
+    currentActivity: '',
+    overallProgress: 0,
+    fileProgress: 0,
+    totalFiles: 0,
+    processedFiles: 0,
+    extractedCount: 0,
+    status: 'idle', // idle, processing, complete, error
+    logs: [] as Array<{ timestamp: string, message: string, type: 'info' | 'success' | 'error' | 'warning' }>
+  });
+  
   const [projectData, setProjectData] = useState({
     projectName: '',
     projectCode: '',
@@ -54,6 +67,18 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
     onDataChange?.(updatedData);
   };
 
+  const addLog = (message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info') => {
+    const timestamp = new Date().toLocaleTimeString();
+    setAiProgress(prev => ({
+      ...prev,
+      logs: [...prev.logs.slice(-4), { timestamp, message, type }] // Keep last 5 logs
+    }));
+  };
+
+  const updateProgress = (updates: Partial<typeof aiProgress>) => {
+    setAiProgress(prev => ({ ...prev, ...updates }));
+  };
+
   const handleExtractFromPDF = async () => {
     if (!uploadedPDFs || uploadedPDFs.length === 0) {
       toast({
@@ -67,24 +92,59 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
     console.log('Starting PDF extraction with uploaded PDFs:', uploadedPDFs);
     setExtracting(true);
     
+    // Initialize AI progress
+    updateProgress({
+      status: 'processing',
+      totalFiles: uploadedPDFs.length,
+      processedFiles: 0,
+      extractedCount: 0,
+      overallProgress: 0,
+      logs: []
+    });
+    
+    addLog(`🚀 SkAi Initializing - Found ${uploadedPDFs.length} documents to analyze`, 'info');
+    
     try {
       // Extract text from all PDFs
       const extractedTexts = [];
       
-      for (const pdf of uploadedPDFs) {
+      for (let i = 0; i < uploadedPDFs.length; i++) {
+        const pdf = uploadedPDFs[i];
+        
+        updateProgress({
+          currentFile: pdf.name || `Document ${i + 1}`,
+          currentActivity: 'Preparing document for analysis...',
+          fileProgress: 0
+        });
+        
+        addLog(`📄 Processing: ${pdf.name}`, 'info');
+        
         try {
           console.log('Processing PDF:', pdf);
           
           let file: File;
           
+          updateProgress({
+            currentActivity: 'Downloading from secure storage...',
+            fileProgress: 20
+          });
+          
           // Handle different PDF structures - check if it's a File object or has URL
           if (pdf instanceof File) {
             file = pdf;
+            addLog(`✓ Document ready for analysis`, 'success');
           } else if (pdf.file && pdf.file instanceof File) {
             file = pdf.file;
+            addLog(`✓ Document ready for analysis`, 'success');
           } else if (pdf.url) {
             // Download the PDF from Supabase Storage
             console.log(`Downloading PDF from URL: ${pdf.url}`);
+            addLog(`📡 Downloading from cloud storage...`, 'info');
+            
+            updateProgress({
+              currentActivity: 'Downloading document from storage...',
+              fileProgress: 40
+            });
             
             const response = await fetch(pdf.url);
             if (!response.ok) {
@@ -95,15 +155,28 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
             file = new File([blob], pdf.name || 'document.pdf', { type: 'application/pdf' });
             
             console.log(`Downloaded PDF: ${file.name}, size: ${file.size} bytes`);
+            addLog(`✓ Downloaded: ${(file.size / 1024 / 1024).toFixed(1)}MB`, 'success');
           } else {
             console.warn('PDF object does not contain file or URL:', pdf);
+            addLog(`⚠️ Skipping invalid document`, 'warning');
             continue;
           }
+          
+          updateProgress({
+            currentActivity: 'Sending to SkAi Vision Engine...',
+            fileProgress: 60
+          });
           
           const formData = new FormData();
           formData.append('file', file);
           
           console.log(`Calling extract-pdf-text function for file: ${file.name}`);
+          addLog(`🤖 SkAi analyzing document structure...`, 'info');
+          
+          updateProgress({
+            currentActivity: 'SkAi processing with Vision AI...',
+            fileProgress: 80
+          });
           
           const { data, error } = await supabase.functions.invoke('extract-pdf-text', {
             body: formData
@@ -111,28 +184,69 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
           
           if (error) {
             console.error(`Supabase function error for ${file.name}:`, error);
-            // Continue with other PDFs even if one fails
+            addLog(`❌ Analysis failed: ${error.message}`, 'error');
+            updateProgress({
+              currentActivity: 'Error in analysis, continuing...',
+              fileProgress: 100
+            });
             continue;
           }
           
           if (data?.text) {
             extractedTexts.push(data.text);
             console.log(`Successfully extracted ${data.text.length} characters from ${file.name}`);
+            addLog(`✅ Extracted ${data.text.length} characters`, 'success');
+            
+            updateProgress({
+              extractedCount: aiProgress.extractedCount + 1,
+              currentActivity: 'Text extraction complete!',
+              fileProgress: 100
+            });
           } else {
             console.warn(`No text extracted from ${file.name}`, data);
+            addLog(`⚠️ Limited text found in document`, 'warning');
           }
         } catch (error) {
           console.error(`Error extracting text from PDF:`, error);
-          // Continue with other PDFs even if one fails
+          addLog(`❌ Processing error: ${error.message}`, 'error');
         }
+        
+        // Update overall progress
+        const processed = i + 1;
+        updateProgress({
+          processedFiles: processed,
+          overallProgress: Math.round((processed / uploadedPDFs.length) * 70) // 70% for extraction
+        });
+        
+        // Small delay for visual effect
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
       
       if (extractedTexts.length === 0) {
+        updateProgress({
+          status: 'error',
+          currentActivity: 'No text could be extracted',
+          overallProgress: 100
+        });
+        addLog(`❌ No readable content found in documents`, 'error');
         throw new Error('No text could be extracted from the PDFs');
       }
       
+      // AI Processing Phase
+      updateProgress({
+        currentActivity: 'SkAi analyzing extracted content...',
+        overallProgress: 75
+      });
+      addLog(`🧠 SkAi processing ${extractedTexts.length} document(s)...`, 'info');
+      
       // Combine all extracted text
       const combinedText = extractedTexts.join('\n\n');
+      
+      updateProgress({
+        currentActivity: 'SkAi structuring project data...',
+        overallProgress: 85
+      });
+      addLog(`🔍 Identifying project information patterns...`, 'info');
       
       // Use AI to parse the extracted text and extract project data
       const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
@@ -165,7 +279,21 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
         }
       });
       
-      if (aiError) throw aiError;
+      if (aiError) {
+        updateProgress({
+          status: 'error',
+          currentActivity: 'AI processing failed',
+          overallProgress: 100
+        });
+        addLog(`❌ SkAi analysis failed: ${aiError.message}`, 'error');
+        throw aiError;
+      }
+      
+      updateProgress({
+        currentActivity: 'SkAi finalizing data structure...',
+        overallProgress: 95
+      });
+      addLog(`📊 Structuring extracted information...`, 'info');
       
       // Parse the AI response
       let extractedData = {};
@@ -175,30 +303,49 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
         const jsonMatch = response.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           extractedData = JSON.parse(jsonMatch[0]);
+          addLog(`✅ SkAi successfully identified project data`, 'success');
         }
       } catch (parseError) {
         console.error('Error parsing AI response:', parseError);
+        addLog(`❌ Data parsing failed`, 'error');
         throw new Error('Could not parse extracted data');
       }
       
       // Update form with extracted data
       const updatedData = { ...projectData };
+      let fieldsUpdated = 0;
       Object.keys(extractedData).forEach(key => {
         if (extractedData[key] && extractedData[key].trim() !== '') {
           updatedData[key] = extractedData[key];
+          fieldsUpdated++;
         }
       });
       
       setProjectData(updatedData);
       onDataChange?.(updatedData);
       
+      // Complete
+      updateProgress({
+        status: 'complete',
+        currentActivity: `Complete! Extracted ${fieldsUpdated} fields`,
+        overallProgress: 100
+      });
+      addLog(`🎉 Extraction complete - ${fieldsUpdated} fields populated`, 'success');
+      
       toast({
         title: "Extraction complete",
-        description: "Project data has been extracted from PDFs successfully."
+        description: `SkAi successfully extracted and populated ${fieldsUpdated} project fields.`
       });
       
     } catch (error) {
       console.error('Error extracting PDF data:', error);
+      updateProgress({
+        status: 'error',
+        currentActivity: 'Extraction failed',
+        overallProgress: 100
+      });
+      addLog(`❌ Extraction failed: ${error.message}`, 'error');
+      
       toast({
         title: "Extraction failed",
         description: error.message || "Failed to extract data from PDFs.",
@@ -206,6 +353,12 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       });
     } finally {
       setExtracting(false);
+      // Keep the progress visible for a moment
+      setTimeout(() => {
+        if (aiProgress.status !== 'processing') {
+          updateProgress({ status: 'idle', logs: [] });
+        }
+      }, 5000);
     }
   };
 
@@ -239,7 +392,7 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
             </CardHeader>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 space-y-4">
               <div className="flex items-center gap-4">
                 <Button 
                   onClick={handleExtractFromPDF}
@@ -254,6 +407,88 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
                   Automatically extract project information from uploaded drawings and cover sheets
                 </div>
               </div>
+              
+              {/* Live AI Activity Monitor */}
+              {(extracting || aiProgress.status !== 'idle') && (
+                <div className="mt-4 p-4 bg-muted/50 rounded-lg border">
+                  <div className="space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          aiProgress.status === 'processing' ? 'bg-blue-500 animate-pulse' :
+                          aiProgress.status === 'complete' ? 'bg-green-500' :
+                          aiProgress.status === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                        }`} />
+                        <span className="font-medium text-sm">SkAi Processing Engine</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {aiProgress.status === 'processing' ? 'ACTIVE' :
+                         aiProgress.status === 'complete' ? 'COMPLETE' :
+                         aiProgress.status === 'error' ? 'ERROR' : 'STANDBY'}
+                      </span>
+                    </div>
+                    
+                    {/* Overall Progress */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span>Overall Progress</span>
+                        <span>{aiProgress.overallProgress}%</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full transition-all duration-300 ease-out" 
+                          style={{ width: `${aiProgress.overallProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Current Activity */}
+                    {aiProgress.currentActivity && (
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium">Current Activity:</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-2">
+                          {aiProgress.status === 'processing' && (
+                            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          )}
+                          {aiProgress.currentActivity}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* File Progress */}
+                    {aiProgress.currentFile && (
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium">Processing: {aiProgress.currentFile}</div>
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>Files: {aiProgress.processedFiles}/{aiProgress.totalFiles}</span>
+                          <span>Extracted: {aiProgress.extractedCount}</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Live Activity Log */}
+                    {aiProgress.logs.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium">Activity Log:</div>
+                        <div className="bg-black/80 rounded p-2 space-y-1 max-h-20 overflow-y-auto font-mono text-xs">
+                          {aiProgress.logs.map((log, index) => (
+                            <div key={index} className={`flex gap-2 ${
+                              log.type === 'error' ? 'text-red-400' :
+                              log.type === 'success' ? 'text-green-400' :
+                              log.type === 'warning' ? 'text-yellow-400' :
+                              'text-blue-400'
+                            }`}>
+                              <span className="text-gray-500 text-xs">{log.timestamp}</span>
+                              <span>{log.message}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </CollapsibleContent>
         </Card>
