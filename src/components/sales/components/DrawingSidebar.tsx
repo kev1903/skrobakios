@@ -159,11 +159,10 @@ export const DrawingSidebar = ({
                 {takeoffs.length > 0 ? takeoffs.map(takeoff => (
                   <div 
                     key={takeoff.id} 
-                    className="flex items-center px-2 py-1 rounded cursor-pointer hover:bg-muted/50"
+                    className="flex items-center justify-between px-2 py-1 rounded cursor-pointer hover:bg-muted/50"
                   >
-                    <p className="text-sm truncate">
-                      {takeoff.name} {takeoff.quantity}
-                    </p>
+                    <span className="text-sm truncate">{takeoff.name}</span>
+                    <span className="text-sm font-medium text-right ml-2">{takeoff.quantity}</span>
                   </div>
                 )) : (
                   <p className="text-sm text-muted-foreground px-2">No take-offs created</p>
