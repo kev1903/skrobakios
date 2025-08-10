@@ -36,7 +36,23 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
     processedFiles: 0,
     extractedCount: 0,
     status: 'idle', // idle, processing, complete, error
-    logs: [] as Array<{ timestamp: string, message: string, type: 'info' | 'success' | 'error' | 'warning' }>
+    logs: [] as Array<{ timestamp: string, message: string, type: 'info' | 'success' | 'error' | 'warning' }>,
+    extractionReport: null as null | {
+      totalFiles: number,
+      successfulExtractions: number,
+      failedExtractions: number,
+      filesProcessed: Array<{
+        name: string,
+        size: string,
+        status: 'success' | 'failed' | 'warning',
+        extractedLength: number,
+        method: string,
+        error?: string
+      }>,
+      extractionTime: number,
+      totalTextExtracted: number,
+      averagePrecision: number
+    }
   });
   
   const [projectData, setProjectData] = useState({
@@ -92,6 +108,9 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
     console.log('Starting PDF extraction with uploaded PDFs:', uploadedPDFs);
     setExtracting(true);
     
+    const startTime = Date.now();
+    const filesProcessed: any[] = [];
+    
     // Initialize AI progress
     updateProgress({
       status: 'processing',
@@ -99,7 +118,8 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       processedFiles: 0,
       extractedCount: 0,
       overallProgress: 0,
-      logs: []
+      logs: [],
+      extractionReport: null
     });
     
     addLog(`🚀 SkAi Initializing - Found ${uploadedPDFs.length} documents to analyze`, 'info');
@@ -182,8 +202,19 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
             body: formData
           });
           
+          // Track file processing results
+          const fileResult = {
+            name: file.name,
+            size: (file.size / 1024 / 1024).toFixed(1) + 'MB',
+            status: 'failed' as 'success' | 'failed' | 'warning',
+            extractedLength: 0,
+            method: 'openai-vision-pdf',
+            error: undefined as string | undefined
+          };
+          
           if (error) {
             console.error(`Supabase function error for ${file.name}:`, error);
+            fileResult.error = error.message || 'Unknown error';
             
             // Handle specific error codes for better UX
             if (error.message?.includes('AUTH_FAILED')) {
@@ -193,15 +224,15 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
                 fileProgress: 100
               });
             } else if (error.message?.includes('FILE_TOO_LARGE')) {
-              addLog(`❌ File too large (${(file.size / 1024 / 1024).toFixed(1)}MB) - max 10MB`, 'error');
+              addLog(`❌ File too large (${(file.size / 1024 / 1024).toFixed(1)}MB) - max 20MB`, 'error');
               updateProgress({
                 currentActivity: 'File size exceeded - skipping file',
                 fileProgress: 100
               });
-            } else if (error.message?.includes('MEMORY_LIMIT')) {
-              addLog(`❌ Processing memory limit - try smaller file`, 'error');
+            } else if (error.message?.includes('FORMAT_ERROR')) {
+              addLog(`❌ PDF format issue - try different PDF version`, 'error');
               updateProgress({
-                currentActivity: 'Memory limit exceeded - skipping file',
+                currentActivity: 'Format compatibility issue - skipping file',
                 fileProgress: 100
               });
             } else {
@@ -211,6 +242,7 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
                 fileProgress: 100
               });
             }
+            filesProcessed.push(fileResult);
             continue;
           }
           
@@ -218,6 +250,10 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
             extractedTexts.push(data.text);
             console.log(`Successfully extracted ${data.text.length} characters from ${file.name}`);
             addLog(`✅ Extracted ${data.text.length} characters`, 'success');
+            
+            fileResult.status = 'success';
+            fileResult.extractedLength = data.text.length;
+            fileResult.method = data.method || 'openai-vision-pdf';
             
             updateProgress({
               extractedCount: aiProgress.extractedCount + 1,
@@ -227,6 +263,10 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
           } else if (data?.warning) {
             console.warn(`Limited text extracted from ${file.name}:`, data);
             addLog(`⚠️ Limited text found - may be image-based PDF`, 'warning');
+            
+            fileResult.status = 'warning';
+            fileResult.extractedLength = data?.extractedLength || 0;
+            fileResult.method = data?.method || 'openai-vision-pdf';
             
             // Still add the limited text if any
             if (data.text && data.text.length > 0) {
@@ -238,10 +278,23 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
           } else {
             console.warn(`No usable text extracted from ${file.name}`, data);
             addLog(`⚠️ No readable text found in document`, 'warning');
+            fileResult.status = 'warning';
+            fileResult.error = 'No readable text found';
           }
+          
+          filesProcessed.push(fileResult);
         } catch (error) {
           console.error(`Error extracting text from PDF:`, error);
           addLog(`❌ Processing error: ${error.message}`, 'error');
+          
+          filesProcessed.push({
+            name: pdf.name || 'Unknown',
+            size: 'Unknown',
+            status: 'failed',
+            extractedLength: 0,
+            method: 'failed',
+            error: error.message
+          });
         }
         
         // Update overall progress
@@ -366,25 +419,62 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       setProjectData(updatedData);
       onDataChange?.(updatedData);
       
+      // Generate extraction report
+      const endTime = Date.now();
+      const extractionTime = Math.round((endTime - startTime) / 1000);
+      const totalTextExtracted = extractedTexts.reduce((sum, text) => sum + text.length, 0);
+      const successfulExtractions = filesProcessed.filter(f => f.status === 'success').length;
+      const failedExtractions = filesProcessed.filter(f => f.status === 'failed').length;
+      const averagePrecision = successfulExtractions > 0 ? 
+        Math.round((successfulExtractions / uploadedPDFs.length) * 100) : 0;
+      
+      const extractionReport = {
+        totalFiles: uploadedPDFs.length,
+        successfulExtractions,
+        failedExtractions,
+        filesProcessed,
+        extractionTime,
+        totalTextExtracted,
+        averagePrecision
+      };
+      
       // Complete
       updateProgress({
         status: 'complete',
         currentActivity: `Complete! Extracted ${fieldsUpdated} fields`,
-        overallProgress: 100
+        overallProgress: 100,
+        extractionReport
       });
       addLog(`🎉 Extraction complete - ${fieldsUpdated} fields populated`, 'success');
+      addLog(`📊 Report: ${successfulExtractions}/${uploadedPDFs.length} files processed successfully`, 'info');
       
       toast({
         title: "Extraction complete",
-        description: `SkAi successfully extracted and populated ${fieldsUpdated} project fields.`
+        description: `SkAi successfully extracted and populated ${fieldsUpdated} project fields from ${successfulExtractions} files.`
       });
       
     } catch (error) {
       console.error('Error extracting PDF data:', error);
+      
+      // Generate error report
+      const endTime = Date.now();
+      const extractionTime = Math.round((endTime - startTime) / 1000);
+      const successfulExtractions = filesProcessed.filter(f => f.status === 'success').length;
+      const failedExtractions = filesProcessed.filter(f => f.status === 'failed').length;
+      
       updateProgress({
         status: 'error',
         currentActivity: 'Extraction failed',
-        overallProgress: 100
+        overallProgress: 100,
+        extractionReport: {
+          totalFiles: uploadedPDFs.length,
+          successfulExtractions,
+          failedExtractions,
+          filesProcessed,
+          extractionTime,
+          totalTextExtracted: 0,
+          averagePrecision: 0
+        }
       });
       addLog(`❌ Extraction failed: ${error.message}`, 'error');
       
@@ -395,12 +485,8 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       });
     } finally {
       setExtracting(false);
-      // Keep the progress visible for a moment
-      setTimeout(() => {
-        if (aiProgress.status !== 'processing') {
-          updateProgress({ status: 'idle', logs: [] });
-        }
-      }, 5000);
+      // Keep the progress interface open - don't auto-hide
+      // Users can manually collapse the section if they want
     }
   };
 
@@ -562,10 +648,79 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
                             </div>
                           )}
                         </div>
+                       </div>
+                    </div>
+                    
+                    {/* Extraction Report */}
+                    {aiProgress.extractionReport && (
+                      <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-semibold">📊 Extraction Report</h3>
+                            <div className="text-xs text-muted-foreground">
+                              Completed in {aiProgress.extractionReport.extractionTime}s
+                            </div>
+                          </div>
+                          
+                          {/* Summary Stats */}
+                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div className="text-center p-2 bg-background rounded">
+                              <div className="text-lg font-bold">{aiProgress.extractionReport.totalFiles}</div>
+                              <div className="text-xs text-muted-foreground">Total Files</div>
+                            </div>
+                            <div className="text-center p-2 bg-background rounded">
+                              <div className="text-lg font-bold text-green-600">{aiProgress.extractionReport.successfulExtractions}</div>
+                              <div className="text-xs text-muted-foreground">Successful</div>
+                            </div>
+                            <div className="text-center p-2 bg-background rounded">
+                              <div className="text-lg font-bold">{aiProgress.extractionReport.averagePrecision}%</div>
+                              <div className="text-xs text-muted-foreground">Success Rate</div>
+                            </div>
+                            <div className="text-center p-2 bg-background rounded">
+                              <div className="text-lg font-bold">{Math.round(aiProgress.extractionReport.totalTextExtracted / 1000)}K</div>
+                              <div className="text-xs text-muted-foreground">Chars Extracted</div>
+                            </div>
+                          </div>
+                          
+                          {/* File Details */}
+                          <div className="space-y-2">
+                            <div className="text-xs font-medium">File Processing Details:</div>
+                            <div className="max-h-24 overflow-y-auto space-y-1">
+                              {aiProgress.extractionReport.filesProcessed.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between text-xs p-2 bg-background rounded">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${
+                                      file.status === 'success' ? 'bg-green-500' :
+                                      file.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                                    }`} />
+                                    <span className="truncate max-w-32">{file.name}</span>
+                                    <Badge variant="outline" className="h-4 text-[10px]">{file.size}</Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {file.extractedLength > 0 && (
+                                      <span className="text-green-600">{file.extractedLength} chars</span>
+                                    )}
+                                    {file.error && (
+                                      <span className="text-red-500 truncate max-w-20" title={file.error}>
+                                        {file.error.length > 15 ? file.error.substring(0, 15) + '...' : file.error}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {/* Precision Info */}
+                          <div className="text-xs text-muted-foreground">
+                            <strong>Extraction Method:</strong> OpenAI GPT-4o Vision • 
+                            <strong> Model:</strong> {aiProgress.extractionReport.filesProcessed[0]?.method || 'openai-vision-pdf'}
+                          </div>
+                        </div>
                       </div>
-                   </div>
-                 </div>
-              )}
+                    )}
+                  </div>
+               )}
             </CardContent>
           </CollapsibleContent>
         </Card>

@@ -44,14 +44,14 @@ serve(async (req) => {
 
     console.log(`Processing PDF: ${file.name}, size: ${file.size} bytes`);
 
-    // Check file size limit (10MB max for OpenAI)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Check file size limit (20MB max for better processing)
+    const maxSize = 20 * 1024 * 1024; // 20MB
     if (file.size > maxSize) {
       return new Response(
         JSON.stringify({ 
           error: 'PDF file too large for processing',
-          suggestion: 'Please reduce the file size to under 10MB and try again.',
-          maxSize: '10MB',
+          suggestion: 'Please reduce the file size to under 20MB and try again.',
+          maxSize: '20MB',
           currentSize: Math.round(file.size / 1024 / 1024 * 100) / 100 + 'MB'
         }),
         { 
@@ -62,7 +62,7 @@ serve(async (req) => {
     }
 
     try {
-      // Convert PDF to base64 for OpenAI Vision API using chunks to prevent stack overflow
+      // Convert PDF to base64 for OpenAI
       const arrayBuffer = await file.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       
@@ -71,13 +71,15 @@ serve(async (req) => {
       const chunkSize = 8192; // 8KB chunks
       for (let i = 0; i < bytes.length; i += chunkSize) {
         const chunk = bytes.slice(i, i + chunkSize);
-        const chunkString = String.fromCharCode.apply(null, Array.from(chunk));
+        const chunkArray = Array.from(chunk);
+        const chunkString = String.fromCharCode(...chunkArray);
         base64 += btoa(chunkString);
       }
       
       console.log('Sending PDF to OpenAI for text extraction...');
 
-      // Use OpenAI Vision API to extract text from PDF
+      // Since OpenAI Vision API doesn't directly support PDFs, we'll try a different approach
+      // Use the text extraction focused prompt with document analysis
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -89,14 +91,29 @@ serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful assistant that extracts all visible text from PDF documents. Extract all text content including project names, addresses, dates, measurements, specifications, and any other readable information. Preserve the structure and organization of the information as much as possible.'
+              content: `You are a specialized text extraction assistant for architectural and construction documents. 
+
+CRITICAL: The user is sending you a PDF document as base64. Even though the image_url shows a PDF data URL, treat this as a document image and extract ALL visible text content.
+
+Extract and structure the following information:
+1. Project name/title
+2. Project address/location  
+3. Drawing numbers and dates
+4. Client information
+5. Architect/designer details
+6. Technical specifications
+7. Measurements and dimensions
+8. Material specifications
+9. Any other readable text
+
+Provide the extracted text in a clear, organized format. If you cannot see readable text, state that clearly.`
             },
             {
               role: 'user',
               content: [
                 {
                   type: 'text',
-                  text: 'Please extract all text content from this PDF document. Include project information, addresses, specifications, measurements, dates, and any other readable text.'
+                  text: 'Please extract all text content from this architectural/construction PDF document. Focus on project details, specifications, measurements, and any other readable information. This is a vector-based PDF that should contain readable text.'
                 },
                 {
                   type: 'image_url',
@@ -132,15 +149,15 @@ serve(async (req) => {
           );
         }
         
-        if (response.status === 413) {
+        if (response.status === 413 || response.status === 400) {
           return new Response(
             JSON.stringify({ 
-              error: 'PDF too large for OpenAI processing',
-              suggestion: 'Please reduce the PDF file size and try again.',
-              errorCode: 'FILE_TOO_LARGE'
+              error: 'PDF format or size issue with OpenAI processing',
+              suggestion: 'Try converting the PDF to images first, or reduce file size.',
+              errorCode: 'FORMAT_ERROR'
             }),
             { 
-              status: 413, 
+              status: 422, 
               headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             }
           );
@@ -154,15 +171,16 @@ serve(async (req) => {
 
       console.log(`Successfully extracted ${extractedText.length} characters using OpenAI`);
 
-      if (extractedText.length < 10) {
+      if (extractedText.length < 20) {
         console.warn('Very little text extracted from PDF');
         return new Response(
           JSON.stringify({ 
-            text: "PDF processed but limited text could be extracted. This may be a scanned document or contain mostly images/graphics.",
+            text: extractedText || "PDF processed but limited text could be extracted. This may be due to PDF format compatibility.",
             numPages: 1,
             fileName: file.name,
-            extractedLength: 0,
-            warning: true
+            extractedLength: extractedText.length,
+            warning: true,
+            method: 'openai-vision-pdf'
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -173,10 +191,10 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           text: extractedText,
-          numPages: 1, // OpenAI processes the entire PDF
+          numPages: 1,
           fileName: file.name,
           extractedLength: extractedText.length,
-          method: 'openai-vision',
+          method: 'openai-vision-pdf',
           success: true
         }),
         { 
@@ -185,12 +203,13 @@ serve(async (req) => {
       );
 
     } catch (conversionError) {
-      console.error('Error converting PDF to base64:', conversionError);
+      console.error('Error processing PDF:', conversionError);
       return new Response(
         JSON.stringify({ 
           error: 'Failed to process PDF format',
-          suggestion: 'The PDF may be corrupted or in an unsupported format. Please try with a different PDF.',
-          errorCode: 'CONVERSION_FAILED'
+          suggestion: 'The PDF may have compatibility issues with the extraction engine. Try converting to a different PDF version.',
+          errorCode: 'CONVERSION_FAILED',
+          details: conversionError.message
         }),
         { 
           status: 422, 
@@ -204,7 +223,7 @@ serve(async (req) => {
     
     // Handle different types of errors with specific messages
     let errorMessage = 'Failed to process PDF: ' + error.message;
-    let suggestion = 'Please ensure the PDF is not corrupted and try again.';
+    let suggestion = 'Please ensure the PDF is a valid vector-based document.';
     let errorCode = 'UNKNOWN_ERROR';
     
     if (error.message.includes('OpenAI API key')) {
@@ -213,7 +232,7 @@ serve(async (req) => {
       errorCode = 'API_CONFIG_ERROR';
     } else if (error.message.includes('Maximum call stack')) {
       errorMessage = 'PDF processing memory limit exceeded';
-      suggestion = 'Please try with a smaller PDF file or contact support.';
+      suggestion = 'Please try with a smaller PDF file.';
       errorCode = 'MEMORY_LIMIT';
     }
     
