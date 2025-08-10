@@ -29,7 +29,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'incomplete' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all');
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
@@ -79,6 +79,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       // Apply status filter
       let matchesStatusFilter = false;
       if (selectedStatusFilter === 'all') matchesStatusFilter = true;
+      if (selectedStatusFilter === 'incomplete') matchesStatusFilter = task.status !== 'Completed';
       if (selectedStatusFilter === 'completed') matchesStatusFilter = task.status === 'Completed';
       if (selectedStatusFilter === 'in-progress') matchesStatusFilter = task.status === 'In Progress';
       if (selectedStatusFilter === 'pending') matchesStatusFilter = task.status === 'Pending';
@@ -305,6 +306,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                 <div className="flex gap-1 flex-wrap">
                   {[
                     { key: 'all', label: 'All', icon: null },
+                    { key: 'incomplete', label: 'Incomplete', icon: 'Circle' },
                     { key: 'completed', label: 'Completed', icon: 'CheckCircle' },
                     { key: 'in-progress', label: 'In Progress', icon: 'Clock' },
                     { key: 'pending', label: 'Pending', icon: 'Circle' },
