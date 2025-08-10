@@ -14,16 +14,16 @@ export interface DrawingFile {
 
 // Simple filename-based classifier to auto-detect drawing type
 const classifyFromName = (name: string): string | undefined => {
-  const n = name.toLowerCase();
+  const n = name.toLowerCase().replace(/[_.-]+/g, ' ');
   const rules: { type: string; keywords: string[] }[] = [
-    { type: 'Architectural', keywords: ['arch', 'architect', 'floor plan', 'site plan', 'ga', 'elevation', 'section'] },
-    { type: 'Structural', keywords: ['struct', 'beam', 'column', 'rebar', 'steel', 'rc', 'slab', 'foundation'] },
-    { type: 'Electrical', keywords: ['elect', 'lighting', 'power', 'elv', 'single line', 'cable'] },
-    { type: 'Mechanical', keywords: ['mech', 'hvac', 'duct', 'chiller', 'ahu', 'mechanical'] },
-    { type: 'Plumbing', keywords: ['plumb', 'pipe', 'sanitary', 'water', 'drainage'] },
+    { type: 'Architectural', keywords: ['arch', 'architect', 'floor plan', 'site plan', 'ga', 'general arrangement', 'elev', 'elevation', 'section', 'plan'] },
+    { type: 'Structural', keywords: ['struct', 'structural', 'beam', 'column', 'rebar', 'steel', 'rc', 'slab', 'foundation', 'footing'] },
+    { type: 'Electrical', keywords: ['elect', 'electrical', 'lighting', 'power', 'elv', 'single line', 'cable'] },
+    { type: 'Mechanical', keywords: ['mech', 'mechanical', 'hvac', 'duct', 'chiller', 'ahu'] },
+    { type: 'Plumbing', keywords: ['plumb', 'plumbing', 'pipe', 'sanitary', 'water', 'drainage'] },
     { type: 'Civil', keywords: ['civil', 'road', 'grading', 'earthwork', 'stormwater'] },
     { type: 'Landscape', keywords: ['landscape', 'planting', 'hardscape'] },
-    { type: 'Interior', keywords: ['interior', 'finish', 'fitout', 'joinery'] },
+    { type: 'Interior', keywords: ['interior', 'internal', 'internals', 'fitout', 'fit-out', 'finishes', 'finish', 'joinery', 'ffe', 'f.f.e', 'f-f-e'] },
     { type: 'Specification', keywords: ['spec', 'specification'] },
     { type: 'Schedule', keywords: ['schedule', 'door schedule', 'window schedule'] },
   ];
