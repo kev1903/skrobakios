@@ -9,6 +9,7 @@ export interface DrawingFile {
   pages: number;
   uploadedAt: Date;
   storagePath?: string; // Supabase Storage path when persisted
+  type?: string; // Auto-detected or user-selected document type
 }
 
 export const useMultiplePDFUpload = () => {
@@ -43,7 +44,8 @@ export const useMultiplePDFUpload = () => {
           file,
           url,
           pages,
-          uploadedAt: new Date()
+          uploadedAt: new Date(),
+          type: classifyFromName(file.name)
         };
 
         newDrawings.push(drawing);

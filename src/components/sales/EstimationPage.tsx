@@ -75,8 +75,7 @@ const {
   deleteMeasurement
 } = useTakeoffMeasurements();
 
-  // Document type state for drawings
-  const [docTypes, setDocTypes] = useState<Record<string, string>>({});
+  // Document type options for dropdown override
   const documentTypeOptions = [
     'Architectural',
     'Structural',
@@ -322,8 +321,10 @@ const {
                           </TableCell>
                           <TableCell className="py-1">
                             <Select
-                              defaultValue={docTypes[d.id]}
-                              onValueChange={(val) => setDocTypes((prev) => ({ ...prev, [d.id]: val }))}
+                              value={d.type}
+                              onValueChange={(val) =>
+                                setDrawingsData(drawings.map(dd => dd.id === d.id ? { ...dd, type: val } : dd))
+                              }
                             >
                               <SelectTrigger id={`doc-type-${d.id}`} className="h-8 text-xs">
                                 <SelectValue placeholder="Select type" />
