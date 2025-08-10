@@ -30,7 +30,7 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
   const { estimateTitle, projectType, drawings: contextDrawings, loadEstimateData } = useEstimateContext();
   const { fileInputRef, drawings, activeDrawingId, activeDrawing, handleFileUpload, addFiles, removeDrawing, setActiveDrawing, setDrawingsData } = useMultiplePDFUpload();
   const { saveEstimate, updateEstimate, loadEstimate, isSaving } = useEstimate();
-  const { takeoffs, createTakeoff, deleteTakeoff } = useTakeoffMeasurements();
+  const { takeoffs, createTakeoff, deleteTakeoff } = useTakeoffMeasurements(currentId);
 
   useEffect(() => {
     if (contextDrawings && contextDrawings.length > 0) {
@@ -114,17 +114,19 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
           onDeleteTakeoff={deleteTakeoff}
         />
 
-        {/* Right: PDF with overlay */}
-        <div className="border rounded-lg overflow-hidden min-h-[60vh]">
+        {/* Right: PDF with overlay - Fixed to bottom */}
+        <div className="border rounded-lg overflow-hidden flex flex-col h-full">
           {activeDrawing?.url ? (
-            <PDFRenderer
-              pdfUrl={activeDrawing.url}
-              canvasRef={canvasRef}
-              currentTool={currentTool}
-              measurements={[]}
-            />
+            <div className="flex-1 overflow-hidden">
+              <PDFRenderer
+                pdfUrl={activeDrawing.url}
+                canvasRef={canvasRef}
+                currentTool={currentTool}
+                measurements={[]}
+              />
+            </div>
           ) : (
-            <div className="h-full grid place-items-center text-sm text-muted-foreground p-6">
+            <div className="flex-1 grid place-items-center text-sm text-muted-foreground p-6">
               Upload a PDF to start the take-off.
             </div>
           )}

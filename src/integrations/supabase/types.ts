@@ -2450,6 +2450,48 @@ export type Database = {
         }
         Relationships: []
       }
+      takeoffs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          estimate_id: string
+          id: string
+          measurements: Json | null
+          name: string
+          quantity: string | null
+          status: string
+          type: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          estimate_id: string
+          id?: string
+          measurements?: Json | null
+          name: string
+          quantity?: string | null
+          status?: string
+          type: string
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          estimate_id?: string
+          id?: string
+          measurements?: Json | null
+          name?: string
+          quantity?: string | null
+          status?: string
+          type?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       task_activity_log: {
         Row: {
           action_description: string
