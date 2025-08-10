@@ -116,6 +116,34 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
     };
   }, []);
 
+  // Prevent browser zoom via Ctrl/Cmd + +/-/0 when the viewer is focused; handle zoom ourselves
+  useEffect(() => {
+    const isEventInsideViewer = (target: EventTarget | null) => {
+      const el = scrollRef.current;
+      return !!(el && target && el instanceof Node && el.contains(target as Node));
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const target = e.target as EventTarget | null;
+      if (!isEventInsideViewer(target)) return;
+
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        setScale(prev => Number(Math.min(3, prev + 0.2).toFixed(3)));
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        setScale(prev => Number(Math.max(0.5, prev - 0.2).toFixed(3)));
+      } else if (e.key === '0') {
+        e.preventDefault();
+        setScale(1);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, []);
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('PDF loaded successfully with', numPages, 'pages');
     setNumPages(numPages);
@@ -200,17 +228,23 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
             onLoadError={onDocumentLoadError}
             loading={<div className="p-6 text-sm opacity-70">Loading PDF…</div>}
           >
-            {numPages ? Array.from({ length: numPages }, (_, i) => (
-              <div key={`wrap_${i + 1}`} className="my-2 flex justify-center w-full">
+            {numPages ? (
+              <div key={`wrap_${pageNumber}`} className="my-2 flex justify-center w-full">
                 <Page
-                  pageNumber={i + 1}
+                  pageNumber={pageNumber}
                   width={Math.max(320, Math.floor(containerWidth * scale))}
                   renderMode="canvas"
+                  renderTextLayer={false}
+                  renderAnnotationLayer={false}
+                  onRenderError={(err) => {
+                    console.error('Page render error:', err);
+                    setError(`Failed to render page ${pageNumber}: ${err.message}`);
+                  }}
                   loading={<div>Loading page...</div>}
                   className="shadow-lg"
                 />
               </div>
-            )) : null}
+            ) : null}
           </Document>
         </div>
       </div>
