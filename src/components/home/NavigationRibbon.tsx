@@ -142,8 +142,7 @@ const handleNavigateAndClose = (page: string) => {
               return (
                 <button 
                   key={item.id} 
-                  onMouseDown={preClose}
-                  onClick={() => handleNavigateAndClose(item.id)} 
+                  onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }}
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                     isActive 
                       ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
@@ -169,9 +168,8 @@ const handleNavigateAndClose = (page: string) => {
                 return (
                   <button 
                     key={item.id} 
-                    onMouseDown={preClose}
-                    onClick={() => {
-                      // Special handling for Projects button to open project list
+                    onMouseDown={(e) => {
+                      e.preventDefault();
                       if (item.id === "projects") {
                         handleNavigateAndClose("projects");
                       } else {
@@ -202,8 +200,7 @@ const handleNavigateAndClose = (page: string) => {
                 return (
                   <button 
                     key={item.id} 
-                    onMouseDown={preClose}
-                    onClick={() => handleNavigateAndClose(item.id)} 
+                    onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }} 
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
                         ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
@@ -232,8 +229,7 @@ const handleNavigateAndClose = (page: string) => {
             return (
               <button 
                 key={item.id}
-                onMouseDown={preClose}
-                onClick={() => handleNavigateAndClose(item.id)} 
+                onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }} 
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                   isActive 
                     ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
