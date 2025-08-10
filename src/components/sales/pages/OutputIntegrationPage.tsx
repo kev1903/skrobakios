@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
@@ -13,6 +14,7 @@ export const OutputIntegrationPage = () => {
   ];
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
+  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const handleStepChange = (s: number) => {
     const id = estimateId;
     if (!id) return;
@@ -28,6 +30,7 @@ export const OutputIntegrationPage = () => {
     <PageShell withPattern>
       <StepTimeline steps={steps} current={5} onChange={handleStepChange} />
       <div className="p-6 text-sm text-muted-foreground">Output & Integration page</div>
+      <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
   );
 };

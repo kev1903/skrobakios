@@ -11,6 +11,7 @@ import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
 import { DrawingSidebar } from '../components/DrawingSidebar';
 import { PDFRenderer } from '../components/PDFRenderer';
+import { AiChatSidebar } from '@/components/AiChatSidebar';
 
 interface TakeOffPageProps {
   onBack?: () => void;
@@ -22,6 +23,7 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
+  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const navigate = useNavigate();
   const { estimateId: estimateIdParam } = useParams<{ estimateId: string }>();
   const currentId = (estimateId || estimateIdParam) ?? '';
@@ -142,6 +144,7 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
           )}
         </div>
       </div>
+      <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
   );
 };

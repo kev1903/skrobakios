@@ -16,7 +16,8 @@ import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageShell } from '@/components/layout/PageShell';
- 
+import { AiChatSidebar } from '@/components/AiChatSidebar';
+  
 import { toast } from 'sonner';
 interface InputDataPageProps {
   onBack?: () => void;
@@ -33,6 +34,7 @@ export const InputDataPage = ({
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [activeTab, setActiveTab] = useState('drawings');
+  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
 
   // Drawing and measurement state
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
