@@ -9,7 +9,7 @@ import { StepTimeline } from '@/components/ui/step-timeline';
 import { useMultiplePDFUpload } from '../hooks/useMultiplePDFUpload';
 import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
-import { useEstimateData } from '../hooks/useEstimateData';
+import { useEstimateContext } from '../context/EstimateContext';
 import { DrawingSidebar } from '../components/DrawingSidebar';
 import { PDFRenderer } from '../components/PDFRenderer';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
@@ -27,7 +27,7 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
   const { estimateId: estimateIdParam } = useParams<{ estimateId: string }>();
   const currentId = (estimateId || estimateIdParam) ?? '';
 
-  const { estimateTitle, projectType } = useEstimateData(currentId);
+  const { estimateTitle, projectType } = useEstimateContext();
   const { fileInputRef, drawings, activeDrawingId, activeDrawing, handleFileUpload, addFiles, removeDrawing, setActiveDrawing, setDrawingsData } = useMultiplePDFUpload();
   const { saveEstimate, updateEstimate, loadEstimate, isSaving } = useEstimate();
   const { takeoffs, createTakeoff, deleteTakeoff } = useTakeoffMeasurements();

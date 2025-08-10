@@ -43,6 +43,7 @@ import { TakeOffPage } from "./components/sales/pages/TakeOffPage";
 import { CostDatabasePage } from "./components/sales/pages/CostDatabasePage";
 import { EstimationProcessPage } from "./components/sales/pages/EstimationProcessPage";
 import { OutputIntegrationPage } from "./components/sales/pages/OutputIntegrationPage";
+import { EstimateProvider } from "./components/sales/context/EstimateContext";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -246,11 +247,31 @@ const AppContent = () => {
         
 <Route path="/estimates" element={<EstimatesPageWrapper />} />
 <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
-<Route path="/estimates/edit/:estimateId" element={<EstimateEditPageWrapper />} />
-<Route path="/estimates/edit/:estimateId/take-off" element={<TakeOffPage />} />
-<Route path="/estimates/edit/:estimateId/cost-db" element={<CostDatabasePage />} />
-<Route path="/estimates/edit/:estimateId/estimation" element={<EstimationProcessPage />} />
-<Route path="/estimates/edit/:estimateId/output" element={<OutputIntegrationPage />} />
+<Route path="/estimates/edit/:estimateId" element={
+  <EstimateProvider>
+    <EstimateEditPageWrapper />
+  </EstimateProvider>
+} />
+<Route path="/estimates/edit/:estimateId/take-off" element={
+  <EstimateProvider>
+    <TakeOffPage />
+  </EstimateProvider>
+} />
+<Route path="/estimates/edit/:estimateId/cost-db" element={
+  <EstimateProvider>
+    <CostDatabasePage />
+  </EstimateProvider>
+} />
+<Route path="/estimates/edit/:estimateId/estimation" element={
+  <EstimateProvider>
+    <EstimationProcessPage />
+  </EstimateProvider>
+} />
+<Route path="/estimates/edit/:estimateId/output" element={
+  <EstimateProvider>
+    <OutputIntegrationPage />
+  </EstimateProvider>
+} />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
         {/* Profile edit route removed */}
         <Route path="/impersonate" element={<Index />} />

@@ -19,6 +19,7 @@ import { PageShell } from '@/components/layout/PageShell';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
   
 import { toast } from 'sonner';
+import { useEstimateContext } from '../context/EstimateContext';
 interface InputDataPageProps {
   onBack?: () => void;
   estimateId?: string;
@@ -195,31 +196,17 @@ const [estimateNumber, setEstimateNumber] = useState('');
     if (activeTab === 'summary') setCurrentStep(5);
   }, [activeTab]);
 
-  // Auto-load estimate when estimateId prop is provided
+  // Use context data instead of loading separately
+  const { estimateTitle: contextTitle, projectType: contextProjectType, estimate } = useEstimateContext();
+  
   useEffect(() => {
-    if (!estimateId) return;
-    (async () => {
-      try {
-        const { estimate, trades: loadedTrades, drawings: loadedDrawings } = await loadEstimate(estimateId);
-        setCurrentEstimateId(estimate.id);
-        setEstimateTitle(estimate.estimate_name);
-        setEstimateNumber(estimate.estimate_number);
-        setProjectType(estimate.notes || '');
-        // @ts-ignore: setTradesData is exposed by useTrades
-        if (typeof (setTradesData as any) === 'function') {
-          // @ts-ignore
-          setTradesData(loadedTrades);
-        }
-        // Sync drawings into uploader state
-        if (typeof (setDrawingsData as any) === 'function') {
-          // @ts-ignore
-          setDrawingsData(loadedDrawings || []);
-        }
-      } catch (e) {
-        console.error('Auto-load estimate failed:', e);
-      }
-    })();
-  }, [estimateId]);
+    if (estimate) {
+      setCurrentEstimateId(estimate.id);
+      setEstimateTitle(estimate.estimate_name || '');
+      setEstimateNumber(estimate.estimate_number || '');
+      setProjectType(estimate.notes || '');
+    }
+  }, [estimate]);
 
   const handleStepChange = (s: number) => {
     setCurrentStep(s);

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useEstimateData } from '../hooks/useEstimateData';
+import { useEstimateContext } from '../context/EstimateContext';
 
 export const EstimationProcessPage = () => {
   const steps = [
@@ -20,7 +20,7 @@ export const EstimationProcessPage = () => {
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
   const [isChatCollapsed, setIsChatCollapsed] = useState(true);
-  const { estimateTitle, projectType } = useEstimateData();
+  const { estimateTitle, projectType } = useEstimateContext();
   const handleStepChange = (s: number) => {
     const id = estimateId;
     if (!id) return;
