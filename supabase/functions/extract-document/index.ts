@@ -39,10 +39,13 @@ serve(async (req) => {
   }
 
   const url = new URL(req.url);
-  const path = url.pathname;
+  const rawPath = url.pathname;
+  // Normalize path when called via supabase.functions.invoke('extract-document')
+  // Example incoming path: /functions/v1/extract-document -> we want '/'
+  const path = rawPath.replace(/^\/functions\/v1\/[^/]+/, '') || '/';
 
   // Health endpoint
-  if (req.method === 'GET' && path === '/health') {
+  if (req.method === 'GET' && (path === '/health' || rawPath.endsWith('/health'))) {
     return new Response(
       JSON.stringify({
         ok: true,
