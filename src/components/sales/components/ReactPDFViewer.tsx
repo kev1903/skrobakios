@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url';
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Configure PDF.js worker (use local module, v4)
+// Configure PDF.js worker (local, v5)
 pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 interface ReactPDFViewerProps {
@@ -25,7 +25,6 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
   console.log('ReactPDFViewer received URL:', pdfUrl);
 
   useEffect(() => {
-    // Reset state when URL changes
     setLoading(true);
     setError(null);
     setNumPages(null);
@@ -65,6 +64,7 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
     setScale(prev => Math.max(0.5, prev - 0.2));
   };
 
+  // Show minimal inline error banner but keep viewer mounted
   if (error) {
     return (
       <div className="flex items-center justify-center h-full bg-gray-100 border border-gray-300 rounded">
