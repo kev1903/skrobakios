@@ -288,10 +288,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
   // Handler for task drag start
   const handleTaskDragStart = useCallback((e: React.DragEvent, taskId: string) => {
+    // Prevent resize operations during drag
+    if (dragState.isDragging) {
+      e.preventDefault();
+      return;
+    }
+    
     e.dataTransfer.setData('text/plain', taskId);
     setDraggedTaskId(taskId);
     e.dataTransfer.effectAllowed = 'move';
-  }, []);
+  }, [dragState.isDragging]);
 
   // Handler for task drop onto calendar slots
   const handleTaskDrop = useCallback(async (e: React.DragEvent, slotId: string) => {
@@ -497,6 +503,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         document.removeEventListener('mousemove', handleResizeMove);
         document.removeEventListener('mouseup', handleResizeEnd);
         document.removeEventListener('mouseleave', handleResizeEnd);
+        // Force reset drag state on cleanup
+        setDragState({
+          isDragging: false,
+          taskId: null,
+          handle: null,
+          startY: 0,
+          startTime: null,
+          previewHeight: null,
+          previewTop: null
+        });
       };
       
       document.addEventListener('mousemove', handleResizeMove, { passive: false });
@@ -725,22 +741,32 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    return (
                      <div 
                        key={`taskname-${task.id}`}
-                       draggable
+                       draggable={!dragState.isDragging}
                        onDragStart={(e) => handleTaskDragStart(e, task.id)}
-                       onDragEnd={() => setDraggedTaskId(null)}
-                      className={cn(
-                        "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-grab active:cursor-grabbing group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
-                        isDraggedTask && "opacity-50"
-                      )} 
-                      style={{
-                        top: `${topOffset}px`,
-                        left: '0px',
-                        right: '0px',
-                        height: `${heightInPixels}px`,
-                        minHeight: '20px'
-                      }} 
-                      onClick={e => handleEdgeClick(e, task.id)}
-                    >
+                       onDragEnd={() => {
+                         setDraggedTaskId(null);
+                         // Reset any resize state that might be interfering
+                         setDragState(prev => ({
+                           ...prev,
+                           isDragging: false,
+                           taskId: null,
+                           handle: null
+                         }));
+                       }}
+                       className={cn(
+                         "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-grab active:cursor-grabbing group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
+                         isDraggedTask && "opacity-50",
+                         dragState.isDragging && dragState.taskId === task.id && "pointer-events-none"
+                       )} 
+                       style={{
+                         top: `${topOffset}px`,
+                         left: '0px',
+                         right: '0px',
+                         height: `${heightInPixels}px`,
+                         minHeight: '20px'
+                       }} 
+                       onClick={e => !dragState.isDragging && handleEdgeClick(e, task.id)}
+                     >
                       {/* Visual grip handle */}
                       <div 
                         className="w-12 h-full bg-transparent hover:bg-primary/30 flex items-center justify-center border-r border-gray-200 flex-shrink-0 cursor-grab active:cursor-grabbing transition-colors"
@@ -759,9 +785,27 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                       </div>
                     </div>
                    
-                   {/* Resize handles */}
-                   <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'top')} />
-                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" onMouseDown={e => handleResizeStart(e, task.id, 'bottom')} />
+                   {/* Resize handles - only show when not dragging */}
+                   {!dragState.isDragging && (
+                     <>
+                       <div 
+                         className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" 
+                         onMouseDown={e => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           handleResizeStart(e, task.id, 'top');
+                         }} 
+                       />
+                       <div 
+                         className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" 
+                         onMouseDown={e => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           handleResizeStart(e, task.id, 'bottom');
+                         }} 
+                       />
+                     </>
+                   )}
                  </div>
                 );
               })}
