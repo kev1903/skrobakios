@@ -7,6 +7,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useAppContext } from '@/contexts/AppContextProvider';
 import { useUserRole } from '@/hooks/useUserRole';
 import { personalProfileNavigation } from '@/components/sidebar/navigationData';
+import { useSidebar } from '@/components/ui/sidebar';
 
 interface NavigationRibbonProps {
   isOpen?: boolean;
@@ -31,6 +32,7 @@ export const NavigationRibbon = ({
   const { activeContext } = useAppContext();
   const { hasFeature, currentSubscription } = useSubscription();
   const { isSuperAdmin } = useUserRole();
+  const { isMobile, setOpen, setOpenMobile } = useSidebar();
 
   // Core business modules that should always be available (replace General section)
   const coreBusinessModules = [
@@ -91,7 +93,11 @@ export const NavigationRibbon = ({
 const handleNavigateAndClose = (page: string) => {
   onNavigate(page);
   if (onClose) onClose();
-  else onCollapse?.();
+  if (onCollapse) onCollapse();
+  else {
+    if (isMobile) setOpenMobile(false);
+    else setOpen(false);
+  }
 };
 
   // If not open and onClose function exists, don't render (floating mode)
