@@ -24,14 +24,17 @@ const classifyFromName = (name: string): string | undefined => {
   const rules: { type: string; keywords: string[] }[] = [
     { type: 'Architectural', keywords: ['arch', 'architect', 'floor plan', 'site plan', 'ga', 'general arrangement', 'elev', 'elevation', 'section', 'plan', 'bl', 'building', 'permit', 'bp'] },
     { type: 'Structural', keywords: ['struct', 'structural', 'beam', 'column', 'rebar', 'steel', 'rc', 'slab', 'foundation', 'footing'] },
-    { type: 'Electrical', keywords: ['elect', 'electrical', 'lighting', 'power', 'elv', 'single line', 'cable'] },
-    { type: 'Mechanical', keywords: ['mech', 'mechanical', 'hvac', 'duct', 'chiller', 'ahu'] },
-    { type: 'Plumbing', keywords: ['plumb', 'plumbing', 'pipe', 'sanitary', 'water', 'drainage'] },
     { type: 'Civil', keywords: ['civil', 'road', 'grading', 'earthwork', 'stormwater'] },
-    { type: 'Landscape', keywords: ['landscape', 'planting', 'hardscape'] },
-    { type: 'Interior', keywords: ['interior', 'internal', 'internals', 'fitout', 'fit-out', 'finishes', 'finish', 'joinery', 'ffe', 'f.f.e', 'f-f-e', 'bi'] },
-    { type: 'Specification', keywords: ['spec', 'specification', 'covernote', 'cover note'] },
-    { type: 'Schedule', keywords: ['schedule', 'door schedule', 'window schedule'] },
+    { type: 'Electrical', keywords: ['elect', 'electrical', 'lighting', 'power', 'elv', 'single line', 'switchboard', 'cable'] },
+    { type: 'HVAC', keywords: ['hvac', 'mechanical', 'mech', 'duct', 'chiller', 'ahu'] },
+    { type: 'Plumbing', keywords: ['plumb', 'plumbing', 'pipe', 'sanitary', 'water', 'drainage'] },
+    { type: 'Landscaping', keywords: ['landscape', 'planting', 'hardscape'] },
+    { type: 'FF&E', keywords: ['ffe', 'f.f.e', 'f-f-e', 'fixture', 'furniture', 'equipment'] },
+    { type: 'Colour Selection', keywords: ['colour selection', 'color selection', 'paint', 'palette', 'colour', 'color'] },
+    { type: 'Finishes', keywords: ['finish', 'finishes', 'finish schedule', 'finishes schedule'] },
+    { type: 'Interior Design', keywords: ['interior', 'internal', 'internals', 'fitout', 'fit-out', 'joinery', 'bi'] },
+    { type: 'Energy Report', keywords: ['energy report', 'nathers', 'thermal performance', 'energy rating'] },
+    { type: 'Soil Report', keywords: ['soil report', 'geotech', 'geotechnical'] },
   ];
   for (const r of rules) {
     if (r.keywords.some(k => has(k))) return r.type;
@@ -62,14 +65,17 @@ const classifyFromPDF = async (file: File): Promise<string | undefined> => {
     const rules: { type: string; keywords: string[] }[] = [
       { type: 'Architectural', keywords: ['architectural', 'general arrangement', 'elevation', 'section', 'floor plan', 'site plan'] },
       { type: 'Structural', keywords: ['structural', 'reinforcement', 'rebar', 'beam', 'column', 'foundation', 'footing', 'slab'] },
-      { type: 'Electrical', keywords: ['electrical', 'lighting', 'power', 'single line', 'switchboard'] },
-      { type: 'Mechanical', keywords: ['mechanical', 'hvac', 'duct', 'ahu', 'chiller'] },
-      { type: 'Plumbing', keywords: ['plumbing', 'sanitary', 'water', 'drainage'] },
       { type: 'Civil', keywords: ['civil', 'grading', 'road', 'earthwork', 'stormwater'] },
-      { type: 'Landscape', keywords: ['landscape', 'planting', 'hardscape'] },
-      { type: 'Interior', keywords: ['interior', 'finishes', 'joinery', 'fitout', 'fixture', 'furniture', 'equipment'] },
-      { type: 'Specification', keywords: ['specification', 'cover note', 'covernote', 'contents'] },
-      { type: 'Schedule', keywords: ['schedule', 'window schedule', 'door schedule'] },
+      { type: 'Electrical', keywords: ['electrical', 'lighting', 'power', 'single line', 'switchboard'] },
+      { type: 'HVAC', keywords: ['hvac', 'mechanical', 'duct', 'ahu', 'chiller'] },
+      { type: 'Plumbing', keywords: ['plumbing', 'sanitary', 'water', 'drainage'] },
+      { type: 'Landscaping', keywords: ['landscape', 'planting', 'hardscape'] },
+      { type: 'FF&E', keywords: ['fixture', 'furniture', 'equipment', 'f.f.e', 'f-f-e', 'ffe'] },
+      { type: 'Colour Selection', keywords: ['colour selection', 'color selection', 'paint', 'palette'] },
+      { type: 'Finishes', keywords: ['finish', 'finishes', 'finish schedule', 'finishes schedule'] },
+      { type: 'Interior Design', keywords: ['interior', 'joinery', 'fitout', 'internal', 'internals'] },
+      { type: 'Energy Report', keywords: ['energy report', 'nathers', 'thermal performance', 'energy rating'] },
+      { type: 'Soil Report', keywords: ['soil report', 'geotech', 'geotechnical'] },
     ];
     for (const r of rules) {
       if (r.keywords.some((k) => has(k))) return r.type;
