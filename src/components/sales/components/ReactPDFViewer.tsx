@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
@@ -20,6 +20,14 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
   const [error, setError] = useState<string | null>(null);
 
   console.log('ReactPDFViewer received URL:', pdfUrl);
+
+  useEffect(() => {
+    // Reset state when URL changes
+    setLoading(true);
+    setError(null);
+    setNumPages(null);
+    setPageNumber(1);
+  }, [pdfUrl]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('PDF loaded successfully with', numPages, 'pages');
@@ -65,19 +73,9 @@ export const ReactPDFViewer = ({ pdfUrl, className, style }: ReactPDFViewerProps
     );
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full bg-gray-100 border border-gray-300 rounded">
-        <div className="text-center text-gray-600">
-          <div className="text-lg mb-2">📄</div>
-          <div>Loading PDF...</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className={`flex flex-col ${className}`} style={style}>
+    <div className={`flex flex-col h-full relative ${className || ''}`} style={style}>
       {/* PDF Controls */}
       <div className="flex items-center justify-between p-2 border-b bg-background shrink-0">
         <div className="flex items-center gap-2">
