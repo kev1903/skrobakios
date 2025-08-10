@@ -7,7 +7,7 @@ import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReactPDFViewer } from './components/ReactPDFViewer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-
+import { useNavigate } from 'react-router-dom';
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
@@ -182,7 +182,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
     { id: 4, title: 'Step 4: Estimation Process' },
     { id: 5, title: 'Step 5: Output & Integration' },
   ];
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(2);
 
   // Sync step with tabs roughly
   useEffect(() => {
@@ -218,12 +218,13 @@ const [estimateNumber, setEstimateNumber] = useState('');
     })();
   }, [estimateId]);
 
+  const navigate = useNavigate();
   const handleStepChange = (s: number) => {
     setCurrentStep(s);
-    // Optionally navigate key tabs for better UX
-    if (s <= 2) setActiveTab('drawings');
-    else if (s <= 4) setActiveTab('quantities');
-    else setActiveTab('summary');
+    if (!currentEstimateId && !estimateId) return;
+    const id = currentEstimateId || estimateId!;
+    if (s <= 1) navigate(`/estimates/edit/${id}/input-data`);
+    else if (s === 2) navigate(`/estimates/edit/${id}/take-off`);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
