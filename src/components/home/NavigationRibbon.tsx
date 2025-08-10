@@ -90,17 +90,19 @@ export const NavigationRibbon = ({
     });
   }, [currentSubscription, businessNavigation.length, businessNavigationItems, hasFeature]);
 
+const preClose = () => {
+  if (onClose) onClose();
+  if (onCollapse) onCollapse();
+  else {
+    if (isMobile) setOpenMobile(false);
+    else setOpen(false);
+  }
+};
+
 const handleNavigateAndClose = (page: string) => {
-  const collapse = () => {
-    if (onClose) onClose();
-    if (onCollapse) onCollapse();
-    else {
-      if (isMobile) setOpenMobile(false);
-      else setOpen(false);
-    }
-  };
-  collapse();
-  // Navigate on next frame so the collapse paint happens first
+  // Close immediately on pointer down; this is a safety for click-only paths
+  preClose();
+  // Navigate on next frame so the close paint happens first
   requestAnimationFrame(() => onNavigate(page));
 };
 
@@ -140,6 +142,7 @@ const handleNavigateAndClose = (page: string) => {
               return (
                 <button 
                   key={item.id} 
+                  onMouseDown={preClose}
                   onClick={() => handleNavigateAndClose(item.id)} 
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                     isActive 
@@ -166,6 +169,7 @@ const handleNavigateAndClose = (page: string) => {
                 return (
                   <button 
                     key={item.id} 
+                    onMouseDown={preClose}
                     onClick={() => {
                       // Special handling for Projects button to open project list
                       if (item.id === "projects") {
@@ -198,6 +202,7 @@ const handleNavigateAndClose = (page: string) => {
                 return (
                   <button 
                     key={item.id} 
+                    onMouseDown={preClose}
                     onClick={() => handleNavigateAndClose(item.id)} 
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
@@ -227,6 +232,7 @@ const handleNavigateAndClose = (page: string) => {
             return (
               <button 
                 key={item.id}
+                onMouseDown={preClose}
                 onClick={() => handleNavigateAndClose(item.id)} 
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                   isActive 
