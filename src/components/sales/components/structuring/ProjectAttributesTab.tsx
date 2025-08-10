@@ -410,84 +410,91 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
               
               {/* Live AI Activity Monitor */}
               {(extracting || aiProgress.status !== 'idle') && (
-                <div className="mt-4 p-4 bg-muted/50 rounded-lg border">
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          aiProgress.status === 'processing' ? 'bg-blue-500 animate-pulse' :
-                          aiProgress.status === 'complete' ? 'bg-green-500' :
-                          aiProgress.status === 'error' ? 'bg-red-500' : 'bg-gray-400'
-                        }`} />
-                        <span className="font-medium text-sm">SkAi Processing Engine</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {aiProgress.status === 'processing' ? 'ACTIVE' :
-                         aiProgress.status === 'complete' ? 'COMPLETE' :
-                         aiProgress.status === 'error' ? 'ERROR' : 'STANDBY'}
-                      </span>
-                    </div>
-                    
-                    {/* Overall Progress */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs">
-                        <span>Overall Progress</span>
-                        <span>{aiProgress.overallProgress}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-primary h-2 rounded-full transition-all duration-300 ease-out" 
-                          style={{ width: `${aiProgress.overallProgress}%` }}
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Current Activity */}
-                    {aiProgress.currentActivity && (
-                      <div className="space-y-1">
-                        <div className="text-xs font-medium">Current Activity:</div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-2">
-                          {aiProgress.status === 'processing' && (
-                            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                          )}
-                          {aiProgress.currentActivity}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* File Progress */}
-                    {aiProgress.currentFile && (
-                      <div className="space-y-1">
-                        <div className="text-xs font-medium">Processing: {aiProgress.currentFile}</div>
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>Files: {aiProgress.processedFiles}/{aiProgress.totalFiles}</span>
-                          <span>Extracted: {aiProgress.extractedCount}</span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Live Activity Log */}
-                    {aiProgress.logs.length > 0 && (
-                      <div className="space-y-1">
-                        <div className="text-xs font-medium">Activity Log:</div>
-                        <div className="bg-black/80 rounded p-2 space-y-1 max-h-20 overflow-y-auto font-mono text-xs">
-                          {aiProgress.logs.map((log, index) => (
-                            <div key={index} className={`flex gap-2 ${
-                              log.type === 'error' ? 'text-red-400' :
-                              log.type === 'success' ? 'text-green-400' :
-                              log.type === 'warning' ? 'text-yellow-400' :
-                              'text-blue-400'
-                            }`}>
-                              <span className="text-gray-500 text-xs">{log.timestamp}</span>
-                              <span>{log.message}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                 <div className="mt-4 p-4 bg-muted/50 rounded-lg border">
+                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                     {/* Left Column - Status & Progress */}
+                     <div className="space-y-4">
+                       {/* Header */}
+                       <div className="flex items-center justify-between">
+                         <div className="flex items-center gap-2">
+                           <div className={`w-2 h-2 rounded-full ${
+                             aiProgress.status === 'processing' ? 'bg-blue-500 animate-pulse' :
+                             aiProgress.status === 'complete' ? 'bg-green-500' :
+                             aiProgress.status === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                           }`} />
+                           <span className="font-medium text-sm">SkAi Processing Engine</span>
+                         </div>
+                         <span className="text-xs text-muted-foreground">
+                           {aiProgress.status === 'processing' ? 'ACTIVE' :
+                            aiProgress.status === 'complete' ? 'COMPLETE' :
+                            aiProgress.status === 'error' ? 'ERROR' : 'STANDBY'}
+                         </span>
+                       </div>
+                       
+                       {/* Overall Progress */}
+                       <div className="space-y-2">
+                         <div className="flex justify-between text-xs">
+                           <span>Overall Progress</span>
+                           <span>{aiProgress.overallProgress}%</span>
+                         </div>
+                         <div className="w-full bg-muted rounded-full h-2">
+                           <div 
+                             className="bg-primary h-2 rounded-full transition-all duration-300 ease-out" 
+                             style={{ width: `${aiProgress.overallProgress}%` }}
+                           />
+                         </div>
+                       </div>
+                       
+                       {/* Current Activity */}
+                       {aiProgress.currentActivity && (
+                         <div className="space-y-1">
+                           <div className="text-xs font-medium">Current Activity:</div>
+                           <div className="text-xs text-muted-foreground flex items-center gap-2">
+                             {aiProgress.status === 'processing' && (
+                               <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                             )}
+                             {aiProgress.currentActivity}
+                           </div>
+                         </div>
+                       )}
+                       
+                       {/* File Progress */}
+                       {aiProgress.currentFile && (
+                         <div className="space-y-1">
+                           <div className="text-xs font-medium">Processing: {aiProgress.currentFile}</div>
+                           <div className="flex justify-between text-xs text-muted-foreground">
+                             <span>Files: {aiProgress.processedFiles}/{aiProgress.totalFiles}</span>
+                             <span>Extracted: {aiProgress.extractedCount}</span>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                     
+                     {/* Right Column - Activity Log */}
+                     <div className="space-y-2">
+                       <div className="text-xs font-medium">Activity Log:</div>
+                       <div className="h-32 bg-black/90 rounded p-3 font-mono text-xs overflow-y-auto">
+                         {aiProgress.logs.length > 0 ? (
+                           aiProgress.logs.map((log, index) => (
+                             <div key={index} className="flex gap-2 mb-1">
+                               <span className="text-green-400 opacity-60 shrink-0">{log.timestamp}</span>
+                               <span className={`${
+                                 log.type === 'error' ? 'text-red-400' :
+                                 log.type === 'success' ? 'text-green-400' :
+                                 log.type === 'warning' ? 'text-yellow-400' :
+                                 'text-blue-300'
+                               }`}>
+                                 {log.message}
+                               </span>
+                             </div>
+                           ))
+                         ) : (
+                           <div className="text-gray-500 italic">Waiting for activity...</div>
+                         )}
+                       </div>
+                     </div>
+                   </div>
+                 </div>
               )}
             </CardContent>
           </CollapsibleContent>
