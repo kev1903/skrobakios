@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +24,8 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   const sourceUrl = fileUrl || pdfUrl || '';
   console.log('ReactPDFViewer received URL:', sourceUrl);
@@ -57,6 +59,22 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
       if (revoked) URL.revokeObjectURL(revoked);
     };
   }, [sourceUrl]);
+
+  // Observe container width to fit pages to available space
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        setContainerWidth(Math.max(300, Math.floor(w)));
+      }
+    });
+    ro.observe(el);
+    // Initialize
+    setContainerWidth(Math.max(300, Math.floor(el.clientWidth)));
+    return () => ro.disconnect();
+  }, []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     console.log('PDF loaded successfully with', numPages, 'pages');
@@ -134,8 +152,8 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
       </div>
 
       {/* PDF Document */}
-      <div className="flex-1 overflow-auto bg-gray-100 p-4 max-h-full">
-        <div className="flex justify-center">
+      <div className="flex-1 overflow-auto bg-gray-100 p-4 h-[85vh]">
+        <div className="flex justify-center w-full" ref={containerRef}>
           <Document
             file={blobUrl ?? sourceUrl}
             onLoadSuccess={onDocumentLoadSuccess}
@@ -143,14 +161,15 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
             loading={<div className="p-6 text-sm opacity-70">Loading PDF…</div>}
           >
             {numPages ? Array.from({ length: numPages }, (_, i) => (
-              <Page
-                key={`page_${i + 1}`}
-                pageNumber={i + 1}
-                scale={scale}
-                renderMode="canvas"
-                loading={<div>Loading page...</div>}
-                className="shadow-lg my-2"
-              />
+              <div key={`wrap_${i + 1}`} className="my-2 flex justify-center w-full">
+                <Page
+                  pageNumber={i + 1}
+                  width={Math.max(320, Math.floor(containerWidth * scale))}
+                  renderMode="canvas"
+                  loading={<div>Loading page...</div>}
+                  className="shadow-lg"
+                />
+              </div>
             )) : null}
           </Document>
         </div>
