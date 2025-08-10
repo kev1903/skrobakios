@@ -88,6 +88,7 @@ const {
     'Colour Selection',
     'Finishes',
     'Interior Design',
+    'Specification',
     'Energy Report',
     'Soil Report',
   ];

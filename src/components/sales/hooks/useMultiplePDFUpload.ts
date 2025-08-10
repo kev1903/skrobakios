@@ -33,6 +33,7 @@ const classifyFromName = (name: string): string | undefined => {
     { type: 'Colour Selection', keywords: ['colour selection', 'color selection', 'paint', 'palette', 'colour', 'color'] },
     { type: 'Finishes', keywords: ['finish', 'finishes', 'finish schedule', 'finishes schedule'] },
     { type: 'Interior Design', keywords: ['interior', 'internal', 'internals', 'fitout', 'fit-out', 'joinery', 'bi'] },
+    { type: 'Specification', keywords: ['spec', 'specification', 'covernote', 'cover note', 'contents', 'toc', 'table of contents'] },
     { type: 'Energy Report', keywords: ['energy report', 'nathers', 'thermal performance', 'energy rating'] },
     { type: 'Soil Report', keywords: ['soil report', 'geotech', 'geotechnical'] },
   ];
@@ -74,6 +75,7 @@ const classifyFromPDF = async (file: File): Promise<string | undefined> => {
       { type: 'Colour Selection', keywords: ['colour selection', 'color selection', 'paint', 'palette'] },
       { type: 'Finishes', keywords: ['finish', 'finishes', 'finish schedule', 'finishes schedule'] },
       { type: 'Interior Design', keywords: ['interior', 'joinery', 'fitout', 'internal', 'internals'] },
+      { type: 'Specification', keywords: ['specification', 'project specification', 'cover note', 'covernote', 'contents', 'table of contents', 'toc', 'specs'] },
       { type: 'Energy Report', keywords: ['energy report', 'nathers', 'thermal performance', 'energy rating'] },
       { type: 'Soil Report', keywords: ['soil report', 'geotech', 'geotechnical'] },
     ];
