@@ -439,6 +439,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
             </div>
           </div>
         </div>
+      </div>
 
       {/* Fullscreen PDF Preview */}
       <Dialog open={previewOpen} onOpenChange={(o) => { setPreviewOpen(o); if (!o) setPreviewDoc(null); }}>
