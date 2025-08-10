@@ -49,7 +49,70 @@ export const DocumentExtractorTab = ({
     }
   }, [uploadedPDFs]);
 
-  const processDocuments = async () => {
+  const checkHealth = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('extract-document/health');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Health Check Result",
+        description: `System OK: ${data.env?.OCR_ENGINE || 'tesseract'} engine, ${data.env?.TMP_DIR || '/tmp'} temp dir`,
+      });
+    } catch (error) {
+      toast({
+        title: "Health Check Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const testFetchDocuments = async () => {
+    if (!uploadedPDFs || uploadedPDFs.length === 0) {
+      toast({
+        title: "No documents found",
+        description: "Please upload PDFs first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      for (const pdf of uploadedPDFs.slice(0, 3)) { // Test first 3 only
+        let fileUrl = '';
+        
+        if (pdf.url) {
+          fileUrl = pdf.url;
+        } else if (pdf.file || pdf instanceof File) {
+          // For file objects, we'd need to upload first - skip for now
+          continue;
+        }
+
+        if (fileUrl) {
+          const { data, error } = await supabase.functions.invoke('extract-document/debug/fetch', {
+            body: { url: fileUrl }
+          });
+
+          if (error) throw error;
+
+          toast({
+            title: `Fetch Test: ${pdf.name || 'Document'}`,
+            description: data.hint || 'Test completed',
+            variant: data.ok ? "default" : "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Fetch test failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const processDocuments = async (forceOcr = false) => {
     if (!uploadedPDFs || uploadedPDFs.length === 0) {
       toast({
         title: "No documents found",
@@ -139,10 +202,19 @@ export const DocumentExtractorTab = ({
           // Call the extract-document function
           const { data: extractData, error: extractError } = await supabase.functions
             .invoke('extract-document', {
-              body: { document_id: docRecord.id }
+              body: { 
+                document_id: docRecord.id,
+                force_ocr: forceOcr
+              }
             });
 
-          if (extractError) throw extractError;
+          if (extractError) {
+            // Check if it's a structured error response
+            if (extractData && !extractData.ok) {
+              throw new Error(`${extractData.phase}: ${extractData.hint || extractData.error}`);
+            }
+            throw extractError;
+          }
 
           // Update with success
           const processedDoc: ProcessingDocument = {
@@ -254,9 +326,9 @@ export const DocumentExtractorTab = ({
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <Button 
-              onClick={processDocuments}
+              onClick={() => processDocuments()}
               disabled={isProcessing || documents.length === 0}
               className="flex items-center gap-2"
             >
@@ -266,6 +338,36 @@ export const DocumentExtractorTab = ({
                 <FileText className="w-4 h-4" />
               )}
               {isProcessing ? 'Processing...' : 'Extract All Documents'}
+            </Button>
+
+            <Button 
+              onClick={() => processDocuments(true)}
+              disabled={isProcessing || documents.length === 0}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <AlertCircle className="w-4 h-4" />
+              Force OCR (this run)
+            </Button>
+
+            <Button 
+              onClick={testFetchDocuments}
+              disabled={isProcessing || documents.length === 0}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Search className="w-4 h-4" />
+              Test Fetch Only
+            </Button>
+
+            <Button 
+              onClick={checkHealth}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <CheckCircle className="w-4 h-4" />
+              Health Check
             </Button>
             
             {documents.length > 0 && (
