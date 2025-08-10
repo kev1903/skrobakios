@@ -39,6 +39,47 @@ const classifyFromName = (name: string): string | undefined => {
   return undefined;
 }
 
+// Parse PDF text to improve classification (first 1-2 pages)
+const classifyFromPDF = async (file: File): Promise<string | undefined> => {
+  try {
+    const pdfjs: any = await import('pdfjs-dist');
+    // Ensure worker is available
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).toString();
+
+    const data = await file.arrayBuffer();
+    const loadingTask = pdfjs.getDocument({ data });
+    const doc = await loadingTask.promise;
+
+    const pagesToScan = Math.min(doc.numPages, 2);
+    let text = '';
+    for (let i = 1; i <= pagesToScan; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text += ' ' + content.items.map((it: any) => (it.str ?? '')).join(' ');
+    }
+    const n = text.toLowerCase();
+    const has = (kw: string) => (kw.length <= 3 ? new RegExp(`\\b${kw}\\b`).test(n) : n.includes(kw));
+    const rules: { type: string; keywords: string[] }[] = [
+      { type: 'Architectural', keywords: ['architectural', 'general arrangement', 'elevation', 'section', 'floor plan', 'site plan'] },
+      { type: 'Structural', keywords: ['structural', 'reinforcement', 'rebar', 'beam', 'column', 'foundation', 'footing', 'slab'] },
+      { type: 'Electrical', keywords: ['electrical', 'lighting', 'power', 'single line', 'switchboard'] },
+      { type: 'Mechanical', keywords: ['mechanical', 'hvac', 'duct', 'ahu', 'chiller'] },
+      { type: 'Plumbing', keywords: ['plumbing', 'sanitary', 'water', 'drainage'] },
+      { type: 'Civil', keywords: ['civil', 'grading', 'road', 'earthwork', 'stormwater'] },
+      { type: 'Landscape', keywords: ['landscape', 'planting', 'hardscape'] },
+      { type: 'Interior', keywords: ['interior', 'finishes', 'joinery', 'fitout', 'fixture', 'furniture', 'equipment'] },
+      { type: 'Specification', keywords: ['specification', 'cover note', 'covernote', 'contents'] },
+      { type: 'Schedule', keywords: ['schedule', 'window schedule', 'door schedule'] },
+    ];
+    for (const r of rules) {
+      if (r.keywords.some((k) => has(k))) return r.type;
+    }
+    return undefined;
+  } catch (_e) {
+    return undefined;
+  }
+};
+
 export const useMultiplePDFUpload = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [drawings, setDrawings] = useState<DrawingFile[]>([]);
@@ -80,6 +121,17 @@ export const useMultiplePDFUpload = () => {
         };
 
         newDrawings.push(drawing);
+
+        // Attempt content-based classification asynchronously
+        classifyFromPDF(file).then((autoType) => {
+          if (!autoType) return;
+          setDrawings((prev) =>
+            prev.map((d) =>
+              d.id === id && (!d.type || d.type === undefined) ? { ...d, type: autoType } : d
+            )
+          );
+        }).catch(() => {});
+
       } else {
         toast.error(`${file.name} is not a PDF file`);
       }
