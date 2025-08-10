@@ -181,7 +181,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
   // Progressive steps definition
   const steps = [
     { id: 1, title: 'Step 1: Input Data' },
-    { id: 2, title: 'Step 2: Take-Off' },
+    { id: 2, title: 'Step 2: Structuring' },
     { id: 3, title: 'Step 3: Cost Database' },
     { id: 4, title: 'Step 4: Estimation Process' },
     { id: 5, title: 'Step 5: Output & Integration' },
