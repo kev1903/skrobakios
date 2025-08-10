@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useEstimate } from '../hooks/useEstimate';
+import { useEstimateData } from '../hooks/useEstimateData';
 
 export const CostDatabasePage = () => {
   const steps = [
@@ -20,20 +20,7 @@ export const CostDatabasePage = () => {
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
   const [isChatCollapsed, setIsChatCollapsed] = useState(true);
-  const [estimateTitle, setEstimateTitle] = useState('');
-  const [projectType, setProjectType] = useState('');
-  const { loadEstimate } = useEstimate();
-
-  useEffect(() => {
-    if (!estimateId) return;
-    (async () => {
-      try {
-        const { estimate } = await loadEstimate(estimateId);
-        setEstimateTitle(estimate.estimate_name);
-        setProjectType(estimate.notes || '');
-      } catch (_) {}
-    })();
-  }, [estimateId, loadEstimate]);
+  const { estimateTitle, projectType } = useEstimateData();
   const handleStepChange = (s: number) => {
     const id = estimateId;
     if (!id) return;

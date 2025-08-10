@@ -9,6 +9,7 @@ import { StepTimeline } from '@/components/ui/step-timeline';
 import { useMultiplePDFUpload } from '../hooks/useMultiplePDFUpload';
 import { useEstimate } from '../hooks/useEstimate';
 import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
+import { useEstimateData } from '../hooks/useEstimateData';
 import { DrawingSidebar } from '../components/DrawingSidebar';
 import { PDFRenderer } from '../components/PDFRenderer';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
@@ -20,14 +21,13 @@ interface TakeOffPageProps {
 
 export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [estimateTitle, setEstimateTitle] = useState('');
-  const [projectType, setProjectType] = useState('');
   const [currentTool, setCurrentTool] = useState<'pointer' | 'area' | 'linear' | 'count'>('pointer');
   const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const navigate = useNavigate();
   const { estimateId: estimateIdParam } = useParams<{ estimateId: string }>();
   const currentId = (estimateId || estimateIdParam) ?? '';
 
+  const { estimateTitle, projectType } = useEstimateData(currentId);
   const { fileInputRef, drawings, activeDrawingId, activeDrawing, handleFileUpload, addFiles, removeDrawing, setActiveDrawing, setDrawingsData } = useMultiplePDFUpload();
   const { saveEstimate, updateEstimate, loadEstimate, isSaving } = useEstimate();
   const { takeoffs, createTakeoff, deleteTakeoff } = useTakeoffMeasurements();
@@ -37,8 +37,6 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
     (async () => {
       try {
         const { estimate, drawings: loadedDrawings } = await loadEstimate(estimateId);
-        setEstimateTitle(estimate.estimate_name);
-        setProjectType(estimate.notes || '');
         if (typeof (setDrawingsData as any) === 'function') {
           // @ts-ignore
           setDrawingsData(loadedDrawings || []);
