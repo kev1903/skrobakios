@@ -80,25 +80,19 @@ export const DrawingSidebar = ({
               <ChevronDown className={`w-4 h-4 transition-transform ${drawingsOpen ? 'rotate-180' : ''}`} />
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className="space-y-2 mt-3">
+              <div className="space-y-1 mt-3">
                 {drawings.length > 0 ? drawings.map(drawing => (
                   <div 
                     key={drawing.id} 
-                    className={`flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50 cursor-pointer ${
-                      activeDrawingId === drawing.id ? 'bg-muted border-primary' : ''
+                    className={`flex items-center px-2 py-1 rounded cursor-pointer hover:bg-muted/50 ${
+                      activeDrawingId === drawing.id ? 'bg-muted text-primary font-medium' : ''
                     }`}
                     onClick={() => onSetActiveDrawing(drawing.id)}
                   >
-                    <div className="flex items-center gap-2 flex-1">
-                      <FileText className="w-4 h-4 text-muted-foreground" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{drawing.name.slice(0, 20)}{drawing.name.length > 20 ? '...' : ''}</p>
-                      </div>
-                      {activeDrawingId === drawing.id && <Badge variant="secondary" className="text-xs">Active</Badge>}
-                    </div>
+                    <p className="text-sm truncate">{drawing.name}</p>
                   </div>
                 )) : (
-                  <p className="text-sm text-muted-foreground">No drawings uploaded</p>
+                  <p className="text-sm text-muted-foreground px-2">No drawings uploaded</p>
                 )}
               </div>
             </CollapsibleContent>
