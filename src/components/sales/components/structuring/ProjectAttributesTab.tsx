@@ -184,15 +184,37 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
           
           if (error) {
             console.error(`Supabase function error for ${file.name}:`, error);
-            addLog(`❌ Analysis failed: ${error.message}`, 'error');
-            updateProgress({
-              currentActivity: 'Error in analysis, continuing...',
-              fileProgress: 100
-            });
+            
+            // Handle specific error codes for better UX
+            if (error.message?.includes('AUTH_FAILED')) {
+              addLog(`❌ API Authentication failed - please contact support`, 'error');
+              updateProgress({
+                currentActivity: 'Authentication error - skipping file',
+                fileProgress: 100
+              });
+            } else if (error.message?.includes('FILE_TOO_LARGE')) {
+              addLog(`❌ File too large (${(file.size / 1024 / 1024).toFixed(1)}MB) - max 10MB`, 'error');
+              updateProgress({
+                currentActivity: 'File size exceeded - skipping file',
+                fileProgress: 100
+              });
+            } else if (error.message?.includes('MEMORY_LIMIT')) {
+              addLog(`❌ Processing memory limit - try smaller file`, 'error');
+              updateProgress({
+                currentActivity: 'Memory limit exceeded - skipping file',
+                fileProgress: 100
+              });
+            } else {
+              addLog(`❌ Processing failed: ${error.message || 'Unknown error'}`, 'error');
+              updateProgress({
+                currentActivity: 'Error in processing, continuing...',
+                fileProgress: 100
+              });
+            }
             continue;
           }
           
-          if (data?.text) {
+          if (data?.success && data?.text) {
             extractedTexts.push(data.text);
             console.log(`Successfully extracted ${data.text.length} characters from ${file.name}`);
             addLog(`✅ Extracted ${data.text.length} characters`, 'success');
@@ -202,9 +224,20 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
               currentActivity: 'Text extraction complete!',
               fileProgress: 100
             });
+          } else if (data?.warning) {
+            console.warn(`Limited text extracted from ${file.name}:`, data);
+            addLog(`⚠️ Limited text found - may be image-based PDF`, 'warning');
+            
+            // Still add the limited text if any
+            if (data.text && data.text.length > 0) {
+              extractedTexts.push(data.text);
+              updateProgress({
+                extractedCount: aiProgress.extractedCount + 1
+              });
+            }
           } else {
-            console.warn(`No text extracted from ${file.name}`, data);
-            addLog(`⚠️ Limited text found in document`, 'warning');
+            console.warn(`No usable text extracted from ${file.name}`, data);
+            addLog(`⚠️ No readable text found in document`, 'warning');
           }
         } catch (error) {
           console.error(`Error extracting text from PDF:`, error);
@@ -225,11 +258,20 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       if (extractedTexts.length === 0) {
         updateProgress({
           status: 'error',
-          currentActivity: 'No text could be extracted',
+          currentActivity: 'No text could be extracted from any documents',
           overallProgress: 100
         });
-        addLog(`❌ No readable content found in documents`, 'error');
-        throw new Error('No text could be extracted from the PDFs');
+        addLog(`❌ No readable content found in any documents`, 'error');
+        addLog(`💡 Try uploading text-based PDFs or contact support for assistance`, 'info');
+        
+        // Show helpful error with recovery suggestions
+        toast({
+          title: "Extraction unsuccessful",
+          description: "No readable text found. Try uploading text-based PDFs or reducing file sizes.",
+          variant: "destructive"
+        });
+        
+        throw new Error('No text could be extracted from the PDFs. Please ensure you are uploading text-based PDFs (not scanned images) or contact support for assistance.');
       }
       
       // AI Processing Phase
@@ -393,7 +435,7 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <Button 
                   onClick={handleExtractFromPDF}
                   disabled={extracting}
@@ -403,6 +445,20 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
                   <FileText className="w-4 h-4" />
                   {extracting ? 'Extracting...' : 'Extract Project Data'}
                 </Button>
+                
+                {/* Retry button for failed extractions */}
+                {aiProgress.status === 'error' && (
+                  <Button 
+                    onClick={handleExtractFromPDF}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Try Again
+                  </Button>
+                )}
+                
                 <div className="text-sm text-muted-foreground">
                   Automatically extract project information from uploaded drawings and cover sheets
                 </div>
@@ -469,30 +525,44 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
                          </div>
                        )}
                      </div>
-                     
-                     {/* Right Column - Activity Log */}
-                     <div className="space-y-2">
-                       <div className="text-xs font-medium">Activity Log:</div>
-                       <div className="h-32 bg-black/90 rounded p-3 font-mono text-xs overflow-y-auto">
-                         {aiProgress.logs.length > 0 ? (
-                           aiProgress.logs.map((log, index) => (
-                             <div key={index} className="flex gap-2 mb-1">
-                               <span className="text-green-400 opacity-60 shrink-0">{log.timestamp}</span>
-                               <span className={`${
-                                 log.type === 'error' ? 'text-red-400' :
-                                 log.type === 'success' ? 'text-green-400' :
-                                 log.type === 'warning' ? 'text-yellow-400' :
-                                 'text-blue-300'
-                               }`}>
-                                 {log.message}
-                               </span>
-                             </div>
-                           ))
-                         ) : (
-                           <div className="text-gray-500 italic">Waiting for activity...</div>
-                         )}
-                       </div>
-                     </div>
+                      
+                      {/* Right Column - Activity Log */}
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium">Activity Log:</div>
+                        <div className="h-32 bg-black/90 rounded p-3 font-mono text-xs overflow-y-auto">
+                          {aiProgress.logs.length > 0 ? (
+                            aiProgress.logs.map((log, index) => (
+                              <div key={index} className="flex gap-2 mb-1 leading-tight">
+                                <span className="text-green-400 opacity-60 shrink-0 text-[10px]">{log.timestamp}</span>
+                                <span className={`${
+                                  log.type === 'error' ? 'text-red-400' :
+                                  log.type === 'success' ? 'text-green-400' :
+                                  log.type === 'warning' ? 'text-yellow-400' :
+                                  'text-blue-300'
+                                } text-[11px] break-words`}>
+                                  {log.message}
+                                </span>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-gray-500 italic text-[11px]">Waiting for activity...</div>
+                          )}
+                          
+                          {/* Status footer */}
+                          {aiProgress.status === 'complete' && (
+                            <div className="mt-2 pt-2 border-t border-gray-700">
+                              <div className="text-green-400 text-[10px] font-bold">✓ EXTRACTION COMPLETE</div>
+                            </div>
+                          )}
+                          
+                          {aiProgress.status === 'error' && (
+                            <div className="mt-2 pt-2 border-t border-gray-700">
+                              <div className="text-red-400 text-[10px] font-bold">✗ EXTRACTION FAILED</div>
+                              <div className="text-yellow-400 text-[10px] mt-1">→ Click "Try Again" to retry</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                    </div>
                  </div>
               )}
