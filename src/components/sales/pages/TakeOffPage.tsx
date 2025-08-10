@@ -27,23 +27,19 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
   const { estimateId: estimateIdParam } = useParams<{ estimateId: string }>();
   const currentId = (estimateId || estimateIdParam) ?? '';
 
-  const { estimateTitle, projectType } = useEstimateContext();
+  const { estimateTitle, projectType, drawings: contextDrawings, loadEstimateData } = useEstimateContext();
   const { fileInputRef, drawings, activeDrawingId, activeDrawing, handleFileUpload, addFiles, removeDrawing, setActiveDrawing, setDrawingsData } = useMultiplePDFUpload();
   const { saveEstimate, updateEstimate, loadEstimate, isSaving } = useEstimate();
   const { takeoffs, createTakeoff, deleteTakeoff } = useTakeoffMeasurements();
 
   useEffect(() => {
-    if (!estimateId) return;
-    (async () => {
-      try {
-        const { estimate, drawings: loadedDrawings } = await loadEstimate(estimateId);
-        if (typeof (setDrawingsData as any) === 'function') {
-          // @ts-ignore
-          setDrawingsData(loadedDrawings || []);
-        }
-      } catch (_) {}
-    })();
-  }, [estimateId]);
+    if (contextDrawings && contextDrawings.length > 0) {
+      if (typeof (setDrawingsData as any) === 'function') {
+        // @ts-ignore
+        setDrawingsData(contextDrawings);
+      }
+    }
+  }, [contextDrawings]);
 
   const steps = [
     { id: 1, title: 'Step 1: Input Data' },
