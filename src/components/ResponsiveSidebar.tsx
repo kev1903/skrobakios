@@ -17,7 +17,7 @@ export const ResponsiveSidebar = ({ currentPage, onNavigate }: ResponsiveSidebar
   const { spacingClasses } = useMenuBarSpacing();
 
   return (
-    <Sidebar collapsible="offcanvas" className={`backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10 ${spacingClasses}`}>
+    <Sidebar collapsible="offcanvas" className={`backdrop-blur-2xl bg-white/10 border-r border-white/20 shadow-2xl shadow-black/10 ${spacingClasses} group-data-[collapsible=offcanvas]:backdrop-blur-0 group-data-[collapsible=offcanvas]:bg-transparent group-data-[collapsible=offcanvas]:border-0 group-data-[collapsible=offcanvas]:shadow-none`}>
       <SidebarHeader className="p-4 border-b border-white/20 space-y-3">
         {/* Context Switcher - Shows User Name and Business */}
         <div className="w-full">
