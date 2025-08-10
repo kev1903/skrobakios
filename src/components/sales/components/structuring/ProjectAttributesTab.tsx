@@ -7,13 +7,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FileText, MapPin, User, Building, Calculator, Calendar, Search, ChevronDown, ChevronRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProjectAttributesTabProps {
   onDataChange?: (data: any) => void;
+  uploadedPDFs?: any[];
 }
 
-export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps) => {
+export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttributesTabProps) => {
   const [extracting, setExtracting] = useState(false);
+  const { toast } = useToast();
   const [expandedSections, setExpandedSections] = useState({
     autoExtract: true,
     projectInfo: true,
@@ -51,21 +55,119 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
   };
 
   const handleExtractFromPDF = async () => {
+    if (!uploadedPDFs || uploadedPDFs.length === 0) {
+      toast({
+        title: "No PDFs found",
+        description: "Please upload PDFs in Step 1 first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setExtracting(true);
-    // Simulate PDF extraction
-    setTimeout(() => {
-      setProjectData(prev => ({
-        ...prev,
-        projectName: 'Residential Development',
-        projectCode: 'SK_QU25021',
-        address: '64 Armadale St, Armadale VIC 3143',
-        clientName: 'Property Development Group',
-        designer: 'Architecture Studio',
-        siteArea: '650',
-        numberOfLevels: '2'
-      }));
+    
+    try {
+      // Extract text from all PDFs
+      const extractedTexts = [];
+      
+      for (const pdf of uploadedPDFs) {
+        try {
+          const formData = new FormData();
+          formData.append('file', pdf.file);
+          
+          const { data, error } = await supabase.functions.invoke('extract-pdf-text', {
+            body: formData
+          });
+          
+          if (error) throw error;
+          if (data?.text) {
+            extractedTexts.push(data.text);
+          }
+        } catch (error) {
+          console.error(`Error extracting text from ${pdf.name}:`, error);
+        }
+      }
+      
+      if (extractedTexts.length === 0) {
+        throw new Error('No text could be extracted from the PDFs');
+      }
+      
+      // Combine all extracted text
+      const combinedText = extractedTexts.join('\n\n');
+      
+      // Use AI to parse the extracted text and extract project data
+      const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
+        body: {
+          message: `Extract project information from the following architectural drawing text. Return only a JSON object with these exact fields (use empty string if not found): 
+          {
+            "projectName": "",
+            "projectCode": "",
+            "address": "",
+            "clientName": "",
+            "clientContact": "",
+            "designer": "",
+            "architect": "",
+            "siteArea": "",
+            "gifa": "",
+            "gefa": "",
+            "numberOfLevels": "",
+            "garageArea": "",
+            "landscapeArea": "",
+            "poolArea": "",
+            "ancillaryArea": "",
+            "drawingIssueDate": "",
+            "revision": "",
+            "qualityLevel": "",
+            "specReference": ""
+          }
+          
+          Text to analyze:
+          ${combinedText}`
+        }
+      });
+      
+      if (aiError) throw aiError;
+      
+      // Parse the AI response
+      let extractedData = {};
+      try {
+        const response = aiData?.response || aiData?.message || '';
+        // Try to extract JSON from the response
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          extractedData = JSON.parse(jsonMatch[0]);
+        }
+      } catch (parseError) {
+        console.error('Error parsing AI response:', parseError);
+        throw new Error('Could not parse extracted data');
+      }
+      
+      // Update form with extracted data
+      const updatedData = { ...projectData };
+      Object.keys(extractedData).forEach(key => {
+        if (extractedData[key] && extractedData[key].trim() !== '') {
+          updatedData[key] = extractedData[key];
+        }
+      });
+      
+      setProjectData(updatedData);
+      onDataChange?.(updatedData);
+      
+      toast({
+        title: "Extraction complete",
+        description: "Project data has been extracted from PDFs successfully."
+      });
+      
+    } catch (error) {
+      console.error('Error extracting PDF data:', error);
+      toast({
+        title: "Extraction failed",
+        description: error.message || "Failed to extract data from PDFs.",
+        variant: "destructive"
+      });
+    } finally {
       setExtracting(false);
-    }, 2000);
+    }
   };
 
   const toggleSection = (section: string) => {

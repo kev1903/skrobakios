@@ -21,7 +21,7 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
   const navigate = useNavigate();
   const { estimateId: paramEstimateId } = useParams<{ estimateId: string }>();
   const currentId = paramEstimateId;
-  const { estimateTitle, projectType } = useEstimateContext();
+  const { estimateTitle, projectType, drawings } = useEstimateContext();
   const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('attributes');
@@ -113,6 +113,7 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
             <TabsContent value="attributes" className="mt-0">
               <ProjectAttributesTab 
                 onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
+                uploadedPDFs={drawings}
               />
             </TabsContent>
 
