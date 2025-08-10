@@ -74,38 +74,38 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
   return (
     <PageShell withPattern>
       {/* Header */}
-      <div className={`px-4 py-2 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
-        <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => (onBack ? onBack() : navigate(-1))} className="shrink-0">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Back</span>
+      <div className={`px-3 py-1.5 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-20' : 'pr-[25rem]'}`}>
+        <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => (onBack ? onBack() : navigate(-1))} className="shrink-0 h-7 px-2">
+              <ArrowLeft className="w-3 h-3 mr-1" />
+              <span className="hidden sm:inline text-xs">Back</span>
             </Button>
           <div className="flex-1">
-            <div className="text-lg font-semibold text-foreground">{estimateTitle || 'Estimate title'}</div>
+            <div className="text-sm font-medium text-foreground">{estimateTitle || 'Estimate title'}</div>
           </div>
-          <Button variant="default" size="sm" disabled={isSaving} onClick={handleSave}>
-            <Save className="w-4 h-4 mr-2" />
+          <Button variant="default" size="sm" disabled={isSaving} onClick={handleSave} className="h-7 px-3 text-xs">
+            <Save className="w-3 h-3 mr-1" />
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </div>
 
-      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
+      <div className={`py-2 transition-[padding] ${isChatCollapsed ? 'pr-20' : 'pr-[25rem]'}`}>
         <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
       </div>
 
       {/* Tabbed Content */}
-      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
-        <div className="p-6">
+      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-20' : 'pr-[25rem]'}`}>
+        <div className="px-4 py-3">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="attributes" className="text-sm">
+            <TabsList className="grid w-full grid-cols-3 mb-4 h-8">
+              <TabsTrigger value="attributes" className="text-xs px-2 py-1">
                 Project Attributes
               </TabsTrigger>
-              <TabsTrigger value="wbs" className="text-sm">
+              <TabsTrigger value="wbs" className="text-xs px-2 py-1">
                 WBS & Element Mapping
               </TabsTrigger>
-              <TabsTrigger value="takeoff" className="text-sm">
+              <TabsTrigger value="takeoff" className="text-xs px-2 py-1">
                 Auto-Take-Off + Manual
               </TabsTrigger>
             </TabsList>

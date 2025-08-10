@@ -23,18 +23,18 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
         className
       )}
     >
-      <ol className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3 overflow-hidden">
+      <ol className="w-full px-3 sm:px-4 lg:px-6 py-2 flex items-center gap-2 overflow-hidden">
         {steps.map((step, idx) => {
           const stepIndex = idx + 1;
           const isCompleted = stepIndex < current;
           const isActive = stepIndex === current;
           return (
-            <li key={step.id} className="flex items-center gap-3 min-w-0 flex-1">
+            <li key={step.id} className="flex items-center gap-2 min-w-0 flex-1">
               {/* Node */}
               <button
                 onClick={() => onChange?.(stepIndex)}
                 className={cn(
-                  'relative inline-flex items-center gap-2 rounded-full px-3 py-1.5 border transition-colors shrink-0',
+                  'relative inline-flex items-center gap-1.5 rounded-full px-2 py-1 border transition-colors shrink-0',
                   isActive && 'bg-primary text-primary-foreground border-transparent shadow-sm',
                   !isActive && 'bg-muted text-foreground border-border hover:bg-muted/70'
                 )}
@@ -42,13 +42,13 @@ export const StepTimeline: React.FC<StepTimelineProps> = ({ steps, current, onCh
               >
                 <span
                   className={cn(
-                    'flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold border',
+                    'flex h-4 w-4 items-center justify-center rounded-full text-xs font-semibold border',
                     isActive ? 'bg-primary-foreground/20 border-primary-foreground/30' : 'bg-background border-border'
                   )}
                 >
                   {stepIndex}
                 </span>
-                <span className="text-sm font-medium truncate">{step.title}</span>
+                <span className="text-xs font-medium truncate">{step.title}</span>
               </button>
 
               {/* Connector */}
