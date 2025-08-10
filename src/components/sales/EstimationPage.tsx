@@ -55,7 +55,8 @@ const {
   handleFileUpload,
   addFiles,
   removeDrawing,
-  setActiveDrawing
+  setActiveDrawing,
+  setDrawingsData
 } = useMultiplePDFUpload();
   const {
     saveEstimate,
@@ -127,11 +128,11 @@ const {
       const targetId = currentEstimateId || estimateId || null;
 
       if (targetId) {
-        await updateEstimate(targetId, estimateData, trades);
+        await updateEstimate(targetId, estimateData, trades, drawings);
         setCurrentEstimateId(targetId);
         toast.success('Estimate updated');
       } else {
-        const savedEstimate = await saveEstimate(estimateData, trades);
+        const savedEstimate = await saveEstimate(estimateData, trades, drawings);
         setCurrentEstimateId(savedEstimate.id);
         setEstimateNumber(savedEstimate.estimate_number);
         toast.success('Estimate created');

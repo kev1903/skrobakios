@@ -4,16 +4,22 @@ import { toast } from 'sonner';
 export interface DrawingFile {
   id: string;
   name: string;
-  file: File;
+  file?: File | null;
   url: string;
   pages: number;
   uploadedAt: Date;
+  storagePath?: string; // Supabase Storage path when persisted
 }
 
 export const useMultiplePDFUpload = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [drawings, setDrawings] = useState<DrawingFile[]>([]);
   const [activeDrawingId, setActiveDrawingId] = useState<string | null>(null);
+
+  const setDrawingsData = (items: DrawingFile[]) => {
+    setDrawings(items || []);
+    setActiveDrawingId(items?.[0]?.id ?? null);
+  };
 
   const addFiles = (filesInput: FileList | File[]) => {
     let files: File[] = [];
@@ -109,6 +115,7 @@ export const useMultiplePDFUpload = () => {
     addFiles,
     removeDrawing,
     setActiveDrawing,
-    clearAllDrawings
+    clearAllDrawings,
+    setDrawingsData,
   };
 };

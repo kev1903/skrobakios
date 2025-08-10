@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Trade } from './useTrades';
+import type { DrawingFile } from './useMultiplePDFUpload';
 
 export interface EstimateData {
   id?: string;
@@ -32,7 +33,8 @@ export const useEstimate = () => {
 
   const saveEstimate = async (
     estimateData: Partial<EstimateData>,
-    trades: Trade[]
+    trades: Trade[],
+    drawings: DrawingFile[] = []
   ) => {
     setIsSaving(true);
     try {
@@ -104,6 +106,37 @@ export const useEstimate = () => {
 
         if (lineItemsError) throw lineItemsError;
       }
+      // Persist drawings: upload files and record metadata
+      if (drawings && drawings.length > 0) {
+        for (const d of drawings) {
+          let filePath = d.storagePath;
+
+          if (d.file) {
+            const safeName = encodeURIComponent(d.name);
+            filePath = `estimates/${savedEstimate.id}/${safeName}`;
+            const { error: uploadError } = await supabase
+              .storage
+              .from('estimate-drawings')
+              .upload(filePath, d.file, { upsert: true, contentType: 'application/pdf' });
+            if (uploadError && uploadError.message.indexOf('already exists') === -1) {
+              throw uploadError;
+            }
+          }
+
+          if (filePath) {
+            const { error: metaErr } = await supabase
+              .from('estimate_drawings')
+              .insert({
+                estimate_id: savedEstimate.id,
+                name: d.name,
+                file_path: filePath,
+                pages: d.pages ?? 1,
+                created_by: userData.user.id,
+              });
+            if (metaErr) throw metaErr;
+          }
+        }
+      }
 
       return savedEstimate;
     } catch (error) {
@@ -117,7 +150,8 @@ export const useEstimate = () => {
   const updateEstimate = async (
     estimateId: string,
     estimateData: Partial<EstimateData>,
-    trades: Trade[]
+    trades: Trade[],
+    drawings: DrawingFile[] = []
   ) => {
     setIsSaving(true);
     try {
@@ -185,6 +219,38 @@ export const useEstimate = () => {
           .insert(lineItems);
 
         if (lineItemsError) throw lineItemsError;
+      }
+      // Sync drawings metadata/files
+      // First, delete existing metadata to reflect removals
+      await supabase.from('estimate_drawings').delete().eq('estimate_id', estimateId);
+
+      if (drawings && drawings.length > 0) {
+        for (const d of drawings) {
+          let filePath = d.storagePath;
+          if (d.file) {
+            const safeName = encodeURIComponent(d.name);
+            filePath = `estimates/${estimateId}/${safeName}`;
+            const { error: uploadError } = await supabase
+              .storage
+              .from('estimate-drawings')
+              .upload(filePath, d.file, { upsert: true, contentType: 'application/pdf' });
+            if (uploadError && uploadError.message.indexOf('already exists') === -1) {
+              throw uploadError;
+            }
+          }
+          if (filePath) {
+            const { error: metaErr } = await supabase
+              .from('estimate_drawings')
+              .insert({
+                estimate_id: estimateId,
+                name: d.name,
+                file_path: filePath,
+                pages: d.pages ?? 1,
+                created_by: userData.user.id,
+              });
+            if (metaErr) throw metaErr;
+          }
+        }
       }
 
       return updatedEstimate;

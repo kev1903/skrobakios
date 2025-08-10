@@ -701,6 +701,44 @@ export type Database = {
           },
         ]
       }
+      estimate_drawings: {
+        Row: {
+          created_by: string | null
+          estimate_id: string
+          file_path: string
+          id: string
+          name: string
+          pages: number | null
+          uploaded_at: string
+        }
+        Insert: {
+          created_by?: string | null
+          estimate_id: string
+          file_path: string
+          id?: string
+          name: string
+          pages?: number | null
+          uploaded_at?: string
+        }
+        Update: {
+          created_by?: string | null
+          estimate_id?: string
+          file_path?: string
+          id?: string
+          name?: string
+          pages?: number | null
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_drawings_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estimate_line_items: {
         Row: {
           created_at: string
