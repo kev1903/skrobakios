@@ -32,7 +32,7 @@ export const NavigationRibbon = ({
   const { activeContext } = useAppContext();
   const { hasFeature, currentSubscription } = useSubscription();
   const { isSuperAdmin } = useUserRole();
-  const { isMobile, setOpen, setOpenMobile } = useSidebar();
+  const { isMobile, setOpen, setOpenMobile, open } = useSidebar();
 
   // Core business modules that should always be available (replace General section)
   const coreBusinessModules = [
@@ -257,7 +257,7 @@ const handleNavigateAndClose = (page: string) => {
   } else {
     // Embedded mode - use SidebarContent wrapper
     return (
-      <div className="h-full bg-white/10 backdrop-blur-md transition-all duration-300">
+      <div className={`h-full transition-all duration-300 ${open ? 'bg-white/10 backdrop-blur-md' : 'bg-transparent backdrop-blur-0'}`}>
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>
