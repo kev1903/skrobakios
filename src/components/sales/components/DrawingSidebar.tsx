@@ -155,24 +155,19 @@ export const DrawingSidebar = ({
               </Dialog>
             </div>
             <CollapsibleContent>
-              <div className="space-y-2">
-                {takeoffs.map(takeoff => (
-                  <div key={takeoff.id} className="p-2 rounded-lg border hover:bg-muted/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium">{takeoff.name}</p>
-                      <Badge 
-                        variant={takeoff.status === 'complete' ? 'default' : 'secondary'} 
-                        className="text-xs"
-                      >
-                        {takeoff.status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{takeoff.type}</span>
-                      <span className="font-medium">{takeoff.quantity}</span>
-                    </div>
+              <div className="space-y-1 mt-3">
+                {takeoffs.length > 0 ? takeoffs.map(takeoff => (
+                  <div 
+                    key={takeoff.id} 
+                    className="flex items-center px-2 py-1 rounded cursor-pointer hover:bg-muted/50"
+                  >
+                    <p className="text-sm truncate">
+                      {takeoff.name} {takeoff.quantity}
+                    </p>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground px-2">No take-offs created</p>
+                )}
               </div>
             </CollapsibleContent>
           </div>
