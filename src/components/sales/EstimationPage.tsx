@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { Save, ArrowLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ReactPDFViewer } from './components/ReactPDFViewer';
 
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
@@ -95,7 +97,11 @@ const {
 
   // Estimate state
   const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(null);
-  const [estimateNumber, setEstimateNumber] = useState('');
+const [estimateNumber, setEstimateNumber] = useState('');
+
+  // Fullscreen PDF preview state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<{ url: string; name: string } | null>(null);
 
   // Tool selection
   const selectTool = (tool: typeof currentTool) => {
@@ -228,6 +234,15 @@ const {
     e.preventDefault();
   };
 
+  const openPreview = (d: any) => {
+    setPreviewDoc({ url: d.url, name: d.name });
+    setPreviewOpen(true);
+  };
+  const closePreview = () => {
+    setPreviewOpen(false);
+    setPreviewDoc(null);
+  };
+
   return <PageShell withPattern>
       {/* Hidden file input for PDF upload */}
       <input
@@ -312,7 +327,13 @@ const {
                       {drawings.map((d) => (
                         <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-8'}>
                           <TableCell className="font-medium py-1">
-                            {d.name}
+                            <button
+                              type="button"
+                              onClick={() => openPreview(d)}
+                              className="text-primary hover:underline underline-offset-2 focus:underline focus:outline-none"
+                            >
+                              {d.name}
+                            </button>
                             {d.id === activeDrawingId ? ' (Active)' : ''}
                           </TableCell>
                           <TableCell className="py-1">
@@ -366,5 +387,19 @@ const {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen PDF Preview */}
+      <Dialog open={previewOpen} onOpenChange={(o) => { setPreviewOpen(o); if (!o) setPreviewDoc(null); }}>
+        <DialogContent className="sm:max-w-[96vw] max-w-[96vw] w-[96vw] h-[95vh] p-0">
+          <DialogHeader className="px-4 py-2">
+            <DialogTitle className="text-base">{previewDoc?.name || 'Preview'}</DialogTitle>
+          </DialogHeader>
+          <div className="h-[calc(95vh-56px)]">
+            {previewDoc?.url && (
+              <ReactPDFViewer pdfUrl={previewDoc.url} className="h-full" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageShell>;
 };
