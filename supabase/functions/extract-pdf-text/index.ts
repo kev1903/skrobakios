@@ -1,4 +1,7 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +15,10 @@ serve(async (req) => {
   }
 
   try {
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured in edge function secrets');
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File;
     
@@ -37,69 +44,81 @@ serve(async (req) => {
 
     console.log(`Processing PDF: ${file.name}, size: ${file.size} bytes`);
 
-    // Convert file to array buffer
+    // Convert PDF to base64 for OpenAI Vision API
     const arrayBuffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-
-    // Simple text extraction approach - look for basic text patterns in PDF
-    // This is a fallback approach that works for most text-based PDFs
-    const textDecoder = new TextDecoder('utf-8', { fatal: false });
-    let rawText = '';
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     
-    try {
-      rawText = textDecoder.decode(uint8Array);
-    } catch {
-      // Try latin1 if utf-8 fails
-      const latin1Decoder = new TextDecoder('latin1');
-      rawText = latin1Decoder.decode(uint8Array);
+    console.log('Sending PDF to OpenAI for text extraction...');
+
+    // Use OpenAI Vision API to extract text from PDF
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful assistant that extracts all visible text from PDF documents. Extract all text content including project names, addresses, dates, measurements, specifications, and any other readable information. Preserve the structure and organization of the information as much as possible.'
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Please extract all text content from this PDF document. Include project information, addresses, specifications, measurements, dates, and any other readable text.'
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:application/pdf;base64,${base64}`,
+                  detail: 'high'
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 4000,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
-    // Extract readable text from PDF raw content
-    // PDFs store text in specific patterns - this extracts the most common ones
-    const textMatches = rawText.match(/\(([^)]+)\)|BT\s+\/[A-Za-z0-9]+\s+[0-9.]+\s+Tf\s+[^ET]*ET/g) || [];
-    const streamTextMatches = rawText.match(/stream\s*(.*?)\s*endstream/gs) || [];
-    
-    let extractedText = '';
-    
-    // Extract text from parentheses (common PDF text storage)
-    textMatches.forEach(match => {
-      const text = match.match(/\(([^)]+)\)/);
-      if (text && text[1]) {
-        extractedText += text[1] + ' ';
-      }
-    });
-    
-    // Extract text from streams
-    streamTextMatches.forEach(match => {
-      const streamContent = match.replace(/stream\s*|\s*endstream/g, '');
-      // Look for readable text patterns in streams
-      const readableText = streamContent.match(/[A-Za-z0-9\s.,!?;:-]{3,}/g) || [];
-      readableText.forEach(text => {
-        if (text.trim().length > 2) {
-          extractedText += text.trim() + ' ';
-        }
-      });
-    });
+    const data = await response.json();
+    const extractedText = data.choices[0]?.message?.content || '';
 
-    // Clean up the extracted text
-    extractedText = extractedText
-      .replace(/\s+/g, ' ')
-      .replace(/[^\w\s.,!?;:-]/g, ' ')
-      .trim();
+    console.log(`Successfully extracted ${extractedText.length} characters using OpenAI`);
 
-    console.log(`Extracted ${extractedText.length} characters of text`);
-
-    // If we couldn't extract much text, provide a helpful message
     if (extractedText.length < 10) {
-      extractedText = "PDF processed successfully, but limited text could be extracted. This may be a scanned document or contain mostly images/graphics.";
+      console.warn('Very little text extracted from PDF');
+      return new Response(
+        JSON.stringify({ 
+          text: "PDF processed but limited text could be extracted. This may be a scanned document or contain mostly images/graphics.",
+          numPages: 1,
+          fileName: file.name,
+          extractedLength: 0
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     return new Response(
       JSON.stringify({ 
         text: extractedText,
-        numPages: 1, // We can't determine page count with this method
+        numPages: 1, // OpenAI processes the entire PDF
         fileName: file.name,
-        extractedLength: extractedText.length
+        extractedLength: extractedText.length,
+        method: 'openai-vision'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
