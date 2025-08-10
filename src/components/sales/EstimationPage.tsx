@@ -7,15 +7,14 @@ import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReactPDFViewer } from './components/ReactPDFViewer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useNavigate } from 'react-router-dom';
+
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
 import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
 import { useEstimate } from './hooks/useEstimate';
 import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageShell } from '@/components/layout/PageShell';
-import { QuantitiesTable } from './components/QuantitiesTable';
  
 import { toast } from 'sonner';
 interface EstimationPageProps {
@@ -182,7 +181,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
     { id: 4, title: 'Step 4: Estimation Process' },
     { id: 5, title: 'Step 5: Output & Integration' },
   ];
-  const [currentStep, setCurrentStep] = useState<number>(2);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Sync step with tabs roughly
   useEffect(() => {
@@ -218,13 +217,12 @@ const [estimateNumber, setEstimateNumber] = useState('');
     })();
   }, [estimateId]);
 
-  const navigate = useNavigate();
   const handleStepChange = (s: number) => {
     setCurrentStep(s);
-    if (!currentEstimateId && !estimateId) return;
-    const id = currentEstimateId || estimateId!;
-    if (s <= 1) navigate(`/estimates/edit/${id}/input-data`);
-    else if (s === 2) navigate(`/estimates/edit/${id}/take-off`);
+    // Optionally navigate key tabs for better UX
+    if (s <= 2) setActiveTab('drawings');
+    else if (s <= 4) setActiveTab('quantities');
+    else setActiveTab('summary');
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -313,59 +311,33 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
         {/* Main Content */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4 p-4 pt-4">
-            {/* Left pane: Drawings List (top) + Quantities (bottom) */}
-            <div className="flex flex-col min-h-0 gap-4">
-              {/* Drawings List */}
-              <section
-                className="rounded-lg border bg-card flex flex-col min-h-[220px] max-h-[50%]"
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-              >
-                <div className="flex items-center justify-between px-3 py-2 border-b">
-                  <h3 className="text-sm font-medium">Drawings List</h3>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                      Browse files
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex-1 overflow-auto">
-                  {drawings.length ? (
-                    <ul className="divide-y">
+          <div className="h-full grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 p-6 pt-4">
+            {/* Red section: Uploaded PDFs table */}
+            <div className="overflow-auto">
+              <div className="rounded-lg border">
+                {drawings.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="h-8">
+                        <TableHead className="text-xs font-medium">Name</TableHead>
+                        <TableHead className="w-48 text-xs font-medium">Type</TableHead>
+                        <TableHead className="w-40 text-right text-xs font-medium">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {drawings.map((d) => (
-                        <li
-                          key={d.id}
-                          className={`px-3 py-2 hover:bg-muted/40 ${d.id === activeDrawingId ? 'bg-muted/40' : ''}`}
-                        >
-                          <div className="flex items-start gap-2">
+                        <TableRow key={d.id} className={(d.id === activeDrawingId ? 'bg-muted/40 ' : '') + 'h-8'}>
+                          <TableCell className="font-medium py-1">
                             <button
                               type="button"
-                              onClick={() => setActiveDrawing(d.id)}
-                              className="text-left flex-1 focus:outline-none"
+                              onClick={() => openPreview(d)}
+                              className="text-primary hover:underline underline-offset-2 focus:underline focus:outline-none"
                             >
-                              <div className="text-sm font-medium text-primary">
-                                {d.name}{d.id === activeDrawingId ? ' (Active)' : ''}
-                              </div>
-                              <div className="text-xs text-muted-foreground truncate">{d.url}</div>
+                              {d.name}
                             </button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="z-[9999] bg-popover">
-                                <DropdownMenuItem onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
-                                  View
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => removeDrawing(d.id)}>
-                                  Remove
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                          <div className="mt-2">
+                            {d.id === activeDrawingId ? ' (Active)' : ''}
+                          </TableCell>
+                          <TableCell className="py-1">
                             <Select
                               value={d.type}
                               onValueChange={(val) =>
@@ -381,62 +353,46 @@ const [estimateNumber, setEstimateNumber] = useState('');
                                 ))}
                               </SelectContent>
                             </Select>
-                          </div>
-                        </li>
+                          </TableCell>
+                          <TableCell className="text-right py-1">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="z-[9999] bg-popover">
+                                <DropdownMenuItem onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
+                                  View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => removeDrawing(d.id)}>
+                                  Remove
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </ul>
-                  ) : (
-                    <div className="p-6 text-sm text-muted-foreground text-center">
-                      Drag & drop PDFs here or use “Browse files”
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              {/* Quantities Section */}
-              <section className="rounded-lg border bg-card flex-1 min-h-[260px] overflow-hidden">
-                <div className="px-3 py-2 border-b">
-                  <h3 className="text-sm font-medium">Quantities</h3>
-                </div>
-                <div className="h-full overflow-auto p-2">
-                  <QuantitiesTable
-                    trades={trades}
-                    onAddTrade={addTrade}
-                    onAddMeasurement={addTradeMeasurement}
-                    onUpdateMeasurement={updateMeasurement}
-                    onRemoveMeasurement={removeMeasurement}
-                    onUpdateTradeName={updateTradeName}
-                  />
-                </div>
-              </section>
-            </div>
-
-            {/* Right pane: Big PDF Preview */}
-            <div className="rounded-lg border bg-card min-h-[60vh] h-full flex flex-col">
-              <div className="flex items-center justify-between px-3 py-2 border-b">
-                <div className="text-sm font-medium truncate">
-                  {activeDrawing?.name || 'No drawing selected'}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => activeDrawing && openPreview(activeDrawing)}
-                    disabled={!activeDrawing}
-                  >
-                    Fullscreen
-                  </Button>
-                </div>
-              </div>
-              <div className="flex-1 h-full">
-                {activeDrawing?.url ? (
-                  <ReactPDFViewer fileUrl={activeDrawing.url} className="h-full" />
+                    </TableBody>
+                  </Table>
                 ) : (
-                  <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-                    Select a drawing from the list to preview
-                  </div>
+                  <div className="p-6 text-sm text-muted-foreground">No drawings uploaded yet.</div>
                 )}
               </div>
+            </div>
+
+            {/* Blue section: Drag & drop uploader */}
+            <div>
+              <div
+                className="rounded-lg border border-dashed bg-muted/30 p-6 text-center"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              >
+                <p className="font-medium mb-2">Drag & Drop PDFs here</p>
+                <p className="text-sm text-muted-foreground mb-4">or</p>
+                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>Browse files</Button>
+              </div>
+
             </div>
           </div>
         </div>

@@ -39,7 +39,6 @@ import { SK25008Dashboard } from "./components/SK25008Dashboard";
 import { GlobalSidebarProvider } from "./contexts/GlobalSidebarContext";
 import { GlobalSidebar } from "./components/GlobalSidebar";
 import { EstimationPage } from "./components/sales/EstimationPage";
-import { InputDataPage } from "./components/sales/pages/InputDataPage";
 
 // Wrapper component for InvoicesPage with proper navigation
 const InvoicesPageWrapper = () => {
@@ -92,20 +91,12 @@ const EstimateCreationPageWrapper = () => {
   );
 };
 
-// Wrapper for editing existing estimate - Take-Off step
-const EstimateTakeOffPageWrapper = () => {
+// Wrapper for editing existing estimate
+const EstimateEditPageWrapper = () => {
   const navigate = useNavigate();
   const { estimateId } = useParams<{ estimateId: string }>();
   const handleBack = () => navigate('/estimates');
   return <EstimationPage onBack={handleBack} estimateId={estimateId} />;
-};
-
-// Wrapper for Input Data step
-const InputDataPageWrapper = () => {
-  const navigate = useNavigate();
-  const { estimateId } = useParams<{ estimateId: string }>();
-  const handleBack = () => navigate('/estimates');
-  return <InputDataPage onBack={handleBack} estimateId={estimateId} />;
 };
 
 // Wrapper component for EstimationLibraryPage with proper navigation
@@ -123,6 +114,18 @@ const EstimationLibraryPageWrapper = () => {
   return (
     <EstimationLibraryPage onNavigate={handleNavigate} />
   );
+};
+
+// Wrapper component for CompanyEditPage with proper navigation
+const CompanyEditPageWrapper = () => {
+  const navigate = useNavigate();
+  const { companyId } = useParams<{ companyId: string }>();
+  
+  const handleNavigateBack = () => {
+    navigate('/?page=platform-dashboard');
+  };
+
+  return <CompanyEditPage companyId={companyId || ''} onNavigateBack={handleNavigateBack} />;
 };
 
 // Wrapper component for ReviewsPage with proper navigation
@@ -145,18 +148,6 @@ const SubscriptionPageWrapper = () => {
   };
 
   return <SubscriptionPage onNavigate={handleNavigate} />;
-};
-
-// Wrapper component for CompanyEditPage with proper navigation
-const CompanyEditPageWrapper = () => {
-  const navigate = useNavigate();
-  const { companyId } = useParams<{ companyId: string }>();
-  
-  const handleNavigateBack = () => {
-    navigate('/?page=platform-dashboard');
-  };
-
-  return <CompanyEditPage companyId={companyId || ''} onNavigateBack={handleNavigateBack} />;
 };
 
 // Wrapper component for Project Dashboard with dynamic projectId
@@ -251,8 +242,7 @@ const AppContent = () => {
         
         <Route path="/estimates" element={<EstimatesPageWrapper />} />
         <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
-        <Route path="/estimates/edit/:estimateId" element={<InputDataPageWrapper />} />
-        <Route path="/estimates/edit/:estimateId/take-off" element={<EstimateTakeOffPageWrapper />} />
+        <Route path="/estimates/edit/:estimateId" element={<EstimateEditPageWrapper />} />
         <Route path="/estimates/library" element={<EstimationLibraryPageWrapper />} />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
         {/* Profile edit route removed */}
