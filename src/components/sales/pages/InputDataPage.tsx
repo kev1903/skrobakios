@@ -278,9 +278,9 @@ const [estimateNumber, setEstimateNumber] = useState('');
       
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+      <div className={`flex-1 flex flex-col transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
         {/* Header */}
-        <div className="p-4 border-b border-border bg-background">
+        <div className={`p-4 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
           <div className="flex items-center gap-4">
             {onBack && (
               <Button variant="ghost" size="sm" onClick={onBack} className="shrink-0">

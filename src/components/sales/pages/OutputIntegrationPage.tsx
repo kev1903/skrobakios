@@ -3,6 +3,10 @@ import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/layout/PageShell';
 import { StepTimeline } from '@/components/ui/step-timeline';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Save } from 'lucide-react';
 
 export const OutputIntegrationPage = () => {
   const steps = [

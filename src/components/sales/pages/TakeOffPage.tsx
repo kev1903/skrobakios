@@ -82,7 +82,7 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
       <input ref={fileInputRef} type="file" accept=".pdf" multiple style={{ display: 'none' }} onChange={handleFileUpload} />
 
       {/* Header */}
-      <div className={`p-4 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+      <div className={`p-4 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
         <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => (onBack ? onBack() : navigate(-1))} className="shrink-0">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -110,12 +110,12 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
         </div>
       </div>
 
-      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
         <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
       </div>
 
       {/* Layout */}
-      <div className={`h-[calc(100vh-var(--header-height)-200px)] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 p-4 transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+      <div className={`h-[calc(100vh-var(--header-height)-200px)] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 p-4 transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
         {/* Left: Sidebar */}
         <DrawingSidebar
           fileInputRef={fileInputRef}
