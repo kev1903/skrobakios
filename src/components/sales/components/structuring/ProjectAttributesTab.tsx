@@ -75,12 +75,28 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
         try {
           console.log('Processing PDF:', pdf);
           
-          // Handle different PDF structures - check if it's a File object or has file property
-          let file = pdf;
-          if (pdf.file && pdf.file instanceof File) {
+          let file: File;
+          
+          // Handle different PDF structures - check if it's a File object or has URL
+          if (pdf instanceof File) {
+            file = pdf;
+          } else if (pdf.file && pdf.file instanceof File) {
             file = pdf.file;
-          } else if (!(pdf instanceof File)) {
-            console.warn('PDF is not a File object:', pdf);
+          } else if (pdf.url) {
+            // Download the PDF from Supabase Storage
+            console.log(`Downloading PDF from URL: ${pdf.url}`);
+            
+            const response = await fetch(pdf.url);
+            if (!response.ok) {
+              throw new Error(`Failed to download PDF: ${response.status} ${response.statusText}`);
+            }
+            
+            const blob = await response.blob();
+            file = new File([blob], pdf.name || 'document.pdf', { type: 'application/pdf' });
+            
+            console.log(`Downloaded PDF: ${file.name}, size: ${file.size} bytes`);
+          } else {
+            console.warn('PDF object does not contain file or URL:', pdf);
             continue;
           }
           
