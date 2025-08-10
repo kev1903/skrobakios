@@ -278,7 +278,7 @@ const [estimateNumber, setEstimateNumber] = useState('');
       
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className={`flex-1 flex flex-col transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
         {/* Header */}
         <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center gap-4">
@@ -431,5 +431,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
           </div>
         </DialogContent>
       </Dialog>
+      <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>;
 };

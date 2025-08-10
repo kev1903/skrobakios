@@ -28,8 +28,10 @@ export const EstimationProcessPage = () => {
   };
   return (
     <PageShell withPattern>
-      <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
-      <div className="p-6 text-sm text-muted-foreground">Estimation Process page</div>
+      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+        <StepTimeline steps={steps} current={4} onChange={handleStepChange} />
+        <div className="p-6 text-sm text-muted-foreground">Estimation Process page</div>
+      </div>
       <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
   );

@@ -28,8 +28,10 @@ export const CostDatabasePage = () => {
   };
   return (
     <PageShell withPattern>
-      <StepTimeline steps={steps} current={3} onChange={handleStepChange} />
-      <div className="p-6 text-sm text-muted-foreground">Cost Database page</div>
+      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+        <StepTimeline steps={steps} current={3} onChange={handleStepChange} />
+        <div className="p-6 text-sm text-muted-foreground">Cost Database page</div>
+      </div>
       <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
   );

@@ -114,7 +114,7 @@ export const TakeOffPage = ({ onBack, estimateId }: TakeOffPageProps) => {
       <StepTimeline steps={steps} current={2} onChange={handleStepChange} />
 
       {/* Layout */}
-      <div className="h-[calc(100vh-var(--header-height)-200px)] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 p-4">
+      <div className={`h-[calc(100vh-var(--header-height)-200px)] grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 p-4 transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
         {/* Left: Sidebar */}
         <DrawingSidebar
           fileInputRef={fileInputRef}

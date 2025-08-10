@@ -28,8 +28,10 @@ export const OutputIntegrationPage = () => {
   };
   return (
     <PageShell withPattern>
-      <StepTimeline steps={steps} current={5} onChange={handleStepChange} />
-      <div className="p-6 text-sm text-muted-foreground">Output & Integration page</div>
+      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-16' : 'pr-96'}`}>
+        <StepTimeline steps={steps} current={5} onChange={handleStepChange} />
+        <div className="p-6 text-sm text-muted-foreground">Output & Integration page</div>
+      </div>
       <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
   );
