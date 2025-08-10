@@ -47,8 +47,8 @@ const classifyFromName = (name: string): string | undefined => {
 const classifyFromPDF = async (file: File): Promise<string | undefined> => {
   try {
     const pdfjs: any = await import('pdfjs-dist');
-    // Ensure worker is available (v5 path)
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+    // Ensure worker is available (v4 path)
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).toString();
 
     const data = await file.arrayBuffer();
     const loadingTask = pdfjs.getDocument({ data });
