@@ -77,13 +77,16 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
     return () => ro.disconnect();
   }, []);
 
-  // Enable Ctrl + Scroll zoom on the PDF area only
+  // Capture Ctrl/Cmd + Scroll and trackpad pinch to zoom only the PDF, not the whole page
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
+    const isEventInsideViewer = (target: EventTarget | null) => {
+      const el = scrollRef.current;
+      return !!(el && target && el.contains(target as Node));
+    };
 
     const handleWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey) return;
+      if (!e.ctrlKey && !e.metaKey) return;
+      if (!isEventInsideViewer(e.target)) return;
       e.preventDefault();
       const delta = e.deltaY;
       setScale(prev => {
@@ -92,8 +95,25 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
       });
     };
 
-    el.addEventListener('wheel', handleWheel, { passive: false });
-    return () => el.removeEventListener('wheel', handleWheel as unknown as EventListener);
+    // Safari pinch zoom prevention inside viewer
+    const preventGestureIfInside = (e: Event) => {
+      const target = (e as any).target as EventTarget | null;
+      if (isEventInsideViewer(target)) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    (window as any).addEventListener('gesturestart', preventGestureIfInside, { passive: false, capture: true });
+    (window as any).addEventListener('gesturechange', preventGestureIfInside, { passive: false, capture: true });
+    (window as any).addEventListener('gestureend', preventGestureIfInside, { passive: false, capture: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel as unknown as EventListener, true);
+      (window as any).removeEventListener('gesturestart', preventGestureIfInside, true);
+      (window as any).removeEventListener('gesturechange', preventGestureIfInside, true);
+      (window as any).removeEventListener('gestureend', preventGestureIfInside, true);
+    };
   }, []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -172,7 +192,7 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
       </div>
 
       {/* PDF Document */}
-      <div className="flex-1 overflow-auto bg-gray-100 p-4 h-[85vh]" ref={scrollRef}>
+      <div className="flex-1 overflow-auto bg-gray-100 p-4 h-[85vh] select-none touch-none overscroll-contain" ref={scrollRef}>
         <div className="flex justify-center w-full" ref={containerRef}>
           <Document
             file={blobUrl ?? sourceUrl}
