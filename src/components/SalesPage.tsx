@@ -6,7 +6,7 @@ import { ClientProfilePage } from './sales/ClientProfilePage';
 import { ProjectsDashboard } from './sales/ProjectsDashboard';
 import { ProjectDetailPage } from './sales/ProjectDetailPage';
 import { EstimatesListPage } from './sales/EstimatesListPage';
-import { EstimationPage } from './sales/EstimationPage';
+import { InputDataPage } from './sales/pages/InputDataPage';
 import { SubmittalsPage } from './sales/SubmittalsPage';
 import { ClientPortal } from './sales/ClientPortal';
 import { SalesSettingsPage } from './sales/SalesSettingsPage';
@@ -56,7 +56,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
         return <ProjectDetailPage />;
       case 'estimates':
         return showEstimationWorkspace 
-          ? <EstimationPage onBack={handleBackToEstimatesList} />
+          ? <InputDataPage onBack={handleBackToEstimatesList} />
           : <EstimatesListPage onCreateEstimate={handleCreateEstimate} onNavigate={onNavigate} />;
       case 'submittals':
         return <SubmittalsPage />;

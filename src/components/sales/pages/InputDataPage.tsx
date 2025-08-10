@@ -1,33 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ReactPDFViewer } from './components/ReactPDFViewer';
+import { ReactPDFViewer } from '../components/ReactPDFViewer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 import { StepTimeline } from '@/components/ui/step-timeline';
-import { useTrades } from './hooks/useTrades';
-import { useMultiplePDFUpload } from './hooks/useMultiplePDFUpload';
-import { useEstimate } from './hooks/useEstimate';
-import { useTakeoffMeasurements } from './hooks/useTakeoffMeasurements';
+import { useTrades } from '../hooks/useTrades';
+import { useMultiplePDFUpload } from '../hooks/useMultiplePDFUpload';
+import { useEstimate } from '../hooks/useEstimate';
+import { useTakeoffMeasurements } from '../hooks/useTakeoffMeasurements';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PageShell } from '@/components/layout/PageShell';
  
 import { toast } from 'sonner';
-interface EstimationPageProps {
+interface InputDataPageProps {
   onBack?: () => void;
   estimateId?: string;
 }
-export const EstimationPage = ({
+export const InputDataPage = ({
   onBack,
   estimateId
-}: EstimationPageProps) => {
+}: InputDataPageProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Project and estimate state
+  const navigate = useNavigate();
+  const { estimateId: estimateIdParam } = useParams<{ estimateId: string }>();
+  const currentId = (estimateId || estimateIdParam) ?? '';
   const [estimateTitle, setEstimateTitle] = useState('');
   const [projectType, setProjectType] = useState('');
   const [activeTab, setActiveTab] = useState('drawings');
@@ -219,10 +221,27 @@ const [estimateNumber, setEstimateNumber] = useState('');
 
   const handleStepChange = (s: number) => {
     setCurrentStep(s);
-    // Optionally navigate key tabs for better UX
-    if (s <= 2) setActiveTab('drawings');
-    else if (s <= 4) setActiveTab('quantities');
-    else setActiveTab('summary');
+    const id = currentId;
+    if (!id) return;
+    switch (s) {
+      case 1:
+        navigate(`/estimates/edit/${id}`);
+        break;
+      case 2:
+        navigate(`/estimates/edit/${id}/take-off`);
+        break;
+      case 3:
+        navigate(`/estimates/edit/${id}/cost-db`);
+        break;
+      case 4:
+        navigate(`/estimates/edit/${id}/estimation`);
+        break;
+      case 5:
+        navigate(`/estimates/edit/${id}/output`);
+        break;
+      default:
+        break;
+    }
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
