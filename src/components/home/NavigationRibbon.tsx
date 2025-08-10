@@ -91,13 +91,17 @@ export const NavigationRibbon = ({
   }, [currentSubscription, businessNavigation.length, businessNavigationItems, hasFeature]);
 
 const handleNavigateAndClose = (page: string) => {
-  onNavigate(page);
-  if (onClose) onClose();
-  if (onCollapse) onCollapse();
-  else {
-    if (isMobile) setOpenMobile(false);
-    else setOpen(false);
-  }
+  const collapse = () => {
+    if (onClose) onClose();
+    if (onCollapse) onCollapse();
+    else {
+      if (isMobile) setOpenMobile(false);
+      else setOpen(false);
+    }
+  };
+  collapse();
+  // Navigate on next frame so the collapse paint happens first
+  requestAnimationFrame(() => onNavigate(page));
 };
 
   // If not open and onClose function exists, don't render (floating mode)
