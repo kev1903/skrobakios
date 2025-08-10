@@ -12,6 +12,27 @@ export interface DrawingFile {
   type?: string; // Auto-detected or user-selected document type
 }
 
+// Simple filename-based classifier to auto-detect drawing type
+const classifyFromName = (name: string): string | undefined => {
+  const n = name.toLowerCase();
+  const rules: { type: string; keywords: string[] }[] = [
+    { type: 'Architectural', keywords: ['arch', 'architect', 'floor plan', 'site plan', 'ga', 'elevation', 'section'] },
+    { type: 'Structural', keywords: ['struct', 'beam', 'column', 'rebar', 'steel', 'rc', 'slab', 'foundation'] },
+    { type: 'Electrical', keywords: ['elect', 'lighting', 'power', 'elv', 'single line', 'cable'] },
+    { type: 'Mechanical', keywords: ['mech', 'hvac', 'duct', 'chiller', 'ahu', 'mechanical'] },
+    { type: 'Plumbing', keywords: ['plumb', 'pipe', 'sanitary', 'water', 'drainage'] },
+    { type: 'Civil', keywords: ['civil', 'road', 'grading', 'earthwork', 'stormwater'] },
+    { type: 'Landscape', keywords: ['landscape', 'planting', 'hardscape'] },
+    { type: 'Interior', keywords: ['interior', 'finish', 'fitout', 'joinery'] },
+    { type: 'Specification', keywords: ['spec', 'specification'] },
+    { type: 'Schedule', keywords: ['schedule', 'door schedule', 'window schedule'] },
+  ];
+  for (const r of rules) {
+    if (r.keywords.some(k => n.includes(k))) return r.type;
+  }
+  return undefined;
+}
+
 export const useMultiplePDFUpload = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [drawings, setDrawings] = useState<DrawingFile[]>([]);

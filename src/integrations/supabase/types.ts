@@ -704,6 +704,7 @@ export type Database = {
       estimate_drawings: {
         Row: {
           created_by: string | null
+          drawing_type: string | null
           estimate_id: string
           file_path: string
           id: string
@@ -713,6 +714,7 @@ export type Database = {
         }
         Insert: {
           created_by?: string | null
+          drawing_type?: string | null
           estimate_id: string
           file_path: string
           id?: string
@@ -722,6 +724,7 @@ export type Database = {
         }
         Update: {
           created_by?: string | null
+          drawing_type?: string | null
           estimate_id?: string
           file_path?: string
           id?: string

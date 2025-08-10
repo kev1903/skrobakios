@@ -347,7 +347,7 @@ export const useEstimate = () => {
             pages: row.pages ?? 1,
             uploadedAt: new Date(row.uploaded_at),
             storagePath: row.file_path,
-            type: row.drawing_type || undefined,
+            type: (row as any).drawing_type || undefined,
           });
         }
       }
