@@ -6,9 +6,10 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure worker from jsDelivr matching runtime pdfjs version to avoid mismatches
-const runtimePdfjsVersion = (pdfjs as any).version;
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${runtimePdfjsVersion}/build/pdf.worker.min.mjs`;
+// Configure worker using local bundled asset path resolved by Vite
+// @ts-ignore Vite ?url returns the final asset URL as string
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjs.GlobalWorkerOptions.workerSrc = workerSrc as unknown as string;
 
 interface ReactPDFViewerProps {
   fileUrl?: string; // preferred

@@ -356,7 +356,6 @@ const [estimateNumber, setEstimateNumber] = useState('');
                             >
                               {d.name}
                             </button>
-                            {d.id === activeDrawingId ? ' (Active)' : ''}
                           </TableCell>
                           <TableCell className="py-1">
                             <Select
