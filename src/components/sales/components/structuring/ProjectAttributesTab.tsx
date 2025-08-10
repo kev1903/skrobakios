@@ -64,6 +64,7 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       return;
     }
 
+    console.log('Starting PDF extraction with uploaded PDFs:', uploadedPDFs);
     setExtracting(true);
     
     try {
@@ -72,19 +73,41 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs }: ProjectAttr
       
       for (const pdf of uploadedPDFs) {
         try {
+          console.log('Processing PDF:', pdf);
+          
+          // Handle different PDF structures - check if it's a File object or has file property
+          let file = pdf;
+          if (pdf.file && pdf.file instanceof File) {
+            file = pdf.file;
+          } else if (!(pdf instanceof File)) {
+            console.warn('PDF is not a File object:', pdf);
+            continue;
+          }
+          
           const formData = new FormData();
-          formData.append('file', pdf.file);
+          formData.append('file', file);
+          
+          console.log(`Calling extract-pdf-text function for file: ${file.name}`);
           
           const { data, error } = await supabase.functions.invoke('extract-pdf-text', {
             body: formData
           });
           
-          if (error) throw error;
+          if (error) {
+            console.error(`Supabase function error for ${file.name}:`, error);
+            // Continue with other PDFs even if one fails
+            continue;
+          }
+          
           if (data?.text) {
             extractedTexts.push(data.text);
+            console.log(`Successfully extracted ${data.text.length} characters from ${file.name}`);
+          } else {
+            console.warn(`No text extracted from ${file.name}`, data);
           }
         } catch (error) {
-          console.error(`Error extracting text from ${pdf.name}:`, error);
+          console.error(`Error extracting text from PDF:`, error);
+          // Continue with other PDFs even if one fails
         }
       }
       
