@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ReactPDFViewer } from './components/ReactPDFViewer';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 import { StepTimeline } from '@/components/ui/step-timeline';
 import { useTrades } from './hooks/useTrades';
@@ -353,13 +354,22 @@ const [estimateNumber, setEstimateNumber] = useState('');
                               </SelectContent>
                             </Select>
                           </TableCell>
-                          <TableCell className="text-right space-x-2 py-1">
-                            <Button variant="outline" size="sm" onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
-                              View
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => removeDrawing(d.id)}>
-                              Remove
-                            </Button>
+                          <TableCell className="text-right py-1">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="z-[9999] bg-popover">
+                                <DropdownMenuItem onClick={() => setActiveDrawing(d.id)} disabled={d.id === activeDrawingId}>
+                                  View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => removeDrawing(d.id)}>
+                                  Remove
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       ))}
