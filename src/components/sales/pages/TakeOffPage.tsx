@@ -114,6 +114,7 @@ export const TakeOffPage = ({ onBack }: TakeOffPageProps) => {
               <ProjectAttributesTab 
                 onDataChange={(data) => handleTabDataChange('projectAttributes', data)}
                 uploadedPDFs={drawings}
+                estimateId={currentId}
               />
             </TabsContent>
 

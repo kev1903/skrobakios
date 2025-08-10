@@ -552,6 +552,27 @@ export const ProjectAttributesTab = ({ onDataChange, uploadedPDFs, estimateId, p
                   Automatically extract project information from uploaded drawings and cover sheets
                 </div>
               </div>
+
+              {/* Advanced extractor with OCR fallback and diagnostics */}
+              <div className="mt-4 rounded-lg border border-border bg-card">
+                <div className="p-3 border-b border-border">
+                  <div className="text-sm font-medium">Advanced Extractor (Recommended)</div>
+                  <div className="text-xs text-muted-foreground">OCR fallback, Health and Fetch diagnostics</div>
+                </div>
+                <div className="p-3">
+                  <DocumentExtractorTab
+                    estimateId={estimateId}
+                    projectId={projectId}
+                    uploadedPDFs={uploadedPDFs}
+                    onDataExtracted={(res) => {
+                      toast({
+                        title: 'Advanced extractor completed',
+                        description: `Extracted from ${res.successfulExtractions}/${res.totalDocuments} documents.`
+                      });
+                    }}
+                  />
+                </div>
+              </div>
               
               {/* Live AI Activity Monitor */}
               {(extracting || aiProgress.status !== 'idle') && (
