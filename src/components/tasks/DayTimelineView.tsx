@@ -721,13 +721,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
                  const isDraggedTask = draggedTaskId === task.id;
 
-                 // Render task with drag functionality
-                  return (
-                    <div 
-                      key={`taskname-${task.id}`}
-                      draggable
-                      onDragStart={(e) => handleTaskDragStart(e, task.id)}
-                      onDragEnd={() => setDraggedTaskId(null)}
+                  // Render task with drag functionality
+                   return (
+                     <div 
+                       key={`taskname-${task.id}`}
+                       draggable
+                       onDragStart={(e) => handleTaskDragStart(e, task.id)}
+                       onDragEnd={() => setDraggedTaskId(null)}
                       className={cn(
                         "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-grab active:cursor-grabbing group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
                         isDraggedTask && "opacity-50"

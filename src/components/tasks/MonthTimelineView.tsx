@@ -112,11 +112,16 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
                     const hasSpecificTime = !(taskDate.getUTCHours() === 0 && taskDate.getUTCMinutes() === 0);
 
                     return (
-                      <div
-                        key={task.id}
-                        className={`glass-card border border-white/30 text-white text-xs p-1.5 rounded-lg cursor-pointer hover:scale-105 transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 ${getTaskColor(task)}`}
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                       <div
+                         key={task.id}
+                         draggable
+                         onDragStart={(e) => {
+                           e.dataTransfer.setData('text/plain', task.id);
+                           e.dataTransfer.effectAllowed = 'move';
+                         }}
+                         className={`draggable-task-element glass-card border border-white/30 text-white text-xs p-1.5 rounded-lg cursor-grab active:cursor-grabbing hover:scale-105 transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 ${getTaskColor(task)}`}
+                         onClick={(e) => e.stopPropagation()}
+                       >
                         <div className="flex items-center gap-1">
                           <div className="w-3 h-3 text-white/60 flex-shrink-0" />
                           <div className="flex-1 min-w-0">

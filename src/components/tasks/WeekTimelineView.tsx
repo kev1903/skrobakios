@@ -250,11 +250,16 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
                 return (
                   <div key={`${slot.hour}-${dayIndex}`} className="h-6 border-b border-white/[0.05] relative p-1">
                     <div className="flex gap-1 h-full overflow-hidden">
-                      {dayTasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className="draggable-task-element glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 hover:scale-105"
-                        >
+                       {dayTasks.map((task) => (
+                         <div
+                           key={task.id}
+                           draggable
+                           onDragStart={(e) => {
+                             e.dataTransfer.setData('text/plain', task.id);
+                             e.dataTransfer.effectAllowed = 'move';
+                           }}
+                           className="draggable-task-element glass-card border border-white/30 text-white text-[10px] p-1 rounded-lg transition-all shadow-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 flex-1 min-w-0 z-10 hover:scale-105 cursor-grab active:cursor-grabbing"
+                         >
                           <div className="flex items-center justify-center gap-1 h-full">
                             <div className="w-3 h-3 text-white/80 flex-shrink-0" />
                             <div className="flex-1 min-w-0">

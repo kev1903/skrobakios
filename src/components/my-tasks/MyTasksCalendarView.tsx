@@ -97,7 +97,49 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     }
   };
 
-  // Drag handlers removed - parent TasksPage handles all drag operations
+  // Drag handlers for moving tasks back to backlog
+  const handleCalendarTaskDragStart = useCallback((e: React.DragEvent, taskId: string) => {
+    e.dataTransfer.setData('text/plain', taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleBacklogDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    
+    if (!taskId || !onTaskUpdate) return;
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+      // Move task back to backlog by setting due_date to midnight
+      const resetDate = new Date(task.dueDate || new Date());
+      resetDate.setHours(0, 0, 0, 0);
+      
+      await onTaskUpdate(taskId, {
+        dueDate: resetDate.toISOString()
+      });
+      
+      toast({
+        title: "Task moved to backlog",
+        description: `"${task.taskName}" moved back to backlog.`,
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Error moving task to backlog:', error);
+      toast({
+        title: "Error",
+        description: "Failed to move task to backlog. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [tasks, onTaskUpdate, toast]);
+
+  const handleBacklogDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
 
   const getTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
@@ -176,7 +218,11 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       <div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
       <div className="absolute left-0 top-0 w-80 h-full z-10">
-        <Card className="h-full flex flex-col border-r shadow-lg bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-xl border-border/30">
+        <Card 
+          className="h-full flex flex-col border-r shadow-lg bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-xl border-border/30"
+          onDrop={handleBacklogDrop}
+          onDragOver={handleBacklogDragOver}
+        >
           <CardHeader className="pb-4 flex-shrink-0 bg-gradient-to-r from-muted/30 to-muted/10 border-b border-border/20">
             <CardTitle className="text-lg font-semibold text-foreground">Task Backlog</CardTitle>
             <Button 
