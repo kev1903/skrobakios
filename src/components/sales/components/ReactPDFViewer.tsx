@@ -3,12 +3,12 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
-
-// Configure PDF.js worker for pdf.js v5.3.31 (react-pdf 7.x)
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.3.31/pdf.worker.min.js';
+// Bundle worker locally for reliability
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 interface ReactPDFViewerProps {
   fileUrl?: string; // preferred
@@ -23,6 +23,7 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
   const [scale, setScale] = useState(1.0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
   const sourceUrl = fileUrl || pdfUrl || '';
   console.log('ReactPDFViewer received URL:', sourceUrl);
@@ -32,6 +33,29 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
     setError(null);
     setNumPages(null);
     setPageNumber(1);
+  }, [sourceUrl]);
+
+  // Optionally fetch as Blob to avoid CORS preview issues
+  useEffect(() => {
+    let revoked: string | null = null;
+    const toBlob = async () => {
+      if (!sourceUrl) return;
+      try {
+        const res = await fetch(sourceUrl, { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        revoked = url;
+        setBlobUrl(url);
+      } catch (e) {
+        setBlobUrl(null);
+        console.warn('Blob fetch failed, falling back to direct URL:', e);
+      }
+    };
+    toBlob();
+    return () => {
+      if (revoked) URL.revokeObjectURL(revoked);
+    };
   }, [sourceUrl]);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -113,10 +137,10 @@ export const ReactPDFViewer = ({ fileUrl, pdfUrl, className, style }: ReactPDFVi
       <div className="flex-1 overflow-auto bg-gray-100 p-4 max-h-full">
         <div className="flex justify-center">
           <Document
-            file={sourceUrl}
+            file={blobUrl ?? sourceUrl}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
-            loading={<div>Loading document...</div>}
+            loading={<div className="p-6 text-sm opacity-70">Loading PDF…</div>}
           >
             {numPages ? Array.from({ length: numPages }, (_, i) => (
               <Page
