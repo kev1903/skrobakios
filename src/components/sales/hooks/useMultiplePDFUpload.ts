@@ -46,14 +46,10 @@ const classifyFromName = (name: string): string | undefined => {
 // Parse PDF text to improve classification (first 1-2 pages)
 const classifyFromPDF = async (file: File): Promise<string | undefined> => {
   try {
-const [{ default: workerSrc }, pdfjs]: any = await Promise.all([
-  import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
-  import('pdfjs-dist')
-]);
-pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+const pdfjs: any = await import('pdfjs-dist');
 
     const data = await file.arrayBuffer();
-    const loadingTask = pdfjs.getDocument({ data });
+    const loadingTask = pdfjs.getDocument({ data, disableWorker: true, useWorker: false } as any);
     const doc = await loadingTask.promise;
 
     const pagesToScan = Math.min(doc.numPages, 2);
