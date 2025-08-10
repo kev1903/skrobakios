@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { FileText, MapPin, User, Building, Calculator, Calendar, Search } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { FileText, MapPin, User, Building, Calculator, Calendar, Search, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ProjectAttributesTabProps {
   onDataChange?: (data: any) => void;
@@ -13,6 +14,14 @@ interface ProjectAttributesTabProps {
 
 export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps) => {
   const [extracting, setExtracting] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    autoExtract: true,
+    projectInfo: true,
+    clientTeam: true,
+    areaCalc: true,
+    drawingInfo: true
+  });
+  
   const [projectData, setProjectData] = useState({
     projectName: '',
     projectCode: '',
@@ -59,295 +68,395 @@ export const ProjectAttributesTab = ({ onDataChange }: ProjectAttributesTabProps
     }, 2000);
   };
 
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Auto-Extract Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="w-5 h-5" />
-            Auto-Extract from PDFs
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={handleExtractFromPDF}
-              disabled={extracting}
-              className="flex items-center gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              {extracting ? 'Extracting...' : 'Extract Project Data'}
-            </Button>
-            <div className="text-sm text-muted-foreground">
-              Automatically extract project information from uploaded drawings and cover sheets
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Project Information */}
+      <Collapsible 
+        open={expandedSections.autoExtract} 
+        onOpenChange={() => toggleSection('autoExtract')}
+      >
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="w-5 h-5" />
-              Project Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="projectName">Project Name</Label>
-                <Input
-                  id="projectName"
-                  value={projectData.projectName}
-                  onChange={(e) => handleInputChange('projectName', e.target.value)}
-                  placeholder="Enter project name"
-                />
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center gap-2">
+                  <Search className="w-4 h-4" />
+                  Auto-Extract from PDFs
+                </div>
+                {expandedSections.autoExtract ? 
+                  <ChevronDown className="w-4 h-4" /> : 
+                  <ChevronRight className="w-4 h-4" />
+                }
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0">
+              <div className="flex items-center gap-4">
+                <Button 
+                  onClick={handleExtractFromPDF}
+                  disabled={extracting}
+                  className="flex items-center gap-2"
+                  size="sm"
+                >
+                  <FileText className="w-4 h-4" />
+                  {extracting ? 'Extracting...' : 'Extract Project Data'}
+                </Button>
+                <div className="text-sm text-muted-foreground">
+                  Automatically extract project information from uploaded drawings and cover sheets
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="projectCode">Project Code</Label>
-                <Input
-                  id="projectCode"
-                  value={projectData.projectCode}
-                  onChange={(e) => handleInputChange('projectCode', e.target.value)}
-                  placeholder="Enter project code"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="address" className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Address
-              </Label>
-              <Textarea
-                id="address"
-                value={projectData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                placeholder="Enter project address"
-                rows={2}
-              />
-            </div>
-          </CardContent>
+            </CardContent>
+          </CollapsibleContent>
         </Card>
+      </Collapsible>
 
-        {/* Client & Design Team */}
+      {/* Project Information */}
+      <Collapsible 
+        open={expandedSections.projectInfo} 
+        onOpenChange={() => toggleSection('projectInfo')}
+      >
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Client & Design Team
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="clientName">Client Name</Label>
-              <Input
-                id="clientName"
-                value={projectData.clientName}
-                onChange={(e) => handleInputChange('clientName', e.target.value)}
-                placeholder="Enter client name"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="clientContact">Client Contact</Label>
-              <Input
-                id="clientContact"
-                value={projectData.clientContact}
-                onChange={(e) => handleInputChange('clientContact', e.target.value)}
-                placeholder="Email or phone"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="designer">Designer</Label>
-                <Input
-                  id="designer"
-                  value={projectData.designer}
-                  onChange={(e) => handleInputChange('designer', e.target.value)}
-                  placeholder="Design firm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="architect">Architect</Label>
-                <Input
-                  id="architect"
-                  value={projectData.architect}
-                  onChange={(e) => handleInputChange('architect', e.target.value)}
-                  placeholder="Architecture firm"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Area Calculations */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="w-5 h-5" />
-              Area Calculations
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="siteArea">Site Area (m²)</Label>
-                <Input
-                  id="siteArea"
-                  type="number"
-                  value={projectData.siteArea}
-                  onChange={(e) => handleInputChange('siteArea', e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="numberOfLevels">Number of Levels</Label>
-                <Input
-                  id="numberOfLevels"
-                  type="number"
-                  value={projectData.numberOfLevels}
-                  onChange={(e) => handleInputChange('numberOfLevels', e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="gifa">GIFA (m²)</Label>
-                <Input
-                  id="gifa"
-                  type="number"
-                  value={projectData.gifa}
-                  onChange={(e) => handleInputChange('gifa', e.target.value)}
-                  placeholder="Gross Internal Floor Area"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="gefa">GEFA (m²)</Label>
-                <Input
-                  id="gefa"
-                  type="number"
-                  value={projectData.gefa}
-                  onChange={(e) => handleInputChange('gefa', e.target.value)}
-                  placeholder="Gross External Floor Area"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Key Area Breakdown</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label htmlFor="garageArea" className="text-sm">Garage (m²)</Label>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center gap-2">
+                  <Building className="w-4 h-4" />
+                  Project Information
+                </div>
+                {expandedSections.projectInfo ? 
+                  <ChevronDown className="w-4 h-4" /> : 
+                  <ChevronRight className="w-4 h-4" />
+                }
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="projectName" className="text-sm">Project Name</Label>
                   <Input
-                    id="garageArea"
-                    type="number"
-                    value={projectData.garageArea}
-                    onChange={(e) => handleInputChange('garageArea', e.target.value)}
-                    placeholder="0"
+                    id="projectName"
+                    value={projectData.projectName}
+                    onChange={(e) => handleInputChange('projectName', e.target.value)}
+                    placeholder="Enter project name"
+                    className="h-8"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="landscapeArea" className="text-sm">Landscape (m²)</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="projectCode" className="text-sm">Project Code</Label>
                   <Input
-                    id="landscapeArea"
-                    type="number"
-                    value={projectData.landscapeArea}
-                    onChange={(e) => handleInputChange('landscapeArea', e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="poolArea" className="text-sm">Pool (m²)</Label>
-                  <Input
-                    id="poolArea"
-                    type="number"
-                    value={projectData.poolArea}
-                    onChange={(e) => handleInputChange('poolArea', e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="ancillaryArea" className="text-sm">Ancillary (m²)</Label>
-                  <Input
-                    id="ancillaryArea"
-                    type="number"
-                    value={projectData.ancillaryArea}
-                    onChange={(e) => handleInputChange('ancillaryArea', e.target.value)}
-                    placeholder="0"
+                    id="projectCode"
+                    value={projectData.projectCode}
+                    onChange={(e) => handleInputChange('projectCode', e.target.value)}
+                    placeholder="Enter project code"
+                    className="h-8"
                   />
                 </div>
               </div>
-            </div>
-          </CardContent>
+              
+              <div className="space-y-2">
+                <Label htmlFor="address" className="flex items-center gap-2 text-sm">
+                  <MapPin className="w-3 h-3" />
+                  Address
+                </Label>
+                <Textarea
+                  id="address"
+                  value={projectData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Enter project address"
+                  rows={2}
+                  className="resize-none"
+                />
+              </div>
+            </CardContent>
+          </CollapsibleContent>
         </Card>
+      </Collapsible>
 
-        {/* Drawing Information */}
+      {/* Client & Design Team */}
+      <Collapsible 
+        open={expandedSections.clientTeam} 
+        onOpenChange={() => toggleSection('clientTeam')}
+      >
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Drawing Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Client & Design Team
+                </div>
+                {expandedSections.clientTeam ? 
+                  <ChevronDown className="w-4 h-4" /> : 
+                  <ChevronRight className="w-4 h-4" />
+                }
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="drawingIssueDate">Issue Date</Label>
+                <Label htmlFor="clientName" className="text-sm">Client Name</Label>
                 <Input
-                  id="drawingIssueDate"
-                  type="date"
-                  value={projectData.drawingIssueDate}
-                  onChange={(e) => handleInputChange('drawingIssueDate', e.target.value)}
+                  id="clientName"
+                  value={projectData.clientName}
+                  onChange={(e) => handleInputChange('clientName', e.target.value)}
+                  placeholder="Enter client name"
+                  className="h-8"
                 />
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="revision">Revision</Label>
+                <Label htmlFor="clientContact" className="text-sm">Client Contact</Label>
                 <Input
-                  id="revision"
-                  value={projectData.revision}
-                  onChange={(e) => handleInputChange('revision', e.target.value)}
-                  placeholder="Rev A, B, C..."
+                  id="clientContact"
+                  value={projectData.clientContact}
+                  onChange={(e) => handleInputChange('clientContact', e.target.value)}
+                  placeholder="Email or phone"
+                  className="h-8"
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="qualityLevel">Quality Level</Label>
-              <Input
-                id="qualityLevel"
-                value={projectData.qualityLevel}
-                onChange={(e) => handleInputChange('qualityLevel', e.target.value)}
-                placeholder="Standard, Premium, Luxury"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="specReference">Spec Reference</Label>
-              <Input
-                id="specReference"
-                value={projectData.specReference}
-                onChange={(e) => handleInputChange('specReference', e.target.value)}
-                placeholder="Specification document reference"
-              />
-            </div>
-          </CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="designer" className="text-sm">Designer</Label>
+                  <Input
+                    id="designer"
+                    value={projectData.designer}
+                    onChange={(e) => handleInputChange('designer', e.target.value)}
+                    placeholder="Design firm"
+                    className="h-8"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="architect" className="text-sm">Architect</Label>
+                  <Input
+                    id="architect"
+                    value={projectData.architect}
+                    onChange={(e) => handleInputChange('architect', e.target.value)}
+                    placeholder="Architecture firm"
+                    className="h-8"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
         </Card>
-      </div>
+      </Collapsible>
+
+      {/* Area Calculations */}
+      <Collapsible 
+        open={expandedSections.areaCalc} 
+        onOpenChange={() => toggleSection('areaCalc')}
+      >
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center gap-2">
+                  <Calculator className="w-4 h-4" />
+                  Area Calculations
+                </div>
+                {expandedSections.areaCalc ? 
+                  <ChevronDown className="w-4 h-4" /> : 
+                  <ChevronRight className="w-4 h-4" />
+                }
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="siteArea" className="text-sm">Site Area (m²)</Label>
+                  <Input
+                    id="siteArea"
+                    type="number"
+                    value={projectData.siteArea}
+                    onChange={(e) => handleInputChange('siteArea', e.target.value)}
+                    placeholder="0"
+                    className="h-8"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="numberOfLevels" className="text-sm">Number of Levels</Label>
+                  <Input
+                    id="numberOfLevels"
+                    type="number"
+                    value={projectData.numberOfLevels}
+                    onChange={(e) => handleInputChange('numberOfLevels', e.target.value)}
+                    placeholder="0"
+                    className="h-8"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="gifa" className="text-sm">GIFA (m²)</Label>
+                  <Input
+                    id="gifa"
+                    type="number"
+                    value={projectData.gifa}
+                    onChange={(e) => handleInputChange('gifa', e.target.value)}
+                    placeholder="Gross Internal Floor Area"
+                    className="h-8"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gefa" className="text-sm">GEFA (m²)</Label>
+                  <Input
+                    id="gefa"
+                    type="number"
+                    value={projectData.gefa}
+                    onChange={(e) => handleInputChange('gefa', e.target.value)}
+                    placeholder="Gross External Floor Area"
+                    className="h-8"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm">Key Area Breakdown</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="garageArea" className="text-xs">Garage (m²)</Label>
+                    <Input
+                      id="garageArea"
+                      type="number"
+                      value={projectData.garageArea}
+                      onChange={(e) => handleInputChange('garageArea', e.target.value)}
+                      placeholder="0"
+                      className="h-7"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="landscapeArea" className="text-xs">Landscape (m²)</Label>
+                    <Input
+                      id="landscapeArea"
+                      type="number"
+                      value={projectData.landscapeArea}
+                      onChange={(e) => handleInputChange('landscapeArea', e.target.value)}
+                      placeholder="0"
+                      className="h-7"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="poolArea" className="text-xs">Pool (m²)</Label>
+                    <Input
+                      id="poolArea"
+                      type="number"
+                      value={projectData.poolArea}
+                      onChange={(e) => handleInputChange('poolArea', e.target.value)}
+                      placeholder="0"
+                      className="h-7"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ancillaryArea" className="text-xs">Ancillary (m²)</Label>
+                    <Input
+                      id="ancillaryArea"
+                      type="number"
+                      value={projectData.ancillaryArea}
+                      onChange={(e) => handleInputChange('ancillaryArea', e.target.value)}
+                      placeholder="0"
+                      className="h-7"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      {/* Drawing Information */}
+      <Collapsible 
+        open={expandedSections.drawingInfo} 
+        onOpenChange={() => toggleSection('drawingInfo')}
+      >
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
+              <CardTitle className="flex items-center justify-between text-base">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Drawing Information
+                </div>
+                {expandedSections.drawingInfo ? 
+                  <ChevronDown className="w-4 h-4" /> : 
+                  <ChevronRight className="w-4 h-4" />
+                }
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="drawingIssueDate" className="text-sm">Issue Date</Label>
+                  <Input
+                    id="drawingIssueDate"
+                    type="date"
+                    value={projectData.drawingIssueDate}
+                    onChange={(e) => handleInputChange('drawingIssueDate', e.target.value)}
+                    className="h-8"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="revision" className="text-sm">Revision</Label>
+                  <Input
+                    id="revision"
+                    value={projectData.revision}
+                    onChange={(e) => handleInputChange('revision', e.target.value)}
+                    placeholder="Rev A, B, C..."
+                    className="h-8"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="qualityLevel" className="text-sm">Quality Level</Label>
+                <Input
+                  id="qualityLevel"
+                  value={projectData.qualityLevel}
+                  onChange={(e) => handleInputChange('qualityLevel', e.target.value)}
+                  placeholder="Standard, Premium, Luxury"
+                  className="h-8"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="specReference" className="text-sm">Spec Reference</Label>
+                <Input
+                  id="specReference"
+                  value={projectData.specReference}
+                  onChange={(e) => handleInputChange('specReference', e.target.value)}
+                  placeholder="Specification document reference"
+                  className="h-8"
+                />
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Summary */}
       {(projectData.projectName || projectData.siteArea) && (
         <Card>
-          <CardHeader>
-            <CardTitle>Project Summary</CardTitle>
+          <CardHeader className="py-3">
+            <CardTitle className="text-base">Project Summary</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="flex flex-wrap gap-2">
               {projectData.projectName && (
                 <Badge variant="secondary">{projectData.projectName}</Badge>
