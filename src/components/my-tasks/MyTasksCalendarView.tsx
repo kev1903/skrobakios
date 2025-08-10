@@ -262,7 +262,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               Add to backlog
             </Button>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col space-y-4 overflow-hidden">
+          <CardContent className="flex-1 flex flex-col space-y-3 overflow-hidden p-4">{/* Reduced padding and space-y */}
             {/* Search */}
             <div className="relative flex-shrink-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -275,10 +275,10 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
             </div>
 
             {/* Filter Tabs */}
-            <div className="space-y-3 flex-shrink-0">
+            <div className="space-y-2 flex-shrink-0">{/* Reduced space-y from 3 to 2 */}
               {/* Type Filter */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Type</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Type</label>{/* Reduced margin-bottom */}
                 <div className="flex gap-1 flex-wrap">
                   {[
                     { key: 'all', label: 'All' },
@@ -302,7 +302,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
               {/* Status Filter */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-2 block">Status</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Status</label>{/* Reduced margin-bottom */}
                 <div className="flex gap-1 flex-wrap">
                   {[
                     { key: 'all', label: 'All', icon: null },
