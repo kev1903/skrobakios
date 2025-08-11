@@ -1426,6 +1426,9 @@ export type Database = {
           rating: number | null
           review_count: number | null
           services: string[] | null
+          show_email: boolean | null
+          show_location: boolean | null
+          show_phone: boolean | null
           skills: string[] | null
           slug: string | null
           social_links: Json | null
@@ -1463,6 +1466,9 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
+          show_email?: boolean | null
+          show_location?: boolean | null
+          show_phone?: boolean | null
           skills?: string[] | null
           slug?: string | null
           social_links?: Json | null
@@ -1500,6 +1506,9 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
+          show_email?: boolean | null
+          show_location?: boolean | null
+          show_phone?: boolean | null
           skills?: string[] | null
           slug?: string | null
           social_links?: Json | null
@@ -3626,6 +3635,22 @@ export type Database = {
           created_at: string
           can_manage_roles: boolean
           can_assign_to_companies: boolean
+        }[]
+      }
+      get_public_profile_safe: {
+        Args: { profile_user_id: string }
+        Returns: {
+          user_id: string
+          first_name: string
+          last_name: string
+          avatar_url: string
+          company: string
+          slug: string
+          rating: number
+          review_count: number
+          email: string
+          phone: string
+          status: string
         }[]
       }
       get_user_companies: {
