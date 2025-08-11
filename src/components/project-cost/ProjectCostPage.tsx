@@ -21,22 +21,29 @@ export const ProjectCostPage = ({ project }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
   // Get company ID from user's company membership
   const [companyId, setCompanyId] = useState('');
+  const [companyIdLoading, setCompanyIdLoading] = useState(true);
   
   React.useEffect(() => {
     const getCompanyId = async () => {
-      // Get current user from auth
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      
-      const { data } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .single();
-      
-      if (data?.company_id) {
-        setCompanyId(data.company_id);
+      try {
+        // Get current user from auth
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
+        const { data } = await supabase
+          .from('company_members')
+          .select('company_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single();
+        
+        if (data?.company_id) {
+          setCompanyId(data.company_id);
+        }
+      } catch (error) {
+        console.error('Error fetching company ID:', error);
+      } finally {
+        setCompanyIdLoading(false);
       }
     };
     
@@ -48,7 +55,7 @@ export const ProjectCostPage = ({ project }: ProjectCostPageProps) => {
     loading,
     updateTask,
     getCostSummary
-  } = useCentralTasks(project.id, companyId);
+  } = useCentralTasks(project.id, companyId || '');
 
   const [activeTab, setActiveTab] = useState('overview');
   
@@ -59,7 +66,7 @@ export const ProjectCostPage = ({ project }: ProjectCostPageProps) => {
     return acc;
   }, {} as { [stage: string]: any[] });
 
-  if (loading) {
+  if (companyIdLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
