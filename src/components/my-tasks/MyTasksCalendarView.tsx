@@ -11,6 +11,7 @@ import { WeekTimelineView } from '../tasks/WeekTimelineView';
 import { MonthTimelineView } from '../tasks/MonthTimelineView';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { useProfile } from '@/hooks/useProfile';
 
 interface MyTasksCalendarViewProps {
   tasks: Task[];
@@ -32,6 +33,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'incomplete' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all'); // Kept for potential future use
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
+  const { profile } = useProfile();
 
   // Update current time every second
   React.useEffect(() => {
@@ -59,6 +61,19 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     return tasks.filter(task => {
       // CORE RULE: Exclude completed tasks completely from backlog
       if (task.status === 'Completed') return false;
+      
+      // CORE RULE: Only show tasks assigned to current user
+      if (!profile) return false; // Wait for profile to load
+      
+      const currentUserName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+      const currentUserEmail = profile.email;
+      
+      const isAssignedToCurrentUser = 
+        task.assignedTo?.name === currentUserName ||
+        task.assignedTo?.name === currentUserEmail ||
+        (task.assignedTo?.userId && task.assignedTo.userId === currentUserEmail);
+      
+      if (!isAssignedToCurrentUser) return false;
       
       // Check if task is unscheduled (in backlog)
       const isInBacklog = !task.dueDate || (() => {
