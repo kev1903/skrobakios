@@ -110,116 +110,129 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
 
           {/* Table Body */}
           <tbody className="bg-white">
-            {tasks.map((task, index) => {
-              const isEditing = editingTask === task.id;
-              const budgeted = task.budgeted_cost || 0;
-              const actual = task.actual_cost || 0;
-              const variance = budgeted - actual;
+            {tasks.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
+                  <div className="flex flex-col items-center">
+                    <p className="text-sm mb-2">No cost items found</p>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      + Add your first cost item
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              tasks.map((task, index) => {
+                const isEditing = editingTask === task.id;
+                const budgeted = task.budgeted_cost || 0;
+                const actual = task.actual_cost || 0;
+                const variance = budgeted - actual;
 
-              return (
-                <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  {/* No. */}
-                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
-                    {index + 1}
-                  </td>
+                return (
+                  <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    {/* No. */}
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                      {index + 1}
+                    </td>
 
-                  {/* Stage */}
-                  <td className="px-4 py-3 border-r border-gray-100">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {task.stage}
-                    </span>
-                  </td>
+                    {/* Stage */}
+                    <td className="px-4 py-3 border-r border-gray-100">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {task.stage}
+                      </span>
+                    </td>
 
-                  {/* Activities (Task Name) */}
-                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100 max-w-xs">
-                    <div className="truncate font-medium" title={task.name}>
-                      {task.name}
-                    </div>
-                  </td>
-
-                  {/* Cost Estimate */}
-                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
-                    {isEditing ? (
-                      <Input
-                        type="number"
-                        value={editValues.budgeted_cost || 0}
-                        onChange={(e) => setEditValues({
-                          ...editValues,
-                          budgeted_cost: parseFloat(e.target.value) || 0
-                        })}
-                        className="w-full text-sm border-gray-300 rounded-md"
-                      />
-                    ) : (
-                      <span className="font-mono">{formatCurrency(budgeted)}</span>
-                    )}
-                  </td>
-
-                  {/* Notes */}
-                  <td className="px-4 py-3 text-sm text-gray-500 border-r border-gray-100">
-                    -
-                  </td>
-
-                  {/* Project Budget */}
-                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
-                    <span className="font-mono">{formatCurrency(budgeted)}</span>
-                  </td>
-
-                  {/* Cost Committed */}
-                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
-                    {isEditing ? (
-                      <Input
-                        type="number"
-                        value={editValues.actual_cost || 0}
-                        onChange={(e) => setEditValues({
-                          ...editValues,
-                          actual_cost: parseFloat(e.target.value) || 0
-                        })}
-                        className="w-full text-sm border-gray-300 rounded-md"
-                      />
-                    ) : (
-                      <span className="font-mono">{formatCurrency(actual)}</span>
-                    )}
-                  </td>
-
-                  {/* Paid to Date */}
-                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
-                    <span className="font-mono">$0.00</span>
-                  </td>
-
-                  {/* Cost / Actions */}
-                  <td className="px-4 py-3 text-sm">
-                    {isEditing ? (
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleSave(task.id)}
-                          className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700"
-                        >
-                          <Save className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleCancel}
-                          className="h-7 px-2 text-xs"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+                    {/* Activities (Task Name) */}
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100 max-w-xs">
+                      <div className="truncate font-medium" title={task.name}>
+                        {task.name}
                       </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(task)}
-                        className="h-7 px-2 text-xs text-gray-500 hover:text-gray-700"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+
+                    {/* Cost Estimate */}
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          value={editValues.budgeted_cost || 0}
+                          onChange={(e) => setEditValues({
+                            ...editValues,
+                            budgeted_cost: parseFloat(e.target.value) || 0
+                          })}
+                          className="w-full text-sm border-gray-300 rounded-md"
+                        />
+                      ) : (
+                        <span className="font-mono">{formatCurrency(budgeted)}</span>
+                      )}
+                    </td>
+
+                    {/* Notes */}
+                    <td className="px-4 py-3 text-sm text-gray-500 border-r border-gray-100">
+                      -
+                    </td>
+
+                    {/* Project Budget */}
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                      <span className="font-mono">{formatCurrency(budgeted)}</span>
+                    </td>
+
+                    {/* Cost Committed */}
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          value={editValues.actual_cost || 0}
+                          onChange={(e) => setEditValues({
+                            ...editValues,
+                            actual_cost: parseFloat(e.target.value) || 0
+                          })}
+                          className="w-full text-sm border-gray-300 rounded-md"
+                        />
+                      ) : (
+                        <span className="font-mono">{formatCurrency(actual)}</span>
+                      )}
+                    </td>
+
+                    {/* Paid to Date */}
+                    <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                      <span className="font-mono">$0.00</span>
+                    </td>
+
+                    {/* Cost / Actions */}
+                    <td className="px-4 py-3 text-sm">
+                      {isEditing ? (
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleSave(task.id)}
+                            className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700"
+                          >
+                            <Save className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleCancel}
+                            className="h-7 px-2 text-xs"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEdit(task)}
+                          className="h-7 px-2 text-xs text-gray-500 hover:text-gray-700"
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
 
           {/* Table Footer with Totals */}
@@ -256,18 +269,6 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
           </tfoot>
         </table>
       </div>
-
-      {/* Empty State */}
-      {tasks.length === 0 && (
-        <div className="flex items-center justify-center h-32 text-gray-500 bg-white border-t border-gray-200">
-          <div className="text-center">
-            <p className="text-sm">No cost items found</p>
-            <Button size="sm" className="mt-2" onClick={() => {}}>
-              Add your first cost item
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
