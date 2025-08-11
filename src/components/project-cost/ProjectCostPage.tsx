@@ -22,43 +22,13 @@ interface ProjectCostPageProps {
 
 export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
-  // Get company ID from user's company membership
-  const [companyId, setCompanyId] = useState('');
-  const [companyIdLoading, setCompanyIdLoading] = useState(true);
   
-  React.useEffect(() => {
-    const getCompanyId = async () => {
-      try {
-        // Get current user from auth
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        
-        const { data } = await supabase
-          .from('company_members')
-          .select('company_id')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .single();
-        
-        if (data?.company_id) {
-          setCompanyId(data.company_id);
-        }
-      } catch (error) {
-        console.error('Error fetching company ID:', error);
-      } finally {
-        setCompanyIdLoading(false);
-      }
-    };
-    
-    getCompanyId();
-  }, []);
-  
-  // Demo data for testing - direct approach
+  // Direct demo data approach - no database dependencies
   const demoTasks = [
     {
       id: '26',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Excavation',
       description: 'Included in Slab Cost',
       stage: '5.1 BASE STAGE',
@@ -75,7 +45,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '27',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Slab',
       description: '',
       stage: '5.1 BASE STAGE',
@@ -92,7 +62,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '28',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Site Clean',
       description: '4 Site Clean',
       stage: '5.1 BASE STAGE',
@@ -109,7 +79,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '29',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Set Out',
       description: '',
       stage: '5.1 BASE STAGE',
@@ -126,7 +96,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '30',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Protection Works',
       description: '',
       stage: '5.1 BASE STAGE',
@@ -143,7 +113,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '31',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Planter Boxes',
       description: '',
       stage: '5.1 BASE STAGE',
@@ -160,7 +130,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '32',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Pest Control Part A',
       description: '',
       stage: '5.1 BASE STAGE',
@@ -177,7 +147,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '33',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Fence Painting',
       description: '',
       stage: '5.1 BASE STAGE',
@@ -194,7 +164,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     {
       id: '34',
       project_id: project.id,
-      company_id: companyId || 'demo',
+      company_id: 'demo-company',
       name: 'Fence - Rear',
       description: 'At the back',
       stage: '5.1 BASE STAGE',
@@ -210,7 +180,7 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     }
   ];
 
-  // Use demo data directly instead of the hook
+  // Use demo data directly
   const tasks = demoTasks;
   const loading = false;
 
@@ -246,14 +216,6 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
   };
 
   const costSummary = getCostSummary();
-
-  if (companyIdLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   const getVarianceStatus = (variance: number) => {
     if (variance > 0) return { text: 'Under Budget', color: 'text-green-600', icon: TrendingUp };
