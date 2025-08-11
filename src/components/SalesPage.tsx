@@ -11,6 +11,7 @@ import { SubmittalsPage } from './sales/SubmittalsPage';
 import { ClientPortal } from './sales/ClientPortal';
 import { SalesSettingsPage } from './sales/SalesSettingsPage';
 import { SalesRibbon } from './sales/SalesRibbon';
+import { EstimateProvider } from './sales/context/EstimateContext';
 
 interface SalesPageProps {
   onNavigate?: (page: string) => void;
@@ -56,7 +57,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
         return <ProjectDetailPage />;
       case 'estimates':
         return showEstimationWorkspace 
-          ? <InputDataPage onBack={handleBackToEstimatesList} />
+          ? <EstimateProvider><InputDataPage onBack={handleBackToEstimatesList} /></EstimateProvider>
           : <EstimatesListPage onCreateEstimate={handleCreateEstimate} onNavigate={onNavigate} />;
       case 'submittals':
         return <SubmittalsPage />;
