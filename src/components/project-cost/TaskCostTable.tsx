@@ -78,21 +78,36 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Cost Estimate
+                <div className="text-xs font-bold text-foreground mt-1">
+                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '150px'}}>
                 Notes
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Project Budget
+                <div className="text-xs font-bold text-foreground mt-1">
+                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Cost Committed
+                <div className="text-xs font-bold text-foreground mt-1">
+                  ${tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0).toLocaleString()}
+                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Paid to Date
+                <div className="text-xs font-bold text-foreground mt-1">
+                  $0.00
+                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3" style={{minWidth: '100px'}}>
                 Cost
+                <div className="text-xs font-bold text-foreground mt-1">
+                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                </div>
               </th>
             </tr>
           </thead>
@@ -224,38 +239,6 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
             )}
           </tbody>
 
-          {/* Table Footer with Totals */}
-          <tfoot className="bg-gray-50 border-t-2 border-gray-200">
-            <tr>
-              <td colSpan={3} className="px-4 py-3 text-sm font-medium text-gray-700 border-r border-gray-200">
-                Total
-              </td>
-              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
-                <span className="font-mono">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
-                </span>
-              </td>
-              <td className="border-r border-gray-200"></td>
-              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
-                <span className="font-mono">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
-                <span className="font-mono">
-                  ${tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0).toLocaleString()}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
-                <span className="font-mono">$0.00</span>
-              </td>
-              <td className="px-4 py-3 text-sm font-bold text-gray-900">
-                <span className="font-mono">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
-                </span>
-              </td>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </div>
