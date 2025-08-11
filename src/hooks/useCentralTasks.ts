@@ -2,6 +2,163 @@ import { useState, useEffect, useCallback } from 'react';
 import { CentralTask, CentralTaskService, TaskUpdate } from '@/services/centralTaskService';
 import { useToast } from '@/hooks/use-toast';
 
+// Demo data for testing
+const createDemoTasks = (projectId: string, companyId: string): CentralTask[] => [
+  {
+    id: '26',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Excavation',
+    description: 'Included in Slab Cost',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 0,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '27',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Slab',
+    description: '',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 110000,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '28',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Site Clean',
+    description: '4 Site Clean',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 6600,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '29',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Set Out',
+    description: '',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 400,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '30',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Protection Works',
+    description: '',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 1200,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '31',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Planter Boxes',
+    description: '',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 3800,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '32',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Pest Control Part A',
+    description: '',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 1200,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '33',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Fence Painting',
+    description: '',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 800,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: '34',
+    project_id: projectId,
+    company_id: companyId,
+    name: 'Fence - Rear',
+    description: 'At the back',
+    stage: '5.1 BASE STAGE',
+    level: 0,
+    status: 'TO DO',
+    budgeted_cost: 500,
+    actual_cost: 0,
+    is_expanded: false,
+    dependencies: [],
+    linked_tasks: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
+
 export const useCentralTasks = (projectId: string, companyId: string) => {
   const [tasks, setTasks] = useState<CentralTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,8 +172,13 @@ export const useCentralTasks = (projectId: string, companyId: string) => {
     try {
       setLoading(true);
       setError(null);
-      const tasksData = await CentralTaskService.loadProjectTasks(projectId, companyId);
-      setTasks(tasksData);
+      // For demo purposes, use the demo data instead of API call
+      const demoTasks = createDemoTasks(projectId, companyId);
+      setTasks(demoTasks);
+      
+      // Uncomment this line and comment the demo data when you want to use real API
+      // const tasksData = await CentralTaskService.loadProjectTasks(projectId, companyId);
+      // setTasks(tasksData);
     } catch (err) {
       console.error('Error loading tasks:', err);
       setError('Failed to load tasks');
