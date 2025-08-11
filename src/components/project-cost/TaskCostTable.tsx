@@ -81,8 +81,16 @@ export const TaskCostTable = ({
     const variance = budgeted - actual;
     if (variance > 0) return 'text-green-600';
     if (variance < 0) return 'text-red-600';
-    return 'text-muted-foreground';
+  return 'text-muted-foreground';
   };
+
+  // Extract numeric stage prefix (e.g., '4.0' from '4.0 PRELIMINARY')
+  const extractStageNumber = (label: string): string => {
+    if (!label) return '';
+    const match = label.trim().match(/^([0-9]+(?:\.[0-9]+)*)/);
+    return match ? match[1] : '';
+  };
+
   return <div className="bg-card border rounded-xl overflow-hidden">
       {/* Table Header */}
       <div className="bg-muted/30 border-b px-6 py-3">
@@ -180,7 +188,7 @@ export const TaskCostTable = ({
                           ) : (
                             <ChevronRight className="w-3 h-3 mr-1" />
                           )}
-                          {stageTasks.length}
+                          {extractStageNumber(stage) || stageTasks.length}
                         </div>
                       </td>
                       <td colSpan={2} className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
@@ -215,7 +223,7 @@ export const TaskCostTable = ({
                         <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
                           {/* No. */}
                           <td className="px-4 py-1 text-xs text-gray-600 border-r border-gray-100">
-                            {taskIndex + 1}
+                            {extractStageNumber(stage) ? `${extractStageNumber(stage)}.${taskIndex + 1}` : taskIndex + 1}
                           </td>
 
                           {/* Stage - Empty for child rows */}
