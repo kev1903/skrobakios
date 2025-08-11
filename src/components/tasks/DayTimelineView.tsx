@@ -377,11 +377,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     }
   }, [tasks, onTaskUpdate, expandedTasks]);
   const handleResizeStart = useCallback((e: React.MouseEvent, taskId: string, handle: 'top' | 'bottom') => {
+    console.log(`Starting resize: taskId=${taskId}, handle=${handle}, clientY=${e.clientY}`);
     e.preventDefault();
     e.stopPropagation();
     const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
+    if (!task) {
+      console.log('Task not found');
+      return;
+    }
     
+    console.log('Setting drag state');
     setDragState({
       isDragging: true,
       taskId,
@@ -393,12 +398,17 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     });
   }, [tasks]);
   const handleResizeMove = useCallback((e: MouseEvent) => {
-    if (!dragState.isDragging || !dragState.taskId || !dragState.startTime) return;
+    console.log('Mouse move detected during resize');
+    if (!dragState.isDragging || !dragState.taskId || !dragState.startTime) {
+      console.log('Not dragging or missing data:', { isDragging: dragState.isDragging, taskId: dragState.taskId, startTime: dragState.startTime });
+      return;
+    }
     
     e.preventDefault();
     e.stopPropagation();
     
     const deltaY = e.clientY - dragState.startY;
+    console.log('Delta Y:', deltaY);
     // Each 30-minute slot is 24px tall
     const slotsChanged = Math.round(deltaY / 24);
     const task = tasks.find(t => t.id === dragState.taskId);
@@ -423,13 +433,14 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       newTop = 0;
     }
     
+    console.log('Setting new preview:', { newHeight, newTop, newDuration });
     setDragState(prev => ({
       ...prev,
       previewHeight: newHeight,
       previewTop: newTop,
       newDuration
     }));
-  }, [dragState.isDragging, dragState.taskId, dragState.startTime, dragState.startY, dragState.handle, tasks]);
+  }, [dragState, tasks]);
 
   const handleResizeEnd = useCallback(async (e: MouseEvent) => {
     e.preventDefault();
@@ -505,29 +516,29 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   }, [dragState, tasks, onTaskUpdate]);
 
   React.useEffect(() => {
+    console.log('useEffect triggered, isDragging:', dragState.isDragging);
+    
     if (dragState.isDragging) {
-      const cleanup = () => {
-        document.removeEventListener('mousemove', handleResizeMove);
-        document.removeEventListener('mouseup', handleResizeEnd);
-        document.removeEventListener('mouseleave', handleResizeEnd);
-        // Force reset drag state on cleanup
-        setDragState({
-          isDragging: false,
-          taskId: null,
-          handle: null,
-          startY: 0,
-          startTime: null,
-          previewHeight: null,
-          previewTop: null,
-          newDuration: null
-        });
+      console.log('Adding event listeners for resize');
+      
+      const handleMove = (e: MouseEvent) => {
+        console.log('Document mousemove triggered');
+        handleResizeMove(e);
       };
       
-      document.addEventListener('mousemove', handleResizeMove, { passive: false });
-      document.addEventListener('mouseup', handleResizeEnd, { passive: false });
-      document.addEventListener('mouseleave', handleResizeEnd, { passive: false });
+      const handleEnd = (e: MouseEvent) => {
+        console.log('Document mouseup triggered');
+        handleResizeEnd(e);
+      };
       
-      return cleanup;
+      document.addEventListener('mousemove', handleMove, { passive: false });
+      document.addEventListener('mouseup', handleEnd, { passive: false });
+      
+      return () => {
+        console.log('Cleaning up event listeners');
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handleEnd);
+      };
     }
   }, [dragState.isDragging, handleResizeMove, handleResizeEnd]);
   const getPriorityColor = (priority: string) => {
