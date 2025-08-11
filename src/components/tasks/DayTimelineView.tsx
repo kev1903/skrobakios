@@ -443,10 +443,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   }, [dragState, tasks]);
 
   const handleResizeEnd = useCallback(async (e: MouseEvent) => {
+    console.log('handleResizeEnd called, isDragging:', dragState.isDragging);
     e.preventDefault();
     e.stopPropagation();
     
     if (!dragState.isDragging || !dragState.taskId || !dragState.startTime || !onTaskUpdate) {
+      console.log('Early return from handleResizeEnd - missing data');
       setDragState({
         isDragging: false,
         taskId: null,
@@ -477,8 +479,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     
     try {
       const deltaY = e.clientY - dragState.startY;
+      console.log('Final deltaY for update:', deltaY);
       const slotsChanged = Math.round(deltaY / 24);
       const currentDuration = task.duration || 30;
+      console.log('Slots changed:', slotsChanged, 'Current duration:', currentDuration);
       
       if (dragState.handle === 'top') {
         // When dragging top edge, change start time and duration
@@ -486,6 +490,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         const timeChange = (currentDuration - newDuration) / 2; // Split the change
         const newStartTime = addMinutes(new Date(task.dueDate), timeChange);
         
+        console.log('Updating task with new duration (top):', newDuration);
         await onTaskUpdate(dragState.taskId, {
           dueDate: newStartTime.toISOString(),
           duration: newDuration
@@ -494,10 +499,12 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         // When dragging bottom edge, only change duration
         const newDuration = Math.max(30, currentDuration + (slotsChanged * 30));
         
+        console.log('Updating task with new duration (bottom):', newDuration);
         await onTaskUpdate(dragState.taskId, {
           duration: newDuration
         });
       }
+      console.log('Task update completed successfully');
     } catch (error) {
       console.error('Error updating task during resize:', error);
     }
@@ -531,13 +538,16 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         handleResizeEnd(e);
       };
       
-      document.addEventListener('mousemove', handleMove, { passive: false });
-      document.addEventListener('mouseup', handleEnd, { passive: false });
+      // Add event listeners with proper options
+      document.addEventListener('mousemove', handleMove, { passive: false, capture: true });
+      document.addEventListener('mouseup', handleEnd, { passive: false, capture: true });
+      document.addEventListener('mouseleave', handleEnd, { passive: false, capture: true });
       
       return () => {
         console.log('Cleaning up event listeners');
-        document.removeEventListener('mousemove', handleMove);
-        document.removeEventListener('mouseup', handleEnd);
+        document.removeEventListener('mousemove', handleMove, true);
+        document.removeEventListener('mouseup', handleEnd, true);
+        document.removeEventListener('mouseleave', handleEnd, true);
       };
     }
   }, [dragState.isDragging, handleResizeMove, handleResizeEnd]);
