@@ -51,21 +51,10 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
   };
 
   return (
-    <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl overflow-hidden">
+    <div className="bg-card border rounded-xl overflow-hidden">
       {/* Table Header */}
-      <div className="bg-white/10 border-b border-white/20 px-6 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button size="sm" variant="outline" className="text-sm bg-white/20 border-white/30 text-foreground hover:bg-white/30">
-              Grid view
-            </Button>
-            <Button size="sm" variant="ghost" className="text-sm text-muted-foreground hover:bg-white/20">
-              Filter
-            </Button>
-            <Button size="sm" variant="ghost" className="text-sm text-muted-foreground hover:bg-white/20">
-              Sort
-            </Button>
-          </div>
+      <div className="bg-muted/30 border-b px-6 py-3">
+        <div className="flex items-center justify-end">
           <div className="text-sm text-muted-foreground">
             {tasks.length} costs
           </div>
@@ -73,7 +62,7 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
       </div>
 
       {/* Airtable-style Table */}
-      <div className="overflow-x-auto">
+      <div className="w-full">
         <table className="w-full">
           {/* Table Headers */}
           <thead className="bg-white/20 border-b border-white/20">
