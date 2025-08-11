@@ -447,29 +447,44 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    // CRITICAL: Store current state and immediately reset to prevent continuous following
-    const currentDragState = { ...dragState };
-    
-    // Reset drag state IMMEDIATELY to stop the drag operation
-    setDragState({
-      isDragging: false,
-      taskId: null,
-      handle: null,
-      startY: 0,
-      startTime: null,
-      previewHeight: null,
-      previewTop: null,
-      newDuration: null
-    });
-    
-    if (!currentDragState.isDragging || !currentDragState.taskId || !currentDragState.startTime || !onTaskUpdate) {
+    if (!dragState.isDragging || !dragState.taskId || !dragState.startTime || !onTaskUpdate) {
       console.log('Early return from handleResizeEnd - missing data');
+      setDragState({
+        isDragging: false,
+        taskId: null,
+        handle: null,
+        startY: 0,
+        startTime: null,
+        previewHeight: null,
+        previewTop: null,
+        newDuration: null
+      });
       return;
     }
+    
+    // Store current state but keep preview visible during update
+    const currentDragState = { ...dragState };
+    
+    // Only stop the dragging behavior, but keep preview state for smooth transition
+    setDragState(prev => ({
+      ...prev,
+      isDragging: false
+    }));
     
     const task = tasks.find(t => t.id === currentDragState.taskId);
     if (!task) {
       console.log('Task not found for ID:', currentDragState.taskId);
+      // Clear all state if task not found
+      setDragState({
+        isDragging: false,
+        taskId: null,
+        handle: null,
+        startY: 0,
+        startTime: null,
+        previewHeight: null,
+        previewTop: null,
+        newDuration: null
+      });
       return;
     }
     
@@ -501,8 +516,32 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
         });
       }
       console.log('Task update completed successfully');
+      
+      // Clear all preview state after successful update
+      setDragState({
+        isDragging: false,
+        taskId: null,
+        handle: null,
+        startY: 0,
+        startTime: null,
+        previewHeight: null,
+        previewTop: null,
+        newDuration: null
+      });
+      
     } catch (error) {
       console.error('Error updating task during resize:', error);
+      // Clear state on error too
+      setDragState({
+        isDragging: false,
+        taskId: null,
+        handle: null,
+        startY: 0,
+        startTime: null,
+        previewHeight: null,
+        previewTop: null,
+        newDuration: null
+      });
     }
   }, [dragState, tasks, onTaskUpdate]);
 
