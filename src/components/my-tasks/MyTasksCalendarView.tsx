@@ -57,8 +57,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   // Filter tasks for backlog (unscheduled tasks or tasks at midnight) - REDESIGNED
   const getBacklogTasks = () => {
     return tasks.filter(task => {
-      // CORE RULE: Show all tasks that are NOT completed and are unscheduled
-      const isNotCompleted = task.status !== 'Completed';
+      // CORE RULE: Exclude completed tasks completely from backlog
+      if (task.status === 'Completed') return false;
       
       // Check if task is unscheduled (in backlog)
       const isInBacklog = !task.dueDate || (() => {
@@ -66,8 +66,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         return taskDate.getHours() === 0 && taskDate.getMinutes() === 0;
       })();
 
-      // Must be both not completed AND in backlog
-      if (!isNotCompleted || !isInBacklog) return false;
+      // Must be in backlog
+      if (!isInBacklog) return false;
 
       // Apply search filter
       const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
