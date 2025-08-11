@@ -77,149 +77,56 @@ export const ProjectCostPage = ({ project }: ProjectCostPageProps) => {
   const VarianceIcon = varianceStatus.icon;
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">{project.name} - Cost Management</h1>
-          <p className="text-muted-foreground">Track and manage project costs across all stages</p>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="text-sm">
-            {tasks.length} Tasks
-          </Badge>
-          <Badge variant="outline" className="text-sm">
-            {Object.keys(tasksByStage).length} Stages
-          </Badge>
+    <div className="min-h-screen bg-white">
+      {/* Header - Clean and Simple */}
+      <div className="border-b border-gray-200 bg-white px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">{project.name}</h1>
+              <p className="text-sm text-gray-500">Cost breakdown and tracking</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <span>{tasks.length} items</span>
+            </div>
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+              + Add or Import
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Cost Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Budgeted</p>
-                <p className="text-2xl font-bold">${costSummary.totalBudgeted.toLocaleString()}</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-blue-600" />
+      {/* Summary Cards - Compact */}
+      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Project Budget</div>
+            <div className="text-xl font-semibold text-gray-900">${costSummary.totalBudgeted.toLocaleString()}</div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Cost Committed</div>
+            <div className="text-xl font-semibold text-gray-900">${costSummary.totalActual.toLocaleString()}</div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Paid to Date</div>
+            <div className="text-xl font-semibold text-gray-900">$0.00</div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Variance</div>
+            <div className={`text-xl font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              ${Math.abs(costSummary.variance).toLocaleString()}
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Actual</p>
-                <p className="text-2xl font-bold">${costSummary.totalActual.toLocaleString()}</p>
-              </div>
-              <BarChart3 className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Variance</p>
-                <p className={`text-2xl font-bold ${varianceStatus.color}`}>
-                  ${Math.abs(costSummary.variance).toLocaleString()}
-                </p>
-              </div>
-              <VarianceIcon className={`h-8 w-8 ${varianceStatus.color}`} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Status</p>
-                <p className={`text-lg font-semibold ${varianceStatus.color}`}>
-                  {varianceStatus.text}
-                </p>
-              </div>
-              {costSummary.variance < 0 && (
-                <AlertTriangle className="h-8 w-8 text-red-600" />
-              )}
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Tabs Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="stages">By Stage</TabsTrigger>
-          <TabsTrigger value="tasks">Task Details</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CostSummaryCard costSummary={costSummary} />
-            <CostByStageChart tasksByStage={tasksByStage} />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="stages" className="space-y-6">
-          <div className="grid grid-cols-1 gap-4">
-            {Object.entries(tasksByStage).map(([stage, stageTasks]) => {
-              const stageBudgeted = stageTasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0);
-              const stageActual = stageTasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0);
-              const stageVariance = stageBudgeted - stageActual;
-              
-              return (
-                <Card key={stage}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{stage}</CardTitle>
-                      <Badge variant={stageVariance >= 0 ? "default" : "destructive"}>
-                        {stageVariance >= 0 ? "Under Budget" : "Over Budget"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Budgeted</p>
-                        <p className="font-semibold">${stageBudgeted.toLocaleString()}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Actual</p>
-                        <p className="font-semibold">${stageActual.toLocaleString()}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Variance</p>
-                        <p className={`font-semibold ${stageVariance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          ${Math.abs(stageVariance).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 text-xs text-muted-foreground">
-                      {stageTasks.length} tasks in this stage
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="tasks" className="space-y-6">
-          <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          <CostAnalytics tasks={tasks} costSummary={costSummary} />
-        </TabsContent>
-      </Tabs>
+      {/* Main Table Content */}
+      <div className="flex-1">
+        <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
+      </div>
     </div>
   );
 };

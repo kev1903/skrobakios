@@ -51,129 +51,223 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Task Cost Details</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Task Name</TableHead>
-                <TableHead>Stage</TableHead>
-                <TableHead>Budgeted Cost</TableHead>
-                <TableHead>Actual Cost</TableHead>
-                <TableHead>Variance</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {tasks.map((task) => {
-                const isEditing = editingTask === task.id;
-                const budgeted = task.budgeted_cost || 0;
-                const actual = task.actual_cost || 0;
-                const variance = budgeted - actual;
+    <div className="bg-white">
+      {/* Table Header */}
+      <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button size="sm" variant="outline" className="text-sm">
+              Grid view
+            </Button>
+            <Button size="sm" variant="ghost" className="text-sm text-gray-500">
+              Filter
+            </Button>
+            <Button size="sm" variant="ghost" className="text-sm text-gray-500">
+              Sort
+            </Button>
+          </div>
+          <div className="text-sm text-gray-500">
+            {tasks.length} costs
+          </div>
+        </div>
+      </div>
 
-                return (
-                  <TableRow key={task.id}>
-                    <TableCell className="font-medium max-w-xs">
-                      <div className="truncate" title={task.name}>
-                        {task.name}
-                      </div>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {task.stage}
-                      </Badge>
-                    </TableCell>
+      {/* Airtable-style Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          {/* Table Headers */}
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '60px'}}>
+                No.
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+                Stage
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '200px'}}>
+                Activities
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+                Cost Estimate
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '150px'}}>
+                Notes
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+                Project Budget
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+                Cost Committed
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+                Paid to Date
+              </th>
+              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3" style={{minWidth: '100px'}}>
+                Cost
+              </th>
+            </tr>
+          </thead>
 
-                    <TableCell>
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          value={editValues.budgeted_cost || 0}
-                          onChange={(e) => setEditValues({
-                            ...editValues,
-                            budgeted_cost: parseFloat(e.target.value) || 0
-                          })}
-                          className="w-32"
-                        />
-                      ) : (
-                        formatCurrency(budgeted)
-                      )}
-                    </TableCell>
+          {/* Table Body */}
+          <tbody className="bg-white">
+            {tasks.map((task, index) => {
+              const isEditing = editingTask === task.id;
+              const budgeted = task.budgeted_cost || 0;
+              const actual = task.actual_cost || 0;
+              const variance = budgeted - actual;
 
-                    <TableCell>
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          value={editValues.actual_cost || 0}
-                          onChange={(e) => setEditValues({
-                            ...editValues,
-                            actual_cost: parseFloat(e.target.value) || 0
-                          })}
-                          className="w-32"
-                        />
-                      ) : (
-                        formatCurrency(actual)
-                      )}
-                    </TableCell>
+              return (
+                <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  {/* No. */}
+                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                    {index + 1}
+                  </td>
 
-                    <TableCell>
-                      <span className={getVarianceColor(
-                        isEditing ? (editValues.budgeted_cost || 0) : budgeted,
-                        isEditing ? (editValues.actual_cost || 0) : actual
-                      )}>
-                        {formatCurrency(
-                          isEditing 
-                            ? (editValues.budgeted_cost || 0) - (editValues.actual_cost || 0)
-                            : variance
-                        )}
-                      </span>
-                    </TableCell>
+                  {/* Stage */}
+                  <td className="px-4 py-3 border-r border-gray-100">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {task.stage}
+                    </span>
+                  </td>
 
-                    <TableCell>
-                      {isEditing ? (
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleSave(task.id)}
-                          >
-                            <Save className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleCancel}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
+                  {/* Activities (Task Name) */}
+                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100 max-w-xs">
+                    <div className="truncate font-medium" title={task.name}>
+                      {task.name}
+                    </div>
+                  </td>
+
+                  {/* Cost Estimate */}
+                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        value={editValues.budgeted_cost || 0}
+                        onChange={(e) => setEditValues({
+                          ...editValues,
+                          budgeted_cost: parseFloat(e.target.value) || 0
+                        })}
+                        className="w-full text-sm border-gray-300 rounded-md"
+                      />
+                    ) : (
+                      <span className="font-mono">{formatCurrency(budgeted)}</span>
+                    )}
+                  </td>
+
+                  {/* Notes */}
+                  <td className="px-4 py-3 text-sm text-gray-500 border-r border-gray-100">
+                    -
+                  </td>
+
+                  {/* Project Budget */}
+                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                    <span className="font-mono">{formatCurrency(budgeted)}</span>
+                  </td>
+
+                  {/* Cost Committed */}
+                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        value={editValues.actual_cost || 0}
+                        onChange={(e) => setEditValues({
+                          ...editValues,
+                          actual_cost: parseFloat(e.target.value) || 0
+                        })}
+                        className="w-full text-sm border-gray-300 rounded-md"
+                      />
+                    ) : (
+                      <span className="font-mono">{formatCurrency(actual)}</span>
+                    )}
+                  </td>
+
+                  {/* Paid to Date */}
+                  <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-100">
+                    <span className="font-mono">$0.00</span>
+                  </td>
+
+                  {/* Cost / Actions */}
+                  <td className="px-4 py-3 text-sm">
+                    {isEditing ? (
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSave(task.id)}
+                          className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700"
+                        >
+                          <Save className="h-3 w-3" />
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleEdit(task)}
+                          onClick={handleCancel}
+                          className="h-7 px-2 text-xs"
                         >
-                          <Edit2 className="h-4 w-4" />
+                          <X className="h-3 w-3" />
                         </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(task)}
+                        className="h-7 px-2 text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
 
-        {tasks.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-muted-foreground">
-            No tasks found
+          {/* Table Footer with Totals */}
+          <tfoot className="bg-gray-50 border-t-2 border-gray-200">
+            <tr>
+              <td colSpan={3} className="px-4 py-3 text-sm font-medium text-gray-700 border-r border-gray-200">
+                Total
+              </td>
+              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
+                <span className="font-mono">
+                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                </span>
+              </td>
+              <td className="border-r border-gray-200"></td>
+              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
+                <span className="font-mono">
+                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
+                <span className="font-mono">
+                  ${tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0).toLocaleString()}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-sm font-bold text-gray-900 border-r border-gray-200">
+                <span className="font-mono">$0.00</span>
+              </td>
+              <td className="px-4 py-3 text-sm font-bold text-gray-900">
+                <span className="font-mono">
+                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                </span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      {/* Empty State */}
+      {tasks.length === 0 && (
+        <div className="flex items-center justify-center h-32 text-gray-500 bg-white border-t border-gray-200">
+          <div className="text-center">
+            <p className="text-sm">No cost items found</p>
+            <Button size="sm" className="mt-2" onClick={() => {}}>
+              Add your first cost item
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+    </div>
   );
 };
