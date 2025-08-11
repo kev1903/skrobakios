@@ -159,7 +159,9 @@ export const TaskCostTable = ({
                 </td>
               </tr>
             ) : (
-              Object.entries(groupedTasks).map(([stage, stageTasks]) => {
+              Object.entries(groupedTasks)
+                .sort(([stageA], [stageB]) => stageA.localeCompare(stageB)) // Sort stages in ascending order
+                .map(([stage, stageTasks]) => {
                 const isExpanded = expandedStages.has(stage);
                 const stageTotal = stageTasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0);
                 const stageActualTotal = stageTasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0);
