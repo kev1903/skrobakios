@@ -513,13 +513,10 @@ export const useCentralTasks = (projectId: string, companyId: string) => {
     try {
       setLoading(true);
       setError(null);
-      // For demo purposes, use the demo data instead of API call
-      const demoTasks = createDemoTasks(projectId, companyId);
-      setTasks(demoTasks);
       
-      // Uncomment this line and comment the demo data when you want to use real API
-      // const tasksData = await CentralTaskService.loadProjectTasks(projectId, companyId);
-      // setTasks(tasksData);
+      // Use real API call to load tasks from database
+      const tasksData = await CentralTaskService.loadProjectTasks(projectId, companyId);
+      setTasks(tasksData);
     } catch (err) {
       console.error('Error loading tasks:', err);
       setError('Failed to load tasks');

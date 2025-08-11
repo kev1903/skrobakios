@@ -1,0 +1,45 @@
+-- Insert 4.0 PRELIMINARY stage tasks and 5.1 BASE STAGE tasks using existing project and company IDs
+INSERT INTO activities (
+  project_id, 
+  company_id, 
+  name, 
+  description, 
+  stage, 
+  level, 
+  cost_est, 
+  cost_actual, 
+  sort_order,
+  is_expanded
+) VALUES 
+-- 4.0 PRELIMINARY tasks
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Demolition', '', '4.0 PRELIMINARY', 0, 30280, 30280, 1, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Site Feature & Re-establishment Survey', '', '4.0 PRELIMINARY', 0, 4600, 4600, 2, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Architectural', '', '4.0 PRELIMINARY', 0, 0, 0, 3, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Engineering', '', '4.0 PRELIMINARY', 0, 0, 0, 4, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Geotechnical Soil Testing', '', '4.0 PRELIMINARY', 0, 968, 968, 5, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Energy Report', '', '4.0 PRELIMINARY', 0, 0, 0, 6, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Performance Solution Report', '', '4.0 PRELIMINARY', 0, 0, 0, 7, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Civil Drainage Design', '', '4.0 PRELIMINARY', 0, 0, 0, 8, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Roof Drainage Design', '', '4.0 PRELIMINARY', 0, 0, 0, 9, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Interior Designer / Interior Documentation', '', '4.0 PRELIMINARY', 0, 0, 0, 10, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Landscape Designer / Architect', '', '4.0 PRELIMINARY', 0, 0, 0, 11, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Project Estimate', '', '4.0 PRELIMINARY', 0, 1800, 0, 12, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Building Surveying', '', '4.0 PRELIMINARY', 0, 0, 0, 13, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Domestic Building Insurance', '', '4.0 PRELIMINARY', 0, 8100, 8100, 14, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Work Protection Insurance', '', '4.0 PRELIMINARY', 0, 605, 605, 15, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Construction Management Services', '', '4.0 PRELIMINARY', 0, 70000, 0, 16, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Builders License', '', '4.0 PRELIMINARY', 0, 0, 0, 17, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', '3D Renders / Virtual Design Models', '', '4.0 PRELIMINARY', 0, 0, 0, 18, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Asset Protection', '', '4.0 PRELIMINARY', 0, 0, 0, 19, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'CONTINGENCY', '5%', '4.0 PRELIMINARY', 0, 60000, 0, 20, true),
+
+-- 5.1 BASE STAGE tasks
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Excavation', 'Included in Slab Cost', '5.1 BASE STAGE', 0, 0, 0, 21, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Slab', '', '5.1 BASE STAGE', 0, 110000, 0, 22, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Site Clean', '4 Site Clean', '5.1 BASE STAGE', 0, 6600, 0, 23, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Set Out', '', '5.1 BASE STAGE', 0, 400, 0, 24, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Protection Works', '', '5.1 BASE STAGE', 0, 1200, 0, 25, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Planter Boxes', '', '5.1 BASE STAGE', 0, 3800, 0, 26, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Pest Control Part A', '', '5.1 BASE STAGE', 0, 1200, 0, 27, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Fence Painting', '', '5.1 BASE STAGE', 0, 800, 0, 28, true),
+('a9a00f7c-cc3d-44b3-a745-8c740faca7d4', '4491659d-2978-43b5-9aef-456b81ff80fa', 'Fence - Rear', 'At the back', '5.1 BASE STAGE', 0, 500, 0, 29, true);
