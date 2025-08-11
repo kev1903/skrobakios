@@ -295,7 +295,9 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       return;
     }
     
+    console.log('📅 Calendar task drag started:', taskId);
     e.dataTransfer.setData('text/plain', taskId);
+    e.dataTransfer.setData('application/x-calendar-task', taskId); // Add special identifier
     setDraggedTaskId(taskId);
     e.dataTransfer.effectAllowed = 'move';
   }, [dragState.isDragging]);

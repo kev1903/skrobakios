@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { format, isSameDay, addDays } from 'date-fns';
 import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw, GripVertical } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Task } from '../tasks/types';
 import { DayTimelineView } from '../tasks/DayTimelineView';
 import { WeekTimelineView } from '../tasks/WeekTimelineView';
@@ -32,6 +33,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'incomplete' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all'); // Kept for potential future use
   const [isResetting, setIsResetting] = useState(false);
+  const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
   const { toast } = useToast();
   const { profile } = useProfile();
 
@@ -129,19 +131,34 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
   const handleBacklogDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
+    setDragOverSlot(null); // Clear visual feedback
+    console.log('🗂️ Backlog drop detected');
+    
     const taskId = e.dataTransfer.getData('text/plain');
+    const calendarTaskId = e.dataTransfer.getData('application/x-calendar-task');
     
-    if (!taskId || !onTaskUpdate) return;
+    const finalTaskId = taskId || calendarTaskId;
+    console.log('🗂️ Task ID from drag data:', finalTaskId);
     
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
+    if (!finalTaskId || !onTaskUpdate) {
+      console.log('🗂️ No task ID or onTaskUpdate missing');
+      return;
+    }
+    
+    const task = tasks.find(t => t.id === finalTaskId);
+    if (!task) {
+      console.log('🗂️ Task not found:', finalTaskId);
+      return;
+    }
+
+    console.log('🗂️ Moving task to backlog:', task.taskName);
 
     try {
       // Move task back to backlog by setting due_date to midnight
       const resetDate = new Date(task.dueDate || new Date());
       resetDate.setHours(0, 0, 0, 0);
       
-      await onTaskUpdate(taskId, {
+      await onTaskUpdate(finalTaskId, {
         dueDate: resetDate.toISOString()
       });
       
@@ -163,6 +180,14 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const handleBacklogDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    setDragOverSlot('backlog'); // Add visual feedback
+  }, []);
+
+  const handleBacklogDragLeave = useCallback((e: React.DragEvent) => {
+    // Only clear if leaving the backlog area entirely
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverSlot(null);
+    }
   }, []);
 
   const getTypeColor = (type: string) => {
@@ -258,9 +283,13 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
       <div className="absolute left-0 top-0 w-80 h-full z-10">
         <Card 
-          className="h-full flex flex-col border-r shadow-lg bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-xl border-border/30"
+          className={cn(
+            "h-full flex flex-col border-r shadow-lg bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-xl border-border/30 transition-all duration-300",
+            dragOverSlot === 'backlog' && "ring-2 ring-primary/50 bg-primary/5"
+          )}
           onDrop={handleBacklogDrop}
           onDragOver={handleBacklogDragOver}
+          onDragLeave={handleBacklogDragLeave}
         >
           <CardHeader className="pb-4 flex-shrink-0 bg-gradient-to-r from-muted/30 to-muted/10 border-b border-border/20">
             <CardTitle className="text-lg font-semibold text-foreground">Task Backlog</CardTitle>
