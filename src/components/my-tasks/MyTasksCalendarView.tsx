@@ -29,7 +29,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'incomplete' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'incomplete' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all'); // Kept for potential future use
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
@@ -54,17 +54,22 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     setCurrentDate(new Date());
   };
 
-  // Filter tasks for backlog (unscheduled tasks or tasks at midnight)
+  // Filter tasks for backlog (unscheduled tasks or tasks at midnight) - REDESIGNED
   const getBacklogTasks = () => {
     return tasks.filter(task => {
+      // CORE RULE: Show all tasks that are NOT completed and are unscheduled
+      const isNotCompleted = task.status !== 'Completed';
+      
       // Check if task is unscheduled (in backlog)
       const isInBacklog = !task.dueDate || (() => {
         const taskDate = new Date(task.dueDate);
         return taskDate.getHours() === 0 && taskDate.getMinutes() === 0;
       })();
 
-      if (!isInBacklog) return false;
+      // Must be both not completed AND in backlog
+      if (!isNotCompleted || !isInBacklog) return false;
 
+      // Apply search filter
       const matchesSearch = task.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            task.projectName?.toLowerCase().includes(searchTerm.toLowerCase());
       
@@ -76,16 +81,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       if (selectedFilter === 'bugs') matchesTypeFilter = task.taskType === 'Bug';
       if (selectedFilter === 'features') matchesTypeFilter = task.taskType === 'Feature';
       
-      // Apply status filter
-      let matchesStatusFilter = false;
-      if (selectedStatusFilter === 'all') matchesStatusFilter = true;
-      if (selectedStatusFilter === 'incomplete') matchesStatusFilter = task.status !== 'Completed';
-      if (selectedStatusFilter === 'completed') matchesStatusFilter = task.status === 'Completed';
-      if (selectedStatusFilter === 'in-progress') matchesStatusFilter = task.status === 'In Progress';
-      if (selectedStatusFilter === 'pending') matchesStatusFilter = task.status === 'Pending';
-      if (selectedStatusFilter === 'not-started') matchesStatusFilter = task.status === 'Not Started';
-      
-      return matchesSearch && matchesTypeFilter && matchesStatusFilter;
+      return matchesSearch && matchesTypeFilter;
     });
   };
 
@@ -274,14 +270,14 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               />
             </div>
 
-            {/* Filters - ALWAYS VISIBLE */}
+            {/* REDESIGNED Filters - Simplified and Clear */}
             <div className="flex-shrink-0 mb-4 bg-card/50 rounded-lg border p-3">
               {/* Type Filter */}
               <div className="mb-4">
-                <label className="text-xs font-semibold text-foreground block mb-2">Type Filter</label>
+                <label className="text-xs font-semibold text-foreground block mb-2">Task Type</label>
                 <div className="grid grid-cols-2 gap-1.5">
                   {[
-                    { key: 'all', label: 'All' },
+                    { key: 'all', label: 'All Types' },
                     { key: 'tasks', label: 'Tasks' },
                     { key: 'issues', label: 'Issues' },
                     { key: 'bugs', label: 'Bugs' },
@@ -303,31 +299,16 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                 </div>
               </div>
 
-              {/* Status Filter - CRITICAL SECTION */}
-              <div>
-                <label className="text-xs font-semibold text-foreground block mb-2">Status Filter</label>
-                <div className="space-y-1">
-                  {[
-                    { key: 'all', label: 'All Status' },
-                    { key: 'incomplete', label: 'Incomplete' },
-                    { key: 'completed', label: 'Completed' },
-                    { key: 'in-progress', label: 'In Progress' },
-                    { key: 'pending', label: 'Pending' },
-                    { key: 'not-started', label: 'Not Started' }
-                  ].map((filter) => (
-                    <Button
-                      key={filter.key}
-                      variant={selectedStatusFilter === filter.key ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        console.log('Status filter clicked:', filter.key);
-                        setSelectedStatusFilter(filter.key as any);
-                      }}
-                      className="text-xs px-3 py-1 h-8 justify-start w-full hover:bg-primary/10"
-                    >
-                      {filter.label}
-                    </Button>
-                  ))}
+              {/* Backlog Info */}
+              <div className="bg-muted/30 rounded-md p-3 border-l-4 border-primary">
+                <h4 className="text-xs font-semibold text-foreground mb-1">Backlog Rules</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Shows all <span className="font-medium text-foreground">incomplete tasks</span> (any status except "Completed") that are unscheduled or at midnight.
+                </p>
+                <div className="mt-2 text-xs">
+                  <span className="inline-block bg-primary/10 text-primary px-2 py-0.5 rounded-sm font-medium">
+                    {backlogTasks.length} incomplete tasks
+                  </span>
                 </div>
               </div>
             </div>
