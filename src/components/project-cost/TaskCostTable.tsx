@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Save, X } from 'lucide-react';
+import { Save, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { CentralTask, TaskUpdate } from '@/services/centralTaskService';
 interface TaskCostTableProps {
   tasks: CentralTask[];
@@ -16,6 +16,27 @@ export const TaskCostTable = ({
 }: TaskCostTableProps) => {
   const [editingCell, setEditingCell] = useState<{ taskId: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+
+  // Group tasks by stage
+  const groupedTasks = tasks.reduce((acc, task) => {
+    const stage = task.stage || 'No Stage';
+    if (!acc[stage]) {
+      acc[stage] = [];
+    }
+    acc[stage].push(task);
+    return acc;
+  }, {} as Record<string, CentralTask[]>);
+
+  const toggleStage = (stage: string) => {
+    const newExpanded = new Set(expandedStages);
+    if (newExpanded.has(stage)) {
+      newExpanded.delete(stage);
+    } else {
+      newExpanded.add(stage);
+    }
+    setExpandedStages(newExpanded);
+  };
 
   const handleCellClick = (taskId: string, field: string, currentValue: any) => {
     setEditingCell({ taskId, field });
@@ -138,97 +159,141 @@ export const TaskCostTable = ({
                 </td>
               </tr>
             ) : (
-              tasks.map((task, index) => {
-                const budgeted = task.budgeted_cost || 0;
-                const actual = task.actual_cost || 0;
-                const isEditingBudgeted = editingCell?.taskId === task.id && editingCell?.field === 'budgeted_cost';
-                const isEditingActual = editingCell?.taskId === task.id && editingCell?.field === 'actual_cost';
-                
+              Object.entries(groupedTasks).map(([stage, stageTasks]) => {
+                const isExpanded = expandedStages.has(stage);
+                const stageTotal = stageTasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0);
+                const stageActualTotal = stageTasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0);
+
                 return (
-                  <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
-                    {/* No. */}
-                    <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
-                      {index + 1}
-                    </td>
-
-                    {/* Stage */}
-                    <td className="px-2 py-1 border-r border-gray-100">
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">
-                        {task.stage}
-                      </span>
-                    </td>
-
-                    {/* Activities (Task Name) */}
-                    <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 max-w-xs">
-                      <div className="truncate" title={task.name}>
-                        {task.name}
-                      </div>
-                    </td>
-
-                    {/* Cost Estimate */}
-                    <td 
-                      className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50"
-                      onClick={() => handleCellClick(task.id, 'budgeted_cost', budgeted)}
+                  <React.Fragment key={stage}>
+                    {/* Stage Parent Row */}
+                    <tr 
+                      className="bg-gray-100 border-b border-gray-200 hover:bg-gray-150 cursor-pointer transition-colors"
+                      onClick={() => toggleStage(stage)}
                     >
-                      {isEditingBudgeted ? (
-                        <div className="flex items-center space-x-1">
-                          <Input 
-                            type="number" 
-                            value={editValue} 
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            onBlur={handleCellSave}
-                            className="w-full text-xs border-blue-300 rounded h-6 px-1"
-                            autoFocus
-                          />
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        <div className="flex items-center">
+                          {isExpanded ? (
+                            <ChevronDown className="w-3 h-3 mr-1" />
+                          ) : (
+                            <ChevronRight className="w-3 h-3 mr-1" />
+                          )}
+                          {stageTasks.length}
                         </div>
-                      ) : (
-                        <span className="text-xs">{formatCurrency(budgeted)}</span>
-                      )}
-                    </td>
+                      </td>
+                      <td colSpan={2} className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        {stage}
+                      </td>
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        {formatCurrency(stageTotal)}
+                      </td>
+                      <td className="px-2 py-2 border-r border-gray-200"></td>
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        {formatCurrency(stageTotal)}
+                      </td>
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        {formatCurrency(stageActualTotal)}
+                      </td>
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        $0.00
+                      </td>
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900">
+                        {formatCurrency(stageTotal)}
+                      </td>
+                    </tr>
 
-                    {/* Notes */}
-                    <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
-                      {task.description || '-'}
-                    </td>
+                    {/* Child Task Rows */}
+                    {isExpanded && stageTasks.map((task, taskIndex) => {
+                      const budgeted = task.budgeted_cost || 0;
+                      const actual = task.actual_cost || 0;
+                      const isEditingBudgeted = editingCell?.taskId === task.id && editingCell?.field === 'budgeted_cost';
+                      const isEditingActual = editingCell?.taskId === task.id && editingCell?.field === 'actual_cost';
+                      
+                      return (
+                        <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
+                          {/* No. */}
+                          <td className="px-4 py-1 text-xs text-gray-600 border-r border-gray-100">
+                            {taskIndex + 1}
+                          </td>
 
-                    {/* Project Budget */}
-                    <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
-                      <span className="text-xs">{formatCurrency(budgeted)}</span>
-                    </td>
+                          {/* Stage - Empty for child rows */}
+                          <td className="px-2 py-1 border-r border-gray-100">
+                          </td>
 
-                    {/* Cost Committed */}
-                    <td 
-                      className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50"
-                      onClick={() => handleCellClick(task.id, 'actual_cost', actual)}
-                    >
-                      {isEditingActual ? (
-                        <div className="flex items-center space-x-1">
-                          <Input 
-                            type="number" 
-                            value={editValue} 
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            onBlur={handleCellSave}
-                            className="w-full text-xs border-blue-300 rounded h-6 px-1"
-                            autoFocus
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-xs">{formatCurrency(actual)}</span>
-                      )}
-                    </td>
+                          {/* Activities (Task Name) */}
+                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 max-w-xs">
+                            <div className="truncate" title={task.name}>
+                              {task.name}
+                            </div>
+                          </td>
 
-                    {/* Paid to Date */}
-                    <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
-                      <span className="text-xs">$0.00</span>
-                    </td>
+                          {/* Cost Estimate */}
+                          <td 
+                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50"
+                            onClick={() => handleCellClick(task.id, 'budgeted_cost', budgeted)}
+                          >
+                            {isEditingBudgeted ? (
+                              <div className="flex items-center space-x-1">
+                                <Input 
+                                  type="number" 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  onBlur={handleCellSave}
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1"
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs">{formatCurrency(budgeted)}</span>
+                            )}
+                          </td>
 
-                    {/* Cost */}
-                    <td className="px-2 py-1 text-xs text-gray-900">
-                      <span className="text-xs">{formatCurrency(budgeted)}</span>
-                    </td>
-                  </tr>
+                          {/* Notes */}
+                          <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
+                            {task.description || '-'}
+                          </td>
+
+                          {/* Project Budget */}
+                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
+                            <span className="text-xs">{formatCurrency(budgeted)}</span>
+                          </td>
+
+                          {/* Cost Committed */}
+                          <td 
+                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50"
+                            onClick={() => handleCellClick(task.id, 'actual_cost', actual)}
+                          >
+                            {isEditingActual ? (
+                              <div className="flex items-center space-x-1">
+                                <Input 
+                                  type="number" 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  onBlur={handleCellSave}
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1"
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs">{formatCurrency(actual)}</span>
+                            )}
+                          </td>
+
+                          {/* Paid to Date */}
+                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
+                            <span className="text-xs">$0.00</span>
+                          </td>
+
+                          {/* Cost */}
+                          <td className="px-2 py-1 text-xs text-gray-900">
+                            <span className="text-xs">{formatCurrency(budgeted)}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
                 );
               })
             )}
