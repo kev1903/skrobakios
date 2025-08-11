@@ -447,69 +447,10 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    if (!dragState.isDragging || !dragState.taskId || !dragState.startTime || !onTaskUpdate) {
-      console.log('Early return from handleResizeEnd - missing data');
-      setDragState({
-        isDragging: false,
-        taskId: null,
-        handle: null,
-        startY: 0,
-        startTime: null,
-        previewHeight: null,
-        previewTop: null,
-        newDuration: null
-      });
-      return;
-    }
+    // CRITICAL: Store current state and immediately reset to prevent continuous following
+    const currentDragState = { ...dragState };
     
-    const task = tasks.find(t => t.id === dragState.taskId);
-    if (!task) {
-      setDragState({
-        isDragging: false,
-        taskId: null,
-        handle: null,
-        startY: 0,
-        startTime: null,
-        previewHeight: null,
-        previewTop: null,
-        newDuration: null
-      });
-      return;
-    }
-    
-    try {
-      const deltaY = e.clientY - dragState.startY;
-      console.log('Final deltaY for update:', deltaY);
-      const slotsChanged = Math.round(deltaY / 24);
-      const currentDuration = task.duration || 30;
-      console.log('Slots changed:', slotsChanged, 'Current duration:', currentDuration);
-      
-      if (dragState.handle === 'top') {
-        // When dragging top edge, change start time and duration
-        const newDuration = Math.max(30, currentDuration + (-slotsChanged * 30));
-        const timeChange = (currentDuration - newDuration) / 2; // Split the change
-        const newStartTime = addMinutes(new Date(task.dueDate), timeChange);
-        
-        console.log('Updating task with new duration (top):', newDuration);
-        await onTaskUpdate(dragState.taskId, {
-          dueDate: newStartTime.toISOString(),
-          duration: newDuration
-        });
-      } else {
-        // When dragging bottom edge, only change duration
-        const newDuration = Math.max(30, currentDuration + (slotsChanged * 30));
-        
-        console.log('Updating task with new duration (bottom):', newDuration);
-        await onTaskUpdate(dragState.taskId, {
-          duration: newDuration
-        });
-      }
-      console.log('Task update completed successfully');
-    } catch (error) {
-      console.error('Error updating task during resize:', error);
-    }
-    
-    // Always reset drag state
+    // Reset drag state IMMEDIATELY to stop the drag operation
     setDragState({
       isDragging: false,
       taskId: null,
@@ -520,6 +461,49 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       previewTop: null,
       newDuration: null
     });
+    
+    if (!currentDragState.isDragging || !currentDragState.taskId || !currentDragState.startTime || !onTaskUpdate) {
+      console.log('Early return from handleResizeEnd - missing data');
+      return;
+    }
+    
+    const task = tasks.find(t => t.id === currentDragState.taskId);
+    if (!task) {
+      console.log('Task not found for ID:', currentDragState.taskId);
+      return;
+    }
+    
+    try {
+      const deltaY = e.clientY - currentDragState.startY;
+      console.log('Final deltaY for update:', deltaY);
+      const slotsChanged = Math.round(deltaY / 24);
+      const currentDuration = task.duration || 30;
+      console.log('Slots changed:', slotsChanged, 'Current duration:', currentDuration);
+      
+      if (currentDragState.handle === 'top') {
+        // When dragging top edge, change start time and duration
+        const newDuration = Math.max(30, currentDuration + (-slotsChanged * 30));
+        const timeChange = (currentDuration - newDuration) / 2; // Split the change
+        const newStartTime = addMinutes(new Date(task.dueDate), timeChange);
+        
+        console.log('Updating task with new duration (top):', newDuration);
+        await onTaskUpdate(currentDragState.taskId, {
+          dueDate: newStartTime.toISOString(),
+          duration: newDuration
+        });
+      } else {
+        // When dragging bottom edge, only change duration
+        const newDuration = Math.max(30, currentDuration + (slotsChanged * 30));
+        
+        console.log('Updating task with new duration (bottom):', newDuration);
+        await onTaskUpdate(currentDragState.taskId, {
+          duration: newDuration
+        });
+      }
+      console.log('Task update completed successfully');
+    } catch (error) {
+      console.error('Error updating task during resize:', error);
+    }
   }, [dragState, tasks, onTaskUpdate]);
 
   React.useEffect(() => {
@@ -529,25 +513,29 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       console.log('Adding event listeners for resize');
       
       const handleMove = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Document mousemove triggered');
         handleResizeMove(e);
       };
       
       const handleEnd = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Document mouseup triggered');
         handleResizeEnd(e);
       };
       
-      // Add event listeners with proper options
-      document.addEventListener('mousemove', handleMove, { passive: false, capture: true });
-      document.addEventListener('mouseup', handleEnd, { passive: false, capture: true });
-      document.addEventListener('mouseleave', handleEnd, { passive: false, capture: true });
+      // Add event listeners - using 'once' for mouseup to ensure it only fires once
+      document.addEventListener('mousemove', handleMove, { passive: false });
+      document.addEventListener('mouseup', handleEnd, { passive: false, once: true });
+      document.addEventListener('mouseleave', handleEnd, { passive: false, once: true });
       
       return () => {
         console.log('Cleaning up event listeners');
-        document.removeEventListener('mousemove', handleMove, true);
-        document.removeEventListener('mouseup', handleEnd, true);
-        document.removeEventListener('mouseleave', handleEnd, true);
+        document.removeEventListener('mousemove', handleMove);
+        document.removeEventListener('mouseup', handleEnd);
+        document.removeEventListener('mouseleave', handleEnd);
       };
     }
   }, [dragState.isDragging, handleResizeMove, handleResizeEnd]);
