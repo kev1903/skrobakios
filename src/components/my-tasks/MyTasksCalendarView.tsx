@@ -334,7 +334,9 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                 {backlogTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="draggable-task-element p-2 rounded-lg border bg-card transition-all hover:bg-muted/50 cursor-pointer"
+                    className="draggable-task-element p-2 rounded-lg border bg-card transition-all hover:bg-muted/50 cursor-grab active:cursor-grabbing"
+                    draggable
+                    onDragStart={(e) => handleCalendarTaskDragStart(e, task.id)}
                     onClick={() => onTaskClick(task)}
                   >
                     <div className="flex items-start gap-2">
