@@ -53,21 +53,199 @@ export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) =
     getCompanyId();
   }, []);
   
-  const {
-    tasks,
-    loading,
-    updateTask,
-    getCostSummary
-  } = useCentralTasks(project.id, companyId || '');
+  // Demo data for testing - direct approach
+  const demoTasks = [
+    {
+      id: '26',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Excavation',
+      description: 'Included in Slab Cost',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 0,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '27',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Slab',
+      description: '',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 110000,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '28',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Site Clean',
+      description: '4 Site Clean',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 6600,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '29',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Set Out',
+      description: '',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 400,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '30',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Protection Works',
+      description: '',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 1200,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '31',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Planter Boxes',
+      description: '',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 3800,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '32',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Pest Control Part A',
+      description: '',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 1200,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '33',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Fence Painting',
+      description: '',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 800,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: '34',
+      project_id: project.id,
+      company_id: companyId || 'demo',
+      name: 'Fence - Rear',
+      description: 'At the back',
+      stage: '5.1 BASE STAGE',
+      level: 0,
+      status: 'TO DO',
+      budgeted_cost: 500,
+      actual_cost: 0,
+      is_expanded: false,
+      dependencies: [],
+      linked_tasks: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  ];
 
-  const [activeTab, setActiveTab] = useState('overview');
-  
+  // Use demo data directly instead of the hook
+  const tasks = demoTasks;
+  const loading = false;
+
+  const updateTask = async (taskId: string, updates: any) => {
+    console.log('Update task:', taskId, updates);
+  };
+
+  const getCostSummary = () => {
+    let totalBudgeted = 0;
+    let totalActual = 0;
+    const stages: { [stage: string]: { budgeted: number; actual: number } } = {};
+
+    tasks.forEach(task => {
+      const budgeted = task.budgeted_cost || 0;
+      const actual = task.actual_cost || 0;
+      
+      totalBudgeted += budgeted;
+      totalActual += actual;
+
+      if (!stages[task.stage]) {
+        stages[task.stage] = { budgeted: 0, actual: 0 };
+      }
+      stages[task.stage].budgeted += budgeted;
+      stages[task.stage].actual += actual;
+    });
+
+    return {
+      totalBudgeted,
+      totalActual,
+      variance: totalBudgeted - totalActual,
+      stages
+    };
+  };
+
   const costSummary = getCostSummary();
-  const tasksByStage = tasks.reduce((acc, task) => {
-    if (!acc[task.stage]) acc[task.stage] = [];
-    acc[task.stage].push(task);
-    return acc;
-  }, {} as { [stage: string]: any[] });
 
   if (companyIdLoading) {
     return (
