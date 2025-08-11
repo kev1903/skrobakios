@@ -184,7 +184,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   }
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -195,7 +195,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 bg-white/80 backdrop-blur-sm border-l border-gray-200/30">
+      <div className="flex-1 ml-48 bg-white/80 backdrop-blur-sm border-l border-gray-200/30">
         <div className="p-8">
           <ProjectHeader
             project={project}
