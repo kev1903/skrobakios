@@ -797,21 +797,29 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                    {!dragState.isDragging && (
                      <>
                        <div 
-                         className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-n-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" 
+                         className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-12 h-3 cursor-n-resize bg-transparent hover:bg-primary/30 rounded-sm transition-all duration-200 z-30 flex items-center justify-center" 
                          onMouseDown={e => {
+                           console.log('Top resize handle clicked');
                            e.preventDefault();
                            e.stopPropagation();
                            handleResizeStart(e, task.id, 'top');
-                         }} 
-                       />
+                         }}
+                         style={{ pointerEvents: 'auto' }}
+                       >
+                         <ChevronUp className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                       </div>
                        <div 
-                         className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-2 cursor-s-resize opacity-0 group-hover:opacity-100 bg-white/60 rounded-sm transition-opacity duration-200" 
+                         className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-12 h-3 cursor-s-resize bg-transparent hover:bg-primary/30 rounded-sm transition-all duration-200 z-30 flex items-center justify-center" 
                          onMouseDown={e => {
+                           console.log('Bottom resize handle clicked');
                            e.preventDefault();
                            e.stopPropagation();
                            handleResizeStart(e, task.id, 'bottom');
-                         }} 
-                       />
+                         }}
+                         style={{ pointerEvents: 'auto' }}
+                       >
+                         <ChevronDown className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                       </div>
                      </>
                    )}
                  </div>
