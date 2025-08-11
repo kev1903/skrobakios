@@ -52,7 +52,7 @@ export function TeamTaskAssignment({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "justify-between bg-white/10 border-white/20 text-white hover:bg-white/20",
+            "justify-between bg-background/50 border-border text-foreground hover:bg-background/70",
             className
           )}
         >
