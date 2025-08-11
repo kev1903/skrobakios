@@ -197,18 +197,6 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       {/* Main Content */}
       <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         <div className="p-8">
-          {/* Back Button */}
-          <div className="mb-6">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => onNavigate("home")}
-              className="flex items-center space-x-2 text-white/80 hover:text-white"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Home</span>
-            </Button>
-          </div>
           <ProjectHeader
             project={project}
             bannerImage={bannerImage}
