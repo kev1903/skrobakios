@@ -148,11 +148,11 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   // Show loading state
   if (localLoading && !project) {
     return (
-      <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
         <div className="flex items-center justify-center w-full">
           <div className="text-center">
-            <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-            <div className="text-white/80">Loading project details...</div>
+            <div className="w-12 h-12 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="text-slate-600">Loading project details...</div>
           </div>
         </div>
       </div>
@@ -162,13 +162,13 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   // Show error message if no project found and not loading
   if (!project && !localLoading) {
     return (
-      <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
         <div className="flex items-center justify-center w-full">
           <div className="text-center">
-            <div className="text-white text-lg mb-4">Project not found</div>
+            <div className="text-slate-700 text-lg mb-4">Project not found</div>
             <button 
               onClick={() => onNavigate("projects")}
-              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-4 py-2 rounded-lg transition-all duration-300"
+              className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 px-4 py-2 rounded-lg transition-all duration-300 shadow-md"
             >
               Back to Projects
             </button>
@@ -184,7 +184,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   }
 
   return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -195,7 +195,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+      <div className="flex-1 overflow-auto ml-48 bg-white/80 backdrop-blur-sm border-l border-gray-200/30">
         <div className="p-8">
           <ProjectHeader
             project={project}
