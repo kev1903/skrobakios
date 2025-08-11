@@ -12,17 +12,22 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
 
   if (!isOpen) return null;
 
+  const handleNavigateWithClose = (page: string) => {
+    closeSidebar(); // Close sidebar first
+    onNavigate(page); // Then navigate
+  };
+
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - simplified, no glass effect to avoid click interference */}
       <div 
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/20 z-40"
         onClick={closeSidebar}
       />
       
       {/* Sidebar */}
       <div className="fixed left-0 top-0 bottom-0 z-50 w-80">
-        <AppSidebar currentPage={currentPage} onNavigate={onNavigate}>
+        <AppSidebar currentPage={currentPage} onNavigate={handleNavigateWithClose}>
           <></>
         </AppSidebar>
       </div>
