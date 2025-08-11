@@ -263,34 +263,7 @@ export const ContentRenderer = ({
     case "project-cost":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
-          <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
-            <ProjectSidebar project={currentProject} onNavigate={onNavigate} getStatusColor={(status: string) => {
-            switch (status) {
-              case "completed":
-                return "bg-green-500/20 text-green-300 border-green-500/30";
-              case "running":
-                return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-              case "pending":
-                return "bg-red-500/20 text-red-300 border-red-500/30";
-              default:
-                return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-            }
-          }} getStatusText={(status: string) => {
-            switch (status) {
-              case "completed":
-                return "Completed";
-              case "running":
-                return "In Progress";
-              case "pending":
-                return "Pending";
-              default:
-                return "Active";
-            }
-          }} activeSection="cost" />
-            <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in">
-              <ProjectCostPage project={currentProject} />
-            </div>
-          </div>
+          <ProjectCostPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "bim":

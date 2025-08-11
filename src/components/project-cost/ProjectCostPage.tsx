@@ -8,6 +8,8 @@ import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { Project } from '@/hooks/useProjects';
 import { useUser } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
+import { ProjectSidebar } from '../ProjectSidebar';
+import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { CostSummaryCard } from './CostSummaryCard';
 import { CostByStageChart } from './CostByStageChart';
 import { TaskCostTable } from './TaskCostTable';
@@ -15,9 +17,10 @@ import { CostAnalytics } from './CostAnalytics';
 
 interface ProjectCostPageProps {
   project: Project;
+  onNavigate: (page: string) => void;
 }
 
-export const ProjectCostPage = ({ project }: ProjectCostPageProps) => {
+export const ProjectCostPage = ({ project, onNavigate }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
   // Get company ID from user's company membership
   const [companyId, setCompanyId] = useState('');
@@ -84,55 +87,64 @@ export const ProjectCostPage = ({ project }: ProjectCostPageProps) => {
   const VarianceIcon = varianceStatus.icon;
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header - Clean and Simple */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">{project.name}</h1>
-              <p className="text-sm text-gray-500">Cost breakdown and tracking</p>
+    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        project={project}
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="cost"
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+        <div className="p-8">
+          {/* Cost Management Header */}
+          <div className="mb-8 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">Cost Management</h1>
+                <p className="text-muted-foreground">
+                  Track project costs, budgets, and expenses for {project.name}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Project ID</div>
+                <div className="text-lg font-mono text-foreground">#{project.project_id}</div>
+              </div>
             </div>
           </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <span>{tasks.length} items</span>
+
+          {/* Summary Cards - Compact */}
+          <div className="mb-6 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+            <div className="grid grid-cols-4 gap-4">
+              <div className="bg-white/10 rounded-lg border border-white/20 p-4">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Project Budget</div>
+                <div className="text-xl font-semibold text-foreground">${costSummary.totalBudgeted.toLocaleString()}</div>
+              </div>
+              <div className="bg-white/10 rounded-lg border border-white/20 p-4">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Cost Committed</div>
+                <div className="text-xl font-semibold text-foreground">${costSummary.totalActual.toLocaleString()}</div>
+              </div>
+              <div className="bg-white/10 rounded-lg border border-white/20 p-4">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Paid to Date</div>
+                <div className="text-xl font-semibold text-foreground">$0.00</div>
+              </div>
+              <div className="bg-white/10 rounded-lg border border-white/20 p-4">
+                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Variance</div>
+                <div className={`text-xl font-semibold ${costSummary.variance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  ${Math.abs(costSummary.variance).toLocaleString()}
+                </div>
+              </div>
             </div>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-              + Add or Import
-            </Button>
+          </div>
+
+          {/* Main Cost Table Content */}
+          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl">
+            <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
           </div>
         </div>
-      </div>
-
-      {/* Summary Cards - Compact */}
-      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Project Budget</div>
-            <div className="text-xl font-semibold text-gray-900">${costSummary.totalBudgeted.toLocaleString()}</div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Cost Committed</div>
-            <div className="text-xl font-semibold text-gray-900">${costSummary.totalActual.toLocaleString()}</div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Paid to Date</div>
-            <div className="text-xl font-semibold text-gray-900">$0.00</div>
-          </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">Variance</div>
-            <div className={`text-xl font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${Math.abs(costSummary.variance).toLocaleString()}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Table Content */}
-      <div className="flex-1">
-        <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
       </div>
     </div>
   );

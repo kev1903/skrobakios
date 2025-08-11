@@ -51,22 +51,22 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
   };
 
   return (
-    <div className="bg-white">
+    <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl overflow-hidden">
       {/* Table Header */}
-      <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
+      <div className="bg-white/10 border-b border-white/20 px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button size="sm" variant="outline" className="text-sm">
+            <Button size="sm" variant="outline" className="text-sm bg-white/20 border-white/30 text-foreground hover:bg-white/30">
               Grid view
             </Button>
-            <Button size="sm" variant="ghost" className="text-sm text-gray-500">
+            <Button size="sm" variant="ghost" className="text-sm text-muted-foreground hover:bg-white/20">
               Filter
             </Button>
-            <Button size="sm" variant="ghost" className="text-sm text-gray-500">
+            <Button size="sm" variant="ghost" className="text-sm text-muted-foreground hover:bg-white/20">
               Sort
             </Button>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             {tasks.length} costs
           </div>
         </div>
@@ -76,46 +76,46 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
       <div className="overflow-x-auto">
         <table className="w-full">
           {/* Table Headers */}
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-white/20 border-b border-white/20">
             <tr>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '60px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '60px'}}>
                 No.
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Stage
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '200px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '200px'}}>
                 Activities
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Cost Estimate
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '150px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '150px'}}>
                 Notes
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Project Budget
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Cost Committed
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3 border-r border-gray-200" style={{minWidth: '120px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Paid to Date
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-4 py-3" style={{minWidth: '100px'}}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3" style={{minWidth: '100px'}}>
                 Cost
               </th>
             </tr>
           </thead>
 
           {/* Table Body */}
-          <tbody className="bg-white">
+          <tbody className="bg-white/5">
             {tasks.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
+                <td colSpan={9} className="px-4 py-12 text-center text-muted-foreground">
                   <div className="flex flex-col items-center">
                     <p className="text-sm mb-2">No cost items found</p>
-                    <Button size="sm" variant="outline" className="text-xs">
+                    <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
                       + Add your first cost item
                     </Button>
                   </div>
