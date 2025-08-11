@@ -262,7 +262,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               Add to backlog
             </Button>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col overflow-hidden p-3">
+          <CardContent className="flex-1 flex flex-col p-3 min-h-0">
             {/* Search */}
             <div className="relative flex-shrink-0 mb-3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -274,12 +274,12 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               />
             </div>
 
-            {/* Filters - Fixed Layout to prevent overflow */}
-            <div className="flex-shrink-0 mb-3 space-y-3">
+            {/* Filters - ALWAYS VISIBLE */}
+            <div className="flex-shrink-0 mb-4 bg-card/50 rounded-lg border p-3">
               {/* Type Filter */}
-              <div>
-                <label className="text-xs font-medium text-muted-foreground block mb-2">Type</label>
-                <div className="grid grid-cols-2 gap-1">
+              <div className="mb-4">
+                <label className="text-xs font-semibold text-foreground block mb-2">Type Filter</label>
+                <div className="grid grid-cols-2 gap-1.5">
                   {[
                     { key: 'all', label: 'All' },
                     { key: 'tasks', label: 'Tasks' },
@@ -289,10 +289,13 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                   ].map((filter) => (
                     <Button
                       key={filter.key}
-                      variant={selectedFilter === filter.key ? 'default' : 'ghost'}
+                      variant={selectedFilter === filter.key ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setSelectedFilter(filter.key as any)}
-                      className="text-xs px-2 py-1 h-7 justify-start"
+                      onClick={() => {
+                        console.log('Type filter clicked:', filter.key);
+                        setSelectedFilter(filter.key as any);
+                      }}
+                      className="text-xs px-2 py-1 h-8 justify-start hover:bg-primary/10"
                     >
                       {filter.label}
                     </Button>
@@ -300,10 +303,10 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                 </div>
               </div>
 
-              {/* Status Filter */}
+              {/* Status Filter - CRITICAL SECTION */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground block mb-2">Status</label>
-                <div className="grid grid-cols-1 gap-1">
+                <label className="text-xs font-semibold text-foreground block mb-2">Status Filter</label>
+                <div className="space-y-1">
                   {[
                     { key: 'all', label: 'All Status' },
                     { key: 'incomplete', label: 'Incomplete' },
@@ -314,10 +317,13 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                   ].map((filter) => (
                     <Button
                       key={filter.key}
-                      variant={selectedStatusFilter === filter.key ? 'default' : 'ghost'}
+                      variant={selectedStatusFilter === filter.key ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setSelectedStatusFilter(filter.key as any)}
-                      className="text-xs px-3 py-1 h-7 justify-start w-full"
+                      onClick={() => {
+                        console.log('Status filter clicked:', filter.key);
+                        setSelectedStatusFilter(filter.key as any);
+                      }}
+                      className="text-xs px-3 py-1 h-8 justify-start w-full hover:bg-primary/10"
                     >
                       {filter.label}
                     </Button>
