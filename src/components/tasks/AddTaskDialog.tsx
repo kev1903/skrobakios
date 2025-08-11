@@ -161,7 +161,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
         taskType: taskType as 'Task' | 'Issue',
         priority: 'Medium' as const,
         assignedTo: assignedTo || { name: '', avatar: '', userId: '' },
-        dueDate: new Date().toISOString().split('T')[0],
+        dueDate: null, // New tasks go to backlog by default
         status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: 0,
         description: description.trim() || undefined

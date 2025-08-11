@@ -64,7 +64,7 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
       taskType: 'Task' as const,
       priority: 'Medium' as const,
       assignedTo: { name: 'Unassigned', avatar: '' },
-      dueDate: new Date().toISOString().split('T')[0],
+      dueDate: null, // New tasks go to backlog by default
       status: status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
       progress: 0,
       description: ''
