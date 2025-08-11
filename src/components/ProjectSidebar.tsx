@@ -74,11 +74,11 @@ export const ProjectSidebar = ({
   const hasProjectManagement = hasFeature('projects');
   const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS : [];
 
-  // Responsive classes based on screen size
+  // Responsive classes based on screen size - Updated for light theme
   const sidebarClasses = {
-    mobile: "w-full h-full glass-sidebar",
-    tablet: "w-full h-full glass-sidebar",
-    desktop: "fixed left-0 top-0 w-48 h-full glass-sidebar z-50"
+    mobile: "w-full h-full bg-white/90 backdrop-blur-sm border-r border-gray-200/30",
+    tablet: "w-full h-full bg-white/90 backdrop-blur-sm border-r border-gray-200/30", 
+    desktop: "fixed left-0 top-0 w-48 h-full bg-white/90 backdrop-blur-sm border-r border-gray-200/30 z-50"
   };
 
   const contentClasses = {
@@ -91,7 +91,7 @@ export const ProjectSidebar = ({
     <div className={`${sidebarClasses[screenSize]} transition-all duration-300`}>
       <div className={contentClasses[screenSize]}>
         {/* Project Info */}
-        <div className={`flex-shrink-0 ${screenSize === 'mobile' ? 'mb-6' : 'px-3 py-4'} ${screenSize !== 'mobile' ? 'border-b border-white/20' : ''}`}>
+        <div className={`flex-shrink-0 ${screenSize === 'mobile' ? 'mb-6' : 'px-3 py-4'} ${screenSize !== 'mobile' ? 'border-b border-gray-200/30' : ''}`}>
           <div className="text-slate-700 text-sm font-medium mb-2 truncate">{project.name}</div>
           <div className="text-slate-500 text-xs mb-2">#{project.project_id}</div>
           <Badge variant="outline" className={`${getStatusColor(project.status)} text-xs`}>
@@ -100,12 +100,12 @@ export const ProjectSidebar = ({
         </div>
 
         {/* Back Button */}
-        <div className={`flex-shrink-0 ${screenSize === 'mobile' ? 'mb-6' : 'px-3 py-2 border-b border-white/20'}`}>
+        <div className={`flex-shrink-0 ${screenSize === 'mobile' ? 'mb-6' : 'px-3 py-2 border-b border-gray-200/30'}`}>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onNavigate('projects')}
-            className={`${screenSize === 'mobile' ? 'w-full' : 'w-full'} flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-white/10 transition-all duration-200 text-left justify-start`}
+            className={`${screenSize === 'mobile' ? 'w-full' : 'w-full'} flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-all duration-200 text-left justify-start`}
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Projects</span>
@@ -136,8 +136,8 @@ export const ProjectSidebar = ({
               onClick={() => handleNavigate(item.page)} 
               className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg transition-all duration-200 text-left animate-fade-in ${
                 activeSection === item.id 
-                  ? 'bg-white/20 text-slate-700 border border-white/30' 
-                  : 'text-slate-600 hover:bg-white/10 hover:text-slate-700'
+                  ? 'bg-slate-100 text-slate-700 border border-slate-200' 
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-700'
               }`}
             >
               <item.icon className="w-4 h-4" />
@@ -147,20 +147,20 @@ export const ProjectSidebar = ({
         </div>
 
         {/* Project Settings */}
-        <div className={`${screenSize !== 'mobile' ? 'border-t border-white/20 px-3 py-4' : 'mt-6 pt-6 border-t border-white/20'} space-y-1`}>
+        <div className={`${screenSize !== 'mobile' ? 'border-t border-gray-200/30 px-3 py-4' : 'mt-6 pt-6 border-t border-gray-200/30'} space-y-1`}>
           <div className={`text-xs font-medium text-slate-500 uppercase tracking-wider ${screenSize === 'mobile' ? 'mb-3' : 'px-3 py-2'}`}>
             Project Settings
           </div>
           <button 
             onClick={() => handleNavigate('project-settings')} 
-            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-slate-600 hover:bg-white/10 hover:text-slate-700 transition-all duration-200 text-left`}
+            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-700 transition-all duration-200 text-left`}
           >
             <Settings className="w-4 h-4" />
             <span className={`${screenSize === 'mobile' ? 'text-base' : 'text-sm'} font-medium`}>Settings</span>
           </button>
           <button 
             onClick={() => handleNavigate('support')} 
-            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-slate-600 hover:bg-white/10 hover:text-slate-700 transition-all duration-200 text-left`}
+            className={`w-full flex items-center gap-3 ${screenSize === 'mobile' ? 'px-4 py-4' : 'px-3 py-3'} rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-700 transition-all duration-200 text-left`}
           >
             <HelpCircle className="w-4 h-4" />
             <span className={`${screenSize === 'mobile' ? 'text-base' : 'text-sm'} font-medium`}>Help</span>

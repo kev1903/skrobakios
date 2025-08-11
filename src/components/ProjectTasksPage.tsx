@@ -647,7 +647,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   };
 
   return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -658,7 +658,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10">
+      <div className="flex-1 overflow-auto ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30">
         <div className="p-8">
           <TaskPageHeader project={project} />
           
