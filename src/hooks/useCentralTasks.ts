@@ -167,7 +167,7 @@ export const useCentralTasks = (projectId: string, companyId: string) => {
 
   // Load tasks
   const loadTasks = useCallback(async () => {
-    if (!projectId || !companyId) return;
+    if (!projectId) return;
     
     try {
       setLoading(true);
