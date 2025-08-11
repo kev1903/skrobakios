@@ -462,29 +462,24 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       return;
     }
     
-    // Store current state but keep preview visible during update
+    // Store current state and IMMEDIATELY clear drag state to stop tracking
     const currentDragState = { ...dragState };
     
-    // Only stop the dragging behavior, but keep preview state for smooth transition
-    setDragState(prev => ({
-      ...prev,
-      isDragging: false
-    }));
+    // CRITICAL: Clear drag state immediately to stop event tracking
+    setDragState({
+      isDragging: false,
+      taskId: null,
+      handle: null,
+      startY: 0,
+      startTime: null,
+      previewHeight: null,
+      previewTop: null,
+      newDuration: null
+    });
     
     const task = tasks.find(t => t.id === currentDragState.taskId);
     if (!task) {
       console.log('Task not found for ID:', currentDragState.taskId);
-      // Clear all state if task not found
-      setDragState({
-        isDragging: false,
-        taskId: null,
-        handle: null,
-        startY: 0,
-        startTime: null,
-        previewHeight: null,
-        previewTop: null,
-        newDuration: null
-      });
       return;
     }
     
@@ -498,50 +493,24 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
       if (currentDragState.handle === 'top') {
         // When dragging top edge, change start time and duration
         const newDuration = Math.max(30, currentDuration + (-slotsChanged * 30));
-        const timeChange = (currentDuration - newDuration) / 2; // Split the change
-        const newStartTime = addMinutes(new Date(task.dueDate), timeChange);
-        
-        console.log('Updating task with new duration (top):', newDuration);
-        await onTaskUpdate(currentDragState.taskId, {
+        const newStartTime = addMinutes(new Date(task.dueDate), slotsChanged * 30);
+        console.log('Updating task with new start time (top):', newStartTime, 'and duration:', newDuration);
+        await onTaskUpdate(task.id, {
           dueDate: newStartTime.toISOString(),
           duration: newDuration
         });
       } else {
         // When dragging bottom edge, only change duration
         const newDuration = Math.max(30, currentDuration + (slotsChanged * 30));
-        
         console.log('Updating task with new duration (bottom):', newDuration);
-        await onTaskUpdate(currentDragState.taskId, {
+        await onTaskUpdate(task.id, {
           duration: newDuration
         });
       }
       console.log('Task update completed successfully');
       
-      // Clear all preview state after successful update
-      setDragState({
-        isDragging: false,
-        taskId: null,
-        handle: null,
-        startY: 0,
-        startTime: null,
-        previewHeight: null,
-        previewTop: null,
-        newDuration: null
-      });
-      
     } catch (error) {
       console.error('Error updating task during resize:', error);
-      // Clear state on error too
-      setDragState({
-        isDragging: false,
-        taskId: null,
-        handle: null,
-        startY: 0,
-        startTime: null,
-        previewHeight: null,
-        previewTop: null,
-        newDuration: null
-      });
     }
   }, [dragState, tasks, onTaskUpdate]);
 
@@ -793,22 +762,27 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
 
                  const isDraggedTask = draggedTaskId === task.id;
 
-                  // Render task with drag functionality
-                   return (
-                     <div 
-                       key={`taskname-${task.id}`}
-                       draggable={!dragState.isDragging}
-                       onDragStart={(e) => handleTaskDragStart(e, task.id)}
-                       onDragEnd={() => {
-                         setDraggedTaskId(null);
-                         // Reset any resize state that might be interfering
-                         setDragState(prev => ({
-                           ...prev,
-                           isDragging: false,
-                           taskId: null,
-                           handle: null
-                         }));
-                       }}
+                   // Render task with drag functionality and backlog drop support
+                    return (
+                      <div 
+                        key={`taskname-${task.id}`}
+                        draggable={!dragState.isDragging}
+                        onDragStart={(e) => {
+                          handleTaskDragStart(e, task.id);
+                          // Prepare data for potential backlog drop
+                          e.dataTransfer.setData('text/plain', task.id);
+                          e.dataTransfer.effectAllowed = 'move';
+                        }}
+                        onDragEnd={() => {
+                          setDraggedTaskId(null);
+                          // Reset any resize state that might be interfering
+                          setDragState(prev => ({
+                            ...prev,
+                            isDragging: false,
+                            taskId: null,
+                            handle: null
+                          }));
+                        }}
                        className={cn(
                          "absolute px-0 py-2 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg rounded-l-md flex items-center z-20 cursor-grab active:cursor-grabbing group hover:bg-white/95 transition-all duration-300 min-h-[32px]",
                          isDraggedTask && "opacity-50",

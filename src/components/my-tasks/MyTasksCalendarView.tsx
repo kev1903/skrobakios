@@ -274,12 +274,12 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               />
             </div>
 
-            {/* Filters - Compact Layout */}
-            <div className="flex-shrink-0 mb-3">
+            {/* Filters - Fixed Layout to prevent overflow */}
+            <div className="flex-shrink-0 mb-3 space-y-3">
               {/* Type Filter */}
-              <div className="mb-2">
-                <label className="text-xs font-medium text-muted-foreground block mb-1">Type</label>
-                <div className="flex gap-1 flex-wrap">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-2">Type</label>
+                <div className="grid grid-cols-2 gap-1">
                   {[
                     { key: 'all', label: 'All' },
                     { key: 'tasks', label: 'Tasks' },
@@ -292,7 +292,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                       variant={selectedFilter === filter.key ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setSelectedFilter(filter.key as any)}
-                      className="text-xs px-2 py-0.5 h-6"
+                      className="text-xs px-2 py-1 h-7 justify-start"
                     >
                       {filter.label}
                     </Button>
@@ -302,10 +302,10 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
               {/* Status Filter */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground block mb-1">Status</label>
-                <div className="flex gap-1 flex-wrap">
+                <label className="text-xs font-medium text-muted-foreground block mb-2">Status</label>
+                <div className="grid grid-cols-1 gap-1">
                   {[
-                    { key: 'all', label: 'All' },
+                    { key: 'all', label: 'All Status' },
                     { key: 'incomplete', label: 'Incomplete' },
                     { key: 'completed', label: 'Completed' },
                     { key: 'in-progress', label: 'In Progress' },
@@ -317,7 +317,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                       variant={selectedStatusFilter === filter.key ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setSelectedStatusFilter(filter.key as any)}
-                      className="text-xs px-2 py-0.5 h-6"
+                      className="text-xs px-3 py-1 h-7 justify-start w-full"
                     >
                       {filter.label}
                     </Button>
@@ -483,6 +483,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               onTaskUpdate={onTaskUpdate}
               enableDragDrop={true}
               useOwnDragContext={false}
+              onCalendarDrop={handleBacklogDrop}
+              onCalendarDragOver={handleBacklogDragOver}
             />
           )}
         </div>
