@@ -102,9 +102,8 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100/50 to-blue-200/30 relative">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 relative">
+      {/* Solid background instead of dot grid */}
       
       <div className="relative z-10 p-6 space-y-6">
         {/* Header */}
@@ -152,72 +151,61 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Total Projects</CardTitle>
-              <Building2 className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-slate-800">{projectStats.total}</div>
-              <p className="text-xs text-slate-500">
-                Active portfolio
-              </p>
+        {/* Minimized Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-slate-800">{projectStats.total}</div>
+                  <p className="text-xs text-slate-500">Total Projects</p>
+                </div>
+                <Building2 className="h-4 w-4 text-blue-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">In Progress</CardTitle>
-              <Clock className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{projectStats.active}</div>
-              <p className="text-xs text-slate-500">
-                Currently active
-              </p>
+          <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-orange-600">{projectStats.active}</div>
+                  <p className="text-xs text-slate-500">In Progress</p>
+                </div>
+                <Clock className="h-4 w-4 text-orange-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Completed</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{projectStats.completed}</div>
-              <p className="text-xs text-slate-500">
-                Successfully delivered
-              </p>
+          <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-green-600">{projectStats.completed}</div>
+                  <p className="text-xs text-slate-500">Completed</p>
+                </div>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/60 backdrop-blur-sm border-white/20 shadow-xl shadow-blue-900/5">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">Pending</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{projectStats.pending}</div>
-              <p className="text-xs text-slate-500">
-                Awaiting approval
-              </p>
+          <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-yellow-600">{projectStats.pending}</div>
+                  <p className="text-xs text-slate-500">Pending</p>
+                </div>
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Project List Header */}
-        <div className="bg-white/60 backdrop-blur-sm border border-white/20 rounded-xl shadow-xl shadow-blue-900/5 p-6">
-          <ProjectListHeader
-            projectsCount={projects.length}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onNavigate={onNavigate}
-          />
-
+        {/* Project List - No Header */}
+        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-sm p-6">
           {/* Projects Content */}
-          <div className="mt-6">
+          <div>
             {projects.length === 0 ? (
               <ProjectEmptyState onNavigate={onNavigate} />
             ) : viewMode === 'dashboard' ? (
