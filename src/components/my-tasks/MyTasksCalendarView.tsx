@@ -262,24 +262,24 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
               Add to backlog
             </Button>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col space-y-3 overflow-hidden p-4">{/* Reduced padding and space-y */}
+          <CardContent className="flex-1 flex flex-col overflow-hidden p-3">
             {/* Search */}
-            <div className="relative flex-shrink-0">
+            <div className="relative flex-shrink-0 mb-3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Type here to search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-8"
               />
             </div>
 
-            {/* Filter Tabs */}
-            <div className="space-y-1 flex-shrink-0">
+            {/* Filters - Compact Layout */}
+            <div className="flex-shrink-0 mb-3">
               {/* Type Filter */}
-              <div>
-                <label className="text-xs font-medium text-muted-foreground block">Type</label>
-                <div className="flex gap-1 flex-wrap mt-1">
+              <div className="mb-2">
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Type</label>
+                <div className="flex gap-1 flex-wrap">
                   {[
                     { key: 'all', label: 'All' },
                     { key: 'tasks', label: 'Tasks' },
@@ -292,7 +292,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                       variant={selectedFilter === filter.key ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setSelectedFilter(filter.key as any)}
-                      className="text-xs px-2 py-1 h-auto"
+                      className="text-xs px-2 py-0.5 h-6"
                     >
                       {filter.label}
                     </Button>
@@ -302,8 +302,8 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
               {/* Status Filter */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground block">Status</label>
-                <div className="flex gap-1 flex-wrap mt-1">
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Status</label>
+                <div className="flex gap-1 flex-wrap">
                   {[
                     { key: 'all', label: 'All' },
                     { key: 'incomplete', label: 'Incomplete' },
@@ -317,7 +317,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                       variant={selectedStatusFilter === filter.key ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setSelectedStatusFilter(filter.key as any)}
-                      className="text-xs px-2 py-1 h-auto"
+                      className="text-xs px-2 py-0.5 h-6"
                     >
                       {filter.label}
                     </Button>
@@ -328,30 +328,30 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
             {/* Task List - Scrollable */}
             <div className="flex-1 overflow-hidden">
-              <div className="space-y-3 overflow-y-auto h-full pr-2">
+              <div className="space-y-2 overflow-y-auto h-full pr-2">
                 {backlogTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="draggable-task-element p-3 rounded-lg border bg-card transition-all hover:bg-muted/50 cursor-pointer"
+                    className="draggable-task-element p-2 rounded-lg border bg-card transition-all hover:bg-muted/50 cursor-pointer"
                     onClick={() => onTaskClick(task)}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 pt-1">
-                        <div className="w-4 h-4 text-muted-foreground/60" />
+                        <div className="w-3 h-3 text-muted-foreground/60" />
                       </div>
-                      <div className="flex-1 space-y-2">
+                      <div className="flex-1 space-y-1">
                         <h4 className="font-medium text-sm">{task.taskName}</h4>
                         <p className="text-xs text-muted-foreground">
                           {task.projectName}
                         </p>
-                         <div className="flex gap-2 flex-wrap">
-                           <Badge variant="outline" className={getTypeColor(task.taskType)}>
+                         <div className="flex gap-1 flex-wrap">
+                           <Badge variant="outline" className={`text-xs ${getTypeColor(task.taskType)}`}>
                              {task.taskType}
                            </Badge>
-                           <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                           <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
                              {task.priority}
                            </Badge>
-                           <Badge variant="outline" className={getStatusColor(task.status)}>
+                           <Badge variant="outline" className={`text-xs ${getStatusColor(task.status)}`}>
                              {task.status}
                            </Badge>
                          </div>
