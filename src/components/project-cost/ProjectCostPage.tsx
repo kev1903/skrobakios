@@ -238,19 +238,6 @@ export const ProjectCostPage = ({
       {/* Main Content */}
       <div className="flex-1 ml-48 overflow-auto bg-background">
         <div className="p-6">
-          {/* Compact Header */}
-          <div className="mb-6 bg-card border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground mb-1">Cost Management</h1>
-                
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground">Project ID</div>
-                <div className="text-sm font-mono text-foreground">#{project.project_id}</div>
-              </div>
-            </div>
-          </div>
 
           {/* Summary Cards - Compact */}
           <div className="mb-3 bg-card border rounded-lg p-2">
