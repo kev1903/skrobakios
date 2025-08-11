@@ -239,22 +239,22 @@ export const ProjectCostPage = ({
       <div className="flex-1 ml-48 overflow-auto bg-background">
         <div className="p-6">
 
-          {/* Summary Cards - Compact */}
+          {/* Summary Cards - Compact with Totals */}
           <div className="mb-3 bg-card border rounded-lg p-2">
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-muted/30 rounded-lg border p-2">
+              <div className="bg-green-100 rounded-lg border p-2">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Project Budget</div>
                 <div className="text-lg font-semibold text-foreground">${costSummary.totalBudgeted.toLocaleString()}</div>
               </div>
-              <div className="bg-muted/30 rounded-lg border p-2">
+              <div className="bg-green-100 rounded-lg border p-2">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Cost Committed</div>
                 <div className="text-lg font-semibold text-foreground">${costSummary.totalActual.toLocaleString()}</div>
               </div>
-              <div className="bg-muted/30 rounded-lg border p-2">
+              <div className="bg-green-100 rounded-lg border p-2">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Paid to Date</div>
                 <div className="text-lg font-semibold text-foreground">$0.00</div>
               </div>
-              <div className="bg-muted/30 rounded-lg border p-2">
+              <div className="bg-green-100 rounded-lg border p-2">
                 <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Variance</div>
                 <div className={`text-lg font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   ${Math.abs(costSummary.variance).toLocaleString()}

@@ -78,36 +78,21 @@ export const TaskCostTable = ({ tasks, onUpdateTask }: TaskCostTableProps) => {
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Cost Estimate
-                <div className="text-xs font-bold text-foreground mt-1">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
-                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '150px'}}>
                 Notes
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Project Budget
-                <div className="text-xs font-bold text-foreground mt-1">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
-                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Cost Committed
-                <div className="text-xs font-bold text-foreground mt-1">
-                  ${tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0).toLocaleString()}
-                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{minWidth: '120px'}}>
                 Paid to Date
-                <div className="text-xs font-bold text-foreground mt-1">
-                  $0.00
-                </div>
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3" style={{minWidth: '100px'}}>
                 Cost
-                <div className="text-xs font-bold text-foreground mt-1">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
-                </div>
               </th>
             </tr>
           </thead>
