@@ -666,11 +666,19 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               </div>
           
               {/* Current Time Indicator */}
-              {isCurrentDay && <div className="absolute left-0 right-0 h-0.5 border-t-2 border-dotted border-blue-500 z-[1000] pointer-events-none" style={{
-              top: `${(currentTime.getHours() * 2 + Math.floor(currentTime.getMinutes() / 30)) * 24 + currentTime.getMinutes() % 30 / 30 * 24}px`
-            }}>
-                  <div className="absolute left-8 -top-2 w-4 h-4 bg-blue-500 rounded-full shadow-md"></div>
-                </div>}
+              {isCurrentDay && (
+                <div 
+                  className="absolute left-0 right-0 h-0.5 bg-red-500 z-[1000] pointer-events-none shadow-sm"
+                  style={{
+                    top: `${(currentTime.getHours() * 2 + Math.floor(currentTime.getMinutes() / 30)) * 24 + (currentTime.getMinutes() % 30 / 30) * 24}px`
+                  }}
+                >
+                  <div className="absolute left-2 -top-2 w-4 h-4 bg-red-500 rounded-full shadow-lg border-2 border-white"></div>
+                  <div className="absolute left-16 -top-1 text-xs font-medium text-red-500 bg-white px-2 py-0.5 rounded shadow-sm">
+                    {format(currentTime, 'HH:mm')}
+                  </div>
+                </div>
+              )}
 
               {/* Time Blocks Column */}
               <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm relative" style={{
