@@ -4145,6 +4145,33 @@ export type Database = {
           status: string
         }[]
       }
+      get_safe_public_profile_data: {
+        Args: { profile_user_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          first_name: string
+          last_name: string
+          avatar_url: string
+          company: string
+          professional_title: string
+          bio: string
+          slug: string
+          rating: number
+          review_count: number
+          years_experience: number
+          skills: string[]
+          services: string[]
+          verified: boolean
+          social_links: Json
+          meta_title: string
+          meta_description: string
+          website: string
+          email: string
+          phone: string
+          location: string
+        }[]
+      }
       get_user_companies: {
         Args: { target_user_id?: string }
         Returns: {
