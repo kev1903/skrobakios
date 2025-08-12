@@ -170,6 +170,133 @@ export type Database = {
         }
         Relationships: []
       }
+      bill_approvals: {
+        Row: {
+          approver: string
+          bill_id: string
+          comment: string | null
+          decided_at: string
+          decision: Database["public"]["Enums"]["approval_decision"]
+          id: string
+        }
+        Insert: {
+          approver: string
+          bill_id: string
+          comment?: string | null
+          decided_at?: string
+          decision: Database["public"]["Enums"]["approval_decision"]
+          id?: string
+        }
+        Update: {
+          approver?: string
+          bill_id?: string
+          comment?: string | null
+          decided_at?: string
+          decision?: Database["public"]["Enums"]["approval_decision"]
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_approvals_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_items: {
+        Row: {
+          amount: number
+          bill_id: string
+          created_at: string
+          description: string
+          id: string
+          qty: number
+          rate: number
+          wbs_code: string | null
+        }
+        Insert: {
+          amount?: number
+          bill_id: string
+          created_at?: string
+          description: string
+          id?: string
+          qty?: number
+          rate?: number
+          wbs_code?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          qty?: number
+          rate?: number
+          wbs_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_items_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_payments: {
+        Row: {
+          amount: number
+          bill_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          paid_on: string
+          receipt_file_id: string | null
+        }
+        Insert: {
+          amount: number
+          bill_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_on: string
+          receipt_file_id?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_on?: string
+          receipt_file_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_payments_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_payments_receipt_file_id_fkey"
+            columns: ["receipt_file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_history: {
         Row: {
           amount: number
@@ -210,6 +337,68 @@ export type Database = {
             columns: ["subscription_id"]
             isOneToOne: false
             referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bills: {
+        Row: {
+          bill_date: string
+          bill_no: string
+          created_at: string
+          created_by: string | null
+          due_date: string
+          id: string
+          paid_to_date: number
+          project_id: string
+          status: Database["public"]["Enums"]["bill_status"]
+          subtotal: number
+          supplier_email: string | null
+          supplier_name: string
+          tax: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          bill_date: string
+          bill_no: string
+          created_at?: string
+          created_by?: string | null
+          due_date: string
+          id?: string
+          paid_to_date?: number
+          project_id: string
+          status?: Database["public"]["Enums"]["bill_status"]
+          subtotal?: number
+          supplier_email?: string | null
+          supplier_name: string
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          bill_date?: string
+          bill_no?: string
+          created_at?: string
+          created_by?: string | null
+          due_date?: string
+          id?: string
+          paid_to_date?: number
+          project_id?: string
+          status?: Database["public"]["Enums"]["bill_status"]
+          subtotal?: number
+          supplier_email?: string | null
+          supplier_name?: string
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bills_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -864,6 +1053,47 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          payload: Json | null
+          project_id: string
+          ref_id: string | null
+          ref_table: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          payload?: Json | null
+          project_id: string
+          ref_id?: string | null
+          ref_table?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          payload?: Json | null
+          project_id?: string
+          ref_id?: string | null
+          ref_table?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       external_calendar_events: {
         Row: {
           attendees: Json | null
@@ -968,6 +1198,97 @@ export type Database = {
         }
         Relationships: []
       }
+      files: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          created_by: string | null
+          file_size: number | null
+          id: string
+          kind: Database["public"]["Enums"]["file_kind"]
+          meta: Json | null
+          path: string
+          project_id: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: Database["public"]["Enums"]["file_kind"]
+          meta?: Json | null
+          path: string
+          project_id: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_size?: number | null
+          id?: string
+          kind?: Database["public"]["Enums"]["file_kind"]
+          meta?: Json | null
+          path?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_snapshots: {
+        Row: {
+          as_of: string
+          bills_paid: number | null
+          bills_total: number | null
+          budget: number | null
+          committed: number | null
+          created_at: string
+          id: string
+          inv_paid: number | null
+          inv_total: number | null
+          project_id: string
+        }
+        Insert: {
+          as_of?: string
+          bills_paid?: number | null
+          bills_total?: number | null
+          budget?: number | null
+          committed?: number | null
+          created_at?: string
+          id?: string
+          inv_paid?: number | null
+          inv_total?: number | null
+          project_id: string
+        }
+        Update: {
+          as_of?: string
+          bills_paid?: number | null
+          bills_total?: number | null
+          budget?: number | null
+          committed?: number | null
+          created_at?: string
+          id?: string
+          inv_paid?: number | null
+          inv_total?: number | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_snapshots_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_allocations: {
         Row: {
           account_id: string | null
@@ -1006,6 +1327,163 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      invoice_items: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          qty: number
+          rate: number
+          wbs_code: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          qty?: number
+          rate?: number
+          wbs_code?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          qty?: number
+          rate?: number
+          wbs_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          invoice_id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          notes: string | null
+          paid_on: string
+          receipt_file_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_on: string
+          receipt_file_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          notes?: string | null
+          paid_on?: string
+          receipt_file_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_payments_receipt_file_id_fkey"
+            columns: ["receipt_file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          client_email: string | null
+          client_name: string
+          created_at: string
+          created_by: string | null
+          due_date: string
+          id: string
+          issue_date: string
+          notes: string | null
+          number: string
+          paid_to_date: number
+          project_id: string
+          status: Database["public"]["Enums"]["invoice_status"]
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name: string
+          created_at?: string
+          created_by?: string | null
+          due_date: string
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          number: string
+          paid_to_date?: number
+          project_id: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string
+          created_at?: string
+          created_by?: string | null
+          due_date?: string
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          number?: string
+          paid_to_date?: number
+          project_id?: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -3582,6 +4060,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_invoice: {
+        Args: {
+          p_project_id: string
+          p_client_name: string
+          p_client_email?: string
+          p_due_date?: string
+          p_items?: Json
+        }
+        Returns: string
+      }
       delete_company_completely: {
         Args: { target_company_id: string }
         Returns: Json
@@ -3599,6 +4087,10 @@ export type Database = {
         Returns: string
       }
       generate_invitation_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_invoice_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
@@ -3789,8 +4281,25 @@ export type Database = {
         | "client"
         | "platform_admin"
         | "company_admin"
+      approval_decision: "approved" | "rejected"
+      bill_status:
+        | "draft"
+        | "submitted"
+        | "approved"
+        | "scheduled"
+        | "paid"
+        | "void"
       business_type: "sole_trader" | "partnership" | "company" | "trust"
+      file_kind: "invoice_pdf" | "receipt" | "bill_pdf" | "other"
+      invoice_status:
+        | "draft"
+        | "sent"
+        | "part_paid"
+        | "paid"
+        | "overdue"
+        | "void"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
+      payment_method: "bank_transfer" | "check" | "cash" | "card" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3928,8 +4437,20 @@ export const Constants = {
         "platform_admin",
         "company_admin",
       ],
+      approval_decision: ["approved", "rejected"],
+      bill_status: [
+        "draft",
+        "submitted",
+        "approved",
+        "scheduled",
+        "paid",
+        "void",
+      ],
       business_type: ["sole_trader", "partnership", "company", "trust"],
+      file_kind: ["invoice_pdf", "receipt", "bill_pdf", "other"],
+      invoice_status: ["draft", "sent", "part_paid", "paid", "overdue", "void"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
+      payment_method: ["bank_transfer", "check", "cash", "card", "other"],
     },
   },
 } as const

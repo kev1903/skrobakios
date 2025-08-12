@@ -1,0 +1,250 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Upload, Eye, CheckCircle, Clock, DollarSign } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+
+interface Bill {
+  id: string;
+  supplier_name: string;
+  supplier_email: string | null;
+  bill_no: string;
+  bill_date: string;
+  due_date: string;
+  status: 'draft' | 'submitted' | 'approved' | 'scheduled' | 'paid' | 'void';
+  subtotal: number;
+  tax: number;
+  total: number;
+  paid_to_date: number;
+}
+
+interface ExpensesModuleProps {
+  projectId: string;
+}
+
+export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('inbox');
+  const { toast } = useToast();
+
+  const loadBills = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('bills')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBills(data || []);
+    } catch (error) {
+      console.error('Error loading bills:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load bills",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBills();
+  }, [projectId]);
+
+  const getStatusBadge = (status: Bill['status']) => {
+    switch (status) {
+      case 'paid':
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Paid</Badge>;
+      case 'approved':
+        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Approved</Badge>;
+      case 'submitted':
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending Approval</Badge>;
+      case 'scheduled':
+        return <Badge className="bg-purple-100 text-purple-800 border-purple-200">Scheduled</Badge>;
+      case 'draft':
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Draft</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const filterBillsByStatus = (status: string) => {
+    switch (status) {
+      case 'inbox':
+        return bills.filter(bill => bill.status === 'draft' || bill.status === 'submitted');
+      case 'pending':
+        return bills.filter(bill => bill.status === 'submitted');
+      case 'scheduled':
+        return bills.filter(bill => bill.status === 'approved' || bill.status === 'scheduled');
+      case 'paid':
+        return bills.filter(bill => bill.status === 'paid');
+      default:
+        return bills;
+    }
+  };
+
+  const summaryData = {
+    totalBills: bills.reduce((sum, bill) => sum + bill.total, 0),
+    totalPaid: bills.reduce((sum, bill) => sum + bill.paid_to_date, 0),
+    outstanding: bills.reduce((sum, bill) => sum + (bill.total - bill.paid_to_date), 0),
+    pending: bills.filter(bill => bill.status === 'submitted').length,
+  };
+
+  const filteredBills = filterBillsByStatus(activeTab);
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-red-600">Total Bills</p>
+                <p className="text-2xl font-bold text-red-900">{formatCurrency(summaryData.totalBills)}</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-red-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-600">Total Paid</p>
+                <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryData.totalPaid)}</p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-yellow-600">Outstanding</p>
+                <p className="text-2xl font-bold text-yellow-900">{formatCurrency(summaryData.outstanding)}</p>
+              </div>
+              <Clock className="h-8 w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600">Pending Approval</p>
+                <p className="text-2xl font-bold text-blue-900">{summaryData.pending}</p>
+              </div>
+              <Upload className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Bills Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Bills Management</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="inbox">Inbox</TabsTrigger>
+              <TabsTrigger value="pending">Pending Approval</TabsTrigger>
+              <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+              <TabsTrigger value="paid">Paid</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={activeTab} className="mt-6">
+              {loading ? (
+                <div className="text-center py-8">Loading bills...</div>
+              ) : filteredBills.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                  <p>No bills found in this category.</p>
+                  <p className="text-sm mt-2">Upload bills or create new entries to get started.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2 font-medium">Bill #</th>
+                        <th className="text-left p-2 font-medium">Supplier</th>
+                        <th className="text-left p-2 font-medium">Date</th>
+                        <th className="text-left p-2 font-medium">Due Date</th>
+                        <th className="text-left p-2 font-medium">Total</th>
+                        <th className="text-left p-2 font-medium">Paid</th>
+                        <th className="text-left p-2 font-medium">Balance</th>
+                        <th className="text-left p-2 font-medium">Status</th>
+                        <th className="text-left p-2 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredBills.map((bill) => (
+                        <tr key={bill.id} className="border-b hover:bg-muted/50">
+                          <td className="p-2 font-mono text-sm">{bill.bill_no}</td>
+                          <td className="p-2">{bill.supplier_name}</td>
+                          <td className="p-2">{new Date(bill.bill_date).toLocaleDateString()}</td>
+                          <td className="p-2">{new Date(bill.due_date).toLocaleDateString()}</td>
+                          <td className="p-2 font-medium">{formatCurrency(bill.total)}</td>
+                          <td className="p-2 font-medium">{formatCurrency(bill.paid_to_date)}</td>
+                          <td className="p-2 font-medium">{formatCurrency(bill.total - bill.paid_to_date)}</td>
+                          <td className="p-2">{getStatusBadge(bill.status)}</td>
+                          <td className="p-2">
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                              {bill.status === 'submitted' && (
+                                <Button variant="outline" size="sm" className="text-green-600">
+                                  Approve
+                                </Button>
+                              )}
+                              {(bill.status === 'approved' || bill.status === 'scheduled') && (
+                                <Button variant="outline" size="sm">
+                                  Record Payment
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {activeTab === 'inbox' && (
+                <div className="mt-6 p-6 border-2 border-dashed border-muted-foreground/25 rounded-lg text-center">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                  <p className="text-lg font-medium mb-2">Upload Bills</p>
+                  <p className="text-muted-foreground mb-4">
+                    Drag and drop PDF files here or click to browse
+                  </p>
+                  <Button>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Choose Files
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
