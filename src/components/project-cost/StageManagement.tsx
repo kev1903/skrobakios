@@ -29,8 +29,6 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
   const [editValue, setEditValue] = useState('');
   const [newStageName, setNewStageName] = useState('');
 
-  
-
   const loadStages = async () => {
     setLoading(true);
     try {

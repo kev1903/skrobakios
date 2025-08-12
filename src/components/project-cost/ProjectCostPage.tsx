@@ -14,6 +14,7 @@ import { CostSummaryCard } from './CostSummaryCard';
 import { CostByStageChart } from './CostByStageChart';
 import { TaskCostTable } from './TaskCostTable';
 import { CostAnalytics } from './CostAnalytics';
+import { StageManagement } from './StageManagement';
 interface ProjectCostPageProps {
   project: Project;
   onNavigate: (page: string) => void;
@@ -29,7 +30,8 @@ export const ProjectCostPage = ({
     tasks, 
     loading, 
     updateTask,
-    getCostSummary 
+    getCostSummary,
+    loadTasks
   } = useCentralTasks(project.id, project.company_id || 'demo-company');
   const costSummary = getCostSummary();
   const getVarianceStatus = (variance: number) => {
@@ -87,6 +89,16 @@ export const ProjectCostPage = ({
 
           {/* Main Cost Table Content */}
           <div className="bg-card border rounded-lg">
+            {/* Table Header with Stage Management */}
+            <div className="bg-muted/30 border-b px-6 py-3">
+              <div className="flex items-center justify-end">
+                <StageManagement 
+                  projectId={project.id}
+                  companyId={project.company_id || 'demo-company'}
+                  onStageUpdated={loadTasks}
+                />
+              </div>
+            </div>
             <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
           </div>
         </div>

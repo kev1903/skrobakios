@@ -95,7 +95,7 @@ export const TaskCostTable = ({
       {/* Table Header */}
       <div className="bg-muted/30 border-b px-6 py-3">
         <div className="flex items-center justify-end">
-          
+          {/* Stage Management button will be added from parent component */}
         </div>
       </div>
 
