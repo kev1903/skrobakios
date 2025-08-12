@@ -29,7 +29,7 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
   const [editValue, setEditValue] = useState('');
   const [newStageName, setNewStageName] = useState('');
 
-  const centralTaskService = new CentralTaskService();
+  
 
   const loadStages = async () => {
     setLoading(true);
@@ -74,7 +74,7 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
 
     try {
       // Add a placeholder task for the new stage
-      await centralTaskService.createTask(projectId, companyId, {
+      await CentralTaskService.createTask(projectId, companyId, {
         name: 'New Stage Activity',
         stage: newStageName.trim(),
         budgeted_cost: 0,
@@ -100,7 +100,7 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
     }
 
     try {
-      await centralTaskService.updateStage(projectId, oldStageName, editValue.trim());
+      await CentralTaskService.updateStage(projectId, oldStageName, editValue.trim());
       setEditingStage(null);
       setEditValue('');
       await loadStages();
