@@ -75,7 +75,7 @@ export const TaskCostTable = ({
     }
   };
   const formatCurrency = (amount: number) => {
-    return `$${amount.toLocaleString()}`;
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const getVarianceColor = (budgeted: number, actual: number) => {
     const variance = budgeted - actual;
@@ -120,7 +120,7 @@ export const TaskCostTable = ({
             }}>
                 Activities
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
             }}>
                 Cost Estimate
@@ -130,22 +130,22 @@ export const TaskCostTable = ({
             }}>
                 Notes
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
             }}>
                 Project Budget
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
             }}>
                 Cost Committed
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
             }}>
                 Paid to Date
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3" style={{
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3" style={{
               minWidth: '100px'
             }}>
                 Cost
@@ -194,20 +194,20 @@ export const TaskCostTable = ({
                       <td colSpan={2} className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
                         {stage}
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
                       <td className="px-2 py-2 border-r border-gray-200"></td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageActualTotal)}
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         $0.00
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900">
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
                     </tr>
@@ -239,7 +239,7 @@ export const TaskCostTable = ({
 
                           {/* Cost Estimate */}
                           <td 
-                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50"
+                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
                             onClick={() => handleCellClick(task.id, 'budgeted_cost', budgeted)}
                           >
                             {isEditingBudgeted ? (
@@ -250,7 +250,7 @@ export const TaskCostTable = ({
                                   onChange={(e) => setEditValue(e.target.value)}
                                   onKeyDown={handleKeyDown}
                                   onBlur={handleCellSave}
-                                  className="w-full text-xs border-blue-300 rounded h-6 px-1"
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
                                   autoFocus
                                 />
                               </div>
@@ -265,13 +265,13 @@ export const TaskCostTable = ({
                           </td>
 
                           {/* Project Budget */}
-                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
+                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
                             <span className="text-xs">{formatCurrency(budgeted)}</span>
                           </td>
 
                           {/* Cost Committed */}
                           <td 
-                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50"
+                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
                             onClick={() => handleCellClick(task.id, 'actual_cost', actual)}
                           >
                             {isEditingActual ? (
@@ -282,7 +282,7 @@ export const TaskCostTable = ({
                                   onChange={(e) => setEditValue(e.target.value)}
                                   onKeyDown={handleKeyDown}
                                   onBlur={handleCellSave}
-                                  className="w-full text-xs border-blue-300 rounded h-6 px-1"
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
                                   autoFocus
                                 />
                               </div>
@@ -292,12 +292,12 @@ export const TaskCostTable = ({
                           </td>
 
                           {/* Paid to Date */}
-                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100">
+                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
                             <span className="text-xs">$0.00</span>
                           </td>
 
                           {/* Cost */}
-                          <td className="px-2 py-1 text-xs text-gray-900">
+                          <td className="px-2 py-1 text-xs text-gray-900 text-right">
                             <span className="text-xs">{formatCurrency(budgeted)}</span>
                           </td>
                         </tr>
@@ -315,28 +315,28 @@ export const TaskCostTable = ({
               <td colSpan={3} className="px-2 py-1 text-xs font-medium text-gray-700 border-r border-gray-200">
                 Total
               </td>
-              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200">
+              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0))}
                 </span>
               </td>
               <td className="border-r border-gray-200"></td>
-              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200">
+              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0))}
                 </span>
               </td>
-              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200">
+              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
-                  ${tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0).toLocaleString()}
+                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0))}
                 </span>
               </td>
-              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200">
+              <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">$0.00</span>
               </td>
-              <td className="px-2 py-1 text-xs font-bold text-gray-900">
+              <td className="px-2 py-1 text-xs font-bold text-gray-900 text-right">
                 <span className="text-xs">
-                  ${tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0).toLocaleString()}
+                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0))}
                 </span>
               </td>
             </tr>
