@@ -1,75 +1,66 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Upload, FileText, Download, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
 import { getStatusColor, getStatusText } from "./utils";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Upload, FileText, Download, Eye, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ProjectContractsPageProps {
   project: Project;
   onNavigate: (page: string) => void;
 }
 
-// Mock contract data
-const mockContract = {
-  title: "HIA Alterations/Additions – Example",
-  status: "active",
-  confidence: 0.82,
-  parties: {
-    principal: { legal_name: "John & Jane Example", abn: null },
-    contractor: { legal_name: "Skrobaki Pty Ltd", abn: "12 345 678 901" }
-  },
-  money: {
-    payment_type: "progress",
-    contract_sum_ex_gst: 50000,
-    gst: 5000,
-    contract_sum_inc_gst: 55000,
-    deposit_pct: 5,
-    retention_pct: 10
-  },
-  dates: {
-    start: null,
-    practical_completion: null,
-    defects_liability_period_days: 180
-  },
-  next_milestone: { name: "Base Stage", due_date: null, amount: 90000 },
-  insurances: [],
-  clauses: { variations: { present: true } },
-  signatures: [],
-  risks: [{ level: "medium", msg: "Retention 10% — confirm staged release." }],
-  actions: [{ label: "Upload DBI certificate", due: null }]
-};
+interface ContractFile {
+  id: string;
+  name: string;
+  file_url: string;
+  uploaded_at: string;
+  file_size: number;
+}
 
 export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPageProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [contracts, setContracts] = useState<ContractFile[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [contractName, setContractName] = useState("");
   const [dragActive, setDragActive] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const StatusChip = ({ status }: { status: string }) => {
-    const statusConfig = {
-      queued: { color: "bg-gray-500", label: "Queued" },
-      extracting: { color: "bg-blue-500", label: "Extracting" },
-      extracted: { color: "bg-green-500", label: "Extracted" },
-      needs_review: { color: "bg-amber-500", label: "Needs Review" },
-      error: { color: "bg-red-500", label: "Error" },
-      active: { color: "bg-green-500", label: "Active" }
-    };
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.queued;
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white ${config.color}`}>
-        {config.label}
-      </span>
-    );
+  // Load existing contracts
+  useEffect(() => {
+    loadContracts();
+  }, [project.id]);
+
+  const loadContracts = async () => {
+    try {
+      const { data, error } = await (supabase as any)
+        .from('project_contracts')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedContracts = (data || []).map((contract: any) => ({
+        id: contract.id,
+        name: contract.name,
+        file_url: contract.file_url,
+        uploaded_at: contract.created_at,
+        file_size: contract.file_size
+      }));
+
+      setContracts(formattedContracts);
+    } catch (error) {
+      console.error('Error loading contracts:', error);
+    }
   };
-
-  const ConfidenceBadge = ({ confidence }: { confidence: number }) => (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-      {Math.round(confidence * 100)}% confidence
-    </span>
-  );
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -99,7 +90,9 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       return;
     }
     
-    setSelectedFile(pdfFiles[0]);
+    const file = pdfFiles[0];
+    setSelectedFile(file);
+    setContractName(file.name.replace('.pdf', ''));
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,39 +103,58 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         return;
       }
       setSelectedFile(file);
+      setContractName(file.name.replace('.pdf', ''));
     }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      toast.error('Please select a file');
+    if (!selectedFile || !contractName.trim()) {
+      toast.error('Please select a file and enter a contract name');
       return;
     }
 
     setIsUploading(true);
     try {
+      // Upload file to Supabase Storage
       const fileName = `${project.id}/${Date.now()}-${selectedFile.name}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('contracts')
+        .from('project-contracts')
         .upload(fileName, selectedFile);
 
       if (uploadError) throw uploadError;
 
-      const { data: versionData, error: versionError } = await supabase
-        .from('contract_versions')
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('project-contracts')
+        .getPublicUrl(fileName);
+
+      // Save contract metadata to database
+      const { data, error } = await (supabase as any)
+        .from('project_contracts')
         .insert({
-          contract_id: project.id,
-          storage_path: fileName,
-          file_name: selectedFile.name,
+          project_id: project.id,
+          name: contractName.trim(),
+          file_url: publicUrl,
+          file_path: fileName,
           file_size: selectedFile.size,
-          status: 'queued'
+          uploaded_by: (await supabase.auth.getUser()).data.user?.id
         })
         .select()
         .single();
 
-      if (versionError) throw versionError;
+      if (error) throw error;
 
+      // Reload contracts
+      await loadContracts();
+
+      // Reset form and close dialog
       setSelectedFile(null);
+      setContractName("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setIsUploadDialogOpen(false);
+
       toast.success('Contract uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
@@ -152,16 +164,43 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     }
   };
 
-  const formatCurrency = (amount: number) => 
-    new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(amount);
+  const handleDelete = async (contractId: string, fileName: string) => {
+    try {
+      // Delete from database first
+      const { error: dbError } = await (supabase as any)
+        .from('project_contracts')
+        .delete()
+        .eq('id', contractId);
 
-  const formatDate = (date: string | null) => 
-    date ? new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      if (dbError) throw dbError;
+
+      // Delete from storage
+      const filePath = fileName.split('/').slice(-2).join('/'); // Get project_id/filename
+      await supabase.storage
+        .from('project-contracts')
+        .remove([filePath]);
+
+      // Reload contracts
+      await loadContracts();
+      toast.success('Contract deleted successfully');
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete contract');
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Fixed Sidebar */}
-      <div className="w-48 flex-shrink-0 h-full">
+    <div className="h-screen flex bg-background">
+      {/* Fixed Project Sidebar */}
+      <div className="fixed left-0 top-0 h-full w-48 z-40">
         <ProjectSidebar
           project={project}
           onNavigate={onNavigate}
@@ -171,37 +210,50 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         />
       </div>
 
-      {/* Main Content - Single Scroll Container */}
-      <div className="flex-1 h-full overflow-y-auto bg-background">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-background border-b border-border">
-          <div className="px-6 py-4">
+      {/* Main Content */}
+      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+        <div className="p-6 min-h-full">
+          {/* Header */}
+          <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-semibold text-foreground mb-2">
-                  {mockContract.title}
-                </h1>
-                <div className="flex items-center gap-3">
-                  <StatusChip status={mockContract.status} />
-                  <ConfidenceBadge confidence={mockContract.confidence} />
-                </div>
+                <h1 className="text-3xl font-bold text-slate-800 mb-2">Project Contracts</h1>
+                <p className="text-slate-600">Upload and manage contracts for {project.name}</p>
               </div>
-              <div className="flex gap-3">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload PDF
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Upload Contract PDF</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
+              <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Contract
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Upload New Contract</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 p-6">
+                    {/* Contract Name Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="contract-name" className="text-sm font-medium">Contract Name</Label>
+                      <Input
+                        id="contract-name"
+                        type="text"
+                        value={contractName}
+                        onChange={(e) => setContractName(e.target.value)}
+                        placeholder="Enter contract name"
+                      />
+                    </div>
+
+                    {/* Drag & Drop Upload Area */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">PDF Document</Label>
                       <div
-                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300 ${
-                          dragActive ? "border-primary bg-primary/5" : "border-border"
+                        className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300 ${
+                          dragActive 
+                            ? "border-primary bg-primary/5" 
+                            : "border-border bg-muted/30 hover:bg-muted/50"
                         }`}
                         onDragEnter={handleDrag}
                         onDragLeave={handleDrag}
@@ -209,178 +261,204 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         onDrop={handleDrop}
                       >
                         <input
+                          ref={fileInputRef}
                           type="file"
                           accept=".pdf"
                           onChange={handleFileSelect}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
-                        <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-                        <p className="font-medium mb-2">
+                        
+                        <Upload className={`w-8 h-8 mx-auto mb-3 transition-colors ${
+                          dragActive ? "text-primary" : "text-muted-foreground"
+                        }`} />
+                        
+                        <h3 className="font-medium mb-2">
                           {dragActive ? "Drop your PDF here" : "Drop PDF file here"}
+                        </h3>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">
+                          or click to browse and select a file
                         </p>
-                        <p className="text-sm text-muted-foreground">or click to browse</p>
-                      </div>
-                      
-                      {selectedFile && (
-                        <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-red-500" />
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{selectedFile.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div className="flex gap-3">
-                        <Button variant="outline" className="flex-1">Cancel</Button>
-                        <Button 
-                          onClick={handleUpload} 
-                          disabled={!selectedFile || isUploading}
-                          className="flex-1"
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
                         >
-                          {isUploading ? 'Uploading...' : 'Upload'}
+                          Browse Files
                         </Button>
                       </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
-                <Button variant="outline">
-                  <Eye className="w-4 h-4 mr-2" />
-                  View PDF
-                </Button>
-                <Button variant="outline">Versions</Button>
-              </div>
+
+                    {/* Selected File Display */}
+                    {selectedFile && (
+                      <div className="bg-muted/30 rounded-lg p-3 flex items-center justify-between border">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-red-500" />
+                          <div>
+                            <p className="font-medium text-sm">{selectedFile.name}</p>
+                            <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedFile(null);
+                            setContractName("");
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }}
+                          className="text-muted-foreground hover:text-destructive h-6 w-6 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsUploadDialogOpen(false)}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleUpload}
+                        disabled={!selectedFile || !contractName.trim() || isUploading}
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        {isUploading ? 'Uploading...' : 'Upload'}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="flex gap-8">
-            {/* Main Content */}
-            <div className="flex-1 space-y-8">
-              {/* Key Facts */}
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Facts</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Payment Type</p>
-                    <p className="text-lg font-medium">{mockContract.money.payment_type}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Contract Sum (ex GST)</p>
-                    <p className="text-lg font-medium">{formatCurrency(mockContract.money.contract_sum_ex_gst)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Deposit</p>
-                    <p className="text-lg font-medium">{mockContract.money.deposit_pct}%</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Retention</p>
-                    <p className="text-lg font-medium">{mockContract.money.retention_pct}%</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Parties */}
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Parties</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Principal</p>
-                    <p className="text-lg font-medium">{mockContract.parties.principal.legal_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Contractor</p>
-                    <p className="text-lg font-medium">{mockContract.parties.contractor.legal_name}</p>
-                    <p className="text-sm text-muted-foreground">ABN: {mockContract.parties.contractor.abn}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Key Dates */}
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Dates</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Start Date</p>
-                    <p className="text-lg font-medium">{formatDate(mockContract.dates.start)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Practical Completion</p>
-                    <p className="text-lg font-medium">{formatDate(mockContract.dates.practical_completion)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">DLP Days</p>
-                    <p className="text-lg font-medium">{mockContract.dates.defects_liability_period_days}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Next Milestone */}
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Milestone</h2>
-                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
-                  <div>
-                    <p className="text-lg font-medium mb-1">{mockContract.next_milestone.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Due: {formatDate(mockContract.next_milestone.due_date)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-medium mb-2">{formatCurrency(mockContract.next_milestone.amount)}</p>
-                    <Button size="sm">Create Progress Claim</Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Risks */}
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Risks</h2>
-                <div className="space-y-3">
-                  {mockContract.risks.map((risk, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                      <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${
-                        risk.level === 'high' ? 'text-red-500' : 
-                        risk.level === 'medium' ? 'text-amber-500' : 'text-green-500'
-                      }`} />
-                      <span className="text-sm">{risk.msg}</span>
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Contract Summary - Middle Section */}
+            <div className="lg:col-span-2">
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-foreground">Contract Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Overview Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-muted/30 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-primary">{contracts.length}</div>
+                      <div className="text-sm text-muted-foreground">Total Contracts</div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Next Actions */}
-              <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Actions</h2>
-                <div className="space-y-2">
-                  {mockContract.actions.map((action, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                      <div className="w-4 h-4 rounded border border-muted-foreground"></div>
-                      <span className="text-sm">{action.label}</span>
+                    <div className="bg-muted/30 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-primary">
+                        {Math.round(contracts.reduce((acc, c) => acc + (c.file_size || 0), 0) / 1024 / 1024 * 100) / 100}MB
+                      </div>
+                      <div className="text-sm text-muted-foreground">Total Size</div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="bg-muted/30 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-primary">
+                        {contracts.length > 0 ? new Date(Math.max(...contracts.map(c => new Date(c.uploaded_at).getTime()))).toLocaleDateString() : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Last Upload</div>
+                    </div>
+                  </div>
+
+                  {/* Recent Activity */}
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Recent Activity</h3>
+                    {contracts.length === 0 ? (
+                      <div className="text-center py-8">
+                        <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                          <FileText className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <p className="text-muted-foreground">No contracts uploaded yet</p>
+                        <p className="text-sm text-muted-foreground mt-1">Upload your first contract to get started</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {contracts.slice(0, 5).map((contract) => (
+                          <div key={contract.id} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
+                            <div className="bg-background rounded-lg p-2 shadow-sm flex-shrink-0">
+                              <FileText className="w-5 h-5 text-red-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-foreground truncate">{contract.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Uploaded {new Date(contract.uploaded_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {formatFileSize(contract.file_size)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Versions Sidebar */}
-            <div className="w-80 flex-shrink-0">
-              <div className="bg-muted/10 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Versions</h2>
-                </div>
-                <div className="text-center py-6">
-                  <div className="bg-muted/30 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-1">No versions uploaded yet</p>
-                  <p className="text-xs text-muted-foreground">Upload your first contract PDF to get started</p>
-                </div>
-              </div>
+            {/* Uploaded Files - Right Section */}
+            <div className="lg:col-span-1">
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-foreground">Uploaded Files</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {contracts.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-base font-medium text-foreground mb-2">No files uploaded</h3>
+                      <p className="text-sm text-muted-foreground">Upload your first contract</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {contracts.map((contract) => (
+                        <div key={contract.id} className="flex items-center justify-between py-2 px-3 hover:bg-muted/30 rounded-lg group transition-colors">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <FileText className="w-4 h-4 text-red-500 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <span className="font-medium text-foreground truncate block group-hover:text-primary transition-colors">
+                                {contract.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>{formatFileSize(contract.file_size)}</span>
+                              <span>{new Date(contract.uploaded_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1 ml-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(contract.file_url, '_blank')}
+                              className="h-8 w-8 p-0 hover:bg-muted"
+                            >
+                              <Download className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(contract.id, contract.file_url)}
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
