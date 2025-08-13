@@ -4285,6 +4285,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      mask_contact_info: {
+        Args: { input_text: string }
+        Returns: string
+      }
       set_active_context: {
         Args: { p_context_type: string; p_context_id?: string }
         Returns: boolean
