@@ -15,6 +15,10 @@ import { CostByStageChart } from './CostByStageChart';
 import { TaskCostTable } from './TaskCostTable';
 import { CostAnalytics } from './CostAnalytics';
 import { StageManagement } from './StageManagement';
+import { IncomeModule } from '../project-finance/income/IncomeModule';
+import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
+import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
+
 interface ProjectCostPageProps {
   project: Project;
   onNavigate: (page: string) => void;
@@ -24,6 +28,7 @@ export const ProjectCostPage = ({
   onNavigate
 }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
+  const [activeTab, setActiveTab] = useState('cost-control');
 
   // Use the central tasks hook to get real data from the database
   const { 
@@ -87,55 +92,61 @@ export const ProjectCostPage = ({
             </div>
           </div>
 
-          {/* Main Cost Table Content */}
+          {/* Main Content with Tabs */}
           <div className="bg-card border rounded-lg">
-            {/* Table Header with Stage Management and Finance Buttons */}
-            <div className="bg-muted/30 border-b px-6 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => onNavigate('project-finance')}
-                    variant="outline"
-                    className="bg-background hover:bg-muted"
-                  >
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Income
-                  </Button>
-                  <Button
-                    onClick={() => onNavigate('project-finance')}
-                    variant="outline"
-                    className="bg-background hover:bg-muted"
-                  >
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Expense
-                  </Button>
-                  <Button
-                    onClick={() => onNavigate('project-finance')}
-                    variant="outline"
-                    className="bg-background hover:bg-muted"
-                  >
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Analytics
-                  </Button>
-                  <Button
-                    onClick={() => onNavigate('cost-control')}
-                    variant="outline"
-                    className="bg-background hover:bg-muted"
-                  >
-                    <AlertTriangle className="w-4 h-4 mr-2" />
-                    Cost Control
-                  </Button>
-                </div>
-                <div>
-                  <StageManagement 
-                    projectId={project.id}
-                    companyId={project.company_id || 'demo-company'}
-                    onStageUpdated={loadTasks}
-                  />
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              {/* Tab Header */}
+              <div className="bg-muted/30 border-b px-6 py-3">
+                <div className="flex items-center justify-between">
+                  <TabsList className="grid w-auto grid-cols-4 bg-background">
+                    <TabsTrigger value="income" className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      Income
+                    </TabsTrigger>
+                    <TabsTrigger value="expense" className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      Expense
+                    </TabsTrigger>
+                    <TabsTrigger value="analytics" className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" />
+                      Analytics
+                    </TabsTrigger>
+                    <TabsTrigger value="cost-control" className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      Cost Control
+                    </TabsTrigger>
+                  </TabsList>
+                  {activeTab === 'cost-control' && (
+                    <div>
+                      <StageManagement 
+                        projectId={project.id}
+                        companyId={project.company_id || 'demo-company'}
+                        onStageUpdated={loadTasks}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-            <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
+
+              {/* Tab Content */}
+              <div className="p-6">
+                <TabsContent value="income" className="mt-0">
+                  <IncomeModule projectId={project.id} />
+                </TabsContent>
+                
+                <TabsContent value="expense" className="mt-0">
+                  <ExpensesModule projectId={project.id} />
+                </TabsContent>
+                
+                <TabsContent value="analytics" className="mt-0">
+                  <AnalyticsModule projectId={project.id} />
+                </TabsContent>
+                
+                <TabsContent value="cost-control" className="mt-0">
+                  <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
+                </TabsContent>
+              </div>
+            </Tabs>
           </div>
         </div>
       </div>
