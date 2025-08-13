@@ -29,6 +29,8 @@ export const ProjectCostPage = ({
 }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
   const [activeTab, setActiveTab] = useState('cost-control');
+  const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
+  const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
 
   // Use the central tasks hook to get real data from the database
   const { 
@@ -39,6 +41,53 @@ export const ProjectCostPage = ({
     loadTasks
   } = useCentralTasks(project.id, project.company_id || 'demo-company');
   const costSummary = getCostSummary();
+
+  // Load income data
+  const loadIncomeData = async () => {
+    try {
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('project_id', project.id);
+      
+      if (invoices) {
+        const totalBilled = invoices.reduce((sum, inv) => sum + inv.total, 0);
+        const totalPaid = invoices.reduce((sum, inv) => sum + inv.paid_to_date, 0);
+        const outstanding = invoices.reduce((sum, inv) => sum + (inv.total - inv.paid_to_date), 0);
+        const overdue = invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + (inv.total - inv.paid_to_date), 0);
+        
+        setIncomeData({ totalBilled, totalPaid, outstanding, overdue });
+      }
+    } catch (error) {
+      console.error('Error loading income data:', error);
+    }
+  };
+
+  // Load expense data
+  const loadExpenseData = async () => {
+    try {
+      const { data: bills } = await supabase
+        .from('bills')
+        .select('*')
+        .eq('project_id', project.id);
+      
+      if (bills) {
+        const totalBills = bills.reduce((sum, bill) => sum + bill.total, 0);
+        const totalPaid = bills.reduce((sum, bill) => sum + bill.paid_to_date, 0);
+        const outstanding = bills.reduce((sum, bill) => sum + (bill.total - bill.paid_to_date), 0);
+        const pending = bills.filter(bill => bill.status === 'submitted').length;
+        
+        setExpenseData({ totalBills, totalPaid, outstanding, pending });
+      }
+    } catch (error) {
+      console.error('Error loading expense data:', error);
+    }
+  };
+
+  React.useEffect(() => {
+    loadIncomeData();
+    loadExpenseData();
+  }, [project.id]);
   const getVarianceStatus = (variance: number) => {
     if (variance > 0) return {
       text: 'Under Budget',
@@ -68,27 +117,91 @@ export const ProjectCostPage = ({
       <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
         <div className="p-6 min-h-full">
 
-          {/* Summary Cards - Compact */}
+          {/* Summary Cards - Dynamic based on active tab */}
           <div className="mb-3 bg-card border rounded-lg p-2">
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-muted/30 rounded-lg border p-2">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Project Budget</div>
-                <div className="text-lg font-semibold text-foreground">${costSummary.totalBudgeted.toLocaleString()}</div>
-              </div>
-              <div className="bg-muted/30 rounded-lg border p-2">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Cost Committed</div>
-                <div className="text-lg font-semibold text-foreground">${costSummary.totalActual.toLocaleString()}</div>
-              </div>
-              <div className="bg-muted/30 rounded-lg border p-2">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Paid to Date</div>
-                <div className="text-lg font-semibold text-foreground">$0.00</div>
-              </div>
-              <div className="bg-muted/30 rounded-lg border p-2">
-                <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Variance</div>
-                <div className={`text-lg font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ${Math.abs(costSummary.variance).toLocaleString()}
-                </div>
-              </div>
+              {activeTab === 'income' && (
+                <>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Billed</div>
+                    <div className="text-lg font-semibold text-foreground">${incomeData.totalBilled.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
+                    <div className="text-lg font-semibold text-foreground">${incomeData.totalPaid.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Outstanding</div>
+                    <div className="text-lg font-semibold text-foreground">${incomeData.outstanding.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Overdue</div>
+                    <div className="text-lg font-semibold text-red-600">${incomeData.overdue.toLocaleString()}</div>
+                  </div>
+                </>
+              )}
+              {activeTab === 'expense' && (
+                <>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Bills</div>
+                    <div className="text-lg font-semibold text-foreground">${expenseData.totalBills.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
+                    <div className="text-lg font-semibold text-foreground">${expenseData.totalPaid.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Outstanding</div>
+                    <div className="text-lg font-semibold text-foreground">${expenseData.outstanding.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Pending Approval</div>
+                    <div className="text-lg font-semibold text-yellow-600">{expenseData.pending}</div>
+                  </div>
+                </>
+              )}
+              {activeTab === 'analytics' && (
+                <>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Net Income</div>
+                    <div className="text-lg font-semibold text-foreground">${(incomeData.totalPaid - expenseData.totalPaid).toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Income vs Budget</div>
+                    <div className="text-lg font-semibold text-foreground">{costSummary.totalBudgeted > 0 ? ((incomeData.totalBilled / costSummary.totalBudgeted) * 100).toFixed(1) : 0}%</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Expense Ratio</div>
+                    <div className="text-lg font-semibold text-foreground">{incomeData.totalBilled > 0 ? ((expenseData.totalBills / incomeData.totalBilled) * 100).toFixed(1) : 0}%</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Profit Margin</div>
+                    <div className="text-lg font-semibold text-green-600">{incomeData.totalBilled > 0 ? (((incomeData.totalBilled - expenseData.totalBills) / incomeData.totalBilled) * 100).toFixed(1) : 0}%</div>
+                  </div>
+                </>
+              )}
+              {activeTab === 'cost-control' && (
+                <>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Project Budget</div>
+                    <div className="text-lg font-semibold text-foreground">${costSummary.totalBudgeted.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Cost Committed</div>
+                    <div className="text-lg font-semibold text-foreground">${costSummary.totalActual.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Paid to Date</div>
+                    <div className="text-lg font-semibold text-foreground">$0.00</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Variance</div>
+                    <div className={`text-lg font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      ${Math.abs(costSummary.variance).toLocaleString()}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

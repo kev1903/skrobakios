@@ -144,56 +144,6 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
 
   return (
     <div className="space-y-4">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Total Bills</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.totalBills)}</p>
-              </div>
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Total Paid</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.totalPaid)}</p>
-              </div>
-              <CheckCircle className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Outstanding</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.outstanding)}</p>
-              </div>
-              <Clock className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Pending Approval</p>
-                <p className="text-lg font-bold">{summaryData.pending}</p>
-              </div>
-              <Upload className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Bills Management */}
       <Card>

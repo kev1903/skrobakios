@@ -158,56 +158,6 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Total Billed</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.totalBilled)}</p>
-              </div>
-              <FileText className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Total Paid</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.totalPaid)}</p>
-              </div>
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Outstanding</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.outstanding)}</p>
-              </div>
-              <Clock className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Overdue</p>
-                <p className="text-lg font-bold">{formatCurrency(summaryData.overdue)}</p>
-              </div>
-              <AlertCircle className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Invoices Table */}
       <Card>
