@@ -570,12 +570,12 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       {/* Main Content */}
       <div className="flex-1 ml-48 bg-background">
-        <div className="max-w-4xl mx-auto p-8 min-h-full">
+        <div className="max-w-4xl mx-auto p-6 min-h-full">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
+                <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
                 <div className="flex items-center gap-2 mb-2">
                   {getStatusBadge(selectedContract.status)}
                   {getConfidenceBadge(selectedContract.confidence)}
@@ -762,7 +762,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             {/* Executive Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <FileText className="w-5 h-5" />
                   Contract Summary
                 </CardTitle>
@@ -899,7 +899,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             {/* Insurance & Compliance */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Shield className="w-5 h-5" />
                   Insurance & Compliance Status
                 </CardTitle>
@@ -928,7 +928,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             {/* Contract Terms & Key Clauses */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Gavel className="w-5 h-5" />
                   Key Contract Terms & Clauses
                 </CardTitle>
@@ -970,7 +970,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             {/* Execution & Signatures */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <FileSignature className="w-5 h-5" />
                   Contract Execution Status
                 </CardTitle>
@@ -998,7 +998,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             {/* Risk Assessment */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" />
                   Risk Assessment & Mitigation
                 </CardTitle>
@@ -1052,7 +1052,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             {/* Action Items & Next Steps */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Clock className="w-5 h-5" />
                   Action Items & Next Steps
                 </CardTitle>
