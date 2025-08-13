@@ -180,9 +180,9 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
     date ? new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <div className="h-screen bg-background overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="border-b border-border bg-background flex-shrink-0">
+    <div className="h-screen bg-background flex flex-col">
+      {/* Header - Fixed */}
+      <div className="border-b border-border bg-background flex-shrink-0 z-10">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -264,12 +264,12 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
         </div>
       </div>
 
-      {/* Main Content - Single Scroll Container */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Main Content - Single Scroll Area */}
+      <div className="flex-1 overflow-auto">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="flex gap-8">
             {/* Main Content Area */}
-            <div className="lg:col-span-3 space-y-8">
+            <div className="flex-1 space-y-8 min-w-0">
               {/* Key Facts Row */}
               <div>
                 <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Facts</h2>
@@ -391,8 +391,8 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
               )}
             </div>
 
-            {/* Right Sidebar - Versions */}
-            <div className="lg:col-span-1">
+            {/* Right Sidebar - Versions (Fixed Width) */}
+            <div className="w-80 flex-shrink-0">
               <div className="bg-muted/10 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <FileText className="w-4 h-4 text-muted-foreground" />
