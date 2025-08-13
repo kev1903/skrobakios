@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,35 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [contractName, setContractName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load existing contracts
+  useEffect(() => {
+    loadContracts();
+  }, [project.id]);
+
+  const loadContracts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('project_contracts')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedContracts = (data || []).map(contract => ({
+        id: contract.id,
+        name: contract.name,
+        file_url: contract.file_url,
+        uploaded_at: contract.created_at,
+        file_size: contract.file_size
+      }));
+
+      setContracts(formattedContracts);
+    } catch (error) {
+      console.error('Error loading contracts:', error);
+    }
+  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -76,14 +105,8 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
 
       if (error) throw error;
 
-      // Add to local state
-      setContracts([...contracts, {
-        id: data.id,
-        name: data.name,
-        file_url: data.file_url,
-        uploaded_at: data.created_at,
-        file_size: data.file_size
-      }]);
+      // Reload contracts
+      await loadContracts();
 
       // Reset form
       setSelectedFile(null);
@@ -101,23 +124,24 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
     }
   };
 
-  const handleDelete = async (contractId: string, filePath: string) => {
+  const handleDelete = async (contractId: string, fileName: string) => {
     try {
-      // Delete from storage
-      await supabase.storage
-        .from('project-contracts')
-        .remove([filePath]);
-
-      // Delete from database
-      const { error } = await supabase
+      // Delete from database first
+      const { error: dbError } = await supabase
         .from('project_contracts')
         .delete()
         .eq('id', contractId);
 
-      if (error) throw error;
+      if (dbError) throw dbError;
 
-      // Remove from local state
-      setContracts(contracts.filter(c => c.id !== contractId));
+      // Delete from storage
+      const filePath = fileName.split('/').slice(-2).join('/'); // Get project_id/filename
+      await supabase.storage
+        .from('project-contracts')
+        .remove([filePath]);
+
+      // Reload contracts
+      await loadContracts();
       toast.success('Contract deleted successfully');
     } catch (error) {
       console.error('Delete error:', error);
@@ -141,7 +165,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
       </div>
 
       {/* Upload Section */}
-      <Card className="border border-gray-200 shadow-sm">
+      <Card className="border border-gray-200 shadow-sm bg-white">
         <CardHeader>
           <CardTitle className="font-playfair text-gray-900">Upload New Contract</CardTitle>
         </CardHeader>
@@ -154,7 +178,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
               value={contractName}
               onChange={(e) => setContractName(e.target.value)}
               placeholder="Enter contract name"
-              className="border-gray-300 focus:border-blue-500"
+              className="border-gray-300 focus:border-blue-500 bg-white"
             />
           </div>
 
@@ -167,7 +191,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
                 type="file"
                 accept=".pdf"
                 onChange={handleFileSelect}
-                className="border-gray-300 focus:border-blue-500"
+                className="border-gray-300 focus:border-blue-500 bg-white"
               />
               {selectedFile && (
                 <span className="text-sm text-gray-600">
@@ -189,7 +213,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
       </Card>
 
       {/* Contracts List */}
-      <Card className="border border-gray-200 shadow-sm">
+      <Card className="border border-gray-200 shadow-sm bg-white">
         <CardHeader>
           <CardTitle className="font-playfair text-gray-900">Uploaded Contracts</CardTitle>
         </CardHeader>
@@ -225,7 +249,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(contract.id, contract.file_url.split('/').pop() || '')}
+                      onClick={() => handleDelete(contract.id, contract.file_url)}
                       className="border-red-300 text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
