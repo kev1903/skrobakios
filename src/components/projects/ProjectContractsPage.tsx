@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, Download, Trash2 } from "lucide-react";
+import { Upload, FileText, Download, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
@@ -25,6 +25,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
   const [contracts, setContracts] = useState<ContractFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [contractName, setContractName] = useState("");
+  const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load existing contracts
@@ -54,6 +55,39 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
     } catch (error) {
       console.error('Error loading contracts:', error);
     }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+    
+    if (pdfFiles.length === 0) {
+      toast.error('Please drop PDF files only');
+      return;
+    }
+    
+    if (pdfFiles.length > 1) {
+      toast.error('Please drop only one PDF file at a time');
+      return;
+    }
+    
+    const file = pdfFiles[0];
+    setSelectedFile(file);
+    setContractName(file.name.replace('.pdf', ''));
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,53 +192,107 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
   };
 
   return (
-    <div className="p-6 space-y-6 bg-white min-h-screen">
-      <div className="border-b border-gray-200 pb-4">
-        <h1 className="text-2xl font-playfair font-bold text-gray-900">Project Contracts</h1>
-        <p className="text-gray-600 mt-1">Upload and manage contracts for {project.name}</p>
+    <div className="min-h-screen p-4 space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="heading-lg text-gradient-blue">Project Contracts</h1>
+        <p className="body-md text-muted-foreground">Upload and manage contracts for {project.name}</p>
       </div>
 
       {/* Upload Section */}
-      <Card className="border border-gray-200 shadow-sm bg-white">
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="font-playfair text-gray-900">Upload New Contract</CardTitle>
+          <CardTitle className="text-xl font-playfair text-foreground">Upload New Contract</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* Contract Name Input */}
           <div className="space-y-2">
-            <Label htmlFor="contract-name" className="text-gray-700">Contract Name</Label>
+            <Label htmlFor="contract-name" className="text-sm font-medium text-foreground">Contract Name</Label>
             <Input
               id="contract-name"
               type="text"
               value={contractName}
               onChange={(e) => setContractName(e.target.value)}
               placeholder="Enter contract name"
-              className="border-gray-300 focus:border-blue-500 bg-white"
+              className="input-minimal"
             />
           </div>
 
+          {/* Drag & Drop Upload Area */}
           <div className="space-y-2">
-            <Label htmlFor="contract-file" className="text-gray-700">PDF File</Label>
-            <div className="flex items-center gap-4">
-              <Input
+            <Label className="text-sm font-medium text-foreground">PDF Document</Label>
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                dragActive 
+                  ? "border-primary bg-primary/5 glass-light" 
+                  : "border-border glass hover:glass-hover"
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <input
                 ref={fileInputRef}
-                id="contract-file"
                 type="file"
                 accept=".pdf"
                 onChange={handleFileSelect}
-                className="border-gray-300 focus:border-blue-500 bg-white"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              {selectedFile && (
-                <span className="text-sm text-gray-600">
-                  {selectedFile.name} ({formatFileSize(selectedFile.size)})
-                </span>
-              )}
+              
+              <Upload className={`w-12 h-12 mx-auto mb-4 transition-colors ${
+                dragActive ? "text-primary" : "text-muted-foreground"
+              }`} />
+              
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {dragActive ? "Drop your PDF here" : "Drop PDF file here"}
+              </h3>
+              
+              <p className="text-muted-foreground mb-4">
+                or click to browse and select a file
+              </p>
+              
+              <Button
+                variant="outline"
+                className="button-ghost"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Browse Files
+              </Button>
             </div>
           </div>
+
+          {/* Selected File Display */}
+          {selectedFile && (
+            <div className="glass-light rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="w-6 h-6 text-red-500" />
+                <div>
+                  <p className="font-medium text-foreground">{selectedFile.name}</p>
+                  <p className="text-sm text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setContractName("");
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
           <Button
             onClick={handleUpload}
             disabled={!selectedFile || !contractName.trim() || isUploading}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full button-blue"
           >
             <Upload className="w-4 h-4 mr-2" />
             {isUploading ? 'Uploading...' : 'Upload Contract'}
@@ -213,47 +301,56 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
       </Card>
 
       {/* Contracts List */}
-      <Card className="border border-gray-200 shadow-sm bg-white">
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="font-playfair text-gray-900">Uploaded Contracts</CardTitle>
+          <CardTitle className="text-xl font-playfair text-foreground">Uploaded Contracts</CardTitle>
         </CardHeader>
         <CardContent>
           {contracts.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>No contracts uploaded yet</p>
+            <div className="text-center py-12">
+              <div className="glass-light rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                <FileText className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-medium text-foreground mb-2">No contracts uploaded</h3>
+              <p className="text-muted-foreground">Upload your first contract to get started</p>
             </div>
           ) : (
             <div className="space-y-3">
               {contracts.map((contract) => (
-                <div key={contract.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-red-500" />
-                    <div>
-                      <h3 className="font-medium text-gray-900">{contract.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        {formatFileSize(contract.file_size)} • {new Date(contract.uploaded_at).toLocaleDateString()}
-                      </p>
+                <div key={contract.id} className="glass-light rounded-xl p-4 hover:glass-hover transition-all duration-300 group">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="glass rounded-lg p-2">
+                        <FileText className="w-6 h-6 text-red-500" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
+                          {contract.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {formatFileSize(contract.file_size)} • {new Date(contract.uploaded_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(contract.file_url, '_blank')}
-                      className="border-gray-300 text-gray-700 hover:bg-gray-100"
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      View
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(contract.id, contract.file_url)}
-                      className="border-red-300 text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(contract.file_url, '_blank')}
+                        className="button-ghost"
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(contract.id, contract.file_url)}
+                        className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
