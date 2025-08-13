@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { format, isSameDay, addDays } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { Search, Plus, ChevronLeft, ChevronRight, RotateCcw, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Task } from '../tasks/types';
@@ -31,7 +30,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'tasks' | 'issues' | 'bugs' | 'features'>('all');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'incomplete' | 'completed' | 'in-progress' | 'pending' | 'not-started'>('all'); // Kept for potential future use
   const [isResetting, setIsResetting] = useState(false);
   const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
   const { toast } = useToast();
@@ -58,14 +56,14 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     setCurrentDate(new Date());
   };
 
-  // Filter tasks for backlog (unscheduled tasks or tasks at midnight) - REDESIGNED
+  // Filter tasks for backlog (unscheduled tasks or tasks at midnight)
   const getBacklogTasks = () => {
     return tasks.filter(task => {
-      // CORE RULE: Exclude completed tasks completely from backlog
+      // Exclude completed tasks completely from backlog
       if (task.status === 'Completed') return false;
       
-      // CORE RULE: Only show tasks assigned to current user
-      if (!profile) return false; // Wait for profile to load
+      // Only show tasks assigned to current user
+      if (!profile) return false;
       
       const currentUserName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
       const currentUserEmail = profile.email;
@@ -83,7 +81,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         return taskDate.getHours() === 0 && taskDate.getMinutes() === 0;
       })();
 
-      // Must be in backlog
       if (!isInBacklog) return false;
 
       // Apply search filter
@@ -110,19 +107,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     });
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "high":
-        return "bg-destructive/10 text-destructive border-destructive/20";
-      case "medium":
-        return "bg-warning/10 text-warning border-warning/20";
-      case "low":
-        return "bg-success/10 text-success border-success/20";
-      default:
-        return "bg-muted text-muted-foreground border-border";
-    }
-  };
-
   // Drag handlers for moving tasks back to backlog
   const handleCalendarTaskDragStart = useCallback((e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData('text/plain', taskId);
@@ -131,7 +115,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
 
   const handleBacklogDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
-    setDragOverSlot(null); // Clear visual feedback
+    setDragOverSlot(null);
     console.log('🗂️ Backlog drop detected');
     
     const taskId = e.dataTransfer.getData('text/plain');
@@ -180,45 +164,14 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const handleBacklogDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    setDragOverSlot('backlog'); // Add visual feedback
+    setDragOverSlot('backlog');
   }, []);
 
   const handleBacklogDragLeave = useCallback((e: React.DragEvent) => {
-    // Only clear if leaving the backlog area entirely
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setDragOverSlot(null);
     }
   }, []);
-
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "issue":
-        return "bg-destructive/10 text-destructive";
-      case "task":
-        return "bg-primary/10 text-primary";
-      case "bug":
-        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300";
-      case "feature":
-        return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "completed":
-        return "bg-success/10 text-success border-success/20";
-      case "in progress":
-        return "bg-primary/10 text-primary border-primary/20";
-      case "pending":
-        return "bg-warning/10 text-warning border-warning/20";
-      case "not started":
-        return "bg-muted/10 text-muted-foreground border-muted/20";
-      default:
-        return "bg-muted text-muted-foreground border-border";
-    }
-  };
 
   // Reset tasks from current day back to backlog
   const handleResetDay = useCallback(async () => {
@@ -238,10 +191,9 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
     setIsResetting(true);
     
     try {
-      // Reset all tasks for the current day to midnight (moves them back to backlog)
       const updates = tasksToReset.map(task => {
         const resetDate = new Date(task.dueDate);
-        resetDate.setHours(0, 0, 0, 0); // Set to midnight
+        resetDate.setHours(0, 0, 0, 0);
         return supabase
           .from('tasks')
           .update({ due_date: resetDate.toISOString() })
@@ -256,9 +208,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         variant: "default",
       });
       
-      // Refresh the tasks if onTaskUpdate is available
       if (onTaskUpdate) {
-        // Trigger a refresh by updating the first task (this will cause parent to refetch)
         await onTaskUpdate(tasksToReset[0].id, {});
       }
       
@@ -278,251 +228,268 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
   const dayTasks = getDayTasks();
 
   return (
-    <div className="drag-drop-wrapper">
-      <div className="relative h-full w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Left Sidebar - Task Backlog - Absolutely Fixed */}
-      <div className="absolute left-0 top-0 w-80 h-full z-10">
-        <Card 
-          className={cn(
-            "h-full flex flex-col border-r shadow-lg bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-xl border-border/30 transition-all duration-300",
-            dragOverSlot === 'backlog' && "ring-2 ring-primary/50 bg-primary/5"
-          )}
-          onDrop={handleBacklogDrop}
-          onDragOver={handleBacklogDragOver}
-          onDragLeave={handleBacklogDragLeave}
-        >
-          <CardHeader className="pb-4 flex-shrink-0 bg-gradient-to-r from-muted/30 to-muted/10 border-b border-border/20">
-            <CardTitle className="text-lg font-semibold text-foreground">Task Backlog</CardTitle>
-            <Button 
-              size="sm" 
-              className="w-full justify-start bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-200"
-              onClick={() => {/* Add new task */}}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add to backlog
-            </Button>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col p-3 min-h-0">
-            {/* Search */}
-            <div className="relative flex-shrink-0 mb-3">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Type here to search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-8"
-              />
+    <div className="min-h-screen bg-white">
+      <div className="relative h-full w-full overflow-hidden bg-white">
+        {/* Left Sidebar - Task Backlog - Clean White Design */}
+        <div className="absolute left-0 top-0 w-80 h-full z-10">
+          <div 
+            className={cn(
+              "h-full flex flex-col border-r bg-white shadow-sm border-gray-200 transition-all duration-300",
+              dragOverSlot === 'backlog' && "ring-2 ring-blue-500/50 bg-blue-50/50"
+            )}
+            onDrop={handleBacklogDrop}
+            onDragOver={handleBacklogDragOver}
+            onDragLeave={handleBacklogDragLeave}
+          >
+            <div className="pb-4 flex-shrink-0 bg-white border-b border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-playfair">Task Backlog</h3>
+              <Button 
+                size="sm" 
+                className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                onClick={() => {/* Add new task */}}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add to backlog
+              </Button>
             </div>
+            
+            <div className="flex-1 flex flex-col p-6 min-h-0 bg-white">
+              {/* Search */}
+              <div className="relative flex-shrink-0 mb-4">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Type here to search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-10 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                />
+              </div>
 
-            {/* REDESIGNED Filters - Simplified and Clear */}
-            <div className="flex-shrink-0 mb-4 bg-card/50 rounded-lg border p-3">
-              {/* Type Filter */}
-              <div className="mb-4">
-                <label className="text-xs font-semibold text-foreground block mb-2">Task Type</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {[
-                    { key: 'all', label: 'All Types' },
-                    { key: 'tasks', label: 'Tasks' },
-                    { key: 'issues', label: 'Issues' },
-                    { key: 'bugs', label: 'Bugs' },
-                    { key: 'features', label: 'Features' }
-                  ].map((filter) => (
-                    <Button
-                      key={filter.key}
-                      variant={selectedFilter === filter.key ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => {
-                        console.log('Type filter clicked:', filter.key);
-                        setSelectedFilter(filter.key as any);
-                      }}
-                      className="text-xs px-2 py-1 h-8 justify-start hover:bg-primary/10"
+              {/* Clean White Filters */}
+              <div className="flex-shrink-0 mb-6 bg-gray-50 rounded-xl border border-gray-200 p-4">
+                <div className="mb-4">
+                  <label className="text-sm font-medium text-gray-900 block mb-3">Task Type</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { key: 'all', label: 'All Types' },
+                      { key: 'tasks', label: 'Tasks' },
+                      { key: 'issues', label: 'Issues' },
+                      { key: 'bugs', label: 'Bugs' },
+                      { key: 'features', label: 'Features' }
+                    ].map((filter) => (
+                      <Button
+                        key={filter.key}
+                        variant={selectedFilter === filter.key ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          console.log('Type filter clicked:', filter.key);
+                          setSelectedFilter(filter.key as any);
+                        }}
+                        className={`text-sm px-3 py-2 h-9 justify-start ${
+                          selectedFilter === filter.key 
+                            ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {filter.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Backlog Info */}
+                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Backlog Rules</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Shows all <span className="font-medium text-gray-900">incomplete tasks</span> (any status except "Completed") that are unscheduled or at midnight.
+                  </p>
+                  <div className="mt-3 text-sm">
+                    <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-md font-medium">
+                      {backlogTasks.length} incomplete tasks
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Task List - Clean White Cards */}
+              <div className="flex-1 overflow-hidden">
+                <div className="space-y-3 overflow-y-auto h-full pr-2">
+                  {backlogTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="draggable-task-element p-4 rounded-xl border border-gray-200 bg-white transition-all hover:bg-gray-50 hover:shadow-md cursor-grab active:cursor-grabbing"
+                      draggable
+                      onDragStart={(e) => handleCalendarTaskDragStart(e, task.id)}
+                      onClick={() => onTaskClick(task)}
                     >
-                      {filter.label}
-                    </Button>
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 pt-1">
+                          <GripVertical className="w-4 h-4 text-gray-400" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <h4 className="font-medium text-gray-900">{task.taskName}</h4>
+                          <p className="text-sm text-gray-600">
+                            {task.projectName}
+                          </p>
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge variant="outline" className={`text-xs ${
+                              task.taskType === 'Issue' ? 'bg-red-50 text-red-700 border-red-200' :
+                              task.taskType === 'Task' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                              'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}>
+                              {task.taskType}
+                            </Badge>
+                            <Badge variant="outline" className={`text-xs ${
+                              task.priority === 'High' ? 'bg-red-50 text-red-700 border-red-200' :
+                              task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                              'bg-green-50 text-green-700 border-green-200'
+                            }`}>
+                              {task.priority}
+                            </Badge>
+                            <Badge variant="outline" className={`text-xs ${
+                              task.status === 'Completed' ? 'bg-green-50 text-green-700 border-green-200' :
+                              task.status === 'In Progress' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                              task.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                              'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}>
+                              {task.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              {/* Backlog Info */}
-              <div className="bg-muted/30 rounded-md p-3 border-l-4 border-primary">
-                <h4 className="text-xs font-semibold text-foreground mb-1">Backlog Rules</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Shows all <span className="font-medium text-foreground">incomplete tasks</span> (any status except "Completed") that are unscheduled or at midnight.
-                </p>
-                <div className="mt-2 text-xs">
-                  <span className="inline-block bg-primary/10 text-primary px-2 py-0.5 rounded-sm font-medium">
-                    {backlogTasks.length} incomplete tasks
-                  </span>
+              {backlogTasks.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-600">No tasks found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Calendar Area - Clean White Design */}
+        <div className="ml-80 h-full overflow-y-auto pl-8 bg-white">
+          <div className="space-y-6 pb-8">
+            {/* Header */}
+            <div className="flex items-center justify-between sticky top-0 bg-white z-10 py-4 border-b border-gray-200">
+              <div className="flex items-center gap-4">
+                <Button size="sm" variant="outline" className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Event
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={handleResetDay}
+                  disabled={isResetting || dayTasks.length === 0}
+                  className="text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  {isResetting ? 'Resetting...' : 'RESET'}
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Type here to search"
+                    className="pl-10 w-64 bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <Button 
+                    variant={viewMode === 'day' ? 'default' : 'ghost'} 
+                    size="sm" 
+                    onClick={() => setViewMode('day')}
+                    className={`text-sm ${viewMode === 'day' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    Day
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'week' ? 'default' : 'ghost'} 
+                    size="sm" 
+                    onClick={() => setViewMode('week')}
+                    className={`text-sm ${viewMode === 'week' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    Week
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'month' ? 'default' : 'ghost'} 
+                    size="sm" 
+                    onClick={() => setViewMode('month')}
+                    className={`text-sm ${viewMode === 'month' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    Month
+                  </Button>
+                </div>
+
+                {/* Date Navigation */}
+                <div className="flex items-center gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => navigateDate('prev')}
+                    className="w-8 h-8 p-0 bg-white border-gray-300 hover:bg-gray-50"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={goToToday}
+                    className="px-4 bg-white border-gray-300 hover:bg-gray-50 text-gray-700"
+                  >
+                    Today
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => navigateDate('next')}
+                    className="w-8 h-8 p-0 bg-white border-gray-300 hover:bg-gray-50"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Current Date Display */}
+                <div className="text-lg font-medium text-gray-900 font-playfair">
+                  {format(currentDate, 'EEEE, MMMM do, yyyy')}
                 </div>
               </div>
             </div>
 
-            {/* Task List - Scrollable */}
-            <div className="flex-1 overflow-hidden">
-              <div className="space-y-2 overflow-y-auto h-full pr-2">
-                {backlogTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="draggable-task-element p-2 rounded-lg border bg-card transition-all hover:bg-muted/50 cursor-grab active:cursor-grabbing"
-                    draggable
-                    onDragStart={(e) => handleCalendarTaskDragStart(e, task.id)}
-                    onClick={() => onTaskClick(task)}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 pt-1">
-                        <div className="w-3 h-3 text-muted-foreground/60" />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <h4 className="font-medium text-sm">{task.taskName}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          {task.projectName}
-                        </p>
-                         <div className="flex gap-1 flex-wrap">
-                           <Badge variant="outline" className={`text-xs ${getTypeColor(task.taskType)}`}>
-                             {task.taskType}
-                           </Badge>
-                           <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
-                             {task.priority}
-                           </Badge>
-                           <Badge variant="outline" className={`text-xs ${getStatusColor(task.status)}`}>
-                             {task.status}
-                           </Badge>
-                         </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {backlogTasks.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <p className="text-sm">No tasks found</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Calendar Area - Scrollable with left margin for sidebar */}
-      <div className="ml-80 h-full overflow-y-auto pl-6">
-        <div className="space-y-2 pb-6">
-          {/* Header */}
-          <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2">
-            <div className="flex items-center gap-4">
-              <Button size="sm" variant="outline">
-                <Plus className="w-4 h-4 mr-2" />
-                New Event
-              </Button>
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={handleResetDay}
-                disabled={isResetting || dayTasks.length === 0}
-                className="text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-700"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                {isResetting ? 'Resetting...' : 'RESET'}
-              </Button>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Type here to search"
-                  className="pl-10 w-64"
+            {/* Timeline View Container - Clean White */}
+            <div className="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
+              {viewMode === 'day' && (
+                <DayTimelineView
+                  currentDate={currentDate}
+                  tasks={getDayTasks()}
+                  onTaskUpdate={onTaskUpdate}
                 />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {/* View Toggle */}
-              <div className="flex items-center bg-muted rounded-lg p-1">
-                <Button 
-                  variant={viewMode === 'day' ? 'default' : 'ghost'} 
-                  size="sm" 
-                  className="px-3 py-1.5 h-auto"
-                  onClick={() => setViewMode('day')}
-                >
-                  Day
-                </Button>
-                <Button 
-                  variant={viewMode === 'week' ? 'default' : 'ghost'} 
-                  size="sm" 
-                  className="px-3 py-1.5 h-auto"
-                  onClick={() => setViewMode('week')}
-                >
-                  Week
-                </Button>
-                <Button 
-                  variant={viewMode === 'month' ? 'default' : 'ghost'} 
-                  size="sm" 
-                  className="px-3 py-1.5 h-auto"
-                  onClick={() => setViewMode('month')}
-                >
-                  Month
-                </Button>
-              </div>
-
-              {/* Date Navigation */}
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigateDate('prev')}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => navigateDate('next')}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
+              )}
+              {viewMode === 'week' && (
+                <WeekTimelineView
+                  currentDate={currentDate}
+                  tasks={tasks}
+                  onTaskUpdate={onTaskUpdate}
+                />
+              )}
+              {viewMode === 'month' && (
+                <MonthTimelineView
+                  currentDate={currentDate}
+                  tasks={tasks}
+                  onTaskUpdate={onTaskUpdate}
+                />
+              )}
             </div>
           </div>
-
-          {/* Date Display */}
-          <div className="text-center">
-            <h2 className="text-2xl font-bold flex items-center justify-center gap-3">
-              {format(currentDate, 'EEEE, d MMMM')} 
-              <span className="flex items-center gap-1 text-lg">
-                🕒 {format(currentTime, 'HH:mm:ss')}
-              </span>
-            </h2>
-          </div>
-
-          {/* Timeline Content */}
-          {viewMode === 'week' ? (
-            <WeekTimelineView 
-              currentDate={currentDate} 
-              tasks={tasks}
-              onTaskUpdate={onTaskUpdate}
-            />
-          ) : viewMode === 'month' ? (
-            <MonthTimelineView 
-              currentDate={currentDate} 
-              tasks={tasks}
-              onTaskUpdate={onTaskUpdate}
-              onDayClick={(day) => {
-                setCurrentDate(day);
-                setViewMode('day');
-              }}
-            />
-          ) : (
-            <DayTimelineView 
-              currentDate={currentDate} 
-              tasks={tasks}
-              onTaskUpdate={onTaskUpdate}
-              enableDragDrop={true}
-              useOwnDragContext={false}
-              onCalendarDrop={handleBacklogDrop}
-              onCalendarDragOver={handleBacklogDragOver}
-            />
-          )}
         </div>
-      </div>
-
       </div>
     </div>
   );
