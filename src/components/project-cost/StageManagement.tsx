@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Settings, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { CentralTaskService } from '@/services/centralTaskService';
 
 interface StageManagementProps {
@@ -22,6 +22,7 @@ interface Stage {
 }
 
 export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageManagementProps) => {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,11 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
       setStages(stageList);
     } catch (error) {
       console.error('Error loading stages:', error);
-      toast.error('Failed to load stages');
+      toast({
+        title: "Error",
+        description: "Failed to load stages",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -83,10 +88,17 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
       setNewStageName('');
       await loadStages();
       onStageUpdated();
-      toast.success('Stage added successfully');
+      toast({
+        title: "Success",
+        description: "Stage added successfully"
+      });
     } catch (error) {
       console.error('Error adding stage:', error);
-      toast.error('Failed to add stage');
+      toast({
+        title: "Error",
+        description: "Failed to add stage",
+        variant: "destructive"
+      });
     }
   };
 
@@ -103,10 +115,17 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
       setEditValue('');
       await loadStages();
       onStageUpdated();
-      toast.success('Stage updated successfully');
+      toast({
+        title: "Success",
+        description: "Stage updated successfully"
+      });
     } catch (error) {
       console.error('Error updating stage:', error);
-      toast.error('Failed to update stage');
+      toast({
+        title: "Error",
+        description: "Failed to update stage",
+        variant: "destructive"
+      });
     }
   };
 
@@ -123,10 +142,17 @@ export const StageManagement = ({ projectId, companyId, onStageUpdated }: StageM
 
       await loadStages();
       onStageUpdated();
-      toast.success('Stage and all its activities deleted successfully');
+      toast({
+        title: "Success",
+        description: "Stage and all its activities deleted successfully"
+      });
     } catch (error) {
       console.error('Error deleting stage:', error);
-      toast.error('Failed to delete stage');
+      toast({
+        title: "Error",
+        description: "Failed to delete stage",
+        variant: "destructive"
+      });
     }
   };
 

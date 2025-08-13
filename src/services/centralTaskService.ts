@@ -205,7 +205,7 @@ export class CentralTaskService {
     };
   }
 
-  // Synchronize stage updates across all tasks in that stage
+  // Update stage name for all tasks in a project
   static async updateStage(projectId: string, oldStage: string, newStage: string): Promise<void> {
     const { error } = await supabase
       .from('activities')
