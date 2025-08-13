@@ -180,13 +180,13 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
     date ? new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="border-b border-border bg-background sticky top-0 z-10">
+      <div className="border-b border-border bg-background flex-shrink-0">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground mb-2">
+              <h1 className="text-xl font-semibold text-foreground mb-2">
                 {currentSummary.title}
               </h1>
               <div className="flex items-center gap-3">
@@ -264,145 +264,147 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
         </div>
       </div>
 
-      {/* Main Content - Single Continuous Section */}
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content Area */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Key Facts Row */}
-            <div>
-              <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Facts</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Payment Type</p>
-                  <p className="text-lg font-medium">{currentSummary.money.payment_type || '—'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Contract Sum (ex GST)</p>
-                  <p className="text-lg font-medium">{formatCurrency(currentSummary.money.contract_sum_ex_gst)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Deposit</p>
-                  <p className="text-lg font-medium">{currentSummary.money.deposit_pct}%</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Retention</p>
-                  <p className="text-lg font-medium">{currentSummary.money.retention_pct}%</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Parties Row */}
-            <div>
-              <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Parties</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Principal</p>
-                  <p className="text-lg font-medium">{currentSummary.parties.principal.legal_name}</p>
-                  {currentSummary.parties.principal.abn && (
-                    <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.principal.abn}</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Contractor</p>
-                  <p className="text-lg font-medium">{currentSummary.parties.contractor.legal_name}</p>
-                  {currentSummary.parties.contractor.abn && (
-                    <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.contractor.abn}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Dates Row */}
-            <div>
-              <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Dates</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Start Date</p>
-                  <p className="text-lg font-medium">{formatDate(currentSummary.dates.start)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Practical Completion</p>
-                  <p className="text-lg font-medium">{formatDate(currentSummary.dates.practical_completion)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">DLP Days</p>
-                  <p className="text-lg font-medium">{currentSummary.dates.defects_liability_period_days || '—'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Next Milestone */}
-            {currentSummary.next_milestone && (
+      {/* Main Content - Single Scroll Container */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Main Content Area */}
+            <div className="lg:col-span-3 space-y-8">
+              {/* Key Facts Row */}
               <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Milestone</h2>
-                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
+                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Facts</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div>
-                    <p className="text-lg font-medium mb-1">{currentSummary.next_milestone.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Due: {formatDate(currentSummary.next_milestone.due_date)}
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-1">Payment Type</p>
+                    <p className="text-lg font-medium">{currentSummary.money.payment_type || '—'}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-medium mb-2">{formatCurrency(currentSummary.next_milestone.amount)}</p>
-                    <Button size="sm">Create Progress Claim</Button>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Contract Sum (ex GST)</p>
+                    <p className="text-lg font-medium">{formatCurrency(currentSummary.money.contract_sum_ex_gst)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Deposit</p>
+                    <p className="text-lg font-medium">{currentSummary.money.deposit_pct}%</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Retention</p>
+                    <p className="text-lg font-medium">{currentSummary.money.retention_pct}%</p>
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Risks */}
-            {currentSummary.risks.length > 0 && (
+              {/* Parties Row */}
               <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Risks</h2>
-                <div className="space-y-3">
-                  {currentSummary.risks.map((risk: any, index: number) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                      <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${
-                        risk.level === 'high' ? 'text-red-500' : 
-                        risk.level === 'medium' ? 'text-amber-500' : 'text-green-500'
-                      }`} />
-                      <span className="text-sm">{risk.msg}</span>
-                    </div>
-                  ))}
+                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Parties</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Principal</p>
+                    <p className="text-lg font-medium">{currentSummary.parties.principal.legal_name}</p>
+                    {currentSummary.parties.principal.abn && (
+                      <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.principal.abn}</p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Contractor</p>
+                    <p className="text-lg font-medium">{currentSummary.parties.contractor.legal_name}</p>
+                    {currentSummary.parties.contractor.abn && (
+                      <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.contractor.abn}</p>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Next Actions */}
-            {currentSummary.actions.length > 0 && (
+              {/* Dates Row */}
               <div>
-                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Actions</h2>
-                <div className="space-y-2">
-                  {currentSummary.actions.map((action: any, index: number) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                      <div className="w-4 h-4 rounded border border-muted-foreground"></div>
-                      <span className="text-sm">{action.label}</span>
-                      {action.due && (
-                        <span className="text-xs text-muted-foreground ml-auto">
-                          Due: {formatDate(action.due)}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Dates</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Start Date</p>
+                    <p className="text-lg font-medium">{formatDate(currentSummary.dates.start)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Practical Completion</p>
+                    <p className="text-lg font-medium">{formatDate(currentSummary.dates.practical_completion)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">DLP Days</p>
+                    <p className="text-lg font-medium">{currentSummary.dates.defects_liability_period_days || '—'}</p>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Right Sidebar - Versions */}
-          <div className="lg:col-span-1">
-            <div className="bg-muted/10 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-4 h-4 text-muted-foreground" />
-                <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Versions</h2>
-              </div>
-              <div className="text-center py-6">
-                <div className="bg-muted/30 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-muted-foreground" />
+              {/* Next Milestone */}
+              {currentSummary.next_milestone && (
+                <div>
+                  <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Milestone</h2>
+                  <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
+                    <div>
+                      <p className="text-lg font-medium mb-1">{currentSummary.next_milestone.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Due: {formatDate(currentSummary.next_milestone.due_date)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-medium mb-2">{formatCurrency(currentSummary.next_milestone.amount)}</p>
+                      <Button size="sm">Create Progress Claim</Button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-1">No versions uploaded yet</p>
-                <p className="text-xs text-muted-foreground">Upload your first contract PDF to get started</p>
+              )}
+
+              {/* Risks */}
+              {currentSummary.risks.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Risks</h2>
+                  <div className="space-y-3">
+                    {currentSummary.risks.map((risk: any, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
+                        <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${
+                          risk.level === 'high' ? 'text-red-500' : 
+                          risk.level === 'medium' ? 'text-amber-500' : 'text-green-500'
+                        }`} />
+                        <span className="text-sm">{risk.msg}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Next Actions */}
+              {currentSummary.actions.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Actions</h2>
+                  <div className="space-y-2">
+                    {currentSummary.actions.map((action: any, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
+                        <div className="w-4 h-4 rounded border border-muted-foreground"></div>
+                        <span className="text-sm">{action.label}</span>
+                        {action.due && (
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            Due: {formatDate(action.due)}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Sidebar - Versions */}
+            <div className="lg:col-span-1">
+              <div className="bg-muted/10 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="w-4 h-4 text-muted-foreground" />
+                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Versions</h2>
+                </div>
+                <div className="text-center py-6">
+                  <div className="bg-muted/30 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">No versions uploaded yet</p>
+                  <p className="text-xs text-muted-foreground">Upload your first contract PDF to get started</p>
+                </div>
               </div>
             </div>
           </div>
