@@ -682,6 +682,56 @@ export type Database = {
           },
         ]
       }
+      contract_versions: {
+        Row: {
+          ai_confidence: number | null
+          ai_summary_json: Json | null
+          contract_id: string
+          created_at: string
+          file_name: string | null
+          file_size: number | null
+          id: string
+          is_canonical: boolean | null
+          status: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_summary_json?: Json | null
+          contract_id: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          is_canonical?: boolean | null
+          status?: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_summary_json?: Json | null
+          contract_id?: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          is_canonical?: boolean | null
+          status?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_versions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           agreed_price: number
