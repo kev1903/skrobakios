@@ -345,7 +345,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             <div className="lg:col-span-2">
               <Card className="border border-border shadow-sm bg-card">
                 <CardHeader>
-                  <CardTitle className="text-xl font-playfair text-card-foreground">Contract Summary</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-foreground">Contract Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Overview Stats */}
@@ -370,7 +370,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
                   {/* Recent Activity */}
                   <div>
-                    <h3 className="text-lg font-medium text-card-foreground mb-4">Recent Activity</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Recent Activity</h3>
                     {contracts.length === 0 ? (
                       <div className="text-center py-8">
                         <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
@@ -387,7 +387,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                               <FileText className="w-5 h-5 text-red-500" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-card-foreground truncate">{contract.name}</h4>
+                              <h4 className="font-semibold text-foreground truncate">{contract.name}</h4>
                               <p className="text-sm text-muted-foreground">
                                 Uploaded {new Date(contract.uploaded_at).toLocaleDateString()}
                               </p>
@@ -408,7 +408,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             <div className="lg:col-span-1">
               <Card className="border border-border shadow-sm bg-card">
                 <CardHeader>
-                  <CardTitle className="text-xl font-playfair text-card-foreground">Uploaded Files</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-foreground">Uploaded Files</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {contracts.length === 0 ? (
@@ -416,44 +416,39 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                         <FileText className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="text-base font-medium text-card-foreground mb-2">No files uploaded</h3>
+                      <h3 className="text-base font-medium text-foreground mb-2">No files uploaded</h3>
                       <p className="text-sm text-muted-foreground">Upload your first contract</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {contracts.map((contract) => (
-                        <div key={contract.id} className="bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-all duration-300 group border">
-                          <div className="flex items-start gap-3 mb-3">
-                            <div className="bg-background rounded-lg p-2 shadow-sm flex-shrink-0">
-                              <FileText className="w-5 h-5 text-red-500" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <h3 className="font-medium text-card-foreground leading-tight truncate group-hover:text-primary transition-colors text-sm">
+                        <div key={contract.id} className="flex items-center justify-between py-2 px-3 hover:bg-muted/30 rounded-lg group transition-colors">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <FileText className="w-4 h-4 text-red-500 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <span className="font-medium text-foreground truncate block group-hover:text-primary transition-colors">
                                 {contract.name}
-                              </h3>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {formatFileSize(contract.file_size)}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(contract.uploaded_at).toLocaleDateString()}
-                              </p>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>{formatFileSize(contract.file_size)}</span>
+                              <span>{new Date(contract.uploaded_at).toLocaleDateString()}</span>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1 ml-3">
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               onClick={() => window.open(contract.file_url, '_blank')}
-                              className="flex-1 text-xs"
+                              className="h-8 w-8 p-0 hover:bg-muted"
                             >
-                              <Download className="w-3 h-3 mr-1" />
-                              View
+                              <Download className="w-3 h-3" />
                             </Button>
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(contract.id, contract.file_url)}
-                              className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 text-destructive"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
