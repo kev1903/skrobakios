@@ -4048,6 +4048,10 @@ export type Database = {
         Args: { company_id: string; user_id: string }
         Returns: boolean
       }
+      can_manage_project_secure: {
+        Args: { target_project_id: string; target_user_id: string }
+        Returns: boolean
+      }
       can_manage_user: {
         Args: { target_user_id: string }
         Returns: boolean
@@ -4129,6 +4133,18 @@ export type Database = {
           can_assign_to_companies: boolean
         }[]
       }
+      get_masked_lead_contact: {
+        Args: {
+          lead_contact_email: string
+          lead_contact_phone: string
+          requesting_user_id: string
+          lead_company_id: string
+        }
+        Returns: {
+          masked_email: string
+          masked_phone: string
+        }[]
+      }
       get_public_profile_safe: {
         Args: { profile_user_id: string }
         Returns: {
@@ -4143,6 +4159,24 @@ export type Database = {
           email: string
           phone: string
           status: string
+        }[]
+      }
+      get_safe_profile_data: {
+        Args: { profile_user_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          first_name: string
+          last_name: string
+          avatar_url: string
+          company: string
+          slug: string
+          rating: number
+          review_count: number
+          email: string
+          phone: string
+          status: string
+          public_profile: boolean
         }[]
       }
       get_safe_public_profile_data: {
@@ -4268,7 +4302,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_project_admin_secure: {
+        Args: { target_project_id: string; target_user_id: string }
+        Returns: boolean
+      }
       is_project_member: {
+        Args: { target_project_id: string; target_user_id: string }
+        Returns: boolean
+      }
+      is_project_member_secure: {
         Args: { target_project_id: string; target_user_id: string }
         Returns: boolean
       }
