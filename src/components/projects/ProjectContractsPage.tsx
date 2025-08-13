@@ -198,7 +198,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   };
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="flex bg-background">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-48 z-40">
         <ProjectSidebar
@@ -211,7 +211,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+      <div className="flex-1 ml-48 bg-background">
         <div className="p-6 min-h-full">
           {/* Header */}
           <div className="mb-8">
