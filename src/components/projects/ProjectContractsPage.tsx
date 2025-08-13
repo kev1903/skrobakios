@@ -25,6 +25,7 @@ interface ContractFile {
 }
 
 export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPageProps) => {
+  console.log('🔧 ProjectContractsPage rendered for project:', project.name);
   const [isUploading, setIsUploading] = useState(false);
   const [contracts, setContracts] = useState<ContractFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
