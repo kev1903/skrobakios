@@ -284,19 +284,19 @@ export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpiCards.map((kpi, index) => (
-          <Card key={index} className="bg-gradient-to-br from-card to-muted/10">
-            <CardContent className="p-4">
+          <Card key={index}>
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
-                  <p className="text-2xl font-bold">{formatCurrency(kpi.value)}</p>
-                  <p className={`text-sm ${kpi.positive ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className="text-xs font-medium text-muted-foreground">{kpi.title}</p>
+                  <p className="text-lg font-bold">{formatCurrency(kpi.value)}</p>
+                  <p className={`text-xs ${kpi.positive ? 'text-green-600' : 'text-red-600'}`}>
                     {kpi.trend}
                   </p>
                 </div>
-                <kpi.icon className="h-8 w-8 text-muted-foreground" />
+                <kpi.icon className="h-5 w-5 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>

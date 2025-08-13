@@ -145,51 +145,51 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-red-600">Total Bills</p>
-                <p className="text-2xl font-bold text-red-900">{formatCurrency(summaryData.totalBills)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total Bills</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.totalBills)}</p>
               </div>
-              <DollarSign className="h-8 w-8 text-red-500" />
+              <DollarSign className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600">Total Paid</p>
-                <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryData.totalPaid)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total Paid</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.totalPaid)}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-          <CardContent className="p-4">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-yellow-600">Outstanding</p>
-                <p className="text-2xl font-bold text-yellow-900">{formatCurrency(summaryData.outstanding)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Outstanding</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.outstanding)}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
+              <Clock className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600">Pending Approval</p>
-                <p className="text-2xl font-bold text-blue-900">{summaryData.pending}</p>
+                <p className="text-xs font-medium text-muted-foreground">Pending Approval</p>
+                <p className="text-lg font-bold">{summaryData.pending}</p>
               </div>
-              <Upload className="h-8 w-8 text-blue-500" />
+              <Upload className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>

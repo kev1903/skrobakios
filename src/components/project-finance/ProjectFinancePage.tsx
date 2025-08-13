@@ -21,20 +21,22 @@ export const ProjectFinancePage = ({ project, onNavigate }: ProjectFinancePagePr
           {/* Header */}
           <div className="mb-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  Project Finance
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                  Manage invoices, bills, and financial analytics for {project.name}
-                </p>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => onNavigate('project-cost')}
+                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← Back to Cost Management
+                </button>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    Project Finance
+                  </h1>
+                  <p className="text-muted-foreground mt-2">
+                    Manage invoices, bills, and financial analytics for {project.name}
+                  </p>
+                </div>
               </div>
-              <button
-                onClick={() => onNavigate('project-cost')}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                ← Back to Cost Management
-              </button>
             </div>
           </div>
 

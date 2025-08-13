@@ -159,51 +159,51 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600">Total Billed</p>
-                <p className="text-2xl font-bold text-blue-900">{formatCurrency(summaryData.totalBilled)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total Billed</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.totalBilled)}</p>
               </div>
-              <FileText className="h-8 w-8 text-blue-500" />
+              <FileText className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600">Total Paid</p>
-                <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryData.totalPaid)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total Paid</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.totalPaid)}</p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-500" />
+              <DollarSign className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-          <CardContent className="p-4">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-yellow-600">Outstanding</p>
-                <p className="text-2xl font-bold text-yellow-900">{formatCurrency(summaryData.outstanding)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Outstanding</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.outstanding)}</p>
               </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
+              <Clock className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-4">
+        <Card>
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-red-600">Overdue</p>
-                <p className="text-2xl font-bold text-red-900">{formatCurrency(summaryData.overdue)}</p>
+                <p className="text-xs font-medium text-muted-foreground">Overdue</p>
+                <p className="text-lg font-bold">{formatCurrency(summaryData.overdue)}</p>
               </div>
-              <AlertCircle className="h-8 w-8 text-red-500" />
+              <AlertCircle className="h-5 w-5 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
