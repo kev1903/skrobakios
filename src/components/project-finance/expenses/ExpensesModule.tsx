@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface Bill {
   id: string;
@@ -74,6 +75,47 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const handleApproveBill = async (billId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ status: 'approved' })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      // Log approval event
+      await supabase.from('events').insert({
+        project_id: projectId,
+        name: 'bill_approved',
+        ref_table: 'bills',
+        ref_id: billId,
+        payload: { approved_by: 'current_user' }
+      });
+
+      toast({
+        title: "Success",
+        description: "Bill approved successfully"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error approving bill:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve bill",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRecordPayment = async (billId: string) => {
+    toast({
+      title: "Coming Soon",
+      description: "Payment recording will be implemented soon"
+    });
   };
 
   const filterBillsByStatus = (status: string) => {
@@ -197,26 +239,36 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
                         <tr key={bill.id} className="border-b hover:bg-muted/50">
                           <td className="p-2 font-mono text-sm">{bill.bill_no}</td>
                           <td className="p-2">{bill.supplier_name}</td>
-                          <td className="p-2">{new Date(bill.bill_date).toLocaleDateString()}</td>
-                          <td className="p-2">{new Date(bill.due_date).toLocaleDateString()}</td>
+                          <td className="p-2">{format(new Date(bill.bill_date), 'MMM dd, yyyy')}</td>
+                          <td className="p-2">{format(new Date(bill.due_date), 'MMM dd, yyyy')}</td>
                           <td className="p-2 font-medium">{formatCurrency(bill.total)}</td>
                           <td className="p-2 font-medium">{formatCurrency(bill.paid_to_date)}</td>
                           <td className="p-2 font-medium">{formatCurrency(bill.total - bill.paid_to_date)}</td>
                           <td className="p-2">{getStatusBadge(bill.status)}</td>
                           <td className="p-2">
-                            <div className="flex items-center gap-2">
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4 mr-1" />
-                                View
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="sm" title="View">
+                                <Eye className="h-4 w-4" />
                               </Button>
                               {bill.status === 'submitted' && (
-                                <Button variant="outline" size="sm" className="text-green-600">
-                                  Approve
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => handleApproveBill(bill.id)}
+                                  title="Approve"
+                                  className="text-green-600 hover:text-green-700"
+                                >
+                                  <CheckCircle className="h-4 w-4" />
                                 </Button>
                               )}
-                              {(bill.status === 'approved' || bill.status === 'scheduled') && (
-                                <Button variant="outline" size="sm">
-                                  Record Payment
+                              {['approved', 'scheduled'].includes(bill.status) && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleRecordPayment(bill.id)}
+                                  title="Record Payment"
+                                >
+                                  <CreditCard className="h-4 w-4" />
                                 </Button>
                               )}
                             </div>

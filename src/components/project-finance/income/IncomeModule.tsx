@@ -6,8 +6,9 @@ import { InvoiceDrawer } from './InvoiceDrawer';
 import { PaymentModal } from './PaymentModal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, FileText, Download, Send, DollarSign, Clock, AlertCircle } from 'lucide-react';
+import { Plus, FileText, Download, Send, DollarSign, Clock, AlertCircle, Mail, Edit, CreditCard } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface Invoice {
   id: string;
@@ -99,6 +100,48 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
   const handleRecordPayment = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
     setIsPaymentModalOpen(true);
+  };
+
+  const handleSendInvoice = async (invoice: Invoice) => {
+    try {
+      // Update status to sent
+      const { error } = await supabase
+        .from('invoices')
+        .update({ status: 'sent' })
+        .eq('id', invoice.id);
+
+      if (error) throw error;
+
+      // Log event
+      await supabase.from('events').insert({
+        project_id: projectId,
+        name: 'invoice_sent',
+        ref_table: 'invoices',
+        ref_id: invoice.id,
+        payload: { invoice_number: invoice.number, client_email: invoice.client_email }
+      });
+
+      toast({
+        title: "Success",
+        description: "Invoice sent successfully"
+      });
+      
+      loadInvoices();
+    } catch (error) {
+      console.error('Error sending invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send invoice",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleGeneratePDF = async (invoice: Invoice) => {
+    toast({
+      title: "Coming Soon",
+      description: "PDF generation will be implemented soon"
+    });
   };
 
   const filteredInvoices = invoices.filter(invoice => {
@@ -219,28 +262,48 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
                     <tr key={invoice.id} className="border-b hover:bg-muted/50">
                       <td className="p-2 font-mono text-sm">{invoice.number}</td>
                       <td className="p-2">{invoice.client_name}</td>
-                      <td className="p-2">{new Date(invoice.issue_date).toLocaleDateString()}</td>
-                      <td className="p-2">{new Date(invoice.due_date).toLocaleDateString()}</td>
+                      <td className="p-2">{format(new Date(invoice.issue_date), 'MMM dd, yyyy')}</td>
+                      <td className="p-2">{format(new Date(invoice.due_date), 'MMM dd, yyyy')}</td>
                       <td className="p-2 font-medium">{formatCurrency(invoice.total)}</td>
                       <td className="p-2 font-medium">{formatCurrency(invoice.paid_to_date)}</td>
                       <td className="p-2 font-medium">{formatCurrency(invoice.total - invoice.paid_to_date)}</td>
                       <td className="p-2">{getStatusBadge(invoice.status, invoice.paid_to_date, invoice.total)}</td>
                       <td className="p-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleEditInvoice(invoice)}
+                            title="Edit"
                           >
-                            Edit
+                            <Edit className="h-4 w-4" />
                           </Button>
-                          {invoice.status !== 'paid' && (
+                          {invoice.status === 'draft' && (
                             <Button
-                              variant="outline"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSendInvoice(invoice)}
+                              title="Send Invoice"
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleGeneratePDF(invoice)}
+                            title="Generate PDF"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                          {invoice.status !== 'paid' && invoice.status !== 'void' && (
+                            <Button
+                              variant="ghost"
                               size="sm"
                               onClick={() => handleRecordPayment(invoice)}
+                              title="Record Payment"
                             >
-                              Record Payment
+                              <CreditCard className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
