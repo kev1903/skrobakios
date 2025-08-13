@@ -29,6 +29,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [contractName, setContractName] = useState("");
   const [dragActive, setDragActive] = useState(false);
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load existing contracts
@@ -209,170 +210,191 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       {/* Main Content */}
       <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
-        <div className="p-6 min-h-full space-y-6">
+        <div className="p-6 min-h-full">
           {/* Header */}
-          <div className="space-y-2">
-            <h1 className="text-3xl font-playfair font-bold text-foreground">Project Contracts</h1>
-            <p className="text-muted-foreground">Upload and manage contracts for {project.name}</p>
-          </div>
-
-          {/* Upload Section */}
-          <Card className="border border-border shadow-sm bg-card">
-            <CardHeader>
-              <CardTitle className="text-xl font-playfair text-card-foreground">Upload New Contract</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Contract Name Input */}
-              <div className="space-y-2">
-                <Label htmlFor="contract-name" className="text-sm font-medium text-card-foreground">Contract Name</Label>
-                <Input
-                  id="contract-name"
-                  type="text"
-                  value={contractName}
-                  onChange={(e) => setContractName(e.target.value)}
-                  placeholder="Enter contract name"
-                  className="bg-input border-input"
-                />
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800 mb-2">Project Contracts</h1>
+                <p className="text-slate-600">Upload and manage contracts for {project.name}</p>
               </div>
-
-              {/* Drag & Drop Upload Area */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-card-foreground">PDF Document</Label>
-                <div
-                  className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                    dragActive 
-                      ? "border-primary bg-primary/5 shadow-md" 
-                      : "border-border bg-muted/30 hover:bg-muted/50"
-                  }`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileSelect}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  
-                  <Upload className={`w-12 h-12 mx-auto mb-4 transition-colors ${
-                    dragActive ? "text-primary" : "text-muted-foreground"
-                  }`} />
-                  
-                  <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                    {dragActive ? "Drop your PDF here" : "Drop PDF file here"}
-                  </h3>
-                  
-                  <p className="text-muted-foreground mb-4">
-                    or click to browse and select a file
-                  </p>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Browse Files
-                  </Button>
-                </div>
-              </div>
-
-              {/* Selected File Display */}
-              {selectedFile && (
-                <div className="bg-muted/30 rounded-lg p-4 flex items-center justify-between border">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-6 h-6 text-red-500" />
-                    <div>
-                      <p className="font-medium text-card-foreground">{selectedFile.name}</p>
-                      <p className="text-sm text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      setContractName("");
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = "";
-                      }
-                    }}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-
               <Button
-                onClick={handleUpload}
-                disabled={!selectedFile || !contractName.trim() || isUploading}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => setIsAddTaskDialogOpen(true)}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                {isUploading ? 'Uploading...' : 'Upload Contract'}
+                Upload Contract
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Contracts List */}
-          <Card className="border border-border shadow-sm bg-card">
-            <CardHeader>
-              <CardTitle className="text-xl font-playfair text-card-foreground">Uploaded Contracts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {contracts.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="bg-muted/30 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                    <FileText className="w-10 h-10 text-muted-foreground" />
+          <div className="flex gap-6">
+            {/* Left Content - Upload Form */}
+            <div className="flex-1 space-y-6">
+              {/* Upload Section */}
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader>
+                  <CardTitle className="text-xl font-playfair text-card-foreground">Upload New Contract</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Contract Name Input */}
+                  <div className="space-y-2">
+                    <Label htmlFor="contract-name" className="text-sm font-medium text-card-foreground">Contract Name</Label>
+                    <Input
+                      id="contract-name"
+                      type="text"
+                      value={contractName}
+                      onChange={(e) => setContractName(e.target.value)}
+                      placeholder="Enter contract name"
+                      className="bg-input border-input"
+                    />
                   </div>
-                  <h3 className="text-lg font-medium text-card-foreground mb-2">No contracts uploaded</h3>
-                  <p className="text-muted-foreground">Upload your first contract to get started</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {contracts.map((contract) => (
-                    <div key={contract.id} className="bg-muted/30 rounded-xl p-4 hover:bg-muted/50 transition-all duration-300 group border">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="bg-background rounded-lg p-2 shadow-sm">
-                            <FileText className="w-6 h-6 text-red-500" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-card-foreground group-hover:text-primary transition-colors">
-                              {contract.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              {formatFileSize(contract.file_size)} • {new Date(contract.uploaded_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(contract.file_url, '_blank')}
-                          >
-                            <Download className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(contract.id, contract.file_url)}
-                            className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+
+                  {/* Drag & Drop Upload Area */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-card-foreground">PDF Document</Label>
+                    <div
+                      className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                        dragActive 
+                          ? "border-primary bg-primary/5 shadow-md" 
+                          : "border-border bg-muted/30 hover:bg-muted/50"
+                      }`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                    >
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleFileSelect}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      
+                      <Upload className={`w-12 h-12 mx-auto mb-4 transition-colors ${
+                        dragActive ? "text-primary" : "text-muted-foreground"
+                      }`} />
+                      
+                      <h3 className="text-lg font-semibold text-card-foreground mb-2">
+                        {dragActive ? "Drop your PDF here" : "Drop PDF file here"}
+                      </h3>
+                      
+                      <p className="text-muted-foreground mb-4">
+                        or click to browse and select a file
+                      </p>
+                      
+                      <Button
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Browse Files
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Selected File Display */}
+                  {selectedFile && (
+                    <div className="bg-muted/30 rounded-lg p-4 flex items-center justify-between border">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-6 h-6 text-red-500" />
+                        <div>
+                          <p className="font-medium text-card-foreground">{selectedFile.name}</p>
+                          <p className="text-sm text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
                         </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setContractName("");
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  )}
+
+                  <Button
+                    onClick={handleUpload}
+                    disabled={!selectedFile || !contractName.trim() || isUploading}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {isUploading ? 'Uploading...' : 'Upload Contract'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Sidebar - Files List */}
+            <div className="w-80">
+              <Card className="border border-border shadow-sm bg-card h-fit sticky top-6">
+                <CardHeader>
+                  <CardTitle className="text-xl font-playfair text-card-foreground">Uploaded Files</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {contracts.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-medium text-card-foreground mb-2">No files uploaded</h3>
+                      <p className="text-sm text-muted-foreground">Upload your first contract to get started</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {contracts.map((contract) => (
+                        <div key={contract.id} className="bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-all duration-300 group border">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <div className="bg-background rounded-lg p-2 shadow-sm flex-shrink-0">
+                                <FileText className="w-5 h-5 text-red-500" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-medium text-card-foreground text-sm leading-tight truncate group-hover:text-primary transition-colors">
+                                  {contract.name}
+                                </h3>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {formatFileSize(contract.file_size)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(contract.uploaded_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(contract.file_url, '_blank')}
+                                className="h-6 px-2 text-xs"
+                              >
+                                <Download className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(contract.id, contract.file_url)}
+                                className="h-6 px-2 text-xs border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
