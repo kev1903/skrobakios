@@ -89,16 +89,33 @@ export const ProjectCostPage = ({
 
           {/* Main Cost Table Content */}
           <div className="bg-card border rounded-lg">
-            {/* Table Header with Stage Management and Finance Button */}
+            {/* Table Header with Stage Management and Finance Buttons */}
             <div className="bg-muted/30 border-b px-6 py-3">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex gap-2">
                   <Button
                     onClick={() => onNavigate('project-finance')}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    variant="outline"
+                    className="bg-background hover:bg-muted"
                   >
                     <DollarSign className="w-4 h-4 mr-2" />
-                    Finance Management
+                    Income
+                  </Button>
+                  <Button
+                    onClick={() => onNavigate('project-finance')}
+                    variant="outline"
+                    className="bg-background hover:bg-muted"
+                  >
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Expense
+                  </Button>
+                  <Button
+                    onClick={() => onNavigate('project-finance')}
+                    variant="outline"
+                    className="bg-background hover:bg-muted"
+                  >
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analytics
                   </Button>
                 </div>
                 <div>
