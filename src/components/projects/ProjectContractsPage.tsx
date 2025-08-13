@@ -339,68 +339,132 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             </div>
           </div>
 
-          {/* Files Section - Full Width */}
-          <div className="w-full">
-            <Card className="border border-border shadow-sm bg-card">
-              <CardHeader>
-                <CardTitle className="text-xl font-playfair text-card-foreground">Uploaded Files</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {contracts.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="bg-muted/30 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                      <FileText className="w-10 h-10 text-muted-foreground" />
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Contract Summary - Middle Section */}
+            <div className="lg:col-span-2">
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader>
+                  <CardTitle className="text-xl font-playfair text-card-foreground">Contract Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Overview Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-muted/30 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-primary">{contracts.length}</div>
+                      <div className="text-sm text-muted-foreground">Total Contracts</div>
                     </div>
-                    <h3 className="text-lg font-medium text-card-foreground mb-2">No files uploaded</h3>
-                    <p className="text-muted-foreground">Upload your first contract to get started</p>
+                    <div className="bg-muted/30 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-primary">
+                        {Math.round(contracts.reduce((acc, c) => acc + (c.file_size || 0), 0) / 1024 / 1024 * 100) / 100}MB
+                      </div>
+                      <div className="text-sm text-muted-foreground">Total Size</div>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-primary">
+                        {contracts.length > 0 ? new Date(Math.max(...contracts.map(c => new Date(c.uploaded_at).getTime()))).toLocaleDateString() : 'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Last Upload</div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {contracts.map((contract) => (
-                      <div key={contract.id} className="bg-muted/30 rounded-lg p-4 hover:bg-muted/50 transition-all duration-300 group border">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-start gap-3 flex-1 min-w-0">
+
+                  {/* Recent Activity */}
+                  <div>
+                    <h3 className="text-lg font-medium text-card-foreground mb-4">Recent Activity</h3>
+                    {contracts.length === 0 ? (
+                      <div className="text-center py-8">
+                        <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                          <FileText className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <p className="text-muted-foreground">No contracts uploaded yet</p>
+                        <p className="text-sm text-muted-foreground mt-1">Upload your first contract to get started</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {contracts.slice(0, 5).map((contract) => (
+                          <div key={contract.id} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
                             <div className="bg-background rounded-lg p-2 shadow-sm flex-shrink-0">
-                              <FileText className="w-6 h-6 text-red-500" />
+                              <FileText className="w-5 h-5 text-red-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-card-foreground truncate">{contract.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Uploaded {new Date(contract.uploaded_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {formatFileSize(contract.file_size)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Uploaded Files - Right Section */}
+            <div className="lg:col-span-1">
+              <Card className="border border-border shadow-sm bg-card">
+                <CardHeader>
+                  <CardTitle className="text-xl font-playfair text-card-foreground">Uploaded Files</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {contracts.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-base font-medium text-card-foreground mb-2">No files uploaded</h3>
+                      <p className="text-sm text-muted-foreground">Upload your first contract</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {contracts.map((contract) => (
+                        <div key={contract.id} className="bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-all duration-300 group border">
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="bg-background rounded-lg p-2 shadow-sm flex-shrink-0">
+                              <FileText className="w-5 h-5 text-red-500" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h3 className="font-medium text-card-foreground leading-tight truncate group-hover:text-primary transition-colors">
+                              <h3 className="font-medium text-card-foreground leading-tight truncate group-hover:text-primary transition-colors text-sm">
                                 {contract.name}
                               </h3>
-                              <p className="text-sm text-muted-foreground mt-1">
+                              <p className="text-xs text-muted-foreground mt-1">
                                 {formatFileSize(contract.file_size)}
                               </p>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-xs text-muted-foreground">
                                 {new Date(contract.uploaded_at).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(contract.file_url, '_blank')}
+                              className="flex-1 text-xs"
+                            >
+                              <Download className="w-3 h-3 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(contract.id, contract.file_url)}
+                              className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(contract.file_url, '_blank')}
-                            className="flex-1"
-                          >
-                            <Download className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(contract.id, contract.file_url)}
-                            className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/40"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
