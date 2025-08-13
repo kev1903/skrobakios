@@ -34,7 +34,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
 
   const loadContracts = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project_contracts')
         .select('*')
         .eq('project_id', project.id)
@@ -42,7 +42,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
 
       if (error) throw error;
 
-      const formattedContracts = (data || []).map(contract => ({
+      const formattedContracts = (data || []).map((contract: any) => ({
         id: contract.id,
         name: contract.name,
         file_url: contract.file_url,
@@ -90,7 +90,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
         .getPublicUrl(fileName);
 
       // Save contract metadata to database
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project_contracts')
         .insert({
           project_id: project.id,
@@ -127,7 +127,7 @@ export const ProjectContractsPage = ({ project }: ProjectContractsPageProps) => 
   const handleDelete = async (contractId: string, fileName: string) => {
     try {
       // Delete from database first
-      const { error: dbError } = await supabase
+      const { error: dbError } = await (supabase as any)
         .from('project_contracts')
         .delete()
         .eq('id', contractId);
