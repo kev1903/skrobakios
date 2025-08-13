@@ -2039,47 +2039,39 @@ export type Database = {
       }
       project_contracts: {
         Row: {
-          created_at: string
+          created_at: string | null
           file_path: string
-          file_size: number
+          file_size: number | null
           file_url: string
           id: string
           name: string
           project_id: string
-          updated_at: string
+          updated_at: string | null
           uploaded_by: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           file_path: string
-          file_size?: number
+          file_size?: number | null
           file_url: string
           id?: string
           name: string
           project_id: string
-          updated_at?: string
+          updated_at?: string | null
           uploaded_by?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           file_path?: string
-          file_size?: number
+          file_size?: number | null
           file_url?: string
           id?: string
           name?: string
           project_id?: string
-          updated_at?: string
+          updated_at?: string | null
           uploaded_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "project_contracts_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       project_costs: {
         Row: {
