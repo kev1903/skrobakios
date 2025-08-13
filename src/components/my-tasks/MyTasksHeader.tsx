@@ -45,7 +45,7 @@ export const MyTasksHeader = ({
           </Button>
           
           <Button 
-            onClick={() => onNavigate("projects")}
+            onClick={() => onNavigate("task-create")}
             size="sm"
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >

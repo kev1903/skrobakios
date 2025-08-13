@@ -61,6 +61,7 @@ import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
 import { SecurityPage } from "@/components/SecurityPage";
+import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 
@@ -114,6 +115,8 @@ export const ContentRenderer = ({
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
       return <MyTasksPage onNavigate={onNavigate} />;
+    case "task-create":
+      return <NewTaskPage />;
     case "milestones":
       return <MilestonePage onNavigate={onNavigate} />;
     case "time-management":
