@@ -180,7 +180,7 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
     date ? new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <>
+    <div className="w-full">
       {/* Header */}
       <div className="border-b border-border bg-background sticky top-0 z-10">
         <div className="px-6 py-4">
@@ -408,6 +408,6 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
