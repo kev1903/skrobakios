@@ -117,6 +117,14 @@ export const ProjectCostPage = ({
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Analytics
                   </Button>
+                  <Button
+                    onClick={() => onNavigate('cost-control')}
+                    variant="outline"
+                    className="bg-background hover:bg-muted"
+                  >
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    Cost Control
+                  </Button>
                 </div>
                 <div>
                   <StageManagement 
