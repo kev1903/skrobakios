@@ -4088,6 +4088,10 @@ export type Database = {
         Args: { invitation_token: string }
         Returns: Json
       }
+      can_access_project_contracts: {
+        Args: { project_id_param: string }
+        Returns: boolean
+      }
       can_manage_company: {
         Args: { company_id: string; user_id: string }
         Returns: boolean
