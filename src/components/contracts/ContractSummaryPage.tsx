@@ -392,19 +392,17 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
 
           {/* Right Sidebar - Versions */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <div className="bg-muted/10 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Versions</h2>
+            <div className="bg-muted/10 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-4 h-4 text-muted-foreground" />
+                <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Versions</h2>
+              </div>
+              <div className="text-center py-6">
+                <div className="bg-muted/30 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-muted-foreground" />
                 </div>
-                <div className="text-center py-6">
-                  <div className="bg-muted/30 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-1">No versions uploaded yet</p>
-                  <p className="text-xs text-muted-foreground">Upload your first contract PDF to get started</p>
-                </div>
+                <p className="text-sm text-muted-foreground mb-1">No versions uploaded yet</p>
+                <p className="text-xs text-muted-foreground">Upload your first contract PDF to get started</p>
               </div>
             </div>
           </div>
