@@ -4289,6 +4289,10 @@ export type Database = {
         Args: { input_text: string }
         Returns: string
       }
+      mask_invitation_email: {
+        Args: { invitation_email: string; requesting_user_id: string }
+        Returns: string
+      }
       set_active_context: {
         Args: { p_context_type: string; p_context_id?: string }
         Returns: boolean
