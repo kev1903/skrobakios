@@ -145,7 +145,22 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         .order('version_number', { ascending: false });
 
       if (error) throw error;
-      setContractVersions(data || []);
+      
+      const formattedVersions = (data || []).map((version: any) => ({
+        id: version.id,
+        version_number: version.version_number || 1,
+        file_url: version.storage_path || '',
+        file_path: version.storage_path || '',
+        file_size: version.file_size || 0,
+        ai_summary_json: version.ai_summary_json || {},
+        confidence: version.ai_confidence || 0,
+        status: version.status || 'active',
+        is_canonical: version.is_canonical || false,
+        created_at: version.created_at,
+        created_by: version.created_by || ''
+      }));
+      
+      setContractVersions(formattedVersions);
     } catch (error) {
       console.error('Error loading contract versions:', error);
     }
@@ -175,7 +190,15 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContractRisks(data || []);
+      
+      const formattedRisks = (data || []).map((risk: any) => ({
+        id: risk.id,
+        risk_description: risk.risk_description,
+        risk_level: (risk.risk_level as 'low' | 'medium' | 'high') || 'low',
+        mitigation_strategy: risk.mitigation_strategy
+      }));
+      
+      setContractRisks(formattedRisks);
     } catch (error) {
       console.error('Error loading contract risks:', error);
     }
@@ -547,7 +570,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       {/* Main Content */}
       <div className="flex-1 ml-48 bg-background">
-        <div className="p-6 min-h-full">
+        <div className="max-w-4xl mx-auto p-8 min-h-full">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -734,162 +757,167 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             </div>
           </div>
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Key Facts Card */}
+          {/* Contract Report Summary */}
+          <div className="space-y-8">
+            {/* Executive Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
-                  Key Facts
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Contract Summary
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Payment Type</Label>
-                    <p className="font-medium">{contractData.payment_type || "Progress"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Contract Sum</Label>
-                    <p className="font-medium">{formatCurrency(contractData.contract_sum || 50000)}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {contractData.gst_included ? "GST Included" : "Ex GST"}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Deposit</Label>
-                    <p className="font-medium">{contractData.deposit_percentage || 5}%</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Retention</Label>
-                    <p className="font-medium">{contractData.retention_percentage || 10}%</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Parties Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Parties
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                {/* Financial Overview */}
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Principal</Label>
-                  <p className="font-medium">{contractData.principal_name || "John & Jane Example"}</p>
-                  <p className="text-sm text-muted-foreground">ABN: {contractData.principal_abn || "—"}</p>
-                </div>
-                <Separator />
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Contractor</Label>
-                  <p className="font-medium">{contractData.contractor_name || "Skrobaki Pty Ltd"}</p>
-                  <p className="text-sm text-muted-foreground">ABN: {contractData.contractor_abn || "12 345 678 901"}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Dates Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Key Dates
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="flex justify-between">
-                    <Label className="text-sm font-medium text-muted-foreground">Start Date</Label>
-                    <p className="font-medium">{contractData.start_date || "—"}</p>
-                  </div>
-                  <div className="flex justify-between">
-                    <Label className="text-sm font-medium text-muted-foreground">Practical Completion</Label>
-                    <p className="font-medium">{contractData.practical_completion || "—"}</p>
-                  </div>
-                  <div className="flex justify-between">
-                    <Label className="text-sm font-medium text-muted-foreground">DLP Days</Label>
-                    <p className="font-medium">{contractData.dlp_days || 180}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Next Milestone Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  Next Milestone
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {contractMilestones.length > 0 ? (
-                  <div className="space-y-4">
-                    {contractMilestones.slice(0, 1).map((milestone) => (
-                      <div key={milestone.id}>
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-medium">{milestone.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Due: {new Date(milestone.due_date).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <p className="font-medium">{formatCurrency(milestone.amount)}</p>
-                        </div>
-                        <Button onClick={handleCreateProgressClaim} className="w-full">
-                          Create Progress Claim
-                        </Button>
+                  <h3 className="font-semibold text-lg mb-4 border-b pb-2">Financial Overview</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Contract Sum</div>
+                      <div className="text-2xl font-bold">
+                        {formatCurrency(contractData.contract_sum || 50000)}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-medium">Base Stage</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Due: —
-                        </p>
-                      </div>
-                      <p className="font-medium">{formatCurrency(90000)}</p>
+                      <div className="text-xs text-muted-foreground">Ex GST</div>
                     </div>
-                    <Button onClick={handleCreateProgressClaim} className="w-full">
-                      Create Progress Claim
-                    </Button>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Payment Type</div>
+                      <div className="text-lg font-semibold">
+                        {contractData.payment_type || 'Progress'}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Deposit</div>
+                      <div className="text-lg font-semibold">
+                        {contractData.deposit_percentage || 5}%
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Retention</div>
+                      <div className="text-lg font-semibold">
+                        {contractData.retention_percentage || 10}%
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
+
+                <Separator />
+
+                {/* Parties Information */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-4 border-b pb-2">Contract Parties</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <div className="font-medium text-primary mb-2">Principal</div>
+                      <div className="space-y-1">
+                        <div className="font-semibold">{contractData.principal_name || 'John & Jane Example'}</div>
+                        <div className="text-sm text-muted-foreground">
+                          ABN: {contractData.principal_abn || '—'}
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-primary mb-2">Contractor</div>
+                      <div className="space-y-1">
+                        <div className="font-semibold">{contractData.contractor_name || 'Skrobaki Pty Ltd'}</div>
+                        <div className="text-sm text-muted-foreground">
+                          ABN: {contractData.contractor_abn || '12 345 678 901'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Key Dates & Timeline */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-4 border-b pb-2">Project Timeline</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <div className="font-medium text-muted-foreground mb-1">Start Date</div>
+                      <div className="text-lg font-semibold">
+                        {contractData.start_date || '—'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-muted-foreground mb-1">Practical Completion</div>
+                      <div className="text-lg font-semibold">
+                        {contractData.practical_completion || '—'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-muted-foreground mb-1">DLP Days</div>
+                      <div className="text-lg font-semibold">
+                        {contractData.dlp_days || 180} days
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Next Milestone */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-4 border-b pb-2">Upcoming Milestone</h3>
+                  {contractMilestones.length > 0 ? (
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-semibold text-lg">{contractMilestones[0].name}</div>
+                          <div className="text-muted-foreground">
+                            Due: {new Date(contractMilestones[0].due_date).toLocaleDateString() || '—'}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">{formatCurrency(contractMilestones[0].amount)}</div>
+                        </div>
+                      </div>
+                      <Button className="w-full" onClick={handleCreateProgressClaim}>
+                        Create Progress Claim
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-semibold text-lg">Base Stage</div>
+                          <div className="text-muted-foreground">Due: —</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">{formatCurrency(90000)}</div>
+                        </div>
+                      </div>
+                      <Button className="w-full" onClick={handleCreateProgressClaim}>
+                        Create Progress Claim
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
-            {/* Insurances Card */}
+            {/* Insurance & Compliance */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-xl flex items-center gap-2">
                   <Shield className="w-5 h-5" />
-                  Insurances
+                  Insurance & Compliance Status
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {[
-                    { name: "Public Liability", status: "ok", expiry: "2025-06-30" },
-                    { name: "Workers Compensation", status: "expiring", expiry: "2025-02-15" },
-                    { name: "Professional Indemnity", status: "ok", expiry: "2025-12-31" }
+                    { name: "Public Liability Insurance", status: "valid", expiry: "2025-06-30" },
+                    { name: "Contract Works Insurance", status: "expiring", expiry: "2024-12-31" },
+                    { name: "Workers Compensation", status: "valid", expiry: "2025-03-15" }
                   ].map((insurance, index) => (
-                    <div key={index} className="flex justify-between items-center">
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <p className="font-medium">{insurance.name}</p>
-                        <p className="text-xs text-muted-foreground">Expires: {insurance.expiry}</p>
+                        <div className="font-medium">{insurance.name}</div>
+                        <div className="text-sm text-muted-foreground">Expires: {insurance.expiry}</div>
                       </div>
-                      <Badge 
-                        variant={insurance.status === 'ok' ? 'default' : 'secondary'}
-                        className={insurance.status === 'expiring' ? 'text-yellow-700 bg-yellow-100' : ''}
-                      >
-                        {insurance.status === 'ok' ? 'Valid' : 'Expiring Soon'}
+                      <Badge variant={insurance.status === 'valid' ? 'default' : 'secondary'}>
+                        {insurance.status === 'valid' ? 'Valid' : 'Expiring Soon'}
                       </Badge>
                     </div>
                   ))}
@@ -897,103 +925,123 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               </CardContent>
             </Card>
 
-            {/* Key Clauses Card */}
+            {/* Contract Terms & Key Clauses */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileSignature className="w-5 h-5" />
-                  Key Clauses
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Gavel className="w-5 h-5" />
+                  Key Contract Terms & Clauses
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { clause: "Variations", reference: "Clause 12" },
-                    { clause: "Extensions of Time", reference: "Clause 15" },
-                    { clause: "Liquidated Damages", reference: "Clause 18" },
-                    { clause: "Termination", reference: "Clause 22" },
-                    { clause: "Dispute Resolution", reference: "Clause 25" },
-                    { clause: "Governing Law", reference: "Clause 28" }
-                  ].map((item, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <p className="font-medium">{item.clause}</p>
-                      <Badge variant="outline">{item.reference}</Badge>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <div className="flex justify-between p-2 border-b">
+                      <span className="font-medium">Variations</span>
+                      <span className="text-muted-foreground">Clause 12</span>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Signatures Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileSignature className="w-5 h-5" />
-                  Signatures
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Principal</p>
-                      <p className="text-sm text-muted-foreground">Signed: 2024-01-15</p>
+                    <div className="flex justify-between p-2 border-b">
+                      <span className="font-medium">Extensions of Time</span>
+                      <span className="text-muted-foreground">Clause 15</span>
                     </div>
-                    <Badge variant="default">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Signed
-                    </Badge>
+                    <div className="flex justify-between p-2 border-b">
+                      <span className="font-medium">Liquidated Damages</span>
+                      <span className="text-muted-foreground">Clause 18</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Contractor</p>
-                      <p className="text-sm text-muted-foreground">Pending signature</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between p-2 border-b">
+                      <span className="font-medium">Termination</span>
+                      <span className="text-muted-foreground">Clause 22</span>
                     </div>
-                    <Badge variant="secondary">
-                      <Clock className="w-3 h-3 mr-1" />
-                      Missing
-                    </Badge>
+                    <div className="flex justify-between p-2 border-b">
+                      <span className="font-medium">Dispute Resolution</span>
+                      <span className="text-muted-foreground">Clause 35</span>
+                    </div>
+                    <div className="flex justify-between p-2 border-b">
+                      <span className="font-medium">Governing Law</span>
+                      <span className="text-muted-foreground">Victoria, Australia</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Risks Card */}
+            {/* Execution & Signatures */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <FileSignature className="w-5 h-5" />
+                  Contract Execution Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
+                    <div>
+                      <div className="font-medium">Principal - John & Jane Example</div>
+                      <div className="text-sm text-muted-foreground">Signed on January 15, 2024</div>
+                    </div>
+                    <Badge variant="default">Executed</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
+                    <div>
+                      <div className="font-medium">Contractor - Skrobaki Pty Ltd</div>
+                      <div className="text-sm text-muted-foreground">Signed on January 15, 2024</div>
+                    </div>
+                    <Badge variant="default">Executed</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Risk Assessment */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" />
-                  Risks
+                  Risk Assessment & Mitigation
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {contractRisks.length > 0 ? (
-                  <div className="space-y-3">
-                    {contractRisks.slice(0, 3).map((risk) => (
-                      <div key={risk.id} className={`p-3 rounded-lg border ${getRiskLevelColor(risk.risk_level)}`}>
-                        <div className="flex justify-between items-start mb-1">
-                          <p className="font-medium text-sm">{risk.risk_description}</p>
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${getRiskLevelColor(risk.risk_level)}`}
-                          >
+                  <div className="space-y-4">
+                    {contractRisks.map((risk) => (
+                      <div key={risk.id} className="p-4 border rounded-lg">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="font-medium">{risk.risk_description}</div>
+                          <Badge variant="outline" className={getRiskLevelColor(risk.risk_level)}>
                             {risk.risk_level.toUpperCase()}
                           </Badge>
                         </div>
-                        {risk.mitigation_strategy && (
-                          <p className="text-xs opacity-80">{risk.mitigation_strategy}</p>
-                        )}
+                        <div className="text-sm text-muted-foreground">
+                          <strong>Mitigation:</strong> {risk.mitigation_strategy}
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <div className="p-3 rounded-lg border text-yellow-600 bg-yellow-50 border-yellow-200">
-                      <div className="flex justify-between items-start mb-1">
-                        <p className="font-medium text-sm">Retention 10% — confirm staged release.</p>
-                        <Badge variant="outline" className="text-xs text-yellow-600 bg-yellow-50 border-yellow-200">
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="font-medium">Weather-related delays</div>
+                        <Badge variant="outline" className="text-yellow-600 bg-yellow-50 border-yellow-200">
                           MEDIUM
                         </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <strong>Mitigation:</strong> Monitor weather forecasts and plan activities accordingly. Maintain contingency schedules.
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="font-medium">Material supply chain issues</div>
+                        <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">
+                          LOW
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <strong>Mitigation:</strong> Early procurement strategies and established supplier agreements in place.
                       </div>
                     </div>
                   </div>
@@ -1001,45 +1049,59 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               </CardContent>
             </Card>
 
-            {/* Next Actions Card */}
+            {/* Action Items & Next Steps */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gavel className="w-5 h-5" />
-                  Next Actions
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Action Items & Next Steps
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {contractActions.length > 0 ? (
                   <div className="space-y-3">
-                    {contractActions.slice(0, 4).map((action) => (
-                      <div key={action.id} className="flex items-start gap-3">
-                        <div className={`w-4 h-4 rounded-full border-2 mt-0.5 ${
+                    {contractActions.map((action) => (
+                      <div key={action.id} className="flex items-center gap-4 p-3 border rounded-lg">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center ${
                           action.completed 
                             ? 'bg-green-500 border-green-500' 
                             : 'border-muted-foreground'
-                        }`} />
+                        }`}>
+                          {action.completed && (
+                            <CheckCircle className="w-3 h-3 text-white" />
+                          )}
+                        </div>
                         <div className="flex-1">
-                          <p className={`font-medium text-sm ${action.completed ? 'line-through text-muted-foreground' : ''}`}>
-                            {action.action_description}
-                          </p>
-                          <div className="flex justify-between items-center mt-1">
-                            <p className="text-xs text-muted-foreground">
-                              Due: {new Date(action.due_date).toLocaleDateString()}
-                            </p>
-                            {action.assigned_to && (
-                              <p className="text-xs text-muted-foreground">
-                                Assigned: {action.assigned_to}
-                              </p>
-                            )}
+                          <div className="font-medium">{action.action_description}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Due: {new Date(action.due_date).toLocaleDateString()} • Assigned to: {action.assigned_to}
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground">No pending actions</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4 p-3 border rounded-lg">
+                      <div className="w-5 h-5 rounded border border-muted-foreground" />
+                      <div className="flex-1">
+                        <div className="font-medium">Submit updated insurance certificates</div>
+                        <div className="text-sm text-muted-foreground">
+                          Due: August 20, 2024 • Assigned to: Project Manager
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 p-3 border rounded-lg">
+                      <div className="w-5 h-5 rounded border bg-green-500 border-green-500 flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">Complete contract execution</div>
+                        <div className="text-sm text-muted-foreground">
+                          Due: August 15, 2024 • Assigned to: Legal Team
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>
