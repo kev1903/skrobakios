@@ -35,10 +35,10 @@ export const MyTasksTableView = ({
   const isIndeterminate = selectedTasks.length > 0 && selectedTasks.length < tasks.length;
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+    <div className="glass-card overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50 border-border hover:bg-muted transition-colors duration-200 h-8">
+          <TableRow className="border-border hover:bg-muted/30 transition-colors duration-200">
             <TableHead className="w-10 py-1">
               <input
                 type="checkbox"
@@ -63,7 +63,7 @@ export const MyTasksTableView = ({
         </TableHeader>
         <TableBody>
           {tasks.map((task) => (
-            <TableRow key={task.id} className="hover:bg-muted/50 border-border transition-colors duration-200 h-9">
+            <TableRow key={task.id} className="hover:bg-muted/30 border-border transition-colors duration-200">
               <TableCell className="py-1">
                 <input
                   type="checkbox"

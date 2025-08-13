@@ -8,25 +8,25 @@ interface MyTasksEmptyStateProps {
 
 export const MyTasksEmptyState = ({ onNavigate }: MyTasksEmptyStateProps) => {
   return (
-    <div className="bg-card border border-border rounded-xl p-12 text-center">
-      <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-          <CheckSquare className="w-8 h-8 text-muted-foreground" />
+    <div className="glass-card p-16 text-center max-w-2xl mx-auto">
+      <div className="flex justify-center mb-8">
+        <div className="w-20 h-20 bg-muted/30 rounded-full flex items-center justify-center">
+          <CheckSquare className="w-10 h-10 text-muted-foreground" />
         </div>
       </div>
       
-      <h3 className="text-xl font-semibold text-foreground mb-2">
+      <h3 className="heading-md text-foreground mb-4 font-playfair">
         No Tasks Assigned
       </h3>
       
-      <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+      <p className="body-md text-muted-foreground mb-12 max-w-lg mx-auto">
         You don't have any tasks assigned to you yet. Create a new project or ask a team member to assign you some tasks.
       </p>
       
-      <div className="flex justify-center space-x-4">
+      <div className="flex flex-col sm:flex-row justify-center gap-4">
         <Button 
           onClick={() => onNavigate("projects")}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="button-blue"
         >
           <Plus className="w-4 h-4 mr-2" />
           View Projects
@@ -34,6 +34,7 @@ export const MyTasksEmptyState = ({ onNavigate }: MyTasksEmptyStateProps) => {
         <Button 
           variant="outline"
           onClick={() => onNavigate("home")}
+          className="button-ghost"
         >
           Back to Dashboard
         </Button>

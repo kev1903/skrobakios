@@ -241,16 +241,16 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-white z-40">
-      <div className="h-full bg-white flex flex-col">
-        <div className="flex-shrink-0 p-6 pb-0">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto">
+        <div className="pt-8 pb-6 px-8">
           {/* Back Button */}
-          <div className="mb-4">
+          <div className="mb-6">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => onNavigate("home")}
-              className="flex items-center space-x-2 text-foreground hover:text-primary"
+              className="button-ghost flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
@@ -266,10 +266,10 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         </div>
 
         {/* Content Layout - Full width for calendar, two-column for others */}
-        <div className="flex-1 overflow-hidden p-6 pt-6">
+        <div className="px-8 pb-8">
           {viewMode === 'calendar' ? (
             <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="h-full">
+              <div className="min-h-screen">
                 {tasks.length === 0 ? (
                   <MyTasksEmptyState onNavigate={onNavigate} />
                 ) : (
@@ -304,9 +304,9 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
               </div>
             </DragDropContext>
           ) : (
-            <div className="mt-6 flex gap-6">
+            <div className="grid lg:grid-cols-4 gap-8">
               {/* Left Column - Tasks Content */}
-              <div className="flex-1 min-w-0">
+              <div className="lg:col-span-3">
                 {tasks.length === 0 ? (
                   <MyTasksEmptyState onNavigate={onNavigate} />
                 ) : viewMode === 'grid' ? (
@@ -331,32 +331,34 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
               </div>
 
               {/* Right Column - Today's Schedule */}
-              <div className="w-80 flex-shrink-0">
-                <div className="bg-card/50 backdrop-blur-xl rounded-2xl p-6 border border-border/50 shadow-sm sticky top-6">
-                  <h3 className="font-semibold text-foreground mb-4">Today's Schedule</h3>
-                  <div className="space-y-3">
+              <div className="lg:col-span-1">
+                <div className="glass-card p-6 sticky top-8">
+                  <h3 className="heading-md text-foreground mb-6">Today's Schedule</h3>
+                  <div className="space-y-4">
                     {tasks.length > 0 ? (
                       tasks.slice(0, 5).map((task) => (
-                        <div key={task.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => handleTaskClick(task)}>
-                          <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xs font-semibold">
-                            {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
+                        <div key={task.id} className="glass-card p-4 hover:scale-[1.02] transition-all duration-300 cursor-pointer" onClick={() => handleTaskClick(task)}>
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xs font-medium">
+                              {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
+                            </div>
+                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                              task.priority === 'High' ? 'bg-destructive/10 text-destructive' :
+                              task.priority === 'Medium' ? 'bg-warning/10 text-warning' :
+                              'bg-success/10 text-success'
+                            }`}>
+                              {task.priority}
+                            </span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="font-medium text-foreground truncate block">{task.taskName}</span>
-                            <span className="text-xs text-muted-foreground">{task.projectName}</span>
+                          <div>
+                            <h4 className="font-medium text-foreground text-sm mb-1">{task.taskName}</h4>
+                            <p className="text-xs text-muted-foreground">{task.projectName}</p>
                           </div>
-                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                            task.priority === 'High' ? 'bg-destructive/10 text-destructive' :
-                            task.priority === 'Medium' ? 'bg-warning/10 text-warning' :
-                            'bg-success/10 text-success'
-                          }`}>
-                            {task.priority}
-                          </span>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p>No tasks scheduled for today</p>
+                      <div className="glass-card p-8 text-center">
+                        <p className="text-muted-foreground">No tasks scheduled for today</p>
                       </div>
                     )}
                   </div>

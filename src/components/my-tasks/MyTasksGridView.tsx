@@ -19,9 +19,9 @@ export const MyTasksGridView = ({
   onTaskClick 
 }: MyTasksGridViewProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tasks.map((task) => (
-        <div key={task.id} className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 shadow-sm">
+        <div key={task.id} className="glass-card p-6 interactive-minimal">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
                <h3 className="text-lg font-semibold text-foreground mb-1">
