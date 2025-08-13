@@ -682,6 +682,170 @@ export type Database = {
           },
         ]
       }
+      contract_actions: {
+        Row: {
+          action_description: string
+          assigned_to: string | null
+          completed: boolean | null
+          contract_id: string
+          created_at: string
+          due_date: string | null
+          id: string
+        }
+        Insert: {
+          action_description: string
+          assigned_to?: string | null
+          completed?: boolean | null
+          contract_id: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+        }
+        Update: {
+          action_description?: string
+          assigned_to?: string | null
+          completed?: boolean | null
+          contract_id?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_actions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "project_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_milestones: {
+        Row: {
+          amount: number | null
+          contract_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          name: string
+          status: string | null
+        }
+        Insert: {
+          amount?: number | null
+          contract_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          name: string
+          status?: string | null
+        }
+        Update: {
+          amount?: number | null
+          contract_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_milestones_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "project_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_risks: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          mitigation_strategy: string | null
+          risk_description: string
+          risk_level: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          mitigation_strategy?: string | null
+          risk_description: string
+          risk_level?: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          mitigation_strategy?: string | null
+          risk_description?: string
+          risk_level?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_risks_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "project_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_versions: {
+        Row: {
+          ai_confidence: number | null
+          ai_summary_json: Json | null
+          contract_id: string
+          created_at: string
+          file_name: string | null
+          file_size: number | null
+          id: string
+          is_canonical: boolean | null
+          status: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_summary_json?: Json | null
+          contract_id: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          is_canonical?: boolean | null
+          status?: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_summary_json?: Json | null
+          contract_id?: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          is_canonical?: boolean | null
+          status?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_versions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           agreed_price: number
@@ -2039,35 +2203,50 @@ export type Database = {
       }
       project_contracts: {
         Row: {
+          ai_summary_json: Json | null
+          confidence: number | null
+          contract_data: Json | null
           created_at: string | null
           file_path: string
           file_size: number | null
           file_url: string
           id: string
+          is_canonical: boolean | null
           name: string
           project_id: string
+          status: string | null
           updated_at: string | null
           uploaded_by: string | null
         }
         Insert: {
+          ai_summary_json?: Json | null
+          confidence?: number | null
+          contract_data?: Json | null
           created_at?: string | null
           file_path: string
           file_size?: number | null
           file_url: string
           id?: string
+          is_canonical?: boolean | null
           name: string
           project_id: string
+          status?: string | null
           updated_at?: string | null
           uploaded_by?: string | null
         }
         Update: {
+          ai_summary_json?: Json | null
+          confidence?: number | null
+          contract_data?: Json | null
           created_at?: string | null
           file_path?: string
           file_size?: number | null
           file_url?: string
           id?: string
+          is_canonical?: boolean | null
           name?: string
           project_id?: string
+          status?: string | null
           updated_at?: string | null
           uploaded_by?: string | null
         }
