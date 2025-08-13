@@ -10,7 +10,7 @@ interface ProjectContractsPageProps {
 
 export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPageProps) => {
   return (
-    <div className="h-screen flex bg-background">
+    <div className="min-h-screen bg-background">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-48 z-40">
         <ProjectSidebar
@@ -22,8 +22,8 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+      {/* Main Content - No additional scroll container */}
+      <div className="ml-48 bg-background">
         <ContractSummaryPage contractId={project.id} />
       </div>
     </div>

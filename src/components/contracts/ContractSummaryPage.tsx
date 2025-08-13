@@ -180,8 +180,8 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
     date ? new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <div className="bg-background">
-      {/* Header - Fixed */}
+    <>
+      {/* Header */}
       <div className="border-b border-border bg-background sticky top-0 z-10">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
@@ -390,7 +390,7 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
             )}
           </div>
 
-          {/* Right Sidebar - Versions (Fixed Width) */}
+          {/* Right Sidebar - Versions */}
           <div className="w-80 flex-shrink-0">
             <div className="bg-muted/10 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-4">
@@ -408,6 +408,6 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
