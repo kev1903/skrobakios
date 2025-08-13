@@ -214,6 +214,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       {/* Main Content */}
       <div className="flex-1 ml-48 bg-background">
         <div className="p-6 min-h-full">
+          {/* DUMMY TEST ELEMENT - If this disappears, AI is still regenerating */}
+          <div className="mb-4 p-2 bg-red-100 border border-red-300 rounded text-red-800 text-sm">
+            🔧 TEST: Manual changes are working - this should remain visible
+          </div>
+          
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
