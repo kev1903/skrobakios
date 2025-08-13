@@ -180,221 +180,234 @@ export const ContractSummaryPage = ({ contractId = "demo" }: ContractSummaryPage
     date ? new Date(date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              {currentSummary.title}
-            </h1>
-            <div className="flex items-center gap-3">
-              <StatusChip status={currentSummary.status} />
-              <ConfidenceBadge confidence={currentSummary.confidence} />
+      <div className="border-b border-border bg-background sticky top-0 z-10">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">
+                {currentSummary.title}
+              </h1>
+              <div className="flex items-center gap-3">
+                <StatusChip status={currentSummary.status} />
+                <ConfidenceBadge confidence={currentSummary.confidence} />
+              </div>
             </div>
-          </div>
-          <div className="flex gap-3">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload PDF
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Upload Contract PDF</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div
-                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300 ${
-                      dragActive ? "border-primary bg-primary/5" : "border-border"
-                    }`}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                  >
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileSelect}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-                    <p className="font-medium mb-2">
-                      {dragActive ? "Drop your PDF here" : "Drop PDF file here"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">or click to browse</p>
-                  </div>
-                  
-                  {selectedFile && (
-                    <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-red-500" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{selectedFile.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex gap-3">
-                    <Button variant="outline" className="flex-1">Cancel</Button>
-                    <Button 
-                      onClick={handleUpload} 
-                      disabled={!selectedFile || isUploading}
-                      className="flex-1"
+            <div className="flex gap-3">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload PDF
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Upload Contract PDF</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div
+                      className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300 ${
+                        dragActive ? "border-primary bg-primary/5" : "border-border"
+                      }`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
                     >
-                      {isUploading ? 'Uploading...' : 'Upload'}
-                    </Button>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleFileSelect}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                      <p className="font-medium mb-2">
+                        {dragActive ? "Drop your PDF here" : "Drop PDF file here"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">or click to browse</p>
+                    </div>
+                    
+                    {selectedFile && (
+                      <div className="bg-muted/30 rounded-lg p-3 flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-red-500" />
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{selectedFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-3">
+                      <Button variant="outline" className="flex-1">Cancel</Button>
+                      <Button 
+                        onClick={handleUpload} 
+                        disabled={!selectedFile || isUploading}
+                        className="flex-1"
+                      >
+                        {isUploading ? 'Uploading...' : 'Upload'}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Button variant="outline">
-              <Eye className="w-4 h-4 mr-2" />
-              View PDF
-            </Button>
-            <Button variant="outline">Versions</Button>
+                </DialogContent>
+              </Dialog>
+              <Button variant="outline">
+                <Eye className="w-4 h-4 mr-2" />
+                View PDF
+              </Button>
+              <Button variant="outline">Versions</Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Main Summary Cards */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Key Facts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Key Facts</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Payment Type</p>
-                <p className="font-medium">{currentSummary.money.payment_type || '—'}</p>
+      {/* Main Content - Single Continuous Section */}
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main Content Area */}
+          <div className="lg:col-span-3 space-y-8">
+            {/* Key Facts Row */}
+            <div>
+              <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Facts</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Payment Type</p>
+                  <p className="text-lg font-medium">{currentSummary.money.payment_type || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Contract Sum (ex GST)</p>
+                  <p className="text-lg font-medium">{formatCurrency(currentSummary.money.contract_sum_ex_gst)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Deposit</p>
+                  <p className="text-lg font-medium">{currentSummary.money.deposit_pct}%</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Retention</p>
+                  <p className="text-lg font-medium">{currentSummary.money.retention_pct}%</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Contract Sum (ex GST)</p>
-                <p className="font-medium">{formatCurrency(currentSummary.money.contract_sum_ex_gst)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Deposit</p>
-                <p className="font-medium">{currentSummary.money.deposit_pct}%</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Retention</p>
-                <p className="font-medium">{currentSummary.money.retention_pct}%</p>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Parties */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Parties</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Principal</p>
-                <p className="font-medium">{currentSummary.parties.principal.legal_name}</p>
-                {currentSummary.parties.principal.abn && (
-                  <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.principal.abn}</p>
-                )}
+            {/* Parties Row */}
+            <div>
+              <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Parties</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Principal</p>
+                  <p className="text-lg font-medium">{currentSummary.parties.principal.legal_name}</p>
+                  {currentSummary.parties.principal.abn && (
+                    <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.principal.abn}</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Contractor</p>
+                  <p className="text-lg font-medium">{currentSummary.parties.contractor.legal_name}</p>
+                  {currentSummary.parties.contractor.abn && (
+                    <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.contractor.abn}</p>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Contractor</p>
-                <p className="font-medium">{currentSummary.parties.contractor.legal_name}</p>
-                {currentSummary.parties.contractor.abn && (
-                  <p className="text-sm text-muted-foreground">ABN: {currentSummary.parties.contractor.abn}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Key Dates</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Start Date</p>
-                <p className="font-medium">{formatDate(currentSummary.dates.start)}</p>
+            {/* Dates Row */}
+            <div>
+              <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Key Dates</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Start Date</p>
+                  <p className="text-lg font-medium">{formatDate(currentSummary.dates.start)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Practical Completion</p>
+                  <p className="text-lg font-medium">{formatDate(currentSummary.dates.practical_completion)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">DLP Days</p>
+                  <p className="text-lg font-medium">{currentSummary.dates.defects_liability_period_days || '—'}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Practical Completion</p>
-                <p className="font-medium">{formatDate(currentSummary.dates.practical_completion)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">DLP Days</p>
-                <p className="font-medium">{currentSummary.dates.defects_liability_period_days || '—'}</p>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Next Milestone */}
-          {currentSummary.next_milestone && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Next Milestone</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
+            {/* Next Milestone */}
+            {currentSummary.next_milestone && (
+              <div>
+                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Milestone</h2>
+                <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
                   <div>
-                    <p className="font-medium">{currentSummary.next_milestone.name}</p>
+                    <p className="text-lg font-medium mb-1">{currentSummary.next_milestone.name}</p>
                     <p className="text-sm text-muted-foreground">
                       Due: {formatDate(currentSummary.next_milestone.due_date)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">{formatCurrency(currentSummary.next_milestone.amount)}</p>
-                    <Button size="sm" className="mt-2">Create Progress Claim</Button>
+                    <p className="text-lg font-medium mb-2">{formatCurrency(currentSummary.next_milestone.amount)}</p>
+                    <Button size="sm">Create Progress Claim</Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Risks */}
-          {currentSummary.risks.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Risks</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {currentSummary.risks.map((risk: any, index: number) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <AlertTriangle className={`w-4 h-4 ${
-                      risk.level === 'high' ? 'text-red-500' : 
-                      risk.level === 'medium' ? 'text-amber-500' : 'text-green-500'
-                    }`} />
-                    <span className="text-sm">{risk.msg}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Right Column - Versions & Files */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Versions & Files</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <div className="bg-muted/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <FileText className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <p className="text-muted-foreground mb-2">No versions uploaded yet</p>
-                <p className="text-sm text-muted-foreground">Upload your first contract PDF to get started</p>
               </div>
-            </CardContent>
-          </Card>
+            )}
+
+            {/* Risks */}
+            {currentSummary.risks.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Risks</h2>
+                <div className="space-y-3">
+                  {currentSummary.risks.map((risk: any, index: number) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
+                      <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${
+                        risk.level === 'high' ? 'text-red-500' : 
+                        risk.level === 'medium' ? 'text-amber-500' : 'text-green-500'
+                      }`} />
+                      <span className="text-sm">{risk.msg}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Next Actions */}
+            {currentSummary.actions.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Next Actions</h2>
+                <div className="space-y-2">
+                  {currentSummary.actions.map((action: any, index: number) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
+                      <div className="w-4 h-4 rounded border border-muted-foreground"></div>
+                      <span className="text-sm">{action.label}</span>
+                      {action.due && (
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          Due: {formatDate(action.due)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar - Versions */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <div className="bg-muted/10 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="w-4 h-4 text-muted-foreground" />
+                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Versions</h2>
+                </div>
+                <div className="text-center py-6">
+                  <div className="bg-muted/30 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">No versions uploaded yet</p>
+                  <p className="text-xs text-muted-foreground">Upload your first contract PDF to get started</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
