@@ -9,6 +9,7 @@ import { BusinessMapbox } from "@/components/mapbox/BusinessMapbox";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
+import { ProjectContractsPage } from "@/components/projects/ProjectContractsPage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
 
 import { ProjectTimelinePage } from "@/components/ProjectTimelinePage";
@@ -174,6 +175,12 @@ export const ContentRenderer = ({
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectSettingsPage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
+    case "project-contracts":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectContractsPage project={currentProject} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":
