@@ -109,7 +109,11 @@ export const ContentRenderer = ({
     case "home":
       // Show BusinessMapbox for company context, HomePage for other contexts
       if (activeContext === 'company') {
-        return <BusinessMapbox />;
+        return (
+          <div className="w-full h-full">
+            <BusinessMapbox className="w-full h-full" />
+          </div>
+        );
       } else {
         return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
       }

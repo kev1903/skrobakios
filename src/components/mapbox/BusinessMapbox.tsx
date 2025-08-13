@@ -366,12 +366,9 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   }
 
   return (
-    <div className={`w-full h-full bg-transparent relative ${className}`}>
+    <div className={`w-full h-full bg-background relative overflow-hidden ${className}`}>
       {/* Map Container */}
-      <div ref={mapContainer} className="absolute inset-0" />
-      
-
-
+      <div ref={mapContainer} className="w-full h-full" />
     </div>
   );
 };

@@ -11,51 +11,44 @@ interface PageLayoutProps {
 }
 
 export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
-  const { spacingClasses } = useMenuBarSpacing(currentPage);
+  const { spacingClasses, fullHeightClasses } = useMenuBarSpacing(currentPage);
 
-  // Sales page should take full screen without main navigation
-  if (currentPage === "sales") {
-    return (
-      <ProtectedRoute 
-        onNavigate={onNavigate}
-        requireSuperAdmin={false}
-      >
-          <div className="w-full mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] overflow-y-auto min-h-0">
-            {children}
-          </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (currentPage === "system" || currentPage === "home" || currentPage === "tasks") {
-    return (
-      <ProtectedRoute 
-        onNavigate={onNavigate}
-        requireSuperAdmin={false}
-      >
-          <div className="w-full mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] overflow-y-auto min-h-0">
-            {children}
-          </div>
-      </ProtectedRoute>
-    );
-  }
-
+  // Auth page has no layout wrapper
   if (currentPage === "auth") {
     return (
-      <main className="flex-1 overflow-y-auto w-full">
+      <main className="w-full h-screen overflow-y-auto">
         {children}
       </main>
     );
   }
 
+  // Sales, system, home, and tasks pages get consistent full-screen layout
+  if (currentPage === "sales" || currentPage === "system" || currentPage === "home" || currentPage === "tasks") {
+    return (
+      <ProtectedRoute 
+        onNavigate={onNavigate}
+        requireSuperAdmin={false}
+      >
+        <main className={`w-full ${spacingClasses} ${fullHeightClasses} overflow-y-auto relative`}>
+          <div className="w-full h-full">
+            {children}
+          </div>
+        </main>
+      </ProtectedRoute>
+    );
+  }
+
+  // Default layout for all other pages
   return (
     <ProtectedRoute 
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className={`flex-1 overflow-y-auto w-full mt-[var(--header-height)] h-[calc(100vh-var(--header-height))] min-h-0`}>
-        {children}
+      <main className={`w-full ${spacingClasses} ${fullHeightClasses} overflow-y-auto relative`}>
+        <div className="w-full h-full">
+          {children}
+        </div>
       </main>
     </ProtectedRoute>
   );

@@ -95,7 +95,11 @@ const Index = () => {
   // Handle public pages vs protected pages
   if (currentPage === 'landing' || currentPage === 'auth' || currentPage === 'signup' || 
       currentPage === 'services' || currentPage === 'about' || currentPage === 'contact') {
-    return renderPage();
+    return (
+      <div className="w-full h-screen">
+        {renderPage()}
+      </div>
+    );
   }
 
   return (
@@ -132,15 +136,17 @@ const Index = () => {
             
             <div className="relative z-10 flex h-screen min-h-0">
               <div className={`flex-1 transition-all duration-300 ${isChatCollapsed ? "mr-16" : "mr-96"}`}>
-                <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
-                  <ContentRenderer 
-                    currentPage={currentPage}
-                    onNavigate={handleNavigate}
-                    onSelectProject={handleSelectProject}
-                    selectedProject={selectedProject}
-                    currentProject={currentProject}
-                  />
-                </PageLayout>
+        <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
+          <div className="w-full h-full">
+            <ContentRenderer 
+              currentPage={currentPage}
+              onNavigate={handleNavigate}
+              onSelectProject={handleSelectProject}
+              selectedProject={selectedProject}
+              currentProject={currentProject}
+            />
+          </div>
+        </PageLayout>
               </div>
               
               {/* AI Chat sidebar appears on all pages */}
