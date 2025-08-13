@@ -242,7 +242,7 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
               No invoices found. Create your first invoice to get started.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="w-full min-w-0">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">

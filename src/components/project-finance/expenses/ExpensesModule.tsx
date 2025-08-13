@@ -219,7 +219,7 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
                   <p className="text-sm mt-2">Upload bills or create new entries to get started.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="w-full min-w-0">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="border-b">

@@ -326,19 +326,21 @@ export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={analyticsData.cashFlowForecast}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" />
-              <YAxis />
-              <Tooltip formatter={(value) => [formatCurrency(Number(value)), '']} />
-              <Legend />
-              <Line type="monotone" dataKey="inflow" stroke="hsl(var(--primary))" name="Expected Inflow" />
-              <Line type="monotone" dataKey="outflow" stroke="hsl(var(--destructive))" name="Expected Outflow" />
-              <Line type="monotone" dataKey="net" stroke="hsl(var(--accent))" name="Net Cash Flow" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+        <CardContent className="p-6">
+          <div className="w-full h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={analyticsData.cashFlowForecast}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" />
+                <YAxis />
+                <Tooltip formatter={(value) => [formatCurrency(Number(value)), '']} />
+                <Legend />
+                <Line type="monotone" dataKey="inflow" stroke="hsl(var(--primary))" name="Expected Inflow" />
+                <Line type="monotone" dataKey="outflow" stroke="hsl(var(--destructive))" name="Expected Outflow" />
+                <Line type="monotone" dataKey="net" stroke="hsl(var(--accent))" name="Net Cash Flow" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
