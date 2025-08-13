@@ -35,6 +35,7 @@ import { SalesPage } from "@/components/SalesPage";
 import { ProjectTeamPage } from "@/components/projects/ProjectTeamPage";
 import { ProjectTeamManagementPage } from "@/components/ProjectTeamManagementPage";
 import { ProjectCostPage } from "@/components/project-cost/ProjectCostPage";
+import { ProjectFinancePage } from "@/components/project-finance/ProjectFinancePage";
 
 import { TimeManagementPage } from "@/components/TimeManagementPage";
 
@@ -267,6 +268,12 @@ export const ContentRenderer = ({
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
           <ProjectCostPage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
+    case "project-finance":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
+          <ProjectFinancePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "bim":
