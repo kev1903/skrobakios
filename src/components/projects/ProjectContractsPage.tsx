@@ -142,13 +142,13 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         .from('contract_versions')
         .select('*')
         .eq('contract_id', contractId)
-        .order('version_number', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       
       const formattedVersions = (data || []).map((version: any) => ({
         id: version.id,
-        version_number: version.version_number || 1,
+        version_number: 1, // Default version number since column doesn't exist
         file_url: version.storage_path || '',
         file_path: version.storage_path || '',
         file_size: version.file_size || 0,
@@ -715,41 +715,62 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       <SheetTitle>Versions & Files</SheetTitle>
                     </SheetHeader>
                     <div className="space-y-4 mt-6">
-                      {contractVersions.map((version) => (
-                        <Card key={version.id} className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h4 className="font-medium">Version {version.version_number}</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {new Date(version.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              {getStatusBadge(version.status)}
-                              {getConfidenceBadge(version.confidence)}
-                              {version.is_canonical && (
-                                <Badge variant="outline" className="text-xs">Canonical</Badge>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" asChild>
-                              <a href={version.file_url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="w-3 h-3 mr-1" />
-                                Open PDF
-                              </a>
-                            </Button>
-                            {!version.is_canonical && (
-                              <Button size="sm" variant="outline">
-                                Set Canonical
-                              </Button>
-                            )}
-                            <Button size="sm" variant="outline">
-                              Compare
-                            </Button>
-                          </div>
-                        </Card>
-                      ))}
+                      <div className="text-sm font-medium text-muted-foreground">Uploaded Contract Documents</div>
+                      {contracts.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No documents uploaded</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {contracts.map((contract) => (
+                            <Card key={contract.id} className="p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <h4 className="font-medium">{contract.name}</h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    Uploaded {new Date(contract.uploaded_at).toLocaleDateString()}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatFileSize(contract.file_size)}
+                                  </p>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                  {getStatusBadge(contract.status)}
+                                  {contract.confidence > 0 && getConfidenceBadge(contract.confidence)}
+                                  {contract.is_canonical && (
+                                    <Badge variant="outline" className="text-xs">Canonical</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex gap-2 flex-wrap">
+                                <Button size="sm" variant="outline" asChild>
+                                  <a href={contract.file_url} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink className="w-3 h-3 mr-1" />
+                                    Open PDF
+                                  </a>
+                                </Button>
+                                {!contract.is_canonical && (
+                                  <Button size="sm" variant="outline">
+                                    Set Canonical
+                                  </Button>
+                                )}
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => setSelectedContract(contract)}
+                                >
+                                  View Details
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive" 
+                                  onClick={() => handleDelete(contract.id, contract.file_url)}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </SheetContent>
                 </Sheet>
