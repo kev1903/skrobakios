@@ -180,7 +180,7 @@ export const ContentRenderer = ({
     case "project-contracts":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectContractsPage project={currentProject} />
+          <ProjectContractsPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "sk25008-schedule":
