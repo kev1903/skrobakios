@@ -242,31 +242,31 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
               No invoices found. Create your first invoice to get started.
             </div>
           ) : (
-            <div className="w-full min-w-0">
-              <table className="w-full border-collapse">
+            <div className="w-full">
+              <table className="w-full border-collapse table-fixed">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2 font-medium">Number</th>
+                    <th className="text-left p-2 font-medium w-20">Number</th>
                     <th className="text-left p-2 font-medium">Client</th>
-                    <th className="text-left p-2 font-medium">Issue Date</th>
-                    <th className="text-left p-2 font-medium">Due Date</th>
-                    <th className="text-left p-2 font-medium">Total</th>
-                    <th className="text-left p-2 font-medium">Paid</th>
-                    <th className="text-left p-2 font-medium">Balance</th>
-                    <th className="text-left p-2 font-medium">Status</th>
-                    <th className="text-left p-2 font-medium">Actions</th>
+                    <th className="text-left p-2 font-medium w-24">Issue Date</th>
+                    <th className="text-left p-2 font-medium w-24">Due Date</th>
+                    <th className="text-left p-2 font-medium w-20">Total</th>
+                    <th className="text-left p-2 font-medium w-20">Paid</th>
+                    <th className="text-left p-2 font-medium w-20">Balance</th>
+                    <th className="text-left p-2 font-medium w-20">Status</th>
+                    <th className="text-left p-2 font-medium w-24">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredInvoices.map((invoice) => (
                     <tr key={invoice.id} className="border-b hover:bg-muted/50">
-                      <td className="p-2 font-mono text-sm">{invoice.number}</td>
-                      <td className="p-2">{invoice.client_name}</td>
-                      <td className="p-2">{format(new Date(invoice.issue_date), 'MMM dd, yyyy')}</td>
-                      <td className="p-2">{format(new Date(invoice.due_date), 'MMM dd, yyyy')}</td>
-                      <td className="p-2 font-medium">{formatCurrency(invoice.total)}</td>
-                      <td className="p-2 font-medium">{formatCurrency(invoice.paid_to_date)}</td>
-                      <td className="p-2 font-medium">{formatCurrency(invoice.total - invoice.paid_to_date)}</td>
+                      <td className="p-2 font-mono text-sm truncate">{invoice.number}</td>
+                      <td className="p-2 truncate">{invoice.client_name}</td>
+                      <td className="p-2 text-sm">{format(new Date(invoice.issue_date), 'MMM dd, yyyy')}</td>
+                      <td className="p-2 text-sm">{format(new Date(invoice.due_date), 'MMM dd, yyyy')}</td>
+                      <td className="p-2 font-medium text-sm">{formatCurrency(invoice.total)}</td>
+                      <td className="p-2 font-medium text-sm">{formatCurrency(invoice.paid_to_date)}</td>
+                      <td className="p-2 font-medium text-sm">{formatCurrency(invoice.total - invoice.paid_to_date)}</td>
                       <td className="p-2">{getStatusBadge(invoice.status, invoice.paid_to_date, invoice.total)}</td>
                       <td className="p-2">
                         <div className="flex items-center gap-1">

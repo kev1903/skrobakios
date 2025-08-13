@@ -65,8 +65,8 @@ export const ProjectCostPage = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 h-screen overflow-auto bg-background">
-        <div className="p-6">
+      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+        <div className="p-6 min-h-full">
 
           {/* Summary Cards - Compact */}
           <div className="mb-3 bg-card border rounded-lg p-2">
