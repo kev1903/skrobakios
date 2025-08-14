@@ -118,7 +118,50 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Enhanced PDF text extraction with fallback methods
+// Smart text preprocessing to reduce token count
+function preprocessText(text: string, maxTokens: number = 100000): string {
+  // Remove repetitive patterns that inflate token count
+  let processed = text
+    // Remove excessive whitespace and newlines
+    .replace(/\s{3,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    // Remove repetitive headers/footers
+    .replace(/^(.*?)\n\1+$/gm, '$1')
+    // Remove page numbers and common PDF artifacts
+    .replace(/Page \d+ of \d+/gi, '')
+    .replace(/\f/g, ' ')
+    // Remove excessive punctuation
+    .replace(/\.{3,}/g, '...')
+    .replace(/-{3,}/g, '---')
+    .trim();
+
+  // If still too large, intelligently chunk by sections
+  if (processed.length > maxTokens * 4) { // Rough token estimation
+    const sections = processed.split(/\n\s*\n/);
+    const importantSections = sections.filter(section => {
+      const keywords = [
+        'contract', 'agreement', 'party', 'parties', 'effective', 'termination',
+        'payment', 'scope', 'work', 'value', 'amount', 'total', 'invoice',
+        'drawing', 'revision', 'project', 'architect', 'scale', 'discipline'
+      ];
+      return keywords.some(keyword => 
+        section.toLowerCase().includes(keyword.toLowerCase())
+      );
+    });
+    
+    // Take first 10 important sections plus first 5 regular sections
+    const selectedSections = [
+      ...importantSections.slice(0, 10),
+      ...sections.slice(0, 5)
+    ];
+    
+    processed = [...new Set(selectedSections)].join('\n\n');
+  }
+
+  return processed;
+}
+
+// Enhanced PDF text extraction with intelligent preprocessing
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
     // Method 1: Try PDF.js via CDN import
@@ -133,20 +176,45 @@ async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
       
       let fullText = '';
       
-      // Extract text from all pages
-      for (let pageNum = 1; pageNum <= Math.min(pdf.numPages, 10); pageNum++) {
+      // For large documents, prioritize key pages (first 5, last 2, and middle pages)
+      const totalPages = pdf.numPages;
+      const pagesToExtract = new Set<number>();
+      
+      // Always include first 5 pages (cover, TOC, key info)
+      for (let i = 1; i <= Math.min(5, totalPages); i++) {
+        pagesToExtract.add(i);
+      }
+      
+      // Include last 2 pages (signatures, appendices)
+      for (let i = Math.max(1, totalPages - 1); i <= totalPages; i++) {
+        pagesToExtract.add(i);
+      }
+      
+      // Include some middle pages for large documents
+      if (totalPages > 10) {
+        const middleStart = Math.floor(totalPages * 0.3);
+        const middleEnd = Math.floor(totalPages * 0.7);
+        for (let i = middleStart; i <= Math.min(middleEnd, middleStart + 3); i++) {
+          pagesToExtract.add(i);
+        }
+      }
+      
+      // Extract text from selected pages
+      const sortedPages = Array.from(pagesToExtract).sort((a, b) => a - b);
+      
+      for (const pageNum of sortedPages) {
         const page = await pdf.getPage(pageNum);
         const textContent = await page.getTextContent();
         const pageText = textContent.items
           .filter((item: any) => item.str && item.str.trim())
           .map((item: any) => item.str)
           .join(' ');
-        fullText += pageText + '\n';
+        fullText += `\n--- Page ${pageNum} ---\n${pageText}\n`;
       }
       
       if (fullText.trim()) {
-        console.log("PDF.js extraction successful");
-        return cleanExtractedText(fullText);
+        console.log("PDF.js extraction successful, pages extracted:", sortedPages.length);
+        return preprocessText(cleanExtractedText(fullText));
       }
     } catch (pdfJsError) {
       console.warn("PDF.js extraction failed:", pdfJsError);
@@ -189,7 +257,8 @@ async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
       }
     }
     
-    return extractedText.trim() || "Unable to extract readable text from PDF";
+    const finalText = extractedText.trim() || "Unable to extract readable text from PDF";
+    return preprocessText(finalText);
     
   } catch (error) {
     console.error("All PDF text extraction methods failed:", error);
@@ -260,44 +329,55 @@ serve(async (req) => {
         Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert AI specialized in extracting structured data from construction industry documents including contracts, architectural drawings, specifications, and invoices. " +
-              "You have deep knowledge of construction terminology, standard contract formats (AIA, FIDIC, NEC), architectural drawing conventions, and billing practices. " +
-              
-              "\n\nEXAMPLE EXTRACTIONS:\n" +
-              
-              "CONTRACT EXAMPLE:\n" +
-              "Input: 'CONSTRUCTION AGREEMENT between ABC Construction LLC and XYZ Development Corp. Contract Value: $2,450,000. Start Date: March 15, 2024. Completion: December 31, 2024. Payment Terms: Net 30 days.'\n" +
-              "Output: {\"document_type\": \"contract\", \"ai_confidence\": 0.95, \"ai_summary\": \"Construction agreement between ABC Construction and XYZ Development for $2.45M project from March to December 2024\", \"contract\": {\"title\": \"Construction Agreement\", \"parties\": [\"ABC Construction LLC\", \"XYZ Development Corp\"], \"effective_date\": \"2024-03-15\", \"expiry_date\": \"2024-12-31\", \"contract_value\": \"$2,450,000\", \"payment_terms\": \"Net 30 days\"}}\n" +
-              
-              "DRAWING EXAMPLE:\n" +
-              "Input: 'Drawing No: A-101 Rev: C Project: Downtown Office Tower Client: Metro Properties Architect: Smith & Associates Scale: 1/8\"=1'-0\" Discipline: Architectural Drawing Type: Floor Plan'\n" +
-              "Output: {\"document_type\": \"drawing\", \"ai_confidence\": 0.92, \"ai_summary\": \"Architectural floor plan A-101 Rev C for Downtown Office Tower project by Smith & Associates\", \"drawing\": {\"drawing_number\": \"A-101\", \"revision\": \"C\", \"project_name\": \"Downtown Office Tower\", \"client_name\": \"Metro Properties\", \"architect\": \"Smith & Associates\", \"scale\": \"1/8\\\"=1'-0\\\"\", \"discipline\": \"Architectural\", \"drawing_type\": \"Floor Plan\"}}\n" +
-              
-              "INVOICE EXAMPLE:\n" +
-              "Input: 'INVOICE #INV-2024-001 Date: 2024-02-15 Due: 2024-03-15 From: BuildCorp Inc To: Property Developers Ltd Subtotal: $15,000 Tax: $1,950 Total: $16,950'\n" +
-              "Output: {\"document_type\": \"invoice\", \"ai_confidence\": 0.94, \"ai_summary\": \"Invoice INV-2024-001 from BuildCorp to Property Developers for $16,950 due March 15, 2024\", \"invoice\": {\"invoice_number\": \"INV-2024-001\", \"invoice_date\": \"2024-02-15\", \"due_date\": \"2024-03-15\", \"vendor\": \"BuildCorp Inc\", \"client\": \"Property Developers Ltd\", \"subtotal\": 15000, \"tax\": 1950, \"total\": 16950}}\n" +
-              
-              "\nCONFIDENCE SCORING GUIDELINES:\n" +
-              "0.9-1.0: All key information clearly present, professional formatting, industry-standard terminology\n" +
-              "0.7-0.8: Most information available, minor formatting issues, some unclear sections\n" +
-              "0.5-0.6: Partial information extractable, significant formatting problems, missing key details\n" +
-              "0.3-0.4: Poor text quality, fragmented content, but document type identifiable\n" +
-              "0.0-0.2: Severely corrupted text, minimal extractable information\n" +
-              
-              "\nEXTRACTION RULES:\n" +
-              "- Extract only explicitly stated information, never infer or assume\n" +
-              "- For dates: Use ISO format (YYYY-MM-DD) when possible\n" +
-              "- For monetary values: Include currency symbols and commas as shown\n" +
-              "- For company names: Extract full legal names including LLC, Inc, Corp suffixes\n" +
-              "- For technical specifications: Preserve exact formatting and units\n" +
-              "- If information is unclear or missing, omit the field rather than guess\n" +
-              
-              "Return ONLY valid JSON matching the schema."
+        body: JSON.stringify({
+          model: "gpt-4o-2024-11-20", // Latest model with 128K context window
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert AI specialized in extracting structured data from construction industry documents including contracts, architectural drawings, specifications, and invoices. " +
+                "You have deep knowledge of construction terminology, standard contract formats (AIA, FIDIC, NEC), architectural drawing conventions, and billing practices. " +
+                "You excel at processing large documents by focusing on the most relevant sections first. " +
+                
+                "\n\nDOCUMENT PROCESSING STRATEGY:\n" +
+                "For large documents, prioritize extraction from these sections in order:\n" +
+                "1. Document headers and title pages\n" +
+                "2. Signature pages and party information\n" +
+                "3. Terms and conditions sections\n" +
+                "4. Financial and payment information\n" +
+                "5. Scope of work and deliverables\n" +
+                "6. Drawing title blocks and revision information\n" +
+                
+                "\n\nEXAMPLE EXTRACTIONS:\n" +
+                
+                "CONTRACT EXAMPLE:\n" +
+                "Input: 'CONSTRUCTION AGREEMENT between ABC Construction LLC and XYZ Development Corp. Contract Value: $2,450,000. Start Date: March 15, 2024. Completion: December 31, 2024. Payment Terms: Net 30 days.'\n" +
+                "Output: {\"document_type\": \"contract\", \"ai_confidence\": 0.95, \"ai_summary\": \"Construction agreement between ABC Construction and XYZ Development for $2.45M project from March to December 2024\", \"contract\": {\"title\": \"Construction Agreement\", \"parties\": [\"ABC Construction LLC\", \"XYZ Development Corp\"], \"effective_date\": \"2024-03-15\", \"expiry_date\": \"2024-12-31\", \"contract_value\": \"$2,450,000\", \"payment_terms\": \"Net 30 days\"}}\n" +
+                
+                "DRAWING EXAMPLE:\n" +
+                "Input: 'Drawing No: A-101 Rev: C Project: Downtown Office Tower Client: Metro Properties Architect: Smith & Associates Scale: 1/8\"=1'-0\" Discipline: Architectural Drawing Type: Floor Plan'\n" +
+                "Output: {\"document_type\": \"drawing\", \"ai_confidence\": 0.92, \"ai_summary\": \"Architectural floor plan A-101 Rev C for Downtown Office Tower project by Smith & Associates\", \"drawing\": {\"drawing_number\": \"A-101\", \"revision\": \"C\", \"project_name\": \"Downtown Office Tower\", \"client_name\": \"Metro Properties\", \"architect\": \"Smith & Associates\", \"scale\": \"1/8\\\"=1'-0\\\"\", \"discipline\": \"Architectural\", \"drawing_type\": \"Floor Plan\"}}\n" +
+                
+                "INVOICE EXAMPLE:\n" +
+                "Input: 'INVOICE #INV-2024-001 Date: 2024-02-15 Due: 2024-03-15 From: BuildCorp Inc To: Property Developers Ltd Subtotal: $15,000 Tax: $1,950 Total: $16,950'\n" +
+                "Output: {\"document_type\": \"invoice\", \"ai_confidence\": 0.94, \"ai_summary\": \"Invoice INV-2024-001 from BuildCorp to Property Developers for $16,950 due March 15, 2024\", \"invoice\": {\"invoice_number\": \"INV-2024-001\", \"invoice_date\": \"2024-02-15\", \"due_date\": \"2024-03-15\", \"vendor\": \"BuildCorp Inc\", \"client\": \"Property Developers Ltd\", \"subtotal\": 15000, \"tax\": 1950, \"total\": 16950}}\n" +
+                
+                "\nCONFIDENCE SCORING GUIDELINES:\n" +
+                "0.9-1.0: All key information clearly present, professional formatting, industry-standard terminology\n" +
+                "0.7-0.8: Most information available, minor formatting issues, some unclear sections\n" +
+                "0.5-0.6: Partial information extractable, significant formatting problems, missing key details\n" +
+                "0.3-0.4: Poor text quality, fragmented content, but document type identifiable\n" +
+                "0.0-0.2: Severely corrupted text, minimal extractable information\n" +
+                
+                "\nEXTRACTION RULES:\n" +
+                "- Extract only explicitly stated information, never infer or assume\n" +
+                "- For dates: Use ISO format (YYYY-MM-DD) when possible\n" +
+                "- For monetary values: Include currency symbols and commas as shown\n" +
+                "- For company names: Extract full legal names including LLC, Inc, Corp suffixes\n" +
+                "- For technical specifications: Preserve exact formatting and units\n" +
+                "- If information is unclear or missing, omit the field rather than guess\n" +
+                "- Focus on the most important sections first if document is very large\n" +
+                
+                "Return ONLY valid JSON matching the schema."
           },
           {
             role: "user",
@@ -327,7 +407,7 @@ Return only the JSON matching the schema.`
           type: "json_schema", 
           json_schema: UnifiedSchema 
         },
-        max_tokens: 3000,
+        max_tokens: 4000, // Increased for better extraction detail
         temperature: 0.1
       })
     });
@@ -352,59 +432,162 @@ Return only the JSON matching the schema.`
 
     const data = JSON.parse(messageContent) as UnifiedResult;
 
-    // Validate extraction quality and retry if confidence is too low
-    if (data.ai_confidence < 0.3) {
-      console.warn('Low confidence extraction, attempting retry with enhanced prompt');
+    // Enhanced validation and retry strategy based on document size and confidence
+    const textLength = extractedText.length;
+    const shouldRetry = data.ai_confidence < 0.4 || 
+                       (textLength > 500000 && data.ai_confidence < 0.6);
+
+    if (shouldRetry) {
+      console.warn(`Low confidence extraction (${data.ai_confidence}), attempting enhanced retry. Text length: ${textLength}`);
       
-      // Retry with more specific prompt for low-quality extractions
-      const retryCompletion = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: "You are analyzing a construction document with poor text extraction quality. " +
-                "Focus on finding any readable fragments that indicate document type and key information. " +
-                "Even with corrupted text, try to identify: document headers, company names, dates, numbers, and common construction terms. " +
-                "Be conservative with confidence scoring for poor quality text."
+      // For very large documents, try a two-pass approach
+      if (textLength > 300000) {
+        console.log('Attempting two-pass extraction for large document');
+        
+        // First pass: Document type identification
+        const typeIdentificationCompletion = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-2024-11-20",
+            messages: [
+              {
+                role: "system",
+                content: "You are a document classifier. Your only job is to identify the document type and provide a brief summary. " +
+                  "Look for key indicators: CONTRACT (agreements, terms, parties), DRAWING (plans, elevations, details), " +
+                  "INVOICE (billing, payments, line items), SPEC (specifications, requirements)."
+              },
+              {
+                role: "user",
+                content: `Classify this document and provide a brief summary. Focus on the first few pages:
+
+${extractedText.substring(0, 50000)}
+
+Identify: document type, key parties/companies, main purpose, and confidence level.`
+              }
+            ],
+            response_format: { 
+              type: "json_schema", 
+              json_schema: UnifiedSchema 
             },
-            {
-              role: "user",
-              content: `This text was extracted from a construction document but may be corrupted or incomplete:
+            max_tokens: 1000,
+            temperature: 0.1
+          })
+        });
+
+        if (typeIdentificationCompletion.ok) {
+          const typeData = await typeIdentificationCompletion.json();
+          const typeContent = typeData?.choices?.[0]?.message?.content;
+          if (typeContent) {
+            const typeResult = JSON.parse(typeContent) as UnifiedResult;
+            
+            // Second pass: Detailed extraction based on identified type
+            const detailedPrompt = typeResult.document_type === 'contract' 
+              ? "Focus on extracting: contract title, parties, dates, financial terms, scope of work, payment terms, and special conditions."
+              : typeResult.document_type === 'drawing'
+              ? "Focus on extracting: drawing number, revision, project name, architect, scale, discipline, and drawing type."
+              : typeResult.document_type === 'invoice'
+              ? "Focus on extracting: invoice number, dates, vendor/client info, line items, and financial totals."
+              : "Extract key document information based on the document type identified.";
+
+            const detailedCompletion = await fetch("https://api.openai.com/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${OPENAI_API_KEY}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                model: "gpt-4o-2024-11-20",
+                messages: [
+                  {
+                    role: "system",
+                    content: `You are extracting detailed information from a ${typeResult.document_type} document. ${detailedPrompt} ` +
+                      "Be thorough but focus on the most important information first."
+                  },
+                  {
+                    role: "user",
+                    content: `Extract detailed information from this ${typeResult.document_type}:
 
 ${extractedText}
 
-Please extract whatever information is readable, focusing on:
-- Any document identifiers (contract numbers, drawing numbers, invoice numbers)
-- Company or party names
-- Dates in any format
-- Monetary amounts
-- Construction-related keywords
+${detailedPrompt}`
+                  }
+                ],
+                response_format: { 
+                  type: "json_schema", 
+                  json_schema: UnifiedSchema 
+                },
+                max_tokens: 4000,
+                temperature: 0.1
+              })
+            });
 
-Set confidence appropriately for the text quality.`
+            if (detailedCompletion.ok) {
+              const detailedData = await detailedCompletion.json();
+              const detailedContent = detailedData?.choices?.[0]?.message?.content;
+              if (detailedContent) {
+                const detailedResult = JSON.parse(detailedContent) as UnifiedResult;
+                console.log('Two-pass extraction completed');
+                Object.assign(data, detailedResult);
+              }
             }
-          ],
-          response_format: { 
-            type: "json_schema", 
-            json_schema: UnifiedSchema 
+          }
+        }
+      } else {
+        // Single retry for smaller documents
+        const retryCompletion = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json"
           },
-          max_tokens: 3000,
-          temperature: 0.1
-        })
-      });
+          body: JSON.stringify({
+            model: "gpt-4o-2024-11-20",
+            messages: [
+              {
+                role: "system",
+                content: "You are analyzing a construction document that may have text extraction issues. " +
+                  "Focus on finding readable fragments and key information patterns. " +
+                  "Look for: headers, signatures, dates, amounts, company names, and technical identifiers. " +
+                  "Use conservative confidence scoring based on text clarity."
+              },
+              {
+                role: "user",
+                content: `Extract information from this construction document text:
 
-      if (retryCompletion.ok) {
-        const retryData = await retryCompletion.json();
-        const retryContent = retryData?.choices?.[0]?.message?.content;
-        if (retryContent) {
-          const retryResult = JSON.parse(retryContent) as UnifiedResult;
-          console.log('Retry extraction completed');
-          Object.assign(data, retryResult);
+${extractedText}
+
+Key focus areas:
+- Document identifiers and numbers
+- Company/party names and contacts
+- Critical dates and deadlines
+- Financial information and amounts
+- Technical specifications or drawing details
+- Legal terms and conditions
+
+Provide appropriate confidence based on text quality and completeness.`
+              }
+            ],
+            response_format: { 
+              type: "json_schema", 
+              json_schema: UnifiedSchema 
+            },
+            max_tokens: 4000,
+            temperature: 0.1
+          })
+        });
+
+        if (retryCompletion.ok) {
+          const retryData = await retryCompletion.json();
+          const retryContent = retryData?.choices?.[0]?.message?.content;
+          if (retryContent) {
+            const retryResult = JSON.parse(retryContent) as UnifiedResult;
+            console.log('Enhanced retry extraction completed');
+            Object.assign(data, retryResult);
+          }
         }
       }
     }
