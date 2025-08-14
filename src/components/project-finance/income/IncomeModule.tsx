@@ -165,7 +165,6 @@ export const IncomeModule = ({ projectId, statusFilter = 'all', onCreateInvoice,
 
   return (
     <div className="space-y-6">
-
       {/* Invoices Table */}
       <Card>
         <CardHeader>
