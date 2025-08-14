@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Upload, FileText, Download, Trash2, X, Eye, History, AlertTriangle, CheckCircle, Clock, AlertCircle, DollarSign, Calendar, Users, FileSignature, Shield, Gavel, ExternalLink, Loader2, RefreshCw } from "lucide-react";
+import { Upload, FileText, Download, Trash2, X, Eye, History, AlertTriangle, CheckCircle, Clock, AlertCircle, DollarSign, Calendar, Users, FileSignature, Shield, Gavel, ExternalLink, Loader2, RefreshCw, Building, Hammer, MapPin, Briefcase, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
@@ -1106,29 +1106,39 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Financial Overview</h3>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                     <div className="text-center">
-                       <div className="text-sm text-muted-foreground">Contract Sum</div>
-                       <div className="text-2xl font-bold">
-                         {extractedContract.contract_value || '—'}
+                     <div className="text-center p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
+                       <div className="text-sm text-muted-foreground mb-1">Contract Sum</div>
+                       <div className="text-2xl font-bold text-primary">
+                         {extractedContract.contract_value ? formatCurrency(extractedContract.contract_value) : 
+                          extractedContract.contract_price ? formatCurrency(extractedContract.contract_price) :
+                          extractedContract.total_value ? formatCurrency(extractedContract.total_value) : '—'}
                        </div>
-                       <div className="text-xs text-muted-foreground">Ex GST</div>
-                     </div>
-                     <div className="text-center">
-                       <div className="text-sm text-muted-foreground">Payment Type</div>
-                       <div className="text-lg font-semibold">
-                         {extractedContract.payment_terms || '—'}
+                       <div className="text-xs text-muted-foreground mt-1">
+                         {extractedContract.gst_included ? 'Inc GST' : 'Ex GST'}
                        </div>
                      </div>
-                     <div className="text-center">
-                       <div className="text-sm text-muted-foreground">Deposit</div>
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
+                       <div className="text-sm text-muted-foreground mb-1">Payment Terms</div>
                        <div className="text-lg font-semibold">
-                         {percentFrom(extractedContract.payment_terms)}
+                         {extractedContract.payment_terms || 
+                          extractedContract.payment_schedule ||
+                          extractedContract.payment_method || '—'}
                        </div>
                      </div>
-                     <div className="text-center">
-                       <div className="text-sm text-muted-foreground">Retention</div>
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
+                       <div className="text-sm text-muted-foreground mb-1">Deposit</div>
                        <div className="text-lg font-semibold">
-                         {percentFrom(extractedContract.payment_terms)}
+                         {extractedContract.deposit_percentage ? `${extractedContract.deposit_percentage}%` :
+                          extractedContract.deposit_amount ? formatCurrency(extractedContract.deposit_amount) :
+                          percentFrom(extractedContract.payment_terms)}
+                       </div>
+                     </div>
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
+                       <div className="text-sm text-muted-foreground mb-1">Retention</div>
+                       <div className="text-lg font-semibold">
+                         {extractedContract.retention_percentage ? `${extractedContract.retention_percentage}%` :
+                          extractedContract.retention_amount ? formatCurrency(extractedContract.retention_amount) :
+                          '5%'}
                        </div>
                      </div>
                   </div>
@@ -1136,26 +1146,50 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
                 <Separator />
 
-                {/* Parties Information */}
+                {/* Contract Parties */}
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Contract Parties</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div>
-                       <div className="font-medium text-primary mb-2">Principal</div>
-                       <div className="space-y-1">
-                         <div className="font-semibold">{extractedContract.parties?.[0] || '—'}</div>
-                         <div className="text-sm text-muted-foreground">
-                           ABN: —
+                     <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-50/50 to-blue-100/50">
+                       <div className="flex items-center gap-2 mb-3">
+                         <Building className="w-4 h-4 text-blue-600" />
+                         <span className="font-medium text-blue-800">Principal</span>
+                       </div>
+                       <div className="space-y-2">
+                         <div className="font-semibold">
+                           {extractedContract.principal || 
+                            extractedContract.client_name || 
+                            extractedContract.parties?.[0] || '—'}
                          </div>
+                         <div className="text-sm text-muted-foreground">
+                           {extractedContract.principal_abn ? `ABN: ${extractedContract.principal_abn}` : 'ABN: —'}
+                         </div>
+                         {extractedContract.principal_address && (
+                           <div className="text-sm text-muted-foreground">
+                             {extractedContract.principal_address}
+                           </div>
+                         )}
                        </div>
                      </div>
-                     <div>
-                       <div className="font-medium text-primary mb-2">Contractor</div>
-                       <div className="space-y-1">
-                         <div className="font-semibold">{extractedContract.parties?.[1] || '—'}</div>
-                         <div className="text-sm text-muted-foreground">
-                           ABN: —
+                     <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50/50 to-green-100/50">
+                       <div className="flex items-center gap-2 mb-3">
+                         <Hammer className="w-4 h-4 text-green-600" />
+                         <span className="font-medium text-green-800">Contractor</span>
+                       </div>
+                       <div className="space-y-2">
+                         <div className="font-semibold">
+                           {extractedContract.contractor || 
+                            extractedContract.contractor_name || 
+                            extractedContract.parties?.[1] || '—'}
                          </div>
+                         <div className="text-sm text-muted-foreground">
+                           {extractedContract.contractor_abn ? `ABN: ${extractedContract.contractor_abn}` : 'ABN: —'}
+                         </div>
+                         {extractedContract.contractor_address && (
+                           <div className="text-sm text-muted-foreground">
+                             {extractedContract.contractor_address}
+                           </div>
+                         )}
                        </div>
                      </div>
                   </div>
@@ -1163,30 +1197,161 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
                 <Separator />
 
-                {/* Key Dates & Timeline */}
+                {/* Project Details */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-4 border-b pb-2">Project Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      {extractedContract.project_address && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <MapPin className="w-4 h-4 text-primary" />
+                            <span className="font-medium">Project Address</span>
+                          </div>
+                          <div className="text-sm bg-muted/30 p-3 rounded">
+                            {extractedContract.project_address}
+                          </div>
+                        </div>
+                      )}
+                      {extractedContract.scope_of_work && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Briefcase className="w-4 h-4 text-primary" />
+                            <span className="font-medium">Scope of Work</span>
+                          </div>
+                          <div className="text-sm bg-muted/30 p-3 rounded">
+                            {extractedContract.scope_of_work}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      {extractedContract.project_description && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4 text-primary" />
+                            <span className="font-medium">Description</span>
+                          </div>
+                          <div className="text-sm bg-muted/30 p-3 rounded">
+                            {extractedContract.project_description}
+                          </div>
+                        </div>
+                      )}
+                      {extractedContract.special_conditions && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertCircle className="w-4 h-4 text-amber-600" />
+                            <span className="font-medium">Special Conditions</span>
+                          </div>
+                          <div className="text-sm bg-amber-50/50 p-3 rounded border border-amber-200">
+                            {extractedContract.special_conditions}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Timeline & Key Dates */}
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Project Timeline</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     <div>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
+                       <div className="font-medium text-muted-foreground mb-1">Contract Date</div>
+                       <div className="text-lg font-semibold">
+                         {extractedContract.execution_date ? 
+                           new Date(extractedContract.execution_date).toLocaleDateString() :
+                           extractedContract.contract_date ?
+                           new Date(extractedContract.contract_date).toLocaleDateString() : '—'}
+                       </div>
+                     </div>
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="font-medium text-muted-foreground mb-1">Start Date</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.effective_date || '—'}
+                         {extractedContract.start_date ? 
+                           new Date(extractedContract.start_date).toLocaleDateString() :
+                           extractedContract.effective_date ? 
+                           new Date(extractedContract.effective_date).toLocaleDateString() : '—'}
                        </div>
                      </div>
-                     <div>
-                       <div className="font-medium text-muted-foreground mb-1">Practical Completion</div>
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
+                       <div className="font-medium text-muted-foreground mb-1">Completion Date</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.expiry_date || '—'}
+                         {extractedContract.completion_date ? 
+                           new Date(extractedContract.completion_date).toLocaleDateString() :
+                           extractedContract.practical_completion ? 
+                           new Date(extractedContract.practical_completion).toLocaleDateString() :
+                           extractedContract.expiry_date ? 
+                           new Date(extractedContract.expiry_date).toLocaleDateString() : '—'}
                        </div>
                      </div>
-                     <div>
-                       <div className="font-medium text-muted-foreground mb-1">DLP Days</div>
+                     <div className="text-center p-4 bg-muted/30 rounded-lg">
+                       <div className="font-medium text-muted-foreground mb-1">Contract Duration</div>
                        <div className="text-lg font-semibold">
-                         180 days
+                         {extractedContract.duration || 
+                          extractedContract.contract_duration ||
+                          (extractedContract.start_date && extractedContract.completion_date ? 
+                            `${Math.ceil((new Date(extractedContract.completion_date).getTime() - new Date(extractedContract.start_date).getTime()) / (1000 * 60 * 60 * 24))} days` : 
+                            '—')}
                        </div>
                      </div>
                   </div>
                 </div>
+
+                <Separator />
+
+                {/* Additional Contract Details */}
+                {(extractedContract.liquidated_damages || extractedContract.governing_law || extractedContract.variations || extractedContract.insurance_requirements) && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-4 border-b pb-2">Contract Terms</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {extractedContract.liquidated_damages && (
+                        <div className="p-4 border rounded-lg">
+                          <div className="font-medium text-red-800 mb-2">Liquidated Damages</div>
+                          <div className="text-sm">{extractedContract.liquidated_damages}</div>
+                        </div>
+                      )}
+                      {extractedContract.governing_law && (
+                        <div className="p-4 border rounded-lg">
+                          <div className="font-medium text-blue-800 mb-2">Governing Law</div>
+                          <div className="text-sm">{extractedContract.governing_law}</div>
+                        </div>
+                      )}
+                      {extractedContract.variations && (
+                        <div className="p-4 border rounded-lg">
+                          <div className="font-medium text-purple-800 mb-2">Variations</div>
+                          <div className="text-sm">{extractedContract.variations}</div>
+                        </div>
+                      )}
+                      {extractedContract.insurance_requirements && (
+                        <div className="p-4 border rounded-lg">
+                          <div className="font-medium text-green-800 mb-2">Insurance Requirements</div>
+                          <div className="text-sm">{extractedContract.insurance_requirements}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Summary */}
+                {extractedContract.ai_summary && (
+                  <>
+                    <Separator />
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Brain className="w-5 h-5 text-primary" />
+                        <h3 className="font-semibold text-lg">AI Contract Analysis</h3>
+                      </div>
+                      <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 p-4 rounded-lg border border-blue-200">
+                        <div className="prose prose-sm max-w-none text-muted-foreground">
+                          {extractedContract.ai_summary}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 
