@@ -147,9 +147,6 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
 
       {/* Bills Management */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-foreground">Bills Management</CardTitle>
-        </CardHeader>
         <CardContent className="pt-0">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
