@@ -88,6 +88,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [isVersionsDrawerOpen, setIsVersionsDrawerOpen] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionData, setExtractionData] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TypeScript utility functions
@@ -120,13 +121,22 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   const loadContracts = async () => {
     try {
+      console.log('Loading contracts for project:', project.id);
+      
+      // Force fresh data by adding a timestamp query parameter
       const { data, error } = await supabase
         .from('project_contracts')
         .select('*')
         .eq('project_id', project.id)
+        .eq('status', 'active')  // Only load active contracts
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading contracts from database:', error);
+        throw error;
+      }
+
+      console.log('Loaded contracts from database:', data?.length || 0);
 
       const formattedContracts = (data || []).map((contract: any) => ({
         id: contract.id,
@@ -142,14 +152,20 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         is_canonical: contract.is_canonical || true
       }));
 
+      console.log('Setting contracts state with:', formattedContracts.length, 'contracts');
       setContracts(formattedContracts);
       
-      // Select first contract if none selected
+      // Only select first contract if there are contracts and none is currently selected
       if (formattedContracts.length > 0 && !selectedContract) {
+        console.log('Auto-selecting first contract:', formattedContracts[0].name);
         setSelectedContract(formattedContracts[0]);
+      } else if (formattedContracts.length === 0) {
+        console.log('No contracts found, clearing selection');
+        setSelectedContract(null);
       }
     } catch (error) {
       console.error('Error loading contracts:', error);
+      toast.error('Failed to load contracts');
     }
   };
 
@@ -486,45 +502,113 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   };
 
   const handleDelete = async (contractId: string, fileName: string) => {
+    // Prevent multiple deletion attempts
+    if (isDeleting) return;
+
+    // Add confirmation dialog
+    if (!confirm('Are you sure you want to delete this contract? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsDeleting(true);
     try {
-      // Delete all related contract data first
-      await supabase.from('contract_actions').delete().eq('contract_id', contractId);
-      await supabase.from('contract_risks').delete().eq('contract_id', contractId);
-      await supabase.from('contract_milestones').delete().eq('contract_id', contractId);
-      await supabase.from('contract_versions').delete().eq('contract_id', contractId);
+      console.log('Starting contract deletion:', { contractId, fileName });
 
-      // Delete from database
-      const { error: dbError } = await supabase
-        .from('project_contracts')
-        .delete()
-        .eq('id', contractId);
-
-      if (dbError) throw dbError;
-
-      // Delete from storage (using correct bucket name 'documents')
+      // Find the contract to get proper file path
       const contract = contracts.find(c => c.id === contractId);
-      if (contract?.file_path) {
+      if (!contract) {
+        throw new Error('Contract not found');
+      }
+
+      console.log('Found contract:', contract);
+
+      // Delete all related contract data first (with proper error handling)
+      console.log('Deleting related contract data...');
+      
+      const { error: actionsError } = await supabase
+        .from('contract_actions')
+        .delete()
+        .eq('contract_id', contractId);
+      
+      if (actionsError) {
+        console.warn('Error deleting contract actions:', actionsError);
+      }
+
+      const { error: risksError } = await supabase
+        .from('contract_risks')
+        .delete()
+        .eq('contract_id', contractId);
+      
+      if (risksError) {
+        console.warn('Error deleting contract risks:', risksError);
+      }
+
+      const { error: milestonesError } = await supabase
+        .from('contract_milestones')
+        .delete()
+        .eq('contract_id', contractId);
+      
+      if (milestonesError) {
+        console.warn('Error deleting contract milestones:', milestonesError);
+      }
+
+      const { error: versionsError } = await supabase
+        .from('contract_versions')
+        .delete()
+        .eq('contract_id', contractId);
+      
+      if (versionsError) {
+        console.warn('Error deleting contract versions:', versionsError);
+      }
+
+      // Delete from storage first (using file_path)
+      if (contract.file_path) {
+        console.log('Deleting file from storage:', contract.file_path);
+        
         const { error: storageError } = await supabase.storage
           .from('documents')
           .remove([contract.file_path]);
         
         if (storageError) {
-          console.warn('Storage deletion warning:', storageError);
+          console.error('Storage deletion error:', storageError);
+          // Don't throw here - continue with database deletion even if storage fails
+        } else {
+          console.log('File deleted from storage successfully');
         }
       }
 
-      // If selected contract was deleted, clear selection
-      if (selectedContract?.id === contractId) {
-        const remainingContracts = contracts.filter(c => c.id !== contractId);
-        setSelectedContract(remainingContracts.length > 0 ? remainingContracts[0] : null);
+      // Delete from database last
+      console.log('Deleting contract from database...');
+      const { error: dbError } = await supabase
+        .from('project_contracts')
+        .delete()
+        .eq('id', contractId);
+
+      if (dbError) {
+        console.error('Database deletion error:', dbError);
+        throw dbError;
       }
 
-      // Reload contracts
+      console.log('Contract deleted from database successfully');
+
+      // If selected contract was deleted, clear selection
+      if (selectedContract?.id === contractId) {
+        setSelectedContract(null);
+      }
+
+      // Reload contracts to ensure UI is in sync
+      console.log('Reloading contracts...');
       await loadContracts();
+      
+      console.log('Contract deletion completed successfully');
       toast.success('Contract and all related data deleted successfully');
+      
     } catch (error) {
       console.error('Delete error:', error);
-      toast.error('Failed to delete contract');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete contract';
+      toast.error(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -980,8 +1064,13 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                   size="sm" 
                                   variant="destructive" 
                                   onClick={() => handleDelete(contract.id, contract.file_url)}
+                                  disabled={isDeleting}
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  {isDeleting ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="w-3 h-3" />
+                                  )}
                                 </Button>
                               </div>
                             </Card>
