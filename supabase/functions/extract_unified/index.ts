@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-// Deno runtime (Supabase Edge Functions)
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 type UnifiedResult = {
   document_type: "contract" | "drawing" | "spec" | "invoice" | "other";
@@ -18,117 +18,162 @@ type UnifiedResult = {
     special_conditions?: string;
   };
   drawing?: {
+    drawing_number?: string;
+    revision?: string;
     project_name?: string;
     client_name?: string;
-    site_address?: string;
-    sheet_number?: string;
-    sheet_title?: string;
-    drawing_set_date?: string;
-    revision?: string;
-    designers?: string[];
-    areas?: {
-      site_area_m2?: number;
-      build_area_m2?: number;
-      landscape_area_m2?: number;
-      garage_area_m2?: number;
-    };
-  };
-  spec?: {
-    project_name?: string;
-    spec_sections?: string[];
-    key_materials?: string[];
-    revisions?: string[];
+    architect?: string;
+    scale?: string;
+    discipline?: string;
+    drawing_type?: string;
   };
   invoice?: {
-    supplier?: string;
     invoice_number?: string;
     invoice_date?: string;
     due_date?: string;
-    subtotal?: string;
-    tax?: string;
-    total?: string;
-    line_items?: Array<{ description?: string; qty?: string; rate?: string; amount?: string }>;
+    vendor?: string;
+    client?: string;
+    subtotal?: number;
+    tax?: number;
+    total?: number;
+    line_items?: Array<{
+      description: string;
+      qty: number;
+      rate: number;
+      amount: number;
+    }>;
   };
-  other?: Record<string, unknown>;
 };
 
 const UnifiedSchema = {
-  name: "UnifiedDocExtraction",
+  name: "UnifiedDocumentExtraction",
   schema: {
     type: "object",
-    additionalProperties: false,
     properties: {
-      document_type: { type: "string", enum: ["contract","drawing","spec","invoice","other"] },
+      document_type: {
+        type: "string",
+        enum: ["contract", "drawing", "spec", "invoice", "other"]
+      },
       ai_summary: { type: "string" },
-      ai_confidence: { type: "number" },
-      contract: { type: "object", additionalProperties: false, properties: {
-        title: { type: "string" }, parties: { type: "array", items: { type: "string" } },
-        effective_date: { type: "string" }, expiry_date: { type: "string" },
-        contract_value: { type: "string" }, payment_terms: { type: "string" },
-        scope_of_work: { type: "string" }, termination_clause: { type: "string" },
-        special_conditions: { type: "string" }
-      }},
-      drawing: { type: "object", additionalProperties: false, properties: {
-        project_name: { type: "string" }, client_name: { type: "string" }, site_address: { type: "string" },
-        sheet_number: { type: "string" }, sheet_title: { type: "string" },
-        drawing_set_date: { type: "string" }, revision: { type: "string" },
-        designers: { type: "array", items: { type: "string" } },
-        areas: { type: "object", additionalProperties: false, properties: {
-          site_area_m2: { type: "number" }, build_area_m2: { type: "number" },
-          landscape_area_m2: { type: "number" }, garage_area_m2: { type: "number" }
-        }}
-      }},
-      spec: { type: "object", additionalProperties: false, properties: {
-        project_name: { type: "string" }, spec_sections: { type: "array", items: { type: "string" } },
-        key_materials: { type: "array", items: { type: "string" } }, revisions: { type: "array", items: { type: "string" } }
-      }},
-      invoice: { type: "object", additionalProperties: false, properties: {
-        supplier: { type: "string" }, invoice_number: { type: "string" },
-        invoice_date: { type: "string" }, due_date: { type: "string" },
-        subtotal: { type: "string" }, tax: { type: "string" }, total: { type: "string" },
-        line_items: { type: "array", items: {
-          type: "object", additionalProperties: false,
-          properties: { description: { type: "string" }, qty: { type: "string" }, rate: { type: "string" }, amount: { type: "string" } }
-        }}
-      }},
-      other: { type: "object", additionalProperties: true }
+      ai_confidence: { type: "number", minimum: 0, maximum: 1 },
+      contract: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          parties: { type: "array", items: { type: "string" } },
+          effective_date: { type: "string" },
+          expiry_date: { type: "string" },
+          contract_value: { type: "string" },
+          payment_terms: { type: "string" },
+          scope_of_work: { type: "string" },
+          termination_clause: { type: "string" },
+          special_conditions: { type: "string" }
+        }
+      },
+      drawing: {
+        type: "object",
+        properties: {
+          drawing_number: { type: "string" },
+          revision: { type: "string" },
+          project_name: { type: "string" },
+          client_name: { type: "string" },
+          architect: { type: "string" },
+          scale: { type: "string" },
+          discipline: { type: "string" },
+          drawing_type: { type: "string" }
+        }
+      },
+      invoice: {
+        type: "object",
+        properties: {
+          invoice_number: { type: "string" },
+          invoice_date: { type: "string" },
+          due_date: { type: "string" },
+          vendor: { type: "string" },
+          client: { type: "string" },
+          subtotal: { type: "number" },
+          tax: { type: "number" },
+          total: { type: "number" },
+          line_items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                description: { type: "string" },
+                qty: { type: "number" },
+                rate: { type: "number" },
+                amount: { type: "number" }
+              }
+            }
+          }
+        }
+      }
     },
-    required: ["document_type","ai_summary","ai_confidence"]
+    required: ["document_type", "ai_summary", "ai_confidence"]
   }
-} as const;
+};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-async function fetchAsArrayBuffer(url: string) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Download failed: ${res.status} ${await res.text()}`);
-  return await res.arrayBuffer();
+// Simple PDF text extraction using PDF.js
+async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
+  try {
+    // Use PDF.js worker to extract text
+    const pdfWorkerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    
+    // For Deno, we'll use a simpler approach with pdf-parse
+    const pdfParse = await import("https://deno.land/x/pdf_parse@1.1.0/mod.ts");
+    const data = await pdfParse.default(new Uint8Array(pdfBytes));
+    return data.text || "";
+  } catch (error) {
+    console.error("PDF text extraction failed:", error);
+    // Fallback: try to extract basic text patterns if possible
+    const decoder = new TextDecoder('utf-8', { fatal: false });
+    const text = decoder.decode(pdfBytes);
+    
+    // Extract readable text between common PDF text markers
+    const textMatches = text.match(/BT\s+.*?ET/gs);
+    if (textMatches) {
+      return textMatches.join(' ').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    
+    return "Unable to extract text from PDF";
+  }
 }
 
-Deno.serve(async (req) => {
-  // Handle CORS preflight requests
+async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+  }
+  return response.arrayBuffer();
+}
+
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { file_url, signed_url, project_contract_id } = await req.json();
-
-    if (!file_url && !signed_url) {
-      return new Response(JSON.stringify({ error: "Provide file_url or signed_url" }), { 
-        status: 400, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured');
     }
 
-    console.log('Processing document extraction:', { file_url, signed_url, project_contract_id });
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    const body = await req.json();
+    const { signed_url, file_url, project_contract_id } = body;
+
+    console.log('Processing document extraction:', {
+      file_url,
+      signed_url,
+      project_contract_id
+    });
 
     // 1) Download file bytes (prefer signed_url if provided)
     const url = signed_url || file_url;
@@ -136,10 +181,11 @@ Deno.serve(async (req) => {
 
     console.log('Downloaded file, size:', bytes.byteLength);
 
-    // 2) For PDFs, we'll use OCR approach or text extraction
-    // Since OpenAI vision models don't support PDF directly, we'll try a text-only approach
-    
-    // 3) Call OpenAI Chat Completions API with file size info and instructions
+    // 2) Extract text from PDF
+    const extractedText = await extractTextFromPDF(bytes);
+    console.log('Extracted text length:', extractedText.length);
+
+    // 3) Call OpenAI Chat Completions API with extracted text
     const completion = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -151,23 +197,24 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are an extraction engine for construction documents. " +
-              "Since you cannot directly read the PDF file, please provide a realistic example extraction " +
-              "based on the filename and context provided. Return ONLY valid JSON matching the schema."
+            content: "You are an expert document extraction engine for construction documents. " +
+              "Analyze the provided text extracted from a PDF and extract structured data. " +
+              "Focus on accuracy and only extract information that is clearly present in the text. " +
+              "Return ONLY valid JSON matching the schema."
           },
           {
             role: "user",
-            content: `Extract structured data from a construction PDF document. 
-            File size: ${bytes.byteLength} bytes
-            URL: ${url}
-            
-            This appears to be a construction contract document. Please create a realistic extraction with:
-            - document_type: "contract"
-            - ai_confidence: 0.75 (since this is example data)
-            - contract details including parties, dates, payment terms
-            - ai_summary describing the document
-            
-            Return only the JSON matching the schema.`
+            content: `Extract structured data from this construction document text:
+
+${extractedText}
+
+Please analyze this text and extract:
+1. Document type (contract, drawing, invoice, spec, or other)
+2. A summary of the document
+3. Confidence level (0.0-1.0) based on text clarity and completeness
+4. Relevant structured data based on document type
+
+Return only the JSON matching the schema.`
           }
         ],
         response_format: { 
@@ -200,46 +247,43 @@ Deno.serve(async (req) => {
 
     console.log('AI extraction complete:', { 
       document_type: data.document_type, 
-      confidence: data.ai_confidence,
-      summary_length: data.ai_summary?.length 
+      confidence: data.ai_confidence, 
+      summary_length: data.ai_summary?.length || 0 
     });
 
-    // 4) If it's a contract and we have an ID, update project_contracts
-    if (data.document_type === "contract" && project_contract_id) {
-      const supabaseRes = await fetch(`${SUPABASE_URL}/rest/v1/project_contracts?id=eq.${project_contract_id}`, {
-        method: "PATCH",
-        headers: {
-          apikey: SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-          "Content-Type": "application/json",
-          Prefer: "return=representation"
-        },
-        body: JSON.stringify({
-          ai_summary_json: { ai_summary: data.ai_summary },
-          confidence: Math.max(0, Math.min(1, data.ai_confidence ?? 0)),
-          contract_data: data,
-          updated_at: new Date().toISOString()
-        })
-      });
+    // 4) Update the project_contracts table with the extracted data
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.2');
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-      if (!supabaseRes.ok) {
-        const errorText = await supabaseRes.text();
-        console.error('Supabase update failed:', errorText);
-        return new Response(errorText, { 
-          status: supabaseRes.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
+    const updateData: any = {
+      ai_summary_json: data.ai_summary,
+      confidence: data.ai_confidence,
+      contract_data: data,
+      updated_at: new Date().toISOString()
+    };
 
-      console.log('Updated project_contracts table for contract ID:', project_contract_id);
+    const { error: updateError } = await supabase
+      .from('project_contracts')
+      .update(updateData)
+      .eq('id', project_contract_id);
+
+    if (updateError) {
+      console.error('Failed to update project_contracts:', updateError);
+      throw updateError;
     }
 
-    return new Response(JSON.stringify({ ok: true, data }), { 
-      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    console.log('Updated project_contracts table for contract ID:', project_contract_id);
+
+    return new Response(JSON.stringify({ ok: true, data }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
-  } catch (e) {
-    console.error('Extract unified function error:', e);
-    return new Response(JSON.stringify({ error: String(e) }), { 
+
+  } catch (error) {
+    console.error('Error in extract_unified function:', error);
+    return new Response(JSON.stringify({ 
+      ok: false, 
+      error: error.message || 'Unknown error occurred'
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
