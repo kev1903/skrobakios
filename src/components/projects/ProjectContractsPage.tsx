@@ -1069,21 +1069,41 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { name: "Public Liability Insurance", status: "valid", expiry: "2025-06-30" },
-                    { name: "Contract Works Insurance", status: "expiring", expiry: "2024-12-31" },
-                    { name: "Workers Compensation", status: "valid", expiry: "2025-03-15" }
-                  ].map((insurance, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">{insurance.name}</div>
-                        <div className="text-sm text-muted-foreground">Expires: {insurance.expiry}</div>
+                  {extractedContract.insurance_requirements?.length > 0 ? 
+                    extractedContract.insurance_requirements.map((insurance: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <div className="font-medium">{insurance.type || insurance.name || '—'}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Expires: {insurance.expiry_date || insurance.expiry || '—'}
+                          </div>
+                        </div>
+                        <Badge variant={insurance.status === 'valid' || insurance.status === 'Valid' ? 'default' : 'secondary'}>
+                          {insurance.status || 'Valid'}
+                        </Badge>
                       </div>
-                      <Badge variant={insurance.status === 'valid' ? 'default' : 'secondary'}>
-                        {insurance.status === 'valid' ? 'Valid' : 'Expiring Soon'}
-                      </Badge>
-                    </div>
-                  ))}
+                    )) :
+                    extractedContract.insurance ? (
+                      Object.entries(extractedContract.insurance).map(([type, details]: [string, any], index) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <div className="font-medium">{type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {details?.expiry_date ? `Expires: ${details.expiry_date}` : 
+                               details?.amount ? `Amount: ${details.amount}` : '—'}
+                            </div>
+                          </div>
+                          <Badge variant={details?.status === 'valid' || !details?.status ? 'default' : 'secondary'}>
+                            {details?.status || 'Valid'}
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        No insurance information available in contract
+                      </div>
+                    )
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -1099,32 +1119,55 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
-                    <div className="flex justify-between p-2 border-b">
-                      <span className="font-medium">Variations</span>
-                      <span className="text-muted-foreground">Clause 12</span>
-                    </div>
-                    <div className="flex justify-between p-2 border-b">
-                      <span className="font-medium">Extensions of Time</span>
-                      <span className="text-muted-foreground">Clause 15</span>
-                    </div>
-                    <div className="flex justify-between p-2 border-b">
-                      <span className="font-medium">Liquidated Damages</span>
-                      <span className="text-muted-foreground">Clause 18</span>
-                    </div>
+                    {extractedContract.key_clauses?.variations && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Variations</span>
+                        <span className="text-muted-foreground">{extractedContract.key_clauses.variations}</span>
+                      </div>
+                    )}
+                    {extractedContract.key_clauses?.extensions_of_time && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Extensions of Time</span>
+                        <span className="text-muted-foreground">{extractedContract.key_clauses.extensions_of_time}</span>
+                      </div>
+                    )}
+                    {extractedContract.key_clauses?.liquidated_damages && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Liquidated Damages</span>
+                        <span className="text-muted-foreground">{extractedContract.key_clauses.liquidated_damages}</span>
+                      </div>
+                    )}
+                    {extractedContract.liquidated_damages && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Liquidated Damages</span>
+                        <span className="text-muted-foreground">{extractedContract.liquidated_damages}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-3">
-                    <div className="flex justify-between p-2 border-b">
-                      <span className="font-medium">Termination</span>
-                      <span className="text-muted-foreground">Clause 22</span>
-                    </div>
-                    <div className="flex justify-between p-2 border-b">
-                      <span className="font-medium">Dispute Resolution</span>
-                      <span className="text-muted-foreground">Clause 35</span>
-                    </div>
-                    <div className="flex justify-between p-2 border-b">
-                      <span className="font-medium">Governing Law</span>
-                      <span className="text-muted-foreground">Victoria, Australia</span>
-                    </div>
+                    {extractedContract.key_clauses?.termination && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Termination</span>
+                        <span className="text-muted-foreground">{extractedContract.key_clauses.termination}</span>
+                      </div>
+                    )}
+                    {extractedContract.key_clauses?.dispute_resolution && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Dispute Resolution</span>
+                        <span className="text-muted-foreground">{extractedContract.key_clauses.dispute_resolution}</span>
+                      </div>
+                    )}
+                    {extractedContract.governing_law && (
+                      <div className="flex justify-between p-2 border-b">
+                        <span className="font-medium">Governing Law</span>
+                        <span className="text-muted-foreground">{extractedContract.governing_law}</span>
+                      </div>
+                    )}
+                    {!extractedContract.key_clauses && !extractedContract.governing_law && (
+                      <div className="text-center py-4 text-muted-foreground col-span-2">
+                        No key clauses identified in contract
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -1140,20 +1183,55 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
-                    <div>
-                      <div className="font-medium">Principal - John & Jane Example</div>
-                      <div className="text-sm text-muted-foreground">Signed on January 15, 2024</div>
+                  {extractedContract.parties?.length > 0 ? (
+                    extractedContract.parties.map((party: string, index: number) => {
+                      const isExecuted = extractedContract.execution_date || extractedContract.effective_date;
+                      return (
+                        <div key={index} className={`flex items-center justify-between p-4 border rounded-lg ${isExecuted ? 'bg-green-50/50' : 'bg-yellow-50/50'}`}>
+                          <div>
+                            <div className="font-medium">
+                              {index === 0 ? 'Principal' : 'Contractor'} - {party}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {isExecuted ? `Signed on ${new Date(isExecuted).toLocaleDateString()}` : 'Signature pending'}
+                            </div>
+                          </div>
+                          <Badge variant={isExecuted ? 'default' : 'secondary'}>
+                            {isExecuted ? 'Executed' : 'Pending'}
+                          </Badge>
+                        </div>
+                      );
+                    })
+                  ) : extractedContract.principal || extractedContract.contractor ? (
+                    <>
+                      {extractedContract.principal && (
+                        <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
+                          <div>
+                            <div className="font-medium">Principal - {extractedContract.principal}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {extractedContract.execution_date ? `Signed on ${new Date(extractedContract.execution_date).toLocaleDateString()}` : 'Signature pending'}
+                            </div>
+                          </div>
+                          <Badge variant="default">Executed</Badge>
+                        </div>
+                      )}
+                      {extractedContract.contractor && (
+                        <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
+                          <div>
+                            <div className="font-medium">Contractor - {extractedContract.contractor}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {extractedContract.execution_date ? `Signed on ${new Date(extractedContract.execution_date).toLocaleDateString()}` : 'Signature pending'}
+                            </div>
+                          </div>
+                          <Badge variant="default">Executed</Badge>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      No party information available in contract
                     </div>
-                    <Badge variant="default">Executed</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
-                    <div>
-                      <div className="font-medium">Contractor - Skrobaki Pty Ltd</div>
-                      <div className="text-sm text-muted-foreground">Signed on January 15, 2024</div>
-                    </div>
-                    <Badge variant="default">Executed</Badge>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
