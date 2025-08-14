@@ -834,9 +834,54 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   // Use extractionData if available, otherwise fall back to database data
   const currentData = extractionData || selectedContract.contract_data || {};
-  const extractedContract = currentData.contract || {};
+  const extractedContract = currentData.contract || currentData || selectedContract.ai_summary_json || {};
   const aiSummary = selectedContract.ai_summary_json || {};
-  const title = extractedContract.title || aiSummary.title || selectedContract.name;
+  
+  // Provide fallback values when extraction failed or has low confidence
+  const fallbackContract = {
+    contract_value: null,
+    contract_price: null,
+    total_value: null,
+    gst_included: true,
+    payment_terms: "To be extracted from contract",
+    payment_schedule: null,
+    payment_method: null,
+    deposit_percentage: null,
+    deposit_amount: null,
+    retention_percentage: 5,
+    retention_amount: null,
+    principal: "To be extracted from contract",
+    client_name: null,
+    principal_abn: null,
+    principal_address: null,
+    contractor: "To be extracted from contract", 
+    contractor_name: null,
+    contractor_abn: null,
+    contractor_address: null,
+    project_address: project.location || "To be extracted from contract",
+    scope_of_work: "To be extracted from contract",
+    project_description: "Contract analysis pending - please re-run extraction",
+    special_conditions: null,
+    execution_date: null,
+    contract_date: null,
+    start_date: null,
+    effective_date: null,
+    completion_date: null,
+    practical_completion: null,
+    expiry_date: null,
+    duration: null,
+    contract_duration: null,
+    liquidated_damages: null,
+    governing_law: null,
+    variations: null,
+    insurance_requirements: null,
+    ai_summary: selectedContract.confidence === 0 ? 
+      "AI extraction failed due to document size exceeding token limits. Please try breaking the contract into smaller sections or use a summarized version." :
+      null,
+    ...extractedContract
+  };
+  
+  const title = fallbackContract.title || fallbackContract.name || aiSummary.title || selectedContract.name;
   
   // Current confidence - use extractionData first, then database
   const currentConfidence = extractionData?.ai_confidence ?? selectedContract.confidence ?? 0;
@@ -1106,38 +1151,38 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Financial Overview</h3>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                     <div className="text-center p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
+                      <div className="text-center p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
                        <div className="text-sm text-muted-foreground mb-1">Contract Sum</div>
                        <div className="text-2xl font-bold text-primary">
-                         {extractedContract.contract_value ? formatCurrency(extractedContract.contract_value) : 
-                          extractedContract.contract_price ? formatCurrency(extractedContract.contract_price) :
-                          extractedContract.total_value ? formatCurrency(extractedContract.total_value) : '—'}
+                         {fallbackContract.contract_value ? formatCurrency(fallbackContract.contract_value) : 
+                          fallbackContract.contract_price ? formatCurrency(fallbackContract.contract_price) :
+                          fallbackContract.total_value ? formatCurrency(fallbackContract.total_value) : '—'}
                        </div>
                        <div className="text-xs text-muted-foreground mt-1">
-                         {extractedContract.gst_included ? 'Inc GST' : 'Ex GST'}
+                         {fallbackContract.gst_included ? 'Inc GST' : 'Ex GST'}
                        </div>
                      </div>
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="text-sm text-muted-foreground mb-1">Payment Terms</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.payment_terms || 
-                          extractedContract.payment_schedule ||
-                          extractedContract.payment_method || '—'}
+                         {fallbackContract.payment_terms || 
+                          fallbackContract.payment_schedule ||
+                          fallbackContract.payment_method || '—'}
                        </div>
                      </div>
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="text-sm text-muted-foreground mb-1">Deposit</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.deposit_percentage ? `${extractedContract.deposit_percentage}%` :
-                          extractedContract.deposit_amount ? formatCurrency(extractedContract.deposit_amount) :
-                          percentFrom(extractedContract.payment_terms)}
+                         {fallbackContract.deposit_percentage ? `${fallbackContract.deposit_percentage}%` :
+                          fallbackContract.deposit_amount ? formatCurrency(fallbackContract.deposit_amount) :
+                          percentFrom(fallbackContract.payment_terms)}
                        </div>
                      </div>
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="text-sm text-muted-foreground mb-1">Retention</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.retention_percentage ? `${extractedContract.retention_percentage}%` :
-                          extractedContract.retention_amount ? formatCurrency(extractedContract.retention_amount) :
+                         {fallbackContract.retention_percentage ? `${fallbackContract.retention_percentage}%` :
+                          fallbackContract.retention_amount ? formatCurrency(fallbackContract.retention_amount) :
                           '5%'}
                        </div>
                      </div>
@@ -1155,42 +1200,42 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                          <Building className="w-4 h-4 text-blue-600" />
                          <span className="font-medium text-blue-800">Principal</span>
                        </div>
-                       <div className="space-y-2">
-                         <div className="font-semibold">
-                           {extractedContract.principal || 
-                            extractedContract.client_name || 
-                            extractedContract.parties?.[0] || '—'}
-                         </div>
-                         <div className="text-sm text-muted-foreground">
-                           {extractedContract.principal_abn ? `ABN: ${extractedContract.principal_abn}` : 'ABN: —'}
-                         </div>
-                         {extractedContract.principal_address && (
-                           <div className="text-sm text-muted-foreground">
-                             {extractedContract.principal_address}
+                         <div className="space-y-2">
+                           <div className="font-semibold">
+                             {fallbackContract.principal || 
+                              fallbackContract.client_name || 
+                              fallbackContract.parties?.[0] || '—'}
                            </div>
-                         )}
-                       </div>
+                           <div className="text-sm text-muted-foreground">
+                             {fallbackContract.principal_abn ? `ABN: ${fallbackContract.principal_abn}` : 'ABN: —'}
+                           </div>
+                           {fallbackContract.principal_address && (
+                             <div className="text-sm text-muted-foreground">
+                               {fallbackContract.principal_address}
+                             </div>
+                           )}
+                         </div>
                      </div>
                      <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50/50 to-green-100/50">
                        <div className="flex items-center gap-2 mb-3">
                          <Hammer className="w-4 h-4 text-green-600" />
                          <span className="font-medium text-green-800">Contractor</span>
                        </div>
-                       <div className="space-y-2">
-                         <div className="font-semibold">
-                           {extractedContract.contractor || 
-                            extractedContract.contractor_name || 
-                            extractedContract.parties?.[1] || '—'}
-                         </div>
-                         <div className="text-sm text-muted-foreground">
-                           {extractedContract.contractor_abn ? `ABN: ${extractedContract.contractor_abn}` : 'ABN: —'}
-                         </div>
-                         {extractedContract.contractor_address && (
-                           <div className="text-sm text-muted-foreground">
-                             {extractedContract.contractor_address}
+                         <div className="space-y-2">
+                           <div className="font-semibold">
+                             {fallbackContract.contractor || 
+                              fallbackContract.contractor_name || 
+                              fallbackContract.parties?.[1] || '—'}
                            </div>
-                         )}
-                       </div>
+                           <div className="text-sm text-muted-foreground">
+                             {fallbackContract.contractor_abn ? `ABN: ${fallbackContract.contractor_abn}` : 'ABN: —'}
+                           </div>
+                           {fallbackContract.contractor_address && (
+                             <div className="text-sm text-muted-foreground">
+                               {fallbackContract.contractor_address}
+                             </div>
+                           )}
+                         </div>
                      </div>
                   </div>
                 </div>
@@ -1202,52 +1247,52 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Project Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      {extractedContract.project_address && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <MapPin className="w-4 h-4 text-primary" />
-                            <span className="font-medium">Project Address</span>
-                          </div>
-                          <div className="text-sm bg-muted/30 p-3 rounded">
-                            {extractedContract.project_address}
-                          </div>
-                        </div>
-                      )}
-                      {extractedContract.scope_of_work && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Briefcase className="w-4 h-4 text-primary" />
-                            <span className="font-medium">Scope of Work</span>
-                          </div>
-                          <div className="text-sm bg-muted/30 p-3 rounded">
-                            {extractedContract.scope_of_work}
-                          </div>
-                        </div>
-                      )}
+                       {fallbackContract.project_address && (
+                         <div>
+                           <div className="flex items-center gap-2 mb-2">
+                             <MapPin className="w-4 h-4 text-primary" />
+                             <span className="font-medium">Project Address</span>
+                           </div>
+                           <div className="text-sm bg-muted/30 p-3 rounded">
+                             {fallbackContract.project_address}
+                           </div>
+                         </div>
+                       )}
+                       {fallbackContract.scope_of_work && (
+                         <div>
+                           <div className="flex items-center gap-2 mb-2">
+                             <Briefcase className="w-4 h-4 text-primary" />
+                             <span className="font-medium">Scope of Work</span>
+                           </div>
+                           <div className="text-sm bg-muted/30 p-3 rounded">
+                             {fallbackContract.scope_of_work}
+                           </div>
+                         </div>
+                       )}
                     </div>
                     <div className="space-y-4">
-                      {extractedContract.project_description && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <FileText className="w-4 h-4 text-primary" />
-                            <span className="font-medium">Description</span>
-                          </div>
-                          <div className="text-sm bg-muted/30 p-3 rounded">
-                            {extractedContract.project_description}
-                          </div>
-                        </div>
-                      )}
-                      {extractedContract.special_conditions && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <AlertCircle className="w-4 h-4 text-amber-600" />
-                            <span className="font-medium">Special Conditions</span>
-                          </div>
-                          <div className="text-sm bg-amber-50/50 p-3 rounded border border-amber-200">
-                            {extractedContract.special_conditions}
-                          </div>
-                        </div>
-                      )}
+                       {fallbackContract.project_description && (
+                         <div>
+                           <div className="flex items-center gap-2 mb-2">
+                             <FileText className="w-4 h-4 text-primary" />
+                             <span className="font-medium">Description</span>
+                           </div>
+                           <div className="text-sm bg-muted/30 p-3 rounded">
+                             {fallbackContract.project_description}
+                           </div>
+                         </div>
+                       )}
+                       {fallbackContract.special_conditions && (
+                         <div>
+                           <div className="flex items-center gap-2 mb-2">
+                             <AlertCircle className="w-4 h-4 text-amber-600" />
+                             <span className="font-medium">Special Conditions</span>
+                           </div>
+                           <div className="text-sm bg-amber-50/50 p-3 rounded border border-amber-200">
+                             {fallbackContract.special_conditions}
+                           </div>
+                         </div>
+                       )}
                     </div>
                   </div>
                 </div>
@@ -1261,39 +1306,39 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="font-medium text-muted-foreground mb-1">Contract Date</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.execution_date ? 
-                           new Date(extractedContract.execution_date).toLocaleDateString() :
-                           extractedContract.contract_date ?
-                           new Date(extractedContract.contract_date).toLocaleDateString() : '—'}
+                         {fallbackContract.execution_date ? 
+                           new Date(fallbackContract.execution_date).toLocaleDateString() :
+                           fallbackContract.contract_date ?
+                           new Date(fallbackContract.contract_date).toLocaleDateString() : '—'}
                        </div>
                      </div>
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="font-medium text-muted-foreground mb-1">Start Date</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.start_date ? 
-                           new Date(extractedContract.start_date).toLocaleDateString() :
-                           extractedContract.effective_date ? 
-                           new Date(extractedContract.effective_date).toLocaleDateString() : '—'}
+                         {fallbackContract.start_date ? 
+                           new Date(fallbackContract.start_date).toLocaleDateString() :
+                           fallbackContract.effective_date ? 
+                           new Date(fallbackContract.effective_date).toLocaleDateString() : '—'}
                        </div>
                      </div>
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="font-medium text-muted-foreground mb-1">Completion Date</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.completion_date ? 
-                           new Date(extractedContract.completion_date).toLocaleDateString() :
-                           extractedContract.practical_completion ? 
-                           new Date(extractedContract.practical_completion).toLocaleDateString() :
-                           extractedContract.expiry_date ? 
-                           new Date(extractedContract.expiry_date).toLocaleDateString() : '—'}
+                         {fallbackContract.completion_date ? 
+                           new Date(fallbackContract.completion_date).toLocaleDateString() :
+                           fallbackContract.practical_completion ? 
+                           new Date(fallbackContract.practical_completion).toLocaleDateString() :
+                           fallbackContract.expiry_date ? 
+                           new Date(fallbackContract.expiry_date).toLocaleDateString() : '—'}
                        </div>
                      </div>
                      <div className="text-center p-4 bg-muted/30 rounded-lg">
                        <div className="font-medium text-muted-foreground mb-1">Contract Duration</div>
                        <div className="text-lg font-semibold">
-                         {extractedContract.duration || 
-                          extractedContract.contract_duration ||
-                          (extractedContract.start_date && extractedContract.completion_date ? 
-                            `${Math.ceil((new Date(extractedContract.completion_date).getTime() - new Date(extractedContract.start_date).getTime()) / (1000 * 60 * 60 * 24))} days` : 
+                         {fallbackContract.duration || 
+                          fallbackContract.contract_duration ||
+                          (fallbackContract.start_date && fallbackContract.completion_date ? 
+                            `${Math.ceil((new Date(fallbackContract.completion_date).getTime() - new Date(fallbackContract.start_date).getTime()) / (1000 * 60 * 60 * 24))} days` : 
                             '—')}
                        </div>
                      </div>
@@ -1303,32 +1348,32 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <Separator />
 
                 {/* Additional Contract Details */}
-                {(extractedContract.liquidated_damages || extractedContract.governing_law || extractedContract.variations || extractedContract.insurance_requirements) && (
+                {(fallbackContract.liquidated_damages || fallbackContract.governing_law || fallbackContract.variations || fallbackContract.insurance_requirements) && (
                   <div>
                     <h3 className="font-semibold text-lg mb-4 border-b pb-2">Contract Terms</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {extractedContract.liquidated_damages && (
+                      {fallbackContract.liquidated_damages && (
                         <div className="p-4 border rounded-lg">
                           <div className="font-medium text-red-800 mb-2">Liquidated Damages</div>
-                          <div className="text-sm">{extractedContract.liquidated_damages}</div>
+                          <div className="text-sm">{fallbackContract.liquidated_damages}</div>
                         </div>
                       )}
-                      {extractedContract.governing_law && (
+                      {fallbackContract.governing_law && (
                         <div className="p-4 border rounded-lg">
                           <div className="font-medium text-blue-800 mb-2">Governing Law</div>
-                          <div className="text-sm">{extractedContract.governing_law}</div>
+                          <div className="text-sm">{fallbackContract.governing_law}</div>
                         </div>
                       )}
-                      {extractedContract.variations && (
+                      {fallbackContract.variations && (
                         <div className="p-4 border rounded-lg">
                           <div className="font-medium text-purple-800 mb-2">Variations</div>
-                          <div className="text-sm">{extractedContract.variations}</div>
+                          <div className="text-sm">{fallbackContract.variations}</div>
                         </div>
                       )}
-                      {extractedContract.insurance_requirements && (
+                      {fallbackContract.insurance_requirements && (
                         <div className="p-4 border rounded-lg">
                           <div className="font-medium text-green-800 mb-2">Insurance Requirements</div>
-                          <div className="text-sm">{extractedContract.insurance_requirements}</div>
+                          <div className="text-sm">{fallbackContract.insurance_requirements}</div>
                         </div>
                       )}
                     </div>
@@ -1336,7 +1381,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 )}
 
                 {/* AI Summary */}
-                {extractedContract.ai_summary && (
+                {fallbackContract.ai_summary && (
                   <>
                     <Separator />
                     <div>
@@ -1346,7 +1391,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       </div>
                       <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 p-4 rounded-lg border border-blue-200">
                         <div className="prose prose-sm max-w-none text-muted-foreground">
-                          {extractedContract.ai_summary}
+                          {fallbackContract.ai_summary}
                         </div>
                       </div>
                     </div>
