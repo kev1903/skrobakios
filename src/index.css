@@ -119,12 +119,12 @@ div[data-rbd-drag-handle-draggable-id] {
     --header-height: 73px;
 
     /* Enhanced Blue Glassmorphism Theme - Ultra Transparent */
-    --glass-bg: 0 0% 100% / 0.05;
-    --glass-bg-light: 0 0% 100% / 0.08;
-    --glass-bg-hover: 0 0% 100% / 0.12;
-    --glass-border: 0 0% 100% / 0.1;
-    --glass-shadow: 0 0% 0% / 0.05;
-    --glass-shadow-hover: 0 0% 0% / 0.08;
+    --glass-bg: 0 0% 100%;
+    --glass-bg-light: 0 0% 100%;
+    --glass-bg-hover: 0 0% 100%;
+    --glass-border: 0 0% 100%;
+    --glass-shadow: 0 0% 0%;
+    --glass-shadow-hover: 0 0% 0%;
     --glass-backdrop: blur(20px);
     
     /* Blue Gradient Brand Colors */
@@ -150,13 +150,13 @@ div[data-rbd-drag-handle-draggable-id] {
     --neutral-950: 220 20% 5%;
     
     /* Sidebar Variables - Ultra Transparent Glass */
-    --sidebar-background: 0 0% 100% / 0.02;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 10%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 100% / 0.05;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-accent: 0 0% 100%;
+    --sidebar-accent-foreground: 220 20% 10%;
+    --sidebar-border: 0 0% 100%;
     --sidebar-ring: 217 91% 60%;
   }
 
@@ -199,20 +199,20 @@ div[data-rbd-drag-handle-draggable-id] {
     --header-height: 73px;
     
     /* Dark Mode Enhanced Glassmorphism - Ultra Transparent */
-    --glass-bg: 0 0% 0% / 0.05;
-    --glass-bg-light: 0 0% 0% / 0.08;
-    --glass-bg-hover: 0 0% 0% / 0.12;
-    --glass-border: 0 0% 100% / 0.08;
-    --glass-shadow: 0 0% 0% / 0.1;
-    --glass-shadow-hover: 0 0% 0% / 0.15;
+    --glass-bg: 0 0% 0%;
+    --glass-bg-light: 0 0% 0%;
+    --glass-bg-hover: 0 0% 0%;
+    --glass-border: 0 0% 100%;
+    --glass-shadow: 0 0% 0%;
+    --glass-shadow-hover: 0 0% 0%;
     
-    --sidebar-background: 0 0% 0% / 0.02;
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 210 40% 90%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 91% 60% / 0.2;
+    --sidebar-accent: 217 91% 60%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 0 0% 100% / 0.1;
+    --sidebar-border: 0 0% 100%;
     --sidebar-ring: 210 40% 90%;
   }
 }
