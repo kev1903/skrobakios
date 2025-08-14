@@ -353,8 +353,16 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           setExtractionData(extractedData);
           
           // Refresh the contract row to get updated data from database
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for DB update
+          await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for DB update
           await loadContracts();
+          
+          // Select the newly uploaded contract to show extracted data
+          setTimeout(() => {
+            const newContract = contracts.find(c => c.id === contractRow.id);
+            if (newContract) {
+              setSelectedContract(newContract);
+            }
+          }, 500);
           
           toast.success(`Contract uploaded and processed with ${Math.round((extractedData.ai_confidence ?? 0) * 100)}% confidence`);
         }
