@@ -1210,22 +1210,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         Create Progress Claim
                       </Button>
                     </div>
-                  ) : (
-                    <div className="bg-muted/30 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="font-semibold text-lg">Base Stage</div>
-                          <div className="text-muted-foreground">Due: —</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">{formatCurrency(90000)}</div>
-                        </div>
-                      </div>
-                      <Button className="w-full" onClick={handleCreateProgressClaim}>
-                        Create Progress Claim
-                      </Button>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
@@ -1254,27 +1239,22 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         </Badge>
                       </div>
                     )) :
-                    extractedContract.insurance ? (
-                      Object.entries(extractedContract.insurance).map(([type, details]: [string, any], index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <div className="font-medium">{type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {details?.expiry_date ? `Expires: ${details.expiry_date}` : 
-                               details?.amount ? `Amount: ${details.amount}` : '—'}
-                            </div>
-                          </div>
-                          <Badge variant={details?.status === 'valid' || !details?.status ? 'default' : 'secondary'}>
-                            {details?.status || 'Valid'}
-                          </Badge>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-4 text-muted-foreground">
-                        No insurance information available in contract
-                      </div>
-                    )
-                  }
+                     extractedContract.insurance ? 
+                       Object.entries(extractedContract.insurance).map(([type, details]: [string, any], index) => (
+                         <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                           <div>
+                             <div className="font-medium">{type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+                             <div className="text-sm text-muted-foreground">
+                               {details?.expiry_date ? `Expires: ${details.expiry_date}` : 
+                                details?.amount ? `Amount: ${details.amount}` : '—'}
+                             </div>
+                           </div>
+                           <Badge variant={details?.status === 'valid' || !details?.status ? 'default' : 'secondary'}>
+                             {details?.status || 'Valid'}
+                           </Badge>
+                         </div>
+                       )) : null
+                   }
                 </div>
               </CardContent>
             </Card>
@@ -1332,11 +1312,6 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       <div className="flex justify-between p-2 border-b">
                         <span className="font-medium">Governing Law</span>
                         <span className="text-muted-foreground">{extractedContract.governing_law}</span>
-                      </div>
-                    )}
-                    {!extractedContract.key_clauses && !extractedContract.governing_law && (
-                      <div className="text-center py-4 text-muted-foreground col-span-2">
-                        No key clauses identified in contract
                       </div>
                     )}
                   </div>
