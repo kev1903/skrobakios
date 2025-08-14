@@ -58,6 +58,9 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
     return !isDefaultCompanyName;
   });
 
+  console.log('SidebarContextSwitcher - All companies:', companies);
+  console.log('SidebarContextSwitcher - Real businesses after filtering:', realBusinesses);
+
   const handleContextSwitch = (contextType: ContextType, companyId?: string) => {
     setActiveContext(contextType);
     
