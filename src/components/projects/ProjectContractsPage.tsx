@@ -690,15 +690,9 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         <div className="max-w-4xl mx-auto p-6 min-h-full">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
-                <div className="flex items-center gap-2 mb-2">
-                  {getStatusBadge(selectedContract.status)}
-                  {getConfidenceBadge(Math.round(currentConfidence * 100))}
-                </div>
-                <p className="text-muted-foreground">Contract management for {project.name}</p>
-              </div>
+            {/* Single Line Title */}
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold text-foreground">{title}</h1>
               
               <div className="flex items-center gap-2">
                 <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
@@ -825,13 +819,6 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="outline" asChild>
-                  <a href={selectedContract.file_url} target="_blank" rel="noopener noreferrer">
-                    <Eye className="w-4 h-4 mr-2" />
-                    View PDF
-                  </a>
-                </Button>
-
                 <Button
                   variant="outline"
                   onClick={() => handleRerunExtraction(selectedContract.id, selectedContract.file_path || selectedContract.file_url)}
@@ -918,6 +905,13 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 </Sheet>
               </div>
             </div>
+
+            {/* Status badges and subtitle */}
+            <div className="flex items-center gap-2 mb-2">
+              {getStatusBadge(selectedContract.status)}
+              {getConfidenceBadge(Math.round(currentConfidence * 100))}
+            </div>
+            <p className="text-muted-foreground">Contract management for {project.name}</p>
           </div>
 
           {/* Contract Report Summary */}
