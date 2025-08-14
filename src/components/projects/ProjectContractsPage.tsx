@@ -289,23 +289,48 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
     setIsUploading(true);
     setIsExtracting(false);
-    
+
     try {
+      console.log('Starting contract upload...', { fileName: selectedFile.name, size: selectedFile.size });
+      
+      // Validate file type
+      if (!selectedFile.type.includes('pdf')) {
+        throw new Error('Only PDF files are supported');
+      }
+
+      // Validate file size (max 50MB)
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (selectedFile.size > maxSize) {
+        throw new Error('File size must be less than 50MB');
+      }
+
       // Upload file to Supabase Storage (documents bucket)
       const fileExtension = selectedFile.name.split('.').pop();
       const uniqueId = crypto.randomUUID();
       const fileName = `contracts/${project.id}/${uniqueId}-${selectedFile.name}`;
       
+      console.log('Uploading file to storage:', fileName);
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
-        .upload(fileName, selectedFile);
+        .upload(fileName, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      console.log('File uploaded successfully:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('documents')
         .getPublicUrl(fileName);
+
+      console.log('Public URL generated:', publicUrl);
 
       // Insert into project_contracts table
       const { data: contractRow, error: insertError } = await supabase
@@ -323,51 +348,57 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         .select()
         .single();
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('Database insert error:', insertError);
+        throw new Error(`Database error: ${insertError.message}`);
+      }
+
+      console.log('Contract record created:', contractRow);
 
       // Start extraction process
       setIsExtracting(true);
       setIsUploading(false);
+
+      console.log('Starting AI extraction...');
 
       // Generate signed URL (10 minutes TTL)
       const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from('documents')
         .createSignedUrl(fileName, 600); // 10 minutes
 
-      if (signedUrlError) throw signedUrlError;
+      if (signedUrlError) {
+        console.error('Signed URL error:', signedUrlError);
+        throw new Error(`Signed URL error: ${signedUrlError.message}`);
+      }
+
+      console.log('Signed URL created, calling extraction function...');
 
       // Call extract_unified Edge Function
       const { data: extractionResult, error: extractionError } = await supabase.functions.invoke('extract_unified', {
         body: {
           signed_url: signedUrlData.signedUrl,
+          file_url: publicUrl,
           project_contract_id: contractRow.id
         }
       });
 
-      if (extractionError) throw extractionError;
-
-      // Handle extraction response
-      const extractedData = extractionResult?.data;
-      if (extractedData) {
-        if (extractedData.document_type !== 'contract') {
-          toast.error(`Uploaded document classified as ${extractedData.document_type}. This page only displays contracts.`);
-        } else {
-          // Update local state with extraction data
-          setExtractionData(extractedData);
-          
-          // Refresh the contract row to get updated data from database
-          await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for DB update
-          await loadContracts();
-          
-          // Select the newly uploaded contract to show extracted data
-          setTimeout(() => {
-            const newContract = contracts.find(c => c.id === contractRow.id);
-            if (newContract) {
-              setSelectedContract(newContract);
-            }
-          }, 500);
-          
-          toast.success(`Contract uploaded and processed with ${Math.round((extractedData.ai_confidence ?? 0) * 100)}% confidence`);
+      if (extractionError) {
+        console.error('Extraction function error:', extractionError);
+        // Don't throw here - extraction failure shouldn't prevent upload success
+        toast.warning('Contract uploaded successfully but AI extraction failed. You can retry extraction later.');
+      } else {
+        console.log('Extraction completed:', extractionResult);
+        
+        // Handle extraction response
+        const extractedData = extractionResult?.data;
+        if (extractedData) {
+          if (extractedData.document_type !== 'contract') {
+            toast.warning(`Document classified as ${extractedData.document_type}. This page is optimized for contracts.`);
+          } else {
+            // Update local state with extraction data
+            setExtractionData(extractedData);
+            toast.success(`Contract uploaded and processed with ${Math.round((extractedData.ai_confidence ?? 0) * 100)}% confidence`);
+          }
         }
       }
 
@@ -379,9 +410,30 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       }
       setIsUploadDialogOpen(false);
 
+      // Refresh contracts list
+      console.log('Refreshing contracts list...');
+      await loadContracts();
+      
+      // Select the newly uploaded contract after a brief delay
+      setTimeout(() => {
+        const newContract = contracts.find(c => c.id === contractRow.id);
+        if (newContract) {
+          setSelectedContract(newContract);
+          console.log('Selected new contract:', newContract.name);
+        }
+      }, 1000);
+
+      // Show success message if extraction was successful
+      if (!extractionError) {
+        toast.success('Contract uploaded and processed successfully!');
+      } else {
+        toast.success('Contract uploaded successfully!');
+      }
+
     } catch (error) {
-      console.error('Upload or extraction error:', error);
-      toast.error('Failed to upload or process contract');
+      console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload contract';
+      toast.error(errorMessage);
     } finally {
       setIsUploading(false);
       setIsExtracting(false);
@@ -664,10 +716,25 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         </Button>
                         <Button
                           onClick={handleUpload}
-                          disabled={!selectedFile || !contractName.trim() || isUploading}
+                          disabled={!selectedFile || !contractName.trim() || isUploading || isExtracting}
                           className="flex-1"
                         >
-                          {isUploading ? 'Uploading...' : 'Upload'}
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : isExtracting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Processing with AI...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -826,10 +893,13 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                           ) : isExtracting ? (
                             <>
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Processing...
+                              Processing with AI...
                             </>
                           ) : (
-                            'Upload'
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload
+                            </>
                           )}
                         </Button>
                       </div>
